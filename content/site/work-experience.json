@@ -1,0 +1,76 @@
+{
+  "sectionTitle": "Timeline",
+  "items": [
+    {
+      "id": "freelance-fragtaco-studio",
+      "role": "Freelance Editor & Motion Designer",
+      "company": "FragTaco Studio (Independent)",
+      "periodLabel": "2022 - Present",
+      "startDate": "2022-01-01",
+      "endDate": null,
+      "summary": "Running an independent post-production practice for brands, artists, and creators — owning edit, motion graphics, grade, and sound polish end to end.",
+      "highlights": [
+        "Delivered 300+ edits across brand films, music videos, and creator content",
+        "Built reusable motion-graphics toolkits that keep client channels visually consistent",
+        "Managed full post pipelines solo: ingest, edit, grade, mix, master, delivery"
+      ],
+      "location": "Mumbai, India",
+      "links": [],
+      "published": true,
+      "sortOrder": 1
+    },
+    {
+      "id": "post-lead-creator-network",
+      "role": "Post-Production Lead",
+      "company": "Creator Network (Contract)",
+      "periodLabel": "2021 - 2022",
+      "startDate": "2021-01-01",
+      "endDate": "2022-01-01",
+      "summary": "Led a small remote edit team producing weekly long-form and short-form content for a multi-channel creator network.",
+      "highlights": [
+        "Set the house editing style: pacing rules, sound design library, title systems",
+        "Cut retention-focused edits that lifted average view duration across channels",
+        "Mentored two junior editors from raw-cut to publish-ready quality"
+      ],
+      "location": "Remote",
+      "links": [],
+      "published": true,
+      "sortOrder": 2
+    },
+    {
+      "id": "junior-editor-agency",
+      "role": "Junior Video Editor",
+      "company": "Ad Agency (Mumbai)",
+      "periodLabel": "2019 - 2021",
+      "startDate": "2019-06-01",
+      "endDate": "2021-01-01",
+      "summary": "Cut social campaign videos and ad spots for consumer brands, learning the discipline of client rounds, deadlines, and delivery specs.",
+      "highlights": [
+        "Turned around 15-second cutdowns and social variants at agency pace",
+        "Handled versioning and delivery across aspect ratios and platforms",
+        "Graduated from assembly cuts to owning full spots within a year"
+      ],
+      "location": "Mumbai, India",
+      "links": [],
+      "published": true,
+      "sortOrder": 3
+    },
+    {
+      "id": "montage-era",
+      "role": "Gaming Montage Editor",
+      "company": "Self-taught era",
+      "periodLabel": "2018 - 2019",
+      "startDate": "2018-01-01",
+      "endDate": "2019-06-01",
+      "summary": "Where FragTaco was born — cutting frag movies and gaming montages, learning sync, speed ramps, and sound design frame by frame.",
+      "highlights": [
+        "Built an audience on gaming edits before it became the job",
+        "Learned the craft with zero budget and a stubborn amount of practice"
+      ],
+      "location": "Mumbai, India",
+      "links": [],
+      "published": true,
+      "sortOrder": 4
+    }
+  ]
+}

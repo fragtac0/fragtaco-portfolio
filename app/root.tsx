@@ -1,0 +1,63 @@
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+} from "@remix-run/react";
+import type { PropsWithChildren } from "react";
+import PageViewTracker from "./components/page-view-tracker";
+import appStylesHref from "./styles/tailwind.css?url";
+
+export const links: LinksFunction = () => [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {
+    rel: "preconnect",
+    href: "https://fonts.gstatic.com",
+    crossOrigin: "anonymous",
+  },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Doto:wght@400..900&family=IBM+Plex+Mono:wght@400;500;600&family=Lora:wght@500;600;700&family=Tektur:wght@500;600;700;800&display=swap",
+  },
+  { rel: "icon", type: "image/png", sizes: "64x64", href: "/favicon.png" },
+  { rel: "shortcut icon", href: "/favicon.ico" },
+  { rel: "stylesheet", href: appStylesHref },
+];
+
+export const meta: MetaFunction = () => [
+  { title: "FragTaco — Aditya Bhoir" },
+  {
+    name: "description",
+    content:
+      "Portfolio of Aditya Bhoir (FragTaco), a freelance video editor and motion designer from Mumbai with 6+ years on the timeline.",
+  },
+];
+
+export function Layout({ children }: PropsWithChildren) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+export default function App() {
+  return (
+    <>
+      <PageViewTracker />
+      <Outlet />
+    </>
+  );
+}

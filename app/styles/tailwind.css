@@ -1,0 +1,25 @@
+@config "../../tailwind.config.ts";
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --site-nav-height: 61px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 320px;
+    margin: 0;
+    background: theme(colors.ink);
+    color: theme(colors.fog);
+    font-family: "IBM Plex Mono", monospace;
+  }
+
+  ::selection {
+    background: theme(colors.accent);
+    color: theme(colors.theme.black);
+  }
+}

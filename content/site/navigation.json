@@ -1,0 +1,14 @@
+[
+  {
+    "key": "about",
+    "label": "the cut",
+    "href": "/#about",
+    "visible": true
+  },
+  {
+    "key": "projects",
+    "label": "reel",
+    "href": "/work",
+    "visible": true
+  }
+]

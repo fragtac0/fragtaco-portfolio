@@ -1,0 +1,47 @@
+{
+  "eyebrow": "open channels",
+  "title": "roll credits",
+  "description": "Got footage that needs a story, a brand that needs motion, or just a cursed meme to share? Pick the channel that fits and it lands in my inbox.",
+  "lanes": [
+    {
+      "id": "hire",
+      "label": "01 / the edit",
+      "title": "Need an editor on the project?",
+      "description": "Brand films, music videos, YouTube channels, campaign cutdowns — I take on full post-production: edit, grade, sound, and delivery in every aspect ratio you need.",
+      "actions": [
+        {
+          "label": "email me",
+          "href": "https://mail.google.com/mail/?view=cm&fs=1&to=work.fragtaco%40gmail.com&su=Project%20for%20FragTaco"
+        },
+        {
+          "label": "get rate card",
+          "href": "/resume.pdf"
+        }
+      ]
+    },
+    {
+      "id": "motion",
+      "label": "02 / the motion",
+      "title": "Want it to move?",
+      "description": "Logo stings, kinetic type, explainer graphics, title sequences, and reusable motion toolkits your team can keep shipping with after I hand off.",
+      "actions": [
+        {
+          "label": "email me",
+          "href": "https://mail.google.com/mail/?view=cm&fs=1&to=work.fragtaco%40gmail.com&su=Motion%20graphics%20enquiry"
+        }
+      ]
+    },
+    {
+      "id": "fun",
+      "label": "03 / the banter",
+      "title": "Just want to talk frames?",
+      "description": "Reference swaps, edit breakdowns, gaming montage nostalgia, or anything that doesn't belong in a formal email — my DMs are open.",
+      "actions": [
+        {
+          "label": "dm on instagram",
+          "href": "https://www.instagram.com/fragtaco/"
+        }
+      ]
+    }
+  ]
+}
