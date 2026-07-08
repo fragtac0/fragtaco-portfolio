@@ -1,13 +1,17 @@
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { styleUnlessReduced, textStyles } from "../../config/ui";
+import type { SiteHeroPainting } from "../../types";
 import StaggerText from "../react-bits/stagger-text";
 import HeroTimecode from "./hero-timecode";
 
 interface HeroSectionProps {
   title: string;
   subtitle: string;
+  paintings: SiteHeroPainting[];
 }
+
+const SESSION_KEY = "heroLastPaintingId";
 
 function FrameCorner({ position }: { position: string }) {
   return (
@@ -18,9 +22,54 @@ function FrameCorner({ position }: { position: string }) {
   );
 }
 
-export default function HeroSection({ title, subtitle }: HeroSectionProps) {
+export default function HeroSection({
+  title,
+  subtitle,
+  paintings,
+}: HeroSectionProps) {
   const heroRef = useRef<HTMLElement | null>(null);
   const reducedMotion = useReducedMotion();
+
+  // SSR renders the first manifest entry; the client swaps to a random pick
+  // (avoiding the previous visit's choice) before the gated fade-in completes,
+  // so there is no visible image swap flash.
+  const serverDefault = paintings[0];
+  const pickedRef = useRef(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Track which painting has actually finished loading so the fade-in reveals
+  // the correct image — and so a cached image (where `onLoad` never fires after
+  // hydration) is still detected via the ref callback's `complete` check.
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+
+  const painting =
+    paintings.find((item) => item.id === selectedId) ?? serverDefault;
+
+  useEffect(() => {
+    if (pickedRef.current || paintings.length === 0) return;
+    pickedRef.current = true;
+
+    let last: string | null = null;
+    try {
+      last = window.sessionStorage.getItem(SESSION_KEY);
+    } catch {
+      last = null;
+    }
+
+    const pool =
+      paintings.length > 1
+        ? paintings.filter((item) => item.id !== last)
+        : paintings;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+
+    try {
+      window.sessionStorage.setItem(SESSION_KEY, pick.id);
+    } catch {
+      /* sessionStorage unavailable — pick still applies for this visit */
+    }
+
+    setSelectedId(pick.id);
+  }, [paintings]);
+
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -40,7 +89,8 @@ export default function HeroSection({ title, subtitle }: HeroSectionProps) {
       id="hero"
       className="relative isolate min-h-[100svh] overflow-hidden bg-ink"
     >
-      {/* Painting with slow Ken Burns drift + scroll push-in */}
+      {/* Painting with slow Ken Burns drift + scroll push-in.
+          Gated fade-in on load hides the client-side random swap. */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           className="h-full w-full will-change-transform"
@@ -50,9 +100,20 @@ export default function HeroSection({ title, subtitle }: HeroSectionProps) {
           })}
         >
           <img
-            src="/hero-school-of-athens.jpg"
-            alt="The School of Athens by Raphael"
-            className="h-full w-full object-cover object-[50%_30%] motion-safe:animate-ken-burns"
+            key={painting.id}
+            ref={(node) => {
+              if (node && node.complete && node.naturalWidth > 0) {
+                setLoadedId(painting.id);
+              }
+            }}
+            src={`/paintings/${painting.file}`}
+            alt={`${painting.title} by ${painting.artist}`}
+            decoding="async"
+            onLoad={() => setLoadedId(painting.id)}
+            style={{ objectPosition: painting.focal }}
+            className={`h-full w-full object-cover transition-opacity duration-700 ease-out motion-safe:animate-ken-burns motion-reduce:transition-none ${
+              loadedId === painting.id ? "opacity-100" : "opacity-0"
+            }`}
           />
         </motion.div>
       </div>
@@ -60,12 +121,19 @@ export default function HeroSection({ title, subtitle }: HeroSectionProps) {
       {/* Warm cinematic vignette + letterbox gradients */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,4,3,0.62)_0%,rgba(5,4,3,0.12)_30%,rgba(5,4,3,0.16)_58%,rgba(5,4,3,0.9)_100%)]"
+        className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(5,4,3,0.62)_0%,rgba(5,4,3,0.12)_30%,rgba(5,4,3,0.16)_52%,rgba(5,4,3,0.72)_84%)]"
         style={reducedMotion ? { opacity: 0.75 } : { opacity: vignetteOpacity }}
       />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_28%_78%,rgba(5,4,3,0.68),transparent_52%)]"
+      />
+
+      {/* Seamless hero → content fade: the bottom ~34% resolves to pure ink so
+          there is no detectable seam where the about section begins. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[4] h-[34%] bg-[linear-gradient(180deg,transparent_0%,rgba(5,4,3,0.55)_55%,#050403_100%)]"
       />
 
       {/* Drifting warm glow, like a projector beam */}
@@ -106,7 +174,9 @@ export default function HeroSection({ title, subtitle }: HeroSectionProps) {
         </div>
 
         <div className="absolute inset-x-0 bottom-1.5 hidden items-center justify-between px-9 font-mono text-[0.6rem] uppercase tracking-[0.24em] text-fog/58 sm:flex sm:bottom-2.5 sm:px-14 sm:text-[0.66rem]">
-          <span>scene: school of athens — raphael, 1511</span>
+          <span>
+            scene: {painting.title} — {painting.artist}, {painting.year}
+          </span>
           <span>iso 400 · f2.8 · 4k</span>
         </div>
       </motion.div>

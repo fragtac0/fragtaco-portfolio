@@ -25,6 +25,19 @@ export const BookInfoSchema = z.object({
   thumbnail: z.string().url().optional(),
 });
 
+export const HeroPaintingSchema = z.object({
+  id: z.string().min(1),
+  file: z.string().min(1),
+  title: z.string().min(1),
+  artist: z.string().min(1),
+  year: z.number().int().min(1000).max(2100),
+  focal: z.string().min(1),
+});
+
+export const HeroPaintingsSchema = z.object({
+  items: z.array(HeroPaintingSchema).min(1),
+});
+
 export const HomeContentSchema = z.object({
   hero: z.object({
     title: z.string().min(1),

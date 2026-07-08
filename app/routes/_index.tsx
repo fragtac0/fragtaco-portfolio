@@ -1,4 +1,4 @@
-import { json, type MetaFunction } from "@remix-run/node";
+import { json, type LinksFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getHomePageContent } from "../content/loaders.server";
 import BooksShelf from "../components/about/books-shelf";
@@ -8,6 +8,13 @@ import SiteNav from "../components/site-nav";
 
 export const meta: MetaFunction = () => [
   { title: "FragTaco — Aditya Bhoir" },
+];
+
+// Preload only the server-rendered hero painting (the first manifest entry).
+// The client may swap to a random pick, but this keeps the initial paint fast.
+// Keep this href in sync with the first item in content/site/hero-paintings.json.
+export const links: LinksFunction = () => [
+  { rel: "preload", as: "image", href: "/paintings/school-of-athens.jpg" },
 ];
 
 export async function loader() {
@@ -28,6 +35,7 @@ export async function loader() {
 export default function Index() {
   const {
     home,
+    heroPaintings,
     navigationItems,
     socialLinks,
   } = useLoaderData<typeof loader>();
@@ -37,6 +45,7 @@ export default function Index() {
       <HeroSection
         title={home.hero.title}
         subtitle={home.hero.subtitle}
+        paintings={heroPaintings}
       />
       <SiteNav currentPage="home" items={navigationItems} socialLinks={socialLinks} />
       <AboutSection

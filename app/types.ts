@@ -11,6 +11,15 @@ export interface SpotifyPlaylist {
   embedUrl: string;
 }
 
+export interface SiteHeroPainting {
+  id: string;
+  file: string;
+  title: string;
+  artist: string;
+  year: number;
+  focal: string;
+}
+
 export interface SiteHomeContent {
   hero: SiteHeroContent;
   about: {

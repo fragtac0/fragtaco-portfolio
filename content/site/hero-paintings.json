@@ -1,0 +1,17 @@
+{
+  "$comment": "Hero painting shuffler manifest. One is picked at random on every visit (no immediate repeat — see hero-section.tsx). Files live in public/paintings/ (3840px landscape JPEGs, public domain via Wikimedia Commons). 'focal' is the CSS object-position used so the interesting part survives cropping.",
+  "items": [
+    { "id": "school-of-athens", "file": "school-of-athens.jpg", "title": "The School of Athens", "artist": "Raphael", "year": 1511, "focal": "50% 30%" },
+    { "id": "last-supper", "file": "last-supper.jpg", "title": "The Last Supper", "artist": "Leonardo da Vinci", "year": 1498, "focal": "50% 45%" },
+    { "id": "birth-of-venus", "file": "birth-of-venus.jpg", "title": "The Birth of Venus", "artist": "Sandro Botticelli", "year": 1486, "focal": "50% 40%" },
+    { "id": "night-watch", "file": "night-watch.jpg", "title": "The Night Watch", "artist": "Rembrandt van Rijn", "year": 1642, "focal": "50% 42%" },
+    { "id": "supper-at-emmaus", "file": "supper-at-emmaus.jpg", "title": "Supper at Emmaus", "artist": "Caravaggio", "year": 1601, "focal": "50% 45%" },
+    { "id": "impression-sunrise", "file": "impression-sunrise.jpg", "title": "Impression, Sunrise", "artist": "Claude Monet", "year": 1872, "focal": "50% 50%" },
+    { "id": "water-lilies", "file": "water-lilies.jpg", "title": "Water Lilies", "artist": "Claude Monet", "year": 1906, "focal": "50% 50%" },
+    { "id": "starry-night", "file": "starry-night.jpg", "title": "The Starry Night", "artist": "Vincent van Gogh", "year": 1889, "focal": "50% 35%" },
+    { "id": "wheatfield-with-crows", "file": "wheatfield-with-crows.jpg", "title": "Wheatfield with Crows", "artist": "Vincent van Gogh", "year": 1890, "focal": "50% 55%" },
+    { "id": "great-wave", "file": "great-wave.jpg", "title": "The Great Wave off Kanagawa", "artist": "Katsushika Hokusai", "year": 1831, "focal": "50% 45%" },
+    { "id": "red-fuji", "file": "red-fuji.jpg", "title": "Fine Wind, Clear Morning", "artist": "Katsushika Hokusai", "year": 1831, "focal": "50% 50%" },
+    { "id": "shono-driving-rain", "file": "shono-driving-rain.jpg", "title": "Shono: Driving Rain", "artist": "Utagawa Hiroshige", "year": 1834, "focal": "50% 50%" }
+  ]
+}

@@ -10,6 +10,7 @@ import {
   sortWorkExperiences,
 } from "./mappers";
 import {
+  HeroPaintingsSchema,
   HomeContentSchema,
   NavigationItemSchema,
   ProjectsSectionSchema,
@@ -20,6 +21,7 @@ import {
 } from "./schemas";
 import type {
   SiteReachOutSection,
+  SiteHeroPainting,
   SiteHomeContent,
   SiteNavigationItem,
   SiteProjectsSection,
@@ -43,6 +45,16 @@ async function loadJsonFile<T>(
 
 export async function getHomeContent(): Promise<SiteHomeContent> {
   return loadJsonFile("home.json", HomeContentSchema);
+}
+
+export async function getHeroPaintings(): Promise<SiteHeroPainting[]> {
+  const content = await loadJsonFile(
+    "hero-paintings.json",
+    HeroPaintingsSchema,
+  );
+  const items = ensureUniqueBy(content.items, (item) => item.id, "painting id");
+
+  return items;
 }
 
 export async function getProjectsSection(): Promise<SiteProjectsSection> {
