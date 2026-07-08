@@ -31,11 +31,9 @@ function writeSeen(seen: string[]) {
 export default function FactShuffler({ content }: FactShufflerProps) {
   const reducedMotion = useReducedMotion();
   const facts = content.items;
-  const total = facts.length;
 
   // SSR renders the first fact; the client picks a random one on mount.
   const [currentId, setCurrentId] = useState<string | null>(null);
-  const [seenCount, setSeenCount] = useState(1);
 
   const current = facts.find((fact) => fact.id === currentId) ?? facts[0];
 
@@ -53,7 +51,6 @@ export default function FactShuffler({ content }: FactShufflerProps) {
       const nextSeen = unseen.length > 0 ? [...fromSeen, pick.id] : [pick.id];
 
       setCurrentId(pick.id);
-      setSeenCount(nextSeen.length);
       writeSeen(nextSeen);
     },
     [facts, currentId],
@@ -73,12 +70,6 @@ export default function FactShuffler({ content }: FactShufflerProps) {
 
   return (
     <section className={surfaces.factCard}>
-      {/* gilt hairline top-left corner mark */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute left-3 top-3 h-4 w-4 border-l border-t border-gilt/55 sm:left-4 sm:top-4 sm:h-5 sm:w-5"
-      />
-
       <div className="flex items-center justify-between gap-4">
         <p className={textStyles.giltLabel}>{content.eyebrow}</p>
         <span
@@ -88,9 +79,9 @@ export default function FactShuffler({ content }: FactShufflerProps) {
         </span>
       </div>
 
-      <h2 className={`mt-6 ${textStyles.panelTitle}`}>{content.sectionTitle}</h2>
+      <h2 className={`mt-6 ${textStyles.panelTitle}`}>{content.sectionTitle}?</h2>
 
-      <div className="relative mt-6 min-h-[14rem] sm:min-h-[12rem]">
+      <div className="relative mt-6 min-h-[15rem] sm:min-h-[12.5rem]">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={current.id}
@@ -104,14 +95,14 @@ export default function FactShuffler({ content }: FactShufflerProps) {
             transition={{ duration: reducedMotion ? 0 : 0.4, ease: HOUSE_EASE }}
           >
             <p className={textStyles.factHeadline}>{current.headline}</p>
-            <p className={`mt-3 max-w-[52ch] ${textStyles.factBody}`}>
+            <p className={`mt-3 max-w-[85ch] ${textStyles.factBody}`}>
               {current.body}
             </p>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <div className="mt-8 flex items-center justify-between gap-4">
+      <div className="mt-3">
         <button
           type="button"
           onClick={() => advance(readSeen())}
@@ -122,10 +113,6 @@ export default function FactShuffler({ content }: FactShufflerProps) {
             →
           </span>
         </button>
-
-        <p className="font-metric text-[0.9rem] font-semibold tracking-[0.14em] text-fog/60 sm:text-[1.05rem]">
-          {String(seenCount).padStart(2, "0")} / {String(total).padStart(2, "0")}
-        </p>
       </div>
     </section>
   );

@@ -29,9 +29,9 @@ export const textStyles = {
   heroSubtitle:
     "mt-4 font-mono text-[12px] font-medium uppercase tracking-[0.22em] text-fog/85 sm:mt-5 sm:text-[15px] sm:tracking-[0.3em] md:text-[17px]",
   factHeadline:
-    "font-doto text-[1.35rem] font-black uppercase leading-[1.05] text-fog sm:text-[1.8rem]",
+    "font-mono text-[1rem] font-semibold uppercase leading-[1.3] tracking-[0.02em] text-fog sm:text-[1.2rem]",
   factBody:
-    "font-serif text-[1rem] leading-[1.8] text-fog/85 sm:text-[1.1rem]",
+    "font-mono text-[0.82rem] leading-[1.75] text-fog/80 sm:text-[0.92rem]",
   chipLabel:
     "font-mono text-[0.62rem] uppercase tracking-[0.3em] text-fog/70 sm:text-[0.72rem]",
 };
