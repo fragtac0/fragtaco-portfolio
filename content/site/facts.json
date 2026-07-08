@@ -1,0 +1,22 @@
+{
+  "$comment": "Facts for the home-page Fact Shuffler (replaces spotifyPlaylists). headline = catchy Doto display line; body = the fact in plain editorial prose; category = small mono label. One is shown at random on load; 'next fact' cycles randomly without repeating until all are seen (tracked in sessionStorage), then resets.",
+  "sectionTitle": "did you know",
+  "eyebrow": "b-roll for your brain",
+  "items": [
+    { "id": "krakatoa", "category": "earth", "headline": "The loudest sound in recorded history", "body": "When Krakatoa erupted in 1883, the blast was heard nearly 5,000 km away and circled the globe as a pressure wave — barometers picked it up seven times." },
+    { "id": "venus-day", "category": "space", "headline": "A day longer than a year", "body": "Venus spins so slowly that it completes an orbit of the Sun before it finishes a single rotation. Its day is longer than its year." },
+    { "id": "cleopatra", "category": "history", "headline": "Cleopatra was closer to the Moon landing", "body": "Less time separates Cleopatra from the Apollo 11 landing than from the construction of the Great Pyramid of Giza." },
+    { "id": "oxford-aztec", "category": "history", "headline": "Oxford is older than the Aztec Empire", "body": "Teaching at Oxford began around 1096. The Aztec capital of Tenochtitlan wasn't founded until 1325 — two centuries later." },
+    { "id": "great-wave", "category": "art", "headline": "The Great Wave is not a painting", "body": "Hokusai's most famous image is a woodblock print — thousands of copies were made and sold cheaply, and its deep blue came from Prussian blue, a pigment imported from Europe." },
+    { "id": "france-timezones", "category": "geography", "headline": "France spans twelve time zones", "body": "Thanks to its overseas territories, France covers more time zones than any other country — more than Russia or the USA." },
+    { "id": "space-smell", "category": "space", "headline": "Space smells like seared steak", "body": "Astronauts returning from spacewalks consistently report a scent of hot metal and seared meat clinging to their suits — the byproduct of atomic oxygen." },
+    { "id": "immortal-jellyfish", "category": "science", "headline": "The animal that ages backwards", "body": "The jellyfish Turritopsis dohrnii can revert its adult cells back to their juvenile state, effectively restarting its life cycle — it's biologically immortal." },
+    { "id": "shortest-war", "category": "history", "headline": "A war shorter than a lunch break", "body": "The Anglo-Zanzibar War of 1896 lasted roughly 38 minutes — the shortest recorded war in history." },
+    { "id": "aussie-camels", "category": "world", "headline": "Saudi Arabia imports camels from Australia", "body": "Australia has the world's largest population of wild dromedary camels — descendants of imported working animals — and exports some of them back to the Middle East." },
+    { "id": "night-watch-cut", "category": "art", "headline": "The Night Watch was cropped like a bad thumbnail", "body": "In 1715 Rembrandt's masterpiece was physically trimmed on all four sides — losing two entire figures — just to fit a wall in Amsterdam's town hall." },
+    { "id": "swiss-bunkers", "category": "geopolitics", "headline": "Switzerland can shelter its entire population", "body": "Swiss law long required nuclear shelters for every resident — the country maintains enough bunker capacity for more than its whole population." },
+    { "id": "green-sahara", "category": "earth", "headline": "The Sahara was green", "body": "As recently as 6,000 years ago, the Sahara had lakes, grasslands, hippos and crocodiles. Rock art in its driest corners still shows people swimming." },
+    { "id": "point-nemo", "category": "geography", "headline": "The loneliest place on Earth", "body": "Point Nemo in the Pacific is so far from land that the nearest humans are often astronauts passing overhead on the ISS. Space agencies use it as a spacecraft graveyard." },
+    { "id": "pale-blue-dot", "category": "space", "headline": "Everyone you know fits in one pixel", "body": "In 1990, Voyager 1 photographed Earth from 6 billion km away. The entire planet occupied less than a single pixel — Carl Sagan's 'pale blue dot'." }
+  ]
+}

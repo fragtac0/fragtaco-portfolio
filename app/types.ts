@@ -6,9 +6,17 @@ export interface SiteHeroContent {
   subtitle: string;
 }
 
-export interface SpotifyPlaylist {
-  title: string;
-  embedUrl: string;
+export interface SiteFact {
+  id: string;
+  category: string;
+  headline: string;
+  body: string;
+}
+
+export interface SiteFactsSection {
+  sectionTitle: string;
+  eyebrow: string;
+  items: SiteFact[];
 }
 
 export interface SiteHeroPainting {
@@ -25,8 +33,6 @@ export interface SiteHomeContent {
   about: {
     paragraphs: string[];
   };
-  spotifyPlaylists: SpotifyPlaylist[];
-  books: BookInfo[];
 }
 
 export interface WorkExperienceLink {
@@ -145,10 +151,3 @@ export interface ReachStat {
   live: boolean;
 }
 
-export interface BookInfo {
-  id: string;
-  title: string;
-  authors: string[];
-  publishedDate?: string;
-  thumbnail?: string;
-}

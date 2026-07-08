@@ -1,7 +1,6 @@
 import { json, type LinksFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getHomePageContent } from "../content/loaders.server";
-import BooksShelf from "../components/about/books-shelf";
 import AboutSection from "../components/home/about-section";
 import HeroSection from "../components/home/hero-section";
 import SiteNav from "../components/site-nav";
@@ -35,6 +34,7 @@ export async function loader() {
 export default function Index() {
   const {
     home,
+    facts,
     heroPaintings,
     navigationItems,
     socialLinks,
@@ -50,8 +50,7 @@ export default function Index() {
       <SiteNav currentPage="home" items={navigationItems} socialLinks={socialLinks} />
       <AboutSection
         paragraphs={home.about.paragraphs}
-        playlists={home.spotifyPlaylists}
-        booksContent={<BooksShelf books={home.books} />}
+        facts={facts}
       />
     </main>
   );

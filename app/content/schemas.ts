@@ -12,17 +12,17 @@ export const SortableDateSchema = z
   .string()
   .regex(sortableDatePattern, "Expected date in YYYY-MM-DD format");
 
-export const SpotifyPlaylistSchema = z.object({
-  title: z.string().min(1),
-  embedUrl: z.string().url(),
+export const FactSchema = z.object({
+  id: z.string().min(1),
+  category: z.string().min(1),
+  headline: z.string().min(1),
+  body: z.string().min(1),
 });
 
-export const BookInfoSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  authors: z.array(z.string().min(1)),
-  publishedDate: z.string().optional(),
-  thumbnail: z.string().url().optional(),
+export const FactsSectionSchema = z.object({
+  sectionTitle: z.string().min(1),
+  eyebrow: z.string().min(1),
+  items: z.array(FactSchema).min(1),
 });
 
 export const HeroPaintingSchema = z.object({
@@ -46,8 +46,6 @@ export const HomeContentSchema = z.object({
   about: z.object({
     paragraphs: z.array(z.string().min(1)),
   }),
-  spotifyPlaylists: z.array(SpotifyPlaylistSchema),
-  books: z.array(BookInfoSchema),
 });
 
 export const WorkExperienceLinkSchema = z.object({

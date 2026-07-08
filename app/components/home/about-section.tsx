@@ -4,7 +4,6 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
-import type { ReactNode } from "react";
 import { useRef } from "react";
 import {
   aboutProfileTags,
@@ -13,22 +12,20 @@ import {
   surfaces,
   textStyles,
 } from "../../config/ui";
-import type { SpotifyPlaylist } from "../../types";
+import type { SiteFactsSection } from "../../types";
 import AboutCopy from "../about/about-copy";
 import AboutPortrait from "../about/about-portrait";
-import SpotifyShelf from "../about/spotify-shelf";
 import GlassSheen from "../ui/glass-sheen";
+import FactShuffler from "./fact-shuffler";
 
 interface AboutSectionProps {
   paragraphs: string[];
-  playlists: SpotifyPlaylist[];
-  booksContent: ReactNode;
+  facts: SiteFactsSection;
 }
 
 export default function AboutSection({
   paragraphs,
-  playlists,
-  booksContent,
+  facts,
 }: AboutSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const reducedMotion = useReducedMotion();
@@ -140,33 +137,13 @@ export default function AboutSection({
         </motion.main>
 
         <motion.footer
-          className="grid w-full gap-8 lg:grid-cols-[1.15fr_1fr]"
+          className="w-full"
           initial={reducedMotion ? false : { opacity: 0.72, y: 28 }}
           transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
           viewport={{ amount: 0.16, once: true }}
           whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
         >
-          <motion.div
-            className={`${surfaces.aboutFooterCard} motion-safe:[animation-delay:-5.6s] motion-safe:[animation-duration:13.1s]`}
-            initial={reducedMotion ? false : { opacity: 0.75, y: 18 }}
-            transition={{ delay: 0.08, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-            viewport={{ amount: 0.2, once: true }}
-            whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-          >
-            <GlassSheen className="left-[-42%] bg-fog/[0.032] motion-safe:[animation-delay:-7.4s] motion-safe:[animation-duration:14.2s]" />
-            <SpotifyShelf playlists={playlists} />
-          </motion.div>
-
-          <motion.div
-            className={`${surfaces.aboutFooterCard} motion-safe:[animation-delay:-8.2s] motion-safe:[animation-duration:12.6s]`}
-            initial={reducedMotion ? false : { opacity: 0.75, y: 18 }}
-            transition={{ delay: 0.16, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-            viewport={{ amount: 0.2, once: true }}
-            whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-          >
-            <GlassSheen className="left-[-42%] bg-fog/[0.03] motion-safe:[animation-delay:-2.2s] motion-safe:[animation-duration:13.7s]" />
-            {booksContent}
-          </motion.div>
+          <FactShuffler content={facts} />
         </motion.footer>
       </div>
     </section>

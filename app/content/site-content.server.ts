@@ -10,6 +10,7 @@ import {
   sortWorkExperiences,
 } from "./mappers";
 import {
+  FactsSectionSchema,
   HeroPaintingsSchema,
   HomeContentSchema,
   NavigationItemSchema,
@@ -21,6 +22,7 @@ import {
 } from "./schemas";
 import type {
   SiteReachOutSection,
+  SiteFactsSection,
   SiteHeroPainting,
   SiteHomeContent,
   SiteNavigationItem,
@@ -55,6 +57,16 @@ export async function getHeroPaintings(): Promise<SiteHeroPainting[]> {
   const items = ensureUniqueBy(content.items, (item) => item.id, "painting id");
 
   return items;
+}
+
+export async function getFactsSection(): Promise<SiteFactsSection> {
+  const content = await loadJsonFile("facts.json", FactsSectionSchema);
+  const items = ensureUniqueBy(content.items, (item) => item.id, "fact id");
+
+  return {
+    ...content,
+    items,
+  };
 }
 
 export async function getProjectsSection(): Promise<SiteProjectsSection> {
