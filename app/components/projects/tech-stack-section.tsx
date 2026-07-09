@@ -1,10 +1,5 @@
 import type { IconType } from "react-icons";
-import {
-  SiBlender,
-  SiDavinciresolve,
-  SiFigma,
-  SiObsstudio,
-} from "react-icons/si";
+import { SiBlender, SiFigma } from "react-icons/si";
 import { surfaces } from "../../config/ui";
 import type { SiteTechStackItem, SiteTechStackSection } from "../../types";
 import { cn } from "../../utils/cn";
@@ -15,20 +10,18 @@ interface TechStackSectionProps {
 
 const TECH_ICON_MAP: Record<string, IconType> = {
   blender: SiBlender,
-  davinci: SiDavinciresolve,
   figma: SiFigma,
-  obs: SiObsstudio,
 };
 
+// Adobe apps and Final Cut Pro have no brand icon in react-icons' Simple
+// Icons set (license/trademark restrictions) — monogram is the fallback.
 const TECH_MONOGRAM_MAP: Record<string, string> = {
   premiere: "Pr",
   aftereffects: "Ae",
+  finalcut: "FCP",
   photoshop: "Ps",
   illustrator: "Ai",
-  audition: "Au",
-  cinema4d: "C4",
-  topaz: "Tz",
-  frameio: "Fio",
+  lightroom: "Lr",
 };
 
 function TechMark({ item }: { item: SiteTechStackItem }) {
@@ -63,21 +56,12 @@ function TechPill({ item }: { item: SiteTechStackItem }) {
   );
 }
 
-function TechMarquee({
-  items,
-  reverse = false,
-}: {
-  items: SiteTechStackItem[];
-  reverse?: boolean;
-}) {
+function TechMarquee({ items }: { items: SiteTechStackItem[] }) {
   return (
-    <div className="relative overflow-hidden rounded-full border border-fog/10 bg-theme-black/26">
+    <div className="group/marquee relative overflow-hidden rounded-full border border-fog/10 bg-theme-black/26 motion-reduce:overflow-x-auto motion-reduce:[-ms-overflow-style:none] motion-reduce:[scrollbar-width:none] motion-reduce:[&::-webkit-scrollbar]:hidden">
       <div
         className={cn(
-          "flex w-max transform-gpu gap-2 py-2 will-change-transform motion-reduce:animate-none",
-          reverse
-            ? "motion-safe:animate-stack-marquee-reverse"
-            : "motion-safe:animate-stack-marquee",
+          "flex w-max transform-gpu gap-2 py-2 will-change-transform motion-safe:animate-stack-marquee motion-safe:group-hover/marquee:[animation-play-state:paused] motion-reduce:animate-none",
         )}
       >
         {[...items, ...items].map((item, index) => (
@@ -89,10 +73,6 @@ function TechMarquee({
 }
 
 export default function TechStackSection({ content }: TechStackSectionProps) {
-  const midpoint = Math.ceil(content.items.length / 2);
-  const firstRow = content.items.slice(0, midpoint);
-  const secondRow = content.items.slice(midpoint);
-
   return (
     <section
       className={cn(
@@ -115,9 +95,8 @@ export default function TechStackSection({ content }: TechStackSectionProps) {
           </h2>
         </div>
 
-        <div className="min-w-0 space-y-2">
-          <TechMarquee items={firstRow} />
-          <TechMarquee items={secondRow} reverse />
+        <div className="min-w-0">
+          <TechMarquee items={content.items} />
         </div>
       </div>
     </section>

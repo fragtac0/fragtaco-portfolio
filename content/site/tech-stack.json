@@ -1,83 +1,15 @@
 {
   "eyebrow": "the toolkit",
   "title": "editing bay",
-  "description": "The tools running on my timeline every day — cutting, compositing, grading, sound, and design.",
+  "description": "The tools running on my timeline every day — cutting, compositing, grading, and design.",
   "items": [
-    {
-      "id": "premiere",
-      "label": "Premiere Pro",
-      "group": "edit",
-      "accent": true,
-      "sortOrder": 1
-    },
-    {
-      "id": "aftereffects",
-      "label": "After Effects",
-      "group": "motion",
-      "accent": true,
-      "sortOrder": 2
-    },
-    {
-      "id": "davinci",
-      "label": "DaVinci Resolve",
-      "group": "colour",
-      "accent": true,
-      "sortOrder": 3
-    },
-    {
-      "id": "blender",
-      "label": "Blender",
-      "group": "3d",
-      "sortOrder": 4
-    },
-    {
-      "id": "cinema4d",
-      "label": "Cinema 4D",
-      "group": "3d",
-      "sortOrder": 5
-    },
-    {
-      "id": "photoshop",
-      "label": "Photoshop",
-      "group": "design",
-      "sortOrder": 6
-    },
-    {
-      "id": "illustrator",
-      "label": "Illustrator",
-      "group": "design",
-      "sortOrder": 7
-    },
-    {
-      "id": "audition",
-      "label": "Audition",
-      "group": "sound",
-      "sortOrder": 8
-    },
-    {
-      "id": "figma",
-      "label": "Figma",
-      "group": "design",
-      "sortOrder": 9
-    },
-    {
-      "id": "obs",
-      "label": "OBS",
-      "group": "capture",
-      "sortOrder": 10
-    },
-    {
-      "id": "topaz",
-      "label": "Topaz AI",
-      "group": "restore",
-      "sortOrder": 11
-    },
-    {
-      "id": "frameio",
-      "label": "Frame.io",
-      "group": "review",
-      "accent": true,
-      "sortOrder": 12
-    }
+    { "id": "premiere", "label": "Premiere Pro", "group": "edit", "accent": true, "sortOrder": 1 },
+    { "id": "aftereffects", "label": "After Effects", "group": "motion", "accent": true, "sortOrder": 2 },
+    { "id": "finalcut", "label": "Final Cut Pro X", "group": "edit", "accent": true, "sortOrder": 3 },
+    { "id": "blender", "label": "Blender", "group": "3d", "sortOrder": 4 },
+    { "id": "photoshop", "label": "Photoshop", "group": "design", "sortOrder": 5 },
+    { "id": "illustrator", "label": "Illustrator", "group": "design", "sortOrder": 6 },
+    { "id": "figma", "label": "Figma", "group": "design", "sortOrder": 7 },
+    { "id": "lightroom", "label": "Lightroom", "group": "photo", "sortOrder": 8 }
   ]
 }
