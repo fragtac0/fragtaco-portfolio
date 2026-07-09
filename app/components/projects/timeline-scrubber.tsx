@@ -1,10 +1,14 @@
 import {
   AnimatePresence,
+  animate,
   motion,
+  useMotionTemplate,
+  useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
   useTransform,
+  type MotionValue,
 } from "motion/react";
 import {
   useCallback,
@@ -127,7 +131,10 @@ export default function TimelineScrubber({
 
   const nowYear = useMemo(() => new Date().getFullYear(), []);
   const span = nowYear - timelineStart || 1;
-  const pctForYear = (year: number) => clamp(((year - timelineStart) / span) * 100, 0, 100);
+  const pctForYear = useCallback(
+    (year: number) => clamp(((year - timelineStart) / span) * 100, 0, 100),
+    [timelineStart, span],
+  );
 
   const years = useMemo(() => {
     const list: number[] = [];
@@ -165,25 +172,47 @@ export default function TimelineScrubber({
     writeStoredKeyframes(keyframePositions);
   }, [keyframePositions]);
 
+  // Refs mirror the mode/isMobile state so the high-frequency scroll callback
+  // below always reads the current value without needing to be recreated
+  // every render (and without pulling those state values into its own
+  // re-render path).
+  const modeRef = useRef(mode);
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+  const isMobileRef = useRef(isMobile);
+  useEffect(() => {
+    isMobileRef.current = isMobile;
+  }, [isMobile]);
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
   });
   const scrollYear = useTransform(scrollYProgress, [0, 1], [timelineStart, nowYear]);
-  const [scrollDrivenYear, setScrollDrivenYear] = useState(timelineStart);
+
+  // The playhead's position lives in a MotionValue, not React state: scroll
+  // updates it via `.set()` (no re-render) instead of `setState` (which was
+  // forcing a full re-render of this whole tree on every scroll frame and
+  // causing visible stutter on fast scroll). Starts at "now" (100%), the
+  // resting/default position, until the first scroll-progress tick moves it.
+  const playheadPctMV = useMotionValue(100);
+  const playheadLeftMV = useMotionTemplate`${playheadPctMV}%`;
+
   const lastAutoSelectAt = useRef(0);
   const lastAutoSelectedId = useRef<string | null>(null);
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     // Re-arm scroll mode once the section is fully out of view in either direction.
-    if (mode === "manual" && (latest <= 0 || latest >= 1)) {
+    if (modeRef.current === "manual" && (latest <= 0 || latest >= 1)) {
+      modeRef.current = "scroll";
       setMode("scroll");
     }
   });
 
   useMotionValueEvent(scrollYear, "change", (latest) => {
-    if (reducedMotion || isMobile || mode !== "scroll") return;
-    setScrollDrivenYear(latest);
+    if (reducedMotion || isMobileRef.current || modeRef.current !== "scroll") return;
+    playheadPctMV.set(pctForYear(latest));
 
     const matched = items.find(
       (item) => latest >= item.yearStart && latest <= (item.yearEnd ?? nowYear),
@@ -200,11 +229,20 @@ export default function TimelineScrubber({
 
   const selectClip = useCallback(
     (id: string) => {
+      modeRef.current = "manual";
       setMode("manual");
       lastAutoSelectedId.current = id;
       setSelectedId(id);
+
+      // Reduced motion: playhead stays fixed at "now" — only the readout changes.
+      if (reducedMotion) return;
+
+      const item = items.find((candidate) => candidate.id === id);
+      if (!item) return;
+      const targetPct = pctForYear(clipMidpoint(item, nowYear));
+      animate(playheadPctMV, targetPct, { duration: 0.5, ease: HOUSE_EASE });
     },
-    [],
+    [items, nowYear, pctForYear, playheadPctMV, reducedMotion],
   );
 
   const focusIndex = (index: number) => {
@@ -213,19 +251,6 @@ export default function TimelineScrubber({
     selectClip(target.id);
     buttonRefs.current[clampedIndex]?.focus();
   };
-
-  let playheadYear: number;
-  if (reducedMotion) {
-    playheadYear = nowYear;
-  } else if (isMobile) {
-    playheadYear = selectedId ? clipMidpoint(selectedItem, nowYear) : nowYear;
-  } else if (mode === "manual" && selectedId) {
-    playheadYear = clipMidpoint(selectedItem, nowYear);
-  } else {
-    playheadYear = scrollDrivenYear;
-  }
-  const playheadPct = pctForYear(playheadYear);
-  const isTrackingScroll = !reducedMotion && !isMobile && mode === "scroll";
 
   const handleKeyframePointerDown = (
     event: ReactPointerEvent<HTMLDivElement>,
@@ -409,15 +434,14 @@ export default function TimelineScrubber({
               >
                 {items.flatMap((item) => {
                   const positions = keyframePositions[item.id] ?? item.keyframes;
-                  const curves = [];
+                  const lines = [];
                   for (let i = 0; i < positions.length - 1; i += 1) {
                     const x1 = positions[i] * 100;
                     const x2 = positions[i + 1] * 100;
-                    const mid = (x1 + x2) / 2;
-                    curves.push(
+                    lines.push(
                       <path
-                        key={`${item.id}-curve-${i}`}
-                        d={`M ${x1} 14 C ${mid} 5, ${mid} 5, ${x2} 14`}
+                        key={`${item.id}-line-${i}`}
+                        d={`M ${x1} 14 L ${x2} 14`}
                         stroke="rgba(245,239,230,0.15)"
                         strokeWidth="1"
                         vectorEffect="non-scaling-stroke"
@@ -425,7 +449,7 @@ export default function TimelineScrubber({
                       />,
                     );
                   }
-                  return curves;
+                  return lines;
                 })}
               </svg>
 
@@ -469,23 +493,21 @@ export default function TimelineScrubber({
               })}
             </div>
 
-            {/* Playhead — spans ruler through keyframe lane */}
+            {/* Playhead — spans ruler through keyframe lane. Position is driven
+                directly by a MotionValue (see playheadPctMV above) rather than
+                React state, so scroll-tracking never triggers a re-render. */}
             <motion.div
               aria-hidden="true"
               className="pointer-events-none absolute top-0 z-10 h-full"
-              initial={false}
-              animate={{ left: `${playheadPct}%` }}
-              transition={{
-                duration: reducedMotion ? 0 : isTrackingScroll ? 0 : 0.5,
-                ease: HOUSE_EASE,
-              }}
-              style={{ transform: "translateX(-50%)" }}
+              style={{ left: playheadLeftMV, transform: "translateX(-50%)" }}
             >
               <span className="absolute -top-1.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-t-[7px] border-x-transparent border-t-accent" />
               <span className="absolute top-0 left-1/2 h-full w-0.5 -translate-x-1/2 bg-accent shadow-[0_0_12px_rgba(252,76,0,0.16)]" />
-              <span className="absolute top-2 left-1/2 -translate-x-1/2 whitespace-nowrap font-metric text-[0.6rem] text-accent">
-                {Math.round(playheadYear)}
-              </span>
+              <PlayheadTimecode
+                pctMV={playheadPctMV}
+                timelineStart={timelineStart}
+                span={span}
+              />
             </motion.div>
           </div>
         </div>
@@ -528,5 +550,34 @@ export default function TimelineScrubber({
         </AnimatePresence>
       </div>
     </section>
+  );
+}
+
+interface PlayheadTimecodeProps {
+  pctMV: MotionValue<number>;
+  timelineStart: number;
+  span: number;
+}
+
+// Isolated so the high-frequency scroll updates driving the playhead don't
+// re-render the rest of the timeline — this only re-renders when the
+// *rounded* year actually changes (roughly once per year crossed), not on
+// every fractional pixel of scroll.
+function PlayheadTimecode({ pctMV, timelineStart, span }: PlayheadTimecodeProps) {
+  const pctToYear = useCallback(
+    (pct: number) => Math.round(timelineStart + (pct / 100) * span),
+    [timelineStart, span],
+  );
+  const [displayYear, setDisplayYear] = useState(() => pctToYear(pctMV.get()));
+
+  useMotionValueEvent(pctMV, "change", (latest) => {
+    const rounded = pctToYear(latest);
+    setDisplayYear((prev) => (prev === rounded ? prev : rounded));
+  });
+
+  return (
+    <span className="absolute top-2 left-1/2 -translate-x-1/2 whitespace-nowrap font-metric text-[0.6rem] text-accent">
+      {displayYear}
+    </span>
   );
 }

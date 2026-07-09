@@ -36,21 +36,27 @@ export const textStyles = {
     "font-mono text-[0.62rem] uppercase tracking-[0.3em] text-fog/70 sm:text-[0.72rem]",
 };
 
+// Safari/WebKit doesn't reliably clip `backdrop-filter` to `border-radius`
+// (a long-documented rendering bug) — a no-op mask forces it to respect the
+// rounded corners instead of letting the blurred backdrop bleed past them.
+const backdropClipFix =
+  "[mask-image:radial-gradient(white,white)] [-webkit-mask-image:-webkit-radial-gradient(white,white)]";
+
 export const surfaces = {
   aboutHeader:
-    "relative isolate overflow-hidden rounded-[2.75rem_1.25rem_2.75rem_1.25rem] bg-white/[0.06] p-5 shadow-[0_30px_120px_rgba(0,0,0,0.44),0_0_74px_rgba(252,76,0,0.13),inset_0_1px_0_rgba(255,236,214,0.13)] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe sm:p-7 lg:rounded-[3.25rem_1.5rem_3.25rem_1.5rem] lg:p-10",
+    `relative isolate overflow-hidden rounded-[2.75rem_1.25rem_2.75rem_1.25rem] bg-white/[0.06] p-5 shadow-[0_30px_120px_rgba(0,0,0,0.44),0_0_74px_rgba(252,76,0,0.13),inset_0_1px_0_rgba(255,236,214,0.13)] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe sm:p-7 lg:rounded-[3.25rem_1.5rem_3.25rem_1.5rem] lg:p-10 ${backdropClipFix}`,
   workHeader:
-    "relative isolate overflow-hidden rounded-[1.25rem_2.75rem_1.25rem_2.75rem] bg-black/45 p-5 shadow-[0_28px_100px_rgba(0,0,0,0.32),0_0_70px_rgba(252,76,0,0.18),inset_0_1px_0_rgba(255,236,214,0.13)] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe motion-safe:[animation-delay:-1.1s] motion-safe:[animation-duration:12.5s] sm:p-7 lg:rounded-[1.5rem_3.25rem_1.5rem_3.25rem] lg:p-10",
+    `relative isolate overflow-hidden rounded-[1.25rem_2.75rem_1.25rem_2.75rem] bg-black/45 p-5 shadow-[0_28px_100px_rgba(0,0,0,0.32),0_0_70px_rgba(252,76,0,0.18),inset_0_1px_0_rgba(255,236,214,0.13)] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe motion-safe:[animation-delay:-1.1s] motion-safe:[animation-duration:12.5s] sm:p-7 lg:rounded-[1.5rem_3.25rem_1.5rem_3.25rem] lg:p-10 ${backdropClipFix}`,
   aboutFooterCard:
     "relative isolate min-w-0 overflow-hidden rounded-[2.25rem_1rem_2.25rem_1rem] bg-white/[0.06] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,236,214,0.09)] ring-1 ring-white/10 motion-safe:animate-glass-breathe [contain:paint] sm:p-6",
   factCard:
     "relative isolate w-full min-h-[16rem] min-w-0 overflow-hidden rounded-[2.25rem_1rem_2.25rem_1rem] bg-white/[0.06] p-6 shadow-[0_18px_70px_rgba(0,0,0,0.36),inset_0_1px_0_rgba(255,236,214,0.09)] ring-1 ring-white/10 motion-safe:animate-glass-breathe [contain:paint] sm:p-8",
   glassChip:
-    "inline-flex items-center gap-3 rounded-full bg-black/38 px-4 py-2 ring-1 ring-white/14 backdrop-blur-md shadow-[0_8px_28px_rgba(0,0,0,0.35)]",
+    `inline-flex items-center gap-3 rounded-full bg-black/38 px-4 py-2 ring-1 ring-white/14 backdrop-blur-md shadow-[0_8px_28px_rgba(0,0,0,0.35)] ${backdropClipFix}`,
   workPanel:
-    "relative isolate overflow-hidden rounded-[1rem_2.25rem_1rem_2.25rem] bg-black/45 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.28),0_0_52px_rgba(252,76,0,0.12),inset_0_1px_0_rgba(255,236,214,0.11)] ring-1 ring-white/10 backdrop-blur-2xl motion-safe:animate-glass-breathe sm:p-6",
+    `relative isolate overflow-hidden rounded-[1rem_2.25rem_1rem_2.25rem] bg-black/45 p-5 shadow-[0_24px_90px_rgba(0,0,0,0.28),0_0_52px_rgba(252,76,0,0.12),inset_0_1px_0_rgba(255,236,214,0.11)] ring-1 ring-white/10 backdrop-blur-2xl motion-safe:animate-glass-breathe sm:p-6 ${backdropClipFix}`,
   reachOutPanel:
-    "relative isolate overflow-hidden rounded-[1.25rem_2.75rem_1.25rem_2.75rem] bg-black/45 p-5 shadow-[0_30px_120px_rgba(0,0,0,0.32),0_0_74px_rgba(252,76,0,0.16),inset_0_1px_0_rgba(255,236,214,0.13)] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe motion-safe:[animation-delay:-4.9s] motion-safe:[animation-duration:13.8s] sm:p-7 lg:p-9",
+    `relative isolate overflow-hidden rounded-[1.25rem_2.75rem_1.25rem_2.75rem] bg-black/45 p-5 shadow-[0_30px_120px_rgba(0,0,0,0.32),0_0_74px_rgba(252,76,0,0.16),inset_0_1px_0_rgba(255,236,214,0.13)] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe motion-safe:[animation-delay:-4.9s] motion-safe:[animation-duration:13.8s] sm:p-7 lg:p-9 ${backdropClipFix}`,
 };
 
 export const effects = {
