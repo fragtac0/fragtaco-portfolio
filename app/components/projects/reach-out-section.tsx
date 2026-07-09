@@ -1,5 +1,5 @@
 import { FaArrowUpRightFromSquare } from "react-icons/fa6";
-import { staggerDelay, surfaces, textStyles } from "../../config/ui";
+import { surfaces, textStyles } from "../../config/ui";
 import type { SiteReachOutSection } from "../../types";
 import { externalLinkProps } from "../../utils/link";
 import GlassSheen from "../ui/glass-sheen";
@@ -32,7 +32,7 @@ export default function ReachOutSection({ content }: ReachOutSectionProps) {
       </div>
 
       <div className="mt-7 grid gap-3 sm:mt-8 sm:gap-4 lg:grid-cols-3">
-        {content.lanes.map((lane, index) => {
+        {content.lanes.map((lane) => {
           const segments = lane.segments ?? [
             {
               actions: lane.actions,
@@ -44,8 +44,7 @@ export default function ReachOutSection({ content }: ReachOutSectionProps) {
           return (
             <article
               key={lane.id}
-              className="relative min-w-0 overflow-hidden rounded-[1rem_1.75rem_1rem_1.75rem] bg-theme-black/42 p-4 shadow-[0_18px_70px_rgba(0,0,0,0.26),inset_0_1px_0_rgba(255,236,214,0.09)] ring-1 ring-fog/10 transition-transform duration-300 ease-out motion-safe:animate-cut-reveal motion-safe:hover:-translate-y-1 sm:rounded-[1.25rem_2rem_1.25rem_2rem] sm:p-6"
-              style={{ animationDelay: staggerDelay(index, 240, 90) }}
+              className="relative min-w-0 overflow-hidden rounded-[1rem_1.75rem_1rem_1.75rem] bg-theme-black/42 p-4 shadow-[0_18px_70px_rgba(0,0,0,0.26),inset_0_1px_0_rgba(255,236,214,0.09)] ring-1 ring-fog/10 transition-transform duration-300 ease-out motion-safe:hover:-translate-y-1 sm:rounded-[1.25rem_2rem_1.25rem_2rem] sm:p-6"
             >
               <div
                 aria-hidden="true"

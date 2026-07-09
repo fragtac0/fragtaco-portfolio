@@ -16,6 +16,7 @@ import type { SiteFactsSection } from "../../types";
 import AboutCopy from "../about/about-copy";
 import AboutPortrait from "../about/about-portrait";
 import GlassSheen from "../ui/glass-sheen";
+import Reveal from "../ui/reveal";
 import FactShuffler from "./fact-shuffler";
 
 interface AboutSectionProps {
@@ -61,7 +62,7 @@ export default function AboutSection({
         })}
       />
       <div className={`${layout.homeContainer} relative z-10 grid gap-10`}>
-        <div>
+        <Reveal>
           <header className={surfaces.aboutHeader}>
             <GlassSheen className="left-[-35%] bg-fog/[0.045] motion-safe:[animation-delay:-5.5s] motion-safe:[animation-duration:10.8s]" />
             <div className={textStyles.headerMeta}>
@@ -79,7 +80,7 @@ export default function AboutSection({
               </p>
             </div>
           </header>
-        </div>
+        </Reveal>
 
         <motion.main
           className="relative isolate min-w-0 w-full overflow-hidden rounded-[1.25rem_2.5rem_1.25rem_2.5rem] bg-white/[0.06] shadow-[0_24px_100px_rgba(0,0,0,0.44),0_0_64px_rgba(252,76,0,0.1),inset_0_1px_0_rgba(255,236,214,0.11)] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe motion-safe:[animation-delay:-2.8s] motion-safe:[animation-duration:12.2s] sm:rounded-[1.5rem_3rem_1.5rem_3rem]"

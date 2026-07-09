@@ -17,6 +17,7 @@ import TechStackSection from "./tech-stack-section";
 import TimelineScrubber from "./timeline-scrubber";
 import WorkClock from "./work-clock";
 import GlassSheen from "../ui/glass-sheen";
+import Reveal from "../ui/reveal";
 import SectionHeadingRow from "../ui/section-heading-row";
 
 interface ProjectsSectionProps {
@@ -40,7 +41,7 @@ export default function ProjectsSection({
       <EmberBackground />
 
       <div className={`${layout.pageContainer} relative z-10`}>
-        <div className="motion-safe:animate-cut-reveal">
+        <Reveal>
           <header className={surfaces.workHeader}>
             <GlassSheen className="left-[-35%] bg-fog/[0.045] motion-safe:[animation-delay:-2.4s] motion-safe:[animation-duration:10.2s]" />
             <div className={textStyles.headerMeta}>
@@ -69,21 +70,21 @@ export default function ProjectsSection({
               </div>
             </div>
           </header>
-        </div>
+        </Reveal>
 
-        <div className="motion-safe:animate-cut-reveal py-4 [animation-delay:160ms] lg:py-6">
+        <Reveal delayMs={80} className="py-4 lg:py-6">
           <TechStackSection content={techStack} />
-        </div>
+        </Reveal>
 
-        <div className="motion-safe:animate-cut-reveal py-4 [animation-delay:220ms] lg:py-6">
+        <Reveal delayMs={80} className="py-4 lg:py-6">
           <TimelineScrubber
             title={workExperience.sectionTitle}
             items={workExperience.items}
           />
-        </div>
+        </Reveal>
 
         <div className="grid gap-6 py-4 lg:grid-cols-2 lg:gap-8 lg:py-6">
-          <div className="motion-safe:animate-cut-reveal min-w-0 [animation-delay:260ms]">
+          <Reveal delayMs={80} className="min-w-0">
             <div
               className={cn(
                 surfaces.workPanel,
@@ -103,16 +104,15 @@ export default function ProjectsSection({
                   <ProjectCard
                     key={project.id}
                     project={project}
-                    revealIndex={index}
                     serial={String(index + 1).padStart(2, "0")}
                     aspect="16:9"
                   />
                 ))}
               </div>
             </div>
-          </div>
+          </Reveal>
 
-          <div className="motion-safe:animate-cut-reveal min-w-0 [animation-delay:320ms]">
+          <Reveal delayMs={140} className="min-w-0">
             <div
               className={cn(
                 surfaces.workPanel,
@@ -132,19 +132,18 @@ export default function ProjectsSection({
                   <ProjectCard
                     key={project.id}
                     project={project}
-                    revealIndex={index}
                     serial={String(index + 1).padStart(2, "0")}
                     aspect="9:16"
                   />
                 ))}
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
 
-        <div className="motion-safe:animate-cut-reveal py-8 [animation-delay:380ms] lg:py-10">
+        <Reveal delayMs={80} className="py-8 lg:py-10">
           <ReachOutSection content={reachOut} />
-        </div>
+        </Reveal>
       </div>
     </section>
   );

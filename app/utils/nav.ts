@@ -1,4 +1,6 @@
 import type { HomeSectionId } from "../types";
+import { houseEaseFn } from "./easing";
+import { getActiveLenis } from "../lib/lenis-instance";
 
 export const HOME_SECTIONS: HomeSectionId[] = ["about"];
 
@@ -27,6 +29,13 @@ export function scrollWindowToSection(sectionId: HomeSectionId): void {
   const target = document.getElementById(sectionId);
 
   if (!target) {
+    return;
+  }
+
+  const lenis = getActiveLenis();
+
+  if (lenis) {
+    lenis.scrollTo(target, { duration: 1.2, easing: houseEaseFn });
     return;
   }
 

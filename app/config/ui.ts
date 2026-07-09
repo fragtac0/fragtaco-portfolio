@@ -9,11 +9,11 @@ export const textStyles = {
   headerMeta:
     "grid gap-2 font-mono text-[0.56rem] uppercase tracking-[0.18em] text-fog/48 sm:grid-cols-3 sm:items-start sm:gap-3 sm:text-[0.62rem] sm:tracking-[0.28em]",
   sectionKicker:
-    "motion-safe:animate-cut-reveal font-mono text-[0.64rem] uppercase tracking-[0.16em] text-fog/48 sm:text-[0.74rem] sm:tracking-[0.24em]",
+    "font-mono text-[0.64rem] uppercase tracking-[0.16em] text-fog/48 sm:text-[0.74rem] sm:tracking-[0.24em]",
   displayTitle:
-    "mt-5 motion-safe:animate-cut-reveal font-doto text-[clamp(3.8rem,19vw,17rem)] font-black uppercase leading-[0.76] tracking-section text-fog [animation-delay:90ms] sm:text-[clamp(5.2rem,19vw,17rem)]",
+    "mt-5 font-doto text-[clamp(3.8rem,19vw,17rem)] font-black uppercase leading-[0.76] tracking-section text-fog sm:text-[clamp(5.2rem,19vw,17rem)]",
   displayTitleStandalone:
-    "motion-safe:animate-cut-reveal font-doto text-[clamp(3.8rem,19vw,17rem)] font-black uppercase leading-[0.76] tracking-section text-fog [animation-delay:90ms] sm:text-[clamp(5.2rem,19vw,17rem)]",
+    "font-doto text-[clamp(3.8rem,19vw,17rem)] font-black uppercase leading-[0.76] tracking-section text-fog sm:text-[clamp(5.2rem,19vw,17rem)]",
   panelTitle:
     "font-doto text-[1.9rem] font-black uppercase leading-none tracking-section text-fog sm:text-[3rem]",
   shelfTitle:
@@ -66,10 +66,6 @@ export const aboutProfileTags = [
   "sound",
   "side-quests",
 ];
-
-export function staggerDelay(index: number, base: number, step: number) {
-  return `${base + index * step}ms`;
-}
 
 export function styleUnlessReduced<T extends object>(
   reducedMotion: boolean | null,

@@ -1,18 +1,15 @@
 import { motion, useReducedMotion } from "motion/react";
 import { FaArrowUpRightFromSquare, FaPlay } from "react-icons/fa6";
-import { staggerDelay } from "../../config/ui";
 import type { SiteProject } from "../../types";
 
 interface ProjectCardProps {
   project: SiteProject;
-  revealIndex?: number;
   serial?: string;
   aspect?: "16:9" | "9:16";
 }
 
 export default function ProjectCard({
   project,
-  revealIndex = 0,
   serial,
   aspect = "16:9",
 }: ProjectCardProps) {
@@ -20,8 +17,7 @@ export default function ProjectCard({
 
   return (
     <motion.article
-      className="group grid gap-4 rounded-[1rem_1.75rem_1rem_1.75rem] bg-theme-black/26 px-4 py-5 shadow-[inset_0_1px_0_rgba(255,236,214,0.07)] ring-1 ring-fog/6 motion-safe:animate-cut-reveal sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:px-5"
-      style={{ animationDelay: staggerDelay(revealIndex, 160, 80) }}
+      className="group grid gap-4 rounded-[1rem_1.75rem_1rem_1.75rem] bg-theme-black/26 px-4 py-5 shadow-[inset_0_1px_0_rgba(255,236,214,0.07)] ring-1 ring-fog/6 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:px-5"
       whileHover={
         reducedMotion
           ? undefined

@@ -1,5 +1,12 @@
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useMemo, useRef, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "motion/react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { surfaces, textStyles } from "../../config/ui";
 import type { SiteWorkExperience, WorkExperienceKind } from "../../types";
 import { cn } from "../../utils/cn";
@@ -29,6 +36,7 @@ export default function TimelineScrubber({
   items,
 }: TimelineScrubberProps) {
   const reducedMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement | null>(null);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const defaultItem =
@@ -36,6 +44,10 @@ export default function TimelineScrubber({
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  // Until the user first interacts with the track, the playhead sweeps with
+  // scroll progress through the section — a wink at the NLE metaphor. Any
+  // click/hover/keyboard interaction hands permanent control to selection.
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const selectedItem =
     items.find((item) => item.id === selectedId) ?? defaultItem;
@@ -58,22 +70,44 @@ export default function TimelineScrubber({
   const pctForYear = (year: number) =>
     clamp(((year - rulerStart) / span) * 100, 0, 100);
 
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start 0.85", "end 0.35"],
+  });
+  const scrollYear = useTransform(scrollYProgress, [0, 1], [rulerStart, rulerEnd]);
+  const [liveScrollYear, setLiveScrollYear] = useState(rulerStart);
+
+  useMotionValueEvent(scrollYear, "change", (latest) => {
+    if (!hasInteracted) {
+      setLiveScrollYear(latest);
+    }
+  });
+
+  const markInteracted = useCallback(() => {
+    setHasInteracted(true);
+  }, []);
+
   const activeYear = hoveredId
     ? items.find((item) => item.id === hoveredId)?.yearStart ?? null
     : selectedId
       ? (items.find((item) => item.id === selectedId)?.yearStart ?? null)
       : null;
-  const playheadPct = activeYear === null ? 100 : pctForYear(activeYear);
+  const playheadPct =
+    reducedMotion || hasInteracted
+      ? (activeYear === null ? 100 : pctForYear(activeYear))
+      : pctForYear(liveScrollYear);
 
   const focusIndex = (index: number) => {
     const clampedIndex = clamp(index, 0, items.length - 1);
     const target = items[clampedIndex];
+    markInteracted();
     setSelectedId(target.id);
     buttonRefs.current[clampedIndex]?.focus();
   };
 
   return (
     <section
+      ref={sectionRef}
       className={cn(
         surfaces.workPanel,
         "motion-safe:[animation-delay:-3.7s] motion-safe:[animation-duration:12.9s]",
@@ -131,10 +165,19 @@ export default function TimelineScrubber({
                   type="button"
                   aria-pressed={isSelected}
                   aria-label={`${item.role}, ${item.company}, ${item.periodLabel}`}
-                  onClick={() => setSelectedId(item.id)}
-                  onMouseEnter={() => setHoveredId(item.id)}
+                  onClick={() => {
+                    markInteracted();
+                    setSelectedId(item.id);
+                  }}
+                  onMouseEnter={() => {
+                    markInteracted();
+                    setHoveredId(item.id);
+                  }}
                   onMouseLeave={() => setHoveredId(null)}
-                  onFocus={() => setHoveredId(item.id)}
+                  onFocus={() => {
+                    markInteracted();
+                    setHoveredId(item.id);
+                  }}
                   onBlur={() => setHoveredId(null)}
                   onKeyDown={(event) => {
                     if (event.key === "ArrowRight") {
