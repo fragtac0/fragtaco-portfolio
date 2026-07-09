@@ -35,22 +35,18 @@ export interface SiteHomeContent {
   };
 }
 
-export interface WorkExperienceLink {
-  label: string;
-  url: string;
-}
+export type WorkExperienceKind = "education" | "self-taught" | "job" | "freelance";
 
 export interface SiteWorkExperience {
   id: string;
+  kind: WorkExperienceKind;
   role: string;
   company: string;
   periodLabel: string;
-  startDate: string;
-  endDate?: string | null;
+  yearStart: number;
+  yearEnd: number | null;
   summary: string;
-  highlights: string[];
   location?: string;
-  links: WorkExperienceLink[];
   published: boolean;
   sortOrder: number;
 }

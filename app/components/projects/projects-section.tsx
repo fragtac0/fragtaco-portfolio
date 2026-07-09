@@ -14,7 +14,7 @@ import EmberBackground from "./ember-background";
 import ProjectCard from "./project-card";
 import ReachOutSection from "./reach-out-section";
 import TechStackSection from "./tech-stack-section";
-import WorkExperienceColumn from "./work-experience-column";
+import TimelineScrubber from "./timeline-scrubber";
 import WorkClock from "./work-clock";
 import GlassSheen from "../ui/glass-sheen";
 import SectionHeadingRow from "../ui/section-heading-row";
@@ -76,7 +76,7 @@ export default function ProjectsSection({
         </div>
 
         <div className="motion-safe:animate-cut-reveal py-4 [animation-delay:220ms] lg:py-6">
-          <WorkExperienceColumn
+          <TimelineScrubber
             title={workExperience.sectionTitle}
             items={workExperience.items}
           />

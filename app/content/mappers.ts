@@ -46,7 +46,7 @@ export function sortWorkExperiences(
       return left.sortOrder - right.sortOrder;
     }
 
-    return right.startDate.localeCompare(left.startDate);
+    return left.yearStart - right.yearStart;
   });
 }
 

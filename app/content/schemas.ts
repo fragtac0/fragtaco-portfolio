@@ -1,16 +1,11 @@
 import { z } from "zod";
 
-const sortableDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 const rootRelativePathPattern = /^\/(?!\/).+/;
 
 const HrefSchema = z.union([
   z.string().url(),
   z.string().regex(rootRelativePathPattern, "Expected URL or root-relative path"),
 ]);
-
-export const SortableDateSchema = z
-  .string()
-  .regex(sortableDatePattern, "Expected date in YYYY-MM-DD format");
 
 export const FactSchema = z.object({
   id: z.string().min(1),
@@ -48,22 +43,23 @@ export const HomeContentSchema = z.object({
   }),
 });
 
-export const WorkExperienceLinkSchema = z.object({
-  label: z.string().min(1),
-  url: z.string().url(),
-});
+export const WorkExperienceKindSchema = z.enum([
+  "education",
+  "self-taught",
+  "job",
+  "freelance",
+]);
 
 export const WorkExperienceSchema = z.object({
   id: z.string().min(1),
+  kind: WorkExperienceKindSchema,
   role: z.string().min(1),
   company: z.string().min(1),
   periodLabel: z.string().min(1),
-  startDate: SortableDateSchema,
-  endDate: SortableDateSchema.nullable().optional(),
+  yearStart: z.number().int().min(1900).max(2100),
+  yearEnd: z.number().int().min(1900).max(2100).nullable(),
   summary: z.string().min(1),
-  highlights: z.array(z.string().min(1)),
   location: z.string().min(1).optional(),
-  links: z.array(WorkExperienceLinkSchema),
   published: z.boolean(),
   sortOrder: z.number().int().nonnegative(),
 });
