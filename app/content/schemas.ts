@@ -53,6 +53,8 @@ export const WorkExperienceKindSchema = z.enum([
 export const WorkExperienceSchema = z.object({
   id: z.string().min(1),
   kind: WorkExperienceKindSchema,
+  track: z.union([z.literal(1), z.literal(2)]),
+  clipColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Expected a 6-digit hex color"),
   role: z.string().min(1),
   company: z.string().min(1),
   periodLabel: z.string().min(1),
@@ -60,12 +62,14 @@ export const WorkExperienceSchema = z.object({
   yearEnd: z.number().int().min(1900).max(2100).nullable(),
   summary: z.string().min(1),
   location: z.string().min(1).optional(),
+  keyframes: z.array(z.number().min(0).max(1)),
   published: z.boolean(),
   sortOrder: z.number().int().nonnegative(),
 });
 
 export const WorkExperienceSectionSchema = z.object({
   sectionTitle: z.string().min(1),
+  timelineStart: z.number().int().min(1900).max(2100),
   items: z.array(WorkExperienceSchema),
 });
 

@@ -40,6 +40,8 @@ export type WorkExperienceKind = "education" | "self-taught" | "job" | "freelanc
 export interface SiteWorkExperience {
   id: string;
   kind: WorkExperienceKind;
+  track: 1 | 2;
+  clipColor: string;
   role: string;
   company: string;
   periodLabel: string;
@@ -47,12 +49,14 @@ export interface SiteWorkExperience {
   yearEnd: number | null;
   summary: string;
   location?: string;
+  keyframes: number[];
   published: boolean;
   sortOrder: number;
 }
 
 export interface SiteWorkExperienceSection {
   sectionTitle: string;
+  timelineStart: number;
   items: SiteWorkExperience[];
 }
 

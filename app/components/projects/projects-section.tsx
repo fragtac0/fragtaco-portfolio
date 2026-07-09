@@ -79,6 +79,7 @@ export default function ProjectsSection({
         <Reveal delayMs={240} className="py-4 lg:py-6">
           <TimelineScrubber
             title={workExperience.sectionTitle}
+            timelineStart={workExperience.timelineStart}
             items={workExperience.items}
           />
         </Reveal>

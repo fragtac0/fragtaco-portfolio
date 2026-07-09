@@ -1,9 +1,12 @@
 {
   "sectionTitle": "Timeline",
+  "timelineStart": 2015,
   "items": [
     {
       "id": "college",
       "kind": "education",
+      "track": 1,
+      "clipColor": "#3E8A7C",
       "role": "PLACEHOLDER — Degree name",
       "company": "PLACEHOLDER — College name, Mumbai",
       "periodLabel": "2015 - 2018",
@@ -11,12 +14,15 @@
       "yearEnd": 2018,
       "summary": "PLACEHOLDER — one line about what you studied and the moment you discovered editing.",
       "location": "Mumbai, India",
+      "keyframes": [0.06, 0.16, 0.24],
       "published": true,
       "sortOrder": 1
     },
     {
       "id": "montage-era",
       "kind": "self-taught",
+      "track": 2,
+      "clipColor": "#D9A441",
       "role": "Gaming Montage Editor",
       "company": "Self-taught era",
       "periodLabel": "2018 - 2019",
@@ -24,12 +30,15 @@
       "yearEnd": 2019,
       "summary": "Where FragTaco was born — cutting frag movies and gaming montages, learning sync, speed ramps, and sound design frame by frame.",
       "location": "Mumbai, India",
+      "keyframes": [0.31, 0.35],
       "published": true,
       "sortOrder": 2
     },
     {
       "id": "junior-editor-agency",
       "kind": "job",
+      "track": 1,
+      "clipColor": "#C94F35",
       "role": "Junior Video Editor",
       "company": "Ad Agency (Mumbai)",
       "periodLabel": "2019 - 2021",
@@ -37,12 +46,15 @@
       "yearEnd": 2021,
       "summary": "Cut social campaign videos and ad spots for consumer brands, learning the discipline of client rounds, deadlines, and delivery specs.",
       "location": "Mumbai, India",
+      "keyframes": [0.42, 0.5],
       "published": true,
       "sortOrder": 3
     },
     {
       "id": "post-lead-creator-network",
       "kind": "job",
+      "track": 2,
+      "clipColor": "#9C8AC9",
       "role": "Post-Production Lead",
       "company": "Creator Network (Contract)",
       "periodLabel": "2021 - 2022",
@@ -50,12 +62,15 @@
       "yearEnd": 2022,
       "summary": "Led a small remote edit team producing weekly long-form and short-form content for a multi-channel creator network.",
       "location": "Remote",
+      "keyframes": [0.58, 0.63],
       "published": true,
       "sortOrder": 4
     },
     {
       "id": "freelance-fragtaco-studio",
       "kind": "freelance",
+      "track": 1,
+      "clipColor": "#FC4C00",
       "role": "Freelance Editor & Motion Designer",
       "company": "FragTaco Studio (Independent)",
       "periodLabel": "2022 - Present",
@@ -63,6 +78,7 @@
       "yearEnd": null,
       "summary": "Running an independent post-production practice for brands, artists, and creators — owning edit, motion graphics, grade, and sound polish end to end.",
       "location": "Mumbai, India",
+      "keyframes": [0.72, 0.81, 0.9],
       "published": true,
       "sortOrder": 5
     }

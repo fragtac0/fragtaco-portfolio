@@ -30,6 +30,12 @@ const config: Config = {
           300: "#FF7A38",
           glow: "rgba(252,76,0,0.16)",
         },
+        label: {
+          verdigris: "#3E8A7C",
+          gilt: "#D9A441",
+          brick: "#C94F35",
+          lavender: "#9C8AC9",
+        },
       },
       fontFamily: {
         doto: ['"Doto"', "monospace"],

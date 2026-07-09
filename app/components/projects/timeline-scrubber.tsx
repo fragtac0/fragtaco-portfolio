@@ -8,134 +8,329 @@ import {
 } from "motion/react";
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
-  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
 } from "react";
 import { surfaces, textStyles } from "../../config/ui";
-import type { SiteWorkExperience, WorkExperienceKind } from "../../types";
+import type { SiteWorkExperience } from "../../types";
 import { cn } from "../../utils/cn";
 import GlassSheen from "../ui/glass-sheen";
 import SectionHeadingRow from "../ui/section-heading-row";
 
 interface TimelineScrubberProps {
   title: string;
+  timelineStart: number;
   items: SiteWorkExperience[];
 }
 
 const HOUSE_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
-const KIND_EDGE_CLASS: Record<WorkExperienceKind, string> = {
-  education: "border-t-verdigris",
-  "self-taught": "border-t-gilt",
-  job: "border-t-fog/40",
-  freelance: "border-t-accent",
-};
+const SESSION_KEY = "timelineKeyframes";
+const AUTO_SELECT_THROTTLE_MS = 250;
+const MOBILE_BREAKPOINT = 640;
+const TRACK_HEIGHT = 64;
+const TRACK_GAP = 10;
+const LABEL_MIN_WIDTH_PX = 90;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+function hexToRgb(hex: string) {
+  const r = Number.parseInt(hex.slice(1, 3), 16);
+  const g = Number.parseInt(hex.slice(3, 5), 16);
+  const b = Number.parseInt(hex.slice(5, 7), 16);
+  return { r, g, b };
+}
+
+function rgba(hex: string, alpha: number) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function clipMidpoint(item: SiteWorkExperience, nowYear: number) {
+  return (item.yearStart + (item.yearEnd ?? nowYear)) / 2;
+}
+
+function readStoredKeyframes(): Record<string, number[]> {
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : null;
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, number[]>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeStoredKeyframes(map: Record<string, number[]>) {
+  try {
+    window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(map));
+  } catch {
+    /* sessionStorage unavailable — drag still works for this visit */
+  }
+}
+
+function useMeasuredWidth(ref: RefObject<HTMLElement | null>) {
+  const [width, setWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setWidth(entry.contentRect.width);
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return width;
+}
+
 export default function TimelineScrubber({
   title,
+  timelineStart,
   items,
 }: TimelineScrubberProps) {
   const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
+  const trackWrapperRef = useRef<HTMLDivElement | null>(null);
+  const laneRef = useRef<HTMLDivElement | null>(null);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const defaultItem =
     items.find((item) => item.yearEnd === null) ?? items[items.length - 1];
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // Keyboard focus snaps the playhead to a clip's start (no mouse position
-  // to follow); a live mouse position over the track takes priority and
-  // makes the playhead track the cursor directly, like a scrub preview.
-  const [focusedId, setFocusedId] = useState<string | null>(null);
-  const [pointerPct, setPointerPct] = useState<number | null>(null);
-  // Until the user first interacts with the track, the playhead sweeps with
-  // scroll progress through the section — a wink at the NLE metaphor. Any
-  // click/hover/keyboard interaction hands permanent control to selection.
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [mode, setMode] = useState<"scroll" | "manual">("scroll");
+  const [isMobile, setIsMobile] = useState(false);
+  const [hoveredClipId, setHoveredClipId] = useState<string | null>(null);
+  const [hoveredKeyframe, setHoveredKeyframe] = useState<string | null>(null);
+  const [draggingKeyframe, setDraggingKeyframe] = useState<string | null>(null);
 
-  const selectedItem =
-    items.find((item) => item.id === selectedId) ?? defaultItem;
+  const selectedItem = items.find((item) => item.id === selectedId) ?? defaultItem;
+  const trackWidthPx = useMeasuredWidth(trackWrapperRef);
 
-  const { rulerStart, rulerEnd, years } = useMemo(() => {
-    const nowYear = new Date().getFullYear();
-    const starts = items.map((item) => item.yearStart);
-    const ends = items.map((item) => item.yearEnd ?? nowYear);
-    const start = Math.min(...starts);
-    const end = Math.max(nowYear, ...ends);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    // Client-only breakpoint check (matchMedia isn't available during SSR).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMobile(mq.matches);
+    const handler = (event: MediaQueryListEvent) => setIsMobile(event.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const nowYear = useMemo(() => new Date().getFullYear(), []);
+  const span = nowYear - timelineStart || 1;
+  const pctForYear = (year: number) => clamp(((year - timelineStart) / span) * 100, 0, 100);
+
+  const years = useMemo(() => {
     const list: number[] = [];
-    for (let year = start; year <= end; year += 1) {
-      list.push(year);
-    }
+    for (let year = timelineStart; year <= nowYear; year += 1) list.push(year);
+    return list;
+  }, [timelineStart, nowYear]);
 
-    return { rulerStart: start, rulerEnd: end, years: list };
-  }, [items]);
+  // Keyframe diamond positions: seeded from content, overridable by a prior
+  // visit's drag (sessionStorage), purely decorative/cosmetic.
+  const [keyframePositions, setKeyframePositions] = useState<Record<string, number[]>>(() => {
+    const base: Record<string, number[]> = {};
+    for (const item of items) base[item.id] = [...item.keyframes];
+    return base;
+  });
 
-  const span = rulerEnd - rulerStart || 1;
-  const pctForYear = (year: number) =>
-    clamp(((year - rulerStart) / span) * 100, 0, 100);
+  useEffect(() => {
+    const stored = readStoredKeyframes();
+    if (Object.keys(stored).length === 0) return;
+    // Restoring a prior visit's dragged keyframe positions client-side.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setKeyframePositions((prev) => {
+      const merged = { ...prev };
+      for (const item of items) {
+        const storedForItem = stored[item.id];
+        if (Array.isArray(storedForItem) && storedForItem.length === item.keyframes.length) {
+          merged[item.id] = storedForItem;
+        }
+      }
+      return merged;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    writeStoredKeyframes(keyframePositions);
+  }, [keyframePositions]);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start 0.85", "end 0.35"],
+    offset: ["start end", "end start"],
   });
-  const scrollYear = useTransform(scrollYProgress, [0, 1], [rulerStart, rulerEnd]);
-  const [liveScrollYear, setLiveScrollYear] = useState(rulerStart);
+  const scrollYear = useTransform(scrollYProgress, [0, 1], [timelineStart, nowYear]);
+  const [scrollDrivenYear, setScrollDrivenYear] = useState(timelineStart);
+  const lastAutoSelectAt = useRef(0);
+  const lastAutoSelectedId = useRef<string | null>(null);
 
-  useMotionValueEvent(scrollYear, "change", (latest) => {
-    if (!hasInteracted) {
-      setLiveScrollYear(latest);
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    // Re-arm scroll mode once the section is fully out of view in either direction.
+    if (mode === "manual" && (latest <= 0 || latest >= 1)) {
+      setMode("scroll");
     }
   });
 
-  const markInteracted = useCallback(() => {
-    setHasInteracted(true);
-  }, []);
+  useMotionValueEvent(scrollYear, "change", (latest) => {
+    if (reducedMotion || isMobile || mode !== "scroll") return;
+    setScrollDrivenYear(latest);
 
-  const handleTrackPointerMove = (event: ReactMouseEvent<HTMLDivElement>) => {
-    const rect = trackRef.current?.getBoundingClientRect();
-    if (!rect || rect.width === 0) return;
-    markInteracted();
-    setPointerPct(clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100));
-  };
+    const matched = items.find(
+      (item) => latest >= item.yearStart && latest <= (item.yearEnd ?? nowYear),
+    );
+    if (matched && matched.id !== lastAutoSelectedId.current) {
+      const now = Date.now();
+      if (now - lastAutoSelectAt.current >= AUTO_SELECT_THROTTLE_MS) {
+        lastAutoSelectedId.current = matched.id;
+        lastAutoSelectAt.current = now;
+        setSelectedId(matched.id);
+      }
+    }
+  });
 
-  const handleTrackPointerLeave = () => {
-    setPointerPct(null);
-  };
-
-  const focusedYear = focusedId
-    ? (items.find((item) => item.id === focusedId)?.yearStart ?? null)
-    : null;
-  const selectionYear = selectedId
-    ? (items.find((item) => item.id === selectedId)?.yearStart ?? null)
-    : null;
-
-  let playheadPct: number;
-  if (reducedMotion) {
-    playheadPct = selectionYear === null ? 100 : pctForYear(selectionYear);
-  } else if (pointerPct !== null) {
-    // Directly under the cursor — no easing lag while actively scrubbing.
-    playheadPct = pointerPct;
-  } else if (focusedYear !== null) {
-    playheadPct = pctForYear(focusedYear);
-  } else if (hasInteracted) {
-    playheadPct = selectionYear === null ? 100 : pctForYear(selectionYear);
-  } else {
-    playheadPct = pctForYear(liveScrollYear);
-  }
+  const selectClip = useCallback(
+    (id: string) => {
+      setMode("manual");
+      lastAutoSelectedId.current = id;
+      setSelectedId(id);
+    },
+    [],
+  );
 
   const focusIndex = (index: number) => {
     const clampedIndex = clamp(index, 0, items.length - 1);
     const target = items[clampedIndex];
-    markInteracted();
-    setSelectedId(target.id);
+    selectClip(target.id);
     buttonRefs.current[clampedIndex]?.focus();
+  };
+
+  let playheadYear: number;
+  if (reducedMotion) {
+    playheadYear = nowYear;
+  } else if (isMobile) {
+    playheadYear = selectedId ? clipMidpoint(selectedItem, nowYear) : nowYear;
+  } else if (mode === "manual" && selectedId) {
+    playheadYear = clipMidpoint(selectedItem, nowYear);
+  } else {
+    playheadYear = scrollDrivenYear;
+  }
+  const playheadPct = pctForYear(playheadYear);
+  const isTrackingScroll = !reducedMotion && !isMobile && mode === "scroll";
+
+  const handleKeyframePointerDown = (
+    event: ReactPointerEvent<HTMLDivElement>,
+    itemId: string,
+    index: number,
+  ) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDraggingKeyframe(`${itemId}-${index}`);
+  };
+
+  const handleKeyframePointerMove = (
+    event: ReactPointerEvent<HTMLDivElement>,
+    itemId: string,
+    index: number,
+  ) => {
+    if (draggingKeyframe !== `${itemId}-${index}`) return;
+    const rect = laneRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0) return;
+    const fraction = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+    setKeyframePositions((prev) => {
+      const next = { ...prev, [itemId]: [...(prev[itemId] ?? [])] };
+      next[itemId][index] = fraction;
+      return next;
+    });
+  };
+
+  const handleKeyframePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.currentTarget.releasePointerCapture(event.pointerId);
+    setDraggingKeyframe(null);
+  };
+
+  const trackTwoItems = items.filter((item) => item.track === 2);
+  const trackOneItems = items.filter((item) => item.track === 1);
+
+  const renderClip = (item: SiteWorkExperience, index: number) => {
+    const leftPct = pctForYear(item.yearStart);
+    const widthPct = pctForYear(item.yearEnd ?? nowYear) - leftPct;
+    const isSelected = selectedItem.id === item.id;
+    const isHovered = hoveredClipId === item.id;
+    const widthPx = trackWidthPx !== null ? (widthPct / 100) * trackWidthPx : null;
+    const showLabel = widthPx === null || widthPx >= LABEL_MIN_WIDTH_PX;
+
+    const shadows: string[] = [`inset 0 0 0 1px ${rgba(item.clipColor, isHovered ? 0.9 : 0.45)}`];
+    if (isHovered) {
+      shadows.unshift(
+        `0 0 24px 2px ${rgba(item.clipColor, 0.35)}`,
+        `0 0 6px ${rgba(item.clipColor, 0.55)}`,
+      );
+    } else if (isSelected) {
+      shadows.unshift(
+        `0 0 12px 1px ${rgba(item.clipColor, 0.18)}`,
+        `0 0 3px ${rgba(item.clipColor, 0.28)}`,
+      );
+    }
+
+    return (
+      <button
+        key={item.id}
+        ref={(node) => {
+          buttonRefs.current[index] = node;
+        }}
+        type="button"
+        aria-pressed={isSelected}
+        aria-label={`${item.role}, ${item.company}, ${item.periodLabel}`}
+        onClick={() => selectClip(item.id)}
+        onMouseEnter={() => setHoveredClipId(item.id)}
+        onMouseLeave={() => setHoveredClipId(null)}
+        onFocus={() => setHoveredClipId(item.id)}
+        onBlur={() => setHoveredClipId(null)}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowRight") {
+            event.preventDefault();
+            focusIndex(index + 1);
+          } else if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            focusIndex(index - 1);
+          }
+        }}
+        className="absolute top-0 min-w-[44px] overflow-hidden rounded-[6px] text-left transition-[box-shadow,background-color] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gilt/70"
+        style={{
+          left: `${leftPct}%`,
+          width: `${widthPct}%`,
+          height: "100%",
+          backgroundColor: rgba(item.clipColor, isHovered || isSelected ? 0.24 : 0.16),
+          boxShadow: shadows.join(", "),
+        }}
+      >
+        <span
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-1"
+          style={{ backgroundColor: item.clipColor }}
+        />
+        {isSelected ? (
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 h-px bg-fog/80"
+          />
+        ) : null}
+        {showLabel ? (
+          <span className="absolute inset-x-2 bottom-1.5 truncate font-mono text-[0.68rem] uppercase tracking-[0.08em] text-fog/85">
+            {item.role}
+          </span>
+        ) : null}
+      </button>
+    );
   };
 
   return (
@@ -155,103 +350,142 @@ export default function TimelineScrubber({
       />
 
       <div className="mt-6 overflow-x-auto pb-2" data-lenis-prevent>
-        <div className="relative min-w-[40rem] w-full">
-          {/* Ruler: year ticks from the earliest entry to the current year */}
-          <div className="relative h-7 border-b border-fog/12">
-            {years.map((year) => (
-              <div
-                key={year}
-                className="absolute bottom-0 flex -translate-x-1/2 flex-col items-center"
-                style={{ left: `${pctForYear(year)}%` }}
-              >
-                <span className="font-metric text-[0.58rem] tracking-[0.04em] text-fog/50">
-                  {year}
-                </span>
-                <span className="mt-1 h-2 w-px bg-fog/30" />
-              </div>
-            ))}
-            {years.slice(0, -1).map((year) => (
-              <span
-                key={`minor-${year}`}
-                aria-hidden="true"
-                className="absolute bottom-0 h-1.5 w-px -translate-x-1/2 bg-fog/14"
-                style={{ left: `${pctForYear(year + 0.5)}%` }}
-              />
-            ))}
-          </div>
-
-          {/* Track + playhead */}
-          <div
-            ref={trackRef}
-            className="relative mt-3 h-[72px]"
-            onMouseMove={handleTrackPointerMove}
-            onMouseLeave={handleTrackPointerLeave}
-          >
-            <div className="absolute inset-0 rounded-[0.85rem] bg-black/30 ring-1 ring-fog/10" />
-
-            {items.map((item, index) => {
-              const leftPct = pctForYear(item.yearStart);
-              const widthPct = pctForYear(item.yearEnd ?? rulerEnd) - leftPct;
-              const isSelected = selectedItem.id === item.id;
-
-              return (
-                <button
-                  key={item.id}
-                  ref={(node) => {
-                    buttonRefs.current[index] = node;
-                  }}
-                  type="button"
-                  aria-pressed={isSelected}
-                  aria-label={`${item.role}, ${item.company}, ${item.periodLabel}`}
-                  onClick={() => {
-                    markInteracted();
-                    setSelectedId(item.id);
-                  }}
-                  onFocus={() => {
-                    markInteracted();
-                    setFocusedId(item.id);
-                  }}
-                  onBlur={() => setFocusedId(null)}
-                  onKeyDown={(event) => {
-                    if (event.key === "ArrowRight") {
-                      event.preventDefault();
-                      focusIndex(index + 1);
-                    } else if (event.key === "ArrowLeft") {
-                      event.preventDefault();
-                      focusIndex(index - 1);
-                    }
-                  }}
-                  className={cn(
-                    "absolute top-0 min-w-[44px] overflow-hidden rounded-[0.6rem] border-t-[3px] bg-black/40 px-2.5 py-2 text-left ring-1 ring-fog/10 backdrop-blur-sm transition-colors duration-200 hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gilt/70",
-                    KIND_EDGE_CLASS[item.kind],
-                    isSelected && "bg-black/60 ring-gilt/60",
-                  )}
-                  style={{
-                    left: `${leftPct}%`,
-                    width: `${widthPct}%`,
-                    height: "100%",
-                  }}
+        <div ref={trackWrapperRef} className="relative min-w-[720px] w-full">
+          <div className="relative">
+            {/* Ruler: year ticks from timelineStart to the current year */}
+            <div className="relative h-7 border-b border-fog/12">
+              {years.map((year) => (
+                <div
+                  key={year}
+                  className="absolute bottom-0 flex -translate-x-1/2 flex-col items-center"
+                  style={{ left: `${pctForYear(year)}%` }}
                 >
-                  <span className="block truncate font-mono text-[0.56rem] uppercase tracking-[0.12em] text-fog/80 sm:text-[0.62rem]">
-                    {item.role}
+                  <span className="font-metric text-[0.58rem] tracking-[0.04em] text-fog/50">
+                    {year}
                   </span>
-                </button>
-              );
-            })}
+                  <span className="mt-1 h-2 w-px bg-fog/30" />
+                </div>
+              ))}
+              {years.slice(0, -1).map((year) => (
+                <span
+                  key={`minor-${year}`}
+                  aria-hidden="true"
+                  className="absolute bottom-0 h-1.5 w-px -translate-x-1/2 bg-fog/14"
+                  style={{ left: `${pctForYear(year + 0.5)}%` }}
+                />
+              ))}
+            </div>
 
+            {/* Tracks — V2 above V1, NLE convention */}
+            <div
+              className="relative mt-[10px]"
+              style={{ height: TRACK_HEIGHT * 2 + TRACK_GAP }}
+            >
+              <div className="absolute inset-x-0 top-0" style={{ height: TRACK_HEIGHT }}>
+                {trackTwoItems.map((item) =>
+                  renderClip(item, items.indexOf(item)),
+                )}
+              </div>
+              <div
+                className="absolute inset-x-0"
+                style={{ top: TRACK_HEIGHT + TRACK_GAP, height: TRACK_HEIGHT }}
+              >
+                {trackOneItems.map((item) =>
+                  renderClip(item, items.indexOf(item)),
+                )}
+              </div>
+            </div>
+
+            {/* Keyframe lane — decorative, draggable */}
+            <div
+              ref={laneRef}
+              className="relative mt-[10px] h-7 touch-none"
+              aria-hidden="true"
+            >
+              <svg
+                className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+                viewBox="0 0 100 28"
+                preserveAspectRatio="none"
+              >
+                {items.flatMap((item) => {
+                  const positions = keyframePositions[item.id] ?? item.keyframes;
+                  const curves = [];
+                  for (let i = 0; i < positions.length - 1; i += 1) {
+                    const x1 = positions[i] * 100;
+                    const x2 = positions[i + 1] * 100;
+                    const mid = (x1 + x2) / 2;
+                    curves.push(
+                      <path
+                        key={`${item.id}-curve-${i}`}
+                        d={`M ${x1} 14 C ${mid} 5, ${mid} 5, ${x2} 14`}
+                        stroke="rgba(245,239,230,0.15)"
+                        strokeWidth="1"
+                        vectorEffect="non-scaling-stroke"
+                        fill="none"
+                      />,
+                    );
+                  }
+                  return curves;
+                })}
+              </svg>
+
+              {items.flatMap((item) => {
+                const positions = keyframePositions[item.id] ?? item.keyframes;
+                return positions.map((pos, index) => {
+                  const key = `${item.id}-${index}`;
+                  const isHovered = hoveredKeyframe === key;
+
+                  return (
+                    <div
+                      key={key}
+                      className={cn(
+                        "absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 cursor-ew-resize touch-none transition-transform duration-150",
+                        !reducedMotion && isHovered && "scale-[1.4]",
+                      )}
+                      style={{
+                        left: `${pos * 100}%`,
+                        backgroundColor: item.clipColor,
+                        opacity: 0.7,
+                        boxShadow: isHovered
+                          ? `0 0 8px 1px ${rgba(item.clipColor, 0.6)}`
+                          : undefined,
+                      }}
+                      onPointerDown={(event) =>
+                        handleKeyframePointerDown(event, item.id, index)
+                      }
+                      onPointerMove={(event) =>
+                        handleKeyframePointerMove(event, item.id, index)
+                      }
+                      onPointerUp={handleKeyframePointerUp}
+                      onPointerEnter={() => setHoveredKeyframe(key)}
+                      onPointerLeave={() =>
+                        setHoveredKeyframe((prev) => (prev === key ? null : prev))
+                      }
+                    >
+                      <span className="absolute -inset-[7px]" />
+                    </div>
+                  );
+                });
+              })}
+            </div>
+
+            {/* Playhead — spans ruler through keyframe lane */}
             <motion.div
               aria-hidden="true"
               className="pointer-events-none absolute top-0 z-10 h-full"
               initial={false}
               animate={{ left: `${playheadPct}%` }}
               transition={{
-                duration: reducedMotion ? 0 : pointerPct !== null ? 0.05 : 0.5,
+                duration: reducedMotion ? 0 : isTrackingScroll ? 0 : 0.5,
                 ease: HOUSE_EASE,
               }}
               style={{ transform: "translateX(-50%)" }}
             >
               <span className="absolute -top-1.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-t-[7px] border-x-transparent border-t-accent" />
-              <span className="absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-accent shadow-[0_0_10px_rgba(252,76,0,0.6)]" />
+              <span className="absolute top-0 left-1/2 h-full w-0.5 -translate-x-1/2 bg-accent shadow-[0_0_12px_rgba(252,76,0,0.16)]" />
+              <span className="absolute top-2 left-1/2 -translate-x-1/2 whitespace-nowrap font-metric text-[0.6rem] text-accent">
+                {Math.round(playheadYear)}
+              </span>
             </motion.div>
           </div>
         </div>
@@ -276,13 +510,18 @@ export default function TimelineScrubber({
                 <span className="text-fog/40">{selectedItem.location}</span>
               ) : null}
             </div>
-            <h3 className="mt-2 font-doto text-[1.6rem] font-black uppercase leading-none tracking-section text-fog sm:text-[2.2rem]">
+            <h3 className="mt-2 flex items-center gap-2.5 font-doto text-[1.6rem] font-black uppercase leading-none tracking-section text-fog sm:text-[2.2rem]">
+              <span
+                aria-hidden="true"
+                className="inline-block h-[0.85em] w-[3px] shrink-0"
+                style={{ backgroundColor: selectedItem.clipColor }}
+              />
               {selectedItem.role}
             </h3>
             <p className="mt-1 font-mono text-[0.8rem] text-fog/82">
               {selectedItem.company}
             </p>
-            <p className="mt-4 max-w-[70ch] font-mono text-[0.78rem] leading-[1.75] text-fog/58">
+            <p className="mt-4 max-w-[60ch] font-serif text-[0.9rem] italic leading-[1.75] text-fog/85">
               {selectedItem.summary}
             </p>
           </motion.div>
