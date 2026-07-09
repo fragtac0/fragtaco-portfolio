@@ -14,15 +14,6 @@ interface HeroSectionProps {
 
 const SESSION_KEY = "heroLastPaintingId";
 
-function FrameCorner({ position }: { position: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`pointer-events-none absolute h-7 w-7 border-fog/60 sm:h-10 sm:w-10 ${position}`}
-    />
-  );
-}
-
 export default function HeroSection({
   title,
   subtitle,
@@ -152,18 +143,13 @@ export default function HeroSection({
         className="pointer-events-none absolute inset-0 z-[3] opacity-[0.07] [background-image:radial-gradient(rgba(245,239,230,0.9)_0.6px,transparent_0.6px)] [background-size:4px_4px]"
       />
 
-      {/* Monitor HUD: frame guides, timecode, REC */}
+      {/* Monitor HUD: timecode, REC — text aligned flush to the same inset on every side */}
       <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute inset-4 z-[6] sm:inset-7"
         style={styleUnlessReduced(reducedMotion, { opacity: hudOpacity })}
       >
-        <FrameCorner position="left-0 top-0 border-l-2 border-t-2" />
-        <FrameCorner position="right-0 top-0 border-r-2 border-t-2" />
-        <FrameCorner position="bottom-0 left-0 border-b-2 border-l-2" />
-        <FrameCorner position="bottom-0 right-0 border-b-2 border-r-2" />
-
-        <div className="absolute inset-x-0 top-1.5 flex items-center justify-between px-9 font-mono text-[0.6rem] uppercase tracking-[0.24em] text-fog/76 sm:top-2.5 sm:px-14 sm:text-[0.68rem]">
+        <div className="absolute inset-x-0 top-0 flex items-center justify-between font-mono text-[0.6rem] uppercase tracking-[0.24em] text-fog/76 sm:text-[0.68rem]">
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-accent motion-safe:animate-rec-blink" />
             rec
@@ -174,7 +160,7 @@ export default function HeroSection({
           </span>
         </div>
 
-        <div className="absolute inset-x-0 bottom-1.5 hidden items-center justify-between px-9 font-mono text-[0.6rem] uppercase tracking-[0.24em] text-fog/58 sm:flex sm:bottom-2.5 sm:px-14 sm:text-[0.66rem]">
+        <div className="absolute inset-x-0 bottom-0 hidden items-center justify-between font-mono text-[0.6rem] uppercase tracking-[0.24em] text-fog/58 sm:flex sm:text-[0.66rem]">
           <span>
             scene: {painting.title} — {painting.artist}, {painting.year}
           </span>

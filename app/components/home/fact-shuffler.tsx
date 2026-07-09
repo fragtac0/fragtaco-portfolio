@@ -59,9 +59,13 @@ export default function FactShuffler({ content }: FactShufflerProps) {
   useEffect(() => {
     // Establish the visit's first random fact. This must happen on the client
     // (random pick would otherwise cause an SSR hydration mismatch), so an
-    // on-mount setState here is intentional.
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+    // on-mount setState here is intentional. Deps intentionally omit `advance`
+    // — it's stable enough for this call, and including it would re-run this
+    // "once on mount" effect every time a fact is picked (advance depends on
+    // currentId, which changes on every pick).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     advance(readSeen());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const enter = reducedMotion

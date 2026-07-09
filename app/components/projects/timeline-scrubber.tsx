@@ -6,7 +6,13 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import { surfaces, textStyles } from "../../config/ui";
 import type { SiteWorkExperience, WorkExperienceKind } from "../../types";
 import { cn } from "../../utils/cn";
@@ -37,13 +43,18 @@ export default function TimelineScrubber({
 }: TimelineScrubberProps) {
   const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const defaultItem =
     items.find((item) => item.yearEnd === null) ?? items[items.length - 1];
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  // Keyboard focus snaps the playhead to a clip's start (no mouse position
+  // to follow); a live mouse position over the track takes priority and
+  // makes the playhead track the cursor directly, like a scrub preview.
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [pointerPct, setPointerPct] = useState<number | null>(null);
   // Until the user first interacts with the track, the playhead sweeps with
   // scroll progress through the section — a wink at the NLE metaphor. Any
   // click/hover/keyboard interaction hands permanent control to selection.
@@ -87,15 +98,37 @@ export default function TimelineScrubber({
     setHasInteracted(true);
   }, []);
 
-  const activeYear = hoveredId
-    ? items.find((item) => item.id === hoveredId)?.yearStart ?? null
-    : selectedId
-      ? (items.find((item) => item.id === selectedId)?.yearStart ?? null)
-      : null;
-  const playheadPct =
-    reducedMotion || hasInteracted
-      ? (activeYear === null ? 100 : pctForYear(activeYear))
-      : pctForYear(liveScrollYear);
+  const handleTrackPointerMove = (event: ReactMouseEvent<HTMLDivElement>) => {
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0) return;
+    markInteracted();
+    setPointerPct(clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100));
+  };
+
+  const handleTrackPointerLeave = () => {
+    setPointerPct(null);
+  };
+
+  const focusedYear = focusedId
+    ? (items.find((item) => item.id === focusedId)?.yearStart ?? null)
+    : null;
+  const selectionYear = selectedId
+    ? (items.find((item) => item.id === selectedId)?.yearStart ?? null)
+    : null;
+
+  let playheadPct: number;
+  if (reducedMotion) {
+    playheadPct = selectionYear === null ? 100 : pctForYear(selectionYear);
+  } else if (pointerPct !== null) {
+    // Directly under the cursor — no easing lag while actively scrubbing.
+    playheadPct = pointerPct;
+  } else if (focusedYear !== null) {
+    playheadPct = pctForYear(focusedYear);
+  } else if (hasInteracted) {
+    playheadPct = selectionYear === null ? 100 : pctForYear(selectionYear);
+  } else {
+    playheadPct = pctForYear(liveScrollYear);
+  }
 
   const focusIndex = (index: number) => {
     const clampedIndex = clamp(index, 0, items.length - 1);
@@ -148,7 +181,12 @@ export default function TimelineScrubber({
           </div>
 
           {/* Track + playhead */}
-          <div className="relative mt-3 h-[72px]">
+          <div
+            ref={trackRef}
+            className="relative mt-3 h-[72px]"
+            onMouseMove={handleTrackPointerMove}
+            onMouseLeave={handleTrackPointerLeave}
+          >
             <div className="absolute inset-0 rounded-[0.85rem] bg-black/30 ring-1 ring-fog/10" />
 
             {items.map((item, index) => {
@@ -169,16 +207,11 @@ export default function TimelineScrubber({
                     markInteracted();
                     setSelectedId(item.id);
                   }}
-                  onMouseEnter={() => {
-                    markInteracted();
-                    setHoveredId(item.id);
-                  }}
-                  onMouseLeave={() => setHoveredId(null)}
                   onFocus={() => {
                     markInteracted();
-                    setHoveredId(item.id);
+                    setFocusedId(item.id);
                   }}
-                  onBlur={() => setHoveredId(null)}
+                  onBlur={() => setFocusedId(null)}
                   onKeyDown={(event) => {
                     if (event.key === "ArrowRight") {
                       event.preventDefault();
@@ -212,7 +245,7 @@ export default function TimelineScrubber({
               initial={false}
               animate={{ left: `${playheadPct}%` }}
               transition={{
-                duration: reducedMotion ? 0 : 0.5,
+                duration: reducedMotion ? 0 : pointerPct !== null ? 0.05 : 0.5,
                 ease: HOUSE_EASE,
               }}
               style={{ transform: "translateX(-50%)" }}

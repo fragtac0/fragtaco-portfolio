@@ -72,11 +72,11 @@ export default function ProjectsSection({
           </header>
         </Reveal>
 
-        <Reveal delayMs={80} className="py-4 lg:py-6">
+        <Reveal delayMs={140} className="py-4 lg:py-6">
           <TechStackSection content={techStack} />
         </Reveal>
 
-        <Reveal delayMs={80} className="py-4 lg:py-6">
+        <Reveal delayMs={240} className="py-4 lg:py-6">
           <TimelineScrubber
             title={workExperience.sectionTitle}
             items={workExperience.items}
@@ -84,7 +84,7 @@ export default function ProjectsSection({
         </Reveal>
 
         <div className="grid gap-6 py-4 lg:grid-cols-2 lg:gap-8 lg:py-6">
-          <Reveal delayMs={80} className="min-w-0">
+          <Reveal delayMs={340} className="min-w-0">
             <div
               className={cn(
                 surfaces.workPanel,
@@ -112,7 +112,7 @@ export default function ProjectsSection({
             </div>
           </Reveal>
 
-          <Reveal delayMs={140} className="min-w-0">
+          <Reveal delayMs={400} className="min-w-0">
             <div
               className={cn(
                 surfaces.workPanel,
@@ -141,7 +141,7 @@ export default function ProjectsSection({
           </Reveal>
         </div>
 
-        <Reveal delayMs={80} className="py-8 lg:py-10">
+        <Reveal delayMs={480} className="py-8 lg:py-10">
           <ReachOutSection content={reachOut} />
         </Reveal>
       </div>
