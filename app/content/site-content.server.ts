@@ -71,12 +71,20 @@ export async function getFactsSection(): Promise<SiteFactsSection> {
 
 export async function getProjectsSection(): Promise<SiteProjectsSection> {
   const content = await loadJsonFile("projects.json", ProjectsSectionSchema);
-  const items = ensureUniqueBy(content.items, (item) => item.id, "project id");
-  ensureUniqueBy(items, (item) => item.slug, "project slug");
+  const allItems = [...content.longForm.items, ...content.shortForm.items];
+  ensureUniqueBy(allItems, (item) => item.id, "project id");
+  ensureUniqueBy(allItems, (item) => item.slug, "project slug");
 
   return {
-    ...content,
-    items: sortProjects(filterPublishedProjects(items)),
+    sectionTitle: content.sectionTitle,
+    longForm: {
+      sectionTitle: content.longForm.sectionTitle,
+      items: sortProjects(filterPublishedProjects(content.longForm.items)),
+    },
+    shortForm: {
+      sectionTitle: content.shortForm.sectionTitle,
+      items: sortProjects(filterPublishedProjects(content.shortForm.items)),
+    },
   };
 }
 

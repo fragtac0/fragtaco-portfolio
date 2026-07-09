@@ -5,15 +5,14 @@ import {
 } from "../../config/ui";
 import type {
   SiteReachOutSection,
-  ReachStat,
   SiteProjectsSection,
   SiteTechStackSection,
   SiteWorkExperienceSection,
 } from "../../types";
 import { cn } from "../../utils/cn";
+import EmberBackground from "./ember-background";
 import ProjectCard from "./project-card";
 import ReachOutSection from "./reach-out-section";
-import ReachStrip from "./reach-strip";
 import TechStackSection from "./tech-stack-section";
 import WorkExperienceColumn from "./work-experience-column";
 import WorkClock from "./work-clock";
@@ -23,7 +22,6 @@ import SectionHeadingRow from "../ui/section-heading-row";
 interface ProjectsSectionProps {
   projects: SiteProjectsSection;
   reachOut: SiteReachOutSection;
-  reachStats: ReachStat[];
   techStack: SiteTechStackSection;
   workExperience: SiteWorkExperienceSection;
 }
@@ -31,23 +29,16 @@ interface ProjectsSectionProps {
 export default function ProjectsSection({
   projects,
   reachOut,
-  reachStats,
   techStack,
   workExperience,
 }: ProjectsSectionProps) {
   return (
     <section
       id="projects"
-      className="relative isolate min-h-screen overflow-hidden bg-accent text-fog [--ledger-accent:#FC4C00]"
+      className="relative isolate min-h-screen overflow-hidden text-fog [--ledger-accent:#FC4C00]"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-28 top-24 -z-10 h-[34rem] w-[34rem] rounded-full bg-gilt/20 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-32 top-[44rem] -z-10 h-[38rem] w-[38rem] rounded-full bg-theme-black/24 blur-3xl"
-      />
+      <EmberBackground />
+
       <div className={`${layout.pageContainer} relative z-10`}>
         <div className="motion-safe:animate-cut-reveal">
           <header className={surfaces.workHeader}>
@@ -71,54 +62,87 @@ export default function ProjectsSection({
                   reel
                 </h1>
               </div>
-              <p className="mb-2 max-w-[28ch] font-serif text-[0.95rem] italic leading-relaxed text-fog/62 lg:mb-5 lg:text-right">
-                6+ years of edits, graded and delivered.
-              </p>
+              <div className="mb-2 flex flex-col items-end gap-1.5 font-mono text-[0.62rem] uppercase tracking-[0.2em] text-fog/60 lg:mb-4 sm:text-[0.7rem] sm:tracking-[0.28em]">
+                <p>6+ yrs</p>
+                <p>300+ edits</p>
+                <p>mumbai / remote</p>
+              </div>
             </div>
           </header>
         </div>
 
-        <div className="motion-safe:animate-cut-reveal py-10 [animation-delay:160ms] lg:py-12">
-          <ReachStrip stats={reachStats} />
-        </div>
-
-        <div className="py-4 lg:py-6">
+        <div className="motion-safe:animate-cut-reveal py-4 [animation-delay:160ms] lg:py-6">
           <TechStackSection content={techStack} />
         </div>
 
-        <div className="grid gap-8 py-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.52fr)] lg:gap-8 lg:py-6">
-          <main className="motion-safe:animate-cut-reveal order-last min-w-0 [animation-delay:280ms] lg:order-first">
-            <div className={cn(surfaces.workPanel, "motion-safe:[animation-delay:-6.2s] motion-safe:[animation-duration:13.4s]")}>
+        <div className="motion-safe:animate-cut-reveal py-4 [animation-delay:220ms] lg:py-6">
+          <WorkExperienceColumn
+            title={workExperience.sectionTitle}
+            items={workExperience.items}
+          />
+        </div>
+
+        <div className="grid gap-6 py-4 lg:grid-cols-2 lg:gap-8 lg:py-6">
+          <div className="motion-safe:animate-cut-reveal min-w-0 [animation-delay:260ms]">
+            <div
+              className={cn(
+                surfaces.workPanel,
+                "motion-safe:[animation-delay:-6.2s] motion-safe:[animation-duration:13.4s]",
+              )}
+            >
               <GlassSheen className="left-[-45%] bg-fog/[0.035] motion-safe:[animation-delay:-4.8s] motion-safe:[animation-duration:11.6s]" />
               <SectionHeadingRow
-                label="edit log"
+                label="edit log / long-form"
                 labelClassName={textStyles.giltLabel}
-                title={projects.sectionTitle}
+                title={projects.longForm.sectionTitle}
                 titleClassName={textStyles.panelTitle}
               />
 
               <div className="mt-6 grid gap-3">
-                {projects.items.map((project, index) => (
+                {projects.longForm.items.map((project, index) => (
                   <ProjectCard
                     key={project.id}
                     project={project}
                     revealIndex={index}
                     serial={String(index + 1).padStart(2, "0")}
+                    aspect="16:9"
                   />
                 ))}
               </div>
             </div>
-          </main>
+          </div>
 
-          <aside className="motion-safe:animate-cut-reveal min-w-0 [animation-delay:220ms]">
-            <WorkExperienceColumn
-              title={workExperience.sectionTitle}
-              items={workExperience.items}
-            />
-          </aside>
+          <div className="motion-safe:animate-cut-reveal min-w-0 [animation-delay:320ms]">
+            <div
+              className={cn(
+                surfaces.workPanel,
+                "motion-safe:[animation-delay:-3.4s] motion-safe:[animation-duration:12.1s]",
+              )}
+            >
+              <GlassSheen className="left-[-45%] bg-fog/[0.035] motion-safe:[animation-delay:-8.2s] motion-safe:[animation-duration:12.9s]" />
+              <SectionHeadingRow
+                label="edit log / short-form"
+                labelClassName={textStyles.giltLabel}
+                title={projects.shortForm.sectionTitle}
+                titleClassName={textStyles.panelTitle}
+              />
+
+              <div className="mt-6 grid gap-3">
+                {projects.shortForm.items.map((project, index) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    revealIndex={index}
+                    serial={String(index + 1).padStart(2, "0")}
+                    aspect="9:16"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="motion-safe:animate-cut-reveal py-8 [animation-delay:340ms] lg:py-10">
+        <div className="motion-safe:animate-cut-reveal py-8 [animation-delay:380ms] lg:py-10">
           <ReachOutSection content={reachOut} />
         </div>
       </div>

@@ -7,12 +7,14 @@ interface ProjectCardProps {
   project: SiteProject;
   revealIndex?: number;
   serial?: string;
+  aspect?: "16:9" | "9:16";
 }
 
 export default function ProjectCard({
   project,
   revealIndex = 0,
   serial,
+  aspect = "16:9",
 }: ProjectCardProps) {
   const reducedMotion = useReducedMotion();
 
@@ -42,6 +44,9 @@ export default function ProjectCard({
           </h3>
           <span className="rounded-full bg-fog/10 px-2.5 py-0.5 font-mono text-[0.54rem] uppercase tracking-[0.18em] text-fog/70 ring-1 ring-fog/12">
             {project.year} · {project.status}
+          </span>
+          <span className="rounded-full bg-fog/10 px-2.5 py-0.5 font-mono text-[0.54rem] uppercase tracking-[0.18em] text-fog/70 ring-1 ring-fog/12">
+            {aspect === "9:16" ? "vertical / 9:16" : "16:9"}
           </span>
         </div>
         <p className="mt-3 max-w-[52ch] font-mono text-[0.74rem] leading-6 text-fog/58 sm:text-[0.8rem]">

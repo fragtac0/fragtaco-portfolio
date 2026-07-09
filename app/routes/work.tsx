@@ -3,7 +3,6 @@ import { useLoaderData } from "@remix-run/react";
 import ProjectsSection from "../components/projects/projects-section";
 import SiteNav from "../components/site-nav";
 import { getWorkPageContent } from "../content/loaders.server";
-import { getReachStats } from "../lib/reach.server";
 
 export const meta: MetaFunction = () => [
   { title: "Reel — FragTaco" },
@@ -11,12 +10,10 @@ export const meta: MetaFunction = () => [
 
 export async function loader() {
   const workPageContent = await getWorkPageContent();
-  const reachStats = await getReachStats();
 
   return json(
     {
       ...workPageContent,
-      reachStats,
     },
     {
       headers: {
@@ -31,7 +28,6 @@ export default function WorkPage() {
     navigationItems,
     projects,
     reachOut,
-    reachStats,
     socialLinks,
     techStack,
     workExperience,
@@ -43,7 +39,6 @@ export default function WorkPage() {
       <ProjectsSection
         projects={projects}
         reachOut={reachOut}
-        reachStats={reachStats}
         techStack={techStack}
         workExperience={workExperience}
       />

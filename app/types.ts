@@ -78,9 +78,15 @@ export interface SiteProject {
   status: string;
 }
 
-export interface SiteProjectsSection {
+export interface SiteProjectsGroup {
   sectionTitle: string;
   items: SiteProject[];
+}
+
+export interface SiteProjectsSection {
+  sectionTitle: string;
+  longForm: SiteProjectsGroup;
+  shortForm: SiteProjectsGroup;
 }
 
 export interface SiteTechStackItem {
@@ -136,18 +142,5 @@ export interface SiteNavigationItem {
 export interface SiteSocialLink {
   label: string;
   url: string;
-}
-
-export type ReachStatId = "instagram" | "x" | "visits";
-
-export interface ReachStat {
-  id: ReachStatId;
-  label: string;
-  metricLabel: string;
-  tooltip?: string;
-  numericValue: number;
-  value: string;
-  href?: string;
-  live: boolean;
 }
 

@@ -21,6 +21,15 @@ const config: Config = {
         verdigris: "#2E6F64",
         muted: "#d8d0c4",
         glass: "rgba(28,20,12,0.2)",
+        ember: {
+          950: "#1A0800",
+          900: "#31100A",
+          700: "#7A2504",
+          500: "#C43A00",
+          400: "#FC4C00",
+          300: "#FF7A38",
+          glow: "rgba(252,76,0,0.16)",
+        },
       },
       fontFamily: {
         doto: ['"Doto"', "monospace"],
@@ -112,6 +121,18 @@ const config: Config = {
           "0%": { transform: "translate3d(-50%,0,0)" },
           "100%": { transform: "translate3d(0,0,0)" },
         },
+        "ember-drift-a": {
+          "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
+          "50%": { transform: "translate3d(6%,4%,0) scale(1.08)" },
+        },
+        "ember-drift-b": {
+          "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
+          "50%": { transform: "translate3d(-5%,-6%,0) scale(1.05)" },
+        },
+        "ember-pulse-c": {
+          "0%, 100%": { transform: "scale(1)", opacity: "0.5" },
+          "50%": { transform: "scale(1.12)", opacity: "0.7" },
+        },
       },
       animation: {
         "cut-reveal": "cut-reveal 850ms cubic-bezier(0.16, 1, 0.3, 1) both",
@@ -124,6 +145,9 @@ const config: Config = {
         "gate-weave": "gate-weave 9s ease-in-out infinite",
         "stack-marquee": "stack-marquee 22s linear infinite",
         "stack-marquee-reverse": "stack-marquee-reverse 26s linear infinite",
+        "ember-drift-a": "ember-drift-a 26s ease-in-out infinite",
+        "ember-drift-b": "ember-drift-b 34s ease-in-out infinite",
+        "ember-pulse-c": "ember-pulse-c 40s ease-in-out infinite",
       },
     },
   },

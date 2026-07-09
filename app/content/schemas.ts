@@ -91,9 +91,15 @@ export const ProjectSchema = z.object({
   status: z.string().min(1),
 });
 
-export const ProjectsSectionSchema = z.object({
+export const ProjectsGroupSchema = z.object({
   sectionTitle: z.string().min(1),
   items: z.array(ProjectSchema),
+});
+
+export const ProjectsSectionSchema = z.object({
+  sectionTitle: z.string().min(1),
+  longForm: ProjectsGroupSchema,
+  shortForm: ProjectsGroupSchema,
 });
 
 export const TechStackItemSchema = z.object({
