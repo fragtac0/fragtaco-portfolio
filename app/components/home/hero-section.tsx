@@ -1,7 +1,8 @@
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { styleUnlessReduced, textStyles } from "../../config/ui";
+import { styleUnlessReduced, surfaces, textStyles } from "../../config/ui";
 import type { SiteHeroPainting } from "../../types";
+import { cn } from "../../utils/cn";
 import StaggerText from "../react-bits/stagger-text";
 import HeroTimecode from "./hero-timecode";
 
@@ -191,12 +192,15 @@ export default function HeroSection({
           })}
         >
           <motion.p
-            className="mb-5 flex items-center gap-3 font-mono text-[0.62rem] uppercase tracking-[0.3em] text-gilt sm:text-[0.72rem]"
+            className={cn(
+              surfaces.glassChip,
+              "mb-5 font-mono text-[0.62rem] uppercase tracking-[0.3em] text-gilt sm:text-[0.72rem]",
+            )}
             initial={reducedMotion ? false : { opacity: 0, y: 14 }}
             animate={reducedMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="inline-block h-px w-10 bg-gilt/70 sm:w-16" />
+            <span className="inline-block h-px w-6 bg-gilt/70 sm:w-8" />
             aditya bhoir · portfolio
           </motion.p>
 
