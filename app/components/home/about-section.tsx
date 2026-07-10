@@ -1,14 +1,7 @@
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
-import { useRef } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import {
   aboutProfileTags,
   layout,
-  styleUnlessReduced,
   surfaces,
   textStyles,
 } from "../../config/ui";
@@ -28,20 +21,10 @@ export default function AboutSection({
   paragraphs,
   facts,
 }: AboutSectionProps) {
-  const sectionRef = useRef<HTMLElement | null>(null);
   const reducedMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-  const portraitY = useTransform(scrollYProgress, [0, 0.5, 1], [32, 0, -44]);
-  const portraitScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.04, 1, 1.07]);
-  const ambientY = useTransform(scrollYProgress, [0, 0.5, 1], [44, 0, -44]);
-  const ambientOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.12, 0.3, 0.14]);
 
   return (
     <section
-      ref={sectionRef}
       id="about"
       className="relative isolate min-h-screen-nav overflow-hidden bg-ink font-mono text-fog"
     >
@@ -56,10 +39,10 @@ export default function AboutSection({
       <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute -left-32 top-1/4 -z-10 h-[28rem] w-[28rem] rounded-full bg-accent/14 blur-3xl"
-        style={styleUnlessReduced(reducedMotion, {
-          opacity: ambientOpacity,
-          y: ambientY,
-        })}
+        initial={reducedMotion ? false : { opacity: 0, y: 30 }}
+        whileInView={reducedMotion ? undefined : { opacity: 0.2, y: 0 }}
+        viewport={{ amount: 0.2, once: true }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       />
       <div className={`${layout.homeContainer} relative z-10 grid gap-10`}>
         <Reveal>
@@ -99,10 +82,10 @@ export default function AboutSection({
               <div className="relative h-full min-h-[22rem] overflow-hidden rounded-[1rem_2rem_1rem_2rem] bg-black/35 shadow-[0_30px_90px_rgba(0,0,0,0.4)] sm:min-h-[32rem] lg:min-h-full">
                 <motion.div
                   className="absolute inset-[-8%] will-change-transform"
-                  style={styleUnlessReduced(reducedMotion, {
-                    scale: portraitScale,
-                    y: portraitY,
-                  })}
+                  initial={reducedMotion ? false : { scale: 1.06, y: 24 }}
+                  whileInView={reducedMotion ? undefined : { scale: 1, y: 0 }}
+                  viewport={{ amount: 0.2, once: true }}
+                  transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <AboutPortrait />
                 </motion.div>
