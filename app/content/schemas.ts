@@ -55,6 +55,8 @@ export const WorkExperienceLinkSchema = z.object({
   url: z.string().url(),
 });
 
+export const WorkExperienceKeyframeTypeSchema = z.enum(["linear", "bezier", "ease"]);
+
 export const WorkExperienceSchema = z.object({
   id: z.string().min(1),
   parentId: z.string().min(1).optional(),
@@ -62,6 +64,7 @@ export const WorkExperienceSchema = z.object({
   track: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   clipColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Expected a 6-digit hex color"),
   topBarOpacity: z.number().min(0).max(1),
+  keyframeType: WorkExperienceKeyframeTypeSchema,
   role: z.string().min(1),
   company: z.string().min(1),
   periodLabel: z.string().min(1),

@@ -36,6 +36,7 @@ export interface SiteHomeContent {
 }
 
 export type WorkExperienceKind = "education" | "self-taught" | "job" | "freelance";
+export type WorkExperienceKeyframeType = "linear" | "bezier" | "ease";
 
 export interface WorkExperienceLink {
   type: "instagram" | "youtube";
@@ -49,6 +50,7 @@ export interface SiteWorkExperience {
   track: 1 | 2 | 3;
   clipColor: string;
   topBarOpacity: number;
+  keyframeType: WorkExperienceKeyframeType;
   role: string;
   company: string;
   periodLabel: string;

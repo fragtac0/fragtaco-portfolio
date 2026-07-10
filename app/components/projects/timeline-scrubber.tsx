@@ -20,7 +20,11 @@ import {
 } from "react";
 import { FaInstagram, FaYoutube } from "react-icons/fa6";
 import { surfaces, textStyles } from "../../config/ui";
-import type { SiteWorkExperience, WorkExperienceLink } from "../../types";
+import type {
+  SiteWorkExperience,
+  WorkExperienceKeyframeType,
+  WorkExperienceLink,
+} from "../../types";
 import { cn } from "../../utils/cn";
 import GlassSheen from "../ui/glass-sheen";
 import SectionHeadingRow from "../ui/section-heading-row";
@@ -34,7 +38,9 @@ interface TimelineScrubberProps {
 const HOUSE_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const SESSION_KEY = "timelineKeyframes";
 const TRACK_HEIGHT = 64;
-const TRACK_GAP = 10;
+const LANE_HEIGHT = 20;
+const LANE_GAP = 4;
+const GROUP_GAP = 8;
 const LABEL_MIN_WIDTH_PX = 90;
 const CLIP_INSET_PX = 1;
 
@@ -99,6 +105,38 @@ const LINK_ICONS: Record<WorkExperienceLink["type"], typeof FaInstagram> = {
   youtube: FaYoutube,
 };
 
+// AE keyframe icon language: linear = diamond, bezier = ringed dot,
+// ease (Easy Ease) = hourglass of two tip-to-tip triangles.
+function KeyframeGlyph({
+  type,
+  color,
+}: {
+  type: WorkExperienceKeyframeType;
+  color: string;
+}) {
+  if (type === "bezier") {
+    return (
+      <svg viewBox="0 0 10 10" className="h-full w-full">
+        <circle cx="5" cy="5" r="4" fill="none" stroke="rgba(245,239,230,0.55)" strokeWidth="1" />
+        <circle cx="5" cy="5" r="3" fill={color} />
+      </svg>
+    );
+  }
+  if (type === "ease") {
+    return (
+      <svg viewBox="0 0 10 10" className="h-full w-full">
+        <path d="M0 0 L0 10 L5 5 Z" fill={color} />
+        <path d="M10 0 L10 10 L5 5 Z" fill={color} />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 10 10" className="h-full w-full">
+      <path d="M5 0 L10 5 L5 10 L0 5 Z" fill={color} />
+    </svg>
+  );
+}
+
 export default function TimelineScrubber({
   title,
   timelineStart,
@@ -107,7 +145,6 @@ export default function TimelineScrubber({
   const reducedMotion = useReducedMotion();
   const trackWrapperRef = useRef<HTMLDivElement | null>(null);
   const tracksAreaRef = useRef<HTMLDivElement | null>(null);
-  const laneRef = useRef<HTMLDivElement | null>(null);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const justDraggedRef = useRef(false);
 
@@ -290,17 +327,25 @@ export default function TimelineScrubber({
 
   const handleKeyframePointerMove = (
     event: ReactPointerEvent<HTMLDivElement>,
-    itemId: string,
+    item: SiteWorkExperience,
     index: number,
   ) => {
-    if (draggingKeyframe !== `${itemId}-${index}`) return;
+    if (draggingKeyframe !== `${item.id}-${index}`) return;
     justDraggedRef.current = true;
-    const rect = laneRef.current?.getBoundingClientRect();
+    const laneEl = event.currentTarget.closest<HTMLElement>("[data-lane]");
+    const rect = laneEl?.getBoundingClientRect();
     if (!rect || rect.width === 0) return;
-    const fraction = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+    // Clamped to the owning clip's own x-range, not the full lane width.
+    const minFraction = pctForYear(item.yearStart) / 100;
+    const maxFraction = pctForYear(item.yearEnd ?? nowYear) / 100;
+    const fraction = clamp(
+      (event.clientX - rect.left) / rect.width,
+      minFraction,
+      maxFraction,
+    );
     setKeyframePositions((prev) => {
-      const next = { ...prev, [itemId]: [...(prev[itemId] ?? [])] };
-      next[itemId][index] = fraction;
+      const next = { ...prev, [item.id]: [...(prev[item.id] ?? [])] };
+      next[item.id][index] = fraction;
       return next;
     });
   };
@@ -436,98 +481,92 @@ export default function TimelineScrubber({
             </div>
 
             {/* Tracks — V3 top, V2 middle, V1 bottom, NLE convention. Each
-                item owns its row exactly as given in content; never re-derived. */}
-            <div
-              className="relative mt-[10px]"
-              style={{ height: TRACK_HEIGHT * 3 + TRACK_GAP * 2 }}
-            >
-              <div className="absolute inset-x-0 top-0" style={{ height: TRACK_HEIGHT }}>
-                {trackThreeItems.map((item) => renderClip(item, items.indexOf(item)))}
-              </div>
-              <div
-                className="absolute inset-x-0"
-                style={{ top: TRACK_HEIGHT + TRACK_GAP, height: TRACK_HEIGHT }}
-              >
-                {trackTwoItems.map((item) => renderClip(item, items.indexOf(item)))}
-              </div>
-              <div
-                className="absolute inset-x-0"
-                style={{ top: (TRACK_HEIGHT + TRACK_GAP) * 2, height: TRACK_HEIGHT }}
-              >
-                {trackOneItems.map((item) => renderClip(item, items.indexOf(item)))}
-              </div>
-            </div>
+                item owns its row exactly as given in content; never re-derived.
+                Each track carries its own keyframe lane directly beneath its
+                clips (AE-style: layer bar, then property keyframes). */}
+            <div className="relative mt-[10px]">
+              {[trackThreeItems, trackTwoItems, trackOneItems].map((trackItems, groupIndex) => (
+                <div
+                  key={`track-group-${trackItems[0]?.track ?? groupIndex}`}
+                  style={{ marginTop: groupIndex === 0 ? 0 : GROUP_GAP }}
+                >
+                  <div className="relative" style={{ height: TRACK_HEIGHT }}>
+                    {trackItems.map((item) => renderClip(item, items.indexOf(item)))}
+                  </div>
 
-            {/* Keyframe lane — decorative, draggable */}
-            <div
-              ref={laneRef}
-              className="relative mt-[10px] h-7 touch-none"
-              aria-hidden="true"
-            >
-              <svg
-                className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
-                viewBox="0 0 100 28"
-                preserveAspectRatio="none"
-              >
-                {items.flatMap((item) => {
-                  const positions = keyframePositions[item.id] ?? item.keyframes;
-                  const lines = [];
-                  for (let i = 0; i < positions.length - 1; i += 1) {
-                    const x1 = positions[i] * 100;
-                    const x2 = positions[i + 1] * 100;
-                    lines.push(
-                      <path
-                        key={`${item.id}-line-${i}`}
-                        d={`M ${x1} 14 L ${x2} 14`}
-                        stroke="rgba(245,239,230,0.15)"
-                        strokeWidth="1"
-                        vectorEffect="non-scaling-stroke"
-                        fill="none"
-                      />,
-                    );
-                  }
-                  return lines;
-                })}
-              </svg>
-
-              {items.flatMap((item) => {
-                const positions = keyframePositions[item.id] ?? item.keyframes;
-                return positions.map((pos, index) => {
-                  const key = `${item.id}-${index}`;
-                  const isHovered = hoveredKeyframe === key;
-
-                  return (
-                    <div
-                      key={key}
-                      className={cn(
-                        "absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 cursor-ew-resize touch-none transition-transform duration-150",
-                        !reducedMotion && isHovered && "scale-[1.4]",
-                      )}
-                      style={{
-                        left: `${pos * 100}%`,
-                        backgroundColor: item.clipColor,
-                        opacity: 0.7,
-                        boxShadow: isHovered
-                          ? `0 0 8px 1px ${rgba(item.clipColor, 0.6)}`
-                          : undefined,
-                      }}
-                      onPointerDown={(event) =>
-                        handleKeyframePointerDown(event, item.id, index)
-                      }
-                      onPointerMove={(event) =>
-                        handleKeyframePointerMove(event, item.id, index)
-                      }
-                      onPointerUp={handleKeyframePointerUp}
-                      onPointerEnter={() => setHoveredKeyframe(key)}
-                      onPointerLeave={() =>
-                        setHoveredKeyframe((prev) => (prev === key ? null : prev))
-                      }
+                  <div
+                    data-lane
+                    className="relative touch-none"
+                    style={{ marginTop: LANE_GAP, height: LANE_HEIGHT }}
+                    aria-hidden="true"
+                  >
+                    <svg
+                      className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+                      viewBox="0 0 100 20"
+                      preserveAspectRatio="none"
                     >
-                      <span className="absolute -inset-[7px]" />
-                    </div>
-                  );
-                });
-              })}
+                      {trackItems.flatMap((item) => {
+                        const positions = keyframePositions[item.id] ?? item.keyframes;
+                        const lines = [];
+                        for (let i = 0; i < positions.length - 1; i += 1) {
+                          const x1 = positions[i] * 100;
+                          const x2 = positions[i + 1] * 100;
+                          lines.push(
+                            <path
+                              key={`${item.id}-line-${i}`}
+                              d={`M ${x1} 10 L ${x2} 10`}
+                              stroke="rgba(245,239,230,0.15)"
+                              strokeWidth="1"
+                              vectorEffect="non-scaling-stroke"
+                              fill="none"
+                            />,
+                          );
+                        }
+                        return lines;
+                      })}
+                    </svg>
+
+                    {trackItems.flatMap((item) => {
+                      const positions = keyframePositions[item.id] ?? item.keyframes;
+                      return positions.map((pos, index) => {
+                        const key = `${item.id}-${index}`;
+                        const isHovered = hoveredKeyframe === key;
+
+                        return (
+                          <div
+                            key={key}
+                            className={cn(
+                              "absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize touch-none transition-transform duration-150",
+                              !reducedMotion && isHovered && "scale-[1.4]",
+                            )}
+                            style={{
+                              left: `${pos * 100}%`,
+                              opacity: 0.85,
+                              filter: isHovered
+                                ? `drop-shadow(0 0 6px ${rgba(item.clipColor, 0.6)})`
+                                : undefined,
+                            }}
+                            onPointerDown={(event) =>
+                              handleKeyframePointerDown(event, item.id, index)
+                            }
+                            onPointerMove={(event) =>
+                              handleKeyframePointerMove(event, item, index)
+                            }
+                            onPointerUp={handleKeyframePointerUp}
+                            onPointerEnter={() => setHoveredKeyframe(key)}
+                            onPointerLeave={() =>
+                              setHoveredKeyframe((prev) => (prev === key ? null : prev))
+                            }
+                          >
+                            <span className="absolute -inset-[7px]" />
+                            <KeyframeGlyph type={item.keyframeType} color={item.clipColor} />
+                          </div>
+                        );
+                      });
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Playhead — spans ruler through keyframe lane. Position is driven

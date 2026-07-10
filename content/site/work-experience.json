@@ -8,6 +8,7 @@
       "track": 1,
       "clipColor": "#3E8A7C",
       "topBarOpacity": 1,
+      "keyframeType": "linear",
       "role": "B.E. Electronics Engineering",
       "company": "VESIT, Mumbai",
       "periodLabel": "2017 - 2021",
@@ -26,7 +27,8 @@
       "track": 2,
       "clipColor": "#D9A441",
       "topBarOpacity": 1,
-      "role": "Content Head",
+      "keyframeType": "bezier",
+      "role": "Video Editor + Graphic Designer + Motion Graphics Animator + Content Producer",
       "company": "Bharat in Germany (Remote)",
       "periodLabel": "Feb 2021 - Dec 2025",
       "yearStart": 2021.08,
@@ -37,7 +39,7 @@
         { "type": "instagram", "url": "https://www.instagram.com/bharatingermany/" },
         { "type": "youtube", "url": "https://youtube.com/@bharatingermany" }
       ],
-      "keyframes": [0.44, 0.5, 0.6, 0.68, 0.78, 0.86],
+      "keyframes": [0.47, 0.55, 0.64, 0.72, 0.8, 0.88],
       "published": true,
       "sortOrder": 2
     },
@@ -47,6 +49,7 @@
       "track": 3,
       "clipColor": "#FC4C00",
       "topBarOpacity": 1,
+      "keyframeType": "ease",
       "role": "Freelance Video Editor & Content Strategist",
       "company": "Independent (Remote)",
       "periodLabel": "Nov 2022 - Present",
@@ -55,7 +58,7 @@
       "summary": "PLACEHOLDER — independent practice for brands and creators: edit, motion, grade, and the strategy that decides what's worth cutting in the first place.",
       "location": "Remote",
       "links": [],
-      "keyframes": [0.66, 0.75, 0.88, 0.96],
+      "keyframes": [0.68, 0.78, 0.88, 0.96],
       "published": true,
       "sortOrder": 3
     }
