@@ -12,7 +12,18 @@ interface HeroSectionProps {
   paintings: SiteHeroPainting[];
 }
 
-const SESSION_KEY = "heroLastPaintingId";
+const SESSION_KEY = "heroRecentPaintings";
+const RECENT_LIMIT = 3;
+
+function readRecentPaintingIds(): string[] {
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : null;
+    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : [];
+  } catch {
+    return [];
+  }
+}
 
 export default function HeroSection({
   title,
@@ -40,21 +51,14 @@ export default function HeroSection({
     if (pickedRef.current || paintings.length === 0) return;
     pickedRef.current = true;
 
-    let last: string | null = null;
-    try {
-      last = window.sessionStorage.getItem(SESSION_KEY);
-    } catch {
-      last = null;
-    }
-
-    const pool =
-      paintings.length > 1
-        ? paintings.filter((item) => item.id !== last)
-        : paintings;
-    const pick = pool[Math.floor(Math.random() * pool.length)];
+    const recent = readRecentPaintingIds();
+    const pool = paintings.filter((item) => !recent.includes(item.id));
+    const safePool = pool.length > 0 ? pool : paintings;
+    const pick = safePool[Math.floor(Math.random() * safePool.length)];
 
     try {
-      window.sessionStorage.setItem(SESSION_KEY, pick.id);
+      const nextRecent = [...recent, pick.id].slice(-RECENT_LIMIT);
+      window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(nextRecent));
     } catch {
       /* sessionStorage unavailable — pick still applies for this visit */
     }
