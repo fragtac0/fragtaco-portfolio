@@ -28,13 +28,13 @@ function TechMark({ item }: { item: SiteTechStackItem }) {
   const Icon = TECH_ICON_MAP[item.id];
 
   if (Icon) {
-    return <Icon className="h-5 w-5 text-fog/86 sm:h-6 sm:w-6" />;
+    return <Icon className="h-5 w-5 text-accent sm:h-6 sm:w-6" />;
   }
 
   const monogram = TECH_MONOGRAM_MAP[item.id] ?? item.label.slice(0, 2);
 
   return (
-    <span className="grid h-6 min-w-6 place-items-center rounded-md bg-fog/12 px-1.5 font-metric text-[0.66rem] font-semibold text-fog">
+    <span className="grid h-6 min-w-6 place-items-center rounded-md bg-fog/12 px-1.5 font-metric text-[0.66rem] font-semibold text-accent">
       {monogram}
     </span>
   );
@@ -42,14 +42,7 @@ function TechMark({ item }: { item: SiteTechStackItem }) {
 
 function TechPill({ item }: { item: SiteTechStackItem }) {
   return (
-    <span
-      className={cn(
-        "flex h-10 items-center gap-2 rounded-full border px-3 font-mono text-[0.58rem] uppercase tracking-[0.16em] shadow-[0_10px_26px_rgba(0,0,0,0.18)] sm:h-11 sm:px-4 sm:text-[0.62rem]",
-        item.accent
-          ? "border-gilt/32 bg-gilt/[0.12] text-fog"
-          : "border-fog/10 bg-fog/[0.045] text-fog/68",
-      )}
-    >
+    <span className="flex h-10 items-center gap-2 rounded-full border border-fog/10 bg-fog/[0.045] px-3 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-accent/80 shadow-[0_10px_26px_rgba(0,0,0,0.18)] sm:h-11 sm:px-4 sm:text-[0.62rem]">
       <TechMark item={item} />
       {item.label}
     </span>
@@ -61,7 +54,7 @@ function TechMarquee({ items }: { items: SiteTechStackItem[] }) {
     <div className="group/marquee relative overflow-hidden rounded-full border border-fog/10 bg-theme-black/26 motion-reduce:overflow-x-auto motion-reduce:[-ms-overflow-style:none] motion-reduce:[scrollbar-width:none] motion-reduce:[&::-webkit-scrollbar]:hidden">
       <div
         className={cn(
-          "flex w-max transform-gpu gap-2 py-2 will-change-transform motion-safe:animate-stack-marquee motion-safe:group-hover/marquee:[animation-play-state:paused] motion-reduce:animate-none",
+          "flex w-max transform-gpu gap-2 py-2 will-change-transform motion-safe:animate-stack-marquee motion-reduce:animate-none",
         )}
       >
         {[...items, ...items].map((item, index) => (

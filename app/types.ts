@@ -104,7 +104,6 @@ export interface SiteTechStackItem {
   id: string;
   label: string;
   group: string;
-  accent?: boolean;
   sortOrder: number;
 }
 

@@ -118,7 +118,6 @@ export const TechStackItemSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1),
   group: z.string().min(1),
-  accent: z.boolean().optional(),
   sortOrder: z.number().int().nonnegative(),
 });
 
