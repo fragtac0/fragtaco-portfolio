@@ -7,7 +7,6 @@ import { useActiveHomeSection } from "../hooks/use-active-home-section";
 import { externalLinkProps } from "../utils/link";
 import { isHomeSectionId, scrollWindowToSection } from "../utils/nav";
 import {
-  FaBehance,
   FaInstagram,
   FaRegEnvelope,
   FaXTwitter,
@@ -24,7 +23,6 @@ const SOCIAL_ICON_MAP: Record<
   string,
   ComponentType<{ className?: string }>
 > = {
-  behance: FaBehance,
   instagram: FaInstagram,
   mail: FaRegEnvelope,
   x: FaXTwitter,
@@ -32,7 +30,6 @@ const SOCIAL_ICON_MAP: Record<
 };
 
 const SOCIAL_ICON_CLASS_MAP: Record<string, string> = {
-  behance: "h-6 w-6 sm:h-7 sm:w-7",
   instagram: "h-6 w-6 sm:h-7 sm:w-7",
   mail: "h-5 w-5 sm:h-6 sm:w-6",
   x: "h-5 w-5 sm:h-5.5 sm:w-5.5",
