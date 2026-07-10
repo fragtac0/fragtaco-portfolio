@@ -21,70 +21,25 @@
       "sortOrder": 1
     },
     {
-      "id": "bharat-video-editor",
-      "parentId": "bharat-in-germany",
-      "kind": "job",
-      "track": 2,
-      "clipColor": "#D9A441",
-      "topBarOpacity": 0.65,
-      "role": "Video Editor",
-      "company": "Bharat in Germany (Remote)",
-      "periodLabel": "Feb 2021 - Aug 2022",
-      "yearStart": 2021.08,
-      "yearEnd": 2022.58,
-      "summary": "PLACEHOLDER — first full-time seat: cutting the channel's videos end to end, building its visual rhythm and turnaround discipline.",
-      "location": "Remote",
-      "links": [
-        { "type": "instagram", "url": "https://www.instagram.com/bharatingermany/" },
-        { "type": "youtube", "url": "https://youtube.com/@bharatingermany" }
-      ],
-      "keyframes": [0.44, 0.5],
-      "published": true,
-      "sortOrder": 2
-    },
-    {
-      "id": "bharat-content-producer",
-      "parentId": "bharat-in-germany",
-      "kind": "job",
-      "track": 2,
-      "clipColor": "#D9A441",
-      "topBarOpacity": 0.82,
-      "role": "Content Producer",
-      "company": "Bharat in Germany (Remote)",
-      "periodLabel": "Sep 2022 - Dec 2022",
-      "yearStart": 2022.67,
-      "yearEnd": 2023.0,
-      "summary": "PLACEHOLDER — stepped up from the timeline to the whole pipeline: planning, formats, and packaging alongside the edit.",
-      "location": "Remote",
-      "links": [
-        { "type": "instagram", "url": "https://www.instagram.com/bharatingermany/" },
-        { "type": "youtube", "url": "https://youtube.com/@bharatingermany" }
-      ],
-      "keyframes": [0.6],
-      "published": true,
-      "sortOrder": 3
-    },
-    {
-      "id": "bharat-content-head",
-      "parentId": "bharat-in-germany",
+      "id": "bharat-in-germany",
       "kind": "job",
       "track": 2,
       "clipColor": "#D9A441",
       "topBarOpacity": 1,
       "role": "Content Head",
       "company": "Bharat in Germany (Remote)",
-      "periodLabel": "Jan 2023 - Dec 2025",
-      "yearStart": 2023.0,
+      "periodLabel": "Feb 2021 - Dec 2025",
+      "yearStart": 2021.08,
       "yearEnd": 2025.92,
-      "summary": "PLACEHOLDER — owned the channel's content strategy: what gets made, how it looks, when it ships — across YouTube and Instagram.",
+      "summary": "PLACEHOLDER — grew from cutting the channel's videos into owning its full content strategy: planning, production, and packaging across YouTube and Instagram.",
       "location": "Remote",
       "links": [
         { "type": "instagram", "url": "https://www.instagram.com/bharatingermany/" },
         { "type": "youtube", "url": "https://youtube.com/@bharatingermany" }
       ],
-      "keyframes": [0.68, 0.78, 0.86],
+      "keyframes": [0.44, 0.5, 0.6, 0.68, 0.78, 0.86],
       "published": true,
-      "sortOrder": 4
+      "sortOrder": 2
     },
     {
       "id": "freelance",
@@ -102,7 +57,7 @@
       "links": [],
       "keyframes": [0.66, 0.75, 0.88, 0.96],
       "published": true,
-      "sortOrder": 5
+      "sortOrder": 3
     }
   ]
 }

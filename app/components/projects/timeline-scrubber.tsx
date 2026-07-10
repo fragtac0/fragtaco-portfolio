@@ -252,18 +252,27 @@ export default function TimelineScrubber({
     const rect = tracksAreaRef.current?.getBoundingClientRect();
     if (!rect || rect.width === 0) return;
 
-    // event.detail === 0 signals a keyboard-activated click (Enter/Space on a
-    // focused button) rather than a real pointer position — park on that
-    // clip's own midpoint instead of a meaningless clientX.
-    if (event.detail === 0) {
-      const clipButton = (event.target as HTMLElement).closest<HTMLElement>(
-        "[data-clip-id]",
-      );
-      const id = clipButton?.dataset.clipId;
-      const item = id ? items.find((candidate) => candidate.id === id) : undefined;
-      if (item) selectClip(item);
+    // A click landing on a clip button — mouse or keyboard (event.detail === 0)
+    // — always selects that specific clip directly, even if a higher-track
+    // clip's date range overlaps it at that x. "Topmost track wins" only
+    // applies to clicks in empty tracks-area space below.
+    const clipButton = (event.target as HTMLElement).closest<HTMLElement>(
+      "[data-clip-id]",
+    );
+    const clickedId = clipButton?.dataset.clipId;
+    const clickedItem = clickedId
+      ? items.find((candidate) => candidate.id === clickedId)
+      : undefined;
+    if (clickedItem) {
+      if (event.detail === 0) {
+        selectClip(clickedItem);
+      } else {
+        const pct = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
+        parkAt(pct, clickedItem.id);
+      }
       return;
     }
+    if (event.detail === 0) return;
 
     const pct = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
     const matched = findClipAtYear(yearForPct(pct));
