@@ -66,6 +66,7 @@ export const WorkExperienceSchema = z.object({
   topBarOpacity: z.number().min(0).max(1),
   keyframeType: WorkExperienceKeyframeTypeSchema,
   role: z.string().min(1),
+  readoutTitle: z.string().min(1).optional(),
   company: z.string().min(1),
   periodLabel: z.string().min(1),
   yearStart: z.number().min(1900).max(2100),

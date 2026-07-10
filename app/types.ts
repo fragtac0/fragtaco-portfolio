@@ -52,6 +52,7 @@ export interface SiteWorkExperience {
   topBarOpacity: number;
   keyframeType: WorkExperienceKeyframeType;
   role: string;
+  readoutTitle?: string;
   company: string;
   periodLabel: string;
   yearStart: number;

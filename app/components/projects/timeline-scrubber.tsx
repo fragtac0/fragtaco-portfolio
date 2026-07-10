@@ -614,7 +614,7 @@ export default function TimelineScrubber({
                 className="inline-block h-[0.85em] w-[3px] shrink-0"
                 style={{ backgroundColor: selectedItem.clipColor }}
               />
-              {selectedItem.role}
+              {selectedItem.readoutTitle ?? selectedItem.role}
             </h3>
             <p className="mt-1 flex flex-wrap items-center gap-2 font-mono text-[0.8rem] text-fog/82">
               <span>{selectedItem.company}</span>
