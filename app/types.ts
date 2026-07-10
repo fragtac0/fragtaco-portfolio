@@ -37,11 +37,18 @@ export interface SiteHomeContent {
 
 export type WorkExperienceKind = "education" | "self-taught" | "job" | "freelance";
 
+export interface WorkExperienceLink {
+  type: "instagram" | "youtube";
+  url: string;
+}
+
 export interface SiteWorkExperience {
   id: string;
+  parentId?: string;
   kind: WorkExperienceKind;
-  track: 1 | 2;
+  track: 1 | 2 | 3;
   clipColor: string;
+  topBarOpacity: number;
   role: string;
   company: string;
   periodLabel: string;
@@ -49,6 +56,7 @@ export interface SiteWorkExperience {
   yearEnd: number | null;
   summary: string;
   location?: string;
+  links: WorkExperienceLink[];
   keyframes: number[];
   published: boolean;
   sortOrder: number;

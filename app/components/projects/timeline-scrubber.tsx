@@ -1,13 +1,11 @@
 import {
   AnimatePresence,
-  animate,
   motion,
   useMotionTemplate,
   useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
-  useScroll,
-  useTransform,
+  useSpring,
   type MotionValue,
 } from "motion/react";
 import {
@@ -16,11 +14,13 @@ import {
   useMemo,
   useRef,
   useState,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from "react";
+import { FaInstagram, FaYoutube } from "react-icons/fa6";
 import { surfaces, textStyles } from "../../config/ui";
-import type { SiteWorkExperience } from "../../types";
+import type { SiteWorkExperience, WorkExperienceLink } from "../../types";
 import { cn } from "../../utils/cn";
 import GlassSheen from "../ui/glass-sheen";
 import SectionHeadingRow from "../ui/section-heading-row";
@@ -33,11 +33,10 @@ interface TimelineScrubberProps {
 
 const HOUSE_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const SESSION_KEY = "timelineKeyframes";
-const AUTO_SELECT_THROTTLE_MS = 250;
-const MOBILE_BREAKPOINT = 640;
 const TRACK_HEIGHT = 64;
 const TRACK_GAP = 10;
 const LABEL_MIN_WIDTH_PX = 90;
+const CLIP_INSET_PX = 1;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -95,36 +94,41 @@ function useMeasuredWidth(ref: RefObject<HTMLElement | null>) {
   return width;
 }
 
+const LINK_ICONS: Record<WorkExperienceLink["type"], typeof FaInstagram> = {
+  instagram: FaInstagram,
+  youtube: FaYoutube,
+};
+
 export default function TimelineScrubber({
   title,
   timelineStart,
   items,
 }: TimelineScrubberProps) {
   const reducedMotion = useReducedMotion();
-  const sectionRef = useRef<HTMLElement | null>(null);
   const trackWrapperRef = useRef<HTMLDivElement | null>(null);
+  const tracksAreaRef = useRef<HTMLDivElement | null>(null);
   const laneRef = useRef<HTMLDivElement | null>(null);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const justDraggedRef = useRef(false);
 
   const defaultItem =
     items.find((item) => item.yearEnd === null) ?? items[items.length - 1];
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [mode, setMode] = useState<"scroll" | "manual">("scroll");
-  const [isMobile, setIsMobile] = useState(false);
-  const [hoveredClipId, setHoveredClipId] = useState<string | null>(null);
+  const [parkedId, setParkedId] = useState<string | null>(null);
+  const [hoverClipId, setHoverClipId] = useState<string | null>(null);
+  const [isHoverCapable, setIsHoverCapable] = useState(false);
   const [hoveredKeyframe, setHoveredKeyframe] = useState<string | null>(null);
   const [draggingKeyframe, setDraggingKeyframe] = useState<string | null>(null);
 
-  const selectedItem = items.find((item) => item.id === selectedId) ?? defaultItem;
+  const selectedItem = items.find((item) => item.id === parkedId) ?? defaultItem;
   const trackWidthPx = useMeasuredWidth(trackWrapperRef);
 
   useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    // Client-only breakpoint check (matchMedia isn't available during SSR).
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    // Client-only pointer-capability check (matchMedia isn't available during SSR).
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMobile(mq.matches);
-    const handler = (event: MediaQueryListEvent) => setIsMobile(event.matches);
+    setIsHoverCapable(mq.matches);
+    const handler = (event: MediaQueryListEvent) => setIsHoverCapable(event.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
@@ -134,6 +138,21 @@ export default function TimelineScrubber({
   const pctForYear = useCallback(
     (year: number) => clamp(((year - timelineStart) / span) * 100, 0, 100),
     [timelineStart, span],
+  );
+  const yearForPct = useCallback(
+    (pct: number) => timelineStart + (pct / 100) * span,
+    [timelineStart, span],
+  );
+
+  const findClipAtYear = useCallback(
+    (year: number) => {
+      const matches = items.filter(
+        (item) => year >= item.yearStart && year <= (item.yearEnd ?? nowYear),
+      );
+      if (matches.length === 0) return null;
+      return matches.reduce((top, item) => (item.track > top.track ? item : top));
+    },
+    [items, nowYear],
   );
 
   const years = useMemo(() => {
@@ -172,84 +191,83 @@ export default function TimelineScrubber({
     writeStoredKeyframes(keyframePositions);
   }, [keyframePositions]);
 
-  // Refs mirror the mode/isMobile state so the high-frequency scroll callback
-  // below always reads the current value without needing to be recreated
-  // every render (and without pulling those state values into its own
-  // re-render path).
-  const modeRef = useRef(mode);
-  useEffect(() => {
-    modeRef.current = mode;
-  }, [mode]);
-  const isMobileRef = useRef(isMobile);
-  useEffect(() => {
-    isMobileRef.current = isMobile;
-  }, [isMobile]);
+  // Playhead position: never scroll-linked (R1). Defaults to the freelance
+  // clip's midpoint; hover sweeps it (spring-smoothed) without touching the
+  // readout; a click "parks" it and commits the selection.
+  const initialParkedPct = pctForYear(clipMidpoint(defaultItem, nowYear));
+  const targetPctMV = useMotionValue(initialParkedPct);
+  const springPctMV = useSpring(targetPctMV, { duration: 0.12, bounce: 0 });
+  const parkedPctRef = useRef(initialParkedPct);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-  const scrollYear = useTransform(scrollYProgress, [0, 1], [timelineStart, nowYear]);
+  const rawLeftMV = useMotionTemplate`${targetPctMV}%`;
+  const springLeftMV = useMotionTemplate`${springPctMV}%`;
+  const displayPctMV = reducedMotion ? targetPctMV : springPctMV;
+  const displayLeftMV = reducedMotion ? rawLeftMV : springLeftMV;
 
-  // The playhead's position lives in a MotionValue, not React state: scroll
-  // updates it via `.set()` (no re-render) instead of `setState` (which was
-  // forcing a full re-render of this whole tree on every scroll frame and
-  // causing visible stutter on fast scroll). Starts at "now" (100%), the
-  // resting/default position, until the first scroll-progress tick moves it.
-  const playheadPctMV = useMotionValue(100);
-  const playheadLeftMV = useMotionTemplate`${playheadPctMV}%`;
-
-  const lastAutoSelectAt = useRef(0);
-  const lastAutoSelectedId = useRef<string | null>(null);
-
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    // Re-arm scroll mode once the section is fully out of view in either direction.
-    if (modeRef.current === "manual" && (latest <= 0 || latest >= 1)) {
-      modeRef.current = "scroll";
-      setMode("scroll");
-    }
-  });
-
-  useMotionValueEvent(scrollYear, "change", (latest) => {
-    if (reducedMotion || isMobileRef.current || modeRef.current !== "scroll") return;
-    playheadPctMV.set(pctForYear(latest));
-
-    const matched = items.find(
-      (item) => latest >= item.yearStart && latest <= (item.yearEnd ?? nowYear),
-    );
-    if (matched && matched.id !== lastAutoSelectedId.current) {
-      const now = Date.now();
-      if (now - lastAutoSelectAt.current >= AUTO_SELECT_THROTTLE_MS) {
-        lastAutoSelectedId.current = matched.id;
-        lastAutoSelectAt.current = now;
-        setSelectedId(matched.id);
-      }
-    }
-  });
+  const parkAt = useCallback(
+    (pct: number, id: string | null) => {
+      const clamped = clamp(pct, 0, 100);
+      parkedPctRef.current = clamped;
+      setParkedId(id);
+      targetPctMV.set(clamped);
+    },
+    [targetPctMV],
+  );
 
   const selectClip = useCallback(
-    (id: string) => {
-      modeRef.current = "manual";
-      setMode("manual");
-      lastAutoSelectedId.current = id;
-      setSelectedId(id);
-
-      // Reduced motion: playhead stays fixed at "now" — only the readout changes.
-      if (reducedMotion) return;
-
-      const item = items.find((candidate) => candidate.id === id);
-      if (!item) return;
-      const targetPct = pctForYear(clipMidpoint(item, nowYear));
-      animate(playheadPctMV, targetPct, { duration: 0.5, ease: HOUSE_EASE });
+    (item: SiteWorkExperience) => {
+      parkAt(pctForYear(clipMidpoint(item, nowYear)), item.id);
     },
-    [items, nowYear, pctForYear, playheadPctMV, reducedMotion],
+    [nowYear, parkAt, pctForYear],
   );
 
   const focusIndex = (index: number) => {
     const clampedIndex = clamp(index, 0, items.length - 1);
     const target = items[clampedIndex];
-    selectClip(target.id);
+    selectClip(target);
     buttonRefs.current[clampedIndex]?.focus();
+  };
+
+  const handleTracksAreaMouseMove = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if (!isHoverCapable) return;
+    const rect = tracksAreaRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0) return;
+    const pct = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
+    targetPctMV.set(pct);
+    const hovered = findClipAtYear(yearForPct(pct));
+    setHoverClipId(hovered?.id ?? null);
+  };
+
+  const handleTracksAreaMouseLeave = () => {
+    if (!isHoverCapable) return;
+    targetPctMV.set(parkedPctRef.current);
+    setHoverClipId(null);
+  };
+
+  const handleTracksAreaClick = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if (justDraggedRef.current) {
+      justDraggedRef.current = false;
+      return;
+    }
+    const rect = tracksAreaRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0) return;
+
+    // event.detail === 0 signals a keyboard-activated click (Enter/Space on a
+    // focused button) rather than a real pointer position — park on that
+    // clip's own midpoint instead of a meaningless clientX.
+    if (event.detail === 0) {
+      const clipButton = (event.target as HTMLElement).closest<HTMLElement>(
+        "[data-clip-id]",
+      );
+      const id = clipButton?.dataset.clipId;
+      const item = id ? items.find((candidate) => candidate.id === id) : undefined;
+      if (item) selectClip(item);
+      return;
+    }
+
+    const pct = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
+    const matched = findClipAtYear(yearForPct(pct));
+    parkAt(pct, matched?.id ?? null);
   };
 
   const handleKeyframePointerDown = (
@@ -267,6 +285,7 @@ export default function TimelineScrubber({
     index: number,
   ) => {
     if (draggingKeyframe !== `${itemId}-${index}`) return;
+    justDraggedRef.current = true;
     const rect = laneRef.current?.getBoundingClientRect();
     if (!rect || rect.width === 0) return;
     const fraction = clamp((event.clientX - rect.left) / rect.width, 0, 1);
@@ -282,6 +301,7 @@ export default function TimelineScrubber({
     setDraggingKeyframe(null);
   };
 
+  const trackThreeItems = items.filter((item) => item.track === 3);
   const trackTwoItems = items.filter((item) => item.track === 2);
   const trackOneItems = items.filter((item) => item.track === 1);
 
@@ -289,7 +309,7 @@ export default function TimelineScrubber({
     const leftPct = pctForYear(item.yearStart);
     const widthPct = pctForYear(item.yearEnd ?? nowYear) - leftPct;
     const isSelected = selectedItem.id === item.id;
-    const isHovered = hoveredClipId === item.id;
+    const isHovered = hoverClipId === item.id;
     const widthPx = trackWidthPx !== null ? (widthPct / 100) * trackWidthPx : null;
     const showLabel = widthPx === null || widthPx >= LABEL_MIN_WIDTH_PX;
 
@@ -313,13 +333,9 @@ export default function TimelineScrubber({
           buttonRefs.current[index] = node;
         }}
         type="button"
+        data-clip-id={item.id}
         aria-pressed={isSelected}
         aria-label={`${item.role}, ${item.company}, ${item.periodLabel}`}
-        onClick={() => selectClip(item.id)}
-        onMouseEnter={() => setHoveredClipId(item.id)}
-        onMouseLeave={() => setHoveredClipId(null)}
-        onFocus={() => setHoveredClipId(item.id)}
-        onBlur={() => setHoveredClipId(null)}
         onKeyDown={(event) => {
           if (event.key === "ArrowRight") {
             event.preventDefault();
@@ -331,8 +347,8 @@ export default function TimelineScrubber({
         }}
         className="absolute top-0 min-w-[44px] overflow-hidden rounded-[6px] text-left transition-[box-shadow,background-color] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gilt/70"
         style={{
-          left: `${leftPct}%`,
-          width: `${widthPct}%`,
+          left: `calc(${leftPct}% + ${CLIP_INSET_PX}px)`,
+          width: `calc(${widthPct}% - ${CLIP_INSET_PX * 2}px)`,
           height: "100%",
           backgroundColor: rgba(item.clipColor, isHovered || isSelected ? 0.24 : 0.16),
           boxShadow: shadows.join(", "),
@@ -341,7 +357,7 @@ export default function TimelineScrubber({
         <span
           aria-hidden="true"
           className="absolute inset-x-0 top-0 h-1"
-          style={{ backgroundColor: item.clipColor }}
+          style={{ backgroundColor: rgba(item.clipColor, item.topBarOpacity) }}
         />
         {isSelected ? (
           <span
@@ -360,7 +376,6 @@ export default function TimelineScrubber({
 
   return (
     <section
-      ref={sectionRef}
       className={cn(
         surfaces.workPanel,
         "motion-safe:[animation-delay:-3.7s] motion-safe:[animation-duration:12.9s]",
@@ -376,7 +391,17 @@ export default function TimelineScrubber({
 
       <div className="mt-6 overflow-x-auto pb-2" data-lenis-prevent>
         <div ref={trackWrapperRef} className="relative min-w-[720px] w-full">
-          <div className="relative">
+          {/* Click-anywhere-to-park is a mouse/touch convenience on top of the
+              clip buttons below, which already provide full keyboard access
+              (Tab + arrow keys + Enter/Space). */}
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+          <div
+            ref={tracksAreaRef}
+            className="relative cursor-pointer"
+            onMouseMove={handleTracksAreaMouseMove}
+            onMouseLeave={handleTracksAreaMouseLeave}
+            onClick={handleTracksAreaClick}
+          >
             {/* Ruler: year ticks from timelineStart to the current year */}
             <div className="relative h-7 border-b border-fog/12">
               {years.map((year) => (
@@ -401,23 +426,26 @@ export default function TimelineScrubber({
               ))}
             </div>
 
-            {/* Tracks — V2 above V1, NLE convention */}
+            {/* Tracks — V3 top, V2 middle, V1 bottom, NLE convention. Each
+                item owns its row exactly as given in content; never re-derived. */}
             <div
               className="relative mt-[10px]"
-              style={{ height: TRACK_HEIGHT * 2 + TRACK_GAP }}
+              style={{ height: TRACK_HEIGHT * 3 + TRACK_GAP * 2 }}
             >
               <div className="absolute inset-x-0 top-0" style={{ height: TRACK_HEIGHT }}>
-                {trackTwoItems.map((item) =>
-                  renderClip(item, items.indexOf(item)),
-                )}
+                {trackThreeItems.map((item) => renderClip(item, items.indexOf(item)))}
               </div>
               <div
                 className="absolute inset-x-0"
                 style={{ top: TRACK_HEIGHT + TRACK_GAP, height: TRACK_HEIGHT }}
               >
-                {trackOneItems.map((item) =>
-                  renderClip(item, items.indexOf(item)),
-                )}
+                {trackTwoItems.map((item) => renderClip(item, items.indexOf(item)))}
+              </div>
+              <div
+                className="absolute inset-x-0"
+                style={{ top: (TRACK_HEIGHT + TRACK_GAP) * 2, height: TRACK_HEIGHT }}
+              >
+                {trackOneItems.map((item) => renderClip(item, items.indexOf(item)))}
               </div>
             </div>
 
@@ -494,17 +522,17 @@ export default function TimelineScrubber({
             </div>
 
             {/* Playhead — spans ruler through keyframe lane. Position is driven
-                directly by a MotionValue (see playheadPctMV above) rather than
-                React state, so scroll-tracking never triggers a re-render. */}
+                directly by MotionValues (spring-smoothed unless reduced
+                motion), never by scroll. */}
             <motion.div
               aria-hidden="true"
               className="pointer-events-none absolute top-0 z-10 h-full"
-              style={{ left: playheadLeftMV, transform: "translateX(-50%)" }}
+              style={{ left: displayLeftMV, transform: "translateX(-50%)" }}
             >
               <span className="absolute -top-1.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-t-[7px] border-x-transparent border-t-accent" />
               <span className="absolute top-0 left-1/2 h-full w-0.5 -translate-x-1/2 bg-accent shadow-[0_0_12px_rgba(252,76,0,0.16)]" />
               <PlayheadTimecode
-                pctMV={playheadPctMV}
+                pctMV={displayPctMV}
                 timelineStart={timelineStart}
                 span={span}
               />
@@ -540,8 +568,33 @@ export default function TimelineScrubber({
               />
               {selectedItem.role}
             </h3>
-            <p className="mt-1 font-mono text-[0.8rem] text-fog/82">
-              {selectedItem.company}
+            <p className="mt-1 flex flex-wrap items-center gap-2 font-mono text-[0.8rem] text-fog/82">
+              <span>{selectedItem.company}</span>
+              {selectedItem.links.length > 0 ? (
+                <span className="inline-flex items-center gap-2">
+                  {selectedItem.links.map((link) => {
+                    const Icon = LINK_ICONS[link.type];
+                    return (
+                      <a
+                        key={link.type}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener"
+                        aria-label={`${selectedItem.company} on ${link.type}`}
+                        className="text-fog/70 transition-colors duration-200"
+                        onMouseEnter={(event) => {
+                          event.currentTarget.style.color = selectedItem.clipColor;
+                        }}
+                        onMouseLeave={(event) => {
+                          event.currentTarget.style.color = "";
+                        }}
+                      >
+                        <Icon className="h-5 w-5" />
+                      </a>
+                    );
+                  })}
+                </span>
+              ) : null}
             </p>
             <p className="mt-4 max-w-[60ch] font-serif text-[0.9rem] italic leading-[1.75] text-fog/85">
               {selectedItem.summary}
@@ -559,10 +612,8 @@ interface PlayheadTimecodeProps {
   span: number;
 }
 
-// Isolated so the high-frequency scroll updates driving the playhead don't
-// re-render the rest of the timeline — this only re-renders when the
-// *rounded* year actually changes (roughly once per year crossed), not on
-// every fractional pixel of scroll.
+// Isolated so playhead position updates don't re-render the rest of the
+// timeline — this only re-renders when the *rounded* year actually changes.
 function PlayheadTimecode({ pctMV, timelineStart, span }: PlayheadTimecodeProps) {
   const pctToYear = useCallback(
     (pct: number) => Math.round(timelineStart + (pct / 100) * span),

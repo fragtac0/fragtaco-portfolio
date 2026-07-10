@@ -50,18 +50,26 @@ export const WorkExperienceKindSchema = z.enum([
   "freelance",
 ]);
 
+export const WorkExperienceLinkSchema = z.object({
+  type: z.enum(["instagram", "youtube"]),
+  url: z.string().url(),
+});
+
 export const WorkExperienceSchema = z.object({
   id: z.string().min(1),
+  parentId: z.string().min(1).optional(),
   kind: WorkExperienceKindSchema,
-  track: z.union([z.literal(1), z.literal(2)]),
+  track: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   clipColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Expected a 6-digit hex color"),
+  topBarOpacity: z.number().min(0).max(1),
   role: z.string().min(1),
   company: z.string().min(1),
   periodLabel: z.string().min(1),
-  yearStart: z.number().int().min(1900).max(2100),
-  yearEnd: z.number().int().min(1900).max(2100).nullable(),
+  yearStart: z.number().min(1900).max(2100),
+  yearEnd: z.number().min(1900).max(2100).nullable(),
   summary: z.string().min(1),
   location: z.string().min(1).optional(),
+  links: z.array(WorkExperienceLinkSchema),
   keyframes: z.array(z.number().min(0).max(1)),
   published: z.boolean(),
   sortOrder: z.number().int().nonnegative(),
