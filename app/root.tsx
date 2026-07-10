@@ -32,7 +32,7 @@ export const meta: MetaFunction = () => [
   {
     name: "description",
     content:
-      "Portfolio of Aditya Bhoir (FragTaco), a freelance video editor and motion designer from Mumbai with 6+ years on the timeline.",
+      "Portfolio of Aditya Bhoir (FragTaco), a video editor and content head from Mumbai, working remote, with 6+ years on the timeline.",
   },
 ];
 
