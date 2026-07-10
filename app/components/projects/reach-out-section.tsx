@@ -2,7 +2,6 @@ import { FaArrowUpRightFromSquare } from "react-icons/fa6";
 import { surfaces, textStyles } from "../../config/ui";
 import type { SiteReachOutSection } from "../../types";
 import { externalLinkProps } from "../../utils/link";
-import GlassSheen from "../ui/glass-sheen";
 
 interface ReachOutSectionProps {
   content: SiteReachOutSection;
@@ -11,7 +10,6 @@ interface ReachOutSectionProps {
 export default function ReachOutSection({ content }: ReachOutSectionProps) {
   return (
     <section className={surfaces.reachOutPanel}>
-      <GlassSheen className="left-[-40%] bg-fog/[0.035] motion-safe:[animation-delay:-6.4s] motion-safe:[animation-duration:12.7s]" />
       <div
         aria-hidden="true"
         className="absolute -right-24 -top-24 -z-10 h-72 w-72 rounded-full bg-gilt/22 blur-3xl motion-safe:animate-reach-pulse motion-safe:[animation-delay:-3.1s]"

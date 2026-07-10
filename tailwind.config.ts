@@ -99,13 +99,6 @@ const config: Config = {
               "0 34px 124px rgba(0,0,0,0.33), 0 0 60px rgba(217,164,65,0.14), inset 0 1px 0 rgba(255,236,214,0.16)",
           },
         },
-        "glass-sheen": {
-          "0%": { opacity: "0", transform: "translateX(-150%) skewX(-14deg)" },
-          "18%": { opacity: "0" },
-          "45%": { opacity: "1" },
-          "74%": { opacity: "0.2" },
-          "100%": { opacity: "0", transform: "translateX(170%) skewX(-14deg)" },
-        },
         "ken-burns": {
           "0%": { transform: "scale(1.06) translate3d(0,0,0)" },
           "50%": { transform: "scale(1.13) translate3d(-1.4%,0.8%,0)" },
@@ -141,7 +134,6 @@ const config: Config = {
         "reach-pulse": "reach-pulse 7.2s ease-in-out infinite",
         "reach-sweep": "reach-sweep 4.4s cubic-bezier(0.16, 1, 0.3, 1) infinite",
         "glass-breathe": "glass-breathe 12s cubic-bezier(0.45, 0, 0.2, 1) infinite",
-        "glass-sheen": "glass-sheen 8.6s cubic-bezier(0.45, 0, 0.2, 1) infinite",
         "ken-burns": "ken-burns 34s ease-in-out infinite",
         "rec-blink": "rec-blink 1.6s steps(1, end) infinite",
         "gate-weave": "gate-weave 9s ease-in-out infinite",

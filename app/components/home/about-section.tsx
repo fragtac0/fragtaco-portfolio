@@ -8,7 +8,6 @@ import {
 import type { SiteFactsSection } from "../../types";
 import AboutCopy from "../about/about-copy";
 import AboutPortrait from "../about/about-portrait";
-import GlassSheen from "../ui/glass-sheen";
 import Reveal from "../ui/reveal";
 import FactShuffler from "./fact-shuffler";
 
@@ -47,7 +46,6 @@ export default function AboutSection({
       <div className={`${layout.homeContainer} relative z-10 grid gap-10`}>
         <Reveal>
           <header className={surfaces.aboutHeader}>
-            <GlassSheen className="left-[-35%] bg-fog/[0.045] motion-safe:[animation-delay:-5.5s] motion-safe:[animation-duration:10.8s]" />
             <div className={textStyles.headerMeta}>
               <p className="text-fog/78">profile / fragtaco</p>
               <p className="hidden text-center sm:block">est. 2019</p>
@@ -72,7 +70,6 @@ export default function AboutSection({
           viewport={{ amount: 0.2, once: true }}
           whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
         >
-          <GlassSheen className="left-[-42%] bg-fog/[0.035] motion-safe:[animation-delay:-3.9s] motion-safe:[animation-duration:12.4s]" />
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 z-10 opacity-[0.07] mix-blend-screen [background-image:linear-gradient(rgba(245,239,230,0.16)_1px,transparent_1px),linear-gradient(90deg,rgba(245,239,230,0.16)_1px,transparent_1px)] [background-size:30px_30px]"

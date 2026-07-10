@@ -26,7 +26,6 @@ import type {
   WorkExperienceLink,
 } from "../../types";
 import { cn } from "../../utils/cn";
-import GlassSheen from "../ui/glass-sheen";
 import SectionHeadingRow from "../ui/section-heading-row";
 
 interface TimelineScrubberProps {
@@ -435,7 +434,6 @@ export default function TimelineScrubber({
         "motion-safe:[animation-delay:-3.7s] motion-safe:[animation-duration:12.9s]",
       )}
     >
-      <GlassSheen className="left-[-45%] bg-fog/[0.035] motion-safe:[animation-delay:-7.1s] motion-safe:[animation-duration:12.4s]" />
       <SectionHeadingRow
         label="film strip"
         labelClassName={textStyles.giltLabel}

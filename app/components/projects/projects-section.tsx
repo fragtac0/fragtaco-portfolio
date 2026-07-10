@@ -16,7 +16,6 @@ import ReachOutSection from "./reach-out-section";
 import TechStackSection from "./tech-stack-section";
 import TimelineScrubber from "./timeline-scrubber";
 import WorkClock from "./work-clock";
-import GlassSheen from "../ui/glass-sheen";
 import Reveal from "../ui/reveal";
 import SectionHeadingRow from "../ui/section-heading-row";
 
@@ -43,7 +42,6 @@ export default function ProjectsSection({
       <div className={`${layout.pageContainer} relative z-10`}>
         <Reveal>
           <header className={surfaces.workHeader}>
-            <GlassSheen className="left-[-35%] bg-fog/[0.045] motion-safe:[animation-delay:-2.4s] motion-safe:[animation-duration:10.2s]" />
             <div className={textStyles.headerMeta}>
               <p className="text-fog">
                 reel / output
@@ -92,7 +90,6 @@ export default function ProjectsSection({
                 "motion-safe:[animation-delay:-6.2s] motion-safe:[animation-duration:13.4s]",
               )}
             >
-              <GlassSheen className="left-[-45%] bg-fog/[0.035] motion-safe:[animation-delay:-4.8s] motion-safe:[animation-duration:11.6s]" />
               <SectionHeadingRow
                 label="edit log / long-form"
                 labelClassName={textStyles.giltLabel}
@@ -120,7 +117,6 @@ export default function ProjectsSection({
                 "motion-safe:[animation-delay:-3.4s] motion-safe:[animation-duration:12.1s]",
               )}
             >
-              <GlassSheen className="left-[-45%] bg-fog/[0.035] motion-safe:[animation-delay:-8.2s] motion-safe:[animation-duration:12.9s]" />
               <SectionHeadingRow
                 label="edit log / short-form"
                 labelClassName={textStyles.giltLabel}
