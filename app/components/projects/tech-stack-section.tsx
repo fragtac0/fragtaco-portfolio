@@ -28,13 +28,13 @@ function TechMark({ item }: { item: SiteTechStackItem }) {
   const Icon = TECH_ICON_MAP[item.id];
 
   if (Icon) {
-    return <Icon className="h-5 w-5 text-accent sm:h-6 sm:w-6" />;
+    return <Icon className="h-5 w-5 text-fog sm:h-6 sm:w-6" />;
   }
 
   const monogram = TECH_MONOGRAM_MAP[item.id] ?? item.label.slice(0, 2);
 
   return (
-    <span className="grid h-6 min-w-6 place-items-center rounded-md bg-fog/12 px-1.5 font-metric text-[0.66rem] font-semibold text-accent">
+    <span className="font-metric text-[0.7rem] font-black tracking-wide text-fog">
       {monogram}
     </span>
   );
@@ -42,7 +42,7 @@ function TechMark({ item }: { item: SiteTechStackItem }) {
 
 function TechPill({ item }: { item: SiteTechStackItem }) {
   return (
-    <span className="flex h-10 items-center gap-2 rounded-full border border-fog/10 bg-fog/[0.045] px-3 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-accent/80 shadow-[0_10px_26px_rgba(0,0,0,0.18)] sm:h-11 sm:px-4 sm:text-[0.62rem]">
+    <span className="flex h-10 items-center gap-2 rounded-full border border-ember-300/45 bg-gradient-to-b from-ember-400 to-ember-500 px-3 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-fog shadow-[inset_0_1px_0_rgba(255,236,214,0.28),0_10px_26px_rgba(0,0,0,0.28)] sm:h-11 sm:px-4 sm:text-[0.62rem]">
       <TechMark item={item} />
       {item.label}
     </span>
