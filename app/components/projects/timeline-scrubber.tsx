@@ -146,6 +146,45 @@ export default function TimelineScrubber({
   const tracksAreaRef = useRef<HTMLDivElement | null>(null);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const justDraggedRef = useRef(false);
+  const isScrollingRef = useRef(false);
+  const scrollSettleTimeoutRef = useRef<number | null>(null);
+  const hoverRafIdRef = useRef<number | null>(null);
+  const pendingHoverPctRef = useRef<number | null>(null);
+
+  // Suspend hover-follow entirely while the page is scrolling — a stationary
+  // cursor over the film strip otherwise sees elements slide beneath it,
+  // firing pointer events that fight the scroll (the "film-strip glitch").
+  // pointer-events:none is applied directly to the DOM (not via React state)
+  // so it takes effect on the very next paint, not a render cycle later.
+  useEffect(() => {
+    const handleScroll = () => {
+      isScrollingRef.current = true;
+      if (tracksAreaRef.current) {
+        tracksAreaRef.current.style.pointerEvents = "none";
+      }
+      if (scrollSettleTimeoutRef.current !== null) {
+        window.clearTimeout(scrollSettleTimeoutRef.current);
+      }
+      scrollSettleTimeoutRef.current = window.setTimeout(() => {
+        isScrollingRef.current = false;
+        if (tracksAreaRef.current) {
+          tracksAreaRef.current.style.pointerEvents = "";
+        }
+        scrollSettleTimeoutRef.current = null;
+      }, 150);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollSettleTimeoutRef.current !== null) {
+        window.clearTimeout(scrollSettleTimeoutRef.current);
+      }
+      if (hoverRafIdRef.current !== null) {
+        cancelAnimationFrame(hoverRafIdRef.current);
+      }
+    };
+  }, []);
 
   const defaultItem =
     items.find((item) => item.yearEnd === null) ?? items[items.length - 1];
@@ -265,17 +304,35 @@ export default function TimelineScrubber({
   };
 
   const handleTracksAreaMouseMove = (event: ReactMouseEvent<HTMLDivElement>) => {
-    if (!isHoverCapable) return;
+    if (!isHoverCapable || isScrollingRef.current) return;
     const rect = tracksAreaRef.current?.getBoundingClientRect();
     if (!rect || rect.width === 0) return;
     const pct = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
-    targetPctMV.set(pct);
     const hovered = findClipAtYear(yearForPct(pct));
     setHoverClipId(hovered?.id ?? null);
+
+    // Pointer-follow can fire well over 120Hz on some devices — coalesce to
+    // at most one playhead update per animation frame instead of setting the
+    // spring target on every raw pointermove.
+    pendingHoverPctRef.current = pct;
+    if (hoverRafIdRef.current === null) {
+      hoverRafIdRef.current = requestAnimationFrame(() => {
+        hoverRafIdRef.current = null;
+        if (pendingHoverPctRef.current !== null) {
+          targetPctMV.set(pendingHoverPctRef.current);
+          pendingHoverPctRef.current = null;
+        }
+      });
+    }
   };
 
   const handleTracksAreaMouseLeave = () => {
     if (!isHoverCapable) return;
+    if (hoverRafIdRef.current !== null) {
+      cancelAnimationFrame(hoverRafIdRef.current);
+      hoverRafIdRef.current = null;
+    }
+    pendingHoverPctRef.current = null;
     targetPctMV.set(parkedPctRef.current);
     setHoverClipId(null);
   };
@@ -587,7 +644,7 @@ export default function TimelineScrubber({
         </div>
       </div>
 
-      <div className="relative mt-6 min-h-[9rem]">
+      <div className="relative mt-6 min-h-[16rem] sm:min-h-[12rem]">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={selectedItem.id}
