@@ -10,9 +10,15 @@ interface ReachOutSectionProps {
 export default function ReachOutSection({ content }: ReachOutSectionProps) {
   return (
     <section className={surfaces.reachOutPanel}>
+      {/* Pre-blurred via a multi-stop radial gradient instead of
+          filter:blur() — see ember-background.tsx for why. */}
       <div
         aria-hidden="true"
-        className="absolute -right-24 -top-24 -z-10 h-72 w-72 rounded-full bg-gilt/22 blur-3xl motion-safe:animate-reach-pulse motion-safe:[animation-delay:-3.1s]"
+        className="absolute -right-28 -top-28 -z-10 h-80 w-80 rounded-full motion-safe:animate-reach-pulse motion-safe:[animation-delay:-3.1s]"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(217,164,65,0.22) 0%, rgba(217,164,65,0.14) 25%, rgba(217,164,65,0.06) 50%, transparent 72%)",
+        }}
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)] lg:items-end">

@@ -42,7 +42,7 @@ function TechMark({ item }: { item: SiteTechStackItem }) {
 
 function TechPill({ item }: { item: SiteTechStackItem }) {
   return (
-    <span className="flex h-10 items-center gap-2 rounded-full border border-accent/35 bg-accent/16 px-3 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-fog shadow-[inset_0_1px_0_rgba(255,236,214,0.16),0_10px_26px_rgba(0,0,0,0.24)] backdrop-blur-md sm:h-11 sm:px-4 sm:text-[0.62rem]">
+    <span className="flex h-10 items-center gap-2 rounded-full border border-accent/35 bg-accent/16 px-3 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-fog shadow-[inset_0_1px_0_rgba(255,236,214,0.16),0_10px_26px_rgba(0,0,0,0.24)] sm:h-11 sm:px-4 sm:text-[0.62rem]">
       <TechMark item={item} />
       {item.label}
     </span>
