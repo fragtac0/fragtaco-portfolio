@@ -100,9 +100,18 @@ const config: Config = {
           },
         },
         "ken-burns": {
-          "0%": { transform: "scale(1.06) translate3d(0,0,0)" },
-          "50%": { transform: "scale(1.13) translate3d(-1.4%,0.8%,0)" },
-          "100%": { transform: "scale(1.06) translate3d(0,0,0)" },
+          "0%": {
+            transform:
+              "scale(calc(1.0 * var(--painting-zoom, 1))) translate3d(0,0,0)",
+          },
+          "50%": {
+            transform:
+              "scale(calc(1.06 * var(--painting-zoom, 1))) translate3d(-1.2%,0.6%,0)",
+          },
+          "100%": {
+            transform:
+              "scale(calc(1.0 * var(--painting-zoom, 1))) translate3d(0,0,0)",
+          },
         },
         "rec-blink": {
           "0%, 100%": { opacity: "1" },

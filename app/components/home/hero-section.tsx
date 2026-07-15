@@ -1,5 +1,5 @@
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { styleUnlessReduced, surfaces, textStyles } from "../../config/ui";
 import type { SiteHeroPainting } from "../../types";
 import { cn } from "../../utils/cn";
@@ -106,7 +106,20 @@ export default function HeroSection({
             alt={`${painting.title} by ${painting.artist}`}
             decoding="async"
             onLoad={() => setLoadedId(painting.id)}
-            style={{ objectPosition: painting.focal }}
+            style={
+              {
+                objectPosition: painting.focal,
+                // Feeds the ken-burns keyframes' scale() so each painting can
+                // be pulled back (zoom < 1) or pushed in (zoom > 1) without
+                // touching the shared breathing animation itself.
+                "--painting-zoom": painting.zoom ?? 1,
+                // The animation is motion-safe-only, so reduced motion needs
+                // its own static application of the same zoom.
+                transform: reducedMotion
+                  ? `scale(${painting.zoom ?? 1})`
+                  : undefined,
+              } as CSSProperties
+            }
             className={`h-full w-full object-cover transition-opacity duration-700 ease-out motion-safe:animate-ken-burns motion-reduce:transition-none ${
               loadedId === painting.id ? "opacity-100" : "opacity-0"
             }`}

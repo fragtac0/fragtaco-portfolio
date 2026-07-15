@@ -1,9 +1,9 @@
 {
-  "$comment": "Hero painting shuffler manifest v3 (26-work list, 22 available). One is picked at random on every visit, excluding the last 3 shown (sessionStorage key 'heroRecentPaintings') — see hero-section.tsx. Files live in public/paintings/ (3840px-or-original landscape/portrait JPEGs, public domain via Wikimedia Commons). 'focal' is the CSS object-position used so the interesting part survives cropping. Items with missing:true have no verified full-res file on Wikimedia Commons — kept here for documentation, filtered out by the loader (never substituted with a different painting per spec).",
+  "$comment": "Hero painting shuffler manifest v3 (26-work list, 22 available). One is picked at random on every visit, excluding the last 3 shown (sessionStorage key 'heroRecentPaintings') — see hero-section.tsx. Files live in public/paintings/ (3840px-or-original landscape/portrait JPEGs, public domain via Wikimedia Commons). 'focal' is the CSS object-position used so the interesting part survives cropping; every item's focal has been visually verified against the hero's actual aspect ratio, including the ken-burns breathing zoom. 'zoom' (optional, default 1) feeds the ken-burns keyframes' scale() per painting — use <1 to pull back a composition that reads too tight, >1 to crop out unwanted margin (e.g. a visible picture frame). Items with missing:true have no verified full-res file on Wikimedia Commons — kept here for documentation, filtered out by the loader (never substituted with a different painting per spec).",
   "items": [
     { "id": "school-of-athens", "file": "school-of-athens.jpg", "title": "The School of Athens", "artist": "Raphael", "year": 1511, "focal": "50% 30%" },
     { "id": "isle-of-the-dead", "file": "isle-of-the-dead.jpg", "title": "Isle of the Dead", "artist": "Arnold Böcklin", "year": 1883, "focal": "50% 45%" },
-    { "id": "stanczyk", "file": "stanczyk.jpg", "title": "Stańczyk", "artist": "Jan Matejko", "year": 1862, "focal": "40% 40%" },
+    { "id": "stanczyk", "file": "stanczyk.jpg", "title": "Stańczyk", "artist": "Jan Matejko", "year": 1862, "focal": "42% 28%" },
     { "id": "wanderer-sea-of-fog", "file": "wanderer-sea-of-fog.jpg", "title": "Wanderer above the Sea of Fog", "artist": "Caspar David Friedrich", "year": 1818, "focal": "50% 35%", "orientation": "portrait" },
     { "id": "nighthawks", "file": "nighthawks.jpg", "title": "Nighthawks", "artist": "Edward Hopper", "year": 1942, "focal": "60% 50%" },
     { "id": "evening-glow-lake-sai", "file": "evening-glow-lake-sai.jpg", "title": "Evening Glow at Lake Sai", "artist": "Tsuchiya Koitsu", "year": 1938, "focal": "50% 50%", "sourcing": "verify", "missing": true },
@@ -19,13 +19,13 @@
     { "id": "destruction-of-pompeii", "file": "destruction-of-pompeii.jpg", "title": "The Destruction of Pompeii and Herculaneum", "artist": "John Martin", "year": 1822, "focal": "50% 50%" },
     { "id": "aivazovsky-wave", "file": "aivazovsky-wave.jpg", "title": "The Wave", "artist": "Ivan Aivazovsky", "year": 1889, "focal": "50% 50%" },
     { "id": "aivazovsky-tempest", "file": "aivazovsky-tempest.jpg", "title": "Tempest", "artist": "Ivan Aivazovsky", "year": 1886, "focal": "50% 50%", "sourcing": "verify", "missing": true },
-    { "id": "las-meninas", "file": "las-meninas.jpg", "title": "Las Meninas", "artist": "Diego Velázquez", "year": 1656, "focal": "50% 40%", "orientation": "portrait" },
+    { "id": "las-meninas", "file": "las-meninas.jpg", "title": "Las Meninas", "artist": "Diego Velázquez", "year": 1656, "focal": "50% 70%", "orientation": "portrait" },
     { "id": "rainy-season-tropics", "file": "rainy-season-tropics.jpg", "title": "Rainy Season in the Tropics", "artist": "Frederic Edwin Church", "year": 1866, "focal": "50% 50%" },
     { "id": "pandemonium", "file": "pandemonium.jpg", "title": "Pandemonium", "artist": "John Martin", "year": 1841, "focal": "50% 50%" },
     { "id": "fall-of-the-giants", "file": "fall-of-the-giants.jpg", "title": "The Fall of the Giants", "artist": "Giulio Romano", "year": 1534, "focal": "50% 50%" },
     { "id": "night-watch", "file": "night-watch.jpg", "title": "The Night Watch", "artist": "Rembrandt van Rijn", "year": 1642, "focal": "50% 42%" },
     { "id": "tower-of-babel", "file": "tower-of-babel.jpg", "title": "The Tower of Babel", "artist": "Pieter Bruegel the Elder", "year": 1563, "focal": "50% 50%" },
-    { "id": "death-of-julius-caesar", "file": "death-of-julius-caesar.jpg", "title": "The Death of Julius Caesar", "artist": "Vincenzo Camuccini", "year": 1806, "focal": "50% 45%" },
+    { "id": "death-of-julius-caesar", "file": "death-of-julius-caesar.jpg", "title": "The Death of Julius Caesar", "artist": "Vincenzo Camuccini", "year": 1806, "focal": "50% 45%", "zoom": 1.08 },
     { "id": "venice-full-moon-salute", "file": "venice-full-moon-salute.jpg", "title": "Venice, Full Moon over Santa Maria della Salute", "artist": "Karl Heilmayer", "year": 1880, "focal": "50% 50%", "sourcing": "verify", "missing": true }
   ]
 }

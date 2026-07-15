@@ -26,6 +26,7 @@ export interface SiteHeroPainting {
   artist: string;
   year: number;
   focal: string;
+  zoom?: number;
   orientation?: "landscape" | "portrait";
   sourcing?: "verify";
   missing?: boolean;

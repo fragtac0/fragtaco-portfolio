@@ -27,6 +27,7 @@ export const HeroPaintingSchema = z.object({
   artist: z.string().min(1),
   year: z.number().int().min(1000).max(2100),
   focal: z.string().min(1),
+  zoom: z.number().min(0.5).max(2).optional(),
   orientation: z.enum(["landscape", "portrait"]).optional(),
   sourcing: z.literal("verify").optional(),
   missing: z.boolean().optional(),
