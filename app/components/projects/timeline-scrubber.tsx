@@ -431,7 +431,7 @@ export default function TimelineScrubber({
     <section
       className={cn(
         surfaces.workPanel,
-        "motion-safe:[animation-delay:-3.7s] motion-safe:[animation-duration:12.9s]",
+        "[overflow-anchor:none] motion-safe:[animation-delay:-3.7s] motion-safe:[animation-duration:12.9s]",
       )}
     >
       <SectionHeadingRow
@@ -441,7 +441,7 @@ export default function TimelineScrubber({
         titleClassName={textStyles.panelTitle}
       />
 
-      <div className="mt-6 overflow-x-auto pb-2" data-lenis-prevent>
+      <div className="mt-6 overflow-x-auto pb-2">
         <div ref={trackWrapperRef} className="relative min-w-[720px] w-full">
           {/* Click-anywhere-to-park is a mouse/touch convenience on top of the
               clip buttons below, which already provide full keyboard access

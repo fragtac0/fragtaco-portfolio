@@ -7,7 +7,6 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { PropsWithChildren } from "react";
-import LenisProvider from "./components/lenis-provider";
 import PageViewTracker from "./components/page-view-tracker";
 import appStylesHref from "./styles/tailwind.css?url";
 
@@ -57,7 +56,6 @@ export function Layout({ children }: PropsWithChildren) {
 export default function App() {
   return (
     <>
-      <LenisProvider />
       <PageViewTracker />
       <Outlet />
     </>
