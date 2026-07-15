@@ -56,7 +56,10 @@ export async function getHeroPaintings(): Promise<SiteHeroPainting[]> {
   );
   const items = ensureUniqueBy(content.items, (item) => item.id, "painting id");
 
-  return items;
+  // Manifest entries flagged missing:true have no usable file on disk
+  // (verified unavailable/too-low-res on Commons) — kept in the JSON for
+  // documentation, filtered out here so the shuffle never picks them.
+  return items.filter((item) => !item.missing);
 }
 
 export async function getFactsSection(): Promise<SiteFactsSection> {
