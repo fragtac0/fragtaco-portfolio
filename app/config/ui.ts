@@ -1,8 +1,13 @@
+// Shared horizontal centering axis: max-width + responsive padding, no
+// vertical rules. Anything that needs to share the page's centerline (hero
+// HUD, hero editorial lockup, the page/home containers themselves) composes
+// from this single source instead of inventing its own padding scheme.
+const containerX = "mx-auto w-full max-w-[1520px] px-4 sm:px-6 lg:px-12";
+
 export const layout = {
-  pageContainer:
-    "mx-auto min-h-screen w-full max-w-[1520px] px-4 py-6 pb-[calc(var(--site-nav-height)+2rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-8 lg:px-12 lg:py-12",
-  homeContainer:
-    "mx-auto min-h-screen-nav w-full max-w-[1520px] px-4 py-6 pb-[calc(var(--site-nav-height)+2rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-8 lg:px-12 lg:py-12",
+  pageContainer: `${containerX} min-h-screen py-6 pb-[calc(var(--site-nav-height)+2rem+env(safe-area-inset-bottom))] sm:py-8 lg:py-12`,
+  homeContainer: `${containerX} min-h-screen-nav py-6 pb-[calc(var(--site-nav-height)+2rem+env(safe-area-inset-bottom))] sm:py-8 lg:py-12`,
+  containerX,
 };
 
 export const textStyles = {
