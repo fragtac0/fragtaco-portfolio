@@ -39,9 +39,14 @@ const SESSION_KEY = "timelineKeyframes";
 const TRACK_HEIGHT = 64;
 const LANE_HEIGHT = 20;
 const LANE_GAP = 4;
-const GROUP_GAP = 8;
+// Ruler-to-first-track and between-track-group gaps share one rhythm value
+// (R13: they read mismatched at 10px/8px, with V3 hugging the ruler).
+const GROUP_GAP = 12;
 const LABEL_MIN_WIDTH_PX = 90;
+const PERIOD_LABEL_MIN_WIDTH_PX = 160;
 const CLIP_INSET_PX = 1;
+const RULER_EDGE_MASK =
+  "linear-gradient(to right, transparent 0, black 48px, black calc(100% - 48px), transparent 100%)";
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -422,6 +427,7 @@ export default function TimelineScrubber({
     const isHovered = hoverClipId === item.id;
     const widthPx = trackWidthPx !== null ? (widthPct / 100) * trackWidthPx : null;
     const showLabel = widthPx === null || widthPx >= LABEL_MIN_WIDTH_PX;
+    const showPeriodLabel = widthPx === null || widthPx >= PERIOD_LABEL_MIN_WIDTH_PX;
 
     const shadows: string[] = [`inset 0 0 0 1px ${rgba(item.clipColor, isHovered ? 0.9 : 0.45)}`];
     if (isHovered) {
@@ -435,6 +441,12 @@ export default function TimelineScrubber({
         `0 0 3px ${rgba(item.clipColor, 0.28)}`,
       );
     }
+
+    const [fillTopAlpha, fillBottomAlpha] = isHovered
+      ? [0.3, 0.15]
+      : isSelected
+        ? [0.26, 0.13]
+        : [0.2, 0.1];
 
     return (
       <button
@@ -460,7 +472,7 @@ export default function TimelineScrubber({
           left: `calc(${leftPct}% + ${CLIP_INSET_PX}px)`,
           width: `calc(${widthPct}% - ${CLIP_INSET_PX * 2}px)`,
           height: "100%",
-          backgroundColor: rgba(item.clipColor, isHovered || isSelected ? 0.24 : 0.16),
+          backgroundImage: `linear-gradient(to bottom, ${rgba(item.clipColor, fillTopAlpha)}, ${rgba(item.clipColor, fillBottomAlpha)})`,
           boxShadow: shadows.join(", "),
         }}
       >
@@ -476,8 +488,20 @@ export default function TimelineScrubber({
           />
         ) : null}
         {showLabel ? (
-          <span className="absolute inset-x-2 bottom-1.5 truncate font-mono text-[0.68rem] uppercase tracking-[0.08em] text-fog/85">
+          <span
+            className={cn(
+              "absolute bottom-1.5 left-2 truncate font-mono text-[0.68rem] uppercase tracking-[0.08em] text-fog/85",
+              // Reserve room for the period label so a long role never runs
+              // into it — only when that label is actually rendered.
+              showPeriodLabel ? "right-36" : "right-2",
+            )}
+          >
             {item.role}
+          </span>
+        ) : null}
+        {showPeriodLabel ? (
+          <span className="absolute right-2 bottom-1.5 shrink-0 whitespace-nowrap font-mono text-[0.56rem] uppercase tracking-[0.06em] text-fog/60">
+            {item.periodLabel}
           </span>
         ) : null}
       </button>
@@ -511,8 +535,16 @@ export default function TimelineScrubber({
             onMouseLeave={handleTracksAreaMouseLeave}
             onClick={handleTracksAreaClick}
           >
-            {/* Ruler: year ticks from timelineStart to the current year */}
-            <div className="relative h-7 border-b border-fog/12">
+            {/* Ruler: year ticks from timelineStart to the current year.
+                Edges are mask-faded so the half-cut first/last year reads as
+                an intentional fade, not a clipped label. */}
+            <div
+              className="relative h-7 border-b border-fog/12"
+              style={{
+                maskImage: RULER_EDGE_MASK,
+                WebkitMaskImage: RULER_EDGE_MASK,
+              }}
+            >
               {years.map((year) => (
                 <div
                   key={year}
@@ -539,13 +571,36 @@ export default function TimelineScrubber({
                 item owns its row exactly as given in content; never re-derived.
                 Each track carries its own keyframe lane directly beneath its
                 clips (AE-style: layer bar, then property keyframes). */}
-            <div className="relative mt-[10px]">
-              {[trackThreeItems, trackTwoItems, trackOneItems].map((trackItems, groupIndex) => (
+            <div className="relative" style={{ marginTop: GROUP_GAP }}>
+              {/* Vertical gridlines, one per year tick, behind the clips —
+                  first child in DOM order so normal stacking keeps it under
+                  the track rows below without needing an explicit z-index. */}
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+                {years.map((year) => (
+                  <span
+                    key={`grid-${year}`}
+                    className="absolute inset-y-0 w-px bg-fog/[0.06]"
+                    style={{ left: `${pctForYear(year)}%` }}
+                  />
+                ))}
+              </div>
+
+              {[trackThreeItems, trackTwoItems, trackOneItems].map((trackItems, groupIndex, groups) => (
                 <div
                   key={`track-group-${trackItems[0]?.track ?? groupIndex}`}
-                  style={{ marginTop: groupIndex === 0 ? 0 : GROUP_GAP }}
+                  style={{
+                    marginTop: groupIndex === 0 ? 0 : GROUP_GAP,
+                    paddingBottom: groupIndex === groups.length - 1 ? 0 : 1,
+                    borderBottom:
+                      groupIndex === groups.length - 1
+                        ? undefined
+                        : "1px solid rgba(245,239,230,0.05)",
+                  }}
                 >
-                  <div className="relative" style={{ height: TRACK_HEIGHT }}>
+                  <div
+                    className="relative rounded-[4px] bg-fog/[0.025]"
+                    style={{ height: TRACK_HEIGHT }}
+                  >
                     {trackItems.map((item) => renderClip(item, items.indexOf(item)))}
                   </div>
 
@@ -570,7 +625,7 @@ export default function TimelineScrubber({
                             <path
                               key={`${item.id}-line-${i}`}
                               d={`M ${x1} 10 L ${x2} 10`}
-                              stroke="rgba(245,239,230,0.15)"
+                              stroke="rgba(245,239,230,0.1)"
                               strokeWidth="1"
                               vectorEffect="non-scaling-stroke"
                               fill="none"
@@ -632,8 +687,12 @@ export default function TimelineScrubber({
               className="pointer-events-none absolute top-0 z-10 h-full"
               style={{ left: displayLeftMV, transform: "translateX(-50%)" }}
             >
-              <span className="absolute -top-1.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-t-[7px] border-x-transparent border-t-accent" />
-              <span className="absolute top-0 left-1/2 h-full w-0.5 -translate-x-1/2 bg-accent shadow-[0_0_12px_rgba(252,76,0,0.16)]" />
+              {/* Core line reads as a sharp fog hairline with the accent glow
+                  wrapped around it, rather than a solid accent bar. */}
+              <span className="absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-fog/40 shadow-[0_0_2px_1px_rgba(252,76,0,0.55),0_0_14px_2px_rgba(252,76,0,0.3)]" />
+              {/* Stem notch bridging the ruler triangle into the line. */}
+              <span className="absolute -top-0.5 left-1/2 h-1 w-0.5 -translate-x-1/2 bg-accent" />
+              <span className="absolute -top-2 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[6px] border-t-[9px] border-x-transparent border-t-accent" />
               <PlayheadTimecode
                 pctMV={displayPctMV}
                 timelineStart={timelineStart}
@@ -644,7 +703,9 @@ export default function TimelineScrubber({
         </div>
       </div>
 
-      <div className="relative mt-6 min-h-[16rem] sm:min-h-[12rem]">
+      <div aria-hidden="true" className="mt-6 h-px bg-fog/[0.08]" />
+
+      <div className="relative mt-4 min-h-[16rem] sm:min-h-[12rem]">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={selectedItem.id}
@@ -699,7 +760,7 @@ export default function TimelineScrubber({
                 </span>
               ) : null}
             </p>
-            <p className="mt-4 max-w-[60ch] font-serif text-[0.9rem] italic leading-[1.75] text-fog/85">
+            <p className="mt-4 max-w-[60ch] font-serif text-[0.9rem] italic leading-[1.75] text-fog/80">
               {selectedItem.summary}
             </p>
           </motion.div>
@@ -730,7 +791,7 @@ function PlayheadTimecode({ pctMV, timelineStart, span }: PlayheadTimecodeProps)
   });
 
   return (
-    <span className="absolute top-2 left-1/2 -translate-x-1/2 whitespace-nowrap font-metric text-[0.6rem] text-accent">
+    <span className="absolute top-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink/85 px-1.5 py-0.5 font-metric text-[0.6rem] text-accent ring-1 ring-accent/25">
       {displayYear}
     </span>
   );
