@@ -32,11 +32,24 @@ export interface SiteHeroPainting {
   missing?: boolean;
 }
 
+export interface SiteCreditsLink {
+  type: "website" | "github" | "x";
+  url: string;
+}
+
+export interface SiteCredits {
+  name: string;
+  blurb: string;
+  image: string;
+  links: SiteCreditsLink[];
+}
+
 export interface SiteHomeContent {
   hero: SiteHeroContent;
   about: {
     paragraphs: string[];
   };
+  credits: SiteCredits;
 }
 
 export type WorkExperienceKind = "education" | "self-taught" | "job" | "freelance";

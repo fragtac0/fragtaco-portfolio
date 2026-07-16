@@ -51,6 +51,7 @@ export default function Index() {
       <AboutSection
         paragraphs={home.about.paragraphs}
         facts={facts}
+        credits={home.credits}
       />
     </main>
   );

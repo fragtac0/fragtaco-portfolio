@@ -5,20 +5,23 @@ import {
   surfaces,
   textStyles,
 } from "../../config/ui";
-import type { SiteFactsSection } from "../../types";
+import type { SiteCredits, SiteFactsSection } from "../../types";
 import AboutCopy from "../about/about-copy";
 import AboutPortrait from "../about/about-portrait";
 import Reveal from "../ui/reveal";
+import CreditsCard from "./credits-card";
 import FactShuffler from "./fact-shuffler";
 
 interface AboutSectionProps {
   paragraphs: string[];
   facts: SiteFactsSection;
+  credits: SiteCredits;
 }
 
 export default function AboutSection({
   paragraphs,
   facts,
+  credits,
 }: AboutSectionProps) {
   const reducedMotion = useReducedMotion();
 
@@ -124,7 +127,14 @@ export default function AboutSection({
           viewport={{ amount: 0.16, once: true }}
           whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
         >
-          <FactShuffler content={facts} />
+          {/* Facts first in DOM order so mobile stacking (single column
+              below lg) always puts them above the credits card. items-start
+              keeps both tops aligned without stretching the shorter card —
+              the facts card sets the row's visual height. */}
+          <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start">
+            <FactShuffler content={facts} />
+            <CreditsCard credits={credits} />
+          </div>
         </motion.footer>
       </div>
     </section>

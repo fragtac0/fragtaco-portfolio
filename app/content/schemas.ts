@@ -37,6 +37,18 @@ export const HeroPaintingsSchema = z.object({
   items: z.array(HeroPaintingSchema).min(1),
 });
 
+export const CreditsLinkSchema = z.object({
+  type: z.enum(["website", "github", "x"]),
+  url: z.string().url(),
+});
+
+export const CreditsSchema = z.object({
+  name: z.string().min(1),
+  blurb: z.string().min(1),
+  image: z.string().min(1),
+  links: z.array(CreditsLinkSchema).min(1),
+});
+
 export const HomeContentSchema = z.object({
   hero: z.object({
     title: z.string().min(1),
@@ -45,6 +57,7 @@ export const HomeContentSchema = z.object({
   about: z.object({
     paragraphs: z.array(z.string().min(1)),
   }),
+  credits: CreditsSchema,
 });
 
 export const WorkExperienceKindSchema = z.enum([
