@@ -9,7 +9,6 @@ import { cn } from "../../utils/cn";
 type MatterModule = typeof MatterJS;
 type MatterEngine = ReturnType<MatterModule["Engine"]["create"]>;
 type MatterBody = ReturnType<MatterModule["Bodies"]["rectangle"]>;
-type MatterRunner = ReturnType<MatterModule["Runner"]["create"]>;
 
 const LABELS = aboutProfileTags;
 
@@ -34,6 +33,14 @@ const CEILING_DELAY_MS = 900;
 const OUT_OF_BOUNDS_TOP = -800;
 const OUT_OF_BOUNDS_SIDE_MARGIN = 400;
 const OUT_OF_BOUNDS_BOTTOM_MARGIN = 400;
+// Fixed physics timestep (ms) — one Engine.update() per rAF frame, always
+// stepped by this exact amount regardless of the frame's real duration.
+// Decouples simulation stability from render jitter.
+const PHYSICS_STEP_MS = 16.666;
+// A dragged pill escaping this far past the panel's edge releases
+// immediately instead of hanging in the air waiting for a mouseup that a
+// fast drag may never deliver inside the element.
+const RELEASE_GRACE_PX = 24;
 
 function isEngineEligible() {
   if (typeof window === "undefined") return false;
@@ -48,10 +55,26 @@ interface Dims {
   h: number;
 }
 
+interface HeldPill {
+  index: number;
+  pointerId: number;
+  // Grab offset: pointer position minus body position at grab time, in
+  // arena-local coordinates. Preserves where on the pill it was grabbed
+  // instead of snapping its center to the cursor.
+  offsetX: number;
+  offsetY: number;
+  // Latest pointer position, arena-local — written by pointermove, read by
+  // the physics step. pointermove never touches the body directly.
+  pointerX: number;
+  pointerY: number;
+  // Previous frame's target position, for the velocity-from-delta calc.
+  prevX: number;
+  prevY: number;
+}
+
 interface EngineRuntime {
   matter: MatterModule;
   engine: MatterEngine;
-  runner: MatterRunner;
   bodies: (MatterBody | null)[];
   floor: MatterBody;
   left: MatterBody;
@@ -76,6 +99,104 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
   const runtimeRef = useRef<EngineRuntime | null>(null);
   const initStartedRef = useRef(false);
   const cancelledRef = useRef(false);
+  const heldRef = useRef<HeldPill | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const lastFrameTimeRef = useRef(0);
+
+  function releaseHeld(el?: HTMLLIElement | null) {
+    const held = heldRef.current;
+    if (!held) return;
+    heldRef.current = null;
+    if (el?.hasPointerCapture(held.pointerId)) {
+      el.releasePointerCapture(held.pointerId);
+    }
+    panelRef.current?.removeAttribute("data-dragging");
+  }
+
+  function handlePointerDown(index: number, event: React.PointerEvent<HTMLLIElement>) {
+    if (mode !== "physics") return;
+    const rt = runtimeRef.current;
+    const arenaEl = arenaRef.current;
+    if (!rt || !arenaEl) return;
+    const body = rt.bodies[index];
+    if (!body) return;
+
+    // A settled pill is asleep (enableSleeping) — direct setPosition/
+    // setVelocity calls don't clear that flag on their own (unlike
+    // MouseConstraint, which wakes bodies it grabs), and Engine.update()
+    // skips integrating sleeping bodies entirely. Without this, a grabbed
+    // pill would still visually follow the cursor (we write its transform
+    // straight from body.position every frame regardless of sleep state)
+    // but freeze in place the instant it's released, since its real
+    // velocity would never get integrated into further motion.
+    rt.matter.Sleeping.set(body, false);
+
+    // Stops the drag from text-selecting the title/meta/caption behind the
+    // pills — the [data-dragging] CSS rule below covers the rest of the
+    // panel for the duration of the hold.
+    event.preventDefault();
+    const el = event.currentTarget;
+    try {
+      el.setPointerCapture(event.pointerId);
+    } catch {
+      // Per spec, setPointerCapture can throw (e.g. no active pointer with
+      // this id) — without capture we can't reliably track the drag past
+      // this element's bounds, so bail rather than start a hold we can't
+      // properly release. preventDefault() above already stopped the text
+      // selection this pointerdown would otherwise have started.
+      return;
+    }
+    panelRef.current?.setAttribute("data-dragging", "true");
+
+    const rect = arenaEl.getBoundingClientRect();
+    const px = event.clientX - rect.left;
+    const py = event.clientY - rect.top;
+    heldRef.current = {
+      index,
+      pointerId: event.pointerId,
+      offsetX: px - body.position.x,
+      offsetY: py - body.position.y,
+      pointerX: px,
+      pointerY: py,
+      prevX: body.position.x,
+      prevY: body.position.y,
+    };
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLLIElement>) {
+    const held = heldRef.current;
+    if (!held || held.pointerId !== event.pointerId) return;
+
+    // Pointer capture keeps delivering move events even far outside the
+    // panel — release the instant that happens (plus a small grace margin)
+    // so a fast drag out of the box drops the pill instead of leaving it
+    // pinned to a cursor that's no longer over the work area.
+    const panelEl = panelRef.current;
+    if (panelEl) {
+      const pr = panelEl.getBoundingClientRect();
+      if (
+        event.clientX < pr.left - RELEASE_GRACE_PX ||
+        event.clientX > pr.right + RELEASE_GRACE_PX ||
+        event.clientY < pr.top - RELEASE_GRACE_PX ||
+        event.clientY > pr.bottom + RELEASE_GRACE_PX
+      ) {
+        releaseHeld(event.currentTarget);
+        return;
+      }
+    }
+
+    const arenaEl = arenaRef.current;
+    if (!arenaEl) return;
+    const rect = arenaEl.getBoundingClientRect();
+    held.pointerX = event.clientX - rect.left;
+    held.pointerY = event.clientY - rect.top;
+  }
+
+  function handlePointerEnd(event: React.PointerEvent<HTMLLIElement>) {
+    const held = heldRef.current;
+    if (!held || held.pointerId !== event.pointerId) return;
+    releaseHeld(event.currentTarget);
+  }
 
   useEffect(() => {
     cancelledRef.current = false;
@@ -87,23 +208,62 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
     let resizeObserver: ResizeObserver | null = null;
     let lastIntersecting = false;
 
-    function pauseRunner() {
-      const rt = runtimeRef.current;
-      if (!rt) return;
-      rt.matter.Runner.stop(rt.runner);
+    function stopLoop() {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
     }
 
-    function resumeRunner() {
+    function frameLoop(now: number) {
+      rafIdRef.current = requestAnimationFrame(frameLoop);
       const rt = runtimeRef.current;
       if (!rt) return;
-      rt.matter.Runner.run(rt.runner, rt.engine);
+
+      if (lastFrameTimeRef.current === 0) lastFrameTimeRef.current = now;
+      const elapsed = now - lastFrameTimeRef.current;
+      lastFrameTimeRef.current = now;
+      const clampedElapsed = Math.min(Math.max(elapsed, 1), 33);
+
+      const held = heldRef.current;
+      if (held) {
+        const body = rt.bodies[held.index];
+        if (body) {
+          const target = {
+            x: held.pointerX - held.offsetX,
+            y: held.pointerY - held.offsetY,
+          };
+          // Velocity from the frame delta — this is what lets a throw
+          // carry real momentum on release instead of the pill just
+          // dropping dead where the pointer let go.
+          const dtFactor = clampedElapsed / PHYSICS_STEP_MS;
+          rt.matter.Body.setVelocity(body, {
+            x: (target.x - held.prevX) / dtFactor,
+            y: (target.y - held.prevY) / dtFactor,
+          });
+          rt.matter.Body.setPosition(body, target);
+          held.prevX = target.x;
+          held.prevY = target.y;
+        }
+      }
+
+      // Fixed timestep regardless of the frame's actual duration — Matter's
+      // own Runner does variable-delta catch-up, which spikes exactly when
+      // the page is already busy. One update per rAF frame is enough here.
+      rt.matter.Engine.update(rt.engine, PHYSICS_STEP_MS);
+    }
+
+    function startLoop() {
+      if (rafIdRef.current !== null) return;
+      lastFrameTimeRef.current = 0;
+      rafIdRef.current = requestAnimationFrame(frameLoop);
     }
 
     function onVisibilityChange() {
       if (document.hidden) {
-        pauseRunner();
-      } else if (intersectionObserver === null || lastIntersecting) {
-        resumeRunner();
+        stopLoop();
+      } else if (initStartedRef.current && (intersectionObserver === null || lastIntersecting)) {
+        startLoop();
       }
     }
 
@@ -114,7 +274,7 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
       const mod = await import("matter-js");
       if (cancelledRef.current || !panelRef.current || !arenaRef.current) return;
       const Matter = mod.default;
-      const { Engine, Bodies, Body, Composite, Mouse, MouseConstraint, Runner, Events } = Matter;
+      const { Engine, Bodies, Body, Composite, Events } = Matter;
 
       const panelEl = panelRef.current;
       const arenaEl = arenaRef.current;
@@ -168,33 +328,9 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
       const spawnMaxX = width * 0.85;
       const spawnXs = dims.map(() => spawnMinX + Math.random() * (spawnMaxX - spawnMinX));
 
-      const mouse = Mouse.create(arenaEl);
-      // Standard matter-js workaround: Mouse.create binds a wheel listener
-      // that unconditionally calls preventDefault, and a touchmove listener
-      // — left in place, either would swallow page scroll the instant the
-      // cursor is over the panel (the exact bug class R10 fixed). Matter's
-      // own types don't expose these internal handler properties, so this
-      // is the one place we reach past the typed surface.
-      const mouseInternal = mouse as unknown as {
-        element: HTMLElement;
-        mousewheel: (event: Event) => void;
-        mousemove: (event: Event) => void;
-      };
-      mouseInternal.element.removeEventListener("wheel", mouseInternal.mousewheel);
-      mouseInternal.element.removeEventListener("touchmove", mouseInternal.mousemove);
-
-      const mouseConstraint = MouseConstraint.create(engine, {
-        mouse,
-        constraint: { stiffness: 0.12, render: { visible: false } },
-      });
-      Composite.add(engine.world, mouseConstraint);
-
-      const runner = Runner.create();
-
       const rt: EngineRuntime = {
         matter: Matter,
         engine,
-        runner,
         bodies: dims.map(() => null),
         floor,
         left,
@@ -279,7 +415,7 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
       );
       rt.ceilingTimer = ceilingTimer;
 
-      Runner.run(runner, engine);
+      startLoop();
 
       resizeObserver = new ResizeObserver(() => {
         const runtime = runtimeRef.current;
@@ -332,9 +468,9 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
           }
           if (initStartedRef.current) {
             if (entry.isIntersecting) {
-              resumeRunner();
+              startLoop();
             } else {
-              pauseRunner();
+              stopLoop();
             }
           }
         }
@@ -350,12 +486,14 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
       intersectionObserver?.disconnect();
       resizeObserver?.disconnect();
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      stopLoop();
+      heldRef.current = null;
+      panel.removeAttribute("data-dragging");
 
       const rt = runtimeRef.current;
       if (rt) {
         rt.spawnTimers.forEach((t) => window.clearTimeout(t));
         if (rt.ceilingTimer !== null) window.clearTimeout(rt.ceilingTimer);
-        rt.matter.Runner.stop(rt.runner);
         rt.matter.World.clear(rt.engine.world, false);
         rt.matter.Engine.clear(rt.engine);
         runtimeRef.current = null;
@@ -403,12 +541,17 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
               pillRefs.current[i] = el;
             }}
             className={cn(
-              "absolute select-none whitespace-nowrap rounded-full bg-accent px-[1.15rem] py-[0.7rem] font-mono text-[0.78rem] uppercase tracking-[0.14em] text-white shadow-[0_6px_18px_rgba(252,76,0,0.22)]",
+              "absolute select-none whitespace-nowrap rounded-full bg-accent px-[1.15rem] py-[0.7rem] font-mono text-[0.78rem] uppercase tracking-[0.14em] text-white shadow-[0_2px_6px_rgba(0,0,0,0.35)]",
               mode === "physics"
-                ? "left-0 top-0 cursor-grab pointer-events-auto active:cursor-grabbing"
+                ? "left-0 top-0 cursor-grab touch-none pointer-events-auto will-change-transform active:cursor-grabbing"
                 : "pointer-events-none",
             )}
             style={style}
+            onPointerDown={(event) => handlePointerDown(i, event)}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerEnd}
+            onPointerCancel={handlePointerEnd}
+            onLostPointerCapture={handlePointerEnd}
           >
             {label}
           </li>

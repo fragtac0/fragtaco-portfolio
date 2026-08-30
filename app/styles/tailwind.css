@@ -24,4 +24,13 @@
     background: theme(colors.accent);
     color: theme(colors.theme.black);
   }
+
+  /* Set on the pill-physics host panel for the duration of a drag —
+     user-select is inherited, so this one rule on the panel covers the
+     title, meta row and italic caption underneath the pills without
+     needing select-none scattered across each of them individually. */
+  [data-dragging="true"] {
+    user-select: none;
+    -webkit-user-select: none;
+  }
 }

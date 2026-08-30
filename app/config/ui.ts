@@ -53,8 +53,12 @@ const backdropClipFix =
 const topEdgeHighlight = "inset_0_1px_0_rgba(245,239,230,0.07)";
 
 export const surfaces = {
+  // No backdrop-blur or glass-breathe here (R18.4) — this panel hosts the
+  // pill-physics arena, and a moving element under a backdrop-filter forces
+  // a full-surface re-rasterization every frame it's in motion. It sits on
+  // a near-black background, so the blur bought little visually anyway.
   aboutHeader:
-    `relative isolate overflow-hidden rounded-[2.75rem_1.25rem_2.75rem_1.25rem] bg-white/[0.06] p-5 shadow-[0_30px_120px_rgba(0,0,0,0.44),0_0_74px_rgba(252,76,0,0.13),${topEdgeHighlight}] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe sm:p-7 lg:rounded-[3.25rem_1.5rem_3.25rem_1.5rem] lg:p-10 ${backdropClipFix}`,
+    `relative isolate overflow-hidden rounded-[2.75rem_1.25rem_2.75rem_1.25rem] bg-white/[0.06] p-5 shadow-[0_30px_120px_rgba(0,0,0,0.44),0_0_74px_rgba(252,76,0,0.13),${topEdgeHighlight}] ring-1 ring-white/12 sm:p-7 lg:rounded-[3.25rem_1.5rem_3.25rem_1.5rem] lg:p-10 ${backdropClipFix}`,
   workHeader:
     `relative isolate overflow-hidden rounded-[1.25rem_2.75rem_1.25rem_2.75rem] bg-black/45 p-5 shadow-[0_28px_100px_rgba(0,0,0,0.32),0_0_70px_rgba(252,76,0,0.18),${topEdgeHighlight}] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe motion-safe:[animation-delay:-1.1s] motion-safe:[animation-duration:12.5s] sm:p-7 lg:rounded-[1.5rem_3.25rem_1.5rem_3.25rem] lg:p-10 ${backdropClipFix}`,
   aboutFooterCard:
