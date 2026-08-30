@@ -187,3 +187,18 @@ export interface SiteSocialLink {
   url: string;
 }
 
+export interface SiteClient {
+  id: string;
+  name: string;
+  handle: string;
+  image: string;
+  url: string | null;
+  published: boolean;
+  sortOrder: number;
+}
+
+export interface SiteClientsSection {
+  sectionTitle: string;
+  items: SiteClient[];
+}
+

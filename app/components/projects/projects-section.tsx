@@ -4,12 +4,14 @@ import {
   textStyles,
 } from "../../config/ui";
 import type {
+  SiteClientsSection,
   SiteReachOutSection,
   SiteProjectsSection,
   SiteTechStackSection,
   SiteWorkExperienceSection,
 } from "../../types";
 import { cn } from "../../utils/cn";
+import ClientsSection from "./clients-section";
 import EmberBackground from "./ember-background";
 import ProjectCard from "./project-card";
 import ReachOutSection from "./reach-out-section";
@@ -20,6 +22,7 @@ import Reveal from "../ui/reveal";
 import SectionHeadingRow from "../ui/section-heading-row";
 
 interface ProjectsSectionProps {
+  clients: SiteClientsSection;
   projects: SiteProjectsSection;
   reachOut: SiteReachOutSection;
   techStack: SiteTechStackSection;
@@ -27,6 +30,7 @@ interface ProjectsSectionProps {
 }
 
 export default function ProjectsSection({
+  clients,
   projects,
   reachOut,
   techStack,
@@ -68,10 +72,6 @@ export default function ProjectsSection({
               </div>
             </div>
           </header>
-        </Reveal>
-
-        <Reveal delayMs={140} className="py-4 lg:py-6">
-          <TechStackSection content={techStack} />
         </Reveal>
 
         <Reveal delayMs={240} className="py-4 lg:py-6">
@@ -138,6 +138,17 @@ export default function ProjectsSection({
             </div>
           </Reveal>
         </div>
+
+        {/* Clients sits directly after the short-form grid and before the
+            editing-stack marquee (R23) — the marquee moves down here from
+            its old spot above the timeline to make room for it. */}
+        <Reveal delayMs={420} className="py-4 lg:py-6">
+          <ClientsSection clients={clients} />
+        </Reveal>
+
+        <Reveal delayMs={440} className="py-4 lg:py-6">
+          <TechStackSection content={techStack} />
+        </Reveal>
 
         <Reveal delayMs={480} className="py-8 lg:py-10">
           <ReachOutSection content={reachOut} />

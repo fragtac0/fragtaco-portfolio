@@ -25,6 +25,7 @@ export async function loader() {
 
 export default function WorkPage() {
   const {
+    clients,
     navigationItems,
     projects,
     reachOut,
@@ -37,6 +38,7 @@ export default function WorkPage() {
     <main className="bg-ink text-white">
       <SiteNav currentPage="work" items={navigationItems} socialLinks={socialLinks} />
       <ProjectsSection
+        clients={clients}
         projects={projects}
         reachOut={reachOut}
         techStack={techStack}

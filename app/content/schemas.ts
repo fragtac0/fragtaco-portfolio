@@ -205,3 +205,18 @@ export const SocialLinkSchema = z.object({
   label: z.string().min(1),
   url: z.string().url(),
 });
+
+export const ClientSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  handle: z.string().min(1),
+  image: z.string().min(1),
+  url: z.string().url().nullable(),
+  published: z.boolean(),
+  sortOrder: z.number().int().nonnegative(),
+});
+
+export const ClientsSectionSchema = z.object({
+  sectionTitle: z.string().min(1),
+  items: z.array(ClientSchema),
+});

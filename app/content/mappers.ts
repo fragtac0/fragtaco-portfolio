@@ -1,4 +1,5 @@
 import type {
+  SiteClient,
   SiteNavigationItem,
   SiteProject,
   SiteWorkExperience,
@@ -65,6 +66,14 @@ export function filterPublishedWorkExperiences(
   items: SiteWorkExperience[],
 ): SiteWorkExperience[] {
   return items.filter((item) => item.published);
+}
+
+export function sortClients(clients: SiteClient[]): SiteClient[] {
+  return [...clients].sort((left, right) => left.sortOrder - right.sortOrder);
+}
+
+export function filterPublishedClients(clients: SiteClient[]): SiteClient[] {
+  return clients.filter((client) => client.published);
 }
 
 export function filterVisibleNavItems(

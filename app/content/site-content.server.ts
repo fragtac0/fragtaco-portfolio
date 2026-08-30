@@ -2,15 +2,18 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { ZodType } from "zod";
 import {
+  filterPublishedClients,
   filterPublishedProjects,
   filterPublishedWorkExperiences,
   filterVisibleNavItems,
   ensureUniqueBy,
+  sortClients,
   sortMilestones,
   sortProjects,
   sortWorkExperiences,
 } from "./mappers";
 import {
+  ClientsSectionSchema,
   FactsSectionSchema,
   HeroPaintingsSchema,
   HomeContentSchema,
@@ -22,6 +25,7 @@ import {
   WorkExperienceSectionSchema,
 } from "./schemas";
 import type {
+  SiteClientsSection,
   SiteReachOutSection,
   SiteFactsSection,
   SiteHeroPainting,
@@ -126,6 +130,16 @@ export async function getWorkExperienceSection(): Promise<SiteWorkExperienceSect
     ...content,
     items: sortWorkExperiences(filterPublishedWorkExperiences(items)),
     milestones: sortMilestones(milestones),
+  };
+}
+
+export async function getClientsSection(): Promise<SiteClientsSection> {
+  const content = await loadJsonFile("clients.json", ClientsSectionSchema);
+  const items = ensureUniqueBy(content.items, (item) => item.id, "client id");
+
+  return {
+    ...content,
+    items: sortClients(filterPublishedClients(items)),
   };
 }
 

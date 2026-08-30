@@ -1,4 +1,5 @@
 import {
+  getClientsSection,
   getFactsSection,
   getHeroPaintings,
   getHomeContent,
@@ -31,6 +32,7 @@ export async function getHomePageContent() {
 
 export async function getWorkPageContent() {
   const [
+    clients,
     navigationItems,
     projects,
     reachOut,
@@ -38,6 +40,7 @@ export async function getWorkPageContent() {
     techStack,
     workExperience,
   ] = await Promise.all([
+    getClientsSection(),
     getNavigationItems(),
     getProjectsSection(),
     getReachOutSection(),
@@ -47,6 +50,7 @@ export async function getWorkPageContent() {
   ]);
 
   return {
+    clients,
     navigationItems,
     projects,
     reachOut,
