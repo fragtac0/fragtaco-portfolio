@@ -96,10 +96,31 @@ export const WorkExperienceSchema = z.object({
   sortOrder: z.number().int().nonnegative(),
 });
 
+// Milestones are point-in-time markers (the M1 lane), not date-range
+// clips — a distinct shape from WorkExperienceSchema rather than a
+// variant of it. Their links carry a readable label ("watch the
+// interview") since the milestone readout renders them as text, not the
+// icon-only links row the clip readout uses.
+export const WorkMilestoneLinkSchema = z.object({
+  type: z.enum(["instagram", "youtube"]),
+  url: z.string().url(),
+  label: z.string().min(1),
+});
+
+export const WorkMilestoneSchema = z.object({
+  id: z.string().min(1),
+  date: z.number().min(1900).max(2100),
+  monthLabel: z.string().min(1),
+  title: z.string().min(1),
+  summary: z.string().min(1),
+  links: z.array(WorkMilestoneLinkSchema).default([]),
+});
+
 export const WorkExperienceSectionSchema = z.object({
   sectionTitle: z.string().min(1),
   timelineStart: z.number().int().min(1900).max(2100),
   items: z.array(WorkExperienceSchema),
+  milestones: z.array(WorkMilestoneSchema).default([]),
 });
 
 export const ProjectSchema = z.object({

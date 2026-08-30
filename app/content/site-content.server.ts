@@ -6,6 +6,7 @@ import {
   filterPublishedWorkExperiences,
   filterVisibleNavItems,
   ensureUniqueBy,
+  sortMilestones,
   sortProjects,
   sortWorkExperiences,
 } from "./mappers";
@@ -115,10 +116,16 @@ export async function getWorkExperienceSection(): Promise<SiteWorkExperienceSect
     (item) => item.id,
     "work experience id",
   );
+  const milestones = ensureUniqueBy(
+    content.milestones,
+    (milestone) => milestone.id,
+    "work milestone id",
+  );
 
   return {
     ...content,
     items: sortWorkExperiences(filterPublishedWorkExperiences(items)),
+    milestones: sortMilestones(milestones),
   };
 }
 

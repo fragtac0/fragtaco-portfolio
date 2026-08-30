@@ -79,6 +79,7 @@ export default function ProjectsSection({
             title={workExperience.sectionTitle}
             timelineStart={workExperience.timelineStart}
             items={workExperience.items}
+            milestones={workExperience.milestones}
           />
         </Reveal>
 

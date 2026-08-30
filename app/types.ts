@@ -82,10 +82,26 @@ export interface SiteWorkExperience {
   sortOrder: number;
 }
 
+export interface WorkMilestoneLink {
+  type: "instagram" | "youtube";
+  url: string;
+  label: string;
+}
+
+export interface SiteWorkMilestone {
+  id: string;
+  date: number;
+  monthLabel: string;
+  title: string;
+  summary: string;
+  links: WorkMilestoneLink[];
+}
+
 export interface SiteWorkExperienceSection {
   sectionTitle: string;
   timelineStart: number;
   items: SiteWorkExperience[];
+  milestones: SiteWorkMilestone[];
 }
 
 export interface SiteProject {

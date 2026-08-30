@@ -14,7 +14,7 @@
       "periodLabel": "2017 - 2021",
       "yearStart": 2017,
       "yearEnd": 2021,
-      "summary": "PLACEHOLDER — one line about engineering college and where the editing obsession started.",
+      "summary": "Four years of electronics that mostly taught me how much I'd rather be in a timeline. The degree finished; the editing had already taken over.",
       "location": "Mumbai, India",
       "links": [],
       "keyframes": [0.05, 0.14, 0.26],
@@ -34,7 +34,7 @@
       "periodLabel": "Feb 2021 - Dec 2025",
       "yearStart": 2021.08,
       "yearEnd": 2025.92,
-      "summary": "PLACEHOLDER — grew from cutting the channel's videos into owning its full content strategy: planning, production, and packaging across YouTube and Instagram.",
+      "summary": "Started as the channel's editor and left as the person who ran its content: scripting, recording, cutting, packaging and publishing across YouTube and Instagram. Five years, one channel, every job in the pipeline.",
       "location": "Remote",
       "links": [
         { "type": "instagram", "url": "https://www.instagram.com/bharatingermany/" },
@@ -56,12 +56,74 @@
       "periodLabel": "Nov 2022 - Present",
       "yearStart": 2022.83,
       "yearEnd": null,
-      "summary": "PLACEHOLDER — independent practice for brands and creators: edit, motion, grade, and the strategy that decides what's worth cutting in the first place.",
+      "summary": "Independent practice for brands and creators: the edit, the motion, the grade, and the call on what's worth cutting in the first place.",
       "location": "Remote",
       "links": [],
       "keyframes": [0.68, 0.78, 0.88, 0.96],
       "published": true,
       "sortOrder": 3
+    }
+  ],
+  "milestones": [
+    {
+      "id": "left-engineering",
+      "date": 2021.083,
+      "monthLabel": "Feb 2021",
+      "title": "Left the engineering track",
+      "summary": "Final semester of an electronics degree, mid-pandemic, and the job that turned up was a content job. Took it, and never went back to circuits.",
+      "links": []
+    },
+    {
+      "id": "on-camera",
+      "date": 2022.667,
+      "monthLabel": "Sep 2022",
+      "title": "Started writing and recording",
+      "summary": "Stopped only cutting other people's footage. Started writing and recording it myself for Bharat in Germany: script, voice, edit, publish, one pair of hands.",
+      "links": [
+        { "type": "youtube", "url": "https://www.youtube.com/shorts/PZ8KlGIvAD0", "label": "first video" }
+      ]
+    },
+    {
+      "id": "freelance-begins",
+      "date": 2023.25,
+      "monthLabel": "Apr 2023",
+      "title": "Freelancing in earnest",
+      "summary": "The side practice stopped being occasional. A regular freelance load ran alongside the full-time role: brand films, music videos, cutdowns.",
+      "links": []
+    },
+    {
+      "id": "two-hundred-shorts",
+      "date": 2024.25,
+      "monthLabel": "Apr 2024",
+      "title": "200 shorts deep",
+      "summary": "Two hundred vertical videos for Bharat in Germany, written, recorded, cut and published. The volume that turns instinct into a system.",
+      "links": []
+    },
+    {
+      "id": "german-embassy",
+      "date": 2024.417,
+      "monthLabel": "Jun 2024",
+      "title": "At the German Embassy",
+      "summary": "Shot and cut an interview with the spokesperson of the German Embassy — the channel's first institutional sit-down.",
+      "links": [
+        { "type": "youtube", "url": "https://www.youtube.com/watch?v=6CCfsuu4ntI", "label": "watch the interview" }
+      ]
+    },
+    {
+      "id": "bangalore-event",
+      "date": 2024.833,
+      "monthLabel": "Nov 2024",
+      "title": "Bangalore, in person",
+      "summary": "Organised an on-ground event in Bangalore for students and parents planning a move to Germany. The audience off the feed and in one room.",
+      "links": []
+    },
+    {
+      "id": "went-independent",
+      "date": 2025.917,
+      "monthLabel": "Dec 2025",
+      "title": "Went independent",
+      "summary": "Left the job after five years to edit and strategise full-time, on my own terms.",
+      "links": []
     }
   ]
 }

@@ -2,6 +2,7 @@ import type {
   SiteNavigationItem,
   SiteProject,
   SiteWorkExperience,
+  SiteWorkMilestone,
 } from "../types";
 
 export function ensureUniqueBy<T>(
@@ -52,6 +53,12 @@ export function sortWorkExperiences(
 
 export function filterPublishedProjects(projects: SiteProject[]): SiteProject[] {
   return projects.filter((project) => project.published);
+}
+
+export function sortMilestones(
+  milestones: SiteWorkMilestone[],
+): SiteWorkMilestone[] {
+  return [...milestones].sort((left, right) => left.date - right.date);
 }
 
 export function filterPublishedWorkExperiences(
