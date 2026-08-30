@@ -1,16 +1,13 @@
 import { motion, useReducedMotion } from "motion/react";
-import {
-  aboutProfileTags,
-  layout,
-  surfaces,
-  textStyles,
-} from "../../config/ui";
+import { useRef } from "react";
+import { layout, surfaces, textStyles } from "../../config/ui";
 import type { SiteCredits, SiteFactsSection } from "../../types";
 import AboutCopy from "../about/about-copy";
 import AboutPortrait from "../about/about-portrait";
 import Reveal from "../ui/reveal";
 import CreditsCard from "./credits-card";
 import FactShuffler from "./fact-shuffler";
+import PillPhysics from "./pill-physics";
 
 interface AboutSectionProps {
   paragraphs: string[];
@@ -24,6 +21,7 @@ export default function AboutSection({
   credits,
 }: AboutSectionProps) {
   const reducedMotion = useReducedMotion();
+  const headerRef = useRef<HTMLElement>(null);
 
   return (
     <section
@@ -48,14 +46,14 @@ export default function AboutSection({
       />
       <div className={`${layout.homeContainer} relative z-10 grid gap-10`}>
         <Reveal>
-          <header className={surfaces.aboutHeader}>
+          <header ref={headerRef} className={surfaces.aboutHeader}>
             <div className={textStyles.headerMeta}>
               <p className="text-fog/78">profile / fragtaco</p>
               <p className="hidden text-center sm:block">est. 2019</p>
               <p className="sm:text-right">mumbai, india</p>
             </div>
 
-            <div className="grid items-end gap-4 pt-12 sm:pt-16 lg:grid-cols-[minmax(0,1fr)_auto] lg:pt-20">
+            <div className="relative z-0 grid items-end gap-4 pt-12 sm:pt-16 lg:grid-cols-[minmax(0,1fr)_auto] lg:pt-20">
               <h2 className={textStyles.displayTitleStandalone}>
                 the cut
               </h2>
@@ -63,6 +61,11 @@ export default function AboutSection({
                 the person behind the timeline, in four paragraphs.
               </p>
             </div>
+
+            {/* The six profile tags, previously a static chip row in the
+                copy column, live here as draggable physics pills instead —
+                see pill-physics.tsx for the engine. */}
+            <PillPhysics panelRef={headerRef} />
           </header>
         </Reveal>
 
@@ -102,16 +105,6 @@ export default function AboutSection({
 
             <div className="flex min-w-0 flex-col justify-center p-4 sm:p-7 lg:p-10 xl:p-12">
               <div className="max-w-[54rem]">
-                <div className="mb-8 flex flex-wrap gap-2 font-mono text-[0.56rem] uppercase tracking-[0.22em] text-fog/46">
-                  {aboutProfileTags.map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full bg-fog/[0.055] px-3 py-1 ring-1 ring-fog/10"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
                 <div className="max-w-[68ch] text-[0.92rem] leading-[1.9] text-fog/90 sm:text-[1rem]">
                   <AboutCopy paragraphs={paragraphs} />
                 </div>
