@@ -19,6 +19,11 @@ export const textStyles = {
     "mt-5 font-doto text-[clamp(3.8rem,19vw,17rem)] font-black uppercase leading-[0.76] tracking-section text-fog sm:text-[clamp(5.2rem,19vw,17rem)]",
   displayTitleStandalone:
     "font-doto text-[clamp(3.8rem,19vw,17rem)] font-black uppercase leading-[0.76] tracking-section text-fog sm:text-[clamp(5.2rem,19vw,17rem)]",
+  // Sized for a ~58%-width column (R19), not full page width — reusing
+  // displayTitleStandalone's vw-heavy clamp would overflow or wrap badly
+  // there. "the cut" must still read as two lines at this scale.
+  displayTitleColumn:
+    "font-doto text-[clamp(3rem,7.5vw,7.5rem)] font-black uppercase leading-[0.78] tracking-section text-fog",
   panelTitle:
     "font-doto text-[1.9rem] font-black uppercase leading-none tracking-section text-fog sm:text-[3rem]",
   shelfTitle:

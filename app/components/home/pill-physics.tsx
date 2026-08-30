@@ -88,10 +88,20 @@ interface EngineRuntime {
 }
 
 interface PillPhysicsProps {
+  // The physics play area: walls/floor/ceiling and the arena's own
+  // absolute inset-0 bind to this element. Deliberately not the whole
+  // card — a tight wrapper around just the title block keeps the resting
+  // pile off the body copy (R19.3).
+  boundsRef: React.RefObject<HTMLElement>;
+  // "The box" from the drag's point of view: a pointer that leaves these
+  // bounds (+ grace margin) drops the pill, and this is where the
+  // data-dragging selection guard gets set. The card as a whole, not the
+  // narrower bounds — dragging into the copy below the title shouldn't
+  // feel like leaving the box.
   panelRef: React.RefObject<HTMLElement>;
 }
 
-export default function PillPhysics({ panelRef }: PillPhysicsProps) {
+export default function PillPhysics({ boundsRef, panelRef }: PillPhysicsProps) {
   const arenaRef = useRef<HTMLUListElement>(null);
   const pillRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [mode, setMode] = useState<"static" | "physics">("static");
@@ -201,8 +211,9 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
   useEffect(() => {
     cancelledRef.current = false;
     const panel = panelRef.current;
+    const bounds = boundsRef.current;
     const arena = arenaRef.current;
-    if (!panel || !arena) return;
+    if (!panel || !bounds || !arena) return;
 
     let intersectionObserver: IntersectionObserver | null = null;
     let resizeObserver: ResizeObserver | null = null;
@@ -272,14 +283,14 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
       initStartedRef.current = true;
 
       const mod = await import("matter-js");
-      if (cancelledRef.current || !panelRef.current || !arenaRef.current) return;
+      if (cancelledRef.current || !boundsRef.current || !arenaRef.current) return;
       const Matter = mod.default;
       const { Engine, Bodies, Body, Composite, Events } = Matter;
 
-      const panelEl = panelRef.current;
+      const boundsEl = boundsRef.current;
       const arenaEl = arenaRef.current;
       const rect = arenaEl.getBoundingClientRect();
-      const style = window.getComputedStyle(panelEl);
+      const style = window.getComputedStyle(boundsEl);
       const padLeft = parseFloat(style.paddingLeft) || 0;
       const padRight = parseFloat(style.paddingRight) || 0;
       const padBottom = parseFloat(style.paddingBottom) || 0;
@@ -419,11 +430,11 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
 
       resizeObserver = new ResizeObserver(() => {
         const runtime = runtimeRef.current;
-        const currentPanel = panelRef.current;
+        const currentBounds = boundsRef.current;
         const currentArena = arenaRef.current;
-        if (!runtime || !currentPanel || !currentArena) return;
+        if (!runtime || !currentBounds || !currentArena) return;
         const r = currentArena.getBoundingClientRect();
-        const s = window.getComputedStyle(currentPanel);
+        const s = window.getComputedStyle(currentBounds);
         const pl = parseFloat(s.paddingLeft) || 0;
         const pr = parseFloat(s.paddingRight) || 0;
         const pb = parseFloat(s.paddingBottom) || 0;
@@ -452,7 +463,7 @@ export default function PillPhysics({ panelRef }: PillPhysicsProps) {
           }
         });
       });
-      resizeObserver.observe(panelEl);
+      resizeObserver.observe(boundsEl);
     }
 
     intersectionObserver = new IntersectionObserver(
