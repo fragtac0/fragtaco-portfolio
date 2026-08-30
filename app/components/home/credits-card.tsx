@@ -40,7 +40,7 @@ export default function CreditsCard({ credits }: CreditsCardProps) {
         {credits.blurb}
       </p>
 
-      <div className="mt-5 flex items-center gap-1">
+      <div className="mt-auto flex items-center gap-1 pt-6">
         {credits.links.map((link) => {
           const Icon = LINK_ICONS[link.type];
           return (

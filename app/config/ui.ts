@@ -58,7 +58,7 @@ export const surfaces = {
   workHeader:
     `relative isolate overflow-hidden rounded-[1.25rem_2.75rem_1.25rem_2.75rem] bg-black/45 p-5 shadow-[0_28px_100px_rgba(0,0,0,0.32),0_0_70px_rgba(252,76,0,0.18),${topEdgeHighlight}] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe motion-safe:[animation-delay:-1.1s] motion-safe:[animation-duration:12.5s] sm:p-7 lg:rounded-[1.5rem_3.25rem_1.5rem_3.25rem] lg:p-10 ${backdropClipFix}`,
   aboutFooterCard:
-    `relative isolate min-w-0 overflow-hidden rounded-[2.25rem_1rem_2.25rem_1rem] bg-white/[0.06] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.36),${topEdgeHighlight}] ring-1 ring-white/10 motion-safe:animate-glass-breathe [contain:paint] sm:p-6`,
+    `relative isolate flex h-full min-w-0 flex-col overflow-hidden rounded-[2.25rem_1rem_2.25rem_1rem] bg-white/[0.06] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.36),${topEdgeHighlight}] ring-1 ring-white/10 motion-safe:animate-glass-breathe [contain:paint] sm:p-6`,
   factCard:
     `relative isolate w-full min-h-[16rem] min-w-0 overflow-hidden rounded-[2.25rem_1rem_2.25rem_1rem] bg-white/[0.06] p-6 shadow-[0_18px_70px_rgba(0,0,0,0.36),${topEdgeHighlight}] ring-1 ring-white/10 motion-safe:animate-glass-breathe [contain:paint] sm:p-8`,
   glassChip:

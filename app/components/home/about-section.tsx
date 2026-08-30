@@ -121,10 +121,10 @@ export default function AboutSection({
           whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
         >
           {/* Facts first in DOM order so mobile stacking (single column
-              below lg) always puts them above the credits card. items-start
-              keeps both tops aligned without stretching the shorter card —
-              the facts card sets the row's visual height. */}
-          <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start">
+              below lg) always puts them above the credits card. items-stretch
+              makes both cards match the taller one's height at ≥1024px —
+              the facts card (min-h-[16rem]) still sets the floor. */}
+          <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-stretch">
             <FactShuffler content={facts} />
             <CreditsCard credits={credits} />
           </div>
