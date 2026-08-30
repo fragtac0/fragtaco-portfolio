@@ -4,7 +4,6 @@ import { layout, styleUnlessReduced, surfaces, textStyles } from "../../config/u
 import type { SiteHeroPainting } from "../../types";
 import { cn } from "../../utils/cn";
 import StaggerText from "../react-bits/stagger-text";
-import HeroTimecode from "./hero-timecode";
 
 interface HeroSectionProps {
   title: string;
@@ -160,38 +159,21 @@ export default function HeroSection({
         className="pointer-events-none absolute inset-0 z-[3] opacity-[0.07] [background-image:radial-gradient(rgba(245,239,230,0.9)_0.6px,transparent_0.6px)] [background-size:4px_4px]"
       />
 
-      {/* Monitor HUD: timecode, REC — horizontally bound to the same
-          max-width + padding axis as the page container (and the nav,
-          which centers on the full viewport within that same width) so the
-          HUD's own centerline lines up with them, not an independent inset. */}
+      {/* Painting caption, bottom-right — the whole HUD row above it is
+          gone. Shares the containerX axis with the nav dock and the
+          editorial lockup below, so its right margin lands on exactly
+          the same line as their edges rather than an independent inset. */}
       <motion.div
         aria-hidden="true"
         className={cn(
           layout.containerX,
-          "pointer-events-none absolute inset-x-0 top-4 bottom-4 z-[6] sm:top-7 sm:bottom-7",
+          "pointer-events-none absolute inset-x-0 bottom-4 z-[6] hidden sm:block sm:bottom-7",
         )}
         style={styleUnlessReduced(reducedMotion, { opacity: hudOpacity })}
       >
-        {/* Equal-width side columns so the middle label sits at the row's
-            true optical center regardless of how wide "rec" vs the timecode
-            reads — a flex justify-between row can't guarantee that. */}
-        <div className="absolute inset-x-0 top-0 grid grid-cols-[1fr_auto_1fr] items-center gap-2 font-mono text-[0.6rem] uppercase tracking-[0.24em] text-fog/76 sm:text-[0.68rem]">
-          <span className="flex items-center gap-2 justify-self-start">
-            <span className="h-2 w-2 rounded-full bg-accent motion-safe:animate-rec-blink" />
-            rec
-          </span>
-          <span className="hidden justify-self-center sm:block">fragtaco / raw_01.braw</span>
-          <span className="justify-self-end">
-            <HeroTimecode /> · 24fps
-          </span>
-        </div>
-
-        <div className="absolute inset-x-0 bottom-0 hidden items-center justify-between font-mono text-[0.6rem] uppercase tracking-[0.24em] text-fog/58 sm:flex sm:text-[0.66rem]">
-          <span>
-            scene: {painting.title} — {painting.artist}, {painting.year}
-          </span>
-          <span>iso 400 · f2.8 · 4k</span>
-        </div>
+        <p className="text-right font-mono text-[0.6rem] uppercase tracking-[0.24em] text-fog/58 sm:text-[0.66rem]">
+          {painting.title} — {painting.artist}, {painting.year}
+        </p>
       </motion.div>
 
       {/* Editorial lockup, lower-left on the rule-of-thirds line — shares the

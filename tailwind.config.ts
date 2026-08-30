@@ -113,10 +113,6 @@ const config: Config = {
               "scale(calc(1.0 * var(--painting-zoom, 1))) translate3d(0,0,0)",
           },
         },
-        "rec-blink": {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.18" },
-        },
         "gate-weave": {
           "0%, 100%": { opacity: "0.5", transform: "translateY(0)" },
           "50%": { opacity: "0.9", transform: "translateY(-6px)" },
@@ -144,7 +140,6 @@ const config: Config = {
         "reach-sweep": "reach-sweep 4.4s cubic-bezier(0.16, 1, 0.3, 1) infinite",
         "glass-breathe": "glass-breathe 12s cubic-bezier(0.45, 0, 0.2, 1) infinite",
         "ken-burns": "ken-burns 34s ease-in-out infinite",
-        "rec-blink": "rec-blink 1.6s steps(1, end) infinite",
         "gate-weave": "gate-weave 9s ease-in-out infinite",
         "stack-marquee": "stack-marquee 26s linear infinite",
         "ember-drift-a": "ember-drift-a 26s ease-in-out infinite",
