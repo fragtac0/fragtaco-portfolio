@@ -135,13 +135,19 @@ v2 also held 120 fps on this machine, so these numbers show v3 is smooth here; t
 | Subscriber counts come from each channel's page header, refreshed by the same sync command as the playlist | 2 | No API key. Reading the first "subscribers" string on the page picks up counts from featured channels, so the parser must read the channel header. |
 | Book shadows are per-book soft shadows, not a shadow map | 2 | Smooth with the book's motion and cheaper. |
 | Interface copy uses no em dashes; the Ohshin and book notes stay placeholders | 0 | Aditya writes those. |
+| Wall keeps a very faint blur around the focused video | 2 | Answered after v3. |
+| "Watch" opens YouTube in a new tab | 2 | Answered after v3; nothing from YouTube loads until someone clicks. |
+| Public repo is `fragtac0/fragtaco-portfolio` | 2 | Answered after v3. |
+| Roles line stays "Creative Editor - Side Quests Maxxer" | 2 | Answered after v3. |
 
 ## Open questions
 
-1. **Wall blur.** Keep the very faint blur on the videos around the focused one, or rely on spacing and dimming alone? (Toggle it with "Wall blur" in the mockup's review bar.)
-2. **Watch button.** Open the video on YouTube in a new tab, or play it right there in the detail view?
-3. **Repo.** Name the new public repo `fragtaco-portfolio` under `fragtac0`, or something else?
-4. **Spelling.** "Side Quests Maxxer" as written, or was "Questes" intended?
+None open. Asked after v3 and answered on 2026-11-02:
+
+1. **Wall blur:** keep the very faint blur on the videos around the focused one.
+2. **Watch button:** opens the video on YouTube in a new tab.
+3. **Repo:** the new public repo is `fragtaco-portfolio` under `fragtac0`.
+4. **Spelling:** "Creative Editor - Side Quests Maxxer", as written.
 
 ## Later, not now
 
