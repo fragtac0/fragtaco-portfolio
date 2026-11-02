@@ -2,16 +2,17 @@
 
 Every round of feedback on the home page redesign, what changed in response, and what is still open. Each round lists the requests as given, then what the next mockup did about them. Newest round is at the bottom.
 
-**Status (2026-11-02):** mockup v3 is in review. No product code has changed yet; the design doc and build plan come after v3 is signed off.
+**Status (2026-11-02):** mockup v4 is the signed-off design. The design doc is [`docs/superpowers/specs/2026-11-02-home-redesign-design.md`](../superpowers/specs/2026-11-02-home-redesign-design.md) and the build plan is in `docs/superpowers/plans/`.
 
 ## Contents
 
 1. [Round 0: the brief](#round-0-the-brief-2026-11-01)
 2. [Round 1: feedback on v1](#round-1-feedback-on-v1-2026-11-01)
 3. [Round 2: feedback on v2](#round-2-feedback-on-v2-2026-11-02)
-4. [Decisions so far](#decisions-so-far)
-5. [Open questions](#open-questions)
-6. [Later, not now](#later-not-now)
+4. [Round 3: feedback on v3](#round-3-feedback-on-v3-2026-11-02)
+5. [Decisions so far](#decisions-so-far)
+6. [Open questions](#open-questions)
+7. [Later, not now](#later-not-now)
 
 ---
 
@@ -119,6 +120,20 @@ v2 also held 120 fps on this machine, so these numbers show v3 is smooth here; t
 
 ---
 
+## Round 3: feedback on v3 (2026-11-02)
+
+**Asked for**, then what [v4](mockups/home-v4.html) did. After these changes the design is signed off and goes to the design doc and the build.
+
+| Asked for | v4 |
+| --- | --- |
+| Intro card only: slightly wider, photo on the left and the intro on the right, same height | The intro card is now two columns: the portrait fills a full-height column on the left (cropped to the figure) and the words scroll on the right. Width is 54vw, from 660 px up to 1000 px; height is unchanged ([screenshot](screenshots/v4-intro-card-desktop.jpg)). The credits card is unchanged. On phones the card is too narrow for two columns, so the photo sits on top and the text scrolls under it ([screenshot](screenshots/v4-intro-card-phone.jpg)). |
+| During the loader you can scroll and see the books and videos; they should only appear after the final reveal | The page is locked while the loader runs and the section below the hero is hidden. Both are released at the same moment the cards and the dock arrive (4.8 s), and the section fades in. |
+| Shelf: book tops are clipped, make the shelf slightly smaller so every book shows | The camera now frames 3.05 units of height instead of 2.5 and aims a little higher, so the tallest book (11 in) clears the header with room for its hover lift ([screenshot](screenshots/v4-shelf-fits.jpg)). |
+| Shelf: books come out too fast and the animation looks janky; smoother and a bit slower | Drop-in: each book falls a shorter distance (1.2 instead of 2.6 units) over 1.5 s instead of 0.95 s, fades in as it falls, and the stagger is wider (0.09 s); the whole entrance takes about 2.9 s. Hover pull and opening now use a critically damped spring, so they ease in as well as out (the old lerp started at full speed). Book covers that arrive late are uploaded one per frame after the entrance, never during it. Measured: 120 fps with no frame over 9.4 ms through opening the shelf and the whole drop-in. |
+| A very subtle glow on the main logo | A second, warm drop shadow on the logo: 22 px wide at 20% opacity. |
+
+---
+
 ## Decisions so far
 
 | Decision | Round | Why |
@@ -139,6 +154,10 @@ v2 also held 120 fps on this machine, so these numbers show v3 is smooth here; t
 | "Watch" opens YouTube in a new tab | 2 | Answered after v3; nothing from YouTube loads until someone clicks. |
 | Public repo is `fragtac0/fragtaco-portfolio` | 2 | Answered after v3. |
 | Roles line stays "Creative Editor - Side Quests Maxxer" | 2 | Answered after v3. |
+| Intro card is two columns (photo left, words right); stacked on phones | 3 | Asked for directly; phones are too narrow for two columns. |
+| Nothing below the hero exists, and the page cannot scroll, until the loader finishes | 3 | Asked for directly. |
+| Shelf motion uses springs, and late textures upload outside the entrance | 3 | Smoother start to every move, and no upload stalls mid-animation. |
+| The build is executed by Sonnet subagents at high effort, one task at a time, with a review after each | 3 | Asked for directly. |
 
 ## Open questions
 

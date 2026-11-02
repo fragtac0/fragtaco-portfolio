@@ -5,12 +5,13 @@ Working folder for the home page redesign: the running log of feedback and decis
 | File | What it is |
 | --- | --- |
 | [feedback-log.md](feedback-log.md) | Every round of feedback, what changed in response, decisions so far, and open questions. Start here. |
-| [mockups/home-v3.html](mockups/home-v3.html) | Current mockup. |
-| [mockups/home-v2.html](mockups/home-v2.html) | Previous mockup, kept for comparison. |
+| [mockups/home-v4.html](mockups/home-v4.html) | Signed-off mockup. The build matches this. |
+| [mockups/home-v3.html](mockups/home-v3.html) | Previous mockup, kept for comparison. |
+| [mockups/home-v2.html](mockups/home-v2.html) | Earlier mockup, kept for comparison. |
 | [mockups/home-v1.html](mockups/home-v1.html) | First mockup, kept for comparison. |
-| [screenshots/](screenshots/) | v3 screenshots, desktop and phone. |
+| [screenshots/](screenshots/) | v3 and v4 screenshots, desktop and phone. |
 
-The design doc and the build plan will live in `docs/superpowers/specs/` and `docs/superpowers/plans/` once the mockup is signed off.
+The design doc is in `docs/superpowers/specs/` and the build plan in `docs/superpowers/plans/`.
 
 ## Viewing the mockups
 
@@ -20,7 +21,7 @@ They need a local web server (WebGL will not read images from `file://`) and an 
 python3 -m http.server 5181 --directory docs/redesign/mockups
 ```
 
-Then open http://localhost:5181/home-v3.html. The row of buttons at the top (replay loader, next painting, jump to the blocks, wall blur on or off) is review tooling, not part of the design.
+Then open http://localhost:5181/home-v4.html. The row of buttons at the top (replay loader, next painting, jump to the blocks, wall blur on or off) is review tooling, not part of the design.
 
 ## Notes
 
