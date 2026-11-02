@@ -8,6 +8,7 @@ import type {
   SiteVideo,
 } from "../../types";
 import SiteNav from "../site-nav";
+import InterestBlocks, { BLOCK_ID } from "./blocks/interest-blocks";
 import HeroCards from "./cards/hero-cards";
 import { heroNav, type NavContext, type NavInput, type NavState } from "./cards/hero-nav";
 import Hero, { type HeroHandle } from "./hero/hero";
@@ -17,7 +18,14 @@ import {
   type LayerControl,
   type LayerSceneHooks,
 } from "./layer/layer-context";
-import { escTarget, layerReducer, type LayerKind, type LayerState } from "./layer/layer-state";
+import {
+  escTarget,
+  layerFromHash,
+  layerReducer,
+  type LayerAction,
+  type LayerKind,
+  type LayerState,
+} from "./layer/layer-state";
 
 type HomePageProps = {
   home: SiteHomeContent;
@@ -27,9 +35,6 @@ type HomePageProps = {
   navigationItems: SiteNavigationItem[];
   socialLinks: SiteSocialLink[];
 };
-
-/** True while the current history entry is one the layer pushed (`{ xp: kind }`). */
-const layerPushedEntry = () => Boolean((window.history.state as { xp?: unknown } | null)?.xp);
 
 /** Each dispatch carries the context it was made in, so the reducer stays pure. */
 type NavAction = { input: NavInput; ctx: NavContext };
@@ -52,20 +57,6 @@ export default function HomePage({
     (input: NavInput) => dispatchNav({ input, ctx: { ...navCtx.current } }),
     [],
   );
-  const onHeroReady = useCallback(() => {
-    dispatch({ kind: "show" });
-    // Arriving at /#about (a reload, or "the cut" from /work): open the intro card, then drop
-    // the hash so it does not linger. Remix keeps its bookkeeping in history.state: keep it.
-    if (window.location.hash === "#about") {
-      dispatch({ kind: "go", to: "right" });
-      window.history.replaceState(
-        window.history.state,
-        "",
-        window.location.pathname + window.location.search,
-      );
-    }
-  }, [dispatch]);
-
   // The dock rises with the cards, the first time the hero leaves "hidden".
   const [revealed, setRevealed] = useState(false);
   if (!revealed && nav !== "hidden") setRevealed(true);
@@ -93,32 +84,58 @@ export default function HomePage({
   );
 
   // ---- the reading / watching layer (grows out of a block, see layer/)
-  const [layer, dispatchLayer] = useReducer(layerReducer, {
+  const [layer, rawDispatchLayer] = useReducer(layerReducer, {
     kind: null,
     phase: "closed",
   } as LayerState);
-  const layerRef = useRef(layer);
-  useEffect(() => {
-    layerRef.current = layer;
-  }, [layer]);
+  // The phase ref is advanced right where the reducer is dispatched (the reducer is pure, so it
+  // computes the same state React will), never in a passive effect: openLayer and closeLayer can
+  // run twice before a render and must see the phase the first call left.
+  const layerRef = useRef<LayerState>(layer);
+  const dispatchLayer = useCallback((action: LayerAction) => {
+    layerRef.current = layerReducer(layerRef.current, action);
+    rawDispatchLayer(action);
+  }, []);
+  // True while the layer owns a history entry it pushed (not a deep link): closing then goes Back.
+  const pushedRef = useRef(false);
   const [layerFrom, setLayerFrom] = useState<HTMLElement | null>(null);
   const sceneHooks = useRef<LayerSceneHooks>({});
   const layerLive = layer.phase === "growing" || layer.phase === "open";
 
-  const openLayer = useCallback<LayerControl["openLayer"]>((kind, from, opts) => {
-    if (layerRef.current.phase !== "closed") return;
-    setLayerFrom(from);
-    navCtx.current.layerOpen = true;
-    if (opts?.push !== false) window.history.pushState({ xp: kind }, "", "#" + kind);
-    dispatchLayer({ type: "open", kind });
-  }, []);
+  const openLayer = useCallback<LayerControl["openLayer"]>(
+    (kind, from, opts) => {
+      if (layerRef.current.phase !== "closed") return;
+      setLayerFrom(from);
+      navCtx.current.layerOpen = true;
+      if (opts?.push !== false) {
+        // Remix keeps its bookkeeping (key, idx) in history.state: keep it, and add ours
+        const prev = (window.history.state ?? {}) as { idx?: number };
+        window.history.pushState(
+          { ...prev, xp: kind, idx: (prev.idx ?? 0) + 1 },
+          "",
+          "#" + kind,
+        );
+        pushedRef.current = true;
+      } else {
+        pushedRef.current = false;
+      }
+      dispatchLayer({ type: "open", kind });
+    },
+    [dispatchLayer],
+  );
   const closeLayer = useCallback(() => {
     const phase = layerRef.current.phase;
     if (phase !== "growing" && phase !== "open") return;
     dispatchLayer({ type: "close" });
-    // leave the entry the layer pushed; the popstate that follows finds the layer already closing
-    if (layerPushedEntry()) window.history.back();
-  }, []);
+    if (pushedRef.current) {
+      // leave the entry the layer pushed; the popstate that follows finds the layer already shrinking
+      pushedRef.current = false;
+      window.history.back();
+    } else {
+      // a deep link owns no entry of its own: just drop the hash
+      window.history.replaceState(window.history.state, "", "/");
+    }
+  }, [dispatchLayer]);
   const registerSceneHooks = useCallback((hooks: LayerSceneHooks) => {
     sceneHooks.current = hooks;
     return () => {
@@ -129,6 +146,39 @@ export default function HomePage({
     () => ({ openLayer, closeLayer, registerSceneHooks }),
     [openLayer, closeLayer, registerSceneHooks],
   );
+
+  // A deep link (/#reading, /#watching on arrival, or a history move onto one) opens the layer
+  // from its block, with no history entry of its own. The block is scrolled into view first,
+  // instantly, so the grow starts from where the block is.
+  const openFromHash = useCallback(
+    (kind: LayerKind) => {
+      const block = document.getElementById(BLOCK_ID[kind]);
+      if (!block) return;
+      block.scrollIntoView({ block: "center", behavior: "instant" });
+      openLayer(kind, block, { push: false });
+    },
+    [openLayer],
+  );
+
+  // What a block's words and previews warm up: the scenes hook their prepare() here later.
+  const onBlockNear = useCallback(() => {}, []);
+
+  const onHeroReady = useCallback(() => {
+    dispatch({ kind: "show" });
+    // Arriving at /#about (a reload, or "the cut" from /work): open the intro card, then drop
+    // the hash so it does not linger. Remix keeps its bookkeeping in history.state: keep it.
+    if (window.location.hash === "#about") {
+      dispatch({ kind: "go", to: "right" });
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
+    // Arriving at /#reading or /#watching: open that layer from its block.
+    const kind = layerFromHash(window.location.hash);
+    if (kind) openFromHash(kind);
+  }, [dispatch, openFromHash]);
 
   // While the layer is not closed: the cards ignore gestures, the hero's paint loop parks, the
   // page is locked (html.locked, separate from intro and cards-open), and the dock is hidden.
@@ -148,14 +198,22 @@ export default function HomePage({
     };
   }, [layerActive]);
 
-  // Back (or a swipe back) out of the layer's history entry closes it.
+  // History moves. While the layer is live, any of them closes it (the reducer ignores a close
+  // while it is already shrinking); the entry it pushed is gone either way. With the layer closed,
+  // a move onto /#reading or /#watching (Forward) opens it.
   useEffect(() => {
     const onPop = () => {
-      if (!layerPushedEntry()) dispatchLayer({ type: "close" });
+      pushedRef.current = false;
+      if (layerRef.current.phase !== "closed") {
+        dispatchLayer({ type: "close" });
+        return;
+      }
+      const kind = layerFromHash(window.location.hash);
+      if (kind) openFromHash(kind);
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, []);
+  }, [dispatchLayer, openFromHash]);
 
   // Esc closes an open video, then an open book, then the layer.
   useEffect(() => {
@@ -213,6 +271,12 @@ export default function HomePage({
             navCtx={navCtx}
           />
         </Hero>
+        <InterestBlocks
+          books={books}
+          videos={videos}
+          onOpen={openLayer}
+          onNear={onBlockNear}
+        />
         <SiteNav
           items={navigationItems}
           socialLinks={socialLinks}
@@ -234,7 +298,7 @@ export default function HomePage({
             onShrunk={() => dispatchLayer({ type: "shrunk" })}
           >
             {/* the shelf and the wall arrive in later tasks */}
-            {() => <div className="layer-placeholder" />}
+            {({ kind }) => <div className="layer-placeholder" data-kind={kind} />}
           </InterestLayer>
         )}
       </main>
