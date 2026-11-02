@@ -44,3 +44,15 @@ export function paintingSrc(file: string, viewportWidth: number, dpr: number): s
   const size = viewportWidth * Math.min(dpr, 1.5) <= 1400 ? 1600 : 2560;
   return `/paintings/${size}/${file}`;
 }
+
+/** The loader's reveal holds the page locked, so it tries the first painting and one more. */
+export const REVEAL_TRIES = 2;
+
+/**
+ * Which position in the order the reveal tries next, given how many it has already tried;
+ * null means give up (continue the timeline without a painting). `max` defaults to
+ * REVEAL_TRIES; the skipped loader locks nothing, so it may pass a larger one.
+ */
+export function nextRevealTry(tried: number, count: number, max: number = REVEAL_TRIES): number | null {
+  return tried < Math.min(max, count) ? tried : null;
+}

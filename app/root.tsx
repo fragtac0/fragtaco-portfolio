@@ -40,10 +40,11 @@ export const meta: MetaFunction = () => [
 export function Layout({ children }: PropsWithChildren) {
   // The loader lock (`intro` on <html>) is only ever removed by the home hero, so the script
   // that adds it before first paint is rendered on the home route alone.
+  // <html> carries suppressHydrationWarning because that script adds `intro` before hydration.
   const isHome = useLocation().pathname === "/";
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {isHome ? <script dangerouslySetInnerHTML={{ __html: INTRO_HEAD_SCRIPT }} /> : null}
         <meta charSet="utf-8" />

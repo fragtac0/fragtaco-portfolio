@@ -15,6 +15,7 @@ import {
   pickFirst,
   RECENT_KEY,
   RECENT_LIMIT,
+  nextRevealTry,
 } from "./painting-cycle";
 import Lockup from "./lockup";
 
@@ -73,6 +74,11 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
   const parkedRef = useRef({ card: false, layer: false });
   const onReadyRef = useRef(onReady);
   const dataRef = useRef({ name, paintings });
+  // StrictMode runs the mount effect twice: the picks, the recent-list write and onReady are
+  // per component lifetime, so both runs show (and fetch) the same painting and ready fires once.
+  const picksRef = useRef<{ first: SiteHeroPainting | null; order: number[] } | null>(null);
+  const rememberedRef = useRef(false);
+  const readyFiredRef = useRef(false);
 
   useEffect(() => {
     onReadyRef.current = onReady;
@@ -203,8 +209,16 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
     });
 
     // ---- painting cycle
-    const first = n > 0 ? pickFirst(items, readRecent(), Math.random) : null;
-    const order = first ? makeOrder(n, items.indexOf(first), Math.random) : [];
+    picksRef.current ??= (() => {
+      const first = n > 0 ? pickFirst(items, readRecent(), Math.random) : null;
+      return { first, order: first ? makeOrder(n, items.indexOf(first), Math.random) : [] };
+    })();
+    const { order } = picksRef.current;
+    const fireReady = () => {
+      if (readyFiredRef.current) return;
+      readyFiredRef.current = true;
+      onReadyRef.current();
+    };
     let oi = 0;
     let cycleT = 0;
     let nextImg: Promise<HTMLImageElement | null> = Promise.resolve(null);
@@ -253,12 +267,16 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
       setCaption(p, true);
     };
 
-    /** The first painting that loads, trying the next in the order when one fails or is too slow. */
+    /**
+     * The first painting that loads, trying the next in the order when one fails or is too slow,
+     * and giving up after `maxTries` (see nextRevealTry).
+     */
     const firstLoaded = async (
       firstLoad: Promise<HTMLImageElement | null>,
       maxWait: number,
+      maxTries?: number,
     ): Promise<{ img: HTMLImageElement; k: number } | null> => {
-      for (let k = 0; k < n; k++) {
+      for (let t = 0, k = nextRevealTry(t, n, maxTries); k !== null; k = nextRevealTry(++t, n, maxTries)) {
         const pending = k === 0 ? firstLoad : loadImage(srcAt(k));
         const img = Number.isFinite(maxWait) ? await atMost(pending, maxWait) : await pending;
         if (disposed) return null;
@@ -271,7 +289,10 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
       const p = items[order[oi]];
       paint.reveal(found.img, metaOf(p), ms);
       setCaption(p);
-      remember(p.id);
+      if (!rememberedRef.current) {
+        rememberedRef.current = true;
+        remember(p.id);
+      }
       preloadNext();
     };
 
@@ -307,8 +328,8 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
     if (mode === "skip") {
       html.classList.remove("intro");
       showFinal();
-      onReadyRef.current();
-      void firstLoaded(n > 0 ? loadImage(srcAt(0)) : Promise.resolve(null), Infinity).then(
+      fireReady();
+      void firstLoaded(n > 0 ? loadImage(srcAt(0)) : Promise.resolve(null), Infinity, n).then(
         (found) => {
           if (!found) return;
           present(found, 0);
@@ -316,7 +337,12 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
         },
       );
     } else {
-      html.classList.add("intro");
+      if (!html.classList.contains("intro")) {
+        // client navigation to "/": the head script never ran, so this hero locks the page itself
+        // and owns the failsafe, cleared on unmount and harmless once `done` has unlocked
+        html.classList.add("intro");
+        later(15000, () => html.classList.remove("intro"));
+      }
       window.scrollTo(0, 0);
       resetToLoaderStart();
       paint.black();
@@ -356,7 +382,7 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
               /* blocked storage: the loader plays again next visit */
             }
             if (n > 1) scheduleNext();
-            onReadyRef.current();
+            fireReady();
             break;
         }
       };
@@ -366,13 +392,20 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
       const afterReveal = schedule.filter((s) => s.at > LOADER.reveal);
 
       // The reveal waits for the first painting; the steps after it shift by that wait.
+      // A painting that never arrives, or a throw while showing one, must not stop the timeline:
+      // the page stays locked until `done`.
       const revealThenContinue = async () => {
-        const found = await firstLoaded(firstLoad, LOADER.firstPaintingMaxWait);
-        if (disposed) return;
-        if (found) {
-          vig.classList.add("on");
-          present(found, LOADER.revealMs);
+        try {
+          const found = await firstLoaded(firstLoad, LOADER.firstPaintingMaxWait);
+          if (disposed) return;
+          if (found) {
+            vig.classList.add("on");
+            present(found, LOADER.revealMs);
+          }
+        } catch (err) {
+          console.error("hero: could not reveal the first painting", err);
         }
+        if (disposed) return;
         for (const s of afterReveal) later(s.at - LOADER.reveal, () => act(s));
       };
 

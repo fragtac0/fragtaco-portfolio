@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   RECENT_KEY,
   RECENT_LIMIT,
+  REVEAL_TRIES,
+  nextRevealTry,
   makeOrder,
   nextDelayMs,
   paintingSrc,
@@ -64,5 +66,23 @@ describe("constants", () => {
   it("matches the existing recent rule", () => {
     expect(RECENT_KEY).toBe("heroRecentPaintings");
     expect(RECENT_LIMIT).toBe(3);
+  });
+});
+
+describe("nextRevealTry", () => {
+  it("tries the first painting, then the next in the order, then gives up", () => {
+    expect(REVEAL_TRIES).toBe(2);
+    expect(nextRevealTry(0, 22)).toBe(0);
+    expect(nextRevealTry(1, 22)).toBe(1);
+    expect(nextRevealTry(2, 22)).toBeNull();
+  });
+  it("never tries more paintings than exist", () => {
+    expect(nextRevealTry(0, 0)).toBeNull();
+    expect(nextRevealTry(0, 1)).toBe(0);
+    expect(nextRevealTry(1, 1)).toBeNull();
+  });
+  it("honours a larger limit (the skipped loader, which locks nothing)", () => {
+    expect(nextRevealTry(5, 22, 22)).toBe(5);
+    expect(nextRevealTry(22, 22, 22)).toBeNull();
   });
 });
