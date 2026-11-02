@@ -26,6 +26,8 @@ import {
   type LayerKind,
   type LayerState,
 } from "./layer/layer-state";
+import ReadingScene from "./reading/reading-scene";
+import { createShelf, type ShelfEngine } from "./reading/shelf-engine";
 
 type HomePageProps = {
   home: SiteHomeContent;
@@ -160,8 +162,37 @@ export default function HomePage({
     [openLayer],
   );
 
-  // What a block's words and previews warm up: the scenes hook their prepare() here later.
-  const onBlockNear = useCallback(() => {}, []);
+  // The shelf engine lives as long as the page. Creating it only makes a canvas (no GL, no
+  // three.js), so it is made on the client when the state is first set; the server has none.
+  // The scene is built in idle time when the reading block comes near, and freed when the page
+  // goes away. The free is deferred one tick so StrictMode's simulated unmount (cleanup, then the
+  // same effect again) does not kill the engine.
+  const disposeTimer = useRef<number | null>(null);
+  const [shelf] = useState<ShelfEngine | null>(() =>
+    typeof window === "undefined"
+      ? null
+      : createShelf(books, {
+          fine: window.matchMedia("(hover: hover) and (pointer: fine)").matches,
+          reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+        }),
+  );
+  useEffect(() => {
+    if (!shelf) return;
+    const pending = disposeTimer;
+    if (pending.current !== null) window.clearTimeout(pending.current);
+    pending.current = null;
+    return () => {
+      pending.current = window.setTimeout(() => shelf.dispose(), 0);
+    };
+  }, [shelf]);
+
+  // What a block's words and previews warm up: the scenes hook their prepare() here.
+  const onBlockNear = useCallback(
+    (kind: LayerKind) => {
+      if (kind === "reading") void shelf?.prepare();
+    },
+    [shelf],
+  );
 
   const onHeroReady = useCallback(() => {
     dispatch({ kind: "show" });
@@ -297,8 +328,14 @@ export default function HomePage({
             onGrown={() => dispatchLayer({ type: "grown" })}
             onShrunk={() => dispatchLayer({ type: "shrunk" })}
           >
-            {/* the shelf and the wall arrive in later tasks */}
-            {({ kind }) => <div className="layer-placeholder" data-kind={kind} />}
+            {/* the wall arrives in a later task */}
+            {({ kind, active }) =>
+              kind === "reading" ? (
+                <ReadingScene engine={shelf} books={books} active={active} />
+              ) : (
+                <div className="layer-placeholder" data-kind={kind} />
+              )
+            }
           </InterestLayer>
         )}
       </main>
