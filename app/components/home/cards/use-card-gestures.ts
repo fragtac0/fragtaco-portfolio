@@ -57,16 +57,6 @@ const mix = (a: Pose, b: Pose, p: number): Pose => ({
   s: a.s + (b.s - a.s) * p,
 });
 
-/** True when the target sits in something that scrolls vertically (a card's own scroll area). */
-function scrollsInside(target: Element, stop: Element): boolean {
-  for (let el: Element | null = target; el && el !== stop; el = el.parentElement) {
-    if (!(el instanceof HTMLElement)) continue;
-    const oy = getComputedStyle(el).overflowY;
-    if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight) return true;
-  }
-  return false;
-}
-
 type Drag = {
   el: HTMLElement;
   sign: 1 | -1;
@@ -133,6 +123,17 @@ export function useCardGestures({
     }
   }, [nav, leftRef, rightRef]);
 
+  // ---- the page does not scroll while a card is open: html and body stop scrolling (see home.css),
+  // which also covers the dock, the keyboard and a dragged scrollbar. The cards' own scroll areas
+  // still scroll. Removed on close and on unmount.
+  const isOpen = nav === "left" || nav === "right";
+  useEffect(() => {
+    if (!isOpen) return;
+    const html = document.documentElement;
+    html.classList.add("cards-open");
+    return () => html.classList.remove("cards-open");
+  }, [isOpen]);
+
   // ---- listeners
   useEffect(() => {
     const root = hero.current?.root();
@@ -175,11 +176,8 @@ export function useCardGestures({
       if (current === "hidden") return;
       const target = e.target instanceof Element ? e.target : null;
       const isOpen = current !== "hero";
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) {
-        // the page does not scroll while a card is open, only the card's own scroll area does
-        if (isOpen && !(target && scrollsInside(target, root)) && e.cancelable) e.preventDefault();
-        return;
-      }
+      // vertical wheel is not ours: while a card is open the document lock (cards-open) stops the page
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
       if (isOpen && target?.closest(".card-body")) return;
       e.preventDefault();
       if (locked) return;
@@ -200,24 +198,45 @@ export function useCardGestures({
     };
     root.addEventListener("wheel", onWheel, { passive: false });
 
-    // touch: the same lock for a vertical drag
-    const onTouchMove = (e: TouchEvent) => {
-      if (navRef.current === "hero" || navRef.current === "hidden" || !e.cancelable) return;
-      const target = e.target instanceof Element ? e.target : null;
-      if (!(target && scrollsInside(target, root))) e.preventDefault();
-    };
-    root.addEventListener("touchmove", onTouchMove, { passive: false });
-
     // touch drag: the card follows the finger; mouse never drags
     let t0: { x: number; y: number } | null = null;
     let drag: Drag | null = null;
+    let pointerId: number | null = null;
+    /**
+     * The one place a drag ends. It always clears the drag state (so the pose effect and resize
+     * work again), releases the pointer and drops the dragging flag. `settle` also commits the
+     * result: the target past SETTLE_AT, else back to the origin; `abort` puts the cards back.
+     */
+    const endDrag = (how: "settle" | "abort") => {
+      const d = drag;
+      const id = pointerId;
+      t0 = null;
+      drag = null;
+      pointerId = null;
+      draggingRef.current = false;
+      if (id !== null) {
+        try {
+          if (root.hasPointerCapture(id)) root.releasePointerCapture(id);
+        } catch {
+          /* the pointer is already gone */
+        }
+      }
+      if (!d) return;
+      delete d.el.dataset.dragging;
+      const next = how === "settle" && d.p > SETTLE_AT ? d.target : d.origin;
+      if (how === "settle") go(next);
+      // going back to where it started changes no state, so put the cards back by hand
+      placeAll(els, how === "settle" ? next : navRef.current, how === "settle" ? NO_HOT : hotRef.current);
+    };
     const onPointerDown = (e: PointerEvent) => {
+      if (!e.isPrimary) return; // a second finger or a palm never takes over a drag
+      endDrag("abort"); // a drag that lost its end event must not strand the cards
       if (e.pointerType === "mouse" || navRef.current === "hidden" || gated()) return;
       t0 = { x: e.clientX, y: e.clientY };
-      drag = null;
+      pointerId = e.pointerId;
     };
     const onPointerMove = (e: PointerEvent) => {
-      if (!t0) return;
+      if (!t0 || !e.isPrimary || e.pointerId !== pointerId) return;
       const dx = e.clientX - t0.x;
       const dy = e.clientY - t0.y;
       if (!drag) {
@@ -238,21 +257,18 @@ export function useCardGestures({
         };
         draggingRef.current = true;
         el.dataset.dragging = "";
+        try {
+          root.setPointerCapture(e.pointerId); // a release outside the hero still ends the drag
+        } catch {
+          /* not capturable: the pointerup on the hero still ends it */
+        }
       }
       drag.p = dragProgress(dx, drag.el.offsetWidth, drag.sign);
       place(drag.el, mix(drag.from, drag.to, drag.p));
     };
-    const onPointerEnd = () => {
-      const d = drag;
-      t0 = null;
-      drag = null;
-      if (!d) return;
-      draggingRef.current = false;
-      delete d.el.dataset.dragging;
-      const next = d.p > SETTLE_AT ? d.target : d.origin;
-      go(next);
-      // going back to where it started changes no state, so put the card back by hand
-      placeAll(els, next, NO_HOT);
+    const onPointerEnd = (e: PointerEvent) => {
+      if (e.pointerId !== pointerId) return;
+      endDrag("settle");
     };
     root.addEventListener("pointerdown", onPointerDown);
     root.addEventListener("pointermove", onPointerMove);
@@ -300,7 +316,6 @@ export function useCardGestures({
       window.clearTimeout(accTimer);
       window.clearTimeout(lockTimer);
       root.removeEventListener("wheel", onWheel);
-      root.removeEventListener("touchmove", onTouchMove);
       root.removeEventListener("pointerdown", onPointerDown);
       root.removeEventListener("pointermove", onPointerMove);
       root.removeEventListener("pointerup", onPointerEnd);
@@ -311,10 +326,7 @@ export function useCardGestures({
         els[side].removeEventListener("pointerenter", enter);
         els[side].removeEventListener("pointerleave", leave);
       }
-      if (drag) {
-        delete drag.el.dataset.dragging;
-        draggingRef.current = false;
-      }
+      endDrag("abort");
     };
   }, [hero, leftRef, rightRef, scrimRef, setHot, ctx]);
 }

@@ -19,6 +19,15 @@ html.intro,
 html.intro body {
   overflow: hidden;
 }
+/* a card is open: the page does not scroll. The gutter is always reserved on the home page so a
+   classic scrollbar disappearing does not shift the layout. */
+html:has(.home-page) {
+  scrollbar-gutter: stable;
+}
+html.cards-open,
+html.cards-open body {
+  overflow: hidden;
+}
 .home-page .below-wrap {
   transition: opacity 0.9s ease;
 }
@@ -438,6 +447,10 @@ html.intro .home-page .below-wrap {
   border-right: 0;
   border-left: 1px solid rgba(253, 252, 230, 0.09);
 }
+.home-hero .rail:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: -4px; /* inset, so the card's overflow does not clip it */
+}
 .home-hero .rail span {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
@@ -483,6 +496,11 @@ html.intro .home-page .below-wrap {
   color: var(--cream);
   text-decoration: none;
   white-space: nowrap;
+}
+.home-hero .pill:focus-visible,
+.home-hero .links a:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 2px;
 }
 .home-hero .placeholder {
   border: 1px dashed rgba(217, 164, 65, 0.45);
