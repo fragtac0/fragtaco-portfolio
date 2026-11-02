@@ -13,6 +13,9 @@ describe("loaderSchedule", () => {
     expect(last.step).toBe("done");
     expect(last.at).toBe(4800);
   });
+  it("waits at most 8 s for a painting", () => {
+    expect(LOADER.firstPaintingMaxWait).toBe(8000);
+  });
   it("is sorted by time", () => {
     for (let i = 1; i < s.length; i++) expect(s[i].at).toBeGreaterThanOrEqual(s[i - 1].at);
   });

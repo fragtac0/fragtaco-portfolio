@@ -13,6 +13,8 @@ export const LOADER = {
   nameSmall: 4050,
   roles: 4300,
   done: 4800,
+  /** How long the reveal waits for a painting before trying the next one in the order. */
+  firstPaintingMaxWait: 8000,
 } as const;
 
 export type LoaderStep = { at: number; step: string; index?: number };

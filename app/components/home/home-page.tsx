@@ -7,7 +7,7 @@ import type {
   SiteVideo,
 } from "../../types";
 import SiteNav from "../site-nav";
-import HeroSection from "./hero-section";
+import Hero from "./hero/hero";
 
 type HomePageProps = {
   home: SiteHomeContent;
@@ -18,6 +18,9 @@ type HomePageProps = {
   socialLinks: SiteSocialLink[];
 };
 
+// Nothing needs the loader's end yet; the cards and dock tasks hang their entrance on it.
+const onHeroReady = () => undefined;
+
 export default function HomePage({
   home,
   heroPaintings,
@@ -25,13 +28,17 @@ export default function HomePage({
   socialLinks,
 }: HomePageProps) {
   return (
-    <main className="bg-ink text-fog">
-      <HeroSection
-        title={home.hero.name}
-        subtitle={home.hero.roles}
+    <main className="home-page bg-ink text-fog">
+      <Hero
+        name={home.hero.name}
+        roles={home.hero.roles}
         paintings={heroPaintings}
+        softened={false}
+        onReady={onHeroReady}
       />
-      <SiteNav currentPage="home" items={navigationItems} socialLinks={socialLinks} />
+      <div className="below-wrap">
+        <SiteNav currentPage="home" items={navigationItems} socialLinks={socialLinks} />
+      </div>
     </main>
   );
 }

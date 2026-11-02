@@ -18,7 +18,9 @@ export function introMode(s: {
 /**
  * Plain ES5, runs inline in <head> before any bundle. Same rules as introMode;
  * blocked storage (getItem throws) counts as "not seen", so the loader plays.
- * Free variables: document, sessionStorage, location, matchMedia.
+ * Free variables: document, sessionStorage, location, matchMedia, setTimeout.
+ * Failsafe: the class locks scrolling, and only the hero removes it, so a bundle that
+ * never loads would leave the page locked. A 15 s timer removes it regardless.
  */
 export const INTRO_HEAD_SCRIPT = [
   "try{",
@@ -27,6 +29,9 @@ export const INTRO_HEAD_SCRIPT = [
   "var reduced=false;",
   "try{reduced=!!matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}",
   "var deep=" + JSON.stringify(DEEP_LINKS) + ".indexOf(location.hash)!==-1;",
-  "if(!seen&&!reduced&&!deep){document.documentElement.classList.add('intro');}",
+  "if(!seen&&!reduced&&!deep){",
+  "document.documentElement.classList.add('intro');",
+  "setTimeout(function(){document.documentElement.classList.remove('intro');},15000);",
+  "}",
   "}catch(e){}",
 ].join("");
