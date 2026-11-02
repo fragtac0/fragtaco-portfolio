@@ -28,6 +28,8 @@ import {
 } from "./layer/layer-state";
 import ReadingScene from "./reading/reading-scene";
 import { createShelf, type ShelfEngine } from "./reading/shelf-engine";
+import { createWall, type WallEngine } from "./watching/wall-engine";
+import WatchingScene, { createPickChannel } from "./watching/watching-scene";
 
 type HomePageProps = {
   home: SiteHomeContent;
@@ -186,12 +188,37 @@ export default function HomePage({
     };
   }, [shelf]);
 
+  // The wall engine follows the same lifecycle: made here on the client, prepared (GL context,
+  // atlas, thumbnails) when the watching block comes near, freed when the page goes away. A tile
+  // the wall reports as picked reaches the watching scene through the channel.
+  const wallDisposeTimer = useRef<number | null>(null);
+  const [wallPicks] = useState(createPickChannel);
+  const [wall] = useState<WallEngine | null>(() =>
+    typeof window === "undefined"
+      ? null
+      : createWall(videos, {
+          fine: window.matchMedia("(hover: hover) and (pointer: fine)").matches,
+          reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+          onPick: (index, rect, key) => wallPicks.emit(index, rect, key),
+        }),
+  );
+  useEffect(() => {
+    if (!wall) return;
+    const pending = wallDisposeTimer;
+    if (pending.current !== null) window.clearTimeout(pending.current);
+    pending.current = null;
+    return () => {
+      pending.current = window.setTimeout(() => wall.dispose(), 0);
+    };
+  }, [wall]);
+
   // What a block's words and previews warm up: the scenes hook their prepare() here.
   const onBlockNear = useCallback(
     (kind: LayerKind) => {
       if (kind === "reading") void shelf?.prepare();
+      else wall?.prepare();
     },
-    [shelf],
+    [shelf, wall],
   );
 
   const onHeroReady = useCallback(() => {
@@ -250,7 +277,7 @@ export default function HomePage({
   useEffect(() => {
     if (!layerLive) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
+      if (e.key !== "Escape" || e.repeat) return; // a held key must not walk down the layers
       const h = sceneHooks.current;
       const target = escTarget({
         bookOpen: h.isBookOpen?.() ?? false,
@@ -328,12 +355,16 @@ export default function HomePage({
             onGrown={() => dispatchLayer({ type: "grown" })}
             onShrunk={() => dispatchLayer({ type: "shrunk" })}
           >
-            {/* the wall arrives in a later task */}
             {({ kind, active }) =>
               kind === "reading" ? (
                 <ReadingScene engine={shelf} books={books} active={active} />
               ) : (
-                <div className="layer-placeholder" data-kind={kind} />
+                <WatchingScene
+                  engine={wall}
+                  videos={videos}
+                  picks={wallPicks}
+                  active={active}
+                />
               )
             }
           </InterestLayer>
