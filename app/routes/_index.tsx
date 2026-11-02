@@ -43,8 +43,8 @@ export default function Index() {
   return (
     <main className="bg-ink text-fog">
       <HeroSection
-        title={home.hero.title}
-        subtitle={home.hero.subtitle}
+        title={home.hero.name}
+        subtitle={home.hero.roles}
         paintings={heroPaintings}
       />
       <SiteNav currentPage="home" items={navigationItems} socialLinks={socialLinks} />

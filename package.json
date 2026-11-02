@@ -8,6 +8,8 @@
     "build": "dotenv -e .env.local -- remix vite:build",
     "start": "dotenv -e .env.local -- remix-serve ./build/server/index.js",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint . --cache --cache-location .cache/eslint",
     "check": "npm run typecheck && npm run lint && npm run build"
   },
@@ -41,6 +43,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.6.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.61.0"
+    "typescript-eslint": "^8.61.0",
+    "vitest": "^3.2.7"
   }
 }

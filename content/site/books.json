@@ -1,0 +1,172 @@
+{
+  "items": [
+    {
+      "id": "in-the-blink-of-an-eye",
+      "title": "In the Blink of an Eye",
+      "author": "Walter Murch",
+      "pages": 146,
+      "isbn": "9781879505629",
+      "heightIn": 8.5,
+      "aspect": 0.647,
+      "spine": "#ece6d6",
+      "style": "plain",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "sculpting-in-time",
+      "title": "Sculpting in Time",
+      "author": "Andrei Tarkovsky",
+      "pages": 254,
+      "isbn": "9780292776241",
+      "heightIn": 9,
+      "aspect": 0.667,
+      "spine": "#2c3b43",
+      "style": "band",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "making-movies",
+      "title": "Making Movies",
+      "author": "Sidney Lumet",
+      "pages": 220,
+      "isbn": "9780679756606",
+      "heightIn": 8,
+      "aspect": 0.65,
+      "spine": "#a8352a",
+      "style": "block",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "on-film-editing",
+      "title": "On Film Editing",
+      "author": "Edward Dmytryk",
+      "pages": 160,
+      "isbn": "9780240517384",
+      "heightIn": 9,
+      "aspect": 0.667,
+      "spine": "#c79a2a",
+      "style": "plain",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "story",
+      "title": "Story",
+      "author": "Robert McKee",
+      "pages": 466,
+      "isbn": "9780060391683",
+      "heightIn": 9.5,
+      "aspect": 0.66,
+      "spine": "#151312",
+      "style": "band",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "save-the-cat",
+      "title": "Save the Cat!",
+      "author": "Blake Snyder",
+      "pages": 195,
+      "isbn": "9781932907001",
+      "heightIn": 9,
+      "aspect": 0.667,
+      "spine": "#efe9dc",
+      "style": "block",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "the-creative-act",
+      "title": "The Creative Act",
+      "author": "Rick Rubin",
+      "pages": 432,
+      "isbn": "9780593652886",
+      "heightIn": 9.3,
+      "aspect": 0.68,
+      "spine": "#e3ddd0",
+      "style": "plain",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "steal-like-an-artist",
+      "title": "Steal Like an Artist",
+      "author": "Austin Kleon",
+      "pages": 160,
+      "isbn": "9780761169253",
+      "heightIn": 7.2,
+      "aspect": 0.76,
+      "spine": "#1c1b19",
+      "style": "block",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "show-your-work",
+      "title": "Show Your Work!",
+      "author": "Austin Kleon",
+      "pages": 224,
+      "isbn": "9780761178972",
+      "heightIn": 7.2,
+      "aspect": 0.76,
+      "spine": "#f0ece2",
+      "style": "block",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "ways-of-seeing",
+      "title": "Ways of Seeing",
+      "author": "John Berger",
+      "pages": 176,
+      "isbn": "9780140135152",
+      "heightIn": 7.8,
+      "aspect": 0.65,
+      "spine": "#c21f2b",
+      "style": "plain",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "understanding-comics",
+      "title": "Understanding Comics",
+      "author": "Scott McCloud",
+      "pages": 224,
+      "isbn": "9780060976255",
+      "heightIn": 10,
+      "aspect": 0.66,
+      "spine": "#d6b03a",
+      "style": "band",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "thinking-with-type",
+      "title": "Thinking with Type",
+      "author": "Ellen Lupton",
+      "pages": 224,
+      "isbn": "9781568989693",
+      "heightIn": 9,
+      "aspect": 0.78,
+      "spine": "#e04a26",
+      "style": "block",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "grid-systems-in-graphic-design",
+      "title": "Grid Systems in Graphic Design",
+      "author": "Josef Müller-Brockmann",
+      "pages": 176,
+      "isbn": "9783721201451",
+      "heightIn": 11,
+      "aspect": 0.73,
+      "spine": "#dad8cf",
+      "style": "plain",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    },
+    {
+      "id": "the-design-of-everyday-things",
+      "title": "The Design of Everyday Things",
+      "author": "Don Norman",
+      "pages": 368,
+      "isbn": "9780465050659",
+      "heightIn": 8.25,
+      "aspect": 0.66,
+      "spine": "#1f4b73",
+      "style": "band",
+      "note": "Placeholder for one or two lines on why this book stays with you."
+    }
+  ]
+}
