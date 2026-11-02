@@ -6,7 +6,9 @@
  * blend a full screen.
  *
  * Ported from `createPaint` in docs/redesign/mockups/home-v4.html. Framework
- * free: the only DOM it touches is the canvas it is given.
+ * free: the only DOM it touches is the canvas it is given. Callers must give
+ * each `createPaint` call a fresh canvas element, because `dispose` loses the
+ * context for good.
  */
 
 export interface PaintMeta {
@@ -128,6 +130,10 @@ export function createPaint(
   if (!glOrNull) glOrNull = canvas.getContext("webgl", ctxOpts);
   if (!glOrNull) return null;
   const gl: WebGLRenderingContext = glOrNull;
+  if (gl.isContextLost()) {
+    console.error("paint: WebGL context already lost");
+    return null;
+  }
 
   const compile = (type: number, src: string): WebGLShader | null => {
     const s = gl.createShader(type);
@@ -358,7 +364,7 @@ export function createPaint(
       gl.deleteProgram(prog);
       gl.deleteShader(vsh);
       gl.deleteShader(fsh);
-      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      if (!gl.isContextLost()) gl.getExtension("WEBGL_lose_context")?.loseContext();
     },
   };
 }
