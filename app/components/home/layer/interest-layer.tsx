@@ -123,7 +123,9 @@ export default function InterestLayer({
       if (!root) return;
       const items = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
         (el) =>
-          !el.closest("[inert]") && (el.offsetParent !== null || el === document.activeElement),
+          el.tabIndex >= 0 &&
+          !el.closest("[inert]") &&
+          (el.offsetParent !== null || el === document.activeElement),
       );
       if (items.length === 0) {
         e.preventDefault();
