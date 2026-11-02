@@ -107,6 +107,25 @@ describe("VideosFileSchema", () => {
     expect(VideosFileSchema.safeParse(file).success).toBe(true);
   });
 
+  it("accepts a null subscriber count and a count like 1.01M", () => {
+    const result = VideosFileSchema.safeParse({
+      ...file,
+      items: [
+        { ...validVideo, subscribers: null },
+        { ...validVideo, subscribers: "1.01M" },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a subscriber count that is not a number", () => {
+    const result = VideosFileSchema.safeParse({
+      ...file,
+      items: [{ ...validVideo, subscribers: "lots" }],
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("rejects a video id of the wrong length", () => {
     const result = VideosFileSchema.safeParse({
       ...file,

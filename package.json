@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "sync:videos": "vite-node scripts/sync-videos.ts",
     "lint": "eslint . --cache --cache-location .cache/eslint",
     "check": "npm run typecheck && npm run lint && npm run build"
   },
