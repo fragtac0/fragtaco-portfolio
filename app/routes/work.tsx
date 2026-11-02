@@ -36,7 +36,7 @@ export default function WorkPage() {
 
   return (
     <main className="bg-ink text-white">
-      <SiteNav currentPage="work" items={navigationItems} socialLinks={socialLinks} />
+      <SiteNav items={navigationItems} socialLinks={socialLinks} />
       <ProjectsSection
         clients={clients}
         projects={projects}

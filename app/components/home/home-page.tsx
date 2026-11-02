@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import type {
   SiteBook,
   SiteHeroPainting,
@@ -40,7 +40,45 @@ export default function HomePage({
     (input: NavInput) => dispatchNav({ input, ctx: { ...navCtx.current } }),
     [],
   );
-  const onHeroReady = useCallback(() => dispatch({ kind: "show" }), [dispatch]);
+  const onHeroReady = useCallback(() => {
+    dispatch({ kind: "show" });
+    // Arriving at /#about (a reload, or "the cut" from /work): open the intro card, then drop
+    // the hash so it does not linger. Remix keeps its bookkeeping in history.state: keep it.
+    if (window.location.hash === "#about") {
+      dispatch({ kind: "go", to: "right" });
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
+  }, [dispatch]);
+
+  // The dock rises with the cards, the first time the hero leaves "hidden".
+  const [revealed, setRevealed] = useState(false);
+  if (!revealed && nav !== "hidden") setRevealed(true);
+
+  // "the cut": scroll to the top first when needed, wait for it, then toggle the intro card.
+  const aboutTimer = useRef<number | null>(null);
+  const onAbout = useCallback(() => {
+    if (aboutTimer.current !== null) window.clearTimeout(aboutTimer.current);
+    const toggle = () => {
+      aboutTimer.current = null;
+      dispatch({ kind: "toggle", side: "right" });
+    };
+    if (window.scrollY > 10) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      aboutTimer.current = window.setTimeout(toggle, 520);
+    } else {
+      toggle();
+    }
+  }, [dispatch]);
+  useEffect(
+    () => () => {
+      if (aboutTimer.current !== null) window.clearTimeout(aboutTimer.current);
+    },
+    [],
+  );
 
   const open = nav === "left" || nav === "right";
   useEffect(() => {
@@ -67,9 +105,16 @@ export default function HomePage({
           navCtx={navCtx}
         />
       </Hero>
-      <div className="below-wrap">
-        <SiteNav currentPage="home" items={navigationItems} socialLinks={socialLinks} />
-      </div>
+      <SiteNav
+        items={navigationItems}
+        socialLinks={socialLinks}
+        home={{
+          revealed,
+          hidden: false, // a later task passes the layer state
+          aboutOpen: nav === "right",
+          onAbout,
+        }}
+      />
     </main>
   );
 }

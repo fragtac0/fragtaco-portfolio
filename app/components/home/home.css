@@ -28,13 +28,6 @@ html.cards-open,
 html.cards-open body {
   overflow: hidden;
 }
-.home-page .below-wrap {
-  transition: opacity 0.9s ease;
-}
-html.intro .home-page .below-wrap {
-  visibility: hidden;
-  opacity: 0;
-}
 
 /* the dot screen plus a fixed grain; static, so it costs one paint. The hero draws its own in the shader. */
 .home-page .tex {
