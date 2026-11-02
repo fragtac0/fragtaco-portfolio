@@ -1,11 +1,10 @@
 import { useLocation, useNavigate } from "@remix-run/react";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ComponentType } from "react";
-import type { HomeSectionId, SiteNavigationItem, SiteSocialLink } from "../types";
+import type { SiteNavigationItem, SiteSocialLink } from "../types";
 import DockNav from "./react-bits/dock-nav";
-import { useActiveHomeSection } from "../hooks/use-active-home-section";
 import { externalLinkProps } from "../utils/link";
-import { isHomeSectionId, scrollWindowToSection } from "../utils/nav";
+import { isHomeSectionId } from "../utils/nav";
 import {
   FaInstagram,
   FaRegEnvelope,
@@ -13,10 +12,19 @@ import {
   FaYoutube,
 } from "react-icons/fa6";
 
+/** The home page drives the dock: it stays down until `revealed`, hides while the layer is open,
+ * and "the cut" opens the intro card (via `onAbout`) instead of navigating. */
+export interface SiteNavHome {
+  revealed: boolean;
+  hidden: boolean;
+  aboutOpen: boolean;
+  onAbout: () => void;
+}
+
 interface SiteNavProps {
-  currentPage?: "home" | "work";
   items: SiteNavigationItem[];
   socialLinks: SiteSocialLink[];
+  home?: SiteNavHome;
 }
 
 const SOCIAL_ICON_MAP: Record<
@@ -36,31 +44,19 @@ const SOCIAL_ICON_CLASS_MAP: Record<string, string> = {
   youtube: "h-6 w-6 sm:h-7 sm:w-7",
 };
 
-function getTargetSectionFromState(state: unknown): HomeSectionId | null {
-  if (typeof state !== "object" || state === null || !("targetSection" in state)) {
-    return null;
-  }
-
-  const targetSection = (state as { targetSection?: unknown }).targetSection;
-
-  if (typeof targetSection !== "string" || !isHomeSectionId(targetSection)) {
-    return null;
-  }
-
-  return targetSection;
-}
+/** React 18 has no `inert` in its types; a bare attribute still reaches the DOM. */
+const inertProps = { inert: "" } as Record<string, string>;
 
 export default function SiteNav({
-  currentPage = "home",
   items,
   socialLinks,
+  home,
 }: SiteNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const hideTimeoutRef = useRef<number | null>(null);
   const tickingRef = useRef(false);
   const [isDockHidden, setIsDockHidden] = useState(false);
-  const activeHomeSection = useActiveHomeSection(currentPage === "home");
   const isHomePage = location.pathname === "/";
   const visibleItems = items.filter(
     (item): item is SiteNavigationItem =>
@@ -70,9 +66,16 @@ export default function SiteNav({
     Object.hasOwn(SOCIAL_ICON_MAP, link.label.toLowerCase()),
   );
 
+  // On the home page "the cut" is active only while the intro card is open.
   const activeKey = location.pathname.startsWith("/work")
     ? "projects"
-    : activeHomeSection;
+    : home
+      ? home.aboutOpen
+        ? "about"
+        : null
+      : "about";
+  // Until the cards rise, and while the layer is open, the dock is down and out of the tab order.
+  const isDockDown = home ? !home.revealed || home.hidden : false;
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
@@ -110,15 +113,14 @@ export default function SiteNav({
       return;
     }
 
-    if (!isHomePage) {
-      event.preventDefault();
-      navigate(`/#${item.key}`);
+    event.preventDefault();
+
+    if (home && isHomePage) {
+      home.onAbout();
       return;
     }
 
-    event.preventDefault();
-    window.history.replaceState(null, "", `/#${item.key}`);
-    scrollWindowToSection(item.key);
+    navigate(`/#${item.key}`);
   };
 
   useEffect(() => {
@@ -130,19 +132,6 @@ export default function SiteNav({
       }
     }
   }, [location.hash, location.pathname, navigate]);
-
-  useEffect(() => {
-    if (location.pathname !== "/") return;
-    const stateSection = getTargetSectionFromState(location.state);
-    const sectionId = stateSection ?? location.hash.slice(1);
-    if (!isHomeSectionId(sectionId)) return;
-
-    // Delay to ensure layout is ready before measuring positions
-    window.requestAnimationFrame(() => {
-      window.history.replaceState(null, "", `/#${sectionId}`);
-      scrollWindowToSection(sectionId);
-    });
-  }, [location.pathname, location.hash, location.state]);
 
   useEffect(() => {
     const updateDockVisibility = () => {
@@ -186,9 +175,11 @@ export default function SiteNav({
   return (
     <header
       className={`pointer-events-none fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-30 flex w-full justify-center px-2 transition-transform duration-300 ease-out sm:bottom-6 sm:px-3 ${
-        isDockHidden ? "translate-y-[calc(100%+2rem)]" : "translate-y-0"
+        isDockHidden || isDockDown ? "translate-y-[calc(100%+2rem)]" : "translate-y-0"
       }`}
+      aria-hidden={isDockDown ? true : undefined}
       data-site-nav
+      {...(isDockDown ? inertProps : {})}
     >
       <div className="pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden rounded-full border border-fog/14 bg-[rgba(17,12,8,0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5">
         <span

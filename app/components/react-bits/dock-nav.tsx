@@ -11,7 +11,7 @@ interface DockNavItemProps {
 
 interface DockNavProps {
   items: SiteNavigationItem[];
-  activeKey: SiteNavigationItem["key"];
+  activeKey: SiteNavigationItem["key"] | null;
   onItemClick: (
     event: MouseEvent<HTMLAnchorElement>,
     item: SiteNavigationItem,
