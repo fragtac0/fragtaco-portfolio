@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, type ReactNode } from "react";
 import { INTRO_KEY, introMode } from "../../../lib/intro-session";
 import type { SiteHeroPainting } from "../../../types";
 import "../home.css";
@@ -24,6 +24,8 @@ export interface HeroHandle {
   setBlur(v: 0 | 1): void;
   /** A card or a layer is open: the painting stops changing, and the draw loop parks. */
   setParked(reason: "card" | "layer", on: boolean): void;
+  /** The hero `<section>`, for listeners that live on it (wheel, touch, visibility). */
+  root(): HTMLElement | null;
 }
 
 interface HeroProps {
@@ -34,6 +36,8 @@ interface HeroProps {
   softened: boolean;
   /** Fires once, when the loader finishes (or at once when it is skipped). */
   onReady: () => void;
+  /** Rendered inside the section after the hero's own layers (the cards and their scrim). */
+  children?: ReactNode;
 }
 
 /** Last painting ids shown this session, newest last. */
@@ -64,7 +68,7 @@ const metaOf = (p: SiteHeroPainting): PaintMeta => ({ focal: parseFocal(p.focal)
  * pre-loader markup once and holds no per-frame state.
  */
 const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
-  { name, roles, paintings, softened, onReady },
+  { name, roles, paintings, softened, onReady, children },
   ref,
 ) {
   const rootRef = useRef<HTMLElement>(null);
@@ -94,6 +98,9 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
       },
       setParked(reason, on) {
         parkedRef.current[reason] = on;
+      },
+      root() {
+        return rootRef.current;
       },
     }),
     [],
@@ -460,6 +467,7 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
       </div>
       <div className="edge-glow l" aria-hidden="true" />
       <div className="edge-glow r" aria-hidden="true" />
+      {children}
     </section>
   );
 });
