@@ -5,6 +5,7 @@ import type { SiteVideo } from "../app/types";
 import {
   diffVideos,
   extractInitialData,
+  mergeSubscribers,
   parsePlaylist,
   parseSubscribers,
 } from "./youtube";
@@ -75,8 +76,12 @@ const main = async (): Promise<void> => {
   await mapLimit(channelUrls, CONCURRENCY, async (url) => {
     try {
       const count = parseSubscribers(await fetchText(url));
-      if (count === null) console.warn(`Warning: no subscriber count at ${url}`);
-      counts.set(url, count);
+      if (count === null) {
+        console.warn(
+          `Warning: no subscriber count at ${url}, keeping the previous count`,
+        );
+      }
+      counts.set(url, mergeSubscribers(count, previousSubs.get(url)));
     } catch (error) {
       console.warn(
         `Warning: channel fetch failed for ${url}, keeping the previous count (${String(error)})`,

@@ -118,3 +118,9 @@ export const diffVideos = (prev: SiteVideo[], next: SiteVideo[]): VideoDiff => {
   for (const id of before.keys()) if (!after.has(id)) removed += 1;
   return { added, removed, changed };
 };
+
+/** A parsed count wins; a page with no parseable count keeps the previous one. */
+export const mergeSubscribers = (
+  parsed: string | null,
+  previous: string | null | undefined,
+): string | null => parsed ?? previous ?? null;

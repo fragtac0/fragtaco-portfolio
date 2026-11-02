@@ -5,6 +5,7 @@ import type { SiteVideo } from "../app/types";
 import {
   diffVideos,
   extractInitialData,
+  mergeSubscribers,
   parsePlaylist,
   parseSubscribers,
 } from "./youtube";
@@ -76,5 +77,20 @@ describe("diffVideos", () => {
       video("ddddddddddd", "fresh"),
     ];
     expect(diffVideos(prev, next)).toEqual({ added: 1, removed: 1, changed: 1 });
+  });
+});
+
+describe("mergeSubscribers", () => {
+  it("uses the parsed count when there is one", () => {
+    expect(mergeSubscribers("158K", "100K")).toBe("158K");
+  });
+
+  it("keeps the previous count when the page had none", () => {
+    expect(mergeSubscribers(null, "100K")).toBe("100K");
+  });
+
+  it("gives null when the page had none and there is no previous count", () => {
+    expect(mergeSubscribers(null, undefined)).toBeNull();
+    expect(mergeSubscribers(null, null)).toBeNull();
   });
 });
