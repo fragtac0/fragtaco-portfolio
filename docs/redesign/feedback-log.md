@@ -158,6 +158,8 @@ v2 also held 120 fps on this machine, so these numbers show v3 is smooth here; t
 | Nothing below the hero exists, and the page cannot scroll, until the loader finishes | 3 | Asked for directly. |
 | Shelf motion uses springs, and late textures upload outside the entrance | 3 | Smoother start to every move, and no upload stalls mid-animation. |
 | The build is executed by Sonnet subagents at high effort, one task at a time, with a review after each | 3 | Asked for directly. |
+| Commits use the GitHub no-reply address; the history was rewritten to it before the first push | 3 | Answered after the builder check: the repo is public. |
+| Hero paintings use 1600 and 2560 px copies; the name and logo do not wait for the first painting; a tap opens a video on touch | 3 | Builder check: smooth on phones and slow connections; matches v4. |
 
 ## Open questions
 
