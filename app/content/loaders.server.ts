@@ -1,4 +1,5 @@
 import {
+  getBooks,
   getClientsSection,
   getFactsSection,
   getHeroPaintings,
@@ -8,15 +9,18 @@ import {
   getReachOutSection,
   getSocialLinks,
   getTechStackSection,
+  getVideos,
   getWorkExperienceSection,
 } from "./site-content.server";
 
 export async function getHomePageContent() {
-  const [home, facts, heroPaintings, navigationItems, socialLinks] =
+  const [home, facts, heroPaintings, books, videosFile, navigationItems, socialLinks] =
     await Promise.all([
       getHomeContent(),
       getFactsSection(),
       getHeroPaintings(),
+      getBooks(),
+      getVideos(),
       getNavigationItems(),
       getSocialLinks(),
     ]);
@@ -25,6 +29,8 @@ export async function getHomePageContent() {
     home,
     facts,
     heroPaintings,
+    books,
+    videos: videosFile.items,
     navigationItems,
     socialLinks,
   };
