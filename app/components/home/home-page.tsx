@@ -277,7 +277,7 @@ export default function HomePage({
   useEffect(() => {
     if (!layerLive) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
+      if (e.key !== "Escape" || e.repeat) return; // a held key must not walk down the layers
       const h = sceneHooks.current;
       const target = escTarget({
         bookOpen: h.isBookOpen?.() ?? false,

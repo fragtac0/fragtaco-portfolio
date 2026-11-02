@@ -17,8 +17,9 @@ const OPEN_MS = 560;
 const CLOSE_MS = 530;
 
 export type VideoDetailHandle = {
-  /** Flies the shot back into its tile; `instant` skips the flight. */
+  /** Flies the shot back into its tile; `instant` skips the flight. A no-op while already closing. */
   close(instant?: boolean): void;
+  /** True from the pick until the close has finished, the fly-back included. */
   isOpen(): boolean;
 };
 
@@ -66,7 +67,13 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
   const shotRef = useRef<HTMLDivElement>(null);
   const watchRef = useRef<HTMLAnchorElement>(null);
   const titleId = useId();
-  const st = useRef({ on: false, key: null as string | null, timer: 0, raf: 0 });
+  const st = useRef({
+    on: false,
+    closing: false,
+    key: null as string | null,
+    timer: 0,
+    raf: 0,
+  });
   const latest = useRef({ wall, onClose });
   useLayoutEffect(() => {
     latest.current = { wall, onClose };
@@ -88,6 +95,7 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
     const shot = shotRef.current;
     if (!s.on || !root || !shot) return;
     s.on = false;
+    s.closing = true; // still "open" for Esc until the fly-back has finished
     window.clearTimeout(s.timer);
     cancelAnimationFrame(s.raf);
     const { wall: w } = latest.current;
@@ -101,6 +109,7 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
         hide(root, true);
         settle(shot);
         latest.current.wall.thaw();
+        s.closing = false;
         s.key = null;
         latest.current.onClose();
       },
@@ -108,7 +117,11 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
     );
   }, []);
 
-  useImperativeHandle(ref, () => ({ close, isOpen: () => st.current.on }), [close]);
+  useImperativeHandle(
+    ref,
+    () => ({ close, isOpen: () => st.current.on || st.current.closing }),
+    [close],
+  );
 
   // a video was picked: freeze the wall, fly the shot out from its tile, then hold the wall still
   useLayoutEffect(() => {
@@ -120,6 +133,7 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
     cancelAnimationFrame(s.raf);
     settle(shot);
     s.on = true;
+    s.closing = false;
     s.key = tileKey;
     hide(root, false);
     root.classList.remove("show");

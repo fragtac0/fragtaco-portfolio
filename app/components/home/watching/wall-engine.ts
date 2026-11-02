@@ -333,6 +333,11 @@ export function createWall(
     g.blendFunc(g.ONE, g.ONE_MINUS_SRC_ALPHA);
     program = prog;
     gl = g;
+    // size the drawing buffer now, in idle time: the layer is fixed to the viewport, so `start()`
+    // finds this size and does not resize inside the frame that opens the layer
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(window.innerWidth * d);
+    canvas.height = Math.round(window.innerHeight * d);
     for (let i = 0; i < a.cells.length; i++) void loadThumb(i);
   }
 
