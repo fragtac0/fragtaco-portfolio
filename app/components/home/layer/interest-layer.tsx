@@ -122,7 +122,8 @@ export default function InterestLayer({
       const root = rootRef.current;
       if (!root) return;
       const items = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        (el) => el.offsetParent !== null || el === document.activeElement,
+        (el) =>
+          !el.closest("[inert]") && (el.offsetParent !== null || el === document.activeElement),
       );
       if (items.length === 0) {
         e.preventDefault();
