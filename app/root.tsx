@@ -5,9 +5,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "@remix-run/react";
 import type { PropsWithChildren } from "react";
 import PageViewTracker from "./components/page-view-tracker";
+import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
 import appStylesHref from "./styles/tailwind.css?url";
 
 export const links: LinksFunction = () => [
@@ -36,9 +38,15 @@ export const meta: MetaFunction = () => [
 ];
 
 export function Layout({ children }: PropsWithChildren) {
+  // The loader lock (`intro` on <html>) is only ever removed by the home hero, so the script
+  // that adds it before first paint is rendered on the home route alone.
+  // <html> carries suppressHydrationWarning because that script adds `intro` before hydration.
+  const isHome = useLocation().pathname === "/";
+
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {isHome ? <script dangerouslySetInnerHTML={{ __html: INTRO_HEAD_SCRIPT }} /> : null}
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
