@@ -1,9 +1,7 @@
 import { json, type LinksFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getHomePageContent } from "../content/loaders.server";
-import AboutSection from "../components/home/about-section";
-import HeroSection from "../components/home/hero-section";
-import SiteNav from "../components/site-nav";
+import HomePage from "../components/home/home-page";
 
 export const meta: MetaFunction = () => [
   { title: "FragTaco — Aditya Bhoir" },
@@ -32,27 +30,7 @@ export async function loader() {
 }
 
 export default function Index() {
-  const {
-    home,
-    facts,
-    heroPaintings,
-    navigationItems,
-    socialLinks,
-  } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
 
-  return (
-    <main className="bg-ink text-fog">
-      <HeroSection
-        title={home.hero.name}
-        subtitle={home.hero.roles}
-        paintings={heroPaintings}
-      />
-      <SiteNav currentPage="home" items={navigationItems} socialLinks={socialLinks} />
-      <AboutSection
-        paragraphs={home.about.paragraphs}
-        facts={facts}
-        credits={home.credits}
-      />
-    </main>
-  );
+  return <HomePage {...data} />;
 }

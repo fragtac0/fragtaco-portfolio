@@ -10,6 +10,12 @@ describe("getHomePageContent", () => {
     expect(content.videos.length).toBeGreaterThanOrEqual(40);
     expect(content.heroPaintings.length).toBeGreaterThanOrEqual(20);
   });
+
+  it("does not return the facts section", async () => {
+    const content = await getHomePageContent();
+
+    expect(content).not.toHaveProperty("facts");
+  });
 });
 
 describe("site content loaders", () => {
