@@ -136,6 +136,11 @@ const whenIdle = (cb: () => void) => {
   }
 };
 const nextIdle = () => new Promise<void>((r) => whenIdle(r));
+/** An idle slice with no timeout: it only runs when the main thread has nothing better to do. */
+const idleSlice = (cb: () => void) => {
+  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(cb);
+  else window.setTimeout(cb, 120);
+};
 
 const HINT_FINE = "Hover to pull a book out. Click to open it.";
 const HINT_TOUCH = "Tap a book to open it. Drag to look along the shelf.";
@@ -171,19 +176,58 @@ export function createShelf(
   const images: HTMLImageElement[] = [];
   let renderer: THREE.WebGLRenderer | null = null;
 
-  // covers arrive whenever Open Library answers; they are uploaded between frames, never in the
-  // middle of the drop-in
+  // Covers arrive whenever Open Library answers. Each one is decoded off the main thread, then
+  // painted (one per idle slice) and uploaded, and none of that happens during the drop-in or
+  // while a book is open: when the scene is running, the painted canvas waits in `pend` and the
+  // frame loop uploads one per frame after the entrance.
+  type CoverJob = { tex: THREE.CanvasTexture; d: SiteBook; img: HTMLImageElement };
+  const jobs: CoverJob[] = [];
   const pend: [THREE.CanvasTexture, HTMLCanvasElement][] = [];
+  let painterScheduled = false;
+  let painterTimer = 0;
   const upload = (t: THREE.CanvasTexture, c: HTMLCanvasElement) => {
     if (!gl) return;
     t.image = c;
     t.needsUpdate = true;
     gl.renderer.initTexture(t);
   };
-  const flushCovers = () => {
-    if (!gl || running) return;
-    for (let p = pend.shift(); p; p = pend.shift()) upload(p[0], p[1]);
+  /** Not running, or past the entrance with no book open. */
+  const calm = () =>
+    !running || (performance.now() - st.t0 > (intro() + 0.3) * 1000 && !st.opened);
+  const release = (img: HTMLImageElement) => {
+    img.onload = null;
+    img.src = "";
+    const i = images.indexOf(img);
+    if (i >= 0) images.splice(i, 1);
   };
+  function schedulePainter(delayMs = 0) {
+    if (painterScheduled || disposed) return;
+    painterScheduled = true;
+    if (delayMs > 0) painterTimer = window.setTimeout(() => idleSlice(paintSlice), delayMs);
+    else idleSlice(paintSlice);
+  }
+  function paintSlice() {
+    painterScheduled = false;
+    if (disposed || !gl) return;
+    if (!jobs.length && (running || !pend.length)) return;
+    if (!calm()) {
+      schedulePainter(500);
+      return;
+    }
+    const waiting = !running ? pend.shift() : undefined;
+    if (waiting) {
+      upload(waiting[0], waiting[1]);
+    } else {
+      const job = jobs.shift();
+      if (job) {
+        const c = coverCanvas(job.d, job.img);
+        release(job.img);
+        if (running) pend.push([job.tex, c]);
+        else upload(job.tex, c);
+      }
+    }
+    if (jobs.length || (!running && pend.length)) schedulePainter();
+  }
 
   // interaction state
   const st = {
@@ -304,11 +348,15 @@ export function createShelf(
       img.crossOrigin = "anonymous";
       img.onload = () => {
         if (disposed || img.naturalWidth <= 10) return;
-        whenIdle(() => {
-          if (disposed) return;
-          pend.push([coverTex, coverCanvas(d, img)]);
-          flushCovers();
-        });
+        // decode now, off the main thread, so painting it later does not stall on the JPEG
+        void img
+          .decode()
+          .catch(() => undefined)
+          .then(() => {
+            if (disposed) return;
+            jobs.push({ tex: coverTex, d, img });
+            schedulePainter();
+          });
       };
       img.src = `https://covers.openlibrary.org/b/isbn/${d.isbn}-L.jpg?default=false`;
       images.push(img);
@@ -366,17 +414,26 @@ export function createShelf(
     band.renderOrder = -1;
     scene.add(band);
 
-    // compile and upload now, so opening the shelf does not stall on its first frame
+    // compile and upload now, so opening the shelf does not stall on its first frame, but in
+    // small idle slices: the shader compile on its own, then a few textures at a time
+    await nextIdle();
+    if (disposed) throw new Aborted();
     r.compile(scene, camera);
+    const maps = new Set<THREE.Texture>();
     scene.traverse((o) => {
       if (!(o instanceof T.Mesh)) return;
       const ms = (Array.isArray(o.material) ? o.material : [o.material]) as THREE.Material[];
       for (const m of ms) {
         const map = (m as THREE.MeshBasicMaterial).map;
-        if (map) r.initTexture(map);
+        if (map) maps.add(map);
       }
     });
-    if (disposed) throw new Aborted();
+    const todo = [...maps];
+    for (let i = 0; i < todo.length; i += 3) {
+      await nextIdle();
+      if (disposed) throw new Aborted();
+      for (const map of todo.slice(i, i + 3)) r.initTexture(map);
+    }
 
     return {
       T,
@@ -500,12 +557,13 @@ export function createShelf(
     if (refocus && els) canvas.focus({ preventScroll: true });
   }
 
-  function fit(force: boolean) {
+  /** Sizes the renderer and camera to the canvas; nothing happens when the size is unchanged. */
+  function fit() {
     if (!gl || !els) return;
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
     if (!w || !h) return;
-    if (!force && w === st.fitW && h === st.fitH) return;
+    if (w === st.fitW && h === st.fitH) return;
     st.fitW = w;
     st.fitH = h;
     if (st.opened) closeBook(true);
@@ -627,7 +685,7 @@ export function createShelf(
       .then((g) => {
         if (disposed) return;
         gl = g;
-        flushCovers();
+        schedulePainter();
       })
       .catch((err: unknown) => {
         if (err instanceof Aborted) return;
@@ -643,6 +701,7 @@ export function createShelf(
     cancelAnimationFrame(raf);
     canvas.style.cursor = "";
     closeBook(false);
+    schedulePainter(); // covers that waited for the scene to be calm can go now
   }
 
   function unmount() {
@@ -741,7 +800,7 @@ export function createShelf(
         },
         on,
       );
-      window.addEventListener("resize", () => running && fit(false), on);
+      window.addEventListener("resize", () => running && fit(), on);
     },
 
     async start() {
@@ -752,8 +811,7 @@ export function createShelf(
         if (failed) els.hint.textContent = HINT_NO_GL;
         return;
       }
-      flushCovers();
-      fit(true);
+      fit();
       st.t0 = performance.now();
       cam.x = cam.xV = 0;
       fadeBag.fade = fadeBag.fadeV = 0;
@@ -785,6 +843,8 @@ export function createShelf(
       unmount();
       disposed = true;
       pend.length = 0;
+      jobs.length = 0;
+      window.clearTimeout(painterTimer);
       for (const img of images) {
         img.onload = null;
         img.src = "";
