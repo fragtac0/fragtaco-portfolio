@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type {
   SiteBook,
   SiteHeroPainting,
@@ -11,6 +11,13 @@ import SiteNav from "../site-nav";
 import HeroCards from "./cards/hero-cards";
 import { heroNav, type NavContext, type NavInput, type NavState } from "./cards/hero-nav";
 import Hero, { type HeroHandle } from "./hero/hero";
+import InterestLayer from "./layer/interest-layer";
+import {
+  LayerControlContext,
+  type LayerControl,
+  type LayerSceneHooks,
+} from "./layer/layer-context";
+import { escTarget, layerReducer, type LayerKind, type LayerState } from "./layer/layer-state";
 
 type HomePageProps = {
   home: SiteHomeContent;
@@ -21,6 +28,9 @@ type HomePageProps = {
   socialLinks: SiteSocialLink[];
 };
 
+/** True while the current history entry is one the layer pushed (`{ xp: kind }`). */
+const layerPushedEntry = () => Boolean((window.history.state as { xp?: unknown } | null)?.xp);
+
 /** Each dispatch carries the context it was made in, so the reducer stays pure. */
 type NavAction = { input: NavInput; ctx: NavContext };
 const navReducer = (state: NavState, { input, ctx }: NavAction): NavState =>
@@ -29,6 +39,8 @@ const navReducer = (state: NavState, { input, ctx }: NavAction): NavState =>
 export default function HomePage({
   home,
   heroPaintings,
+  books,
+  videos,
   navigationItems,
   socialLinks,
 }: HomePageProps) {
@@ -80,6 +92,101 @@ export default function HomePage({
     [],
   );
 
+  // ---- the reading / watching layer (grows out of a block, see layer/)
+  const [layer, dispatchLayer] = useReducer(layerReducer, {
+    kind: null,
+    phase: "closed",
+  } as LayerState);
+  const layerRef = useRef(layer);
+  useEffect(() => {
+    layerRef.current = layer;
+  }, [layer]);
+  const [layerFrom, setLayerFrom] = useState<HTMLElement | null>(null);
+  const sceneHooks = useRef<LayerSceneHooks>({});
+  const layerLive = layer.phase === "growing" || layer.phase === "open";
+
+  const openLayer = useCallback<LayerControl["openLayer"]>((kind, from, opts) => {
+    if (layerRef.current.phase !== "closed") return;
+    setLayerFrom(from);
+    navCtx.current.layerOpen = true;
+    if (opts?.push !== false) window.history.pushState({ xp: kind }, "", "#" + kind);
+    dispatchLayer({ type: "open", kind });
+  }, []);
+  const closeLayer = useCallback(() => {
+    const phase = layerRef.current.phase;
+    if (phase !== "growing" && phase !== "open") return;
+    dispatchLayer({ type: "close" });
+    // leave the entry the layer pushed; the popstate that follows finds the layer already closing
+    if (layerPushedEntry()) window.history.back();
+  }, []);
+  const registerSceneHooks = useCallback((hooks: LayerSceneHooks) => {
+    sceneHooks.current = hooks;
+    return () => {
+      if (sceneHooks.current === hooks) sceneHooks.current = {};
+    };
+  }, []);
+  const layerControl = useMemo<LayerControl>(
+    () => ({ openLayer, closeLayer, registerSceneHooks }),
+    [openLayer, closeLayer, registerSceneHooks],
+  );
+
+  // While the layer is not closed: the cards ignore gestures, the hero's paint loop parks, the
+  // page is locked (html.locked, separate from intro and cards-open), and the dock is hidden.
+  const layerActive = layer.phase !== "closed";
+  useEffect(() => {
+    if (!layerActive) return;
+    const html = document.documentElement;
+    const ctx = navCtx.current;
+    const hero = heroRef.current;
+    ctx.layerOpen = true;
+    hero?.setParked("layer", true);
+    html.classList.add("locked");
+    return () => {
+      ctx.layerOpen = false;
+      hero?.setParked("layer", false);
+      html.classList.remove("locked");
+    };
+  }, [layerActive]);
+
+  // Back (or a swipe back) out of the layer's history entry closes it.
+  useEffect(() => {
+    const onPop = () => {
+      if (!layerPushedEntry()) dispatchLayer({ type: "close" });
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  // Esc closes an open video, then an open book, then the layer.
+  useEffect(() => {
+    if (!layerLive) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const h = sceneHooks.current;
+      const target = escTarget({
+        bookOpen: h.isBookOpen?.() ?? false,
+        videoOpen: h.isVideoOpen?.() ?? false,
+        layer: layerRef.current,
+      });
+      if (target === null) return;
+      e.preventDefault();
+      if (target === "video") h.closeVideo?.();
+      else if (target === "book") h.closeBook?.();
+      else closeLayer();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [layerLive, closeLayer]);
+
+  const layerTitle: Record<LayerKind, string> = {
+    reading: "What I'm reading",
+    watching: "What I'm watching",
+  };
+  const layerMeta: Record<LayerKind, string> = {
+    reading: `${books.length} books this year`,
+    watching: `${videos.length} videos`,
+  };
+
   const open = nav === "left" || nav === "right";
   useEffect(() => {
     heroRef.current?.setBlur(open ? 1 : 0);
@@ -87,34 +194,50 @@ export default function HomePage({
   }, [open]);
 
   return (
-    <main className="home-page bg-ink text-fog">
-      <Hero
-        ref={heroRef}
-        name={home.hero.name}
-        roles={home.hero.roles}
-        paintings={heroPaintings}
-        softened={open}
-        onReady={onHeroReady}
-      >
-        <HeroCards
-          about={home.about}
-          credits={home.credits}
-          nav={nav}
-          dispatch={dispatch}
-          hero={heroRef}
-          navCtx={navCtx}
+    <LayerControlContext.Provider value={layerControl}>
+      <main className="home-page bg-ink text-fog">
+        <Hero
+          ref={heroRef}
+          name={home.hero.name}
+          roles={home.hero.roles}
+          paintings={heroPaintings}
+          softened={open}
+          onReady={onHeroReady}
+        >
+          <HeroCards
+            about={home.about}
+            credits={home.credits}
+            nav={nav}
+            dispatch={dispatch}
+            hero={heroRef}
+            navCtx={navCtx}
+          />
+        </Hero>
+        <SiteNav
+          items={navigationItems}
+          socialLinks={socialLinks}
+          home={{
+            revealed,
+            hidden: layerActive,
+            aboutOpen: nav === "right",
+            onAbout,
+          }}
         />
-      </Hero>
-      <SiteNav
-        items={navigationItems}
-        socialLinks={socialLinks}
-        home={{
-          revealed,
-          hidden: false, // a later task passes the layer state
-          aboutOpen: nav === "right",
-          onAbout,
-        }}
-      />
-    </main>
+        {layer.kind !== null && layerActive && (
+          <InterestLayer
+            state={layer}
+            from={layerFrom}
+            title={layerTitle[layer.kind]}
+            meta={layerMeta[layer.kind]}
+            onClose={closeLayer}
+            onGrown={() => dispatchLayer({ type: "grown" })}
+            onShrunk={() => dispatchLayer({ type: "shrunk" })}
+          >
+            {/* the shelf and the wall arrive in later tasks */}
+            {() => <div className="layer-placeholder" />}
+          </InterestLayer>
+        )}
+      </main>
+    </LayerControlContext.Provider>
   );
 }

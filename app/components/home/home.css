@@ -28,6 +28,11 @@ html.cards-open,
 html.cards-open body {
   overflow: hidden;
 }
+/* the reading / watching layer is open (its own class, so it never fights intro or cards-open) */
+html.locked,
+html.locked body {
+  overflow: hidden;
+}
 
 /* the dot screen plus a fixed grain; static, so it costs one paint. The hero draws its own in the shader. */
 .home-page .tex {
@@ -714,5 +719,132 @@ html.cards-open body {
   .home-hero[data-fade] .caption,
   .home-hero[data-fade] .cue {
     animation: home-fade 0.4s ease backwards;
+  }
+}
+
+/* =====================================================================
+   THE LAYER: reading and watching grow out of their block (mockup: .xp)
+   ===================================================================== */
+.home-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: #050403;
+  color: var(--cream);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  transition: clip-path 0.66s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.home-layer .display {
+  font-family: Doto, monospace;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.84;
+  margin: 0;
+}
+.home-layer .xp-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 22px clamp(16px, 3vw, 44px);
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(5, 4, 3, 0.75), rgba(5, 4, 3, 0));
+}
+.home-layer .xp-head > * {
+  pointer-events: auto;
+}
+.home-layer .xp-head .display {
+  font-size: clamp(24px, 2.4vw, 38px);
+}
+.home-layer .xp-meta {
+  font-size: 12px;
+  color: rgba(253, 252, 230, 0.55);
+}
+.home-layer .xp-close {
+  margin-left: auto;
+  height: 44px;
+  padding: 0 16px 0 18px;
+  border-radius: 999px;
+  border: 0;
+  outline: 1px solid rgba(253, 252, 230, 0.22);
+  background: rgba(5, 4, 3, 0.72);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  font-size: 12.5px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.home-layer .xp-close:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 2px;
+}
+.home-layer .xp-close kbd {
+  font: inherit;
+  font-size: 10.5px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(253, 252, 230, 0.1);
+  color: rgba(253, 252, 230, 0.6);
+}
+.home-layer .xp-pane {
+  position: absolute;
+  inset: 0;
+}
+.home-layer .xp-pane:not(.on) {
+  display: none;
+}
+.home-layer .pane-read {
+  background: radial-gradient(52% 46% at 50% 42%, #53382a 0%, #33221a 40%, #150e0a 74%, #060403 100%);
+}
+.home-layer .pane-watch {
+  background: radial-gradient(75% 65% at 50% 46%, #17110c 0%, #0a0705 60%, #050403 100%);
+}
+.home-layer .stage {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.home-layer.ready .stage {
+  opacity: 1;
+}
+.home-layer .xp-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  z-index: 4;
+  margin: 0;
+  font-size: 11.5px;
+  color: rgba(253, 252, 230, 0.45);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.home-layer .xp-hint.off {
+  opacity: 0;
+}
+@media (max-width: 700px) {
+  .home-layer .xp-hint {
+    white-space: normal;
+    width: 88vw;
+    text-align: center;
+  }
+  .home-layer .xp-meta {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-layer,
+  .home-layer *,
+  .home-layer *::before,
+  .home-layer *::after {
+    transition-duration: 0.01ms !important;
   }
 }
