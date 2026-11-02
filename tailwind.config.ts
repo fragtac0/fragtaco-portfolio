@@ -42,6 +42,7 @@ const config: Config = {
         metric: ['"Tektur"', "monospace"],
         mono: ['"IBM Plex Mono"', "monospace"],
         serif: ['"Lora"', "Georgia", "serif"],
+        space: ['"Space Mono"', "monospace"],
       },
       maxWidth: {
         site: "1400px",

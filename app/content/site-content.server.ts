@@ -13,6 +13,7 @@ import {
   sortWorkExperiences,
 } from "./mappers";
 import {
+  BooksSectionSchema,
   ClientsSectionSchema,
   FactsSectionSchema,
   HeroPaintingsSchema,
@@ -22,9 +23,11 @@ import {
   ReachOutSectionSchema,
   SocialLinkSchema,
   TechStackSectionSchema,
+  VideosFileSchema,
   WorkExperienceSectionSchema,
 } from "./schemas";
 import type {
+  SiteBook,
   SiteClientsSection,
   SiteReachOutSection,
   SiteFactsSection,
@@ -34,6 +37,7 @@ import type {
   SiteProjectsSection,
   SiteSocialLink,
   SiteTechStackSection,
+  SiteVideosFile,
   SiteWorkExperienceSection,
 } from "../types";
 
@@ -65,6 +69,22 @@ export async function getHeroPaintings(): Promise<SiteHeroPainting[]> {
   // (verified unavailable/too-low-res on Commons) — kept in the JSON for
   // documentation, filtered out here so the shuffle never picks them.
   return items.filter((item) => !item.missing);
+}
+
+export async function getBooks(): Promise<SiteBook[]> {
+  const content = await loadJsonFile("books.json", BooksSectionSchema);
+
+  return ensureUniqueBy(content.items, (item) => item.id, "book id");
+}
+
+export async function getVideos(): Promise<SiteVideosFile> {
+  const content = await loadJsonFile("videos.json", VideosFileSchema);
+  const items = ensureUniqueBy(content.items, (item) => item.id, "video id");
+
+  return {
+    ...content,
+    items,
+  };
 }
 
 export async function getFactsSection(): Promise<SiteFactsSection> {

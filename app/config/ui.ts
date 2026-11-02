@@ -58,18 +58,8 @@ const backdropClipFix =
 const topEdgeHighlight = "inset_0_1px_0_rgba(245,239,230,0.07)";
 
 export const surfaces = {
-  // No backdrop-blur or glass-breathe here (R18.4) — this panel hosts the
-  // pill-physics arena, and a moving element under a backdrop-filter forces
-  // a full-surface re-rasterization every frame it's in motion. It sits on
-  // a near-black background, so the blur bought little visually anyway.
-  aboutHeader:
-    `relative isolate overflow-hidden rounded-[2.75rem_1.25rem_2.75rem_1.25rem] bg-white/[0.06] p-5 shadow-[0_30px_120px_rgba(0,0,0,0.44),0_0_74px_rgba(252,76,0,0.13),${topEdgeHighlight}] ring-1 ring-white/12 sm:p-7 lg:rounded-[3.25rem_1.5rem_3.25rem_1.5rem] lg:p-10 ${backdropClipFix}`,
   workHeader:
     `relative isolate overflow-hidden rounded-[1.25rem_2.75rem_1.25rem_2.75rem] bg-black/45 p-5 shadow-[0_28px_100px_rgba(0,0,0,0.32),0_0_70px_rgba(252,76,0,0.18),${topEdgeHighlight}] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe motion-safe:[animation-delay:-1.1s] motion-safe:[animation-duration:12.5s] sm:p-7 lg:rounded-[1.5rem_3.25rem_1.5rem_3.25rem] lg:p-10 ${backdropClipFix}`,
-  aboutFooterCard:
-    `relative isolate flex h-full min-w-0 flex-col overflow-hidden rounded-[2.25rem_1rem_2.25rem_1rem] bg-white/[0.06] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.36),${topEdgeHighlight}] ring-1 ring-white/10 motion-safe:animate-glass-breathe [contain:paint] sm:p-6`,
-  factCard:
-    `relative isolate w-full min-h-[16rem] min-w-0 overflow-hidden rounded-[2.25rem_1rem_2.25rem_1rem] bg-white/[0.06] p-6 shadow-[0_18px_70px_rgba(0,0,0,0.36),${topEdgeHighlight}] ring-1 ring-white/10 motion-safe:animate-glass-breathe [contain:paint] sm:p-8`,
   glassChip:
     `inline-flex items-center gap-3 rounded-full bg-black/38 px-4 py-2 ring-1 ring-white/14 backdrop-blur-md shadow-[0_8px_28px_rgba(0,0,0,0.35),${topEdgeHighlight}] ${backdropClipFix}`,
   workPanel:
@@ -77,15 +67,6 @@ export const surfaces = {
   reachOutPanel:
     `relative isolate overflow-hidden rounded-[1.25rem_2.75rem_1.25rem_2.75rem] bg-black/45 p-5 shadow-[0_30px_120px_rgba(0,0,0,0.32),0_0_74px_rgba(252,76,0,0.16),${topEdgeHighlight}] ring-1 ring-white/12 backdrop-blur-2xl motion-safe:animate-glass-breathe motion-safe:[animation-delay:-4.9s] motion-safe:[animation-duration:13.8s] sm:p-7 lg:p-9 ${backdropClipFix}`,
 };
-
-export const aboutProfileTags = [
-  "mumbai",
-  "cuts",
-  "motion",
-  "colour",
-  "sound",
-  "side-quests",
-];
 
 export function styleUnlessReduced<T extends object>(
   reducedMotion: boolean | null,

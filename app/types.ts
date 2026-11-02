@@ -2,8 +2,8 @@ export type HomeSectionId = "about";
 export type NavigationKey = HomeSectionId | "projects";
 
 export interface SiteHeroContent {
-  title: string;
-  subtitle: string;
+  name: string;
+  roles: string;
 }
 
 export interface SiteFact {
@@ -37,16 +37,56 @@ export interface SiteCreditsLink {
   url: string;
 }
 
+export interface SiteCreditsFact {
+  label: string;
+  value: string;
+}
+
 export interface SiteCredits {
   name: string;
+  role: string;
   blurb: string;
+  note: string;
   image: string;
+  facts: SiteCreditsFact[];
   links: SiteCreditsLink[];
+}
+
+export type BookStyle = "plain" | "band" | "block";
+
+export interface SiteBook {
+  id: string;
+  title: string;
+  author: string;
+  pages: number;
+  isbn: string;
+  heightIn: number;
+  aspect: number;
+  spine: string;
+  style: BookStyle;
+  note: string;
+}
+
+export interface SiteVideo {
+  id: string;
+  title: string;
+  channel: string;
+  channelUrl: string;
+  subscribers: string | null;
+  thumb: "sd" | "hq";
+}
+
+export interface SiteVideosFile {
+  playlistId: string;
+  syncedAt: string;
+  items: SiteVideo[];
 }
 
 export interface SiteHomeContent {
   hero: SiteHeroContent;
   about: {
+    title: string;
+    who: string[];
     paragraphs: string[];
   };
   credits: SiteCredits;

@@ -42,22 +42,67 @@ export const CreditsLinkSchema = z.object({
   url: z.string().url(),
 });
 
+export const CreditsFactSchema = z.object({
+  label: z.string().min(1),
+  value: z.string().min(1),
+});
+
 export const CreditsSchema = z.object({
   name: z.string().min(1),
+  role: z.string().min(1),
   blurb: z.string().min(1),
+  note: z.string().min(1),
   image: z.string().min(1),
+  facts: z.array(CreditsFactSchema).min(1),
   links: z.array(CreditsLinkSchema).min(1),
 });
 
 export const HomeContentSchema = z.object({
   hero: z.object({
-    title: z.string().min(1),
-    subtitle: z.string().min(1),
+    name: z.string().min(1),
+    roles: z.string().min(1),
   }),
   about: z.object({
+    title: z.string().min(1),
+    who: z.array(z.string().min(1)).min(1),
     paragraphs: z.array(z.string().min(1)),
   }),
   credits: CreditsSchema,
+});
+
+export const BookSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  author: z.string().min(1),
+  pages: z.number().int().positive(),
+  isbn: z.string().regex(/^\d{13}$/, "Expected a 13-digit ISBN"),
+  heightIn: z.number().min(4).max(16),
+  aspect: z.number().min(0.4).max(1.2),
+  spine: z.string().regex(/^#[0-9a-f]{6}$/i, "Expected a 6-digit hex color"),
+  style: z.enum(["plain", "band", "block"]),
+  note: z.string().min(1),
+});
+
+export const BooksSectionSchema = z.object({
+  items: z.array(BookSchema).min(1),
+});
+
+export const VideoSchema = z.object({
+  id: z.string().regex(/^[A-Za-z0-9_-]{11}$/, "Expected an 11-character video id"),
+  title: z.string().min(1),
+  channel: z.string().min(1),
+  channelUrl: z.string().url(),
+  subscribers: z
+    .string()
+    .regex(/^[\d.,]+[KMB]?$/, "Expected a subscriber count like 158K")
+    .nullable(),
+  thumb: z.enum(["sd", "hq"]),
+});
+
+export const VideosFileSchema = z.object({
+  playlistId: z.string().min(1),
+  syncedAt: z.string().min(1),
+  items: z.array(VideoSchema),
 });
 
 export const WorkExperienceKindSchema = z.enum([

@@ -1,20 +1,33 @@
 {
   "hero": {
-    "title": "fragtaco.",
-    "subtitle": "video editor / content head / mumbai · remote"
+    "name": "Aditya Bhoir",
+    "roles": "Creative Editor - Side Quests Maxxer"
   },
   "about": {
+    "title": "the cut",
+    "who": [
+      "Aditya Bhoir, also FragTaco.",
+      "Creative Editor, Mumbai."
+    ],
     "paragraphs": [
-      "I'm Aditya Bhoir — most of the internet knows me as FragTaco. I'm 26, based in Mumbai and working remote, and I've spent the last 6+ years cutting footage into stories.",
+      "I'm Aditya Bhoir, most of the internet knows me as FragTaco. I'm 26, based in Mumbai, and I've spent the last 6+ years cutting footage into stories.",
       "It started with gaming montages. Syncing frags to beat drops taught me the one lesson that still runs my whole practice: the edit is felt before it is seen. If the cut lands a frame late, everyone notices and nobody can tell you why.",
-      "Most recently, I led content strategy end-to-end for Bharat in Germany — editing, packaging, and publishing cadence across YouTube and Instagram — while running a freelance practice on the side: brand films, music videos, and motion graphics packages built from scratch. I handle the edit, the grade, the sound polish, and the animated type, so the work leaves my desk finished, not almost-finished.",
-      "When I'm not on the timeline, I'm collecting references: title sequences, anime openings, Renaissance paintings with better composition than most modern posters. Everything is a frame waiting to be stolen from — respectfully."
+      "Most recently, I led content strategy end-to-end for Bharat in Germany (editing, packaging, and publishing cadence across YouTube and Instagram) while running a freelance practice on the side: brand films, music videos, and motion graphics packages built from scratch.",
+      "When I'm not on the timeline, I'm collecting references: title sequences, anime openings, Renaissance paintings with better composition than most modern posters."
     ]
   },
   "credits": {
     "name": "Ohshin Bhat",
-    "blurb": "This site began as a fork of ohsh.in — built by Ohshin, rebuilt for the cutting room.",
+    "role": "Site architect, original build",
+    "blurb": "This site began as a fork of ohsh.in, built by Ohshin and rebuilt for the cutting room.",
+    "note": "Placeholder for your paragraph about Ohshin and the original build, and why this site exists because of it.",
     "image": "/profile.png",
+    "facts": [
+      { "label": "Framework", "value": "Remix and React" },
+      { "label": "Styling", "value": "Tailwind CSS" },
+      { "label": "Type", "value": "Doto, IBM Plex Mono, Space Mono" },
+      { "label": "Paintings", "value": "Public domain, via Wikimedia Commons" }
+    ],
     "links": [
       { "type": "website", "url": "https://ohsh.in/" },
       { "type": "github", "url": "https://github.com/ohshinbhat" },
