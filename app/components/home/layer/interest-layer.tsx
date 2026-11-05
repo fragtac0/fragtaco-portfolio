@@ -160,10 +160,12 @@ export default function InterestLayer({
       aria-labelledby="home-layer-title"
     >
       <header className="xp-head">
-        <h2 className="display" id="home-layer-title">
-          {title}
-        </h2>
-        <span className="xp-meta">{meta}</span>
+        <div className="xp-titles">
+          <h2 className="display" id="home-layer-title">
+            {title}
+          </h2>
+          <span className="xp-meta">{meta}</span>
+        </div>
         <button ref={closeRef} type="button" className="xp-close" onClick={onClose}>
           Close <kbd>Esc</kbd>
         </button>

@@ -33,6 +33,23 @@ export function easeOut(k: number): number {
   return 1 - Math.pow(1 - k, 3);
 }
 
+const smooth = (k: number) => k * k * (3 - 2 * k);
+
+/** Where the open spring value `o` hands over from sliding out of the shelf to turning. */
+export const OPEN_SPLIT = 0.38;
+
+/**
+ * Splits the single open spring value `o` (0..1) into two eased phases: `pull` slides the book
+ * straight out of the shelf over [0, OPEN_SPLIT], then `present` carries it to the reading pose
+ * and turns it over [OPEN_SPLIT, 1]. Closing is the same mapping run backwards.
+ */
+export function openPhases(o: number): { pull: number; present: number } {
+  return {
+    pull: smooth(clamp01(o / OPEN_SPLIT)),
+    present: smooth(clamp01((o - OPEN_SPLIT) / (1 - OPEN_SPLIT))),
+  };
+}
+
 /** Seconds until the last of `count` books has finished dropping. */
 export function introSeconds(count: number): number {
   return 0.25 + STAG * (count - 1) + DROP;

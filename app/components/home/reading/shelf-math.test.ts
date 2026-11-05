@@ -12,6 +12,7 @@ import {
   easeOut,
   fitCamera,
   introSeconds,
+  openPhases,
   spring,
 } from "./shelf-math";
 
@@ -138,5 +139,32 @@ describe("cameraAt", () => {
   });
   it("eases through the dolly", () => {
     expect(cameraAt(1.3, 10).distance).toBeCloseTo(10 * (1.12 - 0.12 * 0.875), 10);
+  });
+});
+
+describe("openPhases", () => {
+  it("is closed at 0, pulled out at the split, fully open at 1", () => {
+    expect(openPhases(0)).toEqual({ pull: 0, present: 0 });
+    expect(openPhases(0.38)).toEqual({ pull: 1, present: 0 });
+    expect(openPhases(1)).toEqual({ pull: 1, present: 1 });
+  });
+  it("never turns while it is still sliding out", () => {
+    for (let o = 0; o <= 0.38; o += 0.01) expect(openPhases(o).present).toBe(0);
+  });
+  it("is fully pulled out before it starts to turn", () => {
+    for (let o = 0.38; o <= 1; o += 0.01) expect(openPhases(o).pull).toBe(1);
+  });
+  it("only ever moves forward as o rises", () => {
+    let last = openPhases(0);
+    for (let i = 1; i <= 200; i++) {
+      const cur = openPhases(i / 200);
+      expect(cur.pull).toBeGreaterThanOrEqual(last.pull);
+      expect(cur.present).toBeGreaterThanOrEqual(last.present);
+      last = cur;
+    }
+  });
+  it("clamps o outside 0..1", () => {
+    expect(openPhases(-0.5)).toEqual({ pull: 0, present: 0 });
+    expect(openPhases(1.5)).toEqual({ pull: 1, present: 1 });
   });
 });

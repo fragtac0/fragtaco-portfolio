@@ -21,6 +21,7 @@ import {
   easeOut,
   fitCamera,
   introSeconds,
+  openPhases,
   spring,
 } from "./shelf-math";
 
@@ -637,18 +638,21 @@ export function createShelf(
       const e = easeOut(k);
       const a = b.anim;
       if (animate(a, "hover", b === st.hoverHit || b === focused ? 1 : 0, 9, dt)) busy = true;
-      if (animate(a, "open", b === st.opened ? 1 : 0, 6.5, dt)) busy = true;
+      if (animate(a, "open", b === st.opened ? 1 : 0, 5, dt)) busy = true;
       p.copy(b.base);
       p.y += a.hover * 0.12 + (1 - e) * 1.2;
       p.z += a.hover * 0.16;
-      if (a.open > 0.001) p.lerp(b.openPos, a.open);
+      // two phases: slide straight out of the shelf (+z), clear of the neighbours, then travel and turn
+      const { pull, present } = a.open > 0.001 ? openPhases(a.open) : { pull: 0, present: 0 };
+      p.z += pull * (b.W + 0.12);
+      if (present > 0) p.lerp(b.openPos, present);
       b.g.position.copy(p);
       q.copy(b.baseQ);
       if (k < 1) q.premultiply(s.tmpQ2.setFromAxisAngle(s.zAxis, (1 - e) * b.tilt));
-      if (a.open > 0.001) {
-        q.slerp(s.qOpen, a.open);
+      if (present > 0) {
+        q.slerp(s.qOpen, present);
         if (!reduced) {
-          q.premultiply(s.tmpQ2.setFromAxisAngle(s.yAxis, Math.sin(now / 1500) * 0.06 * a.open));
+          q.premultiply(s.tmpQ2.setFromAxisAngle(s.yAxis, Math.sin(now / 1500) * 0.06 * present));
         }
       }
       b.g.quaternion.copy(q);
