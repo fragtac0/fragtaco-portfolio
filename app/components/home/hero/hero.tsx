@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, type ReactNode } from "react";
 import { INTRO_KEY, introMode } from "../../../lib/intro-session";
+import { hasWebGL } from "../../../lib/webgl-support";
 import type { SiteHeroPainting } from "../../../types";
 import "../home.css";
 import { createImageFallback } from "./image-fallback";
@@ -171,13 +172,14 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
     const canvas = document.createElement("canvas");
     canvas.setAttribute("aria-hidden", "true");
     host.appendChild(canvas);
-    let engine = createPaint(canvas, { reducedMotion: reduced });
+    // no WebGL (or `?nogl=1`): a plain <img> with a CSS crossfade, and the card blur is the tint
+    let engine = hasWebGL() ? createPaint(canvas, { reducedMotion: reduced }) : null;
     if (engine) {
       root.dataset.gl = "on";
     } else {
       canvas.remove();
       root.dataset.gl = "off";
-      engine = createImageFallback(host);
+      engine = createImageFallback(host, { reducedMotion: reduced });
     }
     const paint: PaintEngine = engine;
     engineRef.current = paint;

@@ -8,7 +8,7 @@ import {
   useRef,
 } from "react";
 import type { SiteVideo } from "../../../types";
-import type { WallEngine } from "./wall-engine";
+import type { WallControl } from "./wall-engine";
 import { thumbUrl } from "./wall-math";
 
 /** How long the shot flies out, and the wall's hold starts (mockup: VOV, 560 ms). */
@@ -30,7 +30,7 @@ type VideoDetailProps = {
   fromRect: DOMRect | null;
   /** The tile's key, to ask the wall where to fly back to. */
   tileKey: string | null;
-  wall: WallEngine;
+  wall: WallControl;
   /** Fired when the close has finished and the wall has thawed. */
   onClose: () => void;
 };

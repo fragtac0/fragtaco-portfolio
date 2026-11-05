@@ -67,6 +67,8 @@ export type ShelfEngine = {
   stop(): void;
   unmount(): void;
   hasOpen(): boolean;
+  /** True once `prepare()` has run and the scene could not be built (no WebGL2, a throw). */
+  hasFailed(): boolean;
   closeBook(): void;
   focusNext(dir: 1 | -1): void;
   openFocused(): void;
@@ -834,6 +836,7 @@ export function createShelf(
     unmount,
 
     hasOpen: () => !!st.opened,
+    hasFailed: () => failed,
     closeBook: () => closeBook(true),
     focusNext,
     openFocused,
