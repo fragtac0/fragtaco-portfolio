@@ -27,8 +27,10 @@
  },
  {
   "key": "Escape",
-  "vk": 27,
-  "wait": 1500,
+  "vk": 27
+ },
+ {
+  "wait": 1200,
   "eval": "JSON.stringify([location.hash, history.state&&{idx:history.state.idx,xp:history.state.xp}, !!document.querySelector(\".home-layer.on\"), document.documentElement.className])",
   "label": "esc"
  },

@@ -213,3 +213,4 @@ None open. Asked after v3 and answered on 2026-11-02:
 ## Build
 
 - R31 structure: tokens and one stylesheet per area, shelf and wall engines split, hooks extracted, orphans removed; no visible change (computed styles identical in 12 states).
+- R32 dock and page changes: dock reads home and work, home goes to the hero, a quick blur transition between pages (a plain fade with reduced motion), the dock preloads the other page.
