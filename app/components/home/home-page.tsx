@@ -14,6 +14,7 @@ import { heroNav, type NavContext, type NavInput, type NavState } from "./cards/
 import Hero, { type HeroHandle } from "./hero/hero";
 import InterestLayer from "./layer/interest-layer";
 import { LayerControlContext } from "./layer/layer-context";
+import { countLabel } from "../../utils/count-label";
 import { layerFromHash, type LayerKind } from "./layer/layer-state";
 import { useLayerHistory } from "./layer/use-layer-history";
 import ReadingScene from "./reading/reading-scene";
@@ -122,8 +123,8 @@ export default function HomePage({
     watching: "What I'm watching",
   };
   const layerMeta: Record<LayerKind, string> = {
-    reading: `${books.length} books this year`,
-    watching: `${videos.length} videos`,
+    reading: `${countLabel(books.length, "book", "books")} this year`,
+    watching: countLabel(videos.length, "video", "videos"),
   };
 
   const open = nav === "left" || nav === "right";

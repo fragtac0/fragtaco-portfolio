@@ -155,10 +155,15 @@
 .home-hero .cue:hover {
   color: var(--cream);
 }
-/* a card is open: the lockup, caption and cue recede */
+/* a card is open: the caption and cue are gone, not dimmed (the cue would show under the card's edge) */
 .home-hero[data-softened] .caption.on:not(.swap),
 .home-hero[data-softened] .cue.on {
-  opacity: 0.25;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.6s,
+    visibility 0s 0.6s;
 }
 
 .home-hero .edge-glow {

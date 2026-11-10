@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SiteBook } from "../../../types";
-import { inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
+import { fitMiniShelf, inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 
 const book = (over: Partial<SiteBook>): SiteBook => ({
   id: "b",
@@ -68,5 +68,22 @@ describe("miniWallColumns", () => {
 describe("miniThumbUrl", () => {
   it("uses the small thumbnail", () => {
     expect(miniThumbUrl("abc")).toBe("https://i.ytimg.com/vi/abc/mqdefault.jpg");
+  });
+});
+
+describe("fitMiniShelf", () => {
+  const spines = [{ w: 20 }, { w: 30 }];
+  it("caps the scale at 1.6", () => {
+    expect(fitMiniShelf(spines, 200, 3)).toBe(1.6);
+  });
+  it("scales the row (spines plus gaps) to the inner width", () => {
+    expect(fitMiniShelf(spines, 60, 3)).toBeCloseTo(60 / 53, 10);
+  });
+  it("shrinks a row that is wider than the space", () => {
+    expect(fitMiniShelf(spines, 26.5, 3)).toBeCloseTo(0.5, 10);
+  });
+  it("is 1 with no spines or no room measured yet", () => {
+    expect(fitMiniShelf([], 200, 3)).toBe(1);
+    expect(fitMiniShelf(spines, 0, 3)).toBe(1);
   });
 });

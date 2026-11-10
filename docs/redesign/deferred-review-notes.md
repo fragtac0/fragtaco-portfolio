@@ -53,27 +53,27 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-45 | 8 | vacuous margin-floor test | open |
 | D-46 | 8 | SETTLE_AT test echoes the constant (consumer must use >) | open |
 | D-47 | 8 | show outside hidden returns state | open |
-| D-48 | 9 | landscape phone (812x375) card height only 183 px because of the dock-clear formula | open |
+| D-48 | 9 | landscape phone (812x375) card height only 183 px because of the dock-clear formula | fixed (R34.2): under `(max-height: 480px)` the cards are `calc(100dvh - 24px)` tall (351 px at 812x375) |
 | D-49 | 9 | rail aria-expanded + label-in-name ("the cut" vs "Open about me") | fixed (R32.1): rail text is `about` / `credits`; aria-label `Open about` / `Close about` (credits the same) contains it, with `aria-expanded` |
 | D-50 | 9 | .home-hero .card a {color:inherit} outranks .pill color (See the reel renders fog, not cream) | fixed (R34.1): the card's own colour is now `var(--cream)`, so inherited link text is cream like the pill |
 | D-51 | 9 | var(--fog) undefined at home.css:395 | fixed (R34.1): cards.css uses the defined `var(--cream)` |
 | D-52 | 9 | box-shadow/background transitions on cards and links (mockup-faithful) | open |
 | D-53 | 9 | unquoted url() in inline styles | open |
-| D-54 | 9 | /profile.png 1.26 MB loaded eagerly for a 110 px avatar | open |
+| D-54 | 9 | /profile.png 1.26 MB loaded eagerly for a 110 px avatar | fixed (R34.2): `public/portraits/ohshin.jpg`, 220 px wide, 17 KB; `profile.png` deleted |
 | D-55 | 9 | poses use window.innerWidth (classic scrollbar offset) | open |
 | D-56 | 9 | use root.clientWidth | open |
 | D-57 | 9 | use-card-gestures.ts 320 lines, one 180-line effect | fixed (R31.4): use-card-poses.ts and use-card-input.ts, one effect per input |
 | D-58 | 9 | modeOf/twoLines/cardClass/inertIf untested | open |
 | D-59 | 9 | inert="" becomes falsy under React 19 | fixed (R31.4): one helper, `inertProps` in app/utils/inert.ts, is now the only place; the React 19 change is `inert: true` there |
-| D-60 | 9 | "See the reel" focus ring clipped left/bottom by .intro-text scroll box on desktop | open |
-| D-61 | 9 | add overscroll-behavior: none on html.cards-open (pull-to-refresh on rail/scrim drags) | open |
+| D-60 | 9 | "See the reel" focus ring clipped left/bottom by .intro-text scroll box on desktop | fixed (R34.2): `.intro-text` has 4 px padding all round |
+| D-61 | 9 | add overscroll-behavior: none on html.cards-open (pull-to-refresh on rail/scrim drags) | fixed (R34.2): `html.cards-open { overscroll-behavior: none }` |
 | D-62 | 9 | scrollbar-gutter: stable also reserves a strip during the intro on classic-scrollbar systems | open |
 | D-63 | 10 | same-document hash change to #about on a loaded home opens the card but leaves #about in the URL | open |
 | D-64 | 10 | inertProps duplicates inertIf (card-shell.ts) | fixed (R31.4): inertIf deleted; cards, reading fallback and dock use `inertProps` |
 | D-65 | 10 | getNavHeight unused | fixed (R31.4): deleted |
 | D-66 | 10 | home.hidden hard-coded false until Task 11 | open |
 | D-67 | 11 | LayerControlContext default is a silent no-op | fixed (R31.4): no default, `useLayerControl()` throws outside the provider |
-| D-68 | 11 | "1 books" pluralisation | open |
+| D-68 | 11 | "1 books" pluralisation | fixed (R34.2): `countLabel` in `app/utils/count-label.ts`, used by the blocks and the layer header |
 | D-69 | 11 | layerTitle inside component | open |
 | D-70 | 11 | redundant cast | open |
 | D-71 | 12 | Forward-open vs Remix ScrollRestoration may offset the grow origin (not observed) | open |
@@ -81,7 +81,7 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-73 | 12 | deep-link close drops the query string | open |
 | D-74 | 12 | R10 history logic and near-gate untested (node-only env, extractable) | fixed (R31.4): `nextHistoryState` and `createNearGate` extracted and tested |
 | D-75 | 12 | isHashOnlyMove true for identical URLs | open |
-| D-76 | 12 | "1 books" pluralisation | open |
+| D-76 | 12 | "1 books" pluralisation | fixed (R34.2): same `countLabel` |
 | D-77 | 12 | closest("article") where refs exist | open |
 | D-78 | 12 | InterestBlocks not memo'd | open |
 | D-79 | 12 | block box-shadow/outline-color transitions and Lora DOM text on mini spines (mockup-faithful) | open |

@@ -7,6 +7,10 @@ html.cards-open,
 html.cards-open body {
   overflow: hidden;
 }
+/* a drag on a rail or the scrim never pulls the page to refresh */
+html.cards-open {
+  overscroll-behavior: none;
+}
 
 /* =====================================================================
    FLOATING CARDS (credits left, intro right), ported from the mockup's .card / .rail / .scrim.
@@ -29,6 +33,7 @@ html.cards-open body {
 }
 
 .home-hero .card {
+  --card-scale: 0.56; /* kept in step with the transform by use-card-poses, so the rail label can undo it */
   position: absolute;
   top: 50%;
   left: 0;
@@ -98,15 +103,25 @@ html.cards-open body {
   outline: 2px solid var(--cream);
   outline-offset: -4px; /* inset, so the card's overflow does not clip it */
 }
+/* (the pills and links keep their 1 px outline: it is their border) */
+.home-hero .rail:focus:not(:focus-visible) {
+  outline: none;
+}
+/* the label undoes the card's scale, so it reads 13 px at rest (0.56 on desktop, 0.5 on phones) and
+   at 1 when the card is open */
 .home-hero .rail span {
   writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font-size: clamp(16px, 1.1vw, 21px);
+  transform: rotate(180deg) scale(calc(1 / var(--card-scale)));
+  transition: transform 0.72s var(--ease);
+  font-size: var(--t-meta);
   letter-spacing: 0.3em;
   color: var(--cream);
 }
 .home-hero .card.left .rail span {
-  transform: none;
+  transform: scale(calc(1 / var(--card-scale)));
+}
+.home-hero .card[data-dragging] .rail span {
+  transition: none;
 }
 .home-hero .card-body {
   flex: 1;
@@ -180,7 +195,7 @@ html.cards-open body {
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(253, 252, 230, 0.2) transparent;
-  padding-right: 4px;
+  padding: 4px; /* room for the focus ring of the pill, which this scroll box would clip */
 }
 .home-hero .intro-text:focus {
   outline: none;
@@ -293,8 +308,10 @@ html.cards-open body {
     width: min(84vw, 360px);
     border-radius: 22px;
   }
+  .home-hero .card {
+    --card-scale: 0.5;
+  }
   .home-hero .rail span {
-    font-size: var(--t-meta);
     letter-spacing: 0.24em;
   }
   .home-hero .card-body {
@@ -312,13 +329,21 @@ html.cards-open body {
   }
   .home-hero .intro-text {
     overflow: visible;
-    padding-right: 0;
+    padding: 0;
   }
   .home-hero .intro-text .display {
     font-size: 40px;
   }
   .home-hero .cr-head .display {
     font-size: 28px;
+  }
+}
+
+/* a phone held sideways: the card takes the full height between the top edge and the bottom edge, and
+   the dock's clearance is ignored (the page is locked while a card is open) */
+@media (max-height: 480px) {
+  .home-hero .card {
+    height: calc(100dvh - 24px);
   }
 }
 

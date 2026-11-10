@@ -45,6 +45,7 @@ export function measure(el: HTMLElement, side: Side, mode: Mode, hot: boolean): 
 
 export function place(el: HTMLElement, { x, s }: Pose) {
   el.style.transform = `translate3d(${x}px, -50%, 0) scale(${s})`;
+  el.style.setProperty("--card-scale", String(s)); // the rail label divides by it to stay at 13 px
 }
 
 export function placeAll(els: Els, nav: NavState, hot: HotState) {

@@ -21,7 +21,7 @@
     "role": "Site architect, original build",
     "blurb": "This site began as a fork of ohsh.in, built by Ohshin and rebuilt for the cutting room.",
     "note": "Placeholder for your paragraph about Ohshin and the original build, and why this site exists because of it.",
-    "image": "/profile.png",
+    "image": "/portraits/ohshin.jpg",
     "facts": [
       { "label": "Framework", "value": "Remix and React" },
       { "label": "Styling", "value": "Tailwind CSS" },

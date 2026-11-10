@@ -45,3 +45,17 @@ export function miniWallColumns(
 
 /** Small thumbnails only: the mini wall never loads the big ones. */
 export const miniThumbUrl = (id: string) => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+
+/** The mini shelf never grows past this, so a wide block does not blow the spines up. */
+export const MINI_SHELF_MAX_SCALE = 1.6;
+
+/**
+ * The scale that makes the mini shelf's row (spines plus the gaps between them) span `innerWidth`,
+ * capped at MINI_SHELF_MAX_SCALE. 1 when there is nothing to fit or no width is known yet.
+ */
+export function fitMiniShelf(spines: readonly { w: number }[], innerWidth: number, gap: number): number {
+  if (spines.length === 0 || innerWidth <= 0) return 1;
+  const row = spines.reduce((sum, s) => sum + s.w, 0) + gap * (spines.length - 1);
+  if (row <= 0) return 1;
+  return Math.min(MINI_SHELF_MAX_SCALE, innerWidth / row);
+}

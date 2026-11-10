@@ -1,8 +1,10 @@
 import { useMemo, useRef, type CSSProperties } from "react";
+import { countLabel } from "../../../utils/count-label";
 import type { SiteBook, SiteVideo } from "../../../types";
 import type { LayerKind } from "../layer/layer-state";
 import "./blocks.css";
 import { miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
+import { useMiniFit } from "./use-mini-fit";
 import { useNear } from "./use-near";
 
 /** The ids the layer and the deep link find the blocks by (mockup: blkRead, blkWatch). */
@@ -30,6 +32,11 @@ export default function InterestBlocks({ books, videos, onOpen, onNear }: Intere
   useNear(blocks, onNear);
 
   const columns = miniWallColumns(videos);
+  const spines = useMemo(() => books.map(miniSpine), [books]);
+  const shelfArtRef = useRef<HTMLDivElement>(null);
+  const shelfRowRef = useRef<HTMLDivElement>(null);
+  const fitSpines = useMemo(() => spines.map((s) => ({ w: s.width, h: s.height })), [spines]);
+  useMiniFit(shelfArtRef, shelfRowRef, fitSpines);
 
   return (
     <section className="home-blocks" id="below" aria-label="Reading and watching">
@@ -44,16 +51,16 @@ export default function InterestBlocks({ books, videos, onOpen, onNear }: Intere
                 reading
               </h2>
               <p>
-                {books.length} books this year, mostly film and design. Pull one off the shelf to
-                see why it stayed with me.
+                {countLabel(books.length, "book", "books")} this year, mostly film and design. Pull
+                one off the shelf to see why it stayed with me.
               </p>
               <span className="pill">Open the shelf</span>
             </div>
-            <div className="blk-art ms" aria-hidden="true">
+            <div ref={shelfArtRef} className="blk-art ms" aria-hidden="true">
               <div className="ms-plank" />
-              <div className="ms-row">
+              <div ref={shelfRowRef} className="ms-row">
                 {books.map((book, i) => {
-                  const s = miniSpine(book);
+                  const s = spines[i];
                   return (
                     <div
                       key={book.id}
@@ -90,8 +97,8 @@ export default function InterestBlocks({ books, videos, onOpen, onNear }: Intere
                 watching
               </h2>
               <p>
-                {videos.length} videos I keep sending to friends: essays, rabbit holes, and a few
-                masterclasses.
+                {countLabel(videos.length, "video", "videos")} I keep sending to friends: essays,
+                rabbit holes, and a few masterclasses.
               </p>
               <span className="pill">Open the wall</span>
             </div>
