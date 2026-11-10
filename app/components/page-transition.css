@@ -6,6 +6,9 @@
 @keyframes page-out { to { opacity: 0; filter: blur(12px); } }
 @keyframes page-in { from { opacity: 0; filter: blur(8px); } }
 header[data-site-nav] { view-transition-name: site-dock; }
+@keyframes page-fade-out { to { opacity: 0; } }
+@keyframes page-fade-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 120ms; filter: none; }
+  ::view-transition-old(root) { animation-name: page-fade-out; animation-duration: 120ms; }
+  ::view-transition-new(root) { animation-name: page-fade-in; animation-duration: 120ms; }
 }
