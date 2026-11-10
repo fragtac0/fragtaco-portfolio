@@ -1,0 +1,59 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "net": {
+   "kbps": 400,
+   "latency": 150
+  },
+  "nocache": true,
+  "init": "window.__ev=[];new MutationObserver(()=>{__ev.push([\"cls\",Math.round(performance.now()),document.documentElement.className])}).observe(document.documentElement,{attributes:true,attributeFilter:[\"class\"]});addEventListener(\"DOMContentLoaded\",()=>__ev.push([\"dcl\",Math.round(performance.now())]));new PerformanceObserver(l=>l.getEntries().forEach(e=>__ev.push([e.name,Math.round(e.startTime)]))).observe({type:\"paint\",buffered:true});",
+  "go": "{{BASE}}/",
+  "wait": 600,
+  "eval": "JSON.stringify({t:Math.round(performance.now()),cls:document.documentElement.className,letters:[...document.querySelectorAll(\"[style*=\\\"--i\\\"]\")].slice(0,3).map(e=>getComputedStyle(e).opacity),painting:performance.getEntriesByType(\"resource\").filter(r=>r.name.includes(\"/paintings/\")).map(r=>[r.name.split(\"/\").pop(),Math.round(r.responseEnd)])})",
+  "label": "t0.6",
+  "shot": "thr-0600"
+ },
+ {
+  "wait": 900,
+  "eval": "JSON.stringify({t:Math.round(performance.now()),cls:document.documentElement.className,letters:[...document.querySelectorAll(\"[style*=\\\"--i\\\"]\")].slice(0,3).map(e=>getComputedStyle(e).opacity),painting:performance.getEntriesByType(\"resource\").filter(r=>r.name.includes(\"/paintings/\")).map(r=>[r.name.split(\"/\").pop(),Math.round(r.responseEnd)])})",
+  "label": "t1.5",
+  "shot": "thr-1500"
+ },
+ {
+  "wait": 1500,
+  "eval": "JSON.stringify({t:Math.round(performance.now()),cls:document.documentElement.className,letters:[...document.querySelectorAll(\"[style*=\\\"--i\\\"]\")].slice(0,3).map(e=>getComputedStyle(e).opacity),painting:performance.getEntriesByType(\"resource\").filter(r=>r.name.includes(\"/paintings/\")).map(r=>[r.name.split(\"/\").pop(),Math.round(r.responseEnd)])})",
+  "label": "t3",
+  "shot": "thr-3000"
+ },
+ {
+  "wait": 2000,
+  "eval": "JSON.stringify({t:Math.round(performance.now()),cls:document.documentElement.className,letters:[...document.querySelectorAll(\"[style*=\\\"--i\\\"]\")].slice(0,3).map(e=>getComputedStyle(e).opacity),painting:performance.getEntriesByType(\"resource\").filter(r=>r.name.includes(\"/paintings/\")).map(r=>[r.name.split(\"/\").pop(),Math.round(r.responseEnd)])})",
+  "label": "t5",
+  "shot": "thr-5000"
+ },
+ {
+  "wait": 1500,
+  "eval": "JSON.stringify({t:Math.round(performance.now()),cls:document.documentElement.className,letters:[...document.querySelectorAll(\"[style*=\\\"--i\\\"]\")].slice(0,3).map(e=>getComputedStyle(e).opacity),painting:performance.getEntriesByType(\"resource\").filter(r=>r.name.includes(\"/paintings/\")).map(r=>[r.name.split(\"/\").pop(),Math.round(r.responseEnd)])})",
+  "label": "t6.5",
+  "shot": "thr-6500"
+ },
+ {
+  "wait": 5000,
+  "eval": "JSON.stringify({t:Math.round(performance.now()),cls:document.documentElement.className,letters:[...document.querySelectorAll(\"[style*=\\\"--i\\\"]\")].slice(0,3).map(e=>getComputedStyle(e).opacity),painting:performance.getEntriesByType(\"resource\").filter(r=>r.name.includes(\"/paintings/\")).map(r=>[r.name.split(\"/\").pop(),Math.round(r.responseEnd)])})",
+  "label": "t11.5",
+  "shot": "thr-11500"
+ },
+ {
+  "wait": 10000,
+  "eval": "JSON.stringify({t:Math.round(performance.now()),cls:document.documentElement.className,letters:[...document.querySelectorAll(\"[style*=\\\"--i\\\"]\")].slice(0,3).map(e=>getComputedStyle(e).opacity),painting:performance.getEntriesByType(\"resource\").filter(r=>r.name.includes(\"/paintings/\")).map(r=>[r.name.split(\"/\").pop(),Math.round(r.responseEnd)])})",
+  "label": "t21.5",
+  "shot": "thr-21500"
+ },
+ {
+  "eval": "JSON.stringify(window.__ev)",
+  "label": "events"
+ }
+]
