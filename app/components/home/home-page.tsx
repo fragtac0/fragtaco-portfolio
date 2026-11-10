@@ -7,6 +7,7 @@ import type {
   SiteSocialLink,
   SiteVideo,
 } from "../../types";
+import { hasWebGL, hasWebGL2 } from "../../lib/webgl-support";
 import SiteNav from "../site-nav";
 import InterestBlocks, { BLOCK_ID } from "./blocks/interest-blocks";
 import HeroCards from "./cards/hero-cards";
@@ -215,8 +216,12 @@ export default function HomePage({
   // What a block's words and previews warm up: the scenes hook their prepare() here.
   const onBlockNear = useCallback(
     (kind: LayerKind) => {
-      if (kind === "reading") void shelf?.prepare();
-      else wall?.prepare();
+      // without the context the scene needs, its fallback grid is shown and nothing is prepared
+      if (kind === "reading") {
+        if (hasWebGL2()) void shelf?.prepare();
+      } else if (hasWebGL()) {
+        wall?.prepare();
+      }
     },
     [shelf, wall],
   );

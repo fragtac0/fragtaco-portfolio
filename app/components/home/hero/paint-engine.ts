@@ -88,6 +88,12 @@ const FRAGMENT_SRC = `precision highp float;varying vec2 v;
     vec2 ub=cover(uv,uAspB,uFocB,uZoomB);
     if(uP>=1.){gl_FragColor=vec4(finish(uBlur>.002?soft(uB,ub):texture2D(uB,ub).rgb),1.);return;}
     if(uP<=0.&&uHasA<.5){gl_FragColor=vec4(finish(vec3(.02,.016,.012)),1.);return;}
+    if(uMode>1.5){
+      vec3 Bc=uBlur>.002?soft(uB,ub):texture2D(uB,ub).rgb;
+      vec2 uc=cover(uv,uAspA,uFocA,uZoomA);
+      vec3 Ac=uHasA<.5?vec3(.02,.016,.012):(uBlur>.002?soft(uA,uc):texture2D(uA,uc).rgb);
+      gl_FragColor=vec4(finish(mix(Ac,Bc,uP)),1.);return;
+    }
     float ca=uRes.x/uRes.y;vec2 pa=(uv-.5)*vec2(ca,1.);
     float d=uMode<.5?length(pa)/(.5*length(vec2(ca,1.))):dot(pa,uDir)/(.5*(abs(uDir.x)*ca+abs(uDir.y)))*.5+.5;
     d+=(fbm(pa*2.4+uT*.06)-.5)*.34;
@@ -110,6 +116,10 @@ const FRAGMENT_SRC = `precision highp float;varying vec2 v;
     col+=band*.045*vec3(1.,.62,.38);
     gl_FragColor=vec4(finish(col),1.);
   }`;
+
+/** Reduced motion: the first reveal is a plain fade of this length, and a change a plain crossfade. */
+export const REDUCED_REVEAL_MS = 400;
+export const REDUCED_SWAP_MS = 800;
 
 /** Returns null without WebGL, or when the shaders fail to compile or link. */
 export function createPaint(
@@ -238,6 +248,7 @@ export function createPaint(
 
   const zoomOf = (i: number, now: number) => {
     const a = clamp((now - meta[i].born) / 21000);
+    if (reduce) return meta[i].zoom; // no Ken Burns drift
     return meta[i].zoom * (1 + 0.07 * a * a * (3 - 2 * a));
   };
 
@@ -251,7 +262,7 @@ export function createPaint(
       put(cur, img, m);
       mode = "reveal";
       t0 = performance.now();
-      dur = ms;
+      dur = reduce ? REDUCED_REVEAL_MS : ms;
       done = cb;
     },
     swap(img, m, ms, cb) {
@@ -259,7 +270,7 @@ export function createPaint(
       put(1 - cur, img, m);
       mode = "sweep";
       t0 = performance.now();
-      dur = ms;
+      dur = reduce ? REDUCED_SWAP_MS : ms;
       done = cb;
       const a = Math.random() * Math.PI * 2;
       dir = [Math.cos(a), Math.sin(a)];
@@ -312,8 +323,8 @@ export function createPaint(
         hasA = 0;
       } else if (mode === "reveal") {
         const k = clamp((now - t0) / dur);
-        pr = 1 - Math.pow(1 - k, 2.2);
-        md = 0;
+        pr = reduce ? k : 1 - Math.pow(1 - k, 2.2);
+        md = reduce ? 2 : 0; // 2: plain crossfade
         hasA = 0;
         if (k >= 1) {
           mode = "idle";
@@ -323,6 +334,10 @@ export function createPaint(
       } else if (mode === "sweep") {
         const k = clamp((now - t0) / dur);
         pr = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        if (reduce) {
+          pr = k * k * (3 - 2 * k);
+          md = 2;
+        }
         a = cur;
         b = 1 - cur;
         if (k >= 1) {

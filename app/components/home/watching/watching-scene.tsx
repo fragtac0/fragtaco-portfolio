@@ -1,8 +1,10 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { hasWebGL } from "../../../lib/webgl-support";
 import type { SiteVideo } from "../../../types";
 import { useLayerControl } from "../layer/layer-context";
 import VideoDetail, { type VideoDetailHandle } from "./video-detail";
 import type { WallEngine } from "./wall-engine";
+import WatchingFallback, { gridWall } from "./watching-fallback";
 
 /** A tile the wall reports as picked: the video, where the tile is, and its key. */
 export type WallPick = { index: number; rect: DOMRect; key: string };
@@ -53,30 +55,42 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
   /** Set from the pick until the detail view has finished closing. */
   const [pick, setPick] = useState<WallPick | null>(null);
   const open = pick !== null;
+  // No WebGL (or `?nogl=1`), or a wall that failed to start: a static grid of thumbnails opens the
+  // same detail view. This scene only ever renders on the client, after the layer opens.
+  const [fallback, setFallback] = useState(() => !hasWebGL());
+  const lastKey = useRef<string | null>(null);
 
   useEffect(() => {
     const host = hostRef.current;
     const chip = chipRef.current;
     const hint = hintRef.current;
-    if (!engine || !host || !chip || !hint) return;
-    engine.mount({ host, chip, hint });
     const unregister = registerSceneHooks({
       isVideoOpen: () => detailRef.current?.isOpen() ?? false,
       closeVideo: () => detailRef.current?.close(),
     });
+    if (fallback || !engine || !host || !chip || !hint) return unregister;
+    engine.mount({ host, chip, hint });
     const unsubscribe = picks.subscribe((p) => setPick(p));
     return () => {
       unsubscribe();
       unregister();
       engine.unmount();
     };
-  }, [engine, picks, registerSceneHooks]);
+  }, [engine, picks, registerSceneHooks, fallback]);
 
   useEffect(() => {
-    if (!engine || !active) return;
+    if (fallback || !engine || !active) return;
+    let live = true;
     engine.start();
-    return () => engine.stop();
-  }, [engine, active]);
+    // the wall could not start (no context, a failed shader): show the grid instead
+    void Promise.resolve().then(() => {
+      if (live && engine.hasFailed()) setFallback(true);
+    });
+    return () => {
+      live = false;
+      engine.stop();
+    };
+  }, [engine, active, fallback]);
 
   // While a video is open the wall and the layer's own header are inert, so Tab stays on the
   // detail view; when it has closed they wake up and focus goes back to the wall stage.
@@ -92,49 +106,64 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
       else el.removeAttribute("inert");
     }
     if (!open && wasOpen.current) {
-      hostRef.current?.querySelector("canvas")?.focus({ preventScroll: true });
+      const back = fallback
+        ? sceneRef.current?.querySelector<HTMLElement>(`[data-key="${lastKey.current}"]`)
+        : hostRef.current?.querySelector("canvas");
+      back?.focus({ preventScroll: true });
     }
     wasOpen.current = open;
     return () => {
       for (const el of targets) el?.removeAttribute("inert");
     };
-  }, [open]);
+  }, [open, fallback]);
 
   const video = pick ? (videos[pick.index] ?? null) : null;
 
   return (
     <div ref={sceneRef} className="wall-scene">
       <div ref={mainRef} className="wall-main">
-        <div ref={hostRef} className="wall-host" />
-        <div className="wall-vig" />
-        <div ref={chipRef} className="chip" aria-live="polite">
-          <b />
-          <span />
-        </div>
-        <p ref={hintRef} className="xp-hint" />
-        <ul className="sr-only" aria-label="Videos on the wall">
-          {videos.map((v) => (
-            <li key={v.id}>
-              {/* reachable by a screen reader's links list, not 51 stops for the Tab key */}
-              <a
-                href={`https://www.youtube.com/watch?v=${v.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                tabIndex={-1}
-              >
-                {v.title}, {v.channel}
-              </a>
-            </li>
-          ))}
-        </ul>
+        {fallback ? (
+          <WatchingFallback
+            videos={videos}
+            onPick={(p) => {
+              lastKey.current = p.key;
+              setPick(p);
+            }}
+          />
+        ) : (
+          <>
+            <div ref={hostRef} className="wall-host" />
+            <div className="wall-vig" />
+            <div ref={chipRef} className="chip" aria-live="polite">
+              <b />
+              <span />
+            </div>
+            <p ref={hintRef} className="xp-hint" />
+            <ul className="sr-only" aria-label="Videos on the wall">
+              {videos.map((v) => (
+                <li key={v.id}>
+                  {/* reachable by a screen reader's links list, not 51 stops for the Tab key */}
+                  <a
+                    href={`https://www.youtube.com/watch?v=${v.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    tabIndex={-1}
+                  >
+                    {v.title}, {v.channel}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
-      {engine ? (
+      {fallback || engine ? (
         <VideoDetail
           ref={detailRef}
           video={video}
           fromRect={pick?.rect ?? null}
           tileKey={pick?.key ?? null}
-          wall={engine}
+          wall={fallback || !engine ? gridWall : engine}
           onClose={() => setPick(null)}
         />
       ) : null}

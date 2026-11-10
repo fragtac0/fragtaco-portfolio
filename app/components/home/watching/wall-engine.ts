@@ -48,8 +48,13 @@ export type WallEls = {
   hint: HTMLElement;
 };
 
+/** The part of the wall the detail view drives; the no-WebGL grid supplies its own. */
+export type WallControl = Pick<WallEngine, "freeze" | "thaw" | "hold" | "rectOf">;
+
 export type WallEngine = {
   prepare(): void;
+  /** True once `prepare()` has run and the wall could not start (no WebGL, a failed shader). */
+  hasFailed(): boolean;
   mount(els: WallEls): void;
   start(): void;
   stop(): void;
@@ -741,6 +746,8 @@ export function createWall(
     stop,
 
     unmount,
+
+    hasFailed: () => failed,
 
     freeze(key) {
       frozen = true;

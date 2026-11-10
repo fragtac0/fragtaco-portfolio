@@ -10,6 +10,7 @@ export default tseslint.config(
       "build/**",
       "node_modules/**",
       ".cache/**",
+      ".vercel/**",
       "public/**",
       "eslint.config.js",
     ],
