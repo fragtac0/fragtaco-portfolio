@@ -1,10 +1,12 @@
 import type { SiteBook } from "~/types";
 import { createCoverQueue } from "./shelf-covers";
-import { attachShelfInput, type ShelfInputHandlers } from "./shelf-input";
-import { buildShelfScene, loadShelfFonts, type Book, type ShelfScene } from "./shelf-scene";
+import { attachShelfInput, createShelfInput } from "./shelf-input";
+import { createOpenPath, type ShelfCtx, type ShelfEls, type ShelfState } from "./shelf-open";
+import { buildShelfScene, loadShelfFonts, type ShelfScene } from "./shelf-scene";
 import {
   CAMERA,
   cameraAt,
+  clamp,
   dropProgress,
   easeOut,
   fitCamera,
@@ -30,25 +32,12 @@ import {
  * blurs that copy in CSS, and fades the live shelf into it, so the open book is the only thing
  * still being drawn.
  *
- * Keyboard (spec 8.10), while the scene is running: ArrowLeft and ArrowRight move a focus
- * highlight along the books (the hover lift; the camera follows on narrow screens) and put DOM
- * focus on the stage; Enter on the stage opens the highlighted book; Esc closes it (HomePage owns
- * Esc, through the hooks ReadingScene registers). Opening moves focus to "Put it back"; closing
- * returns it to the stage. The highlight clears when the stage loses focus.
+ * The open-book path is shelf-open.ts, the real covers shelf-covers.ts, the scene shelf-scene.ts and
+ * the listeners (keyboard, spec 8.10) shelf-input.ts; this file keeps the state, the frame and the
+ * lifecycle.
  */
 
-export type ShelfEls = {
-  /** The canvas goes in here. */
-  host: HTMLElement;
-  /** Half-resolution snapshot of the shelf, blurred in CSS while a book is open. */
-  blur: HTMLCanvasElement;
-  dim: HTMLElement;
-  /** The note card: `h3`, `.by`, `.note` and a `button`. */
-  info: HTMLElement;
-  hint: HTMLElement;
-  /** Optional polite live region for screen readers. */
-  status?: HTMLElement;
-};
+export type { ShelfEls };
 
 export type ShelfEngine = {
   prepare(): Promise<void>;
@@ -67,9 +56,6 @@ export type ShelfEngine = {
 
 /** Thrown inside `build()` when the engine is disposed part-way through. */
 class Aborted extends Error {}
-
-const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-const WIDE = () => window.innerWidth > 860;
 
 const whenIdle = (cb: () => void) => {
   if (typeof window.requestIdleCallback === "function") {
@@ -126,15 +112,15 @@ export function createShelf(
   });
 
   // interaction state
-  const st = {
+  const st: ShelfState = {
     t0: 0,
-    opened: null as Book | null,
-    hoverHit: null as Book | null,
-    down: null as { x: number; cx: number; moved: boolean } | null,
+    opened: null,
+    hoverHit: null,
+    down: null,
     inside: false,
     dirty: true,
     focusIdx: -1,
-    camTarget: null as number | null,
+    camTarget: null,
     fitW: 0,
     fitH: 0,
   };
@@ -150,9 +136,18 @@ export function createShelf(
     return moved;
   };
 
-  const announce = (text: string) => {
-    if (els?.status) els.status.textContent = text;
+  // the open-book path and the input handlers work on this state through the context
+  const ctx: ShelfCtx = {
+    canvas,
+    st,
+    cam,
+    scene: () => gl,
+    els: () => els,
+    running: () => running,
+    intro,
   };
+  const openBookPath = createOpenPath(ctx);
+  const { closeBook, setNote } = openBookPath;
 
   // ---- building (idle time, before the layer is ever opened)
 
@@ -168,104 +163,7 @@ export function createShelf(
     return buildShelfScene(T, canvas, books, idle, (tex, d) => covers.load(tex, d));
   }
 
-  // ---- interaction
-
-  const pick = (list: Book[]): Book | null => {
-    if (!gl) return null;
-    gl.ray.setFromCamera(gl.ndc, gl.camera);
-    const h = gl.ray.intersectObjects(list.map((b) => b.mesh))[0];
-    return h ? (list.find((b) => b.mesh === h.object) ?? null) : null;
-  };
-  const setNdc = (e: PointerEvent) => {
-    if (!gl) return;
-    const r = canvas.getBoundingClientRect();
-    gl.ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  };
-
-  /** The open book and its note sit side by side, and the pair is centred on screen. */
-  function layoutOpen(b: Book) {
-    if (!gl || !els) return;
-    const { T, camera, ray, ndc2, fwd } = gl;
-    const info = els.info;
-    const vw = canvas.clientWidth;
-    const vh = canvas.clientHeight;
-    const tanH = Math.tan(T.MathUtils.degToRad(camera.fov / 2));
-    const wide = WIDE();
-    const dist = b.H / (2 * tanH * (wide ? 0.6 : 0.4));
-    const ppu = vh / (2 * tanH * dist);
-    const bw = (b.W * Math.cos(0.3) + b.T * Math.sin(0.3)) * ppu;
-    const gapPx = clamp(vw * 0.035, 28, 64);
-    const iw = info.offsetWidth;
-    let sx = vw / 2;
-    let sy = vh * 0.36;
-    if (wide) {
-      const x0 = (vw - (bw + gapPx + iw)) / 2;
-      sx = x0 + bw / 2;
-      sy = vh * 0.5;
-      info.style.left = Math.round(x0 + bw + gapPx) + "px";
-    } else {
-      info.style.left = "";
-    }
-    ndc2.set((sx / vw) * 2 - 1, 1 - (sy / vh) * 2);
-    ray.setFromCamera(ndc2, camera);
-    camera.getWorldDirection(fwd);
-    const dir = ray.ray.direction;
-    b.openPos.copy(ray.ray.origin).addScaledVector(dir, dist / dir.dot(fwd));
-  }
-
-  const setNote = (on: boolean) => {
-    if (!els) return;
-    const { info, blur, dim, hint } = els;
-    for (const el of [blur, dim, info]) el.classList.toggle("on", on);
-    hint.classList.toggle("off", on);
-    // a hidden note is out of the tab order and the reading order
-    info.inert = !on;
-    info.setAttribute("aria-hidden", String(!on));
-  };
-
-  function openBook(b: Book) {
-    if (!gl || !els || !running) return;
-    if (st.opened || performance.now() - st.t0 < intro() * 1000) return;
-    const { renderer: r, scene, camera } = gl;
-    // draw the shelf once without the book that is about to leave, and keep that as the backdrop
-    b.g.visible = b.contact.visible = b.wallSh.visible = false;
-    r.render(scene, camera);
-    const w = Math.round(canvas.width / 2);
-    const h = Math.round(canvas.height / 2);
-    const bx = els.blur.getContext("2d");
-    // reallocate only when the size changes (assigning a size clears and reallocates the canvas)
-    if (els.blur.width !== w) els.blur.width = w;
-    if (els.blur.height !== h) els.blur.height = h;
-    if (bx) {
-      bx.clearRect(0, 0, w, h);
-      bx.drawImage(canvas, 0, 0, w, h);
-    }
-    b.g.visible = true;
-    st.opened = b;
-    st.dirty = true;
-    layoutOpen(b);
-    const { info } = els;
-    const set = (sel: string, text: string) => {
-      const el = info.querySelector(sel);
-      if (el) el.textContent = text;
-    };
-    set("h3", b.d.title);
-    set(".by", `${b.d.author}, ${b.d.pages} pages`);
-    set(".note", b.d.note);
-    setNote(true);
-    announce(`${b.d.title}, ${b.d.author}, ${b.d.pages} pages. ${b.d.note}`);
-    info.querySelector<HTMLElement>("button")?.focus({ preventScroll: true });
-  }
-
-  /** `refocus`: give focus back to the stage (not when the whole layer is going away). */
-  function closeBook(refocus: boolean) {
-    if (!st.opened) return;
-    st.opened = null;
-    st.dirty = true;
-    setNote(false);
-    announce("");
-    if (refocus && els) canvas.focus({ preventScroll: true });
-  }
+  // ---- sizing
 
   /** Sizes the renderer and camera to the canvas; nothing happens when the size is unchanged. */
   function fit() {
@@ -287,19 +185,7 @@ export function createShelf(
     st.dirty = true;
   }
 
-  function focusNext(dir: 1 | -1) {
-    if (!gl || !running || st.opened) return;
-    const n = gl.books.length;
-    st.focusIdx = st.focusIdx < 0 ? (dir > 0 ? 0 : n - 1) : clamp(st.focusIdx + dir, 0, n - 1);
-    const b = gl.books[st.focusIdx];
-    st.camTarget = clamp(b.base.x, -gl.maxX, gl.maxX);
-    st.dirty = true;
-    announce(`${b.d.title}, ${b.d.author}. Book ${st.focusIdx + 1} of ${n}.`);
-  }
-  function openFocused() {
-    if (!gl || st.focusIdx < 0) return;
-    openBook(gl.books[st.focusIdx]);
-  }
+  const { handlers, pick, focusNext, openFocused } = createShelfInput(ctx, openBookPath, fit);
 
   // ---- the frame
 
@@ -386,55 +272,6 @@ export function createShelf(
     }
   }
 
-  const input: ShelfInputHandlers = {
-    running: () => running,
-    opened: () => !!st.opened,
-    pointerMove(e) {
-      if (!gl) return;
-      setNdc(e);
-      st.inside = e.pointerType === "mouse";
-      if (st.down && e.pointerType !== "mouse" && !st.opened) {
-        const dx = e.clientX - st.down.x;
-        if (Math.abs(dx) > 6) st.down.moved = true;
-        cam.x = clamp(
-          st.down.cx - ((dx * gl.dist) / canvas.clientHeight) * 0.9,
-          -gl.maxX,
-          gl.maxX,
-        );
-        cam.xV = 0;
-        st.camTarget = null;
-        st.dirty = true;
-      }
-    },
-    pointerDown(e) {
-      setNdc(e);
-      st.down = { x: e.clientX, cx: cam.x, moved: false };
-    },
-    pointerUp(e) {
-      setNdc(e);
-      const moved = st.down?.moved;
-      st.down = null;
-      if (moved || !gl || !running) return;
-      if (st.opened) {
-        if (!pick([st.opened])) closeBook(true);
-        return;
-      }
-      const hit = pick(gl.books);
-      if (hit) openBook(hit);
-    },
-    pointerCancel: () => (st.down = null),
-    pointerLeave: () => (st.inside = false),
-    blur() {
-      // the keyboard highlight lives only while the stage has focus (opening moves focus on)
-      if (st.opened || st.focusIdx < 0) return;
-      st.focusIdx = -1;
-      st.dirty = true;
-    },
-    arrow: focusNext,
-    enter: openFocused,
-    resize: fit,
-  };
-
   // ---- the engine
 
   function prepare(): Promise<void> {
@@ -483,7 +320,7 @@ export function createShelf(
       setNote(false);
       const ac = new AbortController();
       listeners = ac;
-      attachShelfInput(canvas, input, ac.signal);
+      attachShelfInput(canvas, handlers, ac.signal);
       next.info
         .querySelector("button")
         ?.addEventListener("click", () => closeBook(true), { signal: ac.signal });

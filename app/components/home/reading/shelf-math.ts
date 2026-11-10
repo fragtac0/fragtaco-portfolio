@@ -28,6 +28,9 @@ export const CAMERA = {
 
 const clamp01 = (k: number) => Math.min(1, Math.max(0, k));
 
+/** `v` limited to the range `a` to `b` (0 to 1 by default). */
+export const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+
 /** Cubic ease-out. */
 export function easeOut(k: number): number {
   return 1 - Math.pow(1 - k, 3);
