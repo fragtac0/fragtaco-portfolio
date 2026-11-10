@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "@remix-run/react";
+import { PrefetchPageLinks, useLocation, useNavigate } from "@remix-run/react";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ComponentType } from "react";
 import type { SiteNavigationItem, SiteSocialLink } from "../types";
@@ -55,6 +55,10 @@ export default function SiteNav({
   const hideTimeoutRef = useRef<number | null>(null);
   const tickingRef = useRef(false);
   const [isDockHidden, setIsDockHidden] = useState(false);
+  // Set once a pointer (a mouse or a finger) or the keyboard reaches the dock: from then on the other tabs' pages
+  // preload at once (a <Link prefetch="intent"> alone waits 100 ms, and a tap does not last that long).
+  const [dockReached, setDockReached] = useState(false);
+  const reachDock = () => setDockReached(true);
   const isHomePage = location.pathname === "/";
   const visibleItems = items.filter(
     (item): item is SiteNavigationItem => item.key === "home" || item.key === "work",
@@ -165,7 +169,11 @@ export default function SiteNav({
       data-site-nav
       {...inertProps(isDockDown)}
     >
-      <div className="pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden rounded-full border border-fog/14 bg-[rgba(17,12,8,0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5">
+      <div
+        onPointerEnter={reachDock}
+        onPointerDown={reachDock}
+        onFocus={reachDock}
+        className="pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden rounded-full border border-fog/14 bg-[rgba(17,12,8,0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5">
         <span
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(180deg,rgba(255,236,214,0.16),rgba(255,236,214,0.04)_42%,rgba(0,0,0,0.14))]"
@@ -214,6 +222,11 @@ export default function SiteNav({
           ) : null}
         </nav>
       </div>
+      {dockReached
+        ? visibleItems
+            .filter((item) => item.key !== activeKey)
+            .map((item) => <PrefetchPageLinks key={item.key} page={item.href} />)
+        : null}
     </header>
   );
 }

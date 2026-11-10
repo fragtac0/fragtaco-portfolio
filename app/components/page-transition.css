@@ -1,0 +1,11 @@
+/* One blur transition for every page change, built on the View Transitions API through Remix's
+ * `viewTransition` link option. Browsers without it change pages instantly. The dock keeps its
+ * own name so it stays still while the page behind it changes. */
+::view-transition-old(root) { animation: page-out 160ms ease-in both; }
+::view-transition-new(root) { animation: page-in 220ms ease-out both; }
+@keyframes page-out { to { opacity: 0; filter: blur(12px); } }
+@keyframes page-in { from { opacity: 0; filter: blur(8px); } }
+header[data-site-nav] { view-transition-name: site-dock; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 120ms; filter: none; }
+}

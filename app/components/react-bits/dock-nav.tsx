@@ -1,3 +1,4 @@
+import { Link } from "@remix-run/react";
 import { motion } from "motion/react";
 import type { MouseEvent } from "react";
 import { FaClapperboard, FaHouse } from "react-icons/fa6";
@@ -17,6 +18,10 @@ interface DockNavProps {
     item: SiteNavigationItem,
   ) => void;
 }
+
+/** The tabs are client-side links: the page change gets the view transition and the other page's
+ * code and data load when the pointer, focus or a finger reaches a tab. */
+const MotionLink = motion.create(Link);
 
 /** An idle label sits at 85% and the active one at 100% (M-04). */
 const IDLE_LABEL_OPACITY = 0.85;
@@ -45,8 +50,10 @@ function DockItemIcon({ itemKey }: { itemKey: SiteNavigationItem["key"] }) {
 
 function DockNavItem({ item, isActive, onClick }: DockNavItemProps) {
   return (
-    <motion.a
-      href={item.href}
+    <MotionLink
+      to={item.href}
+      viewTransition
+      prefetch="intent"
       aria-current={isActive ? "page" : undefined}
       onClick={onClick}
       whileHover={{ scale: 1.07, y: -2 }}
@@ -69,7 +76,7 @@ function DockNavItem({ item, isActive, onClick }: DockNavItemProps) {
         <DockItemIcon itemKey={item.key} />
         {item.label}
       </motion.span>
-    </motion.a>
+    </MotionLink>
   );
 }
 

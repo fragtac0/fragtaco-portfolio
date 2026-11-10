@@ -1,0 +1,64 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "go": "{{BASE}}/",
+  "wait": 8000,
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "loaded"
+ },
+ {
+  "eval": "document.getElementById(\"below\").scrollIntoView(); new Promise(r=>setTimeout(r,1500)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "label": "at-blocks"
+ },
+ {
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,1800)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "label": "home-from-blocks"
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39,
+  "wait": 1500,
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "card-open"
+ },
+ {
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,1800)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "label": "home-with-card"
+ },
+ {
+  "go": "{{BASE}}/work",
+  "wait": 2500,
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "work-direct"
+ },
+ {
+  "go": "{{BASE}}/#about",
+  "wait": 4000,
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "deeplink-about"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/work\\\"]\").click(); 1",
+  "wait": 3000
+ },
+ {
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "work"
+ },
+ {
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); 1",
+  "wait": 3000
+ },
+ {
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "home-from-work"
+ }
+]
