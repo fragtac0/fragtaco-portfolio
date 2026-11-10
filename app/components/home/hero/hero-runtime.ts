@@ -9,7 +9,7 @@ export type HeroRuntime = {
   /** A card or a layer is open: the painting stops changing, and the draw loop parks. */
   parkedRef: MutableRefObject<{ card: boolean; layer: boolean }>;
   /** The data the hero was mounted with (read once per effect run, not tracked). */
-  dataRef: MutableRefObject<{ name: string; paintings: SiteHeroPainting[] }>;
+  dataRef: MutableRefObject<{ name: string; paintings: SiteHeroPainting[]; firstPaintingId: string }>;
 };
 
 /** Whether the page is on screen: written by the paint loop, read by the painting cycle. */

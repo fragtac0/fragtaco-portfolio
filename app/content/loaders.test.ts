@@ -11,6 +11,29 @@ describe("getHomePageContent", () => {
     expect(content.heroPaintings.length).toBeGreaterThanOrEqual(20);
   });
 
+  it("picks the first painting on the server, from the paintings that are available", async () => {
+    const content = await getHomePageContent();
+    const ids = content.heroPaintings.map((p) => p.id);
+
+    expect(ids).toContain(content.firstPaintingId);
+  });
+
+  it("uses the random number it is given for that pick", async () => {
+    const first = await getHomePageContent(() => 0);
+    const last = await getHomePageContent(() => 0.999999);
+
+    expect(first.firstPaintingId).toBe(first.heroPaintings[0].id);
+    expect(last.firstPaintingId).toBe(last.heroPaintings[last.heroPaintings.length - 1].id);
+  });
+
+  it("sends the blurred placeholder for the first painting only", async () => {
+    const content = await getHomePageContent(() => 0.5);
+    const withBlur = content.heroPaintings.filter((p) => p.blur !== "");
+
+    expect(withBlur.map((p) => p.id)).toEqual([content.firstPaintingId]);
+    expect(withBlur[0].blur.startsWith("data:image/")).toBe(true);
+  });
+
   it("does not return the facts section", async () => {
     const content = await getHomePageContent();
 

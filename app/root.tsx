@@ -6,13 +6,17 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
+  useRouteLoaderData,
 } from "@remix-run/react";
 import type { PropsWithChildren } from "react";
 import PageViewTracker from "./components/page-view-tracker";
+import { preloadImage } from "./components/home/hero/painting-cycle";
+import { recallPainting } from "./components/home/hero/painting-memory";
 import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
 import pageTransitionHref from "./components/page-transition.css?url";
 import appStylesHref from "./styles/tailwind.css?url";
 import tokensHref from "./styles/tokens.css?url";
+import type { loader as homeLoader } from "./routes/_index";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -48,6 +52,15 @@ export function Layout({ children }: PropsWithChildren) {
   // that adds it before first paint is rendered on the home route alone.
   // <html> carries suppressHydrationWarning because that script adds `intro` before hydration.
   const isHome = useLocation().pathname === "/";
+  // The painting the home loader picked, preloaded from the HTML with high priority. When the hero
+  // already remembers a painting (a client-side return to "/") that one is shown instead, so the
+  // pick is not fetched for nothing. On the server and during hydration nothing is remembered yet,
+  // so both render the link.
+  const home = useRouteLoaderData<typeof homeLoader>("routes/_index");
+  const firstPainting = isHome
+    ? home?.heroPaintings.find((p) => p.id === home.firstPaintingId)
+    : undefined;
+  const preload = firstPainting && !recallPainting() ? preloadImage(firstPainting.file) : null;
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -56,6 +69,7 @@ export function Layout({ children }: PropsWithChildren) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        {preload ? <link {...preload} /> : null}
         <Links />
       </head>
       <body>

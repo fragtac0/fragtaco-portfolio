@@ -16,6 +16,8 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   defaultShouldRevalidate,
 }) => (isHashOnlyMove(currentUrl, nextUrl) ? false : defaultShouldRevalidate);
 
+// `no-store` because the first painting is picked per visit: a cached response would repeat it.
+// root.tsx's Layout reads this route's data to preload that painting in <head>.
 export async function loader() {
   const homePageContent = await getHomePageContent();
 
@@ -25,7 +27,7 @@ export async function loader() {
     },
     {
       headers: {
-        "Cache-Control": "private, max-age=900",
+        "Cache-Control": "private, no-store",
       },
     },
   );

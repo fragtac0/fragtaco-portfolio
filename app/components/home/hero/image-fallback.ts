@@ -63,6 +63,7 @@ export function createImageFallback(
   return {
     black() {},
     reveal: (img, meta, ms, done) => show(img, meta, ms, REDUCED_REVEAL_MS, done),
+    // the fade is already a plain crossfade, so `opts.plain` changes nothing here
     swap: (img, meta, ms, done) => show(img, meta, ms, REDUCED_SWAP_MS, done),
     setBlur() {},
     busy: () => busy,

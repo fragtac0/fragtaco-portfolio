@@ -92,11 +92,17 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
       html.classList.remove("intro");
       showFinal();
       fireReady();
-      void cycle.firstLoaded(cycle.firstLoad(), Infinity, n).then((found) => {
-        if (!found) return;
-        cycle.present(found, 0);
+      const recalled = cycle.recalled();
+      if (recalled) {
+        // coming back from another page: the last painting, in the first effect, before any network
+        cycle.present(recalled, 0);
         if (n > 1) cycle.scheduleNext();
-      });
+      } else {
+        // nothing remembered: the blurred placeholder, then the sharp painting fades in over it
+        void cycle.presentFirst().then((shown) => {
+          if (shown && n > 1) cycle.scheduleNext();
+        });
+      }
     } else {
       if (!html.classList.contains("intro")) {
         // client navigation to "/": the head script never ran, so this hero locks the page itself

@@ -126,3 +126,49 @@ describe("supportsWebp", () => {
     expect(FakeImage.last).toBeNull();
   });
 });
+
+describe("whenWebpKnown", () => {
+  const canvasReturning = (dataUrl: string) => {
+    vi.stubGlobal("document", {
+      createElement: vi.fn(() => ({ width: 0, height: 0, toDataURL: () => dataUrl })),
+    });
+  };
+
+  it("resolves false on the server", async () => {
+    const { whenWebpKnown } = await freshModule();
+    await expect(whenWebpKnown()).resolves.toBe(false);
+  });
+
+  it("resolves true at once where the canvas can encode WebP", async () => {
+    canvasReturning("data:image/webp;base64,AAAA");
+    const { whenWebpKnown } = await freshModule();
+    await expect(whenWebpKnown()).resolves.toBe(true);
+  });
+
+  it("waits for the decode probe where the canvas cannot (Safari)", async () => {
+    canvasReturning("data:image/png;base64,AAAA");
+    const { whenWebpKnown } = await freshModule();
+    let answer: boolean | null = null;
+    void whenWebpKnown().then((v) => (answer = v));
+    await Promise.resolve();
+    expect(answer).toBeNull();
+    const probe = FakeImage.last!;
+    probe.width = 1;
+    probe.height = 1;
+    probe.onload?.();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(answer).toBe(true);
+  });
+
+  it("gives up waiting for a probe that never answers, and says false", async () => {
+    canvasReturning("data:image/png;base64,AAAA");
+    const { whenWebpKnown } = await freshModule();
+    let answer: boolean | null = null;
+    void whenWebpKnown().then((v) => (answer = v));
+    await vi.advanceTimersByTimeAsync(499);
+    expect(answer).toBeNull();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(answer).toBe(false);
+  });
+});

@@ -21,6 +21,8 @@ interface HeroProps {
   name: string;
   roles: string;
   paintings: SiteHeroPainting[];
+  /** The painting the server picked and preloaded; shown first unless one is remembered. */
+  firstPaintingId: string;
   /** A card is open: the lockup blurs and fades, the caption and cue dim. */
   softened: boolean;
   /** Fires once, when the loader finishes (or at once when it is skipped). */
@@ -38,7 +40,7 @@ interface HeroProps {
  * the caption, the swap timer) and use-loader (the intro timeline, which drives the other two).
  */
 const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
-  { name, roles, paintings, softened, onReady, children },
+  { name, roles, paintings, firstPaintingId, softened, onReady, children },
   ref,
 ) {
   const rootRef = useRef<HTMLElement>(null);
@@ -47,11 +49,11 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
   const blurRef = useRef<0 | 1>(0);
   const parkedRef = useRef({ card: false, layer: false });
   const onReadyRef = useRef(onReady);
-  const dataRef = useRef({ name, paintings });
+  const dataRef = useRef({ name, paintings, firstPaintingId });
 
   useEffect(() => {
     onReadyRef.current = onReady;
-    dataRef.current = { name, paintings };
+    dataRef.current = { name, paintings, firstPaintingId };
   });
 
   useImperativeHandle(

@@ -1,18 +1,25 @@
 import { useEffect, useRef, type MutableRefObject } from "react";
 import type { SiteHeroPainting } from "../../../types";
 import { createTimers, must, type HeroRuntime, type HeroView } from "./hero-runtime";
-import { loadImage, supportsWebp } from "../../../utils/load-image";
+import { loadImage, supportsWebp, whenWebpKnown } from "../../../utils/load-image";
 import type { PaintMeta } from "./paint-engine";
 import {
+  firstPaintingSrc,
   makeOrder,
   nextDelayMs,
   nextRevealTry,
   paintingSrc,
   parseFocal,
-  pickFirst,
+  pickNext,
   RECENT_KEY,
   RECENT_LIMIT,
 } from "./painting-cycle";
+import { recallPainting, rememberPainting } from "./painting-memory";
+
+/** The plain crossfade from the blurred placeholder to the sharp painting. */
+const PLACEHOLDER_FADE_MS = 400;
+/** A painting change: the liquid-glass sweep. */
+const SWAP_MS = 2800;
 
 /** Last painting ids shown this session, newest last. */
 function readRecent(): string[] {
@@ -35,13 +42,20 @@ function remember(id: string) {
 
 const metaOf = (p: SiteHeroPainting): PaintMeta => ({ focal: parseFocal(p.focal), zoom: p.zoom });
 
+type Remembered = NonNullable<ReturnType<typeof recallPainting>>;
+
 export type FoundPainting = { img: HTMLImageElement; k: number };
 
 /** What the loader drives: the first painting, and the cycle that carries on from it. */
 export type PaintingCycle = {
   /** How many paintings there are. */
   count: number;
-  /** Fetches the first painting in the order; resolves null when there is none or it fails. */
+  /** The painting remembered from the last visit to the home route (position 0), or null. */
+  recalled: () => FoundPainting | null;
+  /**
+   * The first painting in the order: the one the head preload fetched (same URL, when the browser
+   * can show WebP), or the remembered image. Resolves null when there is none or it fails.
+   */
   firstLoad: () => Promise<HTMLImageElement | null>;
   /**
    * The first painting that loads, trying the next in the order when one fails or is too slow,
@@ -54,7 +68,13 @@ export type PaintingCycle = {
   ) => Promise<FoundPainting | null>;
   /** Reveals a loaded painting, sets its caption, remembers it and preloads the next. */
   present: (found: FoundPainting, ms: number) => void;
-  /** Starts the timer for the next swap (a random delay unless `ms` is given). */
+  /**
+   * The skipped loader's first painting when nothing is remembered: the blurred placeholder
+   * (when the response carries one) as soon as it decodes, then a 400 ms crossfade to the sharp
+   * painting when it arrives. Resolves true once something is on screen.
+   */
+  presentFirst: () => Promise<boolean>;
+  /** Starts the timer for the next swap (ten seconds unless `ms` is given). */
   scheduleNext: (ms?: number) => void;
 };
 
@@ -63,10 +83,12 @@ type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "parkedRef" | "dataRe
 };
 
 /**
- * The painting cycle: which painting is shown first, the order after it, the caption, preloading
- * the next one, and the swap timer that waits while the page, the hero, a card or a layer is not
- * in front. The picks and the recent-list write are per component lifetime (StrictMode runs the
- * effect twice: both runs show and fetch the same painting). Returns a ref the loader reads.
+ * The painting cycle: which painting is shown first (the one remembered from the last visit, else
+ * the server's pick), the order after it, the caption, preloading the next one, and the swap timer
+ * that waits while the page, the hero, a card or a layer is not in front. The order is per
+ * component lifetime (StrictMode runs the effect twice: both runs show and fetch the same
+ * painting). Every painting shown goes into the recent list and the painting memory. Returns a ref
+ * the loader reads.
  */
 export function usePaintingCycle({
   rootRef,
@@ -76,29 +98,38 @@ export function usePaintingCycle({
   viewRef,
 }: Options): MutableRefObject<PaintingCycle | null> {
   const cycleRef = useRef<PaintingCycle | null>(null);
-  const picksRef = useRef<{ first: SiteHeroPainting | null; order: number[] } | null>(null);
-  const rememberedRef = useRef(false);
+  const picksRef = useRef<{ order: number[]; memory: Remembered | null } | null>(null);
 
   useEffect(() => {
     const root = rootRef.current;
     const paint = engineRef.current;
     if (!root || !paint) return;
-    const { paintings: items } = dataRef.current;
+    const { paintings: items, firstPaintingId } = dataRef.current;
     const n = items.length;
     const timers = createTimers();
     const { later, clear, atMost } = timers;
     const cap = must<HTMLElement>(root, ".caption");
 
+    // First: the remembered painting if it is still in the list, else the server's pick (its
+    // preload is in the HTML), else any.
     picksRef.current ??= (() => {
-      const first = n > 0 ? pickFirst(items, readRecent(), Math.random) : null;
-      return { first, order: first ? makeOrder(n, items.indexOf(first), Math.random) : [] };
+      if (n === 0) return { order: [], memory: null };
+      const recalled = recallPainting();
+      const remembered = recalled ? items.findIndex((p) => p.id === recalled.id) : -1;
+      const server = items.findIndex((p) => p.id === firstPaintingId);
+      const first = remembered >= 0 ? remembered : server >= 0 ? server : Math.floor(Math.random() * n);
+      return { order: makeOrder(n, first, Math.random), memory: remembered >= 0 ? recalled : null };
     })();
-    const { order } = picksRef.current;
+    const { order, memory } = picksRef.current;
+    const ids = items.map((p) => p.id);
     let oi = 0;
+    let np = 0;
     let cycleT = 0;
     let nextImg: Promise<HTMLImageElement | null> = Promise.resolve(null);
-    const srcAt = (k: number) =>
-      paintingSrc(items[order[k]].file, window.innerWidth, window.devicePixelRatio || 1, supportsWebp());
+    const dpr = () => window.devicePixelRatio || 1;
+    const srcAt = (k: number) => paintingSrc(items[order[k]].file, window.innerWidth, dpr(), supportsWebp());
+    // The first painting asks for what the preload in <head> fetched (see firstPaintingSrc).
+    const firstSrc = (webp: boolean) => firstPaintingSrc(items[order[0]].file, window.innerWidth, dpr(), webp);
 
     const setCaption = (p: SiteHeroPainting, animate = false) => {
       const fill = () => {
@@ -110,10 +141,15 @@ export function usePaintingCycle({
       cap.classList.add("swap");
       later(600, fill);
     };
-    const preloadNext = () => {
-      nextImg = loadImage(srcAt((oi + 1) % n));
+    const shown = (p: SiteHeroPainting, img: HTMLImageElement) => {
+      remember(p.id);
+      rememberPainting(p.id, img);
     };
-    const scheduleNext = (ms = nextDelayMs(Math.random)) => {
+    const preloadNext = () => {
+      np = pickNext(order, oi, readRecent(), ids);
+      nextImg = loadImage(srcAt(np));
+    };
+    const scheduleNext = (ms = nextDelayMs()) => {
       clear(cycleT);
       cycleT = later(ms, () => void nextPainting());
     };
@@ -124,10 +160,10 @@ export function usePaintingCycle({
       if (!view.pageVisible || !view.heroOn || parked.layer || parked.card) return scheduleNext(2500);
       let img = await nextImg;
       if (timers.isDisposed()) return;
-      oi = (oi + 1) % n;
+      oi = np;
       // a painting that fails to load is skipped for the one after it
       for (let t = 0; !img && t < n - 1; t++) {
-        oi = (oi + 1) % n;
+        oi = pickNext(order, oi, readRecent(), ids);
         img = await loadImage(srcAt(oi));
         if (timers.isDisposed()) return;
       }
@@ -136,35 +172,69 @@ export function usePaintingCycle({
         return scheduleNext();
       }
       const p = items[order[oi]];
-      paint.swap(img, metaOf(p), 2800, () => {
-        preloadNext();
-        scheduleNext();
-      });
+      // the next change is ten seconds after this one starts, not after it ends
+      scheduleNext();
+      paint.swap(img, metaOf(p), SWAP_MS, preloadNext);
       setCaption(p, true);
+      shown(p, img);
+    };
+    const firstLoad = async () => {
+      if (n === 0) return null;
+      if (memory) return memory.img;
+      return loadImage(firstSrc(await whenWebpKnown()));
+    };
+    const firstLoaded: PaintingCycle["firstLoaded"] = async (first, maxWait, maxTries) => {
+      for (let t = 0, k = nextRevealTry(t, n, maxTries); k !== null; k = nextRevealTry(++t, n, maxTries)) {
+        const pending = k === 0 ? first : loadImage(srcAt(k));
+        const img = Number.isFinite(maxWait) ? await atMost(pending, maxWait) : await pending;
+        if (timers.isDisposed()) return null;
+        if (img) return { img, k };
+      }
+      return null;
+    };
+    const present: PaintingCycle["present"] = (found, ms) => {
+      oi = found.k;
+      const p = items[order[oi]];
+      paint.reveal(found.img, metaOf(p), ms);
+      setCaption(p);
+      shown(p, found.img);
+      preloadNext();
     };
 
     cycleRef.current = {
       count: n,
-      firstLoad: () => (n > 0 ? loadImage(srcAt(0)) : Promise.resolve(null)),
-      async firstLoaded(firstLoad, maxWait, maxTries) {
-        for (let t = 0, k = nextRevealTry(t, n, maxTries); k !== null; k = nextRevealTry(++t, n, maxTries)) {
-          const pending = k === 0 ? firstLoad : loadImage(srcAt(k));
-          const img = Number.isFinite(maxWait) ? await atMost(pending, maxWait) : await pending;
-          if (timers.isDisposed()) return null;
-          if (img) return { img, k };
+      recalled: () => (memory ? { img: memory.img, k: 0 } : null),
+      firstLoad,
+      firstLoaded,
+      present,
+      async presentFirst() {
+        if (n === 0) return false;
+        const first = items[order[0]];
+        const sharp = firstLoaded(firstLoad(), Infinity, n);
+        let placeholder = false;
+        let settled = false;
+        if (first.blur) {
+          void loadImage(first.blur).then((blurImg) => {
+            if (!blurImg || settled || timers.isDisposed()) return;
+            placeholder = true;
+            oi = 0;
+            paint.reveal(blurImg, metaOf(first), 0);
+            setCaption(first);
+          });
         }
-        return null;
-      },
-      present(found, ms) {
+        const found = await sharp;
+        settled = true;
+        if (!found) return placeholder;
+        if (!placeholder) {
+          present(found, 0);
+          return true;
+        }
         oi = found.k;
         const p = items[order[oi]];
-        paint.reveal(found.img, metaOf(p), ms);
-        setCaption(p);
-        if (!rememberedRef.current) {
-          rememberedRef.current = true;
-          remember(p.id);
-        }
-        preloadNext();
+        paint.swap(found.img, metaOf(p), PLACEHOLDER_FADE_MS, preloadNext, { plain: true });
+        if (found.k !== 0) setCaption(p, true);
+        shown(p, found.img);
+        return true;
       },
       scheduleNext,
     };
