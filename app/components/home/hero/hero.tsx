@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, type ReactNode } fr
 import { INTRO_KEY, introMode } from "../../../lib/intro-session";
 import { hasWebGL } from "../../../lib/webgl-support";
 import type { SiteHeroPainting } from "../../../types";
-import "../home.css";
+import "./hero.css";
 import { createImageFallback } from "./image-fallback";
 import { loadImage } from "./load-image";
 import { LOADER, loaderSchedule, type LoaderStep } from "./loader-timeline";

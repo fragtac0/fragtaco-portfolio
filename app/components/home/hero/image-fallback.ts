@@ -2,7 +2,7 @@ import { REDUCED_REVEAL_MS, REDUCED_SWAP_MS, type PaintEngine, type PaintMeta } 
 
 /**
  * Stand-in for the paint engine when WebGL is unavailable: the painting is a plain
- * <img> and a change is a CSS crossfade (see `.paint-host img` in home.css). It has the
+ * <img> and a change is a CSS crossfade (see `.paint-host img` in hero.css). It has the
  * engine's shape so the hero's loader and cycle do not care which one they drive.
  *
  * The new painting fades in on top of the old one, which stays fully opaque until the fade has

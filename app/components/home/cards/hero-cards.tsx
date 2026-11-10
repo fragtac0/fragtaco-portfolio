@@ -5,6 +5,7 @@ import { modeOf } from "./card-shell";
 import CreditsCard from "./credits-card";
 import type { NavContext, NavInput, NavState } from "./hero-nav";
 import IntroCard from "./intro-card";
+import "./cards.css";
 import { NO_HOT, useCardGestures } from "./use-card-gestures";
 
 type HeroCardsProps = {

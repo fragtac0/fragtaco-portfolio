@@ -1,0 +1,271 @@
+/* =====================================================================
+   MY INTERESTS: two blocks that grow into the layer (mockup: .below-wrap, .block)
+   The section sits on the same static texture as the hero (the .tex rules in hero.css).
+   ===================================================================== */
+.home-blocks {
+  --accent: #fc4c00;
+  --gilt: #d9a441;
+  --r-lg: 44px 20px 44px 20px;
+  position: relative;
+  transition: opacity 0.9s ease;
+}
+/* the loader owns the screen: nothing below the hero exists until the painting is revealed */
+html.intro .home-blocks {
+  visibility: hidden;
+  opacity: 0;
+}
+.home-blocks .display {
+  font-family: Doto, monospace;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.84;
+  margin: 0;
+}
+.home-blocks .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(253, 252, 230, 0.07);
+  outline: 1px solid rgba(253, 252, 230, 0.2);
+  font-size: 12.5px;
+  color: var(--cream);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.home-blocks .below {
+  position: relative;
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: clamp(64px, 10vh, 128px) clamp(16px, 4vw, 64px) 168px;
+}
+.home-blocks .blocks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 2vw, 28px);
+}
+.home-blocks .block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: clamp(580px, 70vh, 720px);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
+  box-shadow:
+    0 30px 120px rgba(0, 0, 0, 0.44),
+    0 0 74px rgba(252, 76, 0, 0.08),
+    inset 0 1px 0 rgba(245, 239, 230, 0.07);
+  outline: 1px solid rgba(255, 255, 255, 0.09);
+  transition:
+    box-shadow 0.6s,
+    outline-color 0.6s;
+}
+.home-blocks .block:hover {
+  box-shadow:
+    0 30px 120px rgba(0, 0, 0, 0.5),
+    0 0 100px rgba(252, 76, 0, 0.2),
+    inset 0 1px 0 rgba(245, 239, 230, 0.09);
+  outline-color: rgba(252, 76, 0, 0.35);
+}
+.home-blocks .blk-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: inherit;
+}
+.home-blocks .blk-hit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+.home-blocks .blk-text {
+  position: relative;
+  z-index: 2;
+  padding: clamp(24px, 3vw, 44px) clamp(24px, 3vw, 44px) 0;
+  pointer-events: none;
+}
+.home-blocks .blk-text .display {
+  font-size: clamp(40px, 4.4vw, 78px);
+}
+.home-blocks .blk-text p {
+  max-width: 38ch;
+  margin: 16px 0 20px;
+  color: rgba(245, 239, 230, 0.7);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+/* the preview gets its own row under the text, so the button never sits behind it */
+.home-blocks .blk-art {
+  position: relative;
+  flex: 1;
+  min-height: 300px;
+  margin-top: clamp(14px, 2vw, 26px);
+  pointer-events: none;
+  overflow: hidden;
+}
+.home-blocks .ms {
+  -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent 97%);
+  mask-image: linear-gradient(90deg, #000 55%, transparent 97%);
+}
+.home-blocks .ms-row {
+  position: absolute;
+  left: clamp(24px, 3vw, 44px);
+  bottom: 44px;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+}
+.home-blocks .ms-plank {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 29px;
+  height: 15px;
+  background: linear-gradient(#3b271a, #160e09);
+  box-shadow: 0 22px 34px rgba(0, 0, 0, 0.7);
+}
+.home-blocks .ms-sp {
+  position: relative;
+  flex: none;
+  border-radius: 3px 3px 2px 2px;
+  transform: translateY(0);
+  transition: transform 0.6s var(--ease);
+  transition-delay: calc(var(--i) * 32ms);
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.5),
+      rgba(0, 0, 0, 0.08) 14%,
+      rgba(255, 255, 255, 0.16) 36%,
+      rgba(255, 255, 255, 0.04) 58%,
+      rgba(0, 0, 0, 0.2) 84%,
+      rgba(0, 0, 0, 0.55)
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.25));
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.25),
+    5px 0 12px -5px rgba(0, 0, 0, 0.7);
+}
+.home-blocks .ms-sp span {
+  position: absolute;
+  inset: 12px 0;
+  writing-mode: vertical-rl;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: Lora, serif;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.home-blocks .ms-sp.band::before,
+.home-blocks .ms-sp.band::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gilt);
+  opacity: 0.85;
+}
+.home-blocks .ms-sp.band::before {
+  top: 7%;
+}
+.home-blocks .ms-sp.band::after {
+  bottom: 7%;
+}
+.home-blocks .block:hover .ms-sp {
+  transform: translateY(-12px);
+}
+.home-blocks .mw {
+  -webkit-mask-image:
+    linear-gradient(180deg, transparent 0, #000 24%, #000 72%, transparent 100%),
+    linear-gradient(90deg, #000 70%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(180deg, transparent 0, #000 24%, #000 72%, transparent 100%),
+    linear-gradient(90deg, #000 70%, transparent 100%);
+  mask-composite: intersect;
+}
+.home-blocks .mw-cols {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: clamp(16px, 2vw, 28px);
+  right: -14%;
+  display: flex;
+  gap: 12px;
+}
+.home-blocks .mw-col {
+  flex: 0 0 clamp(130px, 11vw, 180px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: home-mw-up 70s linear infinite;
+  will-change: transform;
+}
+.home-blocks .mw-col:nth-child(even) {
+  animation-name: home-mw-down;
+  animation-duration: 84s;
+}
+.home-blocks .mw-col img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+@keyframes home-mw-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+@keyframes home-mw-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.home-blocks .block:hover .mw-col {
+  animation-duration: 36s;
+}
+.home-blocks .block:hover .mw-col:nth-child(even) {
+  animation-duration: 42s;
+}
+/* off screen: the drift pauses */
+.home-blocks .block.idle .mw-col {
+  animation-play-state: paused;
+}
+@media (max-width: 860px) {
+  .home-blocks .blocks {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .home-blocks .ms-row {
+    transform: scale(0.74);
+    transform-origin: left bottom;
+  }
+}
+/* reduced motion: the previews do not move */
+@media (prefers-reduced-motion: reduce) {
+  .home-blocks,
+  .home-blocks *,
+  .home-blocks *::before,
+  .home-blocks *::after {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}

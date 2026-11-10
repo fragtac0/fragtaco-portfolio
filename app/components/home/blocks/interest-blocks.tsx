@@ -1,6 +1,7 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import type { SiteBook, SiteVideo } from "../../../types";
 import type { LayerKind } from "../layer/layer-state";
+import "./blocks.css";
 import { miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 
 /** A block comes "near" this far outside the viewport (mockup: rootMargin 240px 0px). */

@@ -1,0 +1,181 @@
+/* the reading shelf (mockup: #shelf, #shelfBlur, .shelf-dim, .book-info) */
+.home-layer .shelf-scene {
+  position: absolute;
+  inset: 0;
+}
+.home-layer .shelf-blur,
+.home-layer .shelf-host,
+.home-layer .shelf-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.home-layer .shelf-canvas {
+  touch-action: none;
+}
+/* the stage has keyboard focus: arrows browse the books, Enter opens one */
+.home-layer .shelf-canvas:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: -6px;
+}
+.home-layer .shelf-blur {
+  opacity: 0;
+  filter: blur(14px) saturate(0.85);
+  transform: scale(1.04);
+  transition: opacity 0.55s ease;
+}
+.home-layer .shelf-blur.on {
+  opacity: 1;
+}
+.home-layer .shelf-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 4, 3, 0.5);
+  opacity: 0;
+  transition: opacity 0.55s ease;
+  pointer-events: none;
+}
+.home-layer .shelf-dim.on {
+  opacity: 1;
+}
+.home-layer .book-info {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: min(380px, 34vw);
+  z-index: 4;
+  opacity: 0;
+  transform: translate3d(16px, -50%, 0);
+  pointer-events: none;
+  transition:
+    opacity 0.45s,
+    transform 0.7s var(--ease);
+  padding: 24px 24px 22px;
+  border-radius: 22px;
+  background: rgba(14, 10, 8, 0.72);
+  outline: 1px solid rgba(253, 252, 230, 0.12);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+.home-layer .book-info.on {
+  opacity: 1;
+  transform: translate3d(0, -50%, 0);
+  pointer-events: auto;
+}
+.home-layer .book-info h3 {
+  font-family: "Space Mono", monospace;
+  font-weight: 700;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1.2;
+  margin: 0 0 10px;
+  color: var(--cream);
+}
+.home-layer .book-info .by {
+  font-size: 12.5px;
+  color: rgba(253, 252, 230, 0.6);
+  margin: 0;
+}
+.home-layer .book-info .note {
+  margin: 20px 0 18px;
+  border: 1px dashed rgba(217, 164, 65, 0.45);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: rgba(217, 164, 65, 0.9);
+  font-size: 12.5px;
+  line-height: 1.75;
+}
+.home-layer .book-info button {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 0;
+  outline: 1px solid rgba(253, 252, 230, 0.22);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  font-size: 12.5px;
+}
+.home-layer .book-info button:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 2px;
+}
+
+@media (max-width: 860px) {
+  .home-layer .book-info {
+    left: 16px !important;
+    right: 16px;
+    top: auto;
+    bottom: 16px;
+    width: auto;
+    transform: translate3d(0, 12px, 0);
+    padding: 18px;
+    background: rgba(14, 10, 8, 0.86);
+  }
+  .home-layer .book-info.on {
+    transform: none;
+  }
+}
+
+/* the book note over the grid: the shelf's note card, centred */
+.home-layer .fb-note-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.home-layer .fb-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 4, 3, 0.78);
+}
+.home-layer .fb-note {
+  position: relative;
+  width: min(380px, 100%);
+  padding: 24px 24px 22px;
+  border-radius: 22px;
+  background: rgba(14, 10, 8, 0.92);
+  outline: 1px solid rgba(253, 252, 230, 0.12);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+.home-layer .fb-note h3 {
+  font-family: "Space Mono", monospace;
+  font-weight: 700;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1.2;
+  margin: 0 0 10px;
+  color: var(--cream);
+}
+.home-layer .fb-note .by {
+  font-size: 12.5px;
+  color: rgba(253, 252, 230, 0.6);
+  margin: 0;
+}
+.home-layer .fb-note .note {
+  margin: 20px 0 18px;
+  border: 1px dashed rgba(217, 164, 65, 0.45);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: rgba(217, 164, 65, 0.9);
+  font-size: 12.5px;
+  line-height: 1.75;
+}
+.home-layer .fb-note button {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 0;
+  outline: 1px solid rgba(253, 252, 230, 0.22);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  font-size: 12.5px;
+}
+.home-layer .fb-note button:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 2px;
+}

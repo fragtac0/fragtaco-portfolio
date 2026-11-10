@@ -123,7 +123,7 @@ export function useCardGestures({
     }
   }, [nav, leftRef, rightRef]);
 
-  // ---- the page does not scroll while a card is open: html and body stop scrolling (see home.css),
+  // ---- the page does not scroll while a card is open: html and body stop scrolling (see cards.css),
   // which also covers the dock, the keyboard and a dragged scrollbar. The cards' own scroll areas
   // still scroll. Removed on close and on unmount.
   const isOpen = nav === "left" || nav === "right";

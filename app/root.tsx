@@ -11,6 +11,7 @@ import type { PropsWithChildren } from "react";
 import PageViewTracker from "./components/page-view-tracker";
 import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
 import appStylesHref from "./styles/tailwind.css?url";
+import tokensHref from "./styles/tokens.css?url";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -28,6 +29,7 @@ export const links: LinksFunction = () => [
   { rel: "shortcut icon", href: "/favicon.ico" },
   { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
   { rel: "stylesheet", href: appStylesHref },
+  { rel: "stylesheet", href: tokensHref },
 ];
 
 export const meta: MetaFunction = () => [

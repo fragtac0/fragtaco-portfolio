@@ -2,6 +2,7 @@ import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { hasWebGL } from "../../../lib/webgl-support";
 import type { SiteVideo } from "../../../types";
 import { useLayerControl } from "../layer/layer-context";
+import "./watching.css";
 import VideoDetail, { type VideoDetailHandle } from "./video-detail";
 import type { WallEngine } from "./wall-engine";
 import WatchingFallback, { gridWall } from "./watching-fallback";
