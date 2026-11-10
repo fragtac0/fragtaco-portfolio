@@ -8,7 +8,9 @@ import {
   nextDelayMs,
   paintingSrc,
   parseFocal,
-  pickFirst,
+  pickNext,
+  firstPaintingSrc,
+  preloadImage,
 } from "./painting-cycle";
 
 describe("parseFocal", () => {
@@ -17,19 +19,6 @@ describe("parseFocal", () => {
   });
   it("falls back to the centre", () => {
     expect(parseFocal("bogus")).toEqual([0.5, 0.5]);
-  });
-});
-
-describe("pickFirst", () => {
-  const items = [{ id: "a" }, { id: "b" }, { id: "c" }];
-  it("avoids recent ids", () => {
-    for (const r of [0, 0.3, 0.5, 0.99]) {
-      expect(pickFirst(items, ["a", "c"], () => r).id).toBe("b");
-    }
-  });
-  it("picks from all when everything is recent", () => {
-    expect(pickFirst(items, ["a", "b", "c"], () => 0).id).toBe("a");
-    expect(pickFirst(items, ["a", "b", "c"], () => 0.99).id).toBe("c");
   });
 });
 
@@ -47,18 +36,48 @@ describe("makeOrder", () => {
 });
 
 describe("nextDelayMs", () => {
-  it("spans 15 to 20 seconds", () => {
-    expect(nextDelayMs(() => 0)).toBe(15000);
-    expect(nextDelayMs(() => 0.999)).toBeLessThan(20000);
+  it("is exactly ten seconds", () => {
+    expect(nextDelayMs()).toBe(10000);
+  });
+});
+
+describe("pickNext", () => {
+  const ids = ["0", "1", "2", "3"];
+  it("takes the next position when it is not recent", () => {
+    expect(pickNext([3, 1, 2, 0], 0, [], ids)).toBe(1);
+  });
+  it("skips a painting among the last three shown", () => {
+    expect(pickNext([3, 1, 2, 0], 0, ["1"], ids)).toBe(2);
+    expect(pickNext([3, 1, 2, 0], 0, ["1", "2"], ids)).toBe(3);
+  });
+  it("wraps round the end of the order", () => {
+    expect(pickNext([3, 1, 2, 0], 3, [], ids)).toBe(0);
+    expect(pickNext([3, 1, 2, 0], 2, ["0"], ids)).toBe(0);
+    expect(pickNext([3, 1, 2, 0], 2, ["0", "3"], ids)).toBe(1);
+  });
+  it("falls back to the plain next one when every other painting is recent", () => {
+    expect(pickNext([3, 1, 2, 0], 0, ["0", "1", "2", "3"], ids)).toBe(1);
+  });
+  it("stays put with a single painting", () => {
+    expect(pickNext([0], 0, ["0"], ["0"])).toBe(0);
   });
 });
 
 describe("paintingSrc", () => {
-  it("uses 1600 on small effective widths", () => {
-    expect(paintingSrc("a.jpg", 375, 3)).toBe("/paintings/1600/a.jpg");
+  it("uses the 1600 copy on a small effective width", () => {
+    expect(paintingSrc("a.jpg", 375, 3, false)).toBe("/paintings/1600/a.jpg");
   });
-  it("uses 2560 on large ones", () => {
-    expect(paintingSrc("a.jpg", 1440, 2)).toBe("/paintings/2560/a.jpg");
+  it("uses the 2560 copy on a large effective width", () => {
+    expect(paintingSrc("a.jpg", 1440, 2, false)).toBe("/paintings/2560/a.jpg");
+  });
+  it("asks for the WebP copy when the browser can show it", () => {
+    expect(paintingSrc("a.jpg", 375, 3, true)).toBe("/paintings/1600/a.webp");
+    expect(paintingSrc("a.jpg", 1440, 2, true)).toBe("/paintings/2560/a.webp");
+  });
+  it("keeps the 1400 rule at the edge", () => {
+    expect(paintingSrc("a.jpg", 1400, 1, true)).toBe("/paintings/1600/a.webp");
+    expect(paintingSrc("a.jpg", 1401, 1, true)).toBe("/paintings/2560/a.webp");
+    expect(paintingSrc("a.jpg", 934, 1.5, false)).toBe("/paintings/2560/a.jpg");
   });
 });
 
@@ -84,5 +103,53 @@ describe("nextRevealTry", () => {
   it("honours a larger limit (the skipped loader, which locks nothing)", () => {
     expect(nextRevealTry(5, 22, 22)).toBe(5);
     expect(nextRevealTry(22, 22, 22)).toBeNull();
+  });
+});
+
+/** The HTML spec's source selection for `srcset` (width descriptors) with `sizes="100vw"`. */
+function srcsetPick(srcset: string, viewportWidth: number, dpr: number): string {
+  const candidates = srcset.split(",").map((c) => {
+    const [url, w] = c.trim().split(/\s+/);
+    return { url, density: parseInt(w, 10) / viewportWidth };
+  });
+  const enough = candidates.filter((c) => c.density >= dpr).sort((a, b) => a.density - b.density);
+  if (enough.length > 0) return enough[0].url;
+  return candidates.sort((a, b) => b.density - a.density)[0].url;
+}
+
+describe("the head preload and the first painting's request", () => {
+  const widths = [320, 375, 390, 412, 430, 600, 768, 820, 1024, 1120, 1280, 1366, 1400, 1401, 1440, 1536, 1920, 2560, 3840];
+  const dprs = [1, 1.25, 1.5, 2, 2.625, 3, 3.5];
+
+  it("preloads the WebP copies, 1600 at 1400w and 2560 at 2560w, as a high priority image", () => {
+    expect(preloadImage("school-of-athens.jpg")).toEqual({
+      rel: "preload",
+      as: "image",
+      type: "image/webp",
+      href: "/paintings/1600/school-of-athens.webp",
+      imageSrcSet: "/paintings/1600/school-of-athens.webp 1400w, /paintings/2560/school-of-athens.webp 2560w",
+      imageSizes: "100vw",
+      fetchpriority: "high",
+    });
+  });
+
+  it("asks for the very file the preload's srcset resolves to, at every width and density", () => {
+    const { imageSrcSet } = preloadImage("a.jpg");
+    for (const w of widths) {
+      for (const dpr of dprs) {
+        expect(firstPaintingSrc("a.jpg", w, dpr, true), `${w}px at ${dpr}x`).toBe(srcsetPick(imageSrcSet, w, dpr));
+      }
+    }
+  });
+
+  it("falls back to the JPEG by the same size rule", () => {
+    expect(firstPaintingSrc("a.jpg", 390, 3, false)).toBe("/paintings/1600/a.jpg");
+    expect(firstPaintingSrc("a.jpg", 1440, 1, false)).toBe("/paintings/2560/a.jpg");
+  });
+
+  it("differs from the later paintings' rule only where the density cap applies", () => {
+    // a 412 px phone at 3.5x: the preload resolves to 2560, the later paintings stay on 1600
+    expect(firstPaintingSrc("a.jpg", 412, 3.5, true)).toBe("/paintings/2560/a.webp");
+    expect(paintingSrc("a.jpg", 412, 3.5, true)).toBe("/paintings/1600/a.webp");
   });
 });

@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, type ReactNode } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, type CSSProperties, type ReactNode } from "react";
 import type { SiteHeroPainting } from "../../../types";
 import "./hero.css";
 import { prefersReducedMotion } from "./hero-runtime";
@@ -21,6 +21,8 @@ interface HeroProps {
   name: string;
   roles: string;
   paintings: SiteHeroPainting[];
+  /** The painting the server picked and preloaded; shown first unless one is remembered. */
+  firstPaintingId: string;
   /** A card is open: the lockup blurs and fades, the caption and cue dim. */
   softened: boolean;
   /** Fires once, when the loader finishes (or at once when it is skipped). */
@@ -38,7 +40,7 @@ interface HeroProps {
  * the caption, the swap timer) and use-loader (the intro timeline, which drives the other two).
  */
 const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
-  { name, roles, paintings, softened, onReady, children },
+  { name, roles, paintings, firstPaintingId, softened, onReady, children },
   ref,
 ) {
   const rootRef = useRef<HTMLElement>(null);
@@ -47,11 +49,11 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
   const blurRef = useRef<0 | 1>(0);
   const parkedRef = useRef({ card: false, layer: false });
   const onReadyRef = useRef(onReady);
-  const dataRef = useRef({ name, paintings });
+  const dataRef = useRef({ name, paintings, firstPaintingId });
 
   useEffect(() => {
     onReadyRef.current = onReady;
-    dataRef.current = { name, paintings };
+    dataRef.current = { name, paintings, firstPaintingId };
   });
 
   useImperativeHandle(
@@ -76,6 +78,13 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
   const cycleRef = usePaintingCycle({ ...runtime, viewRef });
   useLoader({ ...runtime, cycleRef, onReadyRef });
 
+  // The first painting's blurred placeholder, as a CSS backdrop under the canvas. loader.css shows it
+  // only when the page was unlocked by the head script's failsafe before this script joined.
+  const first = paintings.find((p) => p.id === firstPaintingId);
+  const backdrop = first?.blur
+    ? ({ "--hero-blur": `url("${first.blur}")`, "--hero-focal": first.focal } as CSSProperties)
+    : undefined;
+
   const scrollToBlocks = () => {
     const el = rootRef.current;
     if (!el) return;
@@ -94,7 +103,7 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
       data-softened={softened ? "" : undefined}
     >
       <div className="hero-layer">
-        <div className="paint-host" ref={hostRef} aria-hidden="true" />
+        <div className="paint-host" ref={hostRef} style={backdrop} aria-hidden="true" />
         <div className="tex" aria-hidden="true" />
         <div className="vignette" aria-hidden="true" />
         <Lockup name={name} roles={roles} />

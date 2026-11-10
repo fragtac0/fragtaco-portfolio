@@ -10,17 +10,6 @@ export function parseFocal(focal: string): [number, number] {
   return [parseFloat(m[1]) / 100, parseFloat(m[2]) / 100];
 }
 
-/** Random painting for the session's first reveal, excluding recent ids (unless all are recent). */
-export function pickFirst<T extends { id: string }>(
-  items: T[],
-  recent: string[],
-  random: () => number,
-): T {
-  const fresh = items.filter((i) => recent.indexOf(i.id) === -1);
-  const pool = fresh.length > 0 ? fresh : items;
-  return pool[Math.min(pool.length - 1, Math.floor(random() * pool.length))];
-}
-
 /** Permutation of 0..length-1 that starts with `first`; the rest are Fisher-Yates shuffled. */
 export function makeOrder(length: number, first: number, random: () => number): number[] {
   const rest: number[] = [];
@@ -34,15 +23,68 @@ export function makeOrder(length: number, first: number, random: () => number): 
   return [first, ...rest];
 }
 
-/** 15 to 20 s between painting changes. */
-export function nextDelayMs(random: () => number): number {
-  return 15000 + random() * 5000;
+/** Ten seconds between painting changes (L-07). */
+export function nextDelayMs(): number {
+  return 10000;
 }
 
-/** 1600 px copy when the effective width is at most 1400, else the 2560 px copy. */
-export function paintingSrc(file: string, viewportWidth: number, dpr: number): string {
+/**
+ * The position in `order` of the painting that follows `position`, skipping any whose id is in
+ * `recent` (the last three shown). `order` holds indexes into `ids`. When every other painting is
+ * recent it is simply the next one; with a single painting it stays put.
+ */
+export function pickNext(order: number[], position: number, recent: string[], ids: string[]): number {
+  const n = order.length;
+  for (let step = 1; step < n; step++) {
+    const at = (position + step) % n;
+    if (recent.indexOf(ids[order[at]]) === -1) return at;
+  }
+  return n > 0 ? (position + 1) % n : 0;
+}
+
+/** The WebP copy's name, or the manifest's own file name for the JPEG fallback. */
+const copyName = (file: string, webp: boolean) => (webp ? file.replace(/\.[^./]+$/, ".webp") : file);
+
+/**
+ * 1600 px copy when the effective width is at most 1400, else the 2560 px copy. `webp` picks the
+ * WebP file (same name, `.webp`); otherwise the JPEG fallback at the manifest's own file name.
+ */
+export function paintingSrc(file: string, viewportWidth: number, dpr: number, webp: boolean): string {
   const size = viewportWidth * Math.min(dpr, 1.5) <= 1400 ? 1600 : 2560;
-  return `/paintings/${size}/${file}`;
+  return `/paintings/${size}/${copyName(file, webp)}`;
+}
+
+/** The `sizes` of the head preload: the painting covers the viewport's width. */
+export const PRELOAD_SIZES = "100vw";
+
+/**
+ * The first painting's file, chosen the way the browser chooses from the head preload's `srcset`
+ * with `sizes="100vw"`: the 1600 copy (1400w) when `viewportWidth * dpr` is at most 1400, else the
+ * 2560 copy. The runtime asks for this very URL (when the browser can show WebP), so a preload
+ * that already fetched it is reused. It uses the full device pixel ratio, where `paintingSrc` (the
+ * later paintings) caps it at 1.5: a srcset cannot express a cap.
+ */
+export function firstPaintingSrc(file: string, viewportWidth: number, dpr: number, webp: boolean): string {
+  const size = viewportWidth * dpr <= 1400 ? 1600 : 2560;
+  return `/paintings/${size}/${copyName(file, webp)}`;
+}
+
+/**
+ * The `<link rel="preload">` the home route puts in `<head>` for the first painting. `type` makes
+ * a browser that cannot show WebP skip it (it then fetches the JPEG once, at runtime).
+ */
+export function preloadImage(file: string) {
+  const webp = copyName(file, true);
+  return {
+    rel: "preload",
+    as: "image",
+    type: "image/webp",
+    href: `/paintings/1600/${webp}`,
+    imageSrcSet: `/paintings/1600/${webp} 1400w, /paintings/2560/${webp} 2560w`,
+    imageSizes: PRELOAD_SIZES,
+    // lowercase: React 18 warns about the camelCase `fetchPriority` on a DOM element
+    fetchpriority: "high",
+  } as const;
 }
 
 /** The loader's reveal holds the page locked, so it tries the first painting and one more. */

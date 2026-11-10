@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "sync:videos": "vite-node scripts/sync-videos.ts",
+    "paintings": "node scripts/make-paintings.mjs",
     "lint": "eslint . --cache --cache-location .cache/eslint",
     "check": "npm run typecheck && npm run lint && npm run build"
   },
@@ -47,6 +48,7 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.6.0",
+    "sharp": "^0.35.5",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.61.0",
     "vitest": "^3.2.7"

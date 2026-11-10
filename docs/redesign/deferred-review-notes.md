@@ -24,7 +24,7 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-16 | 3 | closes when blocks/scenes land | open |
 | D-17 | 4 | orphaned ui.ts entries (textStyles.displayTitleColumn, factHeadline, factBody, chipLabel, layout.homeContainer) | fixed (R31.4) |
 | D-18 | 4 | orphaned app/components/about/about-copy.tsx and about-portrait.tsx | fixed (R31.4) |
-| D-19 | 4 | make-painting-sizes.sh summary counts stale files | open |
+| D-19 | 4 | make-painting-sizes.sh summary counts stale files | fixed (R33.1): script replaced by make-paintings.mjs, whose table counts only the manifest paintings |
 | D-20 | 4 | no tool check up front | open |
 | D-21 | 4 | HomePageProps hand-written rather than derived from the loader return type | open |
 | D-22 | 5 | letterOut[5] ties logo at 2120ms | open |
@@ -48,7 +48,7 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-40 | 7 | dead code: textStyles.heroTitle/heroSubtitle, surfaces.glassChip, styleUnlessReduced, ken-burns keyframes | fixed (R31.4) |
 | D-41 | 7 | stale refs to hero-section.tsx in client-tile.tsx:22 and hero-paintings.json $comment | open |
 | D-42 | 7 | .tex fallback hidden until hydration on no-WebGL | open |
-| D-43 | 7 | load-image.ts has no timeout | open |
+| D-43 | 7 | load-image.ts has no timeout | closed (already fixed in R30.1: `loadImage` times out after 12 s) |
 | D-44 | 7 | a stalled request stops the painting cycle silently (carry to Task 17 with R9) | open |
 | D-45 | 8 | vacuous margin-floor test | open |
 | D-46 | 8 | SETTLE_AT test echoes the constant (consumer must use >) | open |
@@ -121,4 +121,5 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-113 | 17a | watching hasFailed timing | open |
 | D-114 | 17a | selectors without CSS.escape | open |
 | D-115 | 17a | no tests for fallback components/reduced paths | open |
-| D-116 | 17a | zoomOf ordering | open |
+| D-116 | 17a | zoomOf ordering | fixed (R33.2) |
+| D-117 | 33 | paint-engine.ts 390 lines (over ~350); move shader sources out | open |

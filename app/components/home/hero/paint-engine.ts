@@ -11,6 +11,8 @@
  * context for good.
  */
 
+import { kenBurnsZoom } from "./ken-burns";
+
 export interface PaintMeta {
   /** Focus point of the cover fit, each axis 0..1. */
   focal: [number, number];
@@ -18,10 +20,15 @@ export interface PaintMeta {
   zoom?: number;
 }
 
+/** How a change takes place: the liquid-glass sweep (default), or a plain crossfade. */
+export interface SwapOptions {
+  plain?: boolean;
+}
+
 export interface PaintEngine {
   black(): void;
   reveal(img: HTMLImageElement, meta: PaintMeta, ms: number, done?: () => void): void;
-  swap(img: HTMLImageElement, meta: PaintMeta, ms: number, done?: () => void): void;
+  swap(img: HTMLImageElement, meta: PaintMeta, ms: number, done?: () => void, opts?: SwapOptions): void;
   setBlur(v: 0 | 1): void;
   busy(): boolean;
   moving(): boolean;
@@ -227,6 +234,7 @@ export function createPaint(
   let t0 = 0;
   let dur = 1;
   let dir: [number, number] = [1, 0];
+  let plain = false;
   let done: (() => void) | undefined;
   let blur = 0;
   let blurTo = 0;
@@ -246,11 +254,7 @@ export function createPaint(
     };
   };
 
-  const zoomOf = (i: number, now: number) => {
-    const a = clamp((now - meta[i].born) / 21000);
-    if (reduce) return meta[i].zoom; // no Ken Burns drift
-    return meta[i].zoom * (1 + 0.07 * a * a * (3 - 2 * a));
-  };
+  const zoomOf = (i: number, now: number) => kenBurnsZoom(meta[i].zoom, now - meta[i].born, reduce);
 
   return {
     black() {
@@ -265,12 +269,13 @@ export function createPaint(
       dur = reduce ? REDUCED_REVEAL_MS : ms;
       done = cb;
     },
-    swap(img, m, ms, cb) {
+    swap(img, m, ms, cb, opts) {
       if (disposed) return;
       put(1 - cur, img, m);
       mode = "sweep";
+      plain = !!opts?.plain;
       t0 = performance.now();
-      dur = reduce ? REDUCED_SWAP_MS : ms;
+      dur = reduce && !plain ? REDUCED_SWAP_MS : ms;
       done = cb;
       const a = Math.random() * Math.PI * 2;
       dir = [Math.cos(a), Math.sin(a)];
@@ -334,7 +339,7 @@ export function createPaint(
       } else if (mode === "sweep") {
         const k = clamp((now - t0) / dur);
         pr = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-        if (reduce) {
+        if (reduce || plain) {
           pr = k * k * (3 - 2 * k);
           md = 2;
         }

@@ -1,8 +1,12 @@
-import { json, type MetaFunction } from "@remix-run/node";
+import { json, type HeadersFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData, type ShouldRevalidateFunction } from "@remix-run/react";
 import { getHomePageContent } from "../content/loaders.server";
 import HomePage from "../components/home/home-page";
 import { isHashOnlyMove } from "../lib/revalidate";
+
+// The HTML carries the server's painting pick and its preload, so a shared cache must not reuse it;
+// `no-cache` (not `no-store`) keeps the back/forward cache.
+export const headers: HeadersFunction = () => ({ "Cache-Control": "private, no-cache" });
 
 export const meta: MetaFunction = () => [
   { title: "FragTaco - Aditya Bhoir" },
@@ -16,6 +20,8 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   defaultShouldRevalidate,
 }) => (isHashOnlyMove(currentUrl, nextUrl) ? false : defaultShouldRevalidate);
 
+// `no-store` because the first painting is picked per visit: a cached response would repeat it.
+// root.tsx's Layout reads this route's data to preload that painting in <head>.
 export async function loader() {
   const homePageContent = await getHomePageContent();
 
@@ -25,7 +31,7 @@ export async function loader() {
     },
     {
       headers: {
-        "Cache-Control": "private, max-age=900",
+        "Cache-Control": "private, no-store",
       },
     },
   );

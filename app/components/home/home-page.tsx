@@ -23,6 +23,8 @@ import WatchingScene from "./watching/watching-scene";
 type HomePageProps = {
   home: SiteHomeContent;
   heroPaintings: SiteHeroPainting[];
+  /** The painting the server chose (and preloaded) to show first. */
+  firstPaintingId: string;
   books: SiteBook[];
   videos: SiteVideo[];
   navigationItems: SiteNavigationItem[];
@@ -37,6 +39,7 @@ const navReducer = (state: NavState, { input, ctx }: NavAction): NavState =>
 export default function HomePage({
   home,
   heroPaintings,
+  firstPaintingId,
   books,
   videos,
   navigationItems,
@@ -137,6 +140,7 @@ export default function HomePage({
           name={home.hero.name}
           roles={home.hero.roles}
           paintings={heroPaintings}
+          firstPaintingId={firstPaintingId}
           softened={open}
           onReady={onHeroReady}
         >
