@@ -1,21 +1,9 @@
-import type * as THREE from "three";
 import type { SiteBook } from "~/types";
-import {
-  backCanvas,
-  bandCanvas,
-  blobCanvas,
-  coverCanvas,
-  foreCanvas,
-  softRectCanvas,
-  spineCanvas,
-  topCanvas,
-  woodCanvas,
-} from "./shelf-canvases";
+import { createCoverQueue } from "./shelf-covers";
+import { attachShelfInput, type ShelfInputHandlers } from "./shelf-input";
+import { buildShelfScene, loadShelfFonts, type Book, type ShelfScene } from "./shelf-scene";
 import {
   CAMERA,
-  FRONT,
-  WALLZ,
-  bookSize,
   cameraAt,
   dropProgress,
   easeOut,
@@ -23,6 +11,7 @@ import {
   introSeconds,
   openPhases,
   spring,
+  WALLZ,
 } from "./shelf-math";
 
 /**
@@ -76,59 +65,10 @@ export type ShelfEngine = {
   dispose(): void;
 };
 
-type Three = typeof THREE;
-type Bag = { hover: number; hoverV: number; open: number; openV: number };
-type FlatMesh = THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
-
-type Book = {
-  d: SiteBook;
-  g: THREE.Group;
-  mesh: THREE.Mesh;
-  mats: THREE.MeshStandardMaterial[];
-  coverTex: THREE.CanvasTexture;
-  contact: FlatMesh;
-  wallSh: FlatMesh;
-  H: number;
-  W: number;
-  T: number;
-  base: THREE.Vector3;
-  baseQ: THREE.Quaternion;
-  openPos: THREE.Vector3;
-  /** The numbers the springs animate, kept apart from the three.js objects. */
-  anim: Bag;
-  order: number;
-  tilt: number;
-};
-
-type Gl = {
-  T: Three;
-  renderer: THREE.WebGLRenderer;
-  scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
-  books: Book[];
-  plank: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
-  band: FlatMesh;
-  span: number;
-  dist: number;
-  maxX: number;
-  ray: THREE.Raycaster;
-  ndc: THREE.Vector2;
-  ndc2: THREE.Vector2;
-  fwd: THREE.Vector3;
-  tmpV: THREE.Vector3;
-  tmpQ: THREE.Quaternion;
-  tmpQ2: THREE.Quaternion;
-  yAxis: THREE.Vector3;
-  zAxis: THREE.Vector3;
-  qOpen: THREE.Quaternion;
-};
-
 /** Thrown inside `build()` when the engine is disposed part-way through. */
 class Aborted extends Error {}
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-const fract = (v: number) => v - Math.floor(v);
-const rnd = (i: number) => fract(Math.sin(i * 127.1 + 3.7) * 43758.5453);
 const WIDE = () => window.innerWidth > 860;
 
 const whenIdle = (cb: () => void) => {
@@ -139,11 +79,6 @@ const whenIdle = (cb: () => void) => {
   }
 };
 const nextIdle = () => new Promise<void>((r) => whenIdle(r));
-/** An idle slice with no timeout: it only runs when the main thread has nothing better to do. */
-const idleSlice = (cb: () => void) => {
-  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(cb);
-  else window.setTimeout(cb, 120);
-};
 
 const HINT_FINE = "Hover to pull a book out. Click to open it.";
 const HINT_TOUCH = "Tap a book to open it. Drag to look along the shelf.";
@@ -165,7 +100,7 @@ export function createShelf(
   /** The whole drop-in; nothing falls when motion is reduced. */
   const intro = () => (reduced ? 0 : introSeconds(books.length));
 
-  let gl: Gl | null = null;
+  let gl: ShelfScene | null = null;
   let building: Promise<void> | null = null;
   let failed = false;
   let disposed = false;
@@ -175,62 +110,20 @@ export function createShelf(
   let raf = 0;
   let last = 0;
   let runToken = 0;
-  const disposables: { dispose(): void }[] = [];
-  const images: HTMLImageElement[] = [];
-  let renderer: THREE.WebGLRenderer | null = null;
 
-  // Covers arrive whenever Open Library answers. Each one is decoded off the main thread, then
-  // painted (one per idle slice) and uploaded, and none of that happens during the drop-in or
-  // while a book is open: when the scene is running, the painted canvas waits in `pend` and the
-  // frame loop uploads one per frame after the entrance.
-  type CoverJob = { tex: THREE.CanvasTexture; d: SiteBook; img: HTMLImageElement };
-  const jobs: CoverJob[] = [];
-  const pend: [THREE.CanvasTexture, HTMLCanvasElement][] = [];
-  let painterScheduled = false;
-  let painterTimer = 0;
-  const upload = (t: THREE.CanvasTexture, c: HTMLCanvasElement) => {
-    if (!gl) return;
-    t.image = c;
-    t.needsUpdate = true;
-    gl.renderer.initTexture(t);
-  };
-  /** Not running, or past the entrance with no book open. */
-  const calm = () =>
-    !running || (performance.now() - st.t0 > (intro() + 0.3) * 1000 && !st.opened);
-  const release = (img: HTMLImageElement) => {
-    img.onload = null;
-    img.src = "";
-    const i = images.indexOf(img);
-    if (i >= 0) images.splice(i, 1);
-  };
-  function schedulePainter(delayMs = 0) {
-    if (painterScheduled || disposed) return;
-    painterScheduled = true;
-    if (delayMs > 0) painterTimer = window.setTimeout(() => idleSlice(paintSlice), delayMs);
-    else idleSlice(paintSlice);
-  }
-  function paintSlice() {
-    painterScheduled = false;
-    if (disposed || !gl) return;
-    if (!jobs.length && (running || !pend.length)) return;
-    if (!calm()) {
-      schedulePainter(500);
-      return;
-    }
-    const waiting = !running ? pend.shift() : undefined;
-    if (waiting) {
-      upload(waiting[0], waiting[1]);
-    } else {
-      const job = jobs.shift();
-      if (job) {
-        const c = coverCanvas(job.d, job.img);
-        release(job.img);
-        if (running) pend.push([job.tex, c]);
-        else upload(job.tex, c);
-      }
-    }
-    if (jobs.length || (!running && pend.length)) schedulePainter();
-  }
+  // Real covers: downloaded, decoded, painted and uploaded outside the entrance (shelf-covers.ts).
+  const covers = createCoverQueue({
+    disposed: () => disposed,
+    ready: () => !!gl,
+    running: () => running,
+    calm: () => !running || (performance.now() - st.t0 > (intro() + 0.3) * 1000 && !st.opened),
+    upload(t, c) {
+      if (!gl) return;
+      t.image = c;
+      t.needsUpdate = true;
+      gl.renderer.initTexture(t);
+    },
+  });
 
   // interaction state
   const st = {
@@ -257,209 +150,22 @@ export function createShelf(
     return moved;
   };
 
-  const track = <D extends { dispose(): void }>(d: D): D => {
-    disposables.push(d);
-    return d;
-  };
-
   const announce = (text: string) => {
     if (els?.status) els.status.textContent = text;
   };
 
   // ---- building (idle time, before the layer is ever opened)
 
-  async function build(): Promise<Gl> {
+  async function build(): Promise<ShelfScene> {
     const T = await import("three");
-    if (document.fonts) {
-      await Promise.all(
-        ['500 40px Lora', '700 40px Tektur', '500 20px "IBM Plex Mono"'].map((f) =>
-          document.fonts.load(f),
-        ),
-      ).catch(() => undefined);
-    }
+    await loadShelfFonts();
     if (disposed) throw new Aborted();
-
-    const r = new T.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer = r;
-    r.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
-    r.outputColorSpace = T.SRGBColorSpace;
-    r.toneMapping = T.ACESFilmicToneMapping;
-    r.toneMappingExposure = 1.12;
-    const scene = new T.Scene();
-    const camera = new T.PerspectiveCamera(26, 1, 0.1, 80);
-    scene.add(new T.HemisphereLight(0xfff2df, 0x140b05, 0.75));
-    const key = new T.DirectionalLight(0xfff3e4, 2.6);
-    key.position.set(-2.4, 4.4, 4.6);
-    scene.add(key);
-    const fill = new T.DirectionalLight(0xc9d6ff, 0.35);
-    fill.position.set(3.4, 1.4, 3);
-    scene.add(fill);
-    const rim = new T.DirectionalLight(0xfc4c00, 1.7);
-    rim.position.set(2.6, 2.6, -3.6);
-    scene.add(rim);
-
-    const toTex = (c: HTMLCanvasElement) => {
-      const t = track(new T.CanvasTexture(c));
-      t.colorSpace = T.SRGBColorSpace;
-      t.anisotropy = 8;
-      return t;
-    };
-    const flat = (map: THREE.Texture, opacity: number) =>
-      track(
-        new T.MeshBasicMaterial({
-          map,
-          transparent: true,
-          depthWrite: false,
-          opacity,
-          toneMapped: false,
-        }),
-      );
-    const std = (map: THREE.Texture, roughness: number) =>
-      track(new T.MeshStandardMaterial({ map, roughness, transparent: true }));
-
-    const blobTex = track(new T.CanvasTexture(blobCanvas()));
-    const wallTex = track(new T.CanvasTexture(softRectCanvas()));
-    const bandTex = track(new T.CanvasTexture(bandCanvas()));
-    const unit = track(new T.PlaneGeometry(1, 1));
-
-    const list: Book[] = [];
-    for (let i = 0; i < books.length; i++) {
-      const d = books[i];
-      const { H, W, T: thick } = bookSize(d);
-      const coverTex = toTex(coverCanvas(d, null));
-      const topTex = toTex(topCanvas(d));
-      const mats = [
-        std(toTex(foreCanvas(d)), 0.92),
-        std(toTex(spineCanvas(d, thick, H)), 0.6),
-        std(topTex, 0.92),
-        std(topTex, 0.92),
-        std(coverTex, 0.4),
-        std(toTex(backCanvas(d)), 0.55),
-      ];
-      const mesh = new T.Mesh(track(new T.BoxGeometry(W, H, thick)), mats);
-      const g = new T.Group();
-      g.add(mesh);
-      scene.add(g);
-      const contact = new T.Mesh(unit, flat(blobTex, 0));
-      contact.rotation.x = -Math.PI / 2;
-      scene.add(contact);
-      const wallSh = new T.Mesh(unit, flat(wallTex, 0));
-      wallSh.renderOrder = -1;
-      scene.add(wallSh);
-      // the real cover, from Open Library; a missing one keeps the generated cover
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        if (disposed || img.naturalWidth <= 10) return;
-        // decode now, off the main thread, so painting it later does not stall on the JPEG
-        void img
-          .decode()
-          .catch(() => undefined)
-          .then(() => {
-            if (disposed) return;
-            jobs.push({ tex: coverTex, d, img });
-            schedulePainter();
-          });
-      };
-      img.src = `https://covers.openlibrary.org/b/isbn/${d.isbn}-L.jpg?default=false`;
-      images.push(img);
-      list.push({
-        d,
-        g,
-        mesh,
-        mats,
-        coverTex,
-        contact,
-        wallSh,
-        H,
-        W,
-        T: thick,
-        base: new T.Vector3(),
-        baseQ: new T.Quaternion(),
-        openPos: new T.Vector3(),
-        anim: { hover: 0, hoverV: 0, open: 0, openV: 0 },
-        order: i,
-        tilt: (rnd(i) - 0.5) * 0.4,
-      });
-      if (i % 3 === 2) {
-        await nextIdle(); // texture painting is spread over idle time, a few books at a time
-        if (disposed) throw new Aborted();
-      }
-    }
-
-    const qUp = new T.Quaternion().setFromRotationMatrix(
-      new T.Matrix4().makeBasis(
-        new T.Vector3(0, 0, -1),
-        new T.Vector3(0, 1, 0),
-        new T.Vector3(1, 0, 0),
-      ),
-    );
-    const yAxis = new T.Vector3(0, 1, 0);
-    const zAxis = new T.Vector3(0, 0, 1);
-    const qY = (a: number) => new T.Quaternion().setFromAxisAngle(yAxis, a);
-    const gap = 0.014;
-    const span = list.reduce((s, b) => s + b.T, 0) + gap * (list.length - 1);
-    let x = -span / 2;
-    list.forEach((b, i) => {
-      b.base.set(x + b.T / 2, b.H / 2, FRONT - b.W / 2 + (rnd(i + 3) - 0.5) * 0.04);
-      b.baseQ.copy(qUp).premultiply(qY((rnd(i + 9) - 0.5) * 0.05));
-      x += b.T + gap;
-    });
-    const plank = new T.Mesh(
-      track(new T.BoxGeometry(span + 1, 0.09, FRONT + 0.1 - WALLZ)),
-      std(toTex(woodCanvas()), 0.68),
-    );
-    plank.position.set(0, -0.045, (FRONT + 0.1 + WALLZ) / 2);
-    scene.add(plank);
-    const band = new T.Mesh(unit, flat(bandTex, 0.7));
-    band.scale.set(span + 2.2, 0.9, 1);
-    band.position.set(0.12, -0.5, WALLZ);
-    band.renderOrder = -1;
-    scene.add(band);
-
-    // compile and upload now, so opening the shelf does not stall on its first frame, but in
-    // small idle slices: the shader compile on its own, then a few textures at a time
-    await nextIdle();
-    if (disposed) throw new Aborted();
-    r.compile(scene, camera);
-    const maps = new Set<THREE.Texture>();
-    scene.traverse((o) => {
-      if (!(o instanceof T.Mesh)) return;
-      const ms = (Array.isArray(o.material) ? o.material : [o.material]) as THREE.Material[];
-      for (const m of ms) {
-        const map = (m as THREE.MeshBasicMaterial).map;
-        if (map) maps.add(map);
-      }
-    });
-    const todo = [...maps];
-    for (let i = 0; i < todo.length; i += 3) {
+    // the scene yields between slices; a disposed engine ends the build at the next one
+    const idle = async () => {
       await nextIdle();
       if (disposed) throw new Aborted();
-      for (const map of todo.slice(i, i + 3)) r.initTexture(map);
-    }
-
-    return {
-      T,
-      renderer: r,
-      scene,
-      camera,
-      books: list,
-      plank,
-      band,
-      span,
-      dist: 6,
-      maxX: 0,
-      ray: new T.Raycaster(),
-      ndc: new T.Vector2(-9, -9),
-      ndc2: new T.Vector2(),
-      fwd: new T.Vector3(),
-      tmpV: new T.Vector3(),
-      tmpQ: new T.Quaternion(),
-      tmpQ2: new T.Quaternion(),
-      yAxis,
-      zAxis,
-      qOpen: new T.Quaternion().setFromAxisAngle(yAxis, 0.3),
     };
+    return buildShelfScene(T, canvas, books, idle, (tex, d) => covers.load(tex, d));
   }
 
   // ---- interaction
@@ -527,8 +233,9 @@ export function createShelf(
     const w = Math.round(canvas.width / 2);
     const h = Math.round(canvas.height / 2);
     const bx = els.blur.getContext("2d");
-    els.blur.width = w;
-    els.blur.height = h;
+    // reallocate only when the size changes (assigning a size clears and reallocates the canvas)
+    if (els.blur.width !== w) els.blur.width = w;
+    if (els.blur.height !== h) els.blur.height = h;
     if (bx) {
       bx.clearRect(0, 0, w, h);
       bx.drawImage(canvas, 0, 0, w, h);
@@ -615,12 +322,7 @@ export function createShelf(
     s.camera.position.set(cam.x, camPose.y, camPose.distance);
     s.camera.lookAt(cam.x, camPose.lookY, 0);
 
-    const queued = pend[0];
-    if (queued && el > introS && !st.opened) {
-      pend.shift(); // one late cover per frame
-      upload(queued[0], queued[1]);
-      busy = true;
-    }
+    if (el > introS && !st.opened && covers.drain()) busy = true; // one late cover per frame
 
     const prev = st.hoverHit;
     st.hoverHit =
@@ -684,14 +386,66 @@ export function createShelf(
     }
   }
 
+  const input: ShelfInputHandlers = {
+    running: () => running,
+    opened: () => !!st.opened,
+    pointerMove(e) {
+      if (!gl) return;
+      setNdc(e);
+      st.inside = e.pointerType === "mouse";
+      if (st.down && e.pointerType !== "mouse" && !st.opened) {
+        const dx = e.clientX - st.down.x;
+        if (Math.abs(dx) > 6) st.down.moved = true;
+        cam.x = clamp(
+          st.down.cx - ((dx * gl.dist) / canvas.clientHeight) * 0.9,
+          -gl.maxX,
+          gl.maxX,
+        );
+        cam.xV = 0;
+        st.camTarget = null;
+        st.dirty = true;
+      }
+    },
+    pointerDown(e) {
+      setNdc(e);
+      st.down = { x: e.clientX, cx: cam.x, moved: false };
+    },
+    pointerUp(e) {
+      setNdc(e);
+      const moved = st.down?.moved;
+      st.down = null;
+      if (moved || !gl || !running) return;
+      if (st.opened) {
+        if (!pick([st.opened])) closeBook(true);
+        return;
+      }
+      const hit = pick(gl.books);
+      if (hit) openBook(hit);
+    },
+    pointerCancel: () => (st.down = null),
+    pointerLeave: () => (st.inside = false),
+    blur() {
+      // the keyboard highlight lives only while the stage has focus (opening moves focus on)
+      if (st.opened || st.focusIdx < 0) return;
+      st.focusIdx = -1;
+      st.dirty = true;
+    },
+    arrow: focusNext,
+    enter: openFocused,
+    resize: fit,
+  };
+
   // ---- the engine
 
   function prepare(): Promise<void> {
     building ??= build()
       .then((g) => {
-        if (disposed) return;
+        if (disposed) {
+          g.dispose();
+          return;
+        }
         gl = g;
-        schedulePainter();
+        covers.wake();
       })
       .catch((err: unknown) => {
         if (err instanceof Aborted) return;
@@ -707,7 +461,7 @@ export function createShelf(
     cancelAnimationFrame(raf);
     canvas.style.cursor = "";
     closeBook(false);
-    schedulePainter(); // covers that waited for the scene to be calm can go now
+    covers.wake(); // covers that waited for the scene to be calm can go now
   }
 
   function unmount() {
@@ -728,85 +482,11 @@ export function createShelf(
       next.hint.textContent = opts.fine ? HINT_FINE : HINT_TOUCH;
       setNote(false);
       const ac = new AbortController();
-      const on = { signal: ac.signal };
       listeners = ac;
-
-      canvas.addEventListener(
-        "pointermove",
-        (e) => {
-          if (!gl) return;
-          setNdc(e);
-          st.inside = e.pointerType === "mouse";
-          if (st.down && e.pointerType !== "mouse" && !st.opened) {
-            const dx = e.clientX - st.down.x;
-            if (Math.abs(dx) > 6) st.down.moved = true;
-            cam.x = clamp(
-              st.down.cx - ((dx * gl.dist) / canvas.clientHeight) * 0.9,
-              -gl.maxX,
-              gl.maxX,
-            );
-            cam.xV = 0;
-            st.camTarget = null;
-            st.dirty = true;
-          }
-        },
-        on,
-      );
-      canvas.addEventListener(
-        "pointerdown",
-        (e) => {
-          setNdc(e);
-          st.down = { x: e.clientX, cx: cam.x, moved: false };
-        },
-        on,
-      );
-      canvas.addEventListener(
-        "pointerup",
-        (e) => {
-          setNdc(e);
-          const moved = st.down?.moved;
-          st.down = null;
-          if (moved || !gl || !running) return;
-          if (st.opened) {
-            if (!pick([st.opened])) closeBook(true);
-            return;
-          }
-          const hit = pick(gl.books);
-          if (hit) openBook(hit);
-        },
-        on,
-      );
-      canvas.addEventListener("pointercancel", () => (st.down = null), on);
-      canvas.addEventListener("pointerleave", () => (st.inside = false), on);
-      canvas.addEventListener(
-        "blur",
-        () => {
-          // the keyboard highlight lives only while the stage has focus (opening moves focus on)
-          if (st.opened || st.focusIdx < 0) return;
-          st.focusIdx = -1;
-          st.dirty = true;
-        },
-        on,
-      );
+      attachShelfInput(canvas, input, ac.signal);
       next.info
         .querySelector("button")
-        ?.addEventListener("click", () => closeBook(true), on);
-      window.addEventListener(
-        "keydown",
-        (e) => {
-          if (!running || e.altKey || e.ctrlKey || e.metaKey || st.opened) return;
-          if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-            e.preventDefault();
-            if (document.activeElement !== canvas) canvas.focus({ preventScroll: true });
-            focusNext(e.key === "ArrowRight" ? 1 : -1);
-          } else if (e.key === "Enter" && document.activeElement === canvas) {
-            e.preventDefault();
-            openFocused();
-          }
-        },
-        on,
-      );
-      window.addEventListener("resize", () => running && fit(), on);
+        ?.addEventListener("click", () => closeBook(true), { signal: ac.signal });
     },
 
     async start() {
@@ -849,19 +529,8 @@ export function createShelf(
       if (disposed) return;
       unmount();
       disposed = true;
-      pend.length = 0;
-      jobs.length = 0;
-      window.clearTimeout(painterTimer);
-      for (const img of images) {
-        img.onload = null;
-        img.src = "";
-      }
-      images.length = 0;
-      for (const d of disposables) d.dispose();
-      disposables.length = 0;
-      renderer?.dispose();
-      renderer?.forceContextLoss();
-      renderer = null;
+      covers.clear();
+      gl?.dispose();
       gl = null;
     },
   };

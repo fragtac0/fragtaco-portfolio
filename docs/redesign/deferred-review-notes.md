@@ -89,10 +89,10 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-81 | 13 | tests use span 14 (real ~2.5-3) | open |
 | D-82 | 14 | engine in lazy useState not a ref (sound) | open |
 | D-83 | 14 | MSAA buffer kept while closed | open |
-| D-84 | 14 | openBook reallocates the blur canvas each open | open |
-| D-85 | 14 | fonts.load failure silent | open |
-| D-86 | 14 | images[] retained | open |
-| D-87 | 14 | shelf-engine.ts 801 lines (extract build into shelf-scene.ts) | open |
+| D-84 | 14 | openBook reallocates the blur canvas each open | fixed (R31.2) |
+| D-85 | 14 | fonts.load failure silent | fixed (R31.2) |
+| D-86 | 14 | images[] retained | closed (already released after upload) |
+| D-87 | 14 | shelf-engine.ts 801 lines (extract build into shelf-scene.ts) | fixed (R31.2) |
 | D-88 | 14 | fine/reducedMotion read once | open |
 | D-89 | 14 | three 0.169 is WebGL2-only, R30 fallback must cover no-WebGL2 | open |
 | D-90 | 14 | un-timed cover painter can starve on a never-idle page (cosmetic) | open |
