@@ -60,6 +60,14 @@ export default tseslint.config(
     },
   },
   {
+    // plain Node scripts: linted without type information
+    files: ["scripts/**/*.mjs"],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      globals: { ...globals.node, ...globals.es2022 },
+    },
+  },
+  {
     files: ["*.config.ts"],
     rules: {
       "@typescript-eslint/no-unsafe-assignment": "off",

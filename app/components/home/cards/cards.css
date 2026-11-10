@@ -324,7 +324,6 @@ html.cards-open body {
 
 /* reduced motion: a card opens in place with a fade (home-fade in tokens.css), a plain tint fades in behind it */
 @media (prefers-reduced-motion: reduce) {
-  /* a card opens in place with a fade, a plain tint fades in behind it */
   .home-hero .card.open {
     animation: home-fade 0.3s ease backwards;
   }
