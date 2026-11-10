@@ -1,0 +1,110 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "go": "{{BASE}}/",
+  "wait": 22000
+ },
+ {
+  "label": "click-work",
+  "eval": "(()=>{const a=[...document.querySelectorAll('header[data-site-nav] a')].find(x=>/reel|work/.test(x.textContent)); a.click(); return a.textContent.trim()})()",
+  "shot": "to-work-00"
+ },
+ {
+  "wait": 60,
+  "shot": "to-work-01"
+ },
+ {
+  "wait": 60,
+  "shot": "to-work-02"
+ },
+ {
+  "wait": 60,
+  "shot": "to-work-03"
+ },
+ {
+  "wait": 60,
+  "shot": "to-work-04"
+ },
+ {
+  "wait": 60,
+  "shot": "to-work-05"
+ },
+ {
+  "wait": 60,
+  "shot": "to-work-06"
+ },
+ {
+  "wait": 60,
+  "shot": "to-work-07"
+ },
+ {
+  "wait": 60,
+  "shot": "to-work-08"
+ },
+ {
+  "wait": 60,
+  "shot": "to-work-09"
+ },
+ {
+  "wait": 2000,
+  "shot": "work-warm"
+ },
+ {
+  "shot": "work"
+ },
+ {
+  "label": "click-home",
+  "eval": "(()=>{const a=[...document.querySelectorAll('header[data-site-nav] a')].find(x=>/the cut|home/.test(x.textContent)); a.click(); return a.textContent.trim()})()",
+  "shot": "to-home-00"
+ },
+ {
+  "wait": 60,
+  "shot": "to-home-01"
+ },
+ {
+  "wait": 60,
+  "shot": "to-home-02"
+ },
+ {
+  "wait": 60,
+  "shot": "to-home-03"
+ },
+ {
+  "wait": 60,
+  "shot": "to-home-04"
+ },
+ {
+  "wait": 60,
+  "shot": "to-home-05"
+ },
+ {
+  "wait": 60,
+  "shot": "to-home-06"
+ },
+ {
+  "wait": 60,
+  "shot": "to-home-07"
+ },
+ {
+  "wait": 60,
+  "shot": "to-home-08"
+ },
+ {
+  "wait": 60,
+  "shot": "to-home-09"
+ },
+ {
+  "wait": 2500,
+  "shot": "home-again-warm"
+ },
+ {
+  "shot": "home-again"
+ },
+ {
+  "label": "locks",
+  "eval": "document.documentElement.className"
+ }
+]

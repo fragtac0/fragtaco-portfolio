@@ -1,0 +1,116 @@
+[
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/",
+  "wait": 1200,
+  "shot": "m-load-1200"
+ },
+ {
+  "wait": 1000,
+  "shot": "m-load-2200"
+ },
+ {
+  "wait": 900,
+  "shot": "m-load-3100"
+ },
+ {
+  "wait": 900,
+  "shot": "m-load-4000"
+ },
+ {
+  "wait": 1400,
+  "shot": "m-load-5400"
+ },
+ {
+  "wait": 14000,
+  "shot": "m-hero-warm"
+ },
+ {
+  "shot": "m-hero"
+ },
+ {
+  "tap": [
+   384,
+   420
+  ],
+  "wait": 1500,
+  "shot": "m-intro-warm"
+ },
+ {
+  "shot": "m-intro"
+ },
+ {
+  "tap": [
+   20,
+   120
+  ],
+  "wait": 1200
+ },
+ {
+  "eval": "document.getElementById('below').scrollIntoView(); new Promise(r=>setTimeout(()=>r(scrollY),2000))",
+  "label": "scrolled",
+  "shot": "m-blocks-warm"
+ },
+ {
+  "shot": "m-blocks"
+ },
+ {
+  "eval": "document.querySelector('[data-xp=reading]').click(); 1",
+  "wait": 2500,
+  "shot": "m-shelf-2500"
+ },
+ {
+  "wait": 8000,
+  "shot": "m-shelf-warm"
+ },
+ {
+  "shot": "m-shelf"
+ },
+ {
+  "drag": [
+   300,
+   500,
+   80,
+   500,
+   20
+  ],
+  "wait": 800,
+  "shot": "m-shelf-dragged-warm"
+ },
+ {
+  "shot": "m-shelf-dragged"
+ },
+ {
+  "eval": "document.querySelector('.xp-close')?.click(); 1",
+  "wait": 1800
+ },
+ {
+  "eval": "document.querySelector('[data-xp=watching]').click(); 1",
+  "wait": 2500,
+  "shot": "local-m-wall-2500"
+ },
+ {
+  "wait": 6000,
+  "shot": "local-m-wall-warm"
+ },
+ {
+  "shot": "local-m-wall"
+ },
+ {
+  "tap": [
+   200,
+   470
+  ],
+  "wait": 1900,
+  "shot": "local-m-detail-warm"
+ },
+ {
+  "shot": "local-m-detail"
+ }
+]

@@ -8,3 +8,6 @@ build
 
 .superpowers/
 .vercel
+
+# comparison shots that show YouTube thumbnails or book covers
+docs/redesign/compare/local/

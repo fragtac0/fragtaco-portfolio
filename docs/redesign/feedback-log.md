@@ -2,7 +2,7 @@
 
 Every round of feedback on the home page redesign, what changed in response, and what is still open. Each round lists the requests as given, then what the next mockup did about them. Newest round is at the bottom.
 
-**Status (2026-11-02):** mockup v4 is the signed-off design. The design doc is [`docs/superpowers/specs/2026-11-02-home-redesign-design.md`](../superpowers/specs/2026-11-02-home-redesign-design.md) and the build plan is in `docs/superpowers/plans/`.
+**Status (2026-11-11):** the home page redesign is built (R24 to R30) and live for review at https://fragtaco-portfolio.vercel.app. Round 5 produced an [audit](audit-2026-11-11.md), a [design outline](../superpowers/specs/2026-11-11-polish-and-work-page-design.md) and a [build plan](../superpowers/plans/2026-11-11-polish-and-work-page.md) for a polish pass, a new work page and a timeline page.
 
 ## Contents
 
@@ -10,9 +10,11 @@ Every round of feedback on the home page redesign, what changed in response, and
 2. [Round 1: feedback on v1](#round-1-feedback-on-v1-2026-11-01)
 3. [Round 2: feedback on v2](#round-2-feedback-on-v2-2026-11-02)
 4. [Round 3: feedback on v3](#round-3-feedback-on-v3-2026-11-02)
-5. [Decisions so far](#decisions-so-far)
-6. [Open questions](#open-questions)
-7. [Later, not now](#later-not-now)
+5. [Round 4: feedback on the built shelf and walls](#round-4-feedback-on-the-built-shelf-and-walls-2026-11-05)
+6. [Round 5: audit, polish and the work page](#round-5-audit-polish-and-the-work-page-2026-11-11)
+7. [Decisions so far](#decisions-so-far)
+8. [Open questions](#open-questions)
+9. [Later, not now](#later-not-now)
 
 ---
 
@@ -131,6 +133,40 @@ v2 also held 120 fps on this machine, so these numbers show v3 is smooth here; t
 | Shelf: book tops are clipped, make the shelf slightly smaller so every book shows | The camera now frames 3.05 units of height instead of 2.5 and aims a little higher, so the tallest book (11 in) clears the header with room for its hover lift ([screenshot](screenshots/v4-shelf-fits.jpg)). |
 | Shelf: books come out too fast and the animation looks janky; smoother and a bit slower | Drop-in: each book falls a shorter distance (1.2 instead of 2.6 units) over 1.5 s instead of 0.95 s, fades in as it falls, and the stagger is wider (0.09 s); the whole entrance takes about 2.9 s. Hover pull and opening now use a critically damped spring, so they ease in as well as out (the old lerp started at full speed). Book covers that arrive late are uploaded one per frame after the entrance, never during it. Measured: 120 fps with no frame over 9.4 ms through opening the shelf and the whole drop-in. |
 | A very subtle glow on the main logo | A second, warm drop shadow on the logo: 22 px wide at 20% opacity. |
+
+---
+
+## Round 4: feedback on the built shelf and walls (2026-11-05)
+
+| Asked for | Done (R30) |
+| --- | --- |
+| An opening book overlaps the others; it should come out as it is, then turn; a little slower | The book slides straight out in front of its neighbours, then turns. The open spring is slower. |
+| The heading in both walls is too far into the top-left corner | Both layer headers are inset from the top and sides. |
+| "14 books this year" and the video count go below the heading | Done, on phones too. |
+| A public link for review | https://fragtaco-portfolio.vercel.app (a new Vercel project; not the live site). |
+| The site icon is still Ohshin's photo | The TACO wordmark, cream on ink. |
+
+---
+
+## Round 5: audit, polish and the work page (2026-11-11)
+
+**Asked for:** analyse the whole site and fix every bug without changing how it looks; cleaner, organised code; every change documented. Named problems: the book case animations, the shelf clipped on a phone with no way to slide it, the phone view, layout and symmetry, the wall's animations (more depth and life), the loader, the hero, font and card sizes, glitch frames between pages. Paintings should change every 10 seconds. The dock's first tab should be "home" and open the hero; "reel" becomes "work". A quick blur transition between pages. A completely new work page built on rotating rings, and a timeline of his roles as a grid of squares. Variations to try afterwards.
+
+**Answers to the questions asked:**
+
+| Question | Answer |
+| --- | --- |
+| Name of the home tab | "home" |
+| What one timeline square stands for | One day. The timeline is its own page, starts zoomed out, zooms with mouse or keyboard. |
+| How to reach the timeline | From the work page's switcher only |
+| The glass panes image | Mood only |
+| Where the videos live | YouTube long form, Shorts, Instagram Reels and other places |
+| How many videos | Not known yet; the rings must adapt |
+| Contact section | Skip for now |
+
+**What was produced:** the [audit](audit-2026-11-11.md) (65 findings with evidence), the [design outline](../superpowers/specs/2026-11-11-polish-and-work-page-design.md), the [build plan](../superpowers/plans/2026-11-11-polish-and-work-page.md) (27 tasks, R31 to R39), the [list of 116 deferred review notes](deferred-review-notes.md), the audit tools in `scripts/audit/`, and "before" screenshots in `compare/before/`.
+
+**How it is built:** Sonnet at high effort implements one task at a time; Opus 5.5 reviews every task. At the end: a Vercel preview and a before and after page at `compare/index.html`.
 
 ---
 
