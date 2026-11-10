@@ -46,6 +46,9 @@ type Remembered = NonNullable<ReturnType<typeof recallPainting>>;
 
 export type FoundPainting = { img: HTMLImageElement; k: number };
 
+/** The hero is showing the blurred placeholder; `arrived` is a sharp painting waiting for its reveal to end. */
+type OpenPlaceholder = { over: boolean; arrived: FoundPainting | null };
+
 /** What the loader drives: the first painting, and the cycle that carries on from it. */
 export type PaintingCycle = {
   /** How many paintings there are. */
@@ -74,6 +77,18 @@ export type PaintingCycle = {
    * painting when it arrives. Resolves true once something is on screen.
    */
   presentFirst: () => Promise<boolean>;
+  /**
+   * The loader's reveal when the sharp painting is late: the liquid-glass reveal (`ms`) opens on
+   * the first painting's blurred placeholder instead. Resolves true once it is on screen, false
+   * when there is no placeholder or it fails to load. Does not preload the next painting: the
+   * network is busy with the sharp one.
+   */
+  revealPlaceholder: (ms: number) => Promise<boolean>;
+  /**
+   * After `revealPlaceholder`: when the sharp painting arrives (and the reveal has finished) it
+   * crossfades in over 400 ms. Ignored once the cycle has moved on to another painting.
+   */
+  upgradeWhenLoaded: (pending: Promise<FoundPainting | null>) => void;
   /** Starts the timer for the next swap (ten seconds unless `ms` is given). */
   scheduleNext: (ms?: number) => void;
 };
@@ -126,6 +141,8 @@ export function usePaintingCycle({
     let np = 0;
     let cycleT = 0;
     let nextImg: Promise<HTMLImageElement | null> = Promise.resolve(null);
+    // set while the hero shows the blurred placeholder and the sharp painting has not replaced it
+    let open: OpenPlaceholder | null = null;
     const dpr = () => window.devicePixelRatio || 1;
     const srcAt = (k: number) => paintingSrc(items[order[k]].file, window.innerWidth, dpr(), supportsWebp());
     // The first painting asks for what the preload in <head> fetched (see firstPaintingSrc).
@@ -160,6 +177,7 @@ export function usePaintingCycle({
       if (!view.pageVisible || !view.heroOn || parked.layer || parked.card) return scheduleNext(2500);
       let img = await nextImg;
       if (timers.isDisposed()) return;
+      open = null; // the cycle moves on: a sharp painting arriving now would be out of turn
       oi = np;
       // a painting that fails to load is skipped for the one after it
       for (let t = 0; !img && t < n - 1; t++) {
@@ -201,6 +219,16 @@ export function usePaintingCycle({
       preloadNext();
     };
 
+    // The plain 400 ms fade from the placeholder to the sharp painting (a plain fade under reduced
+    // motion too, on purpose: the engine keeps it at 400 ms).
+    const crossfadeTo = (found: FoundPainting) => {
+      oi = found.k;
+      const p = items[order[oi]];
+      paint.swap(found.img, metaOf(p), PLACEHOLDER_FADE_MS, preloadNext, { plain: true });
+      if (found.k !== 0) setCaption(p, true);
+      shown(p, found.img);
+    };
+
     cycleRef.current = {
       count: n,
       recalled: () => (memory ? { img: memory.img, k: 0 } : null),
@@ -229,13 +257,38 @@ export function usePaintingCycle({
           present(found, 0);
           return true;
         }
-        oi = found.k;
-        const p = items[order[oi]];
-        // a plain 400 ms fade under reduced motion too, on purpose (the engine keeps it at 400 ms)
-        paint.swap(found.img, metaOf(p), PLACEHOLDER_FADE_MS, preloadNext, { plain: true });
-        if (found.k !== 0) setCaption(p, true);
-        shown(p, found.img);
+        crossfadeTo(found);
         return true;
+      },
+      async revealPlaceholder(ms) {
+        const first = n > 0 ? items[order[0]] : null;
+        if (!first?.blur) return false;
+        const blurImg = await loadImage(first.blur);
+        if (!blurImg || timers.isDisposed()) return false;
+        const state: OpenPlaceholder = { over: false, arrived: null };
+        open = state;
+        oi = 0;
+        paint.reveal(blurImg, metaOf(first), ms, () => {
+          state.over = true;
+          if (state.arrived && open === state) {
+            open = null;
+            crossfadeTo(state.arrived);
+          }
+        });
+        setCaption(first);
+        return true;
+      },
+      upgradeWhenLoaded(pending) {
+        void pending.then((found) => {
+          const state = open;
+          if (!found || !state || timers.isDisposed()) return;
+          if (!state.over) {
+            state.arrived = found; // the reveal's end crossfades it
+            return;
+          }
+          open = null;
+          crossfadeTo(found);
+        });
       },
       scheduleNext,
     };

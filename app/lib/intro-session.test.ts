@@ -35,6 +35,8 @@ function run(opts: {
   const removed: string[] = [];
   const keysRead: string[] = [];
   const timers: { fn: () => void; ms: number }[] = [];
+  const win: { __introT0?: number } = {};
+  const performance = { now: () => 123.5 };
   const document = {
     documentElement: {
       classList: { add: (c: string) => added.push(c), remove: (c: string) => removed.push(c) },
@@ -50,7 +52,7 @@ function run(opts: {
   };
   const location = { hash: opts.hash ?? "" };
   const matchMedia = () => ({ matches: !!opts.reduced });
-  // The head script is a string that runs with these five injected globals, so it must be evaluated.
+  // The head script is a string that runs with these seven injected globals, so it must be evaluated.
   // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-call
   new Function(
     "document",
@@ -58,9 +60,11 @@ function run(opts: {
     "location",
     "matchMedia",
     "setTimeout",
+    "performance",
+    "window",
     INTRO_HEAD_SCRIPT,
-  )(document, sessionStorage, location, matchMedia, setTimeout);
-  return { added, removed, keysRead, timers };
+  )(document, sessionStorage, location, matchMedia, setTimeout, performance, win);
+  return { added, removed, keysRead, timers, win };
 }
 
 describe("INTRO_HEAD_SCRIPT", () => {
@@ -80,6 +84,18 @@ describe("INTRO_HEAD_SCRIPT", () => {
   });
   it("adds it for an unrelated hash", () => {
     expect(run({ hash: "#other" }).added).toEqual(["intro"]);
+  });
+  it("records the start time for the loader when it will play", () => {
+    expect(run({}).win.__introT0).toBe(123.5);
+    expect(run({ hash: "#other" }).win.__introT0).toBe(123.5);
+    expect(run({ throwStorage: true }).win.__introT0).toBe(123.5);
+  });
+  it.each([
+    ["seen", { stored: "1" }],
+    ["reduced motion", { reduced: true }],
+    ["a deep link", { hash: "#reading" }],
+  ])("records no start time when %s", (_name, opts) => {
+    expect(run(opts).win.__introT0).toBeUndefined();
   });
   it("schedules a 15 s failsafe that removes the class again", () => {
     const { timers, removed } = run({});

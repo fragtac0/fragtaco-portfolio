@@ -1,7 +1,8 @@
 import { useEffect, useRef, type MutableRefObject } from "react";
 import { INTRO_KEY, introMode } from "../../../lib/intro-session";
 import { createTimers, must, prefersReducedMotion, type HeroRuntime } from "./hero-runtime";
-import { LOADER, loaderSchedule, type LoaderStep } from "./loader-timeline";
+import { LOADER, loaderSchedule, revealPlan, type LoaderStep, type RevealPlan } from "./loader-timeline";
+import { REVEAL_TRIES } from "./painting-cycle";
 import type { PaintingCycle } from "./use-painting-cycle";
 
 type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "dataRef"> & {
@@ -15,6 +16,12 @@ type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "dataRef"> & {
  * loader-timeline. Ported from the mockup's playLoader. Everything is classes on refs and
  * timers cleared on unmount. The page stays locked (html.intro) until `done`, and is never left
  * locked after an unmount.
+ *
+ * The big name is not driven from here: loader.css runs it from first paint under html.intro. This
+ * hook joins the timeline where it is (the head script's `__introT0` is time zero) and performs the
+ * remaining steps at their nominal times, minus what has already passed. The reveal never waits
+ * more than LOADER.revealMaxWait for the painting (see revealPlan); the steps after it move by
+ * however long it did wait, and `done` unlocks the page whether or not the sharp painting arrived.
  */
 export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }: Options) {
   // StrictMode runs the effect twice: ready fires once per component lifetime.
@@ -29,8 +36,6 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
     const n = cycle.count;
     const html = document.documentElement;
 
-    const nameBig = must<HTMLElement>(root, ".name-big");
-    const letters = Array.from(nameBig.children);
     const logo = must<SVGElement>(root, ".logo");
     const logoParts = [
       must<SVGGElement>(root, ".logo .gw"),
@@ -74,8 +79,6 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
       delete root.dataset.final;
       delete root.dataset.fade;
       delete root.dataset.peeks;
-      nameBig.classList.remove("grow");
-      for (const l of letters) l.classList.remove("in", "out");
       // फ्रैग rises as one word (its mask has to move with it), then T, A, C, O
       logo.classList.add("reset");
       logo.classList.remove("in");
@@ -84,7 +87,7 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
           i === 0 ? "0ms" : `${LOADER.logoFirstLetter + (i - 1) * LOADER.logoLetterStep}ms`;
       });
       for (const el of [nameSmall, roleLine, vig, cap, cue]) el.classList.remove("on");
-      void nameBig.offsetWidth;
+      void root.offsetWidth;
       logo.classList.remove("reset");
     };
 
@@ -106,26 +109,28 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
     } else {
       if (!html.classList.contains("intro")) {
         // client navigation to "/": the head script never ran, so this hero locks the page itself
-        // and owns the failsafe, cleared on unmount and harmless once `done` has unlocked
+        // (which also starts the name's CSS now) and owns the failsafe, cleared on unmount and
+        // harmless once `done` has unlocked
         html.classList.add("intro");
+        window.__introT0 = performance.now();
         later(15000, () => html.classList.remove("intro"));
       }
+      // time zero of the loader: when the name's CSS started (the head script's clock)
+      const t0 = window.__introT0 ?? performance.now();
+      const clock = () => performance.now() - t0;
       window.scrollTo(0, 0);
       resetToLoaderStart();
       paint.black();
-      const firstLoad = cycle.firstLoad();
+      // The sharp painting, tried from the start so its download never waits for a step. It resolves
+      // with the first of the first two paintings that loads (or null); readyAt is when, on the clock.
+      const sharp = cycle.firstLoaded(cycle.firstLoad(), Infinity, REVEAL_TRIES);
+      let readyAt: number | null = null;
+      void sharp.then((found) => {
+        if (found) readyAt = clock();
+      });
 
       const act = (s: LoaderStep) => {
         switch (s.step) {
-          case "grow":
-            nameBig.classList.add("grow");
-            break;
-          case "letterIn":
-            letters[s.index ?? 0]?.classList.add("in");
-            break;
-          case "letterOut":
-            letters[s.index ?? 0]?.classList.add("out");
-            break;
           case "logo":
             logo.classList.add("in");
             break;
@@ -158,25 +163,53 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
       const upToReveal = schedule.filter((s) => s.at <= LOADER.reveal);
       const afterReveal = schedule.filter((s) => s.at > LOADER.reveal);
 
-      // The reveal waits for the first painting; the steps after it shift by that wait.
-      // A painting that never arrives, or a throw while showing one, must not stop the timeline:
-      // the page stays locked until `done`.
+      // The reveal waits for the sharp painting at most LOADER.revealMaxWait; after that it opens
+      // on the blurred placeholder and the sharp one crossfades in when it arrives. The steps after
+      // it shift by how long it was held. A throw while showing a painting must not stop the
+      // timeline: the page stays locked until `done`.
       const revealThenContinue = async () => {
+        const planNow = (): RevealPlan =>
+          revealPlan({ paintingReadyAt: readyAt, now: clock(), revealAt: LOADER.reveal });
+        let at: number = LOADER.reveal;
         try {
-          const found = await cycle.firstLoaded(firstLoad, LOADER.firstPaintingMaxWait);
+          let plan = planNow();
+          if (plan.action === "wait") {
+            await timers.atMost(sharp, Math.max(0, plan.at - clock()));
+            if (timers.isDisposed()) return;
+            plan = planNow();
+            // the cut-off came a hair early, or no painting could load at all: stop waiting
+            if (plan.action === "wait") plan = { action: "placeholder", at: clock() };
+          }
+          at = plan.at;
+          const found = plan.action === "sharp" ? await sharp : null;
           if (timers.isDisposed()) return;
           if (found) {
             vig.classList.add("on");
             cycle.present(found, LOADER.revealMs);
+          } else if (plan.action === "placeholder") {
+            const shown = await cycle.revealPlaceholder(LOADER.revealMs);
+            if (timers.isDisposed()) return;
+            if (shown) {
+              vig.classList.add("on");
+              cycle.upgradeWhenLoaded(sharp);
+            } else {
+              // no placeholder to open on: the painting reveals whenever it arrives
+              void sharp.then((late) => {
+                if (!late || timers.isDisposed()) return;
+                vig.classList.add("on");
+                cycle.present(late, LOADER.revealMs);
+              });
+            }
           }
         } catch (err) {
           console.error("hero: could not reveal the first painting", err);
         }
         if (timers.isDisposed()) return;
-        for (const s of afterReveal) later(s.at - LOADER.reveal, () => act(s));
+        const shift = Math.max(0, at - LOADER.reveal);
+        for (const s of afterReveal) later(Math.max(0, s.at + shift - clock()), () => act(s));
       };
 
-      for (const s of upToReveal) later(s.at, () => act(s));
+      for (const s of upToReveal) later(Math.max(0, s.at - clock()), () => act(s));
     }
 
     return () => {
