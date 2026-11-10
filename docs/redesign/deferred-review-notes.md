@@ -24,7 +24,7 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-16 | 3 | closes when blocks/scenes land | open |
 | D-17 | 4 | orphaned ui.ts entries (textStyles.displayTitleColumn, factHeadline, factBody, chipLabel, layout.homeContainer) | fixed (R31.4) |
 | D-18 | 4 | orphaned app/components/about/about-copy.tsx and about-portrait.tsx | fixed (R31.4) |
-| D-19 | 4 | make-painting-sizes.sh summary counts stale files | open |
+| D-19 | 4 | make-painting-sizes.sh summary counts stale files | fixed (R33.1): script replaced by make-paintings.mjs, whose table counts only the manifest paintings |
 | D-20 | 4 | no tool check up front | open |
 | D-21 | 4 | HomePageProps hand-written rather than derived from the loader return type | open |
 | D-22 | 5 | letterOut[5] ties logo at 2120ms | open |

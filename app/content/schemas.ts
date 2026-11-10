@@ -31,6 +31,11 @@ export const HeroPaintingSchema = z.object({
   orientation: z.enum(["landscape", "portrait"]).optional(),
   sourcing: z.literal("verify").optional(),
   missing: z.boolean().optional(),
+  // 24 px JPEG shown while the painting loads; written by scripts/make-paintings.mjs
+  blur: z.string().startsWith("data:image/").max(2499).optional(),
+}).refine((painting) => painting.missing === true || painting.blur !== undefined, {
+  message: "blur is required on a painting that is not missing (run yarn paintings)",
+  path: ["blur"],
 });
 
 export const HeroPaintingsSchema = z.object({

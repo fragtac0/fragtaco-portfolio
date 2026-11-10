@@ -39,10 +39,14 @@ export function nextDelayMs(random: () => number): number {
   return 15000 + random() * 5000;
 }
 
-/** 1600 px copy when the effective width is at most 1400, else the 2560 px copy. */
-export function paintingSrc(file: string, viewportWidth: number, dpr: number): string {
+/**
+ * 1600 px copy when the effective width is at most 1400, else the 2560 px copy. `webp` picks the
+ * WebP file (same name, `.webp`); otherwise the JPEG fallback at the manifest's own file name.
+ */
+export function paintingSrc(file: string, viewportWidth: number, dpr: number, webp: boolean): string {
   const size = viewportWidth * Math.min(dpr, 1.5) <= 1400 ? 1600 : 2560;
-  return `/paintings/${size}/${file}`;
+  const name = webp ? file.replace(/\.[^./]+$/, ".webp") : file;
+  return `/paintings/${size}/${name}`;
 }
 
 /** The loader's reveal holds the page locked, so it tries the first painting and one more. */

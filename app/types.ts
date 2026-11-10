@@ -30,6 +30,8 @@ export interface SiteHeroPainting {
   orientation?: "landscape" | "portrait";
   sourcing?: "verify";
   missing?: boolean;
+  /** `data:image/jpeg;base64,...` of a 24 px wide copy; shown while the painting loads. */
+  blur: string;
 }
 
 export interface SiteCreditsLink {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, type MutableRefObject } from "react";
 import type { SiteHeroPainting } from "../../../types";
 import { createTimers, must, type HeroRuntime, type HeroView } from "./hero-runtime";
-import { loadImage } from "./load-image";
+import { loadImage, supportsWebp } from "../../../utils/load-image";
 import type { PaintMeta } from "./paint-engine";
 import {
   makeOrder,
@@ -98,7 +98,7 @@ export function usePaintingCycle({
     let cycleT = 0;
     let nextImg: Promise<HTMLImageElement | null> = Promise.resolve(null);
     const srcAt = (k: number) =>
-      paintingSrc(items[order[k]].file, window.innerWidth, window.devicePixelRatio || 1);
+      paintingSrc(items[order[k]].file, window.innerWidth, window.devicePixelRatio || 1, supportsWebp());
 
     const setCaption = (p: SiteHeroPainting, animate = false) => {
       const fill = () => {

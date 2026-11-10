@@ -3,6 +3,8 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   BooksSectionSchema,
+  HeroPaintingSchema,
+  HeroPaintingsSchema,
   HomeContentSchema,
   VideosFileSchema,
 } from "./schemas";
@@ -132,5 +134,55 @@ describe("VideosFileSchema", () => {
       items: [{ ...validVideo, id: "short" }],
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("hero-paintings.json", () => {
+  const parsed = HeroPaintingsSchema.parse(readSiteJson("hero-paintings.json"));
+  const loaded = parsed.items.filter((item) => !item.missing);
+
+  it("holds 22 available paintings", () => {
+    expect(loaded).toHaveLength(22);
+  });
+
+  it("gives every loaded painting a small blurred placeholder", () => {
+    for (const item of loaded) {
+      expect(item.blur, item.id).toBeDefined();
+      expect(item.blur!.startsWith("data:image/jpeg;base64,"), item.id).toBe(true);
+      expect(item.blur!.length, item.id).toBeLessThan(2500);
+    }
+  });
+});
+
+describe("HeroPaintingSchema blur", () => {
+  const base = {
+    id: "a",
+    file: "a.jpg",
+    title: "A",
+    artist: "B",
+    year: 1800,
+    focal: "50% 50%",
+  };
+
+  it("accepts a small data image", () => {
+    expect(() =>
+      HeroPaintingSchema.parse({ ...base, blur: "data:image/jpeg;base64,AAAA" }),
+    ).not.toThrow();
+  });
+
+  it("rejects a blur that is not a data image", () => {
+    expect(() =>
+      HeroPaintingSchema.parse({ ...base, blur: "https://example.com/a.jpg" }),
+    ).toThrow();
+  });
+
+  it("rejects a blur of 2,500 characters or more", () => {
+    const blur = `data:image/jpeg;base64,${"A".repeat(2500)}`;
+    expect(() => HeroPaintingSchema.parse({ ...base, blur })).toThrow();
+  });
+
+  it("requires a blur on a painting that is not missing", () => {
+    expect(() => HeroPaintingSchema.parse(base)).toThrow();
+    expect(() => HeroPaintingSchema.parse({ ...base, missing: true })).not.toThrow();
   });
 });

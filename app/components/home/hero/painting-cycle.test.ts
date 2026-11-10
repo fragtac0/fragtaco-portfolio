@@ -54,11 +54,20 @@ describe("nextDelayMs", () => {
 });
 
 describe("paintingSrc", () => {
-  it("uses 1600 on small effective widths", () => {
-    expect(paintingSrc("a.jpg", 375, 3)).toBe("/paintings/1600/a.jpg");
+  it("uses the 1600 copy on a small effective width", () => {
+    expect(paintingSrc("a.jpg", 375, 3, false)).toBe("/paintings/1600/a.jpg");
   });
-  it("uses 2560 on large ones", () => {
-    expect(paintingSrc("a.jpg", 1440, 2)).toBe("/paintings/2560/a.jpg");
+  it("uses the 2560 copy on a large effective width", () => {
+    expect(paintingSrc("a.jpg", 1440, 2, false)).toBe("/paintings/2560/a.jpg");
+  });
+  it("asks for the WebP copy when the browser can show it", () => {
+    expect(paintingSrc("a.jpg", 375, 3, true)).toBe("/paintings/1600/a.webp");
+    expect(paintingSrc("a.jpg", 1440, 2, true)).toBe("/paintings/2560/a.webp");
+  });
+  it("keeps the 1400 rule at the edge", () => {
+    expect(paintingSrc("a.jpg", 1400, 1, true)).toBe("/paintings/1600/a.webp");
+    expect(paintingSrc("a.jpg", 1401, 1, true)).toBe("/paintings/2560/a.webp");
+    expect(paintingSrc("a.jpg", 934, 1.5, false)).toBe("/paintings/2560/a.jpg");
   });
 });
 
