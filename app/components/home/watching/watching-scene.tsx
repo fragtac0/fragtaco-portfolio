@@ -2,32 +2,11 @@ import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { hasWebGL } from "../../../lib/webgl-support";
 import type { SiteVideo } from "../../../types";
 import { useLayerControl } from "../layer/layer-context";
+import "./watching.css";
 import VideoDetail, { type VideoDetailHandle } from "./video-detail";
+import type { PickChannel, WallPick } from "./pick-channel";
 import type { WallEngine } from "./wall-engine";
 import WatchingFallback, { gridWall } from "./watching-fallback";
-
-/** A tile the wall reports as picked: the video, where the tile is, and its key. */
-export type WallPick = { index: number; rect: DOMRect; key: string };
-
-/**
- * The wall engine is created in HomePage, before any scene exists, but a pick has to reach the
- * scene's state: HomePage hands `emit` to `createWall` as `onPick` and the scene subscribes.
- */
-export function createPickChannel() {
-  let handler: ((pick: WallPick) => void) | null = null;
-  return {
-    emit: (index: number, rect: DOMRect, key: string) => {
-      handler?.({ index, rect, key });
-    },
-    subscribe: (fn: (pick: WallPick) => void) => {
-      handler = fn;
-      return () => {
-        if (handler === fn) handler = null;
-      };
-    },
-  };
-}
-export type PickChannel = ReturnType<typeof createPickChannel>;
 
 type WatchingSceneProps = {
   /** Null on the server and until HomePage has created it on the client. */

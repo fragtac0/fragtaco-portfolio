@@ -1,6 +1,7 @@
 import { Link } from "@remix-run/react";
 import type { SiteHomeContent } from "../../../types";
-import { cardClass, inertIf, twoLines, type CardShellProps } from "./card-shell";
+import { inertProps } from "../../../utils/inert";
+import { cardClass, twoLines, type CardShellProps } from "./card-shell";
 
 const PORTRAIT = "/portraits/aditya.jpg";
 
@@ -19,7 +20,7 @@ export default function IntroCard({ about, cardRef, mode, hot }: IntroCardProps)
       ref={cardRef}
       className={cardClass("right", { mode, hot })}
       aria-label="About me"
-      {...inertIf(mode === "hidden")}
+      {...inertProps(mode === "hidden")}
     >
       <button type="button" className="rail" aria-label="Open about me">
         <span>{about.title}</span>
@@ -27,7 +28,7 @@ export default function IntroCard({ about, cardRef, mode, hot }: IntroCardProps)
       <div
         className="card-body intro-body"
         aria-hidden={!open}
-        {...inertIf(!open)}
+        {...inertProps(!open)}
       >
         <div
           className="ph"

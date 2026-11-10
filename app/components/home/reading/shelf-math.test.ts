@@ -8,6 +8,7 @@ import {
   WALLZ,
   bookSize,
   cameraAt,
+  clamp,
   dropProgress,
   easeOut,
   fitCamera,
@@ -166,5 +167,19 @@ describe("openPhases", () => {
   it("clamps o outside 0..1", () => {
     expect(openPhases(-0.5)).toEqual({ pull: 0, present: 0 });
     expect(openPhases(1.5)).toEqual({ pull: 1, present: 1 });
+  });
+});
+
+describe("clamp", () => {
+  it("limits to 0..1 by default", () => {
+    expect(clamp(-0.5)).toBe(0);
+    expect(clamp(0.4)).toBe(0.4);
+    expect(clamp(7)).toBe(1);
+  });
+  it("limits to a given range", () => {
+    expect(clamp(10, 28, 64)).toBe(28);
+    expect(clamp(40, 28, 64)).toBe(40);
+    expect(clamp(99, 28, 64)).toBe(64);
+    expect(clamp(-3, -2, 2)).toBe(-2);
   });
 });

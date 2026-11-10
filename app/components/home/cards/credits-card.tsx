@@ -1,6 +1,7 @@
 import type { SiteCredits } from "../../../types";
 import { creditLinkLabel, creditLinkValue } from "./credit-link";
-import { cardClass, inertIf, twoLines, type CardShellProps } from "./card-shell";
+import { inertProps } from "../../../utils/inert";
+import { cardClass, twoLines, type CardShellProps } from "./card-shell";
 
 type CreditsCardProps = CardShellProps & { credits: SiteCredits };
 
@@ -13,7 +14,7 @@ export default function CreditsCard({ credits, cardRef, mode, hot }: CreditsCard
       ref={cardRef}
       className={cardClass("left", { mode, hot })}
       aria-label="Credits"
-      {...inertIf(mode === "hidden")}
+      {...inertProps(mode === "hidden")}
     >
       <button type="button" className="rail" aria-label="Open credits">
         <span>credits</span>
@@ -22,7 +23,7 @@ export default function CreditsCard({ credits, cardRef, mode, hot }: CreditsCard
         className="card-body card-scroll"
         tabIndex={-1}
         aria-hidden={!open}
-        {...inertIf(!open)}
+        {...inertProps(!open)}
       >
         <div className="cr-head">
           <div

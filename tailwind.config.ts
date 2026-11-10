@@ -48,7 +48,6 @@ const config: Config = {
         site: "1400px",
       },
       minHeight: {
-        "screen-nav": "calc(100dvh - var(--site-nav-height, 61px))",
         "nav-row": "10.5rem",
       },
       height: {
@@ -100,20 +99,6 @@ const config: Config = {
               "0 34px 124px rgba(0,0,0,0.33), 0 0 60px rgba(217,164,65,0.14), inset 0 1px 0 rgba(255,236,214,0.16)",
           },
         },
-        "ken-burns": {
-          "0%": {
-            transform:
-              "scale(calc(1.0 * var(--painting-zoom, 1))) translate3d(0,0,0)",
-          },
-          "50%": {
-            transform:
-              "scale(calc(1.06 * var(--painting-zoom, 1))) translate3d(-1.2%,0.6%,0)",
-          },
-          "100%": {
-            transform:
-              "scale(calc(1.0 * var(--painting-zoom, 1))) translate3d(0,0,0)",
-          },
-        },
         "gate-weave": {
           "0%, 100%": { opacity: "0.5", transform: "translateY(0)" },
           "50%": { opacity: "0.9", transform: "translateY(-6px)" },
@@ -140,7 +125,6 @@ const config: Config = {
         "reach-pulse": "reach-pulse 7.2s ease-in-out infinite",
         "reach-sweep": "reach-sweep 4.4s cubic-bezier(0.16, 1, 0.3, 1) infinite",
         "glass-breathe": "glass-breathe 12s cubic-bezier(0.45, 0, 0.2, 1) infinite",
-        "ken-burns": "ken-burns 34s ease-in-out infinite",
         "gate-weave": "gate-weave 9s ease-in-out infinite",
         "stack-marquee": "stack-marquee 26s linear infinite",
         "ember-drift-a": "ember-drift-a 26s ease-in-out infinite",

@@ -1,24 +1,14 @@
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useMemo, useRef, type CSSProperties } from "react";
 import type { SiteBook, SiteVideo } from "../../../types";
 import type { LayerKind } from "../layer/layer-state";
+import "./blocks.css";
 import { miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
-
-/** A block comes "near" this far outside the viewport (mockup: rootMargin 240px 0px). */
-const NEAR_MARGIN = "240px 0px";
+import { useNear } from "./use-near";
 
 /** The ids the layer and the deep link find the blocks by (mockup: blkRead, blkWatch). */
 export const BLOCK_ID: Record<LayerKind, string> = {
   reading: "blkRead",
   watching: "blkWatch",
-};
-
-const whenIdle = (cb: () => void): (() => void) => {
-  if (typeof window.requestIdleCallback === "function") {
-    const h = window.requestIdleCallback(cb, { timeout: 1200 });
-    return () => window.cancelIdleCallback(h);
-  }
-  const t = window.setTimeout(cb, 120);
-  return () => window.clearTimeout(t);
 };
 
 type InterestBlocksProps = {
@@ -33,49 +23,11 @@ type InterestBlocksProps = {
 export default function InterestBlocks({ books, videos, onOpen, onNear }: InterestBlocksProps) {
   const readRef = useRef<HTMLElement>(null);
   const watchRef = useRef<HTMLElement>(null);
-  const latest = useRef({ onNear });
-  useEffect(() => {
-    latest.current = { onNear };
-  });
-
-  // The previews only animate on screen (the `idle` class pauses them), and each scene starts
-  // preparing, once, in idle time, when its block is near.
-  useEffect(() => {
-    const blocks: [LayerKind, HTMLElement | null][] = [
-      ["reading", readRef.current],
-      ["watching", watchRef.current],
-    ];
-    const fired = new Set<LayerKind>();
-    const pending = new Map<LayerKind, () => void>();
-    const kindOf = new Map<Element, LayerKind>();
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          e.target.classList.toggle("idle", !e.isIntersecting);
-          const kind = kindOf.get(e.target);
-          if (!kind || !e.isIntersecting || fired.has(kind) || pending.has(kind)) continue;
-          pending.set(
-            kind,
-            whenIdle(() => {
-              pending.delete(kind);
-              fired.add(kind);
-              latest.current.onNear(kind);
-            }),
-          );
-        }
-      },
-      { rootMargin: NEAR_MARGIN },
-    );
-    for (const [kind, el] of blocks) {
-      if (!el) continue;
-      kindOf.set(el, kind);
-      io.observe(el);
-    }
-    return () => {
-      io.disconnect();
-      for (const cancel of pending.values()) cancel();
-    };
-  }, []);
+  const blocks = useMemo(
+    () => [["reading", readRef], ["watching", watchRef]] as const,
+    [],
+  );
+  useNear(blocks, onNear);
 
   const columns = miniWallColumns(videos);
 

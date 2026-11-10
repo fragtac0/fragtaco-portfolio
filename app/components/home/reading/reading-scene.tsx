@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState } from "react";
 import { hasWebGL2 } from "../../../lib/webgl-support";
 import type { SiteBook } from "../../../types";
 import { useLayerControl } from "../layer/layer-context";
+import "./reading.css";
 import ReadingFallback from "./reading-fallback";
 import type { ShelfEngine } from "./shelf-engine";
 

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import "./layer.css";
 import { GROW_MS, SCENE_DELAY_MS, type LayerKind, type LayerState } from "./layer-state";
 
 const FULL = "inset(0px 0px 0px 0px round 0px 0px 0px 0px)";

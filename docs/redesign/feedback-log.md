@@ -209,3 +209,7 @@ None open. Asked after v3 and answered on 2026-11-02:
 ## Later, not now
 
 - **Substack articles** on the reading side: a horizontal stack of articles beside the vertical book shelf. Design to come in a later round.
+
+## Build
+
+- R31 structure: tokens and one stylesheet per area, shelf and wall engines split, hooks extracted, orphans removed; no visible change (computed styles identical in 12 states).
