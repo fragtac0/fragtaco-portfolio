@@ -23,9 +23,6 @@ interface DockNavProps {
  * code and data load when the pointer, focus or a finger reaches a tab. */
 const MotionLink = motion.create(Link);
 
-/** An idle label sits at 85% and the active one at 100% (M-04). */
-const IDLE_LABEL_OPACITY = 0.85;
-
 function DockItemIcon({ itemKey }: { itemKey: SiteNavigationItem["key"] }) {
   if (itemKey === "home") {
     return (
@@ -69,8 +66,11 @@ function DockNavItem({ item, isActive, onClick }: DockNavItemProps) {
         />
       ) : null}
       <motion.span
-        className="relative z-10 flex items-center justify-center gap-1.5 sm:gap-2"
-        animate={{ y: isActive ? -1 : 0, opacity: isActive ? 1 : IDLE_LABEL_OPACITY }}
+        // An idle label sits at --dock-idle (85%, tokens.css) and the active one at 100% (M-04).
+        className={`relative z-10 flex items-center justify-center gap-1.5 transition-opacity duration-[180ms] ease-out sm:gap-2 ${
+          isActive ? "opacity-100" : "opacity-[var(--dock-idle)]"
+        }`}
+        animate={{ y: isActive ? -1 : 0 }}
         transition={{ duration: 0.18, ease: "easeOut" }}
       >
         <DockItemIcon itemKey={item.key} />

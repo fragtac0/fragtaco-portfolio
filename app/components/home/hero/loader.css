@@ -158,7 +158,7 @@ html.intro .home-hero .name-big span {
   transform: translate(-50%, 10px);
   margin: 0;
   font-family: "Space Mono", monospace;
-  font-size: clamp(14px, 1.25vw, 20px);
+  font-size: var(--t-lead);
   font-weight: 400;
   letter-spacing: 0.01em;
   color: var(--cream);
@@ -181,7 +181,7 @@ html.intro .home-hero .name-big span {
   margin: 0;
   font-size: clamp(11.5px, 1.05vw, 14.5px);
   letter-spacing: 0.2em;
-  color: rgba(253, 252, 230, 0.92);
+  color: var(--ink-1);
   opacity: 0;
   white-space: nowrap;
   transition:

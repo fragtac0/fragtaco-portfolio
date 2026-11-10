@@ -19,6 +19,9 @@
   --ink-2: rgba(253, 252, 230, 0.72); /* secondary text */
   --ink-3: rgba(253, 252, 230, 0.62); /* quiet text, the lowest allowed */
 
+  /* the dock's idle labels (the active one is 100%) */
+  --dock-idle: 0.85;
+
   /* the only z-index values for page-level layers */
   --z-hero: 1;
   --z-cards: 20;

@@ -215,3 +215,4 @@ None open. Asked after v3 and answered on 2026-11-02:
 - R31 structure: tokens and one stylesheet per area, shelf and wall engines split, hooks extracted, orphans removed; no visible change (computed styles identical in 12 states).
 - R32 dock and page changes: dock reads home and work, home goes to the hero, a quick blur transition between pages (a plain fade with reduced motion), the dock preloads the other page.
 - R33 loader and hero: lighter paintings with WebP and blurred placeholders, the first painting chosen on the server and preloaded, the last painting kept between pages, a new painting every 10 seconds, the name animates from first paint, and the page never stays locked past 6.3 seconds even on a slow connection.
+- R34 type and layout (part 1): the home page's text now uses one type scale (12, 13, 15, 18 px and the display sizes) and three text strengths (92, 72, 62%) from `tokens.css`; card paragraphs are 15 px at line height 1.7.

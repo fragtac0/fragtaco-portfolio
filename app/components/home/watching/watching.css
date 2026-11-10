@@ -49,15 +49,15 @@
   display: block;
   font-family: "Space Mono", monospace;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--t-meta);
   line-height: 1.35;
   color: var(--cream);
 }
 .home-layer .chip span {
   display: block;
   margin-top: 4px;
-  font-size: 11px;
-  color: rgba(253, 252, 230, 0.55);
+  font-size: var(--t-micro);
+  color: var(--ink-3);
 }
 
 /* video detail: channel and subscribers above the shot, title and Watch below (mockup: .vov) */
@@ -95,13 +95,13 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 16px;
-  font-size: 12.5px;
+  font-size: var(--t-meta);
 }
 .home-layer .vtop .ch {
   color: var(--cream);
 }
 .home-layer .vtop .subs {
-  color: rgba(253, 252, 230, 0.5);
+  color: var(--ink-3);
   white-space: nowrap;
 }
 .home-layer .shot {
@@ -141,7 +141,7 @@
   background: #fc4c00;
   color: #120600;
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--t-meta);
   text-decoration: none;
 }
 .home-layer .watch:focus-visible,
@@ -174,7 +174,7 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
-  font-size: 18px;
+  font-size: var(--t-lead);
   opacity: 0;
   transition: opacity 0.3s;
 }

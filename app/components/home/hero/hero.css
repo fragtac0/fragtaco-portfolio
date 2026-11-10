@@ -105,14 +105,14 @@
 .home-hero .caption .t {
   display: block;
   font-style: italic;
-  font-size: 13.5px;
-  color: rgba(253, 252, 230, 0.84);
+  font-size: var(--t-meta);
+  color: var(--ink-1);
 }
 .home-hero .caption .a {
   display: block;
-  font-size: 11px;
+  font-size: var(--t-micro);
   letter-spacing: 0.04em;
-  color: rgba(253, 252, 230, 0.52);
+  color: var(--ink-3);
   margin-top: 4px;
 }
 .home-hero .cue {
@@ -130,9 +130,9 @@
   padding: 6px 10px;
   cursor: pointer;
   font-family: "Space Mono", monospace;
-  font-size: 11.5px;
+  font-size: var(--t-meta);
   letter-spacing: 0.14em;
-  color: rgba(253, 252, 230, 0.6);
+  color: var(--ink-2);
   opacity: 0;
   visibility: hidden; /* keeps the hidden cue out of the tab order until it has appeared */
   pointer-events: none;
@@ -212,9 +212,6 @@
 @media (max-width: 700px) {
   .home-hero .cue {
     display: none;
-  }
-  .home-hero .caption .t {
-    font-size: 12.5px;
   }
 }
 
