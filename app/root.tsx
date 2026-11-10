@@ -10,6 +10,7 @@ import {
 import type { PropsWithChildren } from "react";
 import PageViewTracker from "./components/page-view-tracker";
 import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
+import pageTransitionHref from "./components/page-transition.css?url";
 import appStylesHref from "./styles/tailwind.css?url";
 import tokensHref from "./styles/tokens.css?url";
 
@@ -30,10 +31,11 @@ export const links: LinksFunction = () => [
   { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
   { rel: "stylesheet", href: appStylesHref },
   { rel: "stylesheet", href: tokensHref },
+  { rel: "stylesheet", href: pageTransitionHref },
 ];
 
 export const meta: MetaFunction = () => [
-  { title: "FragTaco — Aditya Bhoir" },
+  { title: "FragTaco - Aditya Bhoir" },
   {
     name: "description",
     content:

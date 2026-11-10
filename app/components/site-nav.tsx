@@ -1,11 +1,11 @@
-import { useLocation, useNavigate } from "@remix-run/react";
+import { PrefetchPageLinks, useLocation, useNavigate } from "@remix-run/react";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ComponentType } from "react";
 import type { SiteNavigationItem, SiteSocialLink } from "../types";
 import DockNav from "./react-bits/dock-nav";
 import { inertProps } from "../utils/inert";
 import { externalLinkProps } from "../utils/link";
-import { isHomeSectionId } from "../utils/nav";
+import { activeNavKey, isHomeSectionId } from "../utils/nav";
 import {
   FaInstagram,
   FaRegEnvelope,
@@ -14,12 +14,12 @@ import {
 } from "react-icons/fa6";
 
 /** The home page drives the dock: it stays down until `revealed`, hides while the layer is open,
- * and "the cut" opens the intro card (via `onAbout`) instead of navigating. */
+ * and the home tab calls `onHome` (close a card or layer, scroll to the top) instead of navigating.
+ * Other pages pass no `home`, so the home tab is then an ordinary link to `/`. */
 export interface SiteNavHome {
   revealed: boolean;
   hidden: boolean;
-  aboutOpen: boolean;
-  onAbout: () => void;
+  onHome: () => void;
 }
 
 interface SiteNavProps {
@@ -55,23 +55,19 @@ export default function SiteNav({
   const hideTimeoutRef = useRef<number | null>(null);
   const tickingRef = useRef(false);
   const [isDockHidden, setIsDockHidden] = useState(false);
+  // Set once a pointer (a mouse or a finger) or the keyboard reaches the dock: from then on the other tabs' pages
+  // preload at once (a <Link prefetch="intent"> alone waits 100 ms, and a tap does not last that long).
+  const [dockReached, setDockReached] = useState(false);
+  const reachDock = () => setDockReached(true);
   const isHomePage = location.pathname === "/";
   const visibleItems = items.filter(
-    (item): item is SiteNavigationItem =>
-      item.key === "about" || item.key === "projects",
+    (item): item is SiteNavigationItem => item.key === "home" || item.key === "work",
   );
   const visibleSocialLinks = socialLinks.filter((link) =>
     Object.hasOwn(SOCIAL_ICON_MAP, link.label.toLowerCase()),
   );
 
-  // On the home page "the cut" is active only while the intro card is open.
-  const activeKey = location.pathname.startsWith("/work")
-    ? "projects"
-    : home
-      ? home.aboutOpen
-        ? "about"
-        : null
-      : "about";
+  const activeKey = activeNavKey(location.pathname);
   // Until the cards rise, and while the layer is open, the dock is down and out of the tab order.
   const isDockDown = home ? !home.revealed || home.hidden : false;
 
@@ -107,18 +103,13 @@ export default function SiteNav({
     event: MouseEvent<HTMLAnchorElement>,
     item: SiteNavigationItem,
   ) => {
-    if (item.key === "projects") {
-      return;
-    }
+    // Only the home tab, pressed on the home page, is handled here; every other tab is a plain link.
+    if (item.key !== "home" || !home || !isHomePage) return;
+    // Let a new-tab or new-window click through.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
 
     event.preventDefault();
-
-    if (home && isHomePage) {
-      home.onAbout();
-      return;
-    }
-
-    navigate(`/#${item.key}`);
+    home.onHome();
   };
 
   useEffect(() => {
@@ -178,7 +169,11 @@ export default function SiteNav({
       data-site-nav
       {...inertProps(isDockDown)}
     >
-      <div className="pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden rounded-full border border-fog/14 bg-[rgba(17,12,8,0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5">
+      <div
+        onPointerEnter={reachDock}
+        onPointerDown={reachDock}
+        onFocus={reachDock}
+        className="pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden rounded-full border border-fog/14 bg-[rgba(17,12,8,0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5">
         <span
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(180deg,rgba(255,236,214,0.16),rgba(255,236,214,0.04)_42%,rgba(0,0,0,0.14))]"
@@ -227,6 +222,11 @@ export default function SiteNav({
           ) : null}
         </nav>
       </div>
+      {dockReached
+        ? visibleItems
+            .filter((item) => item.key !== activeKey)
+            .map((item) => <PrefetchPageLinks key={item.key} page={item.href} />)
+        : null}
     </header>
   );
 }

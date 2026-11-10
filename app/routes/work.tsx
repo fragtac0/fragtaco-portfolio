@@ -5,7 +5,7 @@ import SiteNav from "../components/site-nav";
 import { getWorkPageContent } from "../content/loaders.server";
 
 export const meta: MetaFunction = () => [
-  { title: "Reel — FragTaco" },
+  { title: "Work - FragTaco" },
 ];
 
 export async function loader() {

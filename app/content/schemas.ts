@@ -240,7 +240,7 @@ export const ReachOutSectionSchema = z.object({
 });
 
 export const NavigationItemSchema = z.object({
-  key: z.enum(["about", "projects"]),
+  key: z.enum(["home", "work"]),
   label: z.string().min(1),
   href: z.string().min(1),
   visible: z.boolean(),
