@@ -29,8 +29,9 @@ import {
 } from "./layer/layer-state";
 import ReadingScene from "./reading/reading-scene";
 import { createShelf, type ShelfEngine } from "./reading/shelf-engine";
+import { createPickChannel } from "./watching/pick-channel";
 import { createWall, type WallEngine } from "./watching/wall-engine";
-import WatchingScene, { createPickChannel } from "./watching/watching-scene";
+import WatchingScene from "./watching/watching-scene";
 
 type HomePageProps = {
   home: SiteHomeContent;

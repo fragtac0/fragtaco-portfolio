@@ -102,11 +102,11 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-94 | 15 | capacity cap not pinned to 112 | open |
 | D-95 | 15 | tileTransform input/output both named w | open |
 | D-96 | 15 | unused cols option and DRIFT export | open |
-| D-97 | 16 | createPickChannel exported from a component file (Fast Refresh) | open |
+| D-97 | 16 | createPickChannel exported from a component file (Fast Refresh) | fixed (R31.3) |
 | D-98 | 16 | right-click/non-primary pointers open tiles | open |
 | D-99 | 16 | no webglcontextlost handling | open |
-| D-100 | 16 | shaders not deleted | open |
-| D-101 | 16 | failed Images retained | open |
+| D-100 | 16 | shaders not deleted | fixed (R31.3) |
+| D-101 | 16 | failed Images retained | fixed (R31.3) |
 | D-102 | 16 | visible hint never mentions keyboard | open |
 | D-103 | 16 | .xp-head inert set via DOM query | open |
 | D-104 | 16 | wall-engine.ts 784 lines | open |
