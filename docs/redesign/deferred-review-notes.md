@@ -123,3 +123,5 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-115 | 17a | no tests for fallback components/reduced paths | open |
 | D-116 | 17a | zoomOf ordering | fixed (R33.2) |
 | D-117 | 33 | paint-engine.ts 390 lines (over ~350); move shader sources out | open |
+| D-118 | 34 | the layer's video title `clamp(18px, 2vw, 28px)` (watching.css) passes through 19 to 23px between about 950 and 1200 px wide; the audited widths (390, 1440) are on the scale | open |
+| D-119 | 34 | at 320 px wide the dock strip is 18 px wider than its pill (scrollable, `overflow-x: auto`), so the last social icon is partly out of sight until scrolled; same before and after R34.1b | open |
