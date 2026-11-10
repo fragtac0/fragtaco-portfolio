@@ -1,7 +1,7 @@
 import { useEffect, useRef, type MutableRefObject } from "react";
-import { INTRO_KEY, introMode } from "../../../lib/intro-session";
+import { INTRO_KEY, introMode, joinLoader } from "../../../lib/intro-session";
 import { createTimers, must, prefersReducedMotion, type HeroRuntime } from "./hero-runtime";
-import { LOADER, loaderSchedule, revealPlan, type LoaderStep, type RevealPlan } from "./loader-timeline";
+import { INTRO_LOCK_MS, LOADER, loaderSchedule, revealPlan, type LoaderStep, type RevealPlan } from "./loader-timeline";
 import { REVEAL_TRIES } from "./painting-cycle";
 import type { PaintingCycle } from "./use-painting-cycle";
 
@@ -10,6 +10,9 @@ type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "dataRef"> & {
   /** Fires once, when the loader finishes (or at once when it is skipped). */
   onReadyRef: MutableRefObject<() => void>;
 };
+
+// counts effect runs, so a cleanup can tell an unmount from StrictMode's immediate re-run
+let effectRuns = 0;
 
 /**
  * The loader that plays once per session (or its skipped form), driven by the timeline in
@@ -22,6 +25,8 @@ type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "dataRef"> & {
  * remaining steps at their nominal times, minus what has already passed. The reveal never waits
  * more than LOADER.revealMaxWait for the painting (see revealPlan); the steps after it move by
  * however long it did wait, and `done` unlocks the page whether or not the sharp painting arrived.
+ * The lock never outlasts INTRO_LOCK_MS on the head clock (the head script's failsafe); a bundle
+ * that joins after that takes the skipped form (see joinLoader).
  */
 export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }: Options) {
   // StrictMode runs the effect twice: ready fires once per component lifetime.
@@ -32,6 +37,9 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
     const paint = engineRef.current;
     const cycle = cycleRef.current;
     if (!root || !paint || !cycle) return;
+    const run = ++effectRuns;
+    // from here the script drives the hero: the pre-script look in loader.css (see intro-timeout) ends
+    root.dataset.js = "";
     const { name: heroName } = dataRef.current;
     const n = cycle.count;
     const html = document.documentElement;
@@ -57,6 +65,16 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
       /* blocked storage counts as not seen, as in the head script */
     }
     const mode = introMode({ seen, hash: window.location.hash, reducedMotion: reduced });
+    // The head script's clock (undefined when it never ran: a client navigation). A bundle that
+    // joins after the lock bound, or after the failsafe unlocked the page, takes the skipped form
+    // and never locks the page again (see joinLoader).
+    let t0 = window.__introT0;
+    const joined = joinLoader({
+      mode,
+      t0,
+      now: performance.now(),
+      locked: html.classList.contains("intro"),
+    });
 
     const fireReady = () => {
       if (readyFiredRef.current) return;
@@ -91,9 +109,16 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
       logo.classList.remove("reset");
     };
 
-    if (mode === "skip") {
-      html.classList.remove("intro");
+    if (joined === "skip" || joined === "late") {
+      html.classList.remove("intro", "intro-timeout");
       showFinal();
+      if (joined === "late") {
+        try {
+          sessionStorage.setItem(INTRO_KEY, "1");
+        } catch {
+          /* blocked storage: the loader plays again next visit */
+        }
+      }
       fireReady();
       const recalled = cycle.recalled();
       if (recalled) {
@@ -107,17 +132,18 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
         });
       }
     } else {
-      if (!html.classList.contains("intro")) {
+      if (joined === "client") {
         // client navigation to "/": the head script never ran, so this hero locks the page itself
         // (which also starts the name's CSS now) and owns the failsafe, cleared on unmount and
         // harmless once `done` has unlocked
         html.classList.add("intro");
-        window.__introT0 = performance.now();
-        later(15000, () => html.classList.remove("intro"));
+        t0 = performance.now();
+        window.__introT0 = t0;
+        later(INTRO_LOCK_MS, () => html.classList.remove("intro"));
       }
       // time zero of the loader: when the name's CSS started (the head script's clock)
-      const t0 = window.__introT0 ?? performance.now();
-      const clock = () => performance.now() - t0;
+      const start = t0 ?? performance.now();
+      const clock = () => performance.now() - start;
       window.scrollTo(0, 0);
       resetToLoaderStart();
       paint.black();
@@ -144,7 +170,7 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
             roleLine.classList.add("on");
             break;
           case "done":
-            html.classList.remove("intro");
+            html.classList.remove("intro", "intro-timeout");
             cap.classList.add("on");
             cue.classList.add("on");
             root.dataset.peeks = "";
@@ -168,8 +194,9 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
       // it shift by how long it was held. A throw while showing a painting must not stop the
       // timeline: the page stays locked until `done`.
       const revealThenContinue = async () => {
-        const planNow = (): RevealPlan =>
-          revealPlan({ paintingReadyAt: readyAt, now: clock(), revealAt: LOADER.reveal });
+        // a bundle that joins after the nominal cue reveals at once, and its 1.5 s start there
+        const revealAt = Math.max(LOADER.reveal, clock());
+        const planNow = (): RevealPlan => revealPlan({ paintingReadyAt: readyAt, now: clock(), revealAt });
         let at: number = LOADER.reveal;
         try {
           let plan = planNow();
@@ -193,12 +220,9 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
               vig.classList.add("on");
               cycle.upgradeWhenLoaded(sharp);
             } else {
-              // no placeholder to open on: the painting reveals whenever it arrives
-              void sharp.then((late) => {
-                if (!late || timers.isDisposed()) return;
-                vig.classList.add("on");
-                cycle.present(late, LOADER.revealMs);
-              });
+              // no placeholder to open on: the painting reveals whenever it arrives, if still in turn
+              vig.classList.add("on");
+              cycle.presentLate(sharp, LOADER.revealMs);
             }
           }
         } catch (err) {
@@ -214,8 +238,14 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
 
     return () => {
       timers.dispose();
-      // never leave the page locked: the next run adds it back if its loader plays
-      html.classList.remove("intro");
+      // Never leave the page locked once the hero is gone, and forget this run's clock so a later
+      // visit to "/" starts its own. StrictMode (dev) re-runs the effect at once: then it carries on
+      // with the same clock and the name's animation is not restarted.
+      window.setTimeout(() => {
+        if (effectRuns !== run) return;
+        html.classList.remove("intro", "intro-timeout");
+        delete window.__introT0;
+      }, 0);
     };
   }, [rootRef, engineRef, dataRef, cycleRef, onReadyRef]);
 }

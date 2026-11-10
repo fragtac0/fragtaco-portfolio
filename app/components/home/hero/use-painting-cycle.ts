@@ -89,6 +89,11 @@ export type PaintingCycle = {
    * crossfades in over 400 ms. Ignored once the cycle has moved on to another painting.
    */
   upgradeWhenLoaded: (pending: Promise<FoundPainting | null>) => void;
+  /**
+   * The reveal for a painting that arrives late with no placeholder to open on: reveals it when it
+   * arrives, unless the cycle has already moved on to another painting by then.
+   */
+  presentLate: (pending: Promise<FoundPainting | null>, ms: number) => void;
   /** Starts the timer for the next swap (ten seconds unless `ms` is given). */
   scheduleNext: (ms?: number) => void;
 };
@@ -143,6 +148,8 @@ export function usePaintingCycle({
     let nextImg: Promise<HTMLImageElement | null> = Promise.resolve(null);
     // set while the hero shows the blurred placeholder and the sharp painting has not replaced it
     let open: OpenPlaceholder | null = null;
+    // counts the cycle's moves to another painting, so a late arrival can tell it is out of turn
+    let moves = 0;
     const dpr = () => window.devicePixelRatio || 1;
     const srcAt = (k: number) => paintingSrc(items[order[k]].file, window.innerWidth, dpr(), supportsWebp());
     // The first painting asks for what the preload in <head> fetched (see firstPaintingSrc).
@@ -178,6 +185,7 @@ export function usePaintingCycle({
       let img = await nextImg;
       if (timers.isDisposed()) return;
       open = null; // the cycle moves on: a sharp painting arriving now would be out of turn
+      moves++;
       oi = np;
       // a painting that fails to load is skipped for the one after it
       for (let t = 0; !img && t < n - 1; t++) {
@@ -288,6 +296,13 @@ export function usePaintingCycle({
           }
           open = null;
           crossfadeTo(found);
+        });
+      },
+      presentLate(pending, ms) {
+        const at = moves;
+        void pending.then((found) => {
+          if (!found || timers.isDisposed() || moves !== at) return;
+          present(found, ms);
         });
       },
       scheduleNext,

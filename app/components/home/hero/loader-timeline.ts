@@ -21,6 +21,13 @@ export const LOADER = {
   revealMaxWait: 1500,
 } as const;
 
+/**
+ * The longest the page may stay scroll-locked, on the head script's clock: the nominal end of the
+ * loader plus the longest the reveal can be held. The head script's failsafe removes html.intro
+ * here, so a slow or failed bundle can only ever delay the visuals, never the page.
+ */
+export const INTRO_LOCK_MS = LOADER.done + LOADER.revealMaxWait;
+
 export type LoaderStep = { at: number; step: string; index?: number };
 
 /**

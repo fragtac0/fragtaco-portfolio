@@ -208,3 +208,28 @@ html.intro .home-hero .name-big span {
     animation: none !important;
   }
 }
+
+/*
+ * Unlocked before the script joined. The head script's failsafe removes html.intro at 6.3 s and adds
+ * html.intro-timeout; if the bundle has not run by then (the hero has no data-js yet) the page must
+ * not be black: the final lockup shows (it rises and fades in with the usual transitions) over the
+ * first painting's blurred placeholder, set by hero.tsx as --hero-blur. The hero's script sets
+ * data-js on mount and applies the same final state with its own classes, and the canvas then
+ * covers the backdrop, so nothing changes once it runs.
+ */
+html.intro-timeout .home-hero:not([data-js]) .paint-host {
+  background: var(--hero-blur) var(--hero-focal, 50% 50%) / cover no-repeat;
+}
+html.intro-timeout .home-hero:not([data-js]) .vignette {
+  opacity: 1;
+}
+html.intro-timeout .home-hero:not([data-js]) .logo .gw,
+html.intro-timeout .home-hero:not([data-js]) .logo .gl {
+  transform: none;
+  opacity: 1;
+}
+html.intro-timeout .home-hero:not([data-js]) .name-small,
+html.intro-timeout .home-hero:not([data-js]) .roles {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}

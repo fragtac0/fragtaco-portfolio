@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, type ReactNode } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, type CSSProperties, type ReactNode } from "react";
 import type { SiteHeroPainting } from "../../../types";
 import "./hero.css";
 import { prefersReducedMotion } from "./hero-runtime";
@@ -78,6 +78,13 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
   const cycleRef = usePaintingCycle({ ...runtime, viewRef });
   useLoader({ ...runtime, cycleRef, onReadyRef });
 
+  // The first painting's blurred placeholder, as a CSS backdrop under the canvas. loader.css shows it
+  // only when the page was unlocked by the head script's failsafe before this script joined.
+  const first = paintings.find((p) => p.id === firstPaintingId);
+  const backdrop = first?.blur
+    ? ({ "--hero-blur": `url("${first.blur}")`, "--hero-focal": first.focal } as CSSProperties)
+    : undefined;
+
   const scrollToBlocks = () => {
     const el = rootRef.current;
     if (!el) return;
@@ -96,7 +103,7 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
       data-softened={softened ? "" : undefined}
     >
       <div className="hero-layer">
-        <div className="paint-host" ref={hostRef} aria-hidden="true" />
+        <div className="paint-host" ref={hostRef} style={backdrop} aria-hidden="true" />
         <div className="tex" aria-hidden="true" />
         <div className="vignette" aria-hidden="true" />
         <Lockup name={name} roles={roles} />
