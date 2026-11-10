@@ -22,8 +22,8 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-14 | 3 | long destructuring line in loaders.server.ts:35 | open |
 | D-15 | 3 | home response carries books+videos (~18 KB) before anything renders them | open |
 | D-16 | 3 | closes when blocks/scenes land | open |
-| D-17 | 4 | orphaned ui.ts entries (textStyles.displayTitleColumn, factHeadline, factBody, chipLabel, layout.homeContainer) | open |
-| D-18 | 4 | orphaned app/components/about/about-copy.tsx and about-portrait.tsx | open |
+| D-17 | 4 | orphaned ui.ts entries (textStyles.displayTitleColumn, factHeadline, factBody, chipLabel, layout.homeContainer) | fixed (R31.4) |
+| D-18 | 4 | orphaned app/components/about/about-copy.tsx and about-portrait.tsx | fixed (R31.4) |
 | D-19 | 4 | make-painting-sizes.sh summary counts stale files | open |
 | D-20 | 4 | no tool check up front | open |
 | D-21 | 4 | HomePageProps hand-written rather than derived from the loader return type | open |
@@ -45,7 +45,7 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-37 | 7 | hero.tsx 434 lines, one ~290-line effect | open |
 | D-38 | 7 | loader/cycle logic untestable inside the closure - extract before it grows | open |
 | D-39 | 7 | IntersectionObserver reads first entry, should read last | open |
-| D-40 | 7 | dead code: textStyles.heroTitle/heroSubtitle, surfaces.glassChip, styleUnlessReduced, ken-burns keyframes | open |
+| D-40 | 7 | dead code: textStyles.heroTitle/heroSubtitle, surfaces.glassChip, styleUnlessReduced, ken-burns keyframes | fixed (R31.4) |
 | D-41 | 7 | stale refs to hero-section.tsx in client-tile.tsx:22 and hero-paintings.json $comment | open |
 | D-42 | 7 | .tex fallback hidden until hydration on no-WebGL | open |
 | D-43 | 7 | load-image.ts has no timeout | open |
@@ -109,7 +109,7 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-101 | 16 | failed Images retained | fixed (R31.3) |
 | D-102 | 16 | visible hint never mentions keyboard | open |
 | D-103 | 16 | .xp-head inert set via DOM query | open |
-| D-104 | 16 | wall-engine.ts 784 lines | open |
+| D-104 | 16 | wall-engine.ts 784 lines | open: 396 lines after R31.3 (the engine, GL, thumbnails and input are split), stays open until Task 15 |
 | D-105 | 16 | detail shot no onError fallback / no wait for img | open |
 | D-106 | 16 | reduced motion still redraws every frame and keeps a 0.2 s vfade delay | open |
 | D-107 | 16 | pre-size uses innerWidth/innerHeight vs sizes() clientWidth (classic scrollbars may still resize once on first open) | open |

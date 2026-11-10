@@ -1,0 +1,85 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "go": "{{BASE}}/",
+  "wait": 8000,
+  "eval": "JSON.stringify([location.hash, history.state&&{idx:history.state.idx,xp:history.state.xp}, !!document.querySelector(\".home-layer.on\"), document.documentElement.className])",
+  "label": "loaded"
+ },
+ {
+  "eval": "document.getElementById(\"below\").scrollIntoView(); new Promise(r=>setTimeout(r,1500)).then(()=>JSON.stringify([location.hash, history.state&&{idx:history.state.idx,xp:history.state.xp}, !!document.querySelector(\".home-layer.on\"), document.documentElement.className]))",
+  "label": "blocks"
+ },
+ {
+  "eval": "document.querySelector(\"[data-xp=reading]\").click(); new Promise(r=>setTimeout(r,2500)).then(()=>JSON.stringify([location.hash, history.state&&{idx:history.state.idx,xp:history.state.xp}, !!document.querySelector(\".home-layer.on\"), document.documentElement.className]))",
+  "label": "open-reading"
+ },
+ {
+  "eval": "history.back(); new Promise(r=>setTimeout(r,1800)).then(()=>JSON.stringify([location.hash, history.state&&{idx:history.state.idx,xp:history.state.xp}, !!document.querySelector(\".home-layer.on\"), document.documentElement.className]))",
+  "label": "back"
+ },
+ {
+  "eval": "history.forward(); new Promise(r=>setTimeout(r,2500)).then(()=>JSON.stringify([location.hash, history.state&&{idx:history.state.idx,xp:history.state.xp}, !!document.querySelector(\".home-layer.on\"), document.documentElement.className]))",
+  "label": "forward"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1500,
+  "eval": "JSON.stringify([location.hash, history.state&&{idx:history.state.idx,xp:history.state.xp}, !!document.querySelector(\".home-layer.on\"), document.documentElement.className])",
+  "label": "esc"
+ },
+ {
+  "go": "{{BASE}}/#watching",
+  "wait": 3500,
+  "eval": "JSON.stringify([location.hash, history.state&&{idx:history.state.idx,xp:history.state.xp}, !!document.querySelector(\".home-layer.on\"), document.documentElement.className])",
+  "label": "deeplink-watching"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1500,
+  "eval": "JSON.stringify([location.hash, history.state&&{idx:history.state.idx,xp:history.state.xp}, !!document.querySelector(\".home-layer.on\"), document.documentElement.className])+\" \"+scrollY",
+  "label": "deeplink-close"
+ },
+ {
+  "go": "{{BASE}}/#about",
+  "wait": 3000,
+  "eval": "JSON.stringify([location.hash, document.documentElement.className, [...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\")])",
+  "label": "deeplink-about"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200,
+  "eval": "JSON.stringify([document.documentElement.className, [...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\")])",
+  "label": "about-esc"
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37,
+  "wait": 1200,
+  "eval": "[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\")",
+  "label": "key-left"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "drag": [
+   1300,
+   450,
+   700,
+   450,
+   20
+  ],
+  "wait": 1200,
+  "eval": "[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\")",
+  "label": "drag-left"
+ }
+]

@@ -1,0 +1,56 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "go": "{{BASE}}/#watching",
+  "wait": 4000,
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<3000)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)})",
+  "label": "frames-drift"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");const r=c.getBoundingClientRect();const p=new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<2500)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)});for(let i=0;i<60;i++){c.dispatchEvent(new PointerEvent(\"pointermove\",{bubbles:true,clientX:r.left+r.width*(0.1+0.8*i/60),clientY:r.top+r.height*(0.3+0.4*(i%7)/7),pointerType:\"mouse\"}));await new Promise(q=>setTimeout(q,30))}return p})()",
+  "label": "frames-hover-sweep"
+ },
+ {
+  "move": [
+   720,
+   450
+  ],
+  "wait": 600,
+  "eval": "document.querySelector(\".wall-scene .chip\").textContent.trim().slice(0,40)",
+  "label": "chip"
+ },
+ {
+  "click": [
+   720,
+   450
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<1200)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)})",
+  "label": "frames-open-video"
+ },
+ {
+  "eval": "[!!document.querySelector(\".vov\"), getComputedStyle(document.querySelector(\".vov\")).visibility, document.querySelector(\".vov h3\")?.textContent?.length>0]",
+  "label": "detail-open"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<1200)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)})",
+  "label": "frames-close-video"
+ },
+ {
+  "eval": "getComputedStyle(document.querySelector(\".vov\")).visibility",
+  "label": "detail-after-esc"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200,
+  "eval": "[document.documentElement.className, location.hash, !!document.querySelector(\".home-layer.on\")]",
+  "label": "after-close"
+ }
+]

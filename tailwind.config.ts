@@ -48,7 +48,6 @@ const config: Config = {
         site: "1400px",
       },
       minHeight: {
-        "screen-nav": "calc(100dvh - var(--site-nav-height, 61px))",
         "nav-row": "10.5rem",
       },
       height: {
