@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ComponentType } from "react";
 import type { SiteNavigationItem, SiteSocialLink } from "../types";
 import DockNav from "./react-bits/dock-nav";
+import { inertProps } from "../utils/inert";
 import { externalLinkProps } from "../utils/link";
 import { isHomeSectionId } from "../utils/nav";
 import {
@@ -43,9 +44,6 @@ const SOCIAL_ICON_CLASS_MAP: Record<string, string> = {
   x: "h-5 w-5 sm:h-5.5 sm:w-5.5",
   youtube: "h-6 w-6 sm:h-7 sm:w-7",
 };
-
-/** React 18 has no `inert` in its types; a bare attribute still reaches the DOM. */
-const inertProps = { inert: "" } as Record<string, string>;
 
 export default function SiteNav({
   items,
@@ -177,9 +175,8 @@ export default function SiteNav({
       className={`pointer-events-none fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-30 flex w-full justify-center px-2 transition-transform duration-300 ease-out sm:bottom-6 sm:px-3 ${
         isDockHidden || isDockDown ? "translate-y-[calc(100%+2rem)]" : "translate-y-0"
       }`}
-      aria-hidden={isDockDown ? true : undefined}
       data-site-nav
-      {...(isDockDown ? inertProps : {})}
+      {...inertProps(isDockDown)}
     >
       <div className="pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden rounded-full border border-fog/14 bg-[rgba(17,12,8,0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5">
         <span

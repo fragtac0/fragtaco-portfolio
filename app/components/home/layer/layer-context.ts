@@ -17,11 +17,11 @@ export type LayerControl = {
   registerSceneHooks: (hooks: LayerSceneHooks) => () => void;
 };
 
-const noop = () => {};
-export const LayerControlContext = createContext<LayerControl>({
-  openLayer: noop,
-  closeLayer: noop,
-  registerSceneHooks: () => noop,
-});
+/** No default: a component that needs the layer outside HomePage is a bug, not a no-op. */
+export const LayerControlContext = createContext<LayerControl | null>(null);
 
-export const useLayerControl = () => useContext(LayerControlContext);
+export function useLayerControl(): LayerControl {
+  const control = useContext(LayerControlContext);
+  if (!control) throw new Error("LayerControl used outside its provider");
+  return control;
+}

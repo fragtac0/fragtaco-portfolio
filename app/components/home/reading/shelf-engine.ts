@@ -1,4 +1,5 @@
 import type { SiteBook } from "~/types";
+import { whenIdle } from "../../../utils/idle";
 import { createCoverQueue } from "./shelf-covers";
 import { attachShelfInput, createShelfInput } from "./shelf-input";
 import { createOpenPath, type ShelfCtx, type ShelfEls, type ShelfState } from "./shelf-open";
@@ -57,14 +58,9 @@ export type ShelfEngine = {
 /** Thrown inside `build()` when the engine is disposed part-way through. */
 class Aborted extends Error {}
 
-const whenIdle = (cb: () => void) => {
-  if (typeof window.requestIdleCallback === "function") {
-    window.requestIdleCallback(cb, { timeout: 1200 });
-  } else {
-    window.setTimeout(cb, 120);
-  }
-};
-const nextIdle = () => new Promise<void>((r) => whenIdle(r));
+/** How long a yielded slice may wait for a quiet moment before it runs anyway. */
+const IDLE_TIMEOUT_MS = 1200;
+const nextIdle = () => new Promise<void>((r) => void whenIdle(r, IDLE_TIMEOUT_MS));
 
 const HINT_FINE = "Hover to pull a book out. Click to open it.";
 const HINT_TOUCH = "Tap a book to open it. Drag to look along the shelf.";

@@ -1,5 +1,6 @@
 import type * as THREE from "three";
 import type { SiteBook } from "~/types";
+import { idleSlice } from "../../../utils/idle";
 import { coverCanvas } from "./shelf-canvases";
 
 /**
@@ -38,12 +39,6 @@ export type CoverQueue = {
 };
 
 type CoverJob = { tex: THREE.CanvasTexture; d: SiteBook; img: HTMLImageElement };
-
-/** An idle slice with no timeout: it only runs when the main thread has nothing better to do. */
-const idleSlice = (cb: () => void) => {
-  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(cb);
-  else window.setTimeout(cb, 120);
-};
 
 export function createCoverQueue(deps: CoverQueueDeps): CoverQueue {
   const jobs: CoverJob[] = [];

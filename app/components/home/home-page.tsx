@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import type {
   SiteBook,
   SiteHeroPainting,
@@ -7,30 +7,17 @@ import type {
   SiteSocialLink,
   SiteVideo,
 } from "../../types";
-import { hasWebGL, hasWebGL2 } from "../../lib/webgl-support";
 import SiteNav from "../site-nav";
-import InterestBlocks, { BLOCK_ID } from "./blocks/interest-blocks";
+import InterestBlocks from "./blocks/interest-blocks";
 import HeroCards from "./cards/hero-cards";
 import { heroNav, type NavContext, type NavInput, type NavState } from "./cards/hero-nav";
 import Hero, { type HeroHandle } from "./hero/hero";
 import InterestLayer from "./layer/interest-layer";
-import {
-  LayerControlContext,
-  type LayerControl,
-  type LayerSceneHooks,
-} from "./layer/layer-context";
-import {
-  escTarget,
-  layerFromHash,
-  layerReducer,
-  type LayerAction,
-  type LayerKind,
-  type LayerState,
-} from "./layer/layer-state";
+import { LayerControlContext } from "./layer/layer-context";
+import { layerFromHash, type LayerKind } from "./layer/layer-state";
+import { useLayerHistory } from "./layer/use-layer-history";
 import ReadingScene from "./reading/reading-scene";
-import { createShelf, type ShelfEngine } from "./reading/shelf-engine";
-import { createPickChannel } from "./watching/pick-channel";
-import { createWall, type WallEngine } from "./watching/wall-engine";
+import { useSceneEngines } from "./use-scene-engines";
 import WatchingScene from "./watching/watching-scene";
 
 type HomePageProps = {
@@ -63,6 +50,9 @@ export default function HomePage({
     (input: NavInput) => dispatchNav({ input, ctx: { ...navCtx.current } }),
     [],
   );
+  const setLayerOpen = useCallback((open: boolean) => {
+    navCtx.current.layerOpen = open;
+  }, []);
   // The dock rises with the cards, the first time the hero leaves "hidden".
   const [revealed, setRevealed] = useState(false);
   if (!revealed && nav !== "hidden") setRevealed(true);
@@ -90,142 +80,19 @@ export default function HomePage({
   );
 
   // ---- the reading / watching layer (grows out of a block, see layer/)
-  const [layer, rawDispatchLayer] = useReducer(layerReducer, {
-    kind: null,
-    phase: "closed",
-  } as LayerState);
-  // The phase ref is advanced right where the reducer is dispatched (the reducer is pure, so it
-  // computes the same state React will), never in a passive effect: openLayer and closeLayer can
-  // run twice before a render and must see the phase the first call left.
-  const layerRef = useRef<LayerState>(layer);
-  const dispatchLayer = useCallback((action: LayerAction) => {
-    layerRef.current = layerReducer(layerRef.current, action);
-    rawDispatchLayer(action);
-  }, []);
-  // True while the layer owns a history entry it pushed (not a deep link): closing then goes Back.
-  const pushedRef = useRef(false);
-  const [layerFrom, setLayerFrom] = useState<HTMLElement | null>(null);
-  const sceneHooks = useRef<LayerSceneHooks>({});
-  const layerLive = layer.phase === "growing" || layer.phase === "open";
+  const {
+    layer,
+    layerFrom,
+    layerActive,
+    layerControl,
+    openLayer,
+    closeLayer,
+    dispatchLayer,
+    openFromHash,
+  } = useLayerHistory({ heroRef, setLayerOpen });
 
-  const openLayer = useCallback<LayerControl["openLayer"]>(
-    (kind, from, opts) => {
-      if (layerRef.current.phase !== "closed") return;
-      setLayerFrom(from);
-      navCtx.current.layerOpen = true;
-      if (opts?.push !== false) {
-        // Remix keeps its bookkeeping (key, idx) in history.state: keep it, and add ours
-        const prev = (window.history.state ?? {}) as { idx?: number };
-        window.history.pushState(
-          { ...prev, xp: kind, idx: (prev.idx ?? 0) + 1 },
-          "",
-          "#" + kind,
-        );
-        pushedRef.current = true;
-      } else {
-        pushedRef.current = false;
-      }
-      dispatchLayer({ type: "open", kind });
-    },
-    [dispatchLayer],
-  );
-  const closeLayer = useCallback(() => {
-    const phase = layerRef.current.phase;
-    if (phase !== "growing" && phase !== "open") return;
-    dispatchLayer({ type: "close" });
-    if (pushedRef.current) {
-      // leave the entry the layer pushed; the popstate that follows finds the layer already shrinking
-      pushedRef.current = false;
-      window.history.back();
-    } else {
-      // a deep link owns no entry of its own: just drop the hash
-      window.history.replaceState(window.history.state, "", "/");
-    }
-  }, [dispatchLayer]);
-  const registerSceneHooks = useCallback((hooks: LayerSceneHooks) => {
-    sceneHooks.current = hooks;
-    return () => {
-      if (sceneHooks.current === hooks) sceneHooks.current = {};
-    };
-  }, []);
-  const layerControl = useMemo<LayerControl>(
-    () => ({ openLayer, closeLayer, registerSceneHooks }),
-    [openLayer, closeLayer, registerSceneHooks],
-  );
-
-  // A deep link (/#reading, /#watching on arrival, or a history move onto one) opens the layer
-  // from its block, with no history entry of its own. The block is scrolled into view first,
-  // instantly, so the grow starts from where the block is.
-  const openFromHash = useCallback(
-    (kind: LayerKind) => {
-      const block = document.getElementById(BLOCK_ID[kind]);
-      if (!block) return;
-      block.scrollIntoView({ block: "center", behavior: "instant" });
-      openLayer(kind, block, { push: false });
-    },
-    [openLayer],
-  );
-
-  // The shelf engine lives as long as the page. Creating it only makes a canvas (no GL, no
-  // three.js), so it is made on the client when the state is first set; the server has none.
-  // The scene is built in idle time when the reading block comes near, and freed when the page
-  // goes away. The free is deferred one tick so StrictMode's simulated unmount (cleanup, then the
-  // same effect again) does not kill the engine.
-  const disposeTimer = useRef<number | null>(null);
-  const [shelf] = useState<ShelfEngine | null>(() =>
-    typeof window === "undefined"
-      ? null
-      : createShelf(books, {
-          fine: window.matchMedia("(hover: hover) and (pointer: fine)").matches,
-          reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-        }),
-  );
-  useEffect(() => {
-    if (!shelf) return;
-    const pending = disposeTimer;
-    if (pending.current !== null) window.clearTimeout(pending.current);
-    pending.current = null;
-    return () => {
-      pending.current = window.setTimeout(() => shelf.dispose(), 0);
-    };
-  }, [shelf]);
-
-  // The wall engine follows the same lifecycle: made here on the client, prepared (GL context,
-  // atlas, thumbnails) when the watching block comes near, freed when the page goes away. A tile
-  // the wall reports as picked reaches the watching scene through the channel.
-  const wallDisposeTimer = useRef<number | null>(null);
-  const [wallPicks] = useState(createPickChannel);
-  const [wall] = useState<WallEngine | null>(() =>
-    typeof window === "undefined"
-      ? null
-      : createWall(videos, {
-          fine: window.matchMedia("(hover: hover) and (pointer: fine)").matches,
-          reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-          onPick: (index, rect, key) => wallPicks.emit(index, rect, key),
-        }),
-  );
-  useEffect(() => {
-    if (!wall) return;
-    const pending = wallDisposeTimer;
-    if (pending.current !== null) window.clearTimeout(pending.current);
-    pending.current = null;
-    return () => {
-      pending.current = window.setTimeout(() => wall.dispose(), 0);
-    };
-  }, [wall]);
-
-  // What a block's words and previews warm up: the scenes hook their prepare() here.
-  const onBlockNear = useCallback(
-    (kind: LayerKind) => {
-      // without the context the scene needs, its fallback grid is shown and nothing is prepared
-      if (kind === "reading") {
-        if (hasWebGL2()) void shelf?.prepare();
-      } else if (hasWebGL()) {
-        wall?.prepare();
-      }
-    },
-    [shelf, wall],
-  );
+  // The shelf and wall engines, and what a block coming near warms up in them.
+  const { shelf, wall, wallPicks, onBlockNear } = useSceneEngines(books, videos);
 
   const onHeroReady = useCallback(() => {
     dispatch({ kind: "show" });
@@ -243,62 +110,6 @@ export default function HomePage({
     const kind = layerFromHash(window.location.hash);
     if (kind) openFromHash(kind);
   }, [dispatch, openFromHash]);
-
-  // While the layer is not closed: the cards ignore gestures, the hero's paint loop parks, the
-  // page is locked (html.locked, separate from intro and cards-open), and the dock is hidden.
-  const layerActive = layer.phase !== "closed";
-  useEffect(() => {
-    if (!layerActive) return;
-    const html = document.documentElement;
-    const ctx = navCtx.current;
-    const hero = heroRef.current;
-    ctx.layerOpen = true;
-    hero?.setParked("layer", true);
-    html.classList.add("locked");
-    return () => {
-      ctx.layerOpen = false;
-      hero?.setParked("layer", false);
-      html.classList.remove("locked");
-    };
-  }, [layerActive]);
-
-  // History moves. While the layer is live, any of them closes it (the reducer ignores a close
-  // while it is already shrinking); the entry it pushed is gone either way. With the layer closed,
-  // a move onto /#reading or /#watching (Forward) opens it.
-  useEffect(() => {
-    const onPop = () => {
-      pushedRef.current = false;
-      if (layerRef.current.phase !== "closed") {
-        dispatchLayer({ type: "close" });
-        return;
-      }
-      const kind = layerFromHash(window.location.hash);
-      if (kind) openFromHash(kind);
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, [dispatchLayer, openFromHash]);
-
-  // Esc closes an open video, then an open book, then the layer.
-  useEffect(() => {
-    if (!layerLive) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape" || e.repeat) return; // a held key must not walk down the layers
-      const h = sceneHooks.current;
-      const target = escTarget({
-        bookOpen: h.isBookOpen?.() ?? false,
-        videoOpen: h.isVideoOpen?.() ?? false,
-        layer: layerRef.current,
-      });
-      if (target === null) return;
-      e.preventDefault();
-      if (target === "video") h.closeVideo?.();
-      else if (target === "book") h.closeBook?.();
-      else closeLayer();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [layerLive, closeLayer]);
 
   const layerTitle: Record<LayerKind, string> = {
     reading: "What I'm reading",

@@ -10,7 +10,7 @@ html.cards-open body {
 
 /* =====================================================================
    FLOATING CARDS (credits left, intro right), ported from the mockup's .card / .rail / .scrim.
-   Their transforms are written by use-card-gestures; the CSS value is only the pre-JS position.
+   Their transforms are written by use-card-poses and use-card-input; the CSS value is only the pre-JS position.
    ===================================================================== */
 /* the painting blurs in its own shader, so the scrim is a plain tint */
 .home-hero .scrim {

@@ -62,24 +62,24 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-54 | 9 | /profile.png 1.26 MB loaded eagerly for a 110 px avatar | open |
 | D-55 | 9 | poses use window.innerWidth (classic scrollbar offset) | open |
 | D-56 | 9 | use root.clientWidth | open |
-| D-57 | 9 | use-card-gestures.ts 320 lines, one 180-line effect | open |
+| D-57 | 9 | use-card-gestures.ts 320 lines, one 180-line effect | fixed (R31.4): use-card-poses.ts and use-card-input.ts, one effect per input |
 | D-58 | 9 | modeOf/twoLines/cardClass/inertIf untested | open |
-| D-59 | 9 | inert="" becomes falsy under React 19 | open |
+| D-59 | 9 | inert="" becomes falsy under React 19 | fixed (R31.4): one helper, `inertProps` in app/utils/inert.ts, is now the only place; the React 19 change is `inert: true` there |
 | D-60 | 9 | "See the reel" focus ring clipped left/bottom by .intro-text scroll box on desktop | open |
 | D-61 | 9 | add overscroll-behavior: none on html.cards-open (pull-to-refresh on rail/scrim drags) | open |
 | D-62 | 9 | scrollbar-gutter: stable also reserves a strip during the intro on classic-scrollbar systems | open |
 | D-63 | 10 | same-document hash change to #about on a loaded home opens the card but leaves #about in the URL | open |
-| D-64 | 10 | inertProps duplicates inertIf (card-shell.ts) | open |
-| D-65 | 10 | getNavHeight unused | open |
+| D-64 | 10 | inertProps duplicates inertIf (card-shell.ts) | fixed (R31.4): inertIf deleted; cards, reading fallback and dock use `inertProps` |
+| D-65 | 10 | getNavHeight unused | fixed (R31.4): deleted |
 | D-66 | 10 | home.hidden hard-coded false until Task 11 | open |
-| D-67 | 11 | LayerControlContext default is a silent no-op | open |
+| D-67 | 11 | LayerControlContext default is a silent no-op | fixed (R31.4): no default, `useLayerControl()` throws outside the provider |
 | D-68 | 11 | "1 books" pluralisation | open |
 | D-69 | 11 | layerTitle inside component | open |
 | D-70 | 11 | redundant cast | open |
 | D-71 | 12 | Forward-open vs Remix ScrollRestoration may offset the grow origin (not observed) | open |
 | D-72 | 12 | rapid Back+Forward during the 680 ms shrink leaves #reading with layer closed | open |
 | D-73 | 12 | deep-link close drops the query string | open |
-| D-74 | 12 | R10 history logic and near-gate untested (node-only env, extractable) | open |
+| D-74 | 12 | R10 history logic and near-gate untested (node-only env, extractable) | fixed (R31.4): `nextHistoryState` and `createNearGate` extracted and tested |
 | D-75 | 12 | isHashOnlyMove true for identical URLs | open |
 | D-76 | 12 | "1 books" pluralisation | open |
 | D-77 | 12 | closest("article") where refs exist | open |

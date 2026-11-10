@@ -10,14 +10,6 @@ export type CardShellProps = {
   hot: boolean;
 };
 
-/**
- * `inert` is not in React 18's types, and React 18 only passes it through as a string attribute.
- * An inert subtree is out of the tab order and the accessibility tree.
- */
-export function inertIf(on: boolean): { inert?: string } {
-  return on ? { inert: "" } : {};
-}
-
 export function cardClass(side: "left" | "right", { mode, hot }: Pick<CardShellProps, "mode" | "hot">) {
   return ["card", side, mode === "open" && "open", hot && mode === "rest" && "hot"]
     .filter(Boolean)

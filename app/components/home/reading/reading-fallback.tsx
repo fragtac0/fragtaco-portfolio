@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SiteBook } from "../../../types";
 import { inkOn } from "../blocks/mini-previews";
-import { inertIf } from "../cards/card-shell";
+import { inertProps } from "../../../utils/inert";
 import { useLayerControl } from "../layer/layer-context";
 
 /** Covers are fetched at runtime and never stored. A missing one is a 404 (`default=false`). */
@@ -62,7 +62,7 @@ export default function ReadingFallback({ books }: ReadingFallbackProps) {
 
   return (
     <div className="fb-scene">
-      <div className="fb-scroll" {...inertIf(!!open)}>
+      <div className="fb-scroll" {...inertProps(!!open)}>
         <ul ref={gridRef} className="fb-grid fb-books" aria-label="Books on the shelf">
           {books.map((b) => (
             <li key={b.id}>
