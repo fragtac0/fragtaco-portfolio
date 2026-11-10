@@ -122,3 +122,4 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-114 | 17a | selectors without CSS.escape | open |
 | D-115 | 17a | no tests for fallback components/reduced paths | open |
 | D-116 | 17a | zoomOf ordering | fixed (R33.2) |
+| D-117 | 33 | paint-engine.ts 390 lines (over ~350); move shader sources out | open |

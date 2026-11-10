@@ -231,6 +231,7 @@ export function usePaintingCycle({
         }
         oi = found.k;
         const p = items[order[oi]];
+        // a plain 400 ms fade under reduced motion too, on purpose (the engine keeps it at 400 ms)
         paint.swap(found.img, metaOf(p), PLACEHOLDER_FADE_MS, preloadNext, { plain: true });
         if (found.k !== 0) setCaption(p, true);
         shown(p, found.img);
