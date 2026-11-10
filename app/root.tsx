@@ -33,7 +33,7 @@ export const links: LinksFunction = () => [
 ];
 
 export const meta: MetaFunction = () => [
-  { title: "FragTaco — Aditya Bhoir" },
+  { title: "FragTaco - Aditya Bhoir" },
   {
     name: "description",
     content:

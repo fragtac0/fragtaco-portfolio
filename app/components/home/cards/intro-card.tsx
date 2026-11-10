@@ -8,7 +8,7 @@ const PORTRAIT = "/portraits/aditya.jpg";
 type IntroCardProps = CardShellProps & { about: SiteHomeContent["about"] };
 
 /**
- * The right card, "the cut". Two columns: the portrait fills a full-height column on the left,
+ * The right card, about (its heading is "the cut"). Two columns: the portrait fills a full-height column on the left,
  * the words scroll on the right (`.intro-text.card-scroll`). Under 700 px it stacks and the whole
  * body scrolls. Ported from the mockup's #cardR.
  */
@@ -22,8 +22,13 @@ export default function IntroCard({ about, cardRef, mode, hot }: IntroCardProps)
       aria-label="About me"
       {...inertProps(mode === "hidden")}
     >
-      <button type="button" className="rail" aria-label="Open about me">
-        <span>{about.title}</span>
+      <button
+        type="button"
+        className="rail"
+        aria-label={open ? "Close about" : "Open about"}
+        aria-expanded={open}
+      >
+        <span>about</span>
       </button>
       <div
         className="card-body intro-body"

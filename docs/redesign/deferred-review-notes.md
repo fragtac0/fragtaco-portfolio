@@ -54,7 +54,7 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-46 | 8 | SETTLE_AT test echoes the constant (consumer must use >) | open |
 | D-47 | 8 | show outside hidden returns state | open |
 | D-48 | 9 | landscape phone (812x375) card height only 183 px because of the dock-clear formula | open |
-| D-49 | 9 | rail aria-expanded + label-in-name ("the cut" vs "Open about me") | open |
+| D-49 | 9 | rail aria-expanded + label-in-name ("the cut" vs "Open about me") | fixed (R32.1): rail text is `about` / `credits`; aria-label `Open about` / `Close about` (credits the same) contains it, with `aria-expanded` |
 | D-50 | 9 | .home-hero .card a {color:inherit} outranks .pill color (See the reel renders fog, not cream) | open |
 | D-51 | 9 | var(--fog) undefined at home.css:395 | open |
 | D-52 | 9 | box-shadow/background transitions on cards and links (mockup-faithful) | open |

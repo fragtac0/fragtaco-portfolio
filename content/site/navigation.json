@@ -1,13 +1,13 @@
 [
   {
-    "key": "about",
-    "label": "the cut",
-    "href": "/#about",
+    "key": "home",
+    "label": "home",
+    "href": "/",
     "visible": true
   },
   {
-    "key": "projects",
-    "label": "reel",
+    "key": "work",
+    "label": "work",
     "href": "/work",
     "visible": true
   }

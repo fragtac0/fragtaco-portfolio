@@ -5,7 +5,7 @@ import type { SiteNavigationItem, SiteSocialLink } from "../types";
 import DockNav from "./react-bits/dock-nav";
 import { inertProps } from "../utils/inert";
 import { externalLinkProps } from "../utils/link";
-import { isHomeSectionId } from "../utils/nav";
+import { activeNavKey, isHomeSectionId } from "../utils/nav";
 import {
   FaInstagram,
   FaRegEnvelope,
@@ -14,12 +14,12 @@ import {
 } from "react-icons/fa6";
 
 /** The home page drives the dock: it stays down until `revealed`, hides while the layer is open,
- * and "the cut" opens the intro card (via `onAbout`) instead of navigating. */
+ * and the home tab calls `onHome` (close a card or layer, scroll to the top) instead of navigating.
+ * Other pages pass no `home`, so the home tab is then an ordinary link to `/`. */
 export interface SiteNavHome {
   revealed: boolean;
   hidden: boolean;
-  aboutOpen: boolean;
-  onAbout: () => void;
+  onHome: () => void;
 }
 
 interface SiteNavProps {
@@ -57,21 +57,13 @@ export default function SiteNav({
   const [isDockHidden, setIsDockHidden] = useState(false);
   const isHomePage = location.pathname === "/";
   const visibleItems = items.filter(
-    (item): item is SiteNavigationItem =>
-      item.key === "about" || item.key === "projects",
+    (item): item is SiteNavigationItem => item.key === "home" || item.key === "work",
   );
   const visibleSocialLinks = socialLinks.filter((link) =>
     Object.hasOwn(SOCIAL_ICON_MAP, link.label.toLowerCase()),
   );
 
-  // On the home page "the cut" is active only while the intro card is open.
-  const activeKey = location.pathname.startsWith("/work")
-    ? "projects"
-    : home
-      ? home.aboutOpen
-        ? "about"
-        : null
-      : "about";
+  const activeKey = activeNavKey(location.pathname);
   // Until the cards rise, and while the layer is open, the dock is down and out of the tab order.
   const isDockDown = home ? !home.revealed || home.hidden : false;
 
@@ -107,18 +99,13 @@ export default function SiteNav({
     event: MouseEvent<HTMLAnchorElement>,
     item: SiteNavigationItem,
   ) => {
-    if (item.key === "projects") {
-      return;
-    }
+    // Only the home tab, pressed on the home page, is handled here; every other tab is a plain link.
+    if (item.key !== "home" || !home || !isHomePage) return;
+    // Let a new-tab or new-window click through.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
 
     event.preventDefault();
-
-    if (home && isHomePage) {
-      home.onAbout();
-      return;
-    }
-
-    navigate(`/#${item.key}`);
+    home.onHome();
   };
 
   useEffect(() => {

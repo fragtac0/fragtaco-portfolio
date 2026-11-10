@@ -57,28 +57,6 @@ export default function HomePage({
   const [revealed, setRevealed] = useState(false);
   if (!revealed && nav !== "hidden") setRevealed(true);
 
-  // "the cut": scroll to the top first when needed, wait for it, then toggle the intro card.
-  const aboutTimer = useRef<number | null>(null);
-  const onAbout = useCallback(() => {
-    if (aboutTimer.current !== null) window.clearTimeout(aboutTimer.current);
-    const toggle = () => {
-      aboutTimer.current = null;
-      dispatch({ kind: "toggle", side: "right" });
-    };
-    if (window.scrollY > 10) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      aboutTimer.current = window.setTimeout(toggle, 520);
-    } else {
-      toggle();
-    }
-  }, [dispatch]);
-  useEffect(
-    () => () => {
-      if (aboutTimer.current !== null) window.clearTimeout(aboutTimer.current);
-    },
-    [],
-  );
-
   // ---- the reading / watching layer (grows out of a block, see layer/)
   const {
     layer,
@@ -91,12 +69,37 @@ export default function HomePage({
     openFromHash,
   } = useLayerHistory({ heroRef, setLayerOpen });
 
+  // The dock's home tab: close a card, close a layer (the same path Esc takes, so the URL hash and
+  // history stay right), then scroll to the top. A closing layer shrinks back to its block, so
+  // the scroll waits until the layer is gone rather than moving the page under it. The dock is
+  // down while a layer is active, so this is mostly the card case; the layer branch keeps the tab
+  // correct if it is ever reached.
+  const scrollAfterLayer = useRef(false);
+  const scrollToTop = useCallback(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  }, []);
+  const onHome = useCallback(() => {
+    dispatch({ kind: "go", to: "hero" });
+    if (layerActive) {
+      closeLayer();
+      scrollAfterLayer.current = true;
+    } else {
+      scrollToTop();
+    }
+  }, [dispatch, layerActive, closeLayer, scrollToTop]);
+  useEffect(() => {
+    if (layerActive || !scrollAfterLayer.current) return;
+    scrollAfterLayer.current = false;
+    scrollToTop();
+  }, [layerActive, scrollToTop]);
+
   // The shelf and wall engines, and what a block coming near warms up in them.
   const { shelf, wall, wallPicks, onBlockNear } = useSceneEngines(books, videos);
 
   const onHeroReady = useCallback(() => {
     dispatch({ kind: "show" });
-    // Arriving at /#about (a reload, or "the cut" from /work): open the intro card, then drop
+    // Arriving at /#about (a reload, or an old link): open the intro card, then drop
     // the hash so it does not linger. Remix keeps its bookkeeping in history.state: keep it.
     if (window.location.hash === "#about") {
       dispatch({ kind: "go", to: "right" });
@@ -158,8 +161,7 @@ export default function HomePage({
           home={{
             revealed,
             hidden: layerActive,
-            aboutOpen: nav === "right",
-            onAbout,
+            onHome,
           }}
         />
         {layer.kind !== null && layerActive && (

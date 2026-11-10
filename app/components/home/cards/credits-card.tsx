@@ -16,7 +16,12 @@ export default function CreditsCard({ credits, cardRef, mode, hot }: CreditsCard
       aria-label="Credits"
       {...inertProps(mode === "hidden")}
     >
-      <button type="button" className="rail" aria-label="Open credits">
+      <button
+        type="button"
+        className="rail"
+        aria-label={open ? "Close credits" : "Open credits"}
+        aria-expanded={open}
+      >
         <span>credits</span>
       </button>
       <div

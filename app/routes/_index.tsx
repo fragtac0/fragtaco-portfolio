@@ -5,7 +5,7 @@ import HomePage from "../components/home/home-page";
 import { isHashOnlyMove } from "../lib/revalidate";
 
 export const meta: MetaFunction = () => [
-  { title: "FragTaco — Aditya Bhoir" },
+  { title: "FragTaco - Aditya Bhoir" },
 ];
 
 // Hash-only history moves (the reading / watching layer's /#reading and /#watching) must not
