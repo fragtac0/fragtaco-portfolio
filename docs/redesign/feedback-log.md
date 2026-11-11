@@ -370,6 +370,9 @@ Whole site
 | Book spines | Designed spines for now; photos can replace them later, one image per book |
 | Site mood | Warmer, cleaner darks: neutral warm charcoal grounds, cream carries the light, orange only for accents, glows cut back |
 | Review step | Plan, then build straight away |
+| Company name | "Bharat in Germany" is confirmed, as written in the experience words |
+| Wording of the moments | Will be revised later; build with the words in the design outline, all kept in `content/site/experience.json` so a later edit touches only that file |
+| App icons | Real icons for as many of the 8 as possible: the vendor's product page, press or brand kit, its App Store or Mac App Store listing artwork, or Wikimedia Commons all count; never redrawn by hand; the two-letter mark only when none of those gives a usable file |
 
 **My calls (say if any is wrong)**
 
