@@ -28,3 +28,16 @@ export function modeOf(nav: NavState, side: Side): Mode {
   if (nav === side) return "open";
   return nav === "hero" ? "rest" : "hidden";
 }
+
+/**
+ * When the intro card's portrait (a 196 KB background) is requested. It stays out of the way of the
+ * first painting: nothing while the loader runs (`hidden`), then a quiet moment once the cards have
+ * risen, and at once when the card is open or the pointer is over it (it is about to open).
+ */
+export type PortraitPhase = "have" | "now" | "idle" | "wait";
+
+export function portraitPhase(nav: NavState, hotRight: boolean, loaded: boolean): PortraitPhase {
+  if (loaded) return "have";
+  if (nav === "right" || hotRight) return "now";
+  return nav === "hidden" ? "wait" : "idle";
+}

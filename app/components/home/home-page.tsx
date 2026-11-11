@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import type {
-  SiteBook,
-  SiteHeroPainting,
-  SiteHomeContent,
-  SiteNavigationItem,
-  SiteSocialLink,
-  SiteVideo,
-} from "../../types";
+import type { getHomePageContent } from "../../content/loaders.server";
 import SiteNav from "../site-nav";
 import InterestBlocks from "./blocks/interest-blocks";
 import HeroCards from "./cards/hero-cards";
@@ -21,15 +14,12 @@ import ReadingScene from "./reading/reading-scene";
 import { useSceneEngines } from "./use-scene-engines";
 import WatchingScene from "./watching/watching-scene";
 
-type HomePageProps = {
-  home: SiteHomeContent;
-  heroPaintings: SiteHeroPainting[];
-  /** The painting the server chose (and preloaded) to show first. */
-  firstPaintingId: string;
-  books: SiteBook[];
-  videos: SiteVideo[];
-  navigationItems: SiteNavigationItem[];
-  socialLinks: SiteSocialLink[];
+/** What the home route's loader sends, which is exactly what the page takes. */
+type HomePageProps = Awaited<ReturnType<typeof getHomePageContent>>;
+
+const LAYER_TITLE: Record<LayerKind, string> = {
+  reading: "What I'm reading",
+  watching: "What I'm watching",
 };
 
 /** Each dispatch carries the context it was made in, so the reducer stays pure. */
@@ -119,10 +109,6 @@ export default function HomePage({
     if (kind) openFromHash(kind);
   }, [dispatch, openFromHash]);
 
-  const layerTitle: Record<LayerKind, string> = {
-    reading: "What I'm reading",
-    watching: "What I'm watching",
-  };
   const layerMeta: Record<LayerKind, string> = {
     reading: `${countLabel(books.length, "book", "books")} this year`,
     watching: countLabel(videos.length, "video", "videos"),
@@ -160,6 +146,7 @@ export default function HomePage({
           videos={videos}
           onOpen={openLayer}
           onNear={onBlockNear}
+          blocked={open}
         />
         <SiteNav
           items={navigationItems}
@@ -174,7 +161,7 @@ export default function HomePage({
           <InterestLayer
             state={layer}
             from={layerFrom}
-            title={layerTitle[layer.kind]}
+            title={LAYER_TITLE[layer.kind]}
             meta={layerMeta[layer.kind]}
             headerHidden={headerHidden}
             onClose={closeLayer}

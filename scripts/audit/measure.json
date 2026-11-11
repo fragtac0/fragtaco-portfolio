@@ -1,0 +1,164 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "window.__sf=(ms)=>new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<ms)requestAnimationFrame(f);else{g.shift();const s=[...g].sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(1),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)});",
+  "go": "{{BASE}}/",
+  "wait": 9000
+ },
+ {
+  "eval": "__sf(12000)",
+  "label": "1440x900 hero idle incl. painting change"
+ },
+ {
+  "eval": "(async()=>{const p=__sf(2500);document.querySelector('.rail')?.click();await new Promise(r=>setTimeout(r,1300));document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return p})()",
+  "label": "1440x900 card open and close"
+ },
+ {
+  "eval": "(async()=>{await new Promise(r=>setTimeout(r,1500));const p=__sf(2000);const b=document.querySelector('.blk-hit').closest('section');window.scrollTo({top:b.offsetTop,behavior:'smooth'});return p})()",
+  "label": "1440x900 scroll to the blocks"
+ },
+ {
+  "eval": "(async()=>{await new Promise(r=>setTimeout(r,1500));const p=__sf(3500);document.querySelectorAll('.blk-hit')[0].click();return p})()",
+  "label": "1440x900 open reading layer and shelf entrance"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.shelf-canvas')||document.querySelector('.shelf-host canvas');const r=c.getBoundingClientRect();const p=__sf(2500);for(let i=0;i<50;i++){c.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:r.left+r.width*(0.2+0.6*i/50),clientY:r.top+r.height*0.55,pointerType:'mouse',isPrimary:true}));await new Promise(q=>setTimeout(q,40))}return p})()",
+  "label": "1440x900 hover along the shelf"
+ },
+ {
+  "click": [
+   720,
+   495
+  ],
+  "eval": "__sf(1500)",
+  "label": "1440x900 open a book"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "eval": "__sf(1500)",
+  "label": "1440x900 close the book"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "eval": "(async()=>{const p=__sf(1500);await p;await new Promise(r=>setTimeout(r,800));const q=__sf(3500);document.querySelectorAll('.blk-hit')[1].click();return q})()",
+  "label": "1440x900 close reading, open watching layer"
+ },
+ {
+  "eval": "__sf(3000)",
+  "label": "1440x900 wall drift"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const r=c.getBoundingClientRect();const p=__sf(2500);for(let i=0;i<60;i++){c.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:r.left+r.width*(0.1+0.8*i/60),clientY:r.top+r.height*(0.3+0.4*(i%7)/7),pointerType:'mouse',isPrimary:true}));await new Promise(q=>setTimeout(q,30))}return p})()",
+  "label": "1440x900 hover sweep across the wall"
+ },
+ {
+  "move": [
+   720,
+   450
+  ],
+  "wait": 600
+ },
+ {
+  "click": [
+   720,
+   450
+  ],
+  "eval": "__sf(1500)",
+  "label": "1440x900 open a video"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "eval": "__sf(1500)",
+  "label": "1440x900 close the video"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "init": "window.__sf=(ms)=>new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<ms)requestAnimationFrame(f);else{g.shift();const s=[...g].sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(1),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)});",
+  "go": "{{BASE}}/",
+  "wait": 9000
+ },
+ {
+  "eval": "__sf(12000)",
+  "label": "390x844 hero idle incl. painting change"
+ },
+ {
+  "eval": "(async()=>{const p=__sf(2500);document.querySelector('.rail')?.click();await new Promise(r=>setTimeout(r,1300));document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return p})()",
+  "label": "390x844 card open and close"
+ },
+ {
+  "eval": "(async()=>{await new Promise(r=>setTimeout(r,1500));const p=__sf(2000);const b=document.querySelector('.blk-hit').closest('section');window.scrollTo({top:b.offsetTop,behavior:'smooth'});return p})()",
+  "label": "390x844 scroll to the blocks"
+ },
+ {
+  "eval": "(async()=>{await new Promise(r=>setTimeout(r,1500));const p=__sf(3500);document.querySelectorAll('.blk-hit')[0].click();return p})()",
+  "label": "390x844 open reading layer and shelf entrance"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.shelf-canvas')||document.querySelector('.shelf-host canvas');const r=c.getBoundingClientRect();const p=__sf(2500);for(let i=0;i<50;i++){c.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:r.left+r.width*(0.2+0.6*i/50),clientY:r.top+r.height*0.55,pointerType:'mouse',isPrimary:true}));await new Promise(q=>setTimeout(q,40))}return p})()",
+  "label": "390x844 hover along the shelf"
+ },
+ {
+  "click": [
+   195,
+   464
+  ],
+  "eval": "__sf(1500)",
+  "label": "390x844 open a book"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "eval": "__sf(1500)",
+  "label": "390x844 close the book"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "eval": "(async()=>{const p=__sf(1500);await p;await new Promise(r=>setTimeout(r,800));const q=__sf(3500);document.querySelectorAll('.blk-hit')[1].click();return q})()",
+  "label": "390x844 close reading, open watching layer"
+ },
+ {
+  "eval": "__sf(3000)",
+  "label": "390x844 wall drift"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const r=c.getBoundingClientRect();const p=__sf(2500);for(let i=0;i<60;i++){c.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:r.left+r.width*(0.1+0.8*i/60),clientY:r.top+r.height*(0.3+0.4*(i%7)/7),pointerType:'mouse',isPrimary:true}));await new Promise(q=>setTimeout(q,30))}return p})()",
+  "label": "390x844 hover sweep across the wall"
+ },
+ {
+  "move": [
+   195,
+   422
+  ],
+  "wait": 600
+ },
+ {
+  "tap": [
+   195,
+   422
+  ],
+  "eval": "__sf(1500)",
+  "label": "390x844 open a video"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "eval": "__sf(1500)",
+  "label": "390x844 close the video"
+ }
+]

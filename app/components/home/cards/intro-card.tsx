@@ -5,14 +5,18 @@ import { cardClass, twoLines, type CardShellProps } from "./card-shell";
 
 const PORTRAIT = "/portraits/aditya.jpg";
 
-type IntroCardProps = CardShellProps & { about: SiteHomeContent["about"] };
+type IntroCardProps = CardShellProps & {
+  about: SiteHomeContent["about"];
+  /** The portrait may be requested (after the loader; see usePortraitWanted). Until then the column is its dark plate. */
+  portrait: boolean;
+};
 
 /**
  * The right card, about (its heading is "the cut"). Two columns: the portrait fills a full-height column on the left,
  * the words scroll on the right (`.intro-text.card-scroll`). Under 700 px it stacks and the whole
  * body scrolls. Ported from the mockup's #cardR.
  */
-export default function IntroCard({ about, cardRef, mode, hot }: IntroCardProps) {
+export default function IntroCard({ about, portrait, cardRef, mode, hot }: IntroCardProps) {
   const open = mode === "open";
   const [first, second] = twoLines(about.title);
   return (
@@ -38,7 +42,7 @@ export default function IntroCard({ about, cardRef, mode, hot }: IntroCardProps)
         <div
           className="ph"
           aria-hidden="true"
-          style={{ backgroundImage: `url(${PORTRAIT})` }}
+          style={portrait ? { backgroundImage: `url("${PORTRAIT}")` } : undefined}
         />
         <div className="intro-text card-scroll" tabIndex={-1}>
           <h2 className="display">

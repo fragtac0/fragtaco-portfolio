@@ -113,6 +113,10 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
       })
       .then(() => {
         if (live && engine.hasFailed()) setFallback(true);
+      })
+      // a step of the scene's set-up threw: the plain grid takes over, never an unhandled rejection
+      .catch(() => {
+        if (live) setFallback(true);
       });
     return () => {
       live = false;

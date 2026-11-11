@@ -35,7 +35,7 @@ export default function CreditsCard({ credits, cardRef, mode, hot }: CreditsCard
             className="cr-ph"
             role="img"
             aria-label={credits.name}
-            style={{ backgroundImage: `url(${credits.image})` }}
+            style={{ backgroundImage: `url("${credits.image}")` }}
           />
           <div>
             <h2 className="display">

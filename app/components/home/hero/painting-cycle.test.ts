@@ -28,10 +28,21 @@ describe("makeOrder", () => {
     const r = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     const o = makeOrder(5, 3, r);
     expect(o[0]).toBe(3);
-    expect([...o].sort()).toEqual([0, 1, 2, 3, 4]);
+    expect([...o].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4]);
   });
   it("handles a single item", () => {
     expect(makeOrder(1, 0, () => 0.5)).toEqual([0]);
+  });
+  it("shuffles the rest with the random it is given (Fisher-Yates from the end)", () => {
+    // random 0 always swaps with the first slot: [1,2,3,4] -> [2,3,4,1]
+    expect(makeOrder(5, 0, () => 0)).toEqual([0, 2, 3, 4, 1]);
+    // random near 1 always picks the slot itself: the rest stay in order
+    expect(makeOrder(5, 0, () => 0.999999)).toEqual([0, 1, 2, 3, 4]);
+  });
+  it("gives different orders for different random sequences", () => {
+    const seeded = (seed: number) => () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const orders = new Set([1, 2, 3, 4, 5, 6].map((n) => makeOrder(10, 0, seeded(n)).join(",")));
+    expect(orders.size).toBeGreaterThan(3);
   });
 });
 

@@ -1,0 +1,6 @@
+[
+ {"size":[390,844],"dpr":2,"mobile":true,"touch":true,"cpu":4,"net":{"kbps":1638,"latency":150},"nocache":true,
+  "init":"window.__lcp=0;window.__cls=0;new PerformanceObserver(l=>{for(const e of l.getEntries())window.__lcp=e.startTime}).observe({type:'largest-contentful-paint',buffered:true});new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)window.__cls+=e.value}).observe({type:'layout-shift',buffered:true});",
+  "go":"{{BASE}}/","wait":20000},
+ {"eval":"(()=>{const n=performance.getEntriesByType('navigation')[0];const res=performance.getEntriesByType('resource');const kb=x=>Math.round(x/1024);return {lcpMs:Math.round(window.__lcp),cls:+window.__cls.toFixed(3),fcpMs:Math.round((performance.getEntriesByName('first-contentful-paint')[0]||{}).startTime||0),domContentLoadedMs:Math.round(n.domContentLoadedEventEnd),transferKB:kb(n.transferSize+res.reduce((a,r)=>a+(r.transferSize||0),0)),requests:res.length+1,biggest:res.sort((a,b)=>b.transferSize-a.transferSize).slice(0,4).map(r=>[r.name.split('/').pop().slice(0,40),kb(r.transferSize)])}})()","label":"slow-4g-cpu4-phone /"}
+]

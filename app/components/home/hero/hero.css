@@ -155,6 +155,12 @@
 .home-hero .cue:hover {
   color: var(--cream);
 }
+/* keyboard focus: the same cream ring the rails use (the browser's default one was blue and white) */
+.home-hero .cue:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 2px;
+  color: var(--cream);
+}
 /* a card is open: the caption and cue are gone, not dimmed (the cue would show under the card's edge) */
 .home-hero[data-softened] .caption.on:not(.swap),
 .home-hero[data-softened] .cue.on {

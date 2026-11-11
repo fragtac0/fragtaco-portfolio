@@ -36,7 +36,8 @@ export function measure(el: HTMLElement, side: Side, mode: Mode, hot: boolean): 
   return cardPose({
     side,
     mode,
-    vw: window.innerWidth,
+    // the hero's own width: with a classic scrollbar the window is wider than the page by its width
+    vw: el.parentElement?.clientWidth || window.innerWidth,
     width: el.offsetWidth,
     rail: rail?.offsetWidth ?? 0,
     hot,
@@ -66,7 +67,7 @@ type Options = {
 /**
  * Where the cards sit, and what follows from the navigation state: the transforms written
  * straight to the elements, the hover nudge reset, focus into the open card (and back to its
- * rail), the page lock while a card is open, and the pose recompute on a resize. No React state
+ * rail unless focus is elsewhere), the page lock while a card is open, and the pose recompute on a resize. No React state
  * changes per frame. Returns the refs the input hook reads.
  */
 export function useCardPoses({
@@ -111,7 +112,12 @@ export function useCardPoses({
     }
     if (prev === "left" || prev === "right") {
       const card = (prev === "right" ? rightRef : leftRef).current;
-      card?.querySelector<HTMLElement>(".rail")?.focus({ preventScroll: true });
+      // Back to the rail only when focus was in the card (or nowhere, after a click on the scrim):
+      // a close that came from the dock's home tab leaves focus on the tab that was pressed.
+      const at = document.activeElement;
+      if (!at || at === document.body || card?.contains(at)) {
+        card?.querySelector<HTMLElement>(".rail")?.focus({ preventScroll: true });
+      }
     }
   }, [nav, leftRef, rightRef]);
 

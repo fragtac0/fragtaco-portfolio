@@ -12,7 +12,7 @@ export const gridWall: WallControl = {
   thaw() {},
   hold() {},
   rectOf(key) {
-    const el = document.querySelector<HTMLElement>(`.wall-scene .fb-videos [data-key="${key}"]`);
+    const el = document.querySelector<HTMLElement>(`.wall-scene .fb-videos [data-key="${CSS.escape(key)}"]`);
     return el ? el.getBoundingClientRect() : null;
   },
 };

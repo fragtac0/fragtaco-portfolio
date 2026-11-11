@@ -209,7 +209,7 @@ export default function SiteNav({
                     <a
                       key={link.label}
                       aria-label={link.label}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/68 transition-colors duration-150 hover:text-white sm:h-11 sm:w-11"
+                      className="flex h-9 w-9 max-[339px]:h-8 max-[339px]:w-8 shrink-0 items-center justify-center rounded-full text-white/68 outline-none transition-colors duration-150 hover:text-white focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-fog sm:h-11 sm:w-11"
                       href={link.url}
                       {...externalLinkProps(link.url)}
                     >

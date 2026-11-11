@@ -2,7 +2,7 @@
 
 Every round of feedback on the home page redesign, what changed in response, and what is still open. Each round lists the requests as given, then what the next mockup did about them. Newest round is at the bottom.
 
-**Status (2026-11-11):** the home page redesign is built (R24 to R30) and live for review at https://fragtaco-portfolio.vercel.app. Round 5 produced an [audit](audit-2026-11-11.md), a [design outline](../superpowers/specs/2026-11-11-polish-and-work-page-design.md) and a [build plan](../superpowers/plans/2026-11-11-polish-and-work-page.md) for a polish pass, a new work page and a timeline page.
+**Status (2026-11-11):** the home page redesign is built (R24 to R30) and live for review at https://fragtaco-portfolio.vercel.app. Round 5 produced an [audit](audit-2026-11-11.md), a [design outline](../superpowers/specs/2026-11-11-polish-and-work-page-design.md) and a [build plan](../superpowers/plans/2026-11-11-polish-and-work-page.md) for a polish pass, a new work page and a timeline page. The polish pass on the home page (R31 to R37) is built; the work page and the timeline are next.
 
 ## Contents
 
@@ -168,6 +168,61 @@ v2 also held 120 fps on this machine, so these numbers show v3 is smooth here; t
 
 **How it is built:** Sonnet at high effort implements one task at a time; Opus 5.5 reviews every task. At the end: a Vercel preview and a before and after page at `compare/index.html`.
 
+### What was done (R31 to R37, the home page)
+
+| Asked for | Done |
+| --- | --- |
+| Fix every bug, cleaner and organised code | 65 audit findings and 116 review notes worked through. Every change has a row in [changes-2026-11.md](changes-2026-11.md); every review note is fixed or closed with a reason in [deferred-review-notes.md](deferred-review-notes.md). One stylesheet per area, a tokens file, the shelf and wall engines and the hero split by job, dead code deleted (R31). |
+| The dock's first tab is "home" and opens the hero; "reel" becomes "work"; a quick blur between pages | Done (R32). With reduced motion the page change is a plain fade. |
+| The loader, the hero, paintings every 10 seconds | Lighter WebP paintings with blurred placeholders, the first painting chosen on the server, the name animating from first paint, a new painting every 10 seconds, the page never locked past 6.3 seconds (R33). |
+| Font and card sizes | One type scale and three text strengths; readable card rails; balanced blocks; focus rings for the keyboard only (R34). |
+| The book case animations and the shelf clipped on a phone with no way to slide it | The shelf never opens empty, books drop straight in, and it pans with mouse drag, trackpad, shift+wheel and touch, with a flick and a position marker (R35). |
+| The wall: more depth and life | Far and near planes, a gentle lean against the pointer, a channel echo, tiles that fade in from the centre, no empty panel while it loads (R36). |
+| Phone view, layout and symmetry | Landscape phones, the 320 px dock and the blocks' spacing fixed and measured (R34, R37). |
+| Video sync | Hardened: a bad playlist entry no longer stops it, the file is written atomically, thumbnails are checked properly (R37). |
+| Accessibility | Keyboard walk of every control and a reduced-motion walk: every control reachable with a visible ring, focus goes back where it came from, `Esc` closes video or book, then the layer, then the card; no motion at all with reduced motion (R37). |
+| A completely new work page, the timeline, variations | Not yet (R38 and R39). |
+
+Decisions taken while building, for Aditya to overrule:
+
+- Lighthouse is not installed and no dependency may be added, so the load numbers below come from `scripts/audit/load-metrics.json` (same idea: a phone, slow 4G, CPU 4x, cache off), not from Lighthouse.
+- The largest contentful paint on a slow phone is the roles line, which the loader reveals on purpose at about 4.3 s. Moving it earlier would change the loader's look, so it is left as designed.
+- The intro card's portrait (196 KB) is requested after the loader, in an idle moment, or sooner when the card is open or the pointer is over it. It used to compete with the first painting at about 490 ms.
+
+### Measured (R37)
+
+Production build, headless Chrome on the build machine at 60 Hz, frame gaps from `requestAnimationFrame` (the same method as `scripts/perf/sample-frames.js`, which also reports the 95th percentile). Every scenario was sampled at three sizes: 1440x900 (dpr 1), 390x844 (dpr 2, touch) and 390x844 with the CPU throttled 4x. The result was the same in all three, and in every scenario, so the table lists each scenario once.
+
+| Scenario | Sizes | Frames | Average | Worst frame | Frames over 20 ms |
+| --- | --- | --- | --- | --- | --- |
+| Hero idle for 12 s, with a painting change | all three | 720 | 16.67 ms | 16.8 ms | 0 |
+| Card open and close | all three | 150 | 16.67 ms | 16.8 ms | 0 |
+| Scroll to the blocks | all three | 120 | 16.67 ms | 16.8 ms | 0 |
+| Open the reading layer and the shelf entrance | all three | 210 | 16.67 ms | 16.8 ms | 0 |
+| Hover along the shelf | all three | 150 | 16.67 ms | 16.8 ms | 0 |
+| Open a book | all three | 90 | 16.67 ms | 16.8 ms | 0 |
+| Close the book | all three | 90 | 16.67 ms | 16.8 ms | 0 |
+| Close reading and open the watching layer | all three | 210 | 16.67 ms | 16.8 ms | 0 |
+| Wall drift | all three | 180 | 16.67 ms | 16.8 ms | 0 |
+| Hover sweep across the wall | all three | 150 | 16.67 ms | 16.8 ms | 0 |
+| Open a video | all three | 90 | 16.67 ms | 16.8 ms | 0 |
+| Close the video | all three | 90 | 16.67 ms | 16.8 ms | 0 |
+
+Cold shelf (CPU 4x, deep link `/#reading`): the placeholder is on screen in the frame the layer is ready; the 3D shelf replaces it 67 ms later; the worst frame while it prepares is 33 ms and none is over 50 ms.
+
+Caveat: this is a fast laptop in headless Chrome, so it shows the code does no avoidable work, not that a mid-range Android phone, an iPhone or an integrated-graphics laptop is smooth. Those three checks are Aditya's. `scripts/perf/sample-frames.js` is the snippet to paste into DevTools for them.
+
+Load for `/` on a phone profile (390x844, dpr 2, slow 4G at 1638 kbit/s and 150 ms latency, CPU 4x, cache off). Lighthouse is not installed and may not be added, so these come from `scripts/audit/load-metrics.json` (run through `scripts/audit/cdp.mjs`), not from Lighthouse; treat them as close, not identical, to a Lighthouse mobile run.
+
+| Measure | Before the portrait change (3eaaa28) | After (7780d64) | Note |
+| --- | --- | --- | --- |
+| First contentful paint | 744 ms | 720 ms | |
+| DOMContentLoaded | 728 ms | not recorded | |
+| Largest contentful paint | 5.8 s | 5.0 s (4976 ms) | Above the 2.5 s target. The element is the roles line, which the loader reveals as part of its sequence. |
+| Cumulative layout shift | 0.006 | 0.004 | |
+| Total transfer | 1049 KB in 47 requests | 1027 KB in 47 requests | Varies with the painting chosen for the first visit (one run read 1397 KB, because that painting is 480 KB). |
+| Largest files | `aditya.jpg` 196 KB, `three.module.js` 172 KB (requested at 3.35 s, idle time), `destruction-of-pompeii.webp` 128 KB, `isle-of-the-dead.webp` 89 KB | same files | Before, the portrait was requested at 493 ms, before the first painting finished. After, on a 1440x900 desktop load it is first requested at 4858 ms (after the loader) and shows on the intro card when it opens. |
+
 ---
 
 ## Decisions so far
@@ -196,6 +251,9 @@ v2 also held 120 fps on this machine, so these numbers show v3 is smooth here; t
 | The build is executed by Sonnet subagents at high effort, one task at a time, with a review after each | 3 | Asked for directly. |
 | Commits use the GitHub no-reply address; the history was rewritten to it before the first push | 3 | Answered after the builder check: the repo is public. |
 | Hero paintings use 1600 and 2560 px copies; the name and logo do not wait for the first painting; a tap opens a video on touch | 3 | Builder check: smooth on phones and slow connections; matches v4. |
+| Load numbers come from `scripts/audit/load-metrics.json`, not Lighthouse | 5 | Lighthouse is not installed and no dependency may be added. |
+| The roles line stays the largest contentful paint on a slow phone | 5 | The loader reveals it by design; earlier would change the loader's look. |
+| The intro card's portrait loads after the loader | 5 | It was competing with the first painting on slow networks; it still loads sooner when the card is about to open. |
 
 ## Open questions
 
@@ -219,3 +277,4 @@ None open. Asked after v3 and answered on 2026-11-02:
 - R34 type and layout (part 2): the card rails read 13 px at rest and the cue and caption disappear while a card is open; the two blocks have equal space above and below (the dock's band counts below) and the mini shelf is centred and spans the block; counts are pluralised; focus rings show for the keyboard only; the credits portrait is a 17 KB JPEG; the "See the reel" pill reads "See the work".
 - R35 shelf: the shelf never opens empty (a flat placeholder of the plank and spines shows until the 3D shelf is ready, which now prepares urgently once the layer is open); books drop straight in; the shelf pans with mouse drag, trackpad, shift+wheel and touch, with a flick and a position marker on narrow screens, and opens at its left end on phones; closing fades the scene before the layer shrinks; the header has a dark fade and the Esc chip is hidden on touch devices.
 - R36 wall: alternate columns sit further back (smaller, dimmer, slower), the wall leans gently against the pointer or a drag, other videos from the focused video's channel stay bright with a hairline edge and the chip counts them, tiles fade in from the centre as they load, a dark placeholder shows until the wall is ready, the header hides while a video is open, right-clicks no longer open videos, the hint mentions the keyboard, and a lost graphics context falls back to the plain grid.
+- R37 close-out: the video sync is hardened (a bad playlist entry or a corrupt file no longer stops it, the write is atomic, only a 404 stores the lower thumbnail); the keyboard and reduced-motion pass (cue and dock rings, the blocks inert behind an open card, focus back where it came from); the dock fits at 320 px; every deferred review note is fixed or closed with a reason; frame timing measured in 12 scenarios at three setups (none over 20 ms) and load measured on a phone profile; the intro card's portrait loads after the loader; the README is rewritten and this folder is indexed.

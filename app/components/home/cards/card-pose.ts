@@ -17,6 +17,9 @@ export type CardPoseInput = {
 /** A drag settles on its target when progress is greater than this. */
 export const SETTLE_AT = 0.3;
 
+/** Whether a drag released at `progress` goes on to its target (strictly past SETTLE_AT) or springs back. */
+export const settlesOnTarget = (progress: number): boolean => progress > SETTLE_AT;
+
 const NUDGE = 14;
 const OFFSCREEN = 40;
 

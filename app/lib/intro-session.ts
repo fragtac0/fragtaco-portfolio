@@ -12,7 +12,7 @@ declare global {
 export const INTRO_KEY = "ft:intro-seen";
 
 /** A deep link means the visitor wants that place now, so the loader is skipped. */
-export const DEEP_LINKS = ["#about", "#reading", "#watching"];
+export const DEEP_LINKS: readonly string[] = ["#about", "#reading", "#watching"];
 
 export function introMode(s: {
   seen: boolean;
@@ -25,7 +25,8 @@ export function introMode(s: {
 }
 
 /**
- * Plain ES5, runs inline in <head> before any bundle. Same rules as introMode;
+ * Plain ES5, runs inline in <head> before any bundle. Same rules as introMode (a parity test runs
+ * both over every combination of the three inputs);
  * blocked storage (getItem throws) counts as "not seen", so the loader plays.
  * Free variables: document, sessionStorage, location, matchMedia, setTimeout, performance, window.
  * When the loader will play it also records `window.__introT0` (performance.now()): the moment the
@@ -35,6 +36,9 @@ export function introMode(s: {
  * reveal wait) removes it regardless and adds `intro-timeout`, which loader.css uses to show a
  * finished hero (final lockup, blurred painting) until the hero's script takes over.
  */
+// The only values interpolated into the script are JSON.stringify of constants (the storage key and
+// the deep links), so there is nothing to escape. If one ever becomes user input, a "<" in it could
+// close the <script> element: escape it as "\u003c" first.
 export const INTRO_HEAD_SCRIPT = [
   "try{",
   "var seen=false;",

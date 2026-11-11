@@ -1,4 +1,5 @@
-import { useMemo, useRef, type CSSProperties } from "react";
+import { memo, useMemo, useRef, type CSSProperties } from "react";
+import { inertProps } from "../../../utils/inert";
 import { countLabel } from "../../../utils/count-label";
 import type { SiteBook, SiteVideo } from "../../../types";
 import type { LayerKind } from "../layer/layer-state";
@@ -20,9 +21,11 @@ type InterestBlocksProps = {
   onOpen: (kind: LayerKind, el: HTMLElement) => void;
   /** Fires once per kind, in idle time, when its block comes within 240 px of the viewport. */
   onNear: (kind: LayerKind) => void;
+  /** A hero card is open over the page: the blocks are out of the tab order until it closes. */
+  blocked?: boolean;
 };
 
-export default function InterestBlocks({ books, videos, onOpen, onNear }: InterestBlocksProps) {
+function InterestBlocks({ books, videos, onOpen, onNear, blocked = false }: InterestBlocksProps) {
   const readRef = useRef<HTMLElement>(null);
   const watchRef = useRef<HTMLElement>(null);
   const blocks = useMemo(
@@ -39,7 +42,12 @@ export default function InterestBlocks({ books, videos, onOpen, onNear }: Intere
   useMiniFit(shelfArtRef, shelfRowRef, fitSpines);
 
   return (
-    <section className="home-blocks" id="below" aria-label="Reading and watching">
+    <section
+      className="home-blocks"
+      id="below"
+      aria-label="Reading and watching"
+      {...inertProps(blocked)}
+    >
       <div className="tex" />
       <div className="below">
         <div className="blocks">
@@ -54,7 +62,9 @@ export default function InterestBlocks({ books, videos, onOpen, onNear }: Intere
                 {countLabel(books.length, "book", "books")} this year, mostly film and design. Pull
                 one off the shelf to see why it stayed with me.
               </p>
-              <span className="pill">Open the shelf</span>
+              <span className="pill" aria-hidden="true">
+                Open the shelf
+              </span>
             </div>
             <div ref={shelfArtRef} className="blk-art ms" aria-hidden="true">
               <div className="ms-plank" />
@@ -86,7 +96,7 @@ export default function InterestBlocks({ books, videos, onOpen, onNear }: Intere
               className="blk-hit"
               data-xp="reading"
               aria-label="Open the shelf"
-              onClick={(e) => onOpen("reading", e.currentTarget.closest("article") as HTMLElement)}
+              onClick={(e) => onOpen("reading", readRef.current ?? e.currentTarget)}
             />
           </article>
           <article ref={watchRef} className="block idle" id={BLOCK_ID.watching}>
@@ -100,7 +110,9 @@ export default function InterestBlocks({ books, videos, onOpen, onNear }: Intere
                 {countLabel(videos.length, "video", "videos")} I keep sending to friends: essays,
                 rabbit holes, and a few masterclasses.
               </p>
-              <span className="pill">Open the wall</span>
+              <span className="pill" aria-hidden="true">
+                Open the wall
+              </span>
             </div>
             <div className="blk-art mw" aria-hidden="true">
               <div className="mw-cols">
@@ -124,7 +136,7 @@ export default function InterestBlocks({ books, videos, onOpen, onNear }: Intere
               className="blk-hit"
               data-xp="watching"
               aria-label="Open the wall"
-              onClick={(e) => onOpen("watching", e.currentTarget.closest("article") as HTMLElement)}
+              onClick={(e) => onOpen("watching", watchRef.current ?? e.currentTarget)}
             />
           </article>
         </div>
@@ -132,3 +144,6 @@ export default function InterestBlocks({ books, videos, onOpen, onNear }: Intere
     </section>
   );
 }
+
+// Memoised: the page re-renders on every card move, and the blocks only care about `blocked`.
+export default memo(InterestBlocks);

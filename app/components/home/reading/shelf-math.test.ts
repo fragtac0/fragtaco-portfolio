@@ -134,7 +134,19 @@ describe("fitCamera", () => {
   it("keeps the height fit as a floor and caps the pull-back", () => {
     const dH = 3.05 / 2 / Math.tan(half);
     expect(fitCamera({ fovDeg: 26, aspect: 0.46, span: 14 }).dist).toBeCloseTo(dH * 1.3, 10);
-    expect(fitCamera({ fovDeg: 26, aspect: 1.6, span: 14 }).dist).toBeLessThanOrEqual(dH * 2.3 + 1e-9);
+    // a wide screen and a long shelf: the width fit would be far back, so the 2.3 cap holds it
+    expect(fitCamera({ fovDeg: 26, aspect: 1.6, span: 14 }).dist).toBeCloseTo(dH * 2.3, 10);
+  });
+  it("never goes closer than the height fit, however wide the screen", () => {
+    const dH = 3.05 / 2 / Math.tan(half);
+    expect(fitCamera({ fovDeg: 26, aspect: 3, span: 1.6 }).dist).toBeCloseTo(dH, 10);
+  });
+  it("with a real shelf (span about 2.8) a wide screen sits at the height fit and a phone at 1.3 times it", () => {
+    const dH = 3.05 / 2 / Math.tan(half);
+    expect(fitCamera({ fovDeg: 26, aspect: 1.6, span: 2.8 }).dist).toBeCloseTo(dH, 10);
+    const phone = fitCamera({ fovDeg: 26, aspect: 0.46, span: 2.8 });
+    expect(phone.dist).toBeCloseTo(dH * 1.3, 10);
+    expect(phone.maxX).toBeGreaterThan(0);
   });
 });
 

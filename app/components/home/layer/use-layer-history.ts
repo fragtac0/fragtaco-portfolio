@@ -41,10 +41,7 @@ type Options = {
  * the page lock while it is open. Behaviour ported as it was in HomePage.
  */
 export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
-  const [layer, rawDispatchLayer] = useReducer(layerReducer, {
-    kind: null,
-    phase: "closed",
-  } as LayerState);
+  const [layer, rawDispatchLayer] = useReducer(layerReducer, { kind: null, phase: "closed" });
   // The phase ref is advanced right where the reducer is dispatched (the reducer is pure, so it
   // computes the same state React will), never in a passive effect: openLayer and closeLayer can
   // run twice before a render and must see the phase the first call left.
@@ -85,8 +82,12 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
       pushedRef.current = false;
       window.history.back();
     } else {
-      // a deep link owns no entry of its own: just drop the hash
-      window.history.replaceState(window.history.state, "", "/");
+      // a deep link owns no entry of its own: just drop the hash (the query string stays)
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname + window.location.search,
+      );
     }
   }, [dispatchLayer]);
   const registerSceneHooks = useCallback((hooks: LayerSceneHooks) => {

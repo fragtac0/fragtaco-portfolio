@@ -8,6 +8,7 @@ import IntroCard from "./intro-card";
 import "./cards.css";
 import "./cards-responsive.css";
 import { useCardInput } from "./use-card-input";
+import { usePortraitWanted } from "./use-portrait";
 import { NO_HOT, useCardPoses } from "./use-card-poses";
 
 type HeroCardsProps = {
@@ -32,6 +33,7 @@ export default function HeroCards({ about, credits, nav, dispatch, hero, navCtx 
   const scrimRef = useRef<HTMLDivElement>(null);
   const [hot, setHot] = useState(NO_HOT);
 
+  const portrait = usePortraitWanted(nav, hot.right);
   const live = useCardPoses({ leftRef, rightRef, nav, hot, setHot, dispatch });
   useCardInput({ hero, leftRef, rightRef, scrimRef, setHot, ctx: navCtx, live });
 
@@ -46,6 +48,7 @@ export default function HeroCards({ about, credits, nav, dispatch, hero, navCtx 
       />
       <IntroCard
         about={about}
+        portrait={portrait}
         cardRef={rightRef}
         mode={modeOf(nav, "right")}
         hot={hot.right}

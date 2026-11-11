@@ -42,7 +42,11 @@ for (const s of steps) {
   if (s.cpu) await send("Emulation.setCPUThrottlingRate", { rate: s.cpu });
   if (s.go) { await send("Page.navigate", { url: s.go }); }
   if (s.wait) await sleep(s.wait);
-  if (s.key) for (const type of ["keyDown", "keyUp"]) await send("Input.dispatchKeyEvent", { type, key: s.key, code: s.key, windowsVirtualKeyCode: s.vk ?? 0 });
+  if (s.key) for (const type of ["keyDown", "keyUp"]) {
+    // Enter and Space need their text on the keyDown, or a focused button never activates
+    const text = type === "keyDown" ? (s.key === "Enter" ? "\r" : s.key === " " ? " " : undefined) : undefined;
+    await send("Input.dispatchKeyEvent", { type, key: s.key, code: s.key, windowsVirtualKeyCode: s.vk ?? 0, ...(text ? { text } : {}) });
+  }
   if (s.click) for (const type of ["mouseMoved", "mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: s.click[0], y: s.click[1], button: "left", clickCount: 1 });
   if (s.move) await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: s.move[0], y: s.move[1] });
   if (s.sweep) { const [x0, y0, x1, y1, n] = s.sweep; for (let i = 0; i <= n; i++) { await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x0 + (x1 - x0) * i / n, y: y0 + (y1 - y0) * i / n }); await sleep(16); } }

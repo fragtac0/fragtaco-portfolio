@@ -68,6 +68,21 @@ export default tseslint.config(
     },
   },
   {
+    // console snippets, pasted into DevTools as classic scripts: browser globals, and the
+    // function they define is used by whoever pastes them
+    files: ["scripts/perf/**/*.js"],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      sourceType: "script",
+      globals: { ...globals.browser, ...globals.es2022 },
+    },
+    rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-unused-vars": "off",
+    },
+  },
+  {
     files: ["*.config.ts"],
     rules: {
       "@typescript-eslint/no-unsafe-assignment": "off",
