@@ -13,6 +13,7 @@ export default tseslint.config(
       ".vercel/**",
       "public/**",
       "vendor/**",
+      "scripts/*.d.mts",
       "eslint.config.js",
     ],
   },
