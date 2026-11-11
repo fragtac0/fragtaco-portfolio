@@ -125,15 +125,18 @@
   inset: 0;
   pointer-events: none;
 }
-/* One ring (and its sub-ring). It scales up and fades in on arrival, each ring 60 ms after the one inside it. */
+/* One ring (and its sub-ring). It scales up and fades in on arrival, each ring 60 ms after the one inside it.
+   The arrival runs once: use-view-flip sets data-arrived after it, so it does not start over when the rings come back from a view. */
 .work-ring-group {
   position: absolute;
   inset: 0;
+}
+.work-page[data-view="all"]:not([data-arrived]) .work-ring-group {
   animation: work-ring-in 500ms var(--ease-out) backwards;
   animation-delay: calc(var(--g) * 60ms);
 }
 /* the ring the pointer or keyboard is on sits above the others, so its label is never covered */
-.work-ring-group:has(.work-item:hover, .work-item-face:focus-visible) {
+.work-page[data-view="all"] .work-ring-group:has(.work-item:hover, .work-item-face:focus-visible) {
   z-index: var(--z-cards);
 }
 .work-ring {
@@ -286,7 +289,8 @@
 /* ---------- phones ---------- */
 /* Item sizes and ring radii on a phone come from ring-math (`fitScale`), so the first two rings fit the
    screen's width. The intro is the title and one short line, with a dark halo so a passing item never mutes it. */
-@media (max-width: 700px) {  .work-text {
+@media (max-width: 700px) {
+  .work-text {
     max-width: 15ch; /* narrow enough to sit inside the stack ring */
     margin-top: 10px;
     font-size: var(--t-meta);
@@ -312,7 +316,7 @@
   .work-item-turn {
     animation: none;
   }
-  .work-ring-group {
+  .work-page[data-view="all"]:not([data-arrived]) .work-ring-group {
     animation: work-fade 300ms ease-out backwards;
     animation-delay: 0s;
   }
