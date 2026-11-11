@@ -7,6 +7,7 @@
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx"
   ],
+  "exclude": ["node_modules", "vendor"],
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",

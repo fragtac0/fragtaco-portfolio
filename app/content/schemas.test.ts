@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -215,9 +215,24 @@ describe("work.json", () => {
 
   it("parses and holds the placeholder content", () => {
     expect(work.stack).toHaveLength(8);
-    expect(work.longForm).toHaveLength(16);
-    expect(work.shortForm).toHaveLength(24);
+    expect(work.longForm).toHaveLength(35);
+    expect(work.shortForm).toHaveLength(35);
     expect(work.clients).toHaveLength(10);
+  });
+
+  it("numbers the placeholders long-01..long-35 and short-01..short-35", () => {
+    const ids = (n: number, kind: string) => Array.from({ length: n }, (_, i) => `${kind}-${String(i + 1).padStart(2, "0")}`);
+
+    expect(work.longForm.map((v) => v.id)).toEqual(ids(35, "long"));
+    expect(work.shortForm.map((v) => v.id)).toEqual(ids(35, "short"));
+  });
+
+  it("points every stack icon at a file that exists under public/stack", () => {
+    for (const item of work.stack) {
+      if (item.icon === undefined) continue;
+
+      expect(existsSync(path.join(process.cwd(), "public", item.icon))).toBe(true);
+    }
   });
 
   it("keeps the tools in the old tech stack's order", () => {
@@ -244,9 +259,48 @@ describe("WorkStackItemSchema", () => {
     expect(WorkStackItemSchema.safeParse({ id: "a", mark: "Pre", label: "x" }).success).toBe(true);
   });
 
+  it("accepts an icon under /stack/ and no icon at all", () => {
+    const base = { id: "a", mark: "Pr", label: "Premiere Pro" };
+
+    expect(WorkStackItemSchema.safeParse({ ...base, icon: "/stack/premiere-pro.svg" }).success).toBe(true);
+    expect(WorkStackItemSchema.safeParse({ ...base, icon: "/stack/final-cut-pro.png" }).success).toBe(true);
+    expect(WorkStackItemSchema.safeParse(base).success).toBe(true);
+  });
+
+  it("rejects an icon that is not a file under /stack/", () => {
+    const base = { id: "a", mark: "Pr", label: "Premiere Pro" };
+
+    expect(WorkStackItemSchema.safeParse({ ...base, icon: "/other/pr.svg" }).success).toBe(false);
+    expect(WorkStackItemSchema.safeParse({ ...base, icon: "stack/pr.svg" }).success).toBe(false);
+    expect(WorkStackItemSchema.safeParse({ ...base, icon: "https://example.com/stack/pr.svg" }).success).toBe(false);
+    expect(WorkStackItemSchema.safeParse({ ...base, icon: "/stack/../secret.svg" }).success).toBe(false);
+    expect(WorkStackItemSchema.safeParse({ ...base, icon: "/stack/pr.exe" }).success).toBe(false);
+    expect(WorkStackItemSchema.safeParse({ ...base, icon: "" }).success).toBe(false);
+  });
+
   it("rejects an empty mark and one of 4 characters", () => {
     expect(WorkStackItemSchema.safeParse({ id: "a", mark: "", label: "x" }).success).toBe(false);
     expect(WorkStackItemSchema.safeParse({ id: "a", mark: "Prem", label: "x" }).success).toBe(false);
+  });
+});
+
+describe("WorkSchema", () => {
+  const stack = [{ id: "a", mark: "Pr", label: "Premiere Pro" }];
+  const intro = { title: "Work", text: "Short intro." };
+  const videos = (kind: string, n: number) =>
+    Array.from({ length: n }, (_, i) => ({ ...validWorkVideo, id: `${kind}-${i + 1}` }));
+
+  it("parses 35 long form and 35 short form entries", () => {
+    const parsed = WorkSchema.safeParse({ intro, stack, longForm: videos("long", 35), shortForm: videos("short", 35), clients: [] });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("takes clients as empty or present", () => {
+    const base = { intro, stack, longForm: videos("long", 1), shortForm: videos("short", 1) };
+
+    expect(WorkSchema.safeParse({ ...base, clients: [] }).success).toBe(true);
+    expect(WorkSchema.safeParse({ ...base, clients: [validWorkClient] }).success).toBe(true);
   });
 });
 

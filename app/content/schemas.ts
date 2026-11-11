@@ -152,6 +152,11 @@ export const WorkStackItemSchema = z.object({
   id: z.string().min(1),
   mark: z.string().min(1).max(3),
   label: z.string().min(1),
+  // The app's own icon, a file in public/stack/. Optional: with none, the two-letter mark is shown.
+  icon: z
+    .string()
+    .regex(/^\/stack\/[A-Za-z0-9._-]+\.(svg|png)$/, "Expected a path under /stack/ ending in .svg or .png")
+    .optional(),
 });
 
 export const WorkVideoSchema = z
