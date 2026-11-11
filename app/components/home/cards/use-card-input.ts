@@ -1,6 +1,6 @@
 import { useEffect, type Dispatch, type MutableRefObject, type RefObject, type SetStateAction } from "react";
 import type { HeroHandle } from "../hero/hero";
-import { SETTLE_AT, dragProgress, type Side } from "./card-pose";
+import { dragProgress, settlesOnTarget, type Side } from "./card-pose";
 import type { NavContext } from "./hero-nav";
 import {
   NO_HOT,
@@ -158,7 +158,7 @@ export function useCardInput({ hero, leftRef, rightRef, scrimRef, setHot, ctx, l
       }
       if (!d) return;
       delete d.el.dataset.dragging;
-      const next = how === "settle" && d.p > SETTLE_AT ? d.target : d.origin;
+      const next = how === "settle" && settlesOnTarget(d.p) ? d.target : d.origin;
       if (how === "settle") go(next);
       // going back to where it started changes no state, so put the cards back by hand
       placeAll(els, how === "settle" ? next : navRef.current, how === "settle" ? NO_HOT : hotRef.current);

@@ -110,6 +110,10 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
       })
       .then(() => {
         if (live && engine.hasFailed()) setFallback(true);
+      })
+      // a step of the scene's set-up threw: the plain grid takes over, never an unhandled rejection
+      .catch(() => {
+        if (live) setFallback(true);
       });
     return () => {
       live = false;
@@ -127,7 +131,7 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
     setHeaderHidden(open);
     if (!open && wasOpen.current) {
       const back = fallback
-        ? sceneRef.current?.querySelector<HTMLElement>(`[data-key="${lastKey.current}"]`)
+        ? sceneRef.current?.querySelector<HTMLElement>(`[data-key="${CSS.escape(lastKey.current ?? "")}"]`)
         : hostRef.current?.querySelector("canvas");
       back?.focus({ preventScroll: true });
     }

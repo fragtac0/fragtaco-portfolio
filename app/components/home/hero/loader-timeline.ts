@@ -28,12 +28,15 @@ export const LOADER = {
  */
 export const INTRO_LOCK_MS = LOADER.done + LOADER.revealMaxWait;
 
-export type LoaderStep = { at: number; step: string; index?: number };
+/** The steps JavaScript performs, in order (CSS owns the name and the logo letters). */
+export type LoaderStepName = "logo" | "reveal" | "nameSmall" | "roles" | "done";
+export type LoaderStep = { at: number; step: LoaderStepName; index?: number };
 
 /**
  * Nominal timeline, in ms since the head script ran. CSS owns the name (grow, letters in and out),
- * so only the steps JavaScript performs are listed. The hero shifts the steps after "reveal" by
- * however long the reveal was held (see revealPlan); no wait is baked in here. The logo's
+ * so only the steps JavaScript performs are listed, already in time order (the test pins it). The
+ * hero shifts the reveal and every step after it by however long the reveal was held (the shift
+ * starts at the reveal itself, see revealPlan); no wait is baked in here. The logo's
  * per-group delays (logoFirstLetter, logoLetterStep) are CSS transition delays, not steps.
  */
 export function loaderSchedule(_name: string): LoaderStep[] {

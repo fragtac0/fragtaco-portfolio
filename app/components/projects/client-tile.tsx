@@ -19,7 +19,7 @@ export default function ClientTile({ client, ariaHidden }: ClientTileProps) {
           draggable={false}
           // A 404 that resolves before hydration attaches its listeners
           // fires (and bubbles past) before onError exists to catch it —
-          // the same race hero-section.tsx's onLoad already works around.
+          // the same race the hero's image loader (utils/load-image.ts) works around.
           // The ref callback catches an already-failed image on mount;
           // onError still covers one that fails after that.
           ref={(node) => {

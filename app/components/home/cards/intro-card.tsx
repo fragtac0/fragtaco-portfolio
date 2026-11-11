@@ -38,7 +38,7 @@ export default function IntroCard({ about, cardRef, mode, hot }: IntroCardProps)
         <div
           className="ph"
           aria-hidden="true"
-          style={{ backgroundImage: `url(${PORTRAIT})` }}
+          style={{ backgroundImage: `url("${PORTRAIT}")` }}
         />
         <div className="intro-text card-scroll" tabIndex={-1}>
           <h2 className="display">

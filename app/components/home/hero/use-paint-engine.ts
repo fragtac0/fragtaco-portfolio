@@ -49,8 +49,10 @@ export function usePaintEngine({ rootRef, hostRef, engineRef, parkedRef, blurRef
       view.pageVisible = !document.hidden;
     };
     document.addEventListener("visibilitychange", onVisibility);
-    const observer = new IntersectionObserver(([entry]) => {
-      view.heroOn = entry.isIntersecting;
+    // the last entry is the newest: a batch can hold several for the one target
+    const observer = new IntersectionObserver((entries) => {
+      const last = entries[entries.length - 1];
+      if (last) view.heroOn = last.isIntersecting;
     });
     observer.observe(root);
     let raf = requestAnimationFrame(function loop(now) {

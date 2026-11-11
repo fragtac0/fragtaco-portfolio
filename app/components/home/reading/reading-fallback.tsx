@@ -53,7 +53,7 @@ export default function ReadingFallback({ books }: ReadingFallbackProps) {
       const id = returnTo.current;
       returnTo.current = null;
       gridRef.current
-        ?.querySelector<HTMLElement>(`[data-book="${id}"]`)
+        ?.querySelector<HTMLElement>(`[data-book="${CSS.escape(id)}"]`)
         ?.focus({ preventScroll: true });
     }
   }, [openId]);

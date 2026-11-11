@@ -63,7 +63,11 @@ function run(opts: {
     },
   };
   const location = { hash: opts.hash ?? "" };
-  const matchMedia = () => ({ matches: !!opts.reduced });
+  const queries: string[] = [];
+  const matchMedia = (q: string) => {
+    queries.push(q);
+    return { matches: !!opts.reduced };
+  };
   // The head script is a string that runs with these seven injected globals, so it must be evaluated.
   // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-call
   new Function(
@@ -76,10 +80,30 @@ function run(opts: {
     "window",
     INTRO_HEAD_SCRIPT,
   )(document, sessionStorage, location, matchMedia, setTimeout, performance, win);
-  return { added, removed, keysRead, timers, win, present };
+  return { added, removed, keysRead, timers, win, present, queries };
 }
 
 describe("INTRO_HEAD_SCRIPT", () => {
+  it("asks for exactly the reduced-motion media query", () => {
+    expect(run({}).queries).toEqual(["(prefers-reduced-motion: reduce)"]);
+  });
+  it("is plain ES5: no arrow functions, let, const, template strings, spread or optional chaining", () => {
+    expect(INTRO_HEAD_SCRIPT).not.toMatch(/=>|\blet\b|\bconst\b|`|\.\.\.|\?\.|\?\?/);
+  });
+  it("never closes the <script> element it sits in", () => {
+    expect(INTRO_HEAD_SCRIPT).not.toMatch(/<\/?script/i);
+  });
+  it("agrees with introMode for every combination of seen, reduced motion and hash", () => {
+    for (const seen of [false, true]) {
+      for (const reduced of [false, true]) {
+        for (const hash of ["", "#about", "#reading", "#watching", "#other"]) {
+          const played = run({ stored: seen ? "1" : null, reduced, hash }).added.includes("intro");
+          const mode = introMode({ seen, hash, reducedMotion: reduced });
+          expect(played, `seen=${seen} reduced=${reduced} hash=${hash}`).toBe(mode === "play");
+        }
+      }
+    }
+  });
   it("adds the intro class when the loader will play", () => {
     const { added, keysRead } = run({});
     expect(added).toEqual(["intro"]);

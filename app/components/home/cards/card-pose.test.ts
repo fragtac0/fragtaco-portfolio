@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SETTLE_AT, cardMargin, cardPose, dragProgress, restScale } from "./card-pose";
+import { SETTLE_AT, cardMargin, cardPose, dragProgress, restScale, settlesOnTarget } from "./card-pose";
 
 const desktop = { vw: 1440, width: 778, rail: 100, hot: false };
 const phone = { vw: 375, width: 315, rail: 80, hot: false };
@@ -20,10 +20,11 @@ describe("cardMargin", () => {
   it("is 4.5% of the viewport from 700 up", () => {
     expect(cardMargin(1440, 778)).toBeCloseTo(64.8);
   });
-  it("never goes below 24 from 700 up", () => {
-    expect(Math.max(24, 700 * 0.045)).toBe(31.5);
-    expect(cardMargin(700, 400)).toBe(31.5);
-    expect(cardMargin(700, 400)).toBeGreaterThanOrEqual(24);
+  it("is never below the 24 px floor from 700 up (4.5% of 700 is already 31.5, so the floor is a guard)", () => {
+    for (let vw = 700; vw <= 3840; vw += 10) {
+      expect(cardMargin(vw, 400)).toBeGreaterThanOrEqual(24);
+    }
+    expect(cardMargin(700, 400)).toBeCloseTo(31.5);
   });
 });
 
@@ -81,8 +82,11 @@ describe("dragProgress", () => {
   });
 });
 
-describe("SETTLE_AT", () => {
-  it("is 0.3", () => {
-    expect(SETTLE_AT).toBe(0.3);
+describe("settlesOnTarget", () => {
+  it("is false at and below SETTLE_AT and true just past it", () => {
+    expect(settlesOnTarget(0)).toBe(false);
+    expect(settlesOnTarget(SETTLE_AT)).toBe(false);
+    expect(settlesOnTarget(SETTLE_AT + 0.001)).toBe(true);
+    expect(settlesOnTarget(1)).toBe(true);
   });
 });

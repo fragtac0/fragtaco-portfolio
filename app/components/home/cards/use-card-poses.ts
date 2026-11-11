@@ -36,7 +36,8 @@ export function measure(el: HTMLElement, side: Side, mode: Mode, hot: boolean): 
   return cardPose({
     side,
     mode,
-    vw: window.innerWidth,
+    // the hero's own width: with a classic scrollbar the window is wider than the page by its width
+    vw: el.parentElement?.clientWidth || window.innerWidth,
     width: el.offsetWidth,
     rail: rail?.offsetWidth ?? 0,
     hot,
