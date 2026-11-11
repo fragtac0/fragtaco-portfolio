@@ -14,6 +14,7 @@ import {
   RECENT_KEY,
   RECENT_LIMIT,
 } from "./painting-cycle";
+import { prepareBitmap } from "./paint-bitmaps";
 import { recallPainting, rememberPainting } from "./painting-memory";
 
 /** The plain crossfade from the blurred placeholder to the sharp painting. */
@@ -55,6 +56,8 @@ export type PaintingCycle = {
   count: number;
   /** The painting remembered from the last visit to the home route (position 0), or null. */
   recalled: () => FoundPainting | null;
+  /** Prepares a painting for a cheap upload (the remembered one, which comes back without a load). */
+  prepare: (img: HTMLImageElement) => Promise<void>;
   /**
    * The first painting in the order: the one the head preload fetched (same URL, when the browser
    * can show WebP), or the remembered image. Resolves null when there is none or it fails.
@@ -100,6 +103,8 @@ export type PaintingCycle = {
 
 type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "parkedRef" | "dataRef"> & {
   viewRef: MutableRefObject<HeroView>;
+  /** False while a page change is running: there is no engine yet, and the cycle starts with it. */
+  settled: boolean;
 };
 
 /**
@@ -116,6 +121,7 @@ export function usePaintingCycle({
   parkedRef,
   dataRef,
   viewRef,
+  settled,
 }: Options): MutableRefObject<PaintingCycle | null> {
   const cycleRef = useRef<PaintingCycle | null>(null);
   const picksRef = useRef<{ order: number[]; memory: Remembered | null } | null>(null);
@@ -123,7 +129,7 @@ export function usePaintingCycle({
   useEffect(() => {
     const root = rootRef.current;
     const paint = engineRef.current;
-    if (!root || !paint) return;
+    if (!settled || !root || !paint) return;
     const { paintings: items, firstPaintingId } = dataRef.current;
     const n = items.length;
     const timers = createTimers();
@@ -150,6 +156,12 @@ export function usePaintingCycle({
     let open: OpenPlaceholder | null = null;
     // counts the cycle's moves to another painting, so a late arrival can tell it is out of turn
     let moves = 0;
+    // a painting is loaded, decoded and prepared for a cheap upload (paint-bitmaps) before anything waits on it
+    const loadPainting = async (src: string) => {
+      const img = await loadImage(src);
+      if (img) await prepareBitmap(img);
+      return img;
+    };
     const dpr = () => window.devicePixelRatio || 1;
     const srcAt = (k: number) => paintingSrc(items[order[k]].file, window.innerWidth, dpr(), supportsWebp());
     // The first painting asks for what the preload in <head> fetched (see firstPaintingSrc).
@@ -171,7 +183,7 @@ export function usePaintingCycle({
     };
     const preloadNext = () => {
       np = pickNext(order, oi, readRecent(), ids);
-      nextImg = loadImage(srcAt(np));
+      nextImg = loadPainting(srcAt(np));
     };
     const scheduleNext = (ms = nextDelayMs()) => {
       clear(cycleT);
@@ -190,7 +202,7 @@ export function usePaintingCycle({
       // a painting that fails to load is skipped for the one after it
       for (let t = 0; !img && t < n - 1; t++) {
         oi = pickNext(order, oi, readRecent(), ids);
-        img = await loadImage(srcAt(oi));
+        img = await loadPainting(srcAt(oi));
         if (timers.isDisposed()) return;
       }
       if (!img) {
@@ -206,12 +218,15 @@ export function usePaintingCycle({
     };
     const firstLoad = async () => {
       if (n === 0) return null;
-      if (memory) return memory.img;
-      return loadImage(firstSrc(await whenWebpKnown()));
+      if (memory) {
+        await prepareBitmap(memory.img);
+        return memory.img;
+      }
+      return loadPainting(firstSrc(await whenWebpKnown()));
     };
     const firstLoaded: PaintingCycle["firstLoaded"] = async (first, maxWait, maxTries) => {
       for (let t = 0, k = nextRevealTry(t, n, maxTries); k !== null; k = nextRevealTry(++t, n, maxTries)) {
-        const pending = k === 0 ? first : loadImage(srcAt(k));
+        const pending = k === 0 ? first : loadPainting(srcAt(k));
         const img = Number.isFinite(maxWait) ? await atMost(pending, maxWait) : await pending;
         if (timers.isDisposed()) return null;
         if (img) return { img, k };
@@ -240,6 +255,7 @@ export function usePaintingCycle({
     cycleRef.current = {
       count: n,
       recalled: () => (memory ? { img: memory.img, k: 0 } : null),
+      prepare: (img) => prepareBitmap(img),
       firstLoad,
       firstLoaded,
       present,
@@ -312,7 +328,7 @@ export function usePaintingCycle({
       timers.dispose();
       cycleRef.current = null;
     };
-  }, [rootRef, engineRef, parkedRef, dataRef, viewRef]);
+  }, [rootRef, engineRef, parkedRef, dataRef, viewRef, settled]);
 
   return cycleRef;
 }

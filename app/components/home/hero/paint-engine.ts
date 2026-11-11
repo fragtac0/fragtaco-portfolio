@@ -12,6 +12,7 @@
  */
 
 import { kenBurnsZoom } from "./ken-burns";
+import { takeBitmap } from "./paint-bitmaps";
 import { FRAGMENT_SRC, VERTEX_SRC } from "./paint-shaders";
 
 export interface PaintMeta {
@@ -213,7 +214,10 @@ export function createPaint(
 
   const put = (i: number, img: HTMLImageElement, m: PaintMeta) => {
     gl.bindTexture(gl.TEXTURE_2D, tex[i]);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+    // a bitmap prepared off the main thread uploads in a fraction of the time (see paint-bitmaps)
+    const bitmap = takeBitmap(img);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, bitmap ?? img);
+    bitmap?.close();
     if (gl2) gl.generateMipmap(gl.TEXTURE_2D);
     meta[i] = {
       asp: img.naturalWidth / img.naturalHeight,

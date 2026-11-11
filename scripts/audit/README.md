@@ -19,3 +19,4 @@ scripts/audit/sheet.sh /tmp/out sheet-loader 4 480 300 load-0500 load-1200 load-
 Frame timing inside a step: evaluate a promise that samples `requestAnimationFrame` gaps for a few seconds and resolves with the worst gap and how many were over 20 ms.
 
 - Headless Chrome does not advance timers or CSS transitions while the page is idle between steps (nothing animating). State that depends on a timer (a layer closing, a hint fading) must be read with an `eval` that polls inside the page (a `setInterval` promise), not after a plain `wait`.
+- `page-change.json` (written by `make-page-change.mjs`, edit the generator and rerun it) measures a page change: home to work, back, and home to work again at 1440 by 900, dpr 2, CPU 4 times slower. A recorder started in the page before each click reads every animation frame gap from the click until 1 s after the path changes, and long-animation-frame entries say which script caused a long one. Needs the production build on :5180.

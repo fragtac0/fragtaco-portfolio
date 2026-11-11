@@ -1,4 +1,5 @@
 import { useEffect, useRef, type RefObject } from "react";
+import { afterSettled, isPageSettled } from "../../../lib/page-change";
 import { whenIdle } from "../../../utils/idle";
 import type { LayerKind } from "../layer/layer-state";
 
@@ -6,6 +7,8 @@ import type { LayerKind } from "../layer/layer-state";
 const NEAR_MARGIN = "240px 0px";
 /** The scene's prepare() starts in idle time, at the latest this long after the block comes near. */
 const NEAR_IDLE_TIMEOUT_MS = 1200;
+/** A page that arrives through a page change has the hero to start first: the scenes wait this long after the change is over. */
+const ARRIVAL_QUIET_MS = 1500;
 
 export type NearGate = {
   /** The block of `kind` is near: its callback is scheduled, once per kind. */
@@ -57,8 +60,13 @@ export function useNear(
   });
 
   useEffect(() => {
+    // Mounted in the middle of a page change: nothing here is needed yet, and the hero's start comes first.
+    const arriving = !isPageSettled();
     const gate = createNearGate(
-      (run) => whenIdle(run, NEAR_IDLE_TIMEOUT_MS),
+      (run) =>
+        arriving
+          ? afterSettled(ARRIVAL_QUIET_MS, () => void whenIdle(run, NEAR_IDLE_TIMEOUT_MS))
+          : whenIdle(run, NEAR_IDLE_TIMEOUT_MS),
       (kind) => latest.current.onNear(kind),
     );
     const kindOf = new Map<Element, LayerKind>();

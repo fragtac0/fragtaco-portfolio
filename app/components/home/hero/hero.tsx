@@ -1,7 +1,9 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, type CSSProperties, type ReactNode } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { SiteHeroPainting } from "../../../types";
+import { usePageArrived } from "../../../lib/use-page-settled";
 import "./hero.css";
 import { prefersReducedMotion } from "./hero-runtime";
+import { recallPainting } from "./painting-memory";
 import type { PaintEngine } from "./paint-engine";
 import Lockup from "./lockup";
 import { useLoader } from "./use-loader";
@@ -73,10 +75,24 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
     [],
   );
 
+  // Arriving during a page change: the engine, the painting upload and the loader wait for it to be over
+  // (the lag fix, see app/lib/page-change.ts). The painting remembered from the last visit is on screen
+  // meanwhile, as a plain image, so the page's first picture already looks right. A first load (server
+  // HTML and hydration) has nothing remembered and is never held back.
+  // The engine starts a frame after the change is over and the painting goes up two frames after that, so
+  // creating the context and compiling the shaders, and the upload, are different tasks.
+  const engineGo = usePageArrived(1);
+  const paintGo = usePageArrived(3);
+  const [still] = useState(() => {
+    const recalled = typeof window === "undefined" ? null : recallPainting();
+    const p = recalled ? paintings.find((q) => q.id === recalled.id) : undefined;
+    return recalled && p ? { src: recalled.img.currentSrc || recalled.img.src, focal: p.focal, zoom: p.zoom ?? 1 } : null;
+  });
+
   const runtime = { rootRef, engineRef, parkedRef, dataRef };
-  const viewRef = usePaintEngine({ ...runtime, hostRef, blurRef });
-  const cycleRef = usePaintingCycle({ ...runtime, viewRef });
-  useLoader({ ...runtime, cycleRef, onReadyRef });
+  const viewRef = usePaintEngine({ ...runtime, hostRef, blurRef, settled: engineGo });
+  const cycleRef = usePaintingCycle({ ...runtime, viewRef, settled: paintGo });
+  useLoader({ ...runtime, cycleRef, onReadyRef, settled: paintGo });
 
   // The first painting's blurred placeholder, as a CSS backdrop under the canvas. loader.css shows it
   // only when the page was unlocked by the head script's failsafe before this script joined.
@@ -103,7 +119,17 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
       data-softened={softened ? "" : undefined}
     >
       <div className="hero-layer">
-        <div className="paint-host" ref={hostRef} style={backdrop} aria-hidden="true" />
+        <div className="paint-host" ref={hostRef} style={backdrop} aria-hidden="true">
+          {still ? (
+            <img
+              className="paint-still"
+              src={still.src}
+              alt=""
+              decoding="sync"
+              style={{ objectPosition: still.focal, transform: `scale(${still.zoom})` }}
+            />
+          ) : null}
+        </div>
         <div className="tex" aria-hidden="true" />
         <div className="vignette" aria-hidden="true" />
         <Lockup name={name} roles={roles} />
