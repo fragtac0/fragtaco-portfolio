@@ -3,9 +3,19 @@ import { createSlicer } from "../../../utils/idle";
 import { createCoverQueue } from "./shelf-covers";
 import { attachShelfInput, createShelfInput } from "./shelf-input";
 import { createOpenPath, type ShelfCtx, type ShelfEls, type ShelfState } from "./shelf-open";
-import { poseBooks } from "./shelf-pose";
+import { createAnimate, poseBooks } from "./shelf-pose";
+import { createMarkerSync, hintText, HINT_NO_GL } from "./shelf-hud";
+import { fitShelf } from "./shelf-fit";
 import { buildShelfScene, loadShelfFonts, type ShelfScene } from "./shelf-scene";
-import { CAMERA, cameraAt, clamp, fitCamera, introSeconds, spring } from "./shelf-math";
+import {
+  CAMERA,
+  cameraAt,
+  clamp,
+  flick,
+  initialCamX,
+  introSeconds,
+  NARROW_PX,
+} from "./shelf-math";
 
 /**
  * The reading shelf: 14 books on a walnut plank, drawn with three.js. Ported from the `Shelf`
@@ -26,9 +36,9 @@ import { CAMERA, cameraAt, clamp, fitCamera, introSeconds, spring } from "./shel
  * still being drawn.
  *
  * The per-frame book poses are shelf-pose.ts, the open-book path is shelf-open.ts, the real covers
- * shelf-covers.ts, the scene shelf-scene.ts and
- * the listeners (keyboard, spec 8.10) shelf-input.ts; this file keeps the state, the frame and the
- * lifecycle.
+ * shelf-covers.ts, the scene shelf-scene.ts, the sizing shelf-fit.ts, the hint and position marker
+ * shelf-hud.ts and the listeners (keyboard, drag, wheel) shelf-input.ts; this file keeps the state,
+ * the frame (including the flick after a drag) and the lifecycle.
  */
 
 export type { ShelfEls };
@@ -60,9 +70,6 @@ export type ShelfEngine = {
 /** Thrown inside `build()` when the engine is disposed part-way through. */
 class Aborted extends Error {}
 
-const HINT_FINE = "Hover to pull a book out. Click to open it.";
-const HINT_TOUCH = "Tap a book to open it. Drag to look along the shelf.";
-const HINT_NO_GL = "The shelf could not start in this browser.";
 const STAGE_LABEL = "Bookshelf. Use left and right arrows to browse, Enter to open.";
 
 /** Client only: creates a canvas. The scene is built later, by `prepare()`. */
@@ -117,20 +124,16 @@ export function createShelf(
     dirty: true,
     focusIdx: -1,
     camTarget: null,
+    flickV: 0,
     fitW: 0,
     fitH: 0,
   };
   const cam = { x: 0, xV: 0 };
   const fadeBag = { fade: 0, fadeV: 0 };
 
-  /** A spring, or a snap to the target when motion is reduced. Returns whether it is still moving. */
-  const animate = (o: Record<string, number>, key: string, to: number, w: number, dt: number) => {
-    if (!reduced) return spring(o, key, to, w, dt);
-    const moved = o[key] !== to;
-    o[key] = to;
-    o[key + "V"] = 0;
-    return moved;
-  };
+  const animate = createAnimate(reduced);
+  // the position marker under the plank (shelf-hud.ts)
+  const syncMarker = createMarkerSync();
 
   // the open-book path and the input handlers work on this state through the context
   const ctx: ShelfCtx = {
@@ -140,6 +143,7 @@ export function createShelf(
     scene: () => gl,
     els: () => els,
     running: () => running,
+    reduced,
     intro,
   };
   const openBookPath = createOpenPath(ctx);
@@ -162,27 +166,9 @@ export function createShelf(
     return buildShelfScene(T, canvas, books, run, (tex, d) => covers.load(tex, d));
   }
 
-  // ---- sizing
+  // ---- sizing (shelf-fit.ts)
 
-  /** Sizes the renderer and camera to the canvas; nothing happens when the size is unchanged. */
-  function fit() {
-    if (!gl || !els) return;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    if (!w || !h) return;
-    if (w === st.fitW && h === st.fitH) return;
-    st.fitW = w;
-    st.fitH = h;
-    if (st.opened) closeBook(true);
-    const { renderer: r, camera, span } = gl;
-    r.setSize(w, h, false);
-    camera.aspect = w / h;
-    const f = fitCamera({ fovDeg: camera.fov, aspect: camera.aspect, span });
-    gl.dist = f.dist;
-    gl.maxX = f.maxX;
-    camera.updateProjectionMatrix();
-    st.dirty = true;
-  }
+  const fit = () => fitShelf(ctx, books, closeBook);
 
   const { handlers, pick, focusNext, openFocused } = createShelfInput(ctx, openBookPath, fit);
 
@@ -204,6 +190,15 @@ export function createShelf(
       if (animate(cam, "x", st.camTarget, 7, dt)) busy = true;
       else st.camTarget = null;
     }
+    if (st.flickV !== 0) {
+      // coasting after a flick; a touch, an arrow key or an open book ends it
+      const f = st.opened || st.down ? { dx: 0, v: 0 } : flick(st.flickV, dt);
+      const x = clamp(cam.x + f.dx, -s.maxX, s.maxX);
+      st.flickV = x === cam.x + f.dx ? f.v : 0; // an end of the shelf stops it
+      cam.x = x;
+      busy = true;
+    }
+    syncMarker(els?.marker, cam.x, s.maxX, s.visible);
     s.camera.position.set(cam.x, camPose.y, camPose.distance);
     s.camera.lookAt(cam.x, camPose.lookY, 0);
 
@@ -274,6 +269,7 @@ export function createShelf(
     runToken++;
     cancelAnimationFrame(raf);
     canvas.style.cursor = "";
+    canvas.classList.remove("dragging");
     closeBook(false);
     covers.wake(); // covers that waited for the scene to be calm can go now
   }
@@ -293,7 +289,8 @@ export function createShelf(
       if (els) unmount();
       els = next;
       next.host.appendChild(canvas);
-      next.hint.textContent = opts.fine ? HINT_FINE : HINT_TOUCH;
+      st.fitW = 0; // a new mount refits: the marker and camera limits are for this stage
+      next.hint.textContent = hintText(opts.fine, canvas.clientWidth < NARROW_PX);
       setNote(false);
       const ac = new AbortController();
       listeners = ac;
@@ -316,7 +313,9 @@ export function createShelf(
       // a skipped drop-in starts past its end, camera dolly included
       const skipped = opts?.skipIntro ? Math.max(intro() + 0.4, CAMERA.dollyS) : 0;
       st.t0 = performance.now() - skipped * 1000;
-      cam.x = cam.xV = 0;
+      cam.x = initialCamX(gl.maxX, canvas.clientWidth < NARROW_PX);
+      cam.xV = 0;
+      st.flickV = 0;
       fadeBag.fade = fadeBag.fadeV = 0;
       for (const b of gl.books) b.anim = { hover: 0, hoverV: 0, open: 0, openV: 0 };
       st.opened = null;

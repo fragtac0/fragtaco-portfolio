@@ -1,4 +1,4 @@
-import { clamp } from "./shelf-math";
+import { clamp, panFromDrag, wheelPanPx } from "./shelf-math";
 import type { OpenPath, ShelfCtx } from "./shelf-open";
 import type { Book } from "./shelf-scene";
 
@@ -12,6 +12,10 @@ import type { Book } from "./shelf-scene";
  * focus on the stage; Enter on the stage opens the highlighted book; Esc closes it (HomePage owns
  * Esc, through the hooks ReadingScene registers). Opening moves focus to "Put it back"; closing
  * returns it to the stage. The highlight clears when the stage loses focus.
+ *
+ * Panning (spec 3.6): dragging with a mouse, pen or finger moves the camera along the shelf (a
+ * movement over 6px is a drag, and a drag never opens a book); the release speed carries on as a
+ * flick the engine settles; a horizontal wheel (trackpad) or shift+wheel pans too.
  */
 
 export type ShelfInputHandlers = {
@@ -22,7 +26,8 @@ export type ShelfInputHandlers = {
   pointerMove: (e: PointerEvent) => void;
   pointerDown: (e: PointerEvent) => void;
   pointerUp: (e: PointerEvent) => void;
-  pointerCancel: () => void;
+  pointerCancel: (e: PointerEvent) => void;
+  wheel: (e: WheelEvent) => void;
   pointerLeave: () => void;
   /** The stage lost focus. */
   blur: () => void;
@@ -45,6 +50,8 @@ export function attachShelfInput(
   canvas.addEventListener("pointerup", h.pointerUp, on);
   canvas.addEventListener("pointercancel", h.pointerCancel, on);
   canvas.addEventListener("pointerleave", h.pointerLeave, on);
+  // not passive: a sideways wheel is ours, and must not also swipe the browser back
+  canvas.addEventListener("wheel", h.wheel, { signal, passive: false });
   canvas.addEventListener("blur", h.blur, on);
   window.addEventListener(
     "keydown",
@@ -104,6 +111,7 @@ export function createShelfInput(
     st.focusIdx = st.focusIdx < 0 ? (dir > 0 ? 0 : n - 1) : clamp(st.focusIdx + dir, 0, n - 1);
     const b = gl.books[st.focusIdx];
     st.camTarget = clamp(b.base.x, -gl.maxX, gl.maxX);
+    st.flickV = 0;
     st.dirty = true;
     announce(`${b.d.title}, ${b.d.author}. Book ${st.focusIdx + 1} of ${n}.`);
   }
@@ -121,29 +129,61 @@ export function createShelfInput(
       if (!gl) return;
       setNdc(e);
       st.inside = e.pointerType === "mouse";
-      if (st.down && e.pointerType !== "mouse" && !st.opened) {
-        const dx = e.clientX - st.down.x;
-        if (Math.abs(dx) > 6) st.down.moved = true;
-        cam.x = clamp(
-          st.down.cx - ((dx * gl.dist) / canvas.clientHeight) * 0.9,
-          -gl.maxX,
-          gl.maxX,
-        );
-        cam.xV = 0;
-        st.camTarget = null;
-        st.dirty = true;
+      const d = st.down;
+      if (!d || d.id !== e.pointerId || st.opened) return;
+      const dx = e.clientX - d.x;
+      if (!d.moved && Math.abs(dx) > 6) {
+        d.moved = true;
+        canvas.classList.add("dragging");
+        try {
+          canvas.setPointerCapture(e.pointerId);
+        } catch {
+          // the pointer is already gone: the drag simply ends with it
+        }
       }
+      if (!d.moved) return;
+      const x = panFromDrag(d.cx, dx, gl.dist, canvas.clientHeight, gl.maxX);
+      const dtS = (e.timeStamp - d.t) / 1000;
+      if (dtS > 0) {
+        const inst = (x - cam.x) / dtS;
+        d.v = d.v === 0 ? inst : d.v * 0.4 + inst * 0.6;
+        d.t = e.timeStamp;
+      }
+      cam.x = x;
+      cam.xV = 0;
+      st.camTarget = null;
+      st.dirty = true;
     },
     pointerDown(e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
       setNdc(e);
-      st.down = { x: e.clientX, cx: cam.x, moved: false };
+      if (st.down) return; // a second finger does not take over the drag
+      st.down = {
+        id: e.pointerId,
+        x: e.clientX,
+        cx: cam.x,
+        moved: false,
+        stopped: st.flickV !== 0,
+        t: e.timeStamp,
+        v: 0,
+      };
+      st.flickV = 0;
     },
     pointerUp(e) {
       setNdc(e);
-      const moved = st.down?.moved;
+      const d = st.down;
+      if (!d || d.id !== e.pointerId) return;
       st.down = null;
+      canvas.classList.remove("dragging");
       const gl = ctx.scene();
-      if (moved || !gl || !ctx.running()) return;
+      if (d.moved) {
+        // the release speed carries on, unless the pointer was held still before letting go
+        const fresh = e.timeStamp - d.t < 90;
+        st.flickV = ctx.reduced || !fresh ? 0 : d.v;
+        st.dirty = true;
+        return;
+      }
+      if (d.stopped || !gl || !ctx.running()) return;
       if (st.opened) {
         if (!pick([st.opened])) closeBook(true);
         return;
@@ -151,7 +191,24 @@ export function createShelfInput(
       const hit = pick(gl.books);
       if (hit) openBook(hit);
     },
-    pointerCancel: () => (st.down = null),
+    pointerCancel(e) {
+      if (st.down?.id !== e.pointerId) return;
+      st.down = null;
+      canvas.classList.remove("dragging");
+    },
+    wheel(e) {
+      const gl = ctx.scene();
+      if (!gl || !ctx.running() || st.opened) return;
+      const lines = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1;
+      const px = wheelPanPx(e.deltaX * lines, e.deltaY * lines, e.shiftKey);
+      if (px === null) return;
+      e.preventDefault();
+      cam.x = clamp(cam.x + (px * gl.dist) / canvas.clientHeight, -gl.maxX, gl.maxX);
+      cam.xV = 0;
+      st.camTarget = null;
+      st.flickV = 0;
+      st.dirty = true;
+    },
     pointerLeave: () => (st.inside = false),
     blur() {
       // the keyboard highlight lives only while the stage has focus (opening moves focus on)

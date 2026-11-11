@@ -1,5 +1,5 @@
 import type { Book, ShelfScene } from "./shelf-scene";
-import { dropProgress, easeOut, openPhases, WALLZ } from "./shelf-math";
+import { dropProgress, DROP_FALL, easeOut, openPhases, spring, WALLZ } from "./shelf-math";
 
 /** A spring, or a snap when motion is reduced. Returns whether it is still moving. */
 export type Animate = (
@@ -9,6 +9,17 @@ export type Animate = (
   w: number,
   dt: number,
 ) => boolean;
+
+/** The engine's springs: real ones, or a snap to the target when motion is reduced. */
+export function createAnimate(reduced: boolean): Animate {
+  return (o, key, to, w, dt) => {
+    if (!reduced) return spring(o, key, to, w, dt);
+    const moved = o[key] !== to;
+    o[key] = to;
+    o[key + "V"] = 0;
+    return moved;
+  };
+}
 
 export type PoseInput = {
   /** Seconds since the shelf started (a drop-in that is skipped starts long past its end). */
@@ -41,7 +52,7 @@ export function poseBooks(s: ShelfScene, f: PoseInput): boolean {
     if (animate(a, "hover", b === f.hover || b === f.focused ? 1 : 0, 9, dt)) busy = true;
     if (animate(a, "open", b === f.opened ? 1 : 0, 5, dt)) busy = true;
     p.copy(b.base);
-    p.y += a.hover * 0.12 + (1 - e) * 1.2;
+    p.y += a.hover * 0.12 + (1 - e) * DROP_FALL;
     p.z += a.hover * 0.16;
     // two phases: slide straight out of the shelf (+z), clear of the neighbours, then travel and turn
     const { pull, present } = a.open > 0.001 ? openPhases(a.open) : { pull: 0, present: 0 };
@@ -49,7 +60,6 @@ export function poseBooks(s: ShelfScene, f: PoseInput): boolean {
     if (present > 0) p.lerp(b.openPos, present);
     b.g.position.copy(p);
     q.copy(b.baseQ);
-    if (k < 1) q.premultiply(s.tmpQ2.setFromAxisAngle(s.zAxis, (1 - e) * b.tilt));
     if (present > 0) {
       q.slerp(s.qOpen, present);
       if (!reduced) {

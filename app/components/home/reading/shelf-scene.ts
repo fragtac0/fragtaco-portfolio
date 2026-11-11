@@ -41,7 +41,6 @@ export type Book = {
   /** The numbers the springs animate, kept apart from the three.js objects. */
   anim: Bag;
   order: number;
-  tilt: number;
 };
 
 /** The scene record: everything the engine needs to draw, pick and animate. */
@@ -56,6 +55,8 @@ export type ShelfScene = {
   span: number;
   dist: number;
   maxX: number;
+  /** The share (0..1) of the shelf's width on screen at once; 1 when it all fits. */
+  visible: number;
   ray: THREE.Raycaster;
   ndc: THREE.Vector2;
   ndc2: THREE.Vector2;
@@ -64,7 +65,6 @@ export type ShelfScene = {
   tmpQ: THREE.Quaternion;
   tmpQ2: THREE.Quaternion;
   yAxis: THREE.Vector3;
-  zAxis: THREE.Vector3;
   qOpen: THREE.Quaternion;
   /** Frees the geometries, materials, textures and the GL context. */
   dispose(): void;
@@ -202,7 +202,6 @@ export async function buildShelfScene(
         openPos: new T.Vector3(),
         anim: { hover: 0, hoverV: 0, open: 0, openV: 0 },
         order: i,
-        tilt: (rnd(i) - 0.5) * 0.4,
       });
     };
     // texture painting is spread over time, a few books at a time
@@ -222,7 +221,6 @@ export async function buildShelfScene(
       ),
     );
     const yAxis = new T.Vector3(0, 1, 0);
-    const zAxis = new T.Vector3(0, 0, 1);
     const qY = (a: number) => new T.Quaternion().setFromAxisAngle(yAxis, a);
     const gap = SHELF_GAP;
     const span = list.reduce((s, b) => s + b.T, 0) + gap * (list.length - 1);
@@ -276,6 +274,7 @@ export async function buildShelfScene(
       span,
       dist: 6,
       maxX: 0,
+      visible: 1,
       ray: new T.Raycaster(),
       ndc: new T.Vector2(-9, -9),
       ndc2: new T.Vector2(),
@@ -284,7 +283,6 @@ export async function buildShelfScene(
       tmpQ: new T.Quaternion(),
       tmpQ2: new T.Quaternion(),
       yAxis,
-      zAxis,
       qOpen: new T.Quaternion().setFromAxisAngle(yAxis, 0.3),
       dispose,
     };

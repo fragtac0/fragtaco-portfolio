@@ -36,6 +36,7 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
   const dimRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLParagraphElement>(null);
+  const markerRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLParagraphElement>(null);
   // three.js 0.169 needs WebGL2 (`?nogl=1` also lands here): without it, or when the shelf fails to
   // start, a simple grid of covers stands in. This scene only renders on the client.
@@ -46,7 +47,9 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
   const [wasActive, setWasActive] = useState(false);
   if (active !== wasActive) {
     setWasActive(active);
-    setPlaceholder(active && engine && !fallback && !engine.ready() ? "shown" : "none");
+    // Only on becoming active: the layer never reopens without remounting this scene, and closing
+    // keeps whatever stood in for the shelf while the stage fades out (120 ms), instead of a blank.
+    if (active) setPlaceholder(engine && !fallback && !engine.ready() ? "shown" : "none");
   }
   const placeholderRef = useRef(placeholder);
   useEffect(() => {
@@ -74,7 +77,15 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
     const info = infoRef.current;
     const hint = hintRef.current;
     if (!engine || !host || !blur || !dim || !info || !hint) return;
-    engine.mount({ host, blur, dim, info, hint, status: statusRef.current ?? undefined });
+    engine.mount({
+      host,
+      blur,
+      dim,
+      info,
+      hint,
+      marker: markerRef.current ?? undefined,
+      status: statusRef.current ?? undefined,
+    });
     const unregister = registerSceneHooks({
       isBookOpen: () => engine.hasOpen(),
       closeBook: () => engine.closeBook(),
@@ -123,6 +134,9 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
         <button type="button" className="book-back">
           Put it back
         </button>
+      </div>
+      <div ref={markerRef} className="shelf-marker" hidden aria-hidden="true">
+        <span className="shelf-marker-thumb" />
       </div>
       <p ref={hintRef} className="xp-hint" />
       <p ref={statusRef} className="sr-only" role="status" aria-live="polite" />

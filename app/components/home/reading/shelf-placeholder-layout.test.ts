@@ -81,4 +81,22 @@ describe("placeholderLayout", () => {
     expect(big.bars[1].height / small.bars[1].height).toBeCloseTo(2, 6);
     expect(big.plank.width / small.plank.width).toBeCloseTo(2, 6);
   });
+
+  it("starts at the left end on a narrow stage, like the 3D shelf's first camera", () => {
+    const many = Array.from({ length: 14 }, (_, i) => book(`m${i}`, 150 + i * 30, 8 + (i % 4)));
+    const layout = placeholderLayout(many, { w: 390, h: 844 })!;
+    const first = layout.bars[0];
+    const last = layout.bars[layout.bars.length - 1];
+    expect(first.left).toBeGreaterThan(0); // the first book is whole
+    expect(first.left).toBeLessThan(390 / 2);
+    expect(last.left + last.width).toBeGreaterThan(390); // the rest runs off the right edge
+    expect(layout.plank.left).toBeLessThan(first.left);
+  });
+
+  it("stays centred on a stage of 700px or more", () => {
+    const layout = placeholderLayout(books, { w: 700, h: 450 })!;
+    const first = layout.bars[0];
+    const last = layout.bars[layout.bars.length - 1];
+    expect((first.left + last.left + last.width) / 2).toBeCloseTo(350, 5);
+  });
 });

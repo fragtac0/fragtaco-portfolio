@@ -26,9 +26,11 @@
   display: flex;
   align-items: flex-start;
   gap: 18px;
+  min-height: 120px;
   padding: clamp(28px, 4vw, 56px) clamp(24px, 4.5vw, 72px) 22px;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(5, 4, 3, 0.75), rgba(5, 4, 3, 0));
+  /* a dark fade behind the title and Close, so books and videos passing under it stay readable */
+  background: linear-gradient(180deg, rgba(5, 4, 3, 0.92), rgba(5, 4, 3, 0.6) 60%, rgba(5, 4, 3, 0));
 }
 .home-layer .xp-head > * {
   pointer-events: auto;
@@ -91,10 +93,12 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 0.6s ease;
+  /* closing: the stage fades out in 120 ms, then the layer shrinks (interest-layer.tsx) */
+  transition: opacity 0.12s ease;
 }
 .home-layer.ready .stage {
   opacity: 1;
+  transition: opacity 0.6s ease;
 }
 
 .home-layer .xp-hint {
@@ -118,6 +122,13 @@
 html.locked,
 html.locked body {
   overflow: hidden;
+}
+
+/* touch devices have no Esc key */
+@media (hover: none) {
+  .home-layer .xp-close kbd {
+    display: none;
+  }
 }
 
 @media (max-width: 700px) {

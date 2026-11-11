@@ -14,6 +14,36 @@
 }
 .home-layer .shelf-canvas {
   touch-action: none;
+  overscroll-behavior: contain;
+}
+.home-layer .shelf-canvas.dragging {
+  cursor: grabbing;
+}
+/* where you are along a shelf wider than the screen: a 2px line under the plank, one thumb on it */
+.home-layer .shelf-marker {
+  position: absolute;
+  left: 50%;
+  width: min(220px, 44vw);
+  height: 2px;
+  transform: translateX(-50%);
+  border-radius: 1px;
+  background: rgba(253, 252, 230, 0.16);
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.home-layer .shelf-marker.off {
+  opacity: 0;
+}
+.home-layer .shelf-marker[hidden] {
+  display: none;
+}
+.home-layer .shelf-marker-thumb {
+  display: block;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--cream);
+  will-change: transform;
 }
 /* the stage has keyboard focus: arrows browse the books, Enter opens one */
 .home-layer .shelf-canvas:focus-visible {

@@ -8,6 +8,8 @@ import {
   FOV_DEG,
   FRONT,
   INCH,
+  initialCamX,
+  NARROW_PX,
   PLANK_H,
   SHELF_GAP,
   WALLZ,
@@ -28,7 +30,8 @@ export type PlaceholderLayout = {
  * dolly): the row spans what the 3D books span, the bars stand on the front of the plank, and the
  * plank covers its top and front face. Widths are the block preview's (`miniSpine`: from the page
  * count), scaled so the row fits that span; heights are the 3D books' (trim height times INCH), so
- * the tops line up with the shelf that replaces them. Null until the stage has a size.
+ * the tops line up with the shelf that replaces them. On a narrow stage the camera starts at the
+ * shelf's left end, so the row is shifted to match. Null until the stage has a size.
  */
 export function placeholderLayout(
   books: readonly SiteBook[],
@@ -39,8 +42,10 @@ export function placeholderLayout(
   const aspect = stage.w / stage.h;
   const gapCount = books.length - 1;
   const span = books.reduce((sum, b) => sum + bookSize(b).T, 0) + SHELF_GAP * gapCount;
-  const { dist } = fitCamera({ fovDeg: FOV_DEG, aspect, span });
+  const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span });
   const pose = cameraAt(CAMERA.dollyS, dist);
+  // the 3D camera's first x (the engine's `initialCamX`): the left end on a narrow stage
+  const camX = initialCamX(maxX, stage.w < NARROW_PX);
 
   // the camera looks from (pose.y, pose.distance) at (lookY, 0) in the y-z plane
   const fy = pose.lookY - pose.y;
@@ -63,7 +68,8 @@ export function placeholderLayout(
   const spines = books.map(miniSpine);
   const rawWidth = spines.reduce((sum, s) => sum + s.width, 0);
   const scale = (span * ppu - gap * gapCount) / rawWidth;
-  let left = stage.w / 2 - (span * ppu) / 2;
+  const centre = stage.w / 2 - camX * ppu;
+  let left = centre - (span * ppu) / 2;
   const bars = spines.map((s, i) => {
     const bar = { left, width: s.width * scale, height: books[i].heightIn * INCH * ppu };
     left += bar.width + gap;
@@ -76,6 +82,6 @@ export function placeholderLayout(
   return {
     bars,
     floor: stand.row,
-    plank: { left: stage.w / 2 - plankW / 2, top, width: plankW, height: bottom - top },
+    plank: { left: centre - plankW / 2, top, width: plankW, height: bottom - top },
   };
 }
