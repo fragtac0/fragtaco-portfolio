@@ -13,7 +13,6 @@ import {
   WALLZ,
 } from "./shelf-math";
 
-
 export type PlaceholderLayout = {
   /** One flat bar per book: left edge and size in px, relative to the stage. */
   bars: { left: number; width: number; height: number }[];
