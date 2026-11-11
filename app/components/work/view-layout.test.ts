@@ -9,6 +9,7 @@ import {
   viewCount,
   viewFromSearch,
   viewTitle,
+  viewTotal,
 } from "./view-layout";
 
 const base = { itemW: 100, itemH: 60, gapX: 10, gapY: 20, width: 1000, top: 50 };
@@ -331,5 +332,19 @@ describe("viewTitle and viewCount", () => {
     expect(viewCount("short", 1)).toBe("1 video");
     expect(viewCount("clients", 10)).toBe("10 clients");
     expect(viewCount("clients", 1)).toBe("1 client");
+  });
+});
+
+describe("viewTotal", () => {
+  const work = { longForm: [1, 2, 3], shortForm: [1, 2], clients: [1] };
+
+  it("counts the picked view's own list", () => {
+    expect(viewTotal("long", work)).toBe(3);
+    expect(viewTotal("short", work)).toBe(2);
+    expect(viewTotal("clients", work)).toBe(1);
+  });
+
+  it("is zero for an empty list", () => {
+    expect(viewTotal("long", { longForm: [], shortForm: [], clients: [] })).toBe(0);
   });
 });

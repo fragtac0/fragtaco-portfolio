@@ -61,12 +61,12 @@
 .work-fade-top {
   top: 0;
   height: 150px;
-  background: linear-gradient(#050403 35%, rgba(5, 4, 3, 0));
+  background: linear-gradient(var(--ground) 35%, var(--ground-clear));
 }
 .work-fade-bottom {
   bottom: 0;
   height: calc(var(--site-nav-height, 130px) + 72px);
-  background: linear-gradient(to top, #050403 45%, rgba(5, 4, 3, 0));
+  background: linear-gradient(to top, var(--ground) 45%, var(--ground-clear));
 }
 .work-page:not([data-view="all"]) .work-fade {
   opacity: 1;
@@ -96,7 +96,7 @@
   overscroll-behavior: contain;
   scroll-padding: 150px 0 calc(var(--site-nav-height, 130px) + 72px);
   scrollbar-width: thin;
-  scrollbar-color: rgba(253, 252, 230, 0.28) transparent;
+  scrollbar-color: color-mix(in srgb, var(--ink-1) 30%, transparent) transparent;
 }
 /* the stack: a still row at the top right, above the fades */
 .work-page:not([data-view="all"]) .work-ring-group[data-ring="stack"] {
@@ -119,39 +119,67 @@
   display: block;
 }
 
-/* a ring stops turning and is no box of its own: its items are placed on the stage */
-.work-ring[data-extra],
-.work-page:not([data-view="all"]) .work-ring {
+/* Items that fit in no ring wait unseen until their view is picked. They are placed like the others
+   from the start (nobody sees them in a ring), and a ring that is not picked keeps them hidden. */
+.work-ring[data-extra] {
   display: contents;
   animation: none;
 }
-.work-page:not([data-view="all"]) .work-item-turn,
-.work-item[data-extra] .work-item-turn {
-  animation: none;
-}
-.work-page:not([data-view="all"]) .work-item,
 .work-item[data-extra] {
   width: var(--vw);
   height: var(--vh);
   margin: 0;
   transform: translate(var(--vx), var(--vy));
-}
-/* items that fit in no ring wait unseen until a picked view shows them (`inherit`, so a hidden ring hides them) */
-.work-item[data-extra] {
   visibility: hidden;
 }
-.work-page:not([data-view="all"]) .work-item[data-extra] {
-  visibility: inherit;
+.work-item[data-extra] .work-item-turn {
+  animation: none;
 }
-.work-page:not([data-view="all"]) .work-label {
-  display: none;
-}
-.work-page:not([data-view="all"]) .work-mark {
-  font-size: calc(var(--vw) * 0.43);
-}
-.work-page:not([data-view="all"]) .work-item:hover .work-item-face,
-.work-page:not([data-view="all"]) .work-item:has(:focus-visible) .work-item-face {
-  scale: 1.05;
+
+/* The picked ring and the stack (and only they) stop turning and are laid out flat: a ring stops being
+   a box of its own and its items go to their places on the stage. The other rings keep their shape
+   and their turn, so what scales out and fades is the ring itself, not a grid. */
+:is(
+    .work-page[data-view="long"] :is([data-ring="long"], [data-ring="stack"]),
+    .work-page[data-view="short"] :is([data-ring="short"], [data-ring="stack"]),
+    .work-page[data-view="clients"] :is([data-ring="clients"], [data-ring="stack"])
+  ) {
+  & .work-ring {
+    display: contents;
+    animation: none;
+  }
+  & .work-item-turn {
+    animation: none;
+  }
+  & .work-item {
+    width: var(--vw);
+    height: var(--vh);
+    margin: 0;
+    transform: translate(var(--vx), var(--vy));
+  }
+  /* `inherit`, so a hidden ring hides them */
+  & .work-item[data-extra] {
+    visibility: inherit;
+  }
+  & .work-label {
+    display: none;
+  }
+  & .work-mark {
+    font-size: calc(var(--vw) * 0.43);
+  }
+  & .work-item:hover .work-item-face,
+  & .work-item:has(:focus-visible) .work-item-face {
+    scale: 1.05;
+  }
+  /* a caption appears once the item has landed, each 12 ms after the one before */
+  & .work-caption {
+    opacity: 1;
+    transition: opacity 250ms ease-out calc(450ms + var(--i, 0) * 12ms);
+  }
+  /* a client's caption holds links, and the pointer crosses it on its way to the socials */
+  & .work-item[data-kind="client"] .work-caption {
+    pointer-events: auto;
+  }
 }
 
 /* ---------- captions ---------- */
@@ -196,16 +224,6 @@
 .work-caption-sub {
   color: var(--ink-2);
 }
-/* it appears once the item has landed, each 12 ms after the one before */
-.work-page:not([data-view="all"]) .work-caption {
-  opacity: 1;
-  transition: opacity 250ms ease-out calc(450ms + var(--i, 0) * 12ms);
-}
-/* a client's caption holds links, and the pointer crosses it on its way to the socials */
-.work-page:not([data-view="all"]) .work-item[data-kind="client"] .work-caption {
-  pointer-events: auto;
-}
-
 /* videos: the one you are on brightens and the rest dim to 70% */
 .work-page:not([data-view="all"]) .work-item[data-kind="video"] {
   transition: opacity 180ms ease-out;
@@ -248,13 +266,13 @@
   height: 32px;
   border-radius: 50%;
   color: var(--ink-2);
-  font-size: 16px;
+  font-size: var(--t-body); /* the icon's size: 15px */
   outline: none;
   transition: color 150ms ease-out, background-color 150ms ease-out;
 }
 .client-social:hover {
   color: var(--ink-1);
-  background: rgba(253, 252, 230, 0.1);
+  background: color-mix(in srgb, var(--ink-1) 11%, transparent);
 }
 .client-social:focus-visible {
   color: var(--ink-1);

@@ -92,8 +92,13 @@ function toggleView(root: HTMLElement, to: ViewId): Promise<void> {
   const others = [...root.querySelectorAll<HTMLElement>(".work-ring-group")].filter(
     (g) => g.dataset.ring !== picked && g.dataset.ring !== "stack",
   );
-  // the stack moves along with the picked kind, its own items numbered from the first
-  const stackStart = turns.findIndex((t) => t.closest<HTMLElement>(".work-item")?.dataset.ring === "stack");
+  // Staggers count within the picked kind (its first item does not wait) and within the stack, each from 0.
+  const orders = new Map<HTMLElement, number>();
+  const seen = { stack: 0, picked: 0 };
+  for (const turn of turns) {
+    const isStack = turn.closest<HTMLElement>(".work-item")?.dataset.ring === "stack";
+    orders.set(turn, isStack ? seen.stack++ : seen.picked++);
+  }
 
   return flip(
     turns,
@@ -105,16 +110,20 @@ function toggleView(root: HTMLElement, to: ViewId): Promise<void> {
     {
       reduced,
       fade: (el) => (el.closest<HTMLElement>(".work-item")?.dataset.extra === undefined ? undefined : entering ? "in" : "out"),
-      order: (el, i) => (stackStart >= 0 && i >= stackStart ? i - stackStart : i),
+      order: (el, i) => orders.get(el) ?? i,
     },
   );
 }
 
 /** Between two picked views, the first goes back into its ring and then the second comes out. */
-async function changeView(root: HTMLElement, to: ViewId): Promise<void> {
+async function changeView(root: HTMLElement, to: ViewId, stillWanted: () => boolean): Promise<void> {
   const from = root.dataset.view as ViewId;
   if (from === to) return;
-  if (from !== "all" && to !== "all") await toggleView(root, "all");
+  if (from !== "all" && to !== "all") {
+    await toggleView(root, "all");
+    // a newer request (Back, another tab) came in while the first view went away: do not bring `to` out
+    if (!stillWanted()) return;
+  }
   await toggleView(root, to);
 }
 
@@ -153,7 +162,10 @@ export function useViewFlip(rootRef: RefObject<HTMLElement | null>, view: ViewId
     if (root.dataset.view === view) return;
     state.busy = true;
     void (async () => {
-      while (root.isConnected && root.dataset.view !== state.latest) await changeView(root, state.latest);
+      while (root.isConnected && root.dataset.view !== state.latest) {
+        const target = state.latest;
+        await changeView(root, target, () => state.latest === target);
+      }
       state.busy = false;
     })();
   }, [rootRef, view]);

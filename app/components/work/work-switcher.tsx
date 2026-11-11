@@ -11,7 +11,7 @@ const TABS: { view: ViewId; label: string }[] = [
 
 /* The dock's own tab look (Doto, tracked), a size smaller; the picked one wears the dock's accent pill. */
 const TAB =
-  "relative shrink-0 rounded-full px-3 py-2 text-center font-doto text-[length:var(--t-micro)] font-black tracking-[0.06em] text-fog outline-none transition-colors duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-fog sm:px-4 sm:py-2.5 sm:text-[13px] sm:tracking-[0.1em]";
+  "relative shrink-0 rounded-full px-3 py-2 text-center font-doto text-[length:var(--t-micro)] font-black tracking-[0.06em] text-fog outline-none transition-colors duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-fog sm:px-4 sm:py-2.5 sm:text-[length:var(--t-meta)] sm:tracking-[0.1em]";
 const IDLE = "opacity-[var(--dock-idle)]";
 const ACTIVE = "border border-accent/40 bg-accent/[0.16] opacity-100 shadow-[inset_0_1px_0_rgba(255,236,214,0.18)]";
 

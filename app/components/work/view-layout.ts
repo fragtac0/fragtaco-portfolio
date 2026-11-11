@@ -165,3 +165,11 @@ export function viewTitle(view: PickedView): string {
 export function viewCount(view: PickedView, n: number): string {
   return view === "clients" ? countLabel(n, "client", "clients") : countLabel(n, "video", "videos");
 }
+
+/** How many items the picked view shows, from the work content's lists. */
+export function viewTotal(
+  view: PickedView,
+  work: { longForm: readonly unknown[]; shortForm: readonly unknown[]; clients: readonly unknown[] },
+): number {
+  return view === "long" ? work.longForm.length : view === "short" ? work.shortForm.length : work.clients.length;
+}

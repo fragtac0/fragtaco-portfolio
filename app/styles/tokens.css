@@ -19,6 +19,10 @@
   --ink-2: rgba(253, 252, 230, 0.72); /* secondary text */
   --ink-3: rgba(253, 252, 230, 0.62); /* quiet text, the lowest allowed */
 
+  /* the dark ground of /work and its clear twin, for fades */
+  --ground: #050403;
+  --ground-clear: rgba(5, 4, 3, 0);
+
   /* the dock's idle labels (the active one is 100%) */
   --dock-idle: 0.85;
 

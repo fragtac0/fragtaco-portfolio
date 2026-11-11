@@ -5,7 +5,7 @@ import SiteNav from "../site-nav";
 import { introLine } from "./ring-layout";
 import Rings from "./rings";
 import { useViewFlip } from "./use-view-flip";
-import { viewCount, viewFromSearch, viewTitle, type PickedView, type ViewId } from "./view-layout";
+import { viewCount, viewFromSearch, viewTitle, viewTotal, type PickedView, type ViewId } from "./view-layout";
 import WorkBackground from "./work-background";
 import WorkSwitcher from "./work-switcher";
 import "./work.css";
@@ -16,9 +16,6 @@ interface WorkPageProps {
   navigationItems: SiteNavigationItem[];
   socialLinks: SiteSocialLink[];
 }
-
-const COUNT_OF = (work: SiteWork, view: PickedView) =>
-  view === "long" ? work.longForm.length : view === "short" ? work.shortForm.length : work.clients.length;
 
 /**
  * The work page: a fixed stage (the page does not scroll) with the moving ground, the intro in the
@@ -60,7 +57,7 @@ export default function WorkPage({ work, navigationItems, socialLinks }: WorkPag
         <div className="work-fade work-fade-bottom" aria-hidden="true" />
         <div className="work-view-title">
           <h2 className="work-view-name">{viewTitle(lastPicked)}</h2>
-          <p className="work-view-count">{viewCount(lastPicked, COUNT_OF(work, lastPicked))}</p>
+          <p className="work-view-count">{viewCount(lastPicked, viewTotal(lastPicked, work))}</p>
         </div>
       </div>
       <SiteNav
