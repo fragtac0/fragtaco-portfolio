@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import "./layer.css";
-import { GROW_MS, SCENE_DELAY_MS, type LayerKind, type LayerState } from "./layer-state";
+import { FADE_MS, GROW_MS, SCENE_DELAY_MS, type LayerKind, type LayerState } from "./layer-state";
 
 const FULL = "inset(0px 0px 0px 0px round 0px 0px 0px 0px)";
 const EASE = "cubic-bezier(.7,0,.2,1)";
@@ -89,23 +89,41 @@ export default function InterestLayer({
     };
   }, [phase]);
 
-  // shrinking: clip back into the block, then hide and give focus back to its button.
+  // Whether the stage has been shown (the layer was `open`): closing then fades it out first.
+  const stageShown = useRef(false);
+  useLayoutEffect(() => {
+    if (phase === "open") stageShown.current = true;
+    else if (phase === "closed") stageShown.current = false;
+  }, [phase]);
+
+  // shrinking: the stage fades out (the `ready` class is already gone), then the layer clips back
+  // into the block, then it is hidden and focus goes back to the block's button. With reduced
+  // motion nothing waits; closing before the stage ever showed (mid-grow) starts the shrink at once.
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (phase !== "shrinking" || !root) return;
     const reduced = reducedMotion();
-    root.style.transition = reduced ? "none" : `clip-path ${GROW_MS}ms ${EASE}`;
-    root.style.clipPath = insetFrom(latest.current.from);
-    const t = window.setTimeout(
+    const wait = reduced || !stageShown.current ? 0 : FADE_MS;
+    const shrink = () => {
+      root.style.transition = reduced ? "none" : `clip-path ${GROW_MS}ms ${EASE}`;
+      root.style.clipPath = insetFrom(latest.current.from);
+    };
+    let start = 0;
+    if (wait === 0) shrink();
+    else start = window.setTimeout(shrink, wait);
+    const done = window.setTimeout(
       () => {
         const block = latest.current.from;
         const target = block?.querySelector<HTMLElement>("[data-xp]") ?? block;
         target?.focus({ preventScroll: true });
         latest.current.onShrunk();
       },
-      reduced ? 0 : SCENE_DELAY_MS,
+      (reduced ? 0 : SCENE_DELAY_MS) + wait,
     );
-    return () => window.clearTimeout(t);
+    return () => {
+      window.clearTimeout(start);
+      window.clearTimeout(done);
+    };
   }, [phase]);
 
   // focus lands on Close 450 ms after opening

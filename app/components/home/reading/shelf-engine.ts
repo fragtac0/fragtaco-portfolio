@@ -1,20 +1,20 @@
 import type { SiteBook } from "~/types";
-import { whenIdle } from "../../../utils/idle";
+import { createSlicer } from "../../../utils/idle";
 import { createCoverQueue } from "./shelf-covers";
 import { attachShelfInput, createShelfInput } from "./shelf-input";
 import { createOpenPath, type ShelfCtx, type ShelfEls, type ShelfState } from "./shelf-open";
+import { createAnimate, poseBooks } from "./shelf-pose";
+import { createMarkerSync, hintText, HINT_NO_GL } from "./shelf-hud";
+import { fitShelf } from "./shelf-fit";
 import { buildShelfScene, loadShelfFonts, type ShelfScene } from "./shelf-scene";
 import {
   CAMERA,
   cameraAt,
   clamp,
-  dropProgress,
-  easeOut,
-  fitCamera,
+  flick,
+  initialCamX,
   introSeconds,
-  openPhases,
-  spring,
-  WALLZ,
+  NARROW_PX,
 } from "./shelf-math";
 
 /**
@@ -23,8 +23,10 @@ import {
  * for hover, open and fade, covers uploaded outside the entrance).
  *
  * three.js is only ever loaded with `import("three")`, inside `prepare()`, so it is its own chunk.
- * The engine owns its canvas: `prepare()` builds the whole scene while no layer is mounted, so the
- * layer opens onto a warm scene. `mount()` puts the canvas into the layer and wires the overlays,
+ * The engine owns its canvas: `prepare()` builds the whole scene in idle time while no layer is
+ * mounted, so the layer opens onto a warm scene; once the layer is open and waiting, `setUrgent()`
+ * makes the same steps run back to back (about 8 ms a frame) while a flat placeholder stands in.
+ * `mount()` puts the canvas into the layer and wires the overlays,
  * `unmount()` takes it out again but keeps the GL scene for an instant re-open, and `dispose()`
  * (when the home page goes away) frees everything.
  *
@@ -33,9 +35,10 @@ import {
  * blurs that copy in CSS, and fades the live shelf into it, so the open book is the only thing
  * still being drawn.
  *
- * The open-book path is shelf-open.ts, the real covers shelf-covers.ts, the scene shelf-scene.ts and
- * the listeners (keyboard, spec 8.10) shelf-input.ts; this file keeps the state, the frame and the
- * lifecycle.
+ * The per-frame book poses are shelf-pose.ts, the open-book path is shelf-open.ts, the real covers
+ * shelf-covers.ts, the scene shelf-scene.ts, the sizing shelf-fit.ts, the hint and position marker
+ * shelf-hud.ts and the listeners (keyboard, drag, wheel) shelf-input.ts; this file keeps the state,
+ * the frame (including the flick after a drag) and the lifecycle.
  */
 
 export type { ShelfEls };
@@ -43,12 +46,21 @@ export type { ShelfEls };
 export type ShelfEngine = {
   prepare(): Promise<void>;
   mount(els: ShelfEls): void;
-  start(): Promise<void>;
+  /**
+   * Starts the loop once the scene is built. `skipIntro` places the books without the drop-in (a
+   * placeholder already showed them); `onFirstFrame` is called once, right after the first frame
+   * has been drawn.
+   */
+  start(opts?: { skipIntro?: boolean; onFirstFrame?: () => void }): Promise<void>;
   stop(): void;
   unmount(): void;
   hasOpen(): boolean;
   /** True once `prepare()` has run and the scene could not be built (no WebGL2, a throw). */
   hasFailed(): boolean;
+  /** The scene is built, so `start()` shows it on the next frame. */
+  ready(): boolean;
+  /** Urgent: preparation stops yielding to idle time and runs in short slices every frame. */
+  setUrgent(on: boolean): void;
   closeBook(): void;
   focusNext(dir: 1 | -1): void;
   openFocused(): void;
@@ -58,13 +70,6 @@ export type ShelfEngine = {
 /** Thrown inside `build()` when the engine is disposed part-way through. */
 class Aborted extends Error {}
 
-/** How long a yielded slice may wait for a quiet moment before it runs anyway. */
-const IDLE_TIMEOUT_MS = 1200;
-const nextIdle = () => new Promise<void>((r) => void whenIdle(r, IDLE_TIMEOUT_MS));
-
-const HINT_FINE = "Hover to pull a book out. Click to open it.";
-const HINT_TOUCH = "Tap a book to open it. Drag to look along the shelf.";
-const HINT_NO_GL = "The shelf could not start in this browser.";
 const STAGE_LABEL = "Bookshelf. Use left and right arrows to browse, Enter to open.";
 
 /** Client only: creates a canvas. The scene is built later, by `prepare()`. */
@@ -92,6 +97,8 @@ export function createShelf(
   let raf = 0;
   let last = 0;
   let runToken = 0;
+  let onFirstFrame: (() => void) | null = null;
+  const slicer = createSlicer();
 
   // Real covers: downloaded, decoded, painted and uploaded outside the entrance (shelf-covers.ts).
   const covers = createCoverQueue({
@@ -117,20 +124,16 @@ export function createShelf(
     dirty: true,
     focusIdx: -1,
     camTarget: null,
+    flickV: 0,
     fitW: 0,
     fitH: 0,
   };
   const cam = { x: 0, xV: 0 };
   const fadeBag = { fade: 0, fadeV: 0 };
 
-  /** A spring, or a snap to the target when motion is reduced. Returns whether it is still moving. */
-  const animate = (o: Record<string, number>, key: string, to: number, w: number, dt: number) => {
-    if (!reduced) return spring(o, key, to, w, dt);
-    const moved = o[key] !== to;
-    o[key] = to;
-    o[key + "V"] = 0;
-    return moved;
-  };
+  const animate = createAnimate(reduced);
+  // the position marker under the plank (shelf-hud.ts)
+  const syncMarker = createMarkerSync();
 
   // the open-book path and the input handlers work on this state through the context
   const ctx: ShelfCtx = {
@@ -140,46 +143,32 @@ export function createShelf(
     scene: () => gl,
     els: () => els,
     running: () => running,
+    reduced,
     intro,
   };
   const openBookPath = createOpenPath(ctx);
   const { closeBook, setNote } = openBookPath;
 
-  // ---- building (idle time, before the layer is ever opened)
+  // ---- building (idle time before the layer is opened, short urgent slices once it waits)
 
   async function build(): Promise<ShelfScene> {
     const T = await import("three");
     await loadShelfFonts();
     if (disposed) throw new Aborted();
-    // the scene yields between slices; a disposed engine ends the build at the next one
-    const idle = async () => {
-      await nextIdle();
-      if (disposed) throw new Aborted();
-    };
-    return buildShelfScene(T, canvas, books, idle, (tex, d) => covers.load(tex, d));
+    // the scene is built in steps the slicer spreads out; a disposed engine ends the build at the next one
+    const run = (steps: Array<() => void>) =>
+      slicer.run(
+        steps.map((step) => () => {
+          if (disposed) throw new Aborted();
+          step();
+        }),
+      );
+    return buildShelfScene(T, canvas, books, run, (tex, d) => covers.load(tex, d));
   }
 
-  // ---- sizing
+  // ---- sizing (shelf-fit.ts)
 
-  /** Sizes the renderer and camera to the canvas; nothing happens when the size is unchanged. */
-  function fit() {
-    if (!gl || !els) return;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    if (!w || !h) return;
-    if (w === st.fitW && h === st.fitH) return;
-    st.fitW = w;
-    st.fitH = h;
-    if (st.opened) closeBook(true);
-    const { renderer: r, camera, span } = gl;
-    r.setSize(w, h, false);
-    camera.aspect = w / h;
-    const f = fitCamera({ fovDeg: camera.fov, aspect: camera.aspect, span });
-    gl.dist = f.dist;
-    gl.maxX = f.maxX;
-    camera.updateProjectionMatrix();
-    st.dirty = true;
-  }
+  const fit = () => fitShelf(ctx, books, closeBook);
 
   const { handlers, pick, focusNext, openFocused } = createShelfInput(ctx, openBookPath, fit);
 
@@ -201,6 +190,15 @@ export function createShelf(
       if (animate(cam, "x", st.camTarget, 7, dt)) busy = true;
       else st.camTarget = null;
     }
+    if (st.flickV !== 0) {
+      // coasting after a flick; a touch, an arrow key or an open book ends it
+      const f = st.opened || st.down ? { dx: 0, v: 0 } : flick(st.flickV, dt);
+      const x = clamp(cam.x + f.dx, -s.maxX, s.maxX);
+      st.flickV = x === cam.x + f.dx ? f.v : 0; // an end of the shelf stops it
+      cam.x = x;
+      busy = true;
+    }
+    syncMarker(els?.marker, cam.x, s.maxX, s.visible);
     s.camera.position.set(cam.x, camPose.y, camPose.distance);
     s.camera.lookAt(cam.x, camPose.lookY, 0);
 
@@ -215,48 +213,21 @@ export function createShelf(
     if (animate(fadeBag, "fade", st.opened ? 1 : 0, 8, dt)) busy = true;
     const keep = 1 - clamp(fadeBag.fade);
     const focused = st.focusIdx >= 0 ? s.books[st.focusIdx] : null;
-    const { tmpV: p, tmpQ: q } = s;
 
-    for (const b of s.books) {
-      const k = reduced ? 1 : dropProgress(el, b.order);
-      const e = easeOut(k);
-      const a = b.anim;
-      if (animate(a, "hover", b === st.hoverHit || b === focused ? 1 : 0, 9, dt)) busy = true;
-      if (animate(a, "open", b === st.opened ? 1 : 0, 5, dt)) busy = true;
-      p.copy(b.base);
-      p.y += a.hover * 0.12 + (1 - e) * 1.2;
-      p.z += a.hover * 0.16;
-      // two phases: slide straight out of the shelf (+z), clear of the neighbours, then travel and turn
-      const { pull, present } = a.open > 0.001 ? openPhases(a.open) : { pull: 0, present: 0 };
-      p.z += pull * (b.W + 0.12);
-      if (present > 0) p.lerp(b.openPos, present);
-      b.g.position.copy(p);
-      q.copy(b.baseQ);
-      if (k < 1) q.premultiply(s.tmpQ2.setFromAxisAngle(s.zAxis, (1 - e) * b.tilt));
-      if (present > 0) {
-        q.slerp(s.qOpen, present);
-        if (!reduced) {
-          q.premultiply(s.tmpQ2.setFromAxisAngle(s.yAxis, Math.sin(now / 1500) * 0.06 * present));
-        }
-      }
-      b.g.quaternion.copy(q);
-      const op = a.open > 0.01 ? 1 : keep * Math.min(1, k * 2.2);
-      if (b.mats[0].opacity !== op) for (const m of b.mats) m.opacity = op;
-      b.g.visible = op > 0.004;
-      // shadows are their own animation: they stay behind on the plank and the wall while the book lifts away
-      const lift = Math.min(1, Math.max(1 - e, a.hover * 0.45, a.open));
-      b.contact.position.set(b.base.x + 0.015, 0.003, b.base.z + 0.03 + a.hover * 0.12);
-      b.contact.scale.set((b.T + 0.16) * (1 + 0.5 * lift), (b.W + 0.3) * (1 + 0.25 * lift), 1);
-      b.contact.material.opacity = 0.85 * (1 - lift) * keep;
-      b.wallSh.position.set(p.x + 0.07 + a.hover * 0.05, p.y + 0.02, WALLZ);
-      b.wallSh.scale.set(
-        (b.T * 2.2 + 0.32) * (1 + 0.3 * a.hover),
-        (b.H * 1.15 + 0.26) * (1 + 0.12 * a.hover),
-        1,
-      );
-      b.wallSh.material.opacity = 0.8 * e * (1 - 0.5 * a.hover) * (1 - a.open) * keep;
-      b.contact.visible = b.contact.material.opacity > 0.004;
-      b.wallSh.visible = b.wallSh.material.opacity > 0.004;
+    if (
+      poseBooks(s, {
+        el,
+        dt,
+        now,
+        reduced,
+        hover: st.hoverHit,
+        focused,
+        opened: st.opened,
+        keep,
+        animate,
+      })
+    ) {
+      busy = true;
     }
     s.plank.material.opacity = keep;
     s.plank.visible = keep > 0.004;
@@ -265,6 +236,11 @@ export function createShelf(
     if (busy) {
       s.renderer.render(s.scene, s.camera);
       st.dirty = false;
+      if (onFirstFrame) {
+        const cb = onFirstFrame;
+        onFirstFrame = null;
+        cb();
+      }
     }
   }
 
@@ -293,6 +269,7 @@ export function createShelf(
     runToken++;
     cancelAnimationFrame(raf);
     canvas.style.cursor = "";
+    canvas.classList.remove("dragging");
     closeBook(false);
     covers.wake(); // covers that waited for the scene to be calm can go now
   }
@@ -312,7 +289,8 @@ export function createShelf(
       if (els) unmount();
       els = next;
       next.host.appendChild(canvas);
-      next.hint.textContent = opts.fine ? HINT_FINE : HINT_TOUCH;
+      st.fitW = 0; // a new mount refits: the marker and camera limits are for this stage
+      next.hint.textContent = hintText(opts.fine, canvas.clientWidth < NARROW_PX);
       setNote(false);
       const ac = new AbortController();
       listeners = ac;
@@ -322,8 +300,9 @@ export function createShelf(
         ?.addEventListener("click", () => closeBook(true), { signal: ac.signal });
     },
 
-    async start() {
+    async start(opts) {
       const my = ++runToken;
+      onFirstFrame = opts?.onFirstFrame ?? null;
       await prepare();
       if (my !== runToken || !els) return;
       if (!gl) {
@@ -331,8 +310,12 @@ export function createShelf(
         return;
       }
       fit();
-      st.t0 = performance.now();
-      cam.x = cam.xV = 0;
+      // a skipped drop-in starts past its end, camera dolly included
+      const skipped = opts?.skipIntro ? Math.max(intro() + 0.4, CAMERA.dollyS) : 0;
+      st.t0 = performance.now() - skipped * 1000;
+      cam.x = initialCamX(gl.maxX, canvas.clientWidth < NARROW_PX);
+      cam.xV = 0;
+      st.flickV = 0;
       fadeBag.fade = fadeBag.fadeV = 0;
       for (const b of gl.books) b.anim = { hover: 0, hoverV: 0, open: 0, openV: 0 };
       st.opened = null;
@@ -354,6 +337,8 @@ export function createShelf(
 
     hasOpen: () => !!st.opened,
     hasFailed: () => failed,
+    ready: () => !!gl,
+    setUrgent: (on) => slicer.setUrgent(on),
     closeBook: () => closeBook(true),
     focusNext,
     openFocused,

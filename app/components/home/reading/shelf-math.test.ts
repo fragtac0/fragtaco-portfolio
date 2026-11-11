@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   CAMERA,
   DROP,
+  DROP_FALL,
+  FOV_DEG,
   FRONT,
   INCH,
   STAG,
@@ -12,9 +14,16 @@ import {
   dropProgress,
   easeOut,
   fitCamera,
+  flick,
+  initialCamX,
   introSeconds,
+  markerLeft,
+  markerShown,
   openPhases,
+  panFromDrag,
   spring,
+  visibleFraction,
+  wheelPanPx,
 } from "./shelf-math";
 
 describe("constants", () => {
@@ -24,6 +33,7 @@ describe("constants", () => {
     expect(WALLZ).toBeCloseTo(-0.85, 10);
     expect(DROP).toBe(1.5);
     expect(STAG).toBe(0.09);
+    expect(DROP_FALL).toBe(0.6);
     expect(CAMERA).toEqual({
       lookY: 0.88,
       lift: 0.1,
@@ -181,5 +191,117 @@ describe("clamp", () => {
     expect(clamp(40, 28, 64)).toBe(40);
     expect(clamp(99, 28, 64)).toBe(64);
     expect(clamp(-3, -2, 2)).toBe(-2);
+  });
+});
+
+describe("initialCamX", () => {
+  it("starts at the left end on a narrow screen so the first book is whole", () => {
+    expect(initialCamX(0.8, true)).toBe(-0.8);
+  });
+  it("is centred otherwise", () => {
+    expect(initialCamX(0.8, false)).toBe(0);
+    expect(initialCamX(0, true)).toBeCloseTo(0, 10);
+  });
+});
+
+describe("panFromDrag", () => {
+  it("drags the shelf with the pointer and clamps at the ends", () => {
+    expect(panFromDrag(0, -200, 8.6, 844, 0.82)).toBe(0.82);
+    expect(panFromDrag(0, 200, 8.6, 844, 0.82)).toBe(-0.82);
+  });
+  it("is today's formula inside the range", () => {
+    expect(panFromDrag(0, 40, 8.6, 844, 0.82)).toBeCloseTo(-0.367, 3);
+    expect(panFromDrag(0.2, -10, 8.6, 844, 0.82)).toBeCloseTo(0.2 + (10 * 8.6 * 0.9) / 844, 10);
+  });
+});
+
+describe("flick", () => {
+  it("loses about 5 percent of its speed in a 60 fps frame", () => {
+    const f = flick(1, 1 / 60);
+    expect(f.v).toBeCloseTo(0.951, 3);
+    expect(f.dx).toBeCloseTo(f.v / 60, 10);
+  });
+  it("settles to exactly 0 and stays there", () => {
+    let v = 1;
+    let travelled = 0;
+    for (let i = 0; i < 200; i++) {
+      const f = flick(v, 1 / 60);
+      v = f.v;
+      travelled += f.dx;
+    }
+    expect(v).toBe(0);
+    expect(travelled).toBeGreaterThan(0);
+    expect(flick(0, 1 / 60)).toEqual({ dx: 0, v: 0 });
+  });
+  it("coasts the same way to the left", () => {
+    expect(flick(-1, 1 / 60).v).toBeCloseTo(-0.951, 3);
+    expect(flick(-0.01, 1 / 60).v).toBe(0);
+  });
+});
+
+describe("visibleFraction", () => {
+  const span = 2.4;
+  it("is 1 when the shelf fits (maxX is 0)", () => {
+    const aspect = 1.6;
+    const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span });
+    expect(maxX).toBe(0);
+    expect(visibleFraction(dist, aspect, FOV_DEG, span)).toBe(1);
+  });
+  it("is the share of the shelf on screen when it is wider than the screen", () => {
+    const aspect = 390 / 844;
+    const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span });
+    expect(maxX).toBeGreaterThan(0);
+    const f = visibleFraction(dist, aspect, FOV_DEG, span);
+    expect(f).toBeGreaterThan(0);
+    expect(f).toBeLessThan(1);
+  });
+});
+
+describe("markerLeft", () => {
+  it("runs from the left end of the track to the right end", () => {
+    expect(markerLeft(-0.8, 0.8, 0.4)).toBe(0);
+    expect(markerLeft(0.8, 0.8, 0.4)).toBeCloseTo(0.6, 10);
+    expect(markerLeft(0, 0.8, 0.4)).toBeCloseTo(0.3, 10);
+  });
+  it("is 0 when there is nowhere to go", () => {
+    expect(markerLeft(0, 0, 1)).toBe(0);
+  });
+});
+
+describe("markerShown", () => {
+  it("hides when the shelf does not move or the thumb would fill the track", () => {
+    expect(markerShown(0, 1)).toBe(false);
+    expect(markerShown(0.3, 1)).toBe(false);
+    expect(markerShown(0.3, 0.9995)).toBe(false);
+  });
+  it("shows when there is somewhere to go and the thumb is shorter than the track", () => {
+    expect(markerShown(0.3, 0.8)).toBe(true);
+  });
+  it("hides in the gap where the shelf can still move but is all on screen", () => {
+    // needW <= visible width < needW / 0.9: maxX is above 0 and visibleFraction is 1
+    let gap = 0;
+    for (let aspect = 0.3; aspect <= 3; aspect += 0.01) {
+      const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span: 2.4 });
+      const visible = visibleFraction(dist, aspect, FOV_DEG, 2.4);
+      if (maxX > 0 && visible >= 0.999) {
+        gap++;
+        expect(markerShown(maxX, visible)).toBe(false);
+      }
+    }
+    expect(gap).toBeGreaterThan(0);
+  });
+});
+
+describe("wheelPanPx", () => {
+  it("pans on a mostly horizontal wheel", () => {
+    expect(wheelPanPx(30, 4, false)).toBe(30);
+    expect(wheelPanPx(-30, 4, false)).toBe(-30);
+  });
+  it("pans with the vertical delta while shift is held", () => {
+    expect(wheelPanPx(0, 40, true)).toBe(40);
+  });
+  it("leaves a vertical wheel alone", () => {
+    expect(wheelPanPx(3, 40, false)).toBeNull();
+    expect(wheelPanPx(0, 0, false)).toBeNull();
   });
 });

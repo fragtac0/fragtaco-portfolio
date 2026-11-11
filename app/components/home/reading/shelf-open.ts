@@ -16,6 +16,8 @@ export type ShelfEls = {
   /** The note card: `h3`, `.by`, `.note` and a `button`. */
   info: HTMLElement;
   hint: HTMLElement;
+  /** The position marker under the plank: a track with one thumb child (`.shelf-marker`). */
+  marker?: HTMLElement;
   /** Optional polite live region for screen readers. */
   status?: HTMLElement;
 };
@@ -25,7 +27,22 @@ export type ShelfState = {
   t0: number;
   opened: Book | null;
   hoverHit: Book | null;
-  down: { x: number; cx: number; moved: boolean } | null;
+  /**
+   * A pointer is down. `moved`: it has travelled over 6px, so it is a drag and never opens a book.
+   * `stopped`: it landed on a coasting shelf to stop it, so it does not open a book either.
+   * `t` and `v` are the time and smoothed speed (units per second) of the last drag move.
+   */
+  down: {
+    id: number;
+    x: number;
+    cx: number;
+    moved: boolean;
+    stopped: boolean;
+    t: number;
+    v: number;
+  } | null;
+  /** The shelf's coasting speed after a flick, in world units per second (0 when settled). */
+  flickV: number;
   inside: boolean;
   dirty: boolean;
   focusIdx: number;
@@ -42,6 +59,8 @@ export type ShelfCtx = {
   scene: () => ShelfScene | null;
   els: () => ShelfEls | null;
   running: () => boolean;
+  /** Motion is reduced: no coasting after a flick. */
+  reduced: boolean;
   /** Seconds the drop-in lasts (0 when motion is reduced). */
   intro: () => number;
 };
@@ -98,9 +117,10 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
   const setNote = (on: boolean) => {
     const els = ctx.els();
     if (!els) return;
-    const { info, blur, dim, hint } = els;
+    const { info, blur, dim, hint, marker } = els;
     for (const el of [blur, dim, info]) el.classList.toggle("on", on);
     hint.classList.toggle("off", on);
+    marker?.classList.toggle("off", on);
     // a hidden note is out of the tab order and the reading order
     info.inert = !on;
     info.setAttribute("aria-hidden", String(!on));

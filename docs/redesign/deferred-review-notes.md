@@ -96,7 +96,7 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-88 | 14 | fine/reducedMotion read once | open |
 | D-89 | 14 | three 0.169 is WebGL2-only, R30 fallback must cover no-WebGL2 | open |
 | D-90 | 14 | un-timed cover painter can starve on a never-idle page (cosmetic) | open |
-| D-91 | 14 | prepare() ~26 idle slices (deep-link start verified prompt) | open |
+| D-91 | 14 | prepare() ~26 idle slices (deep-link start verified prompt) | fixed (R35.1) |
 | D-92 | 15 | layoutTiles out-of-range idx when count < 8 (unreachable today) | open |
 | D-93 | 15 | hitTile gap test weak | open |
 | D-94 | 15 | capacity cap not pinned to 112 | open |
