@@ -1,0 +1,11 @@
+export const CENTRE: { lon: number; lat: number };
+export const SPAN_DEG: number;
+export const LON_SCALE: number;
+export const LON_SPAN_DEG: number;
+export const TILE: number;
+export const LEVELS: number;
+export const SIZE: number;
+export const BLOCK: number;
+export const BLOCKS: number;
+export function frameBounds(): { west: number; east: number; south: number; north: number };
+export function blockBox(bx: number, by: number): [number, number, number, number];
