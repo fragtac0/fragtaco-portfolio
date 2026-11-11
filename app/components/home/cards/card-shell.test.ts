@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cardClass, modeOf, twoLines } from "./card-shell";
+import { cardClass, modeOf, portraitPhase, twoLines } from "./card-shell";
 
 describe("modeOf", () => {
   it("is hidden for both sides while the cards have not risen", () => {
@@ -39,5 +39,23 @@ describe("twoLines", () => {
     expect(twoLines("  the   cut ")).toEqual(["the", "cut"]);
     expect(twoLines("credits")).toEqual(["credits", ""]);
     expect(twoLines("")).toEqual(["", ""]);
+  });
+});
+
+describe("portraitPhase", () => {
+  it("waits while the loader runs and the card is not being reached", () => {
+    expect(portraitPhase("hidden", false, false)).toBe("wait");
+  });
+  it("takes an idle moment once the cards are up", () => {
+    expect(portraitPhase("hero", false, false)).toBe("idle");
+    expect(portraitPhase("left", false, false)).toBe("idle");
+  });
+  it("loads at once when the card is open or the pointer is over it", () => {
+    expect(portraitPhase("right", false, false)).toBe("now");
+    expect(portraitPhase("hero", true, false)).toBe("now");
+  });
+  it("is done once loaded, whatever follows", () => {
+    expect(portraitPhase("hidden", false, true)).toBe("have");
+    expect(portraitPhase("right", true, true)).toBe("have");
   });
 });
