@@ -8,13 +8,16 @@ import {
   useRef,
 } from "react";
 import type { SiteVideo } from "../../../types";
-import type { WallControl } from "./wall-engine";
+import type { WallControl } from "./wall-types";
+import { whenDecoded } from "./shot-decode";
 import { thumbUrl } from "./wall-math";
 
 /** How long the shot flies out, and the wall's hold starts (mockup: VOV, 560 ms). */
 const OPEN_MS = 560;
 /** How long the fly back into the tile, and the fade, take before the wall thaws. */
 const CLOSE_MS = 530;
+/** The flight waits this long, at most, for the shot's picture to decode (a blank shot is worse than a late one). */
+const DECODE_MS = 150;
 
 export type VideoDetailHandle = {
   /** Flies the shot back into its tile; `instant` skips the flight. A no-op while already closing. */
@@ -53,8 +56,10 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
 /**
  * The video detail view (mockup: VOV). The tile's image flies (FLIP) to a centred shot over a 95%
  * ink backdrop; above it the channel and the subscribers, below it the title and a Watch link.
- * Opening freezes the wall, then holds it still once the shot has landed; closing flies the shot
- * back into its tile and thaws the wall. With reduced motion the shot fades instead of flying.
+ * Opening freezes the wall, waits for the picture to decode (150 ms at most), flies the shot out
+ * and holds the wall still once it has landed; closing flies the shot back into its tile and thaws
+ * the wall. With reduced motion the shot fades instead of flying. A picture that fails to load is
+ * replaced by the thumbnail every video has (`hqdefault`).
  *
  * The open and close sequences are driven imperatively (classes and a transform), as in the
  * mockup, so nothing here re-renders per frame. While closed the dialog is `inert`.
@@ -145,13 +150,21 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
       void shot.offsetWidth;
       shot.style.transition = "";
     }
-    s.raf = requestAnimationFrame(() => {
-      root.classList.add("show");
-      shot.style.transform = "";
-    });
-    s.timer = window.setTimeout(() => latest.current.wall.hold(true), OPEN_MS);
+    let live = true;
+    const fly = () => {
+      if (!live || !s.on) return;
+      s.raf = requestAnimationFrame(() => {
+        root.classList.add("show");
+        shot.style.transform = "";
+      });
+      s.timer = window.setTimeout(() => latest.current.wall.hold(true), OPEN_MS);
+    };
+    const img = shot.querySelector("img");
+    if (img) void whenDecoded(img, DECODE_MS).then(fly);
+    else fly();
     watchRef.current?.focus({ preventScroll: true });
     return () => {
+      live = false;
       window.clearTimeout(s.timer);
       cancelAnimationFrame(s.raf);
     };
@@ -183,7 +196,17 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
           <span className="subs">{video?.subscribers ? `${video.subscribers} subscribers` : ""}</span>
         </div>
         <div ref={shotRef} className="shot">
-          {video ? <img src={thumbUrl(video, "sd")} alt="" /> : null}
+          {video ? (
+            <img
+              src={thumbUrl(video, "sd")}
+              alt=""
+              onError={(e) => {
+                // the larger thumbnail is missing: the one every video has takes its place
+                const hq = thumbUrl(video, "hq");
+                if (e.currentTarget.getAttribute("src") !== hq) e.currentTarget.src = hq;
+              }}
+            />
+          ) : null}
         </div>
         <h3 id={titleId} className="vfade">
           {video?.title}

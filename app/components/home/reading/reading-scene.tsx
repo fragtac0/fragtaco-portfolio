@@ -90,7 +90,10 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
       isBookOpen: () => engine.hasOpen(),
       closeBook: () => engine.closeBook(),
     });
+    // the graphics context was taken away: the plain grid of covers takes over
+    const unlost = engine.onLost(() => setFallback(true));
     return () => {
+      unlost();
       unregister();
       engine.unmount();
     };

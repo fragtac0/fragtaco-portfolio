@@ -17,6 +17,29 @@
   outline: 2px solid var(--cream);
   outline-offset: -6px;
 }
+/* the flat stand-in for the wall until its first frame is drawn (wall-placeholder.tsx) */
+.home-layer .wall-placeholder {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease; /* PLACEHOLDER_FADE_MS in watching-scene.tsx */
+}
+.home-layer .wall-placeholder.leaving {
+  opacity: 0;
+}
+.home-layer .wp-tile {
+  position: absolute;
+  background: #130f0d; /* the animated placeholder's base colour in the wall shader */
+}
+/* the hint is longer with its keyboard line: it wraps instead of running off a narrow window */
+.home-layer .wall-scene .xp-hint {
+  white-space: normal;
+  width: max-content;
+  max-width: min(92vw, 980px);
+  text-align: center;
+}
 .home-layer .wall-vig {
   position: absolute;
   inset: 0;
@@ -189,6 +212,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-layer .wall-placeholder {
+    transition: none;
+  }
   /* the detail view does not fly: the shot and its text fade in and out instead */
   .home-layer .vov .bg,
   .home-layer .vov .x {

@@ -168,12 +168,17 @@ export function cellUv(
   ];
 }
 
+/** `hq` is the thumbnail every video has; `sd` is the larger one where it exists. */
 export function thumbUrl(
   v: Pick<SiteVideo, "id" | "thumb">,
-  size: "sd" | "mq",
+  size: "sd" | "mq" | "hq",
 ): string {
   const file =
-    size === "mq" ? "mqdefault" : v.thumb === "sd" ? "sddefault" : "hqdefault";
+    size === "mq"
+      ? "mqdefault"
+      : size === "sd" && v.thumb === "sd"
+        ? "sddefault"
+        : "hqdefault";
   return `https://i.ytimg.com/vi/${v.id}/${file}.jpg`;
 }
 

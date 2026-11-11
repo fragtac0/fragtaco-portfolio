@@ -1,4 +1,6 @@
-import { columnOffset, tileSize, type LayoutTile, type TileSize } from "./wall-math";
+import { isDrag, pressIsStale, startsPress } from "../reading/shelf-drag";
+import { columnOffset } from "./wall-math";
+import type { Tile, WallCtx } from "./wall-types";
 
 /**
  * The wall's pointer, wheel and keyboard. Touch: a tap opens the video straight away. Fine
@@ -10,70 +12,11 @@ import { columnOffset, tileSize, type LayoutTile, type TileSize } from "./wall-m
  * `attachWallInput` decides which events matter (modifier keys, the stage having focus, the loop
  * running); `createWallInput` holds the handler bodies, which read and write the engine's state
  * through the context. Every listener is removed when `signal` aborts.
+ *
+ * A press is the primary pointer's, and for a mouse only button 0 (a right-click never opens a
+ * video). It is captured from the press, so its release always lands on the stage, and a mouse that
+ * moves with no button held drops it (its release went elsewhere), as on the shelf (shelf-drag.ts).
  */
-
-export type Tile = LayoutTile & {
-  /** Its own hover weight, 0 to 1. */
-  f: number;
-  /** Displaced centre, size and corner radius. */
-  cx: number;
-  cy: number;
-  w: number;
-  h: number;
-  rad: number;
-};
-
-/** The engine's interaction and view state, shared with the input code. */
-export type WallState = {
-  /** The wall's clock, seconds (it stops advancing under reduced motion). */
-  t: number;
-  size: TileSize;
-  /** Canvas size, and its offset in the viewport. */
-  vw: number;
-  vh: number;
-  ox: number;
-  oy: number;
-  pan: { x: number; y: number };
-  vel: { x: number; y: number };
-  mouse: { x: number; y: number; inside: boolean };
-  /** The tile the keyboard highlight is on, as its column and row indices. */
-  kbd: { cx: number; cy: number } | null;
-  down: { x: number; y: number; lx: number; ly: number; ts: number } | null;
-  dragging: boolean;
-  hoverKey: string | null;
-  /** The detail view is opening or open: the wall settles and takes no input. */
-  frozen: boolean;
-  /** Not drawing at all, under the cover of the detail view. */
-  held: boolean;
-  /** The tiles of the last frame, hovered one last. */
-  tiles: Tile[];
-};
-
-export const createWallState = (): WallState => ({
-  t: 0,
-  size: tileSize(1280),
-  vw: 0,
-  vh: 0,
-  ox: 0,
-  oy: 0,
-  pan: { x: 0, y: 0 },
-  vel: { x: 0, y: 0 },
-  mouse: { x: 0, y: 0, inside: false },
-  kbd: null,
-  down: null,
-  dragging: false,
-  hoverKey: null,
-  frozen: false,
-  held: false,
-  tiles: [],
-});
-
-/** What the engine lends to the input code: its canvas, state and a live accessor. */
-export type WallCtx = {
-  canvas: HTMLCanvasElement;
-  st: WallState;
-  running: () => boolean;
-};
 
 export type WallInputHandlers = {
   /** The frame loop is running. */
@@ -83,7 +26,7 @@ export type WallInputHandlers = {
   pointerMove: (e: PointerEvent) => void;
   pointerDown: (e: PointerEvent) => void;
   pointerUp: (e: PointerEvent) => void;
-  pointerCancel: () => void;
+  pointerCancel: (e: PointerEvent) => void;
   pointerLeave: () => void;
   wheel: (e: WheelEvent) => void;
   /** The stage lost focus. */
@@ -167,6 +110,12 @@ export function createWallInput(
   const rectOfTile = (tl: Tile) =>
     new DOMRect(st.ox + tl.cx - tl.w / 2, st.oy + tl.cy - tl.h / 2, tl.w, tl.h);
 
+  /** Forgets the press: the pointer is up, cancelled, or never had its release. */
+  function endPress() {
+    st.down = null;
+    st.dragging = false;
+  }
+
   /** Freezes right here, so a second click cannot land while the detail view is opening. */
   function pick(tl: Tile) {
     st.frozen = true;
@@ -221,29 +170,36 @@ export function createWallInput(
       mouse.y = e.clientY - st.oy;
       mouse.inside = e.pointerType === "mouse";
       if (mouse.inside) st.kbd = null; // the pointer takes the focus back
+      // a mouse moving with no button held has no press: its release went elsewhere
+      if (pressIsStale(st.down, e)) endPress();
       const down = st.down;
-      if (down) {
-        const dx = e.clientX - down.lx;
-        const dy = e.clientY - down.ly;
-        down.lx = e.clientX;
-        down.ly = e.clientY;
-        if (!st.dragging && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) {
-          st.dragging = true;
-        }
-        if (st.dragging) {
-          pan.x -= dx;
-          pan.y -= dy;
-          const dts = Math.max(1, e.timeStamp - down.ts) / 1000;
-          vel.x = -dx / dts;
-          vel.y = -dy / dts;
-          down.ts = e.timeStamp;
-        }
+      if (!down || down.id !== e.pointerId) return;
+      const dx = e.clientX - down.lx;
+      const dy = e.clientY - down.ly;
+      down.lx = e.clientX;
+      down.ly = e.clientY;
+      if (!st.dragging && isDrag(Math.hypot(e.clientX - down.x, e.clientY - down.y))) {
+        st.dragging = true;
+      }
+      if (st.dragging) {
+        pan.x -= dx;
+        pan.y -= dy;
+        const dts = Math.max(1, e.timeStamp - down.ts) / 1000;
+        vel.x = -dx / dts;
+        vel.y = -dy / dts;
+        down.ts = e.timeStamp;
       }
     },
     pointerDown(e) {
-      if (st.frozen) return;
-      canvas.setPointerCapture(e.pointerId);
+      if (st.frozen || !e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
+      if (!startsPress(st.down, e)) return;
+      try {
+        canvas.setPointerCapture(e.pointerId);
+      } catch {
+        // the pointer is already gone: the press simply ends with it
+      }
       st.down = {
+        id: e.pointerId,
         x: e.clientX,
         y: e.clientY,
         lx: e.clientX,
@@ -253,17 +209,16 @@ export function createWallInput(
       vel.x = vel.y = 0;
     },
     pointerUp(e) {
+      if (!st.down || st.down.id !== e.pointerId) return;
       const wasDrag = st.dragging;
-      st.dragging = false;
-      st.down = null;
+      endPress();
       if (wasDrag || locked()) return;
       vel.x = vel.y = 0;
       const tl = hitAt(e.clientX - st.ox, e.clientY - st.oy);
       if (tl) pick(tl);
     },
-    pointerCancel() {
-      st.dragging = false;
-      st.down = null;
+    pointerCancel(e) {
+      if (st.down?.id === e.pointerId) endPress();
     },
     pointerLeave: () => (mouse.inside = false),
     wheel(e) {

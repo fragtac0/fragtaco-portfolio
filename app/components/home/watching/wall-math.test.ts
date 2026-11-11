@@ -110,6 +110,12 @@ describe("thumbUrl", () => {
       /\/abc12345678\/mqdefault\.jpg$/,
     );
   });
+
+  it("asks for hqdefault when hq is wanted, whatever the video has", () => {
+    expect(thumbUrl({ id: "abc12345678", thumb: "sd" }, "hq")).toMatch(
+      /\/abc12345678\/hqdefault\.jpg$/,
+    );
+  });
 });
 
 describe("focusWeight", () => {

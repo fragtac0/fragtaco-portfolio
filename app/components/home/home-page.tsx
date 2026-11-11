@@ -67,6 +67,7 @@ export default function HomePage({
     layerFrom,
     layerActive,
     layerControl,
+    headerHidden,
     openLayer,
     closeLayer,
     dispatchLayer,
@@ -175,6 +176,7 @@ export default function HomePage({
             from={layerFrom}
             title={layerTitle[layer.kind]}
             meta={layerMeta[layer.kind]}
+            headerHidden={headerHidden}
             onClose={closeLayer}
             onGrown={() => dispatchLayer({ type: "grown" })}
             onShrunk={() => dispatchLayer({ type: "shrunk" })}
