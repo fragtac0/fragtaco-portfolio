@@ -47,7 +47,7 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
   const open = pick !== null;
   // No WebGL (or `?nogl=1`), or a wall that failed to start: a static grid of thumbnails opens the
   // same detail view. This scene only ever renders on the client, after the layer opens.
-  const [fallback, setFallback] = useState(() => !hasWebGL());
+  const [fallback, setFallback] = useState(() => !hasWebGL() || !!engine?.hasFailed());
   const lastKey = useRef<string | null>(null);
 
   const [placeholder, setPlaceholder] = useState<Placeholder>("none");

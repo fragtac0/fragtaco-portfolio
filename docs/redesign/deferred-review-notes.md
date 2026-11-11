@@ -103,22 +103,22 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-95 | 15 | tileTransform input/output both named w | fixed (R36.1) |
 | D-96 | 15 | unused cols option and DRIFT export | fixed (R36.1) |
 | D-97 | 16 | createPickChannel exported from a component file (Fast Refresh) | fixed (R31.3) |
-| D-98 | 16 | right-click/non-primary pointers open tiles | open |
+| D-98 | 16 | right-click/non-primary pointers open tiles | fixed (R36.2) |
 | D-99 | 16 | no webglcontextlost handling | fixed (R36.2) |
 | D-100 | 16 | shaders not deleted | fixed (R31.3) |
 | D-101 | 16 | failed Images retained | fixed (R31.3) |
-| D-102 | 16 | visible hint never mentions keyboard | open |
-| D-103 | 16 | .xp-head inert set via DOM query | open |
+| D-102 | 16 | visible hint never mentions keyboard | fixed (R36.2) |
+| D-103 | 16 | .xp-head inert set via DOM query | fixed (R36.2) |
 | D-104 | 16 | wall-engine.ts 784 lines | fixed (R36.2): 345 lines, with the types, the tiles' pose, the drawing, the lean and the chip in their own modules |
-| D-105 | 16 | detail shot no onError fallback / no wait for img | open |
+| D-105 | 16 | detail shot no onError fallback / no wait for img | fixed (R36.2) |
 | D-106 | 16 | reduced motion still redraws every frame and keeps a 0.2 s vfade delay | open |
 | D-107 | 16 | pre-size uses innerWidth/innerHeight vs sizes() clientWidth (classic scrollbars may still resize once on first open) | open |
 | D-108 | 16 | fly-back not cut short on resize | open |
-| D-109 | 16 | deep-link open still does GL setup in the opening frame | open |
+| D-109 | 16 | deep-link open still does GL setup in the opening frame | fixed (R36.2): the setup is slicer steps, urgent once the layer is open, behind a placeholder |
 | D-110 | 17a | image-fallback interrupt comment/dip | open |
 | D-111 | 17a | reduced-motion .home-layer fade bound to element (layer mounts per open, so fine) | open |
 | D-112 | 17a | reading start().then without catch | open |
-| D-113 | 17a | watching hasFailed timing | open |
+| D-113 | 17a | watching hasFailed timing | fixed (R36.2): `start()` is async and the scene checks `hasFailed()` after it resolves |
 | D-114 | 17a | selectors without CSS.escape | open |
 | D-115 | 17a | no tests for fallback components/reduced paths | open |
 | D-116 | 17a | zoomOf ordering | fixed (R33.2) |

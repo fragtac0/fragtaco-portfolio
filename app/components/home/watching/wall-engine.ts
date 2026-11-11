@@ -194,7 +194,7 @@ export function createWall(
     }
     // the wall leans against the pointer (a mouse) or a drag (touch); the near plane more
     const lean = FINE ? (mouse.inside ? mouse : null) : touchTarget(vel, vw, vh);
-    parallax.update(dt, lean, vw, vh);
+    if (!st.frozen) parallax.update(dt, lean, vw, vh); // holds while a video opens
     const list = layoutTiles({
       panX: pan.x,
       panY: pan.y,

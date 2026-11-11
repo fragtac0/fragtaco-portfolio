@@ -40,7 +40,7 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
   const statusRef = useRef<HTMLParagraphElement>(null);
   // three.js 0.169 needs WebGL2 (`?nogl=1` also lands here): without it, or when the shelf fails to
   // start, a simple grid of covers stands in. This scene only renders on the client.
-  const [fallback, setFallback] = useState(() => !hasWebGL2());
+  const [fallback, setFallback] = useState(() => !hasWebGL2() || !!engine?.hasFailed());
   const [placeholder, setPlaceholder] = useState<Placeholder>("none");
   // The placeholder is decided in the render where the layer becomes active, so it is in the first
   // frame the layer shows (an effect would run after that frame was painted).
