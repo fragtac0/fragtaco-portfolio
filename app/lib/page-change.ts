@@ -109,6 +109,7 @@ function unmark(html: HTMLElement) {
  * change takes over the marks and the busy state; the older one only resolves its promise.
  */
 function open(plan: ChangePlan) {
+  endSkip?.(); // a pending skip must not take this change's transition
   const prev = current;
   current = null;
   prev?.stop();
@@ -219,22 +220,22 @@ export function changePage(
   to: string,
   opts: { origin?: Point; kind?: ChangeKind } = {},
 ): Promise<void> {
-  const go = (viewTransition: boolean) =>
-    void Promise.resolve(navigate(to, { viewTransition })).catch(() => undefined);
+  const go = (viewTransition: boolean) => Promise.resolve(navigate(to, { viewTransition }));
   if (typeof document === "undefined") {
-    go(false);
+    void go(false).catch(() => undefined);
     return Promise.resolve();
   }
   const plan = planNow(opts.kind, opts.origin);
   if (plan.kind === "none") {
     current?.stop();
-    go(false);
+    void go(false).catch(() => undefined);
     return Promise.resolve();
   }
   const c = open(plan);
   captureRouterTransition(c);
   try {
-    go(true);
+    // a navigation that fails ends the change now, not at the failsafe
+    go(true).catch(() => c.over());
   } catch (err) {
     console.error("page change: could not start the navigation", err);
     c.over();
@@ -253,34 +254,53 @@ export interface RouterLike {
 }
 
 /**
+ * A move inside one page that the router may still animate (it does so on a POP whenever the page's
+ * address was ever changed with a transition): take its transition and skip it, so in-page moves (a
+ * layer's hash, the work view) never crossfade the whole page. The wrapper goes after the next commit.
+ */
+let endSkip: (() => void) | null = null;
+function skipRouterTransition() {
+  endSkip?.();
+  const restore = captureNextTransition((t) => {
+    t.ready.catch(() => undefined);
+    t.updateCallbackDone.catch(() => undefined);
+    t.finished.catch(() => undefined);
+    t.skipTransition();
+  });
+  let over = false;
+  const end = () => {
+    if (over) return;
+    over = true;
+    if (endSkip === end) endSkip = null;
+    window.clearTimeout(timer);
+    offCommit();
+    restore();
+  };
+  endSkip = end;
+  const timer = window.setTimeout(end, 4000);
+  const offCommit = onCommit(end);
+}
+
+/**
  * Back and Forward: the change opens at the popstate (marks, busy). Once the router has the
  * destination's data (a state with no navigation pending, at the new address) it either starts the
  * view transition itself, which it does on a POP when the same pair of pages was changed with a
  * transition before (`viewTransitionOpts`; then this takes that transition, the same as for a click),
  * or it does not, and then this starts one whose update step holds only the commit. Radial from the
- * centre of the screen. A move inside one page (the work view, a hash) is left to that page. Returns
- * the function that stops watching.
+ * centre of the screen. A move inside one page (the work view, a hash) gets no change, and a
+ * transition the router would start for it is skipped. A second popstate that lands back on the
+ * committed page ends a change still waiting for data. Returns the function that stops watching.
  */
 export function watchHistory(): () => void {
   if (typeof window === "undefined") return () => undefined;
   let stopWaiting = () => {};
-  const onPop = () => {
-    stopWaiting();
-    if (window.location.pathname === committedPathname()) return;
-    const plan = planNow("radial");
-    if (plan.kind === "none") return;
-    const router = (window as { __remixRouter?: RouterLike }).__remixRouter;
-    const c = open(plan);
-    if (!router) {
-      startOwnTransition(c);
-      return;
-    }
-    const path = window.location.pathname;
+  let popChange: Change | null = null;
+  /** Calls `ready` with the router's info once it has the data for `path` (idle, at that address). */
+  const whenRouterHasData = (router: RouterLike, path: string, ready: (info?: { viewTransitionOpts?: unknown }) => void) => {
     const off = router.subscribe((state, info) => {
       if (state.navigation.state !== "idle" || state.location.pathname !== path) return;
       stopWaiting();
-      if (info?.viewTransitionOpts) captureRouterTransition(c);
-      else startOwnTransition(c);
+      ready(info);
     });
     const timer = window.setTimeout(() => stopWaiting(), FAILSAFE_MS);
     stopWaiting = () => {
@@ -288,6 +308,33 @@ export function watchHistory(): () => void {
       off();
       stopWaiting = () => {};
     };
+  };
+  const onPop = () => {
+    stopWaiting();
+    const path = window.location.pathname;
+    const router = (window as { __remixRouter?: RouterLike }).__remixRouter;
+    if (path === committedPathname()) {
+      // back on the page that is shown (an in-page move, or a Back that undoes a Back still loading):
+      // a change still waiting for data is over, and the router's own transition, if any, is skipped
+      if (popChange && !popChange.hasTransition()) popChange.over();
+      popChange = null;
+      // The router's own popstate listener has run before this point (it has the new state already, so
+      // there is nothing to wait for), and it starts its transition a few effects later: be ready for it.
+      if (router && "startViewTransition" in document) skipRouterTransition();
+      return;
+    }
+    const plan = planNow("radial");
+    if (plan.kind === "none") return;
+    const c = open(plan);
+    popChange = c;
+    if (!router) {
+      startOwnTransition(c);
+      return;
+    }
+    whenRouterHasData(router, path, (info) => {
+      if (info?.viewTransitionOpts) captureRouterTransition(c);
+      else startOwnTransition(c);
+    });
     // a newer change, or the end of this one, stops the wait
     c.onCleanup(() => stopWaiting());
     // a commit with no transition of any kind ends the change

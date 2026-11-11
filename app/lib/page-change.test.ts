@@ -208,6 +208,14 @@ describe("changePage", () => {
     expect(isPageSettled()).toBe(true);
   });
 
+  it("ends the change when the navigation is rejected", async () => {
+    const env = fakeEnvironment();
+    const navigate = vi.fn(() => Promise.reject(new Error("no"))) as unknown as NavigateFunction;
+    await changePage(navigate, "/work");
+    expect(isPageSettled()).toBe(true);
+    expect(env.html.dataset.changeKind).toBeUndefined();
+  });
+
   it("just navigates, and resolves, where View Transitions are not supported", async () => {
     const env = fakeEnvironment({ supported: false });
     const navigate = vi.fn() as unknown as NavigateFunction;
@@ -249,8 +257,8 @@ describe("watchHistory", () => {
         onPop();
       },
       /** The router has the data for `path`; `opts` is what it passes when it will start the transition itself. */
-      dataArrives(path: string, opts?: unknown) {
-        subscriber({ navigation: { state: "idle" }, location: { pathname: path } }, { viewTransitionOpts: opts });
+      dataArrives(path: string, opts?: unknown, navigation = "idle") {
+        subscriber({ navigation: { state: navigation }, location: { pathname: path } }, { viewTransitionOpts: opts });
       },
       routerStartsTransition() {
         // looked up now: the module may have put its capture in front of the document's own
@@ -294,7 +302,7 @@ describe("watchHistory", () => {
     w.stop();
   });
 
-  it("ignores a move inside one page and a state that is still loading", () => {
+  it("ignores a state at another address", () => {
     const w = setup();
     w.pop("/work"); // same path as the committed page
     expect(w.html.dataset.changeKind).toBeUndefined();
@@ -302,6 +310,42 @@ describe("watchHistory", () => {
     w.dataArrives("/work"); // a different address: not this navigation
     expect(w.transitions).toHaveLength(0);
     pageCommitted("/"); // a commit with no transition at all ends the change
+    expect(isPageSettled()).toBe(true);
+    w.stop();
+  });
+
+  it("waits while the router is still loading (a navigation pending)", () => {
+    const w = setup();
+    w.pop("/");
+    w.dataArrives("/", { currentLocation: {} }, "loading");
+    expect(w.transitions).toHaveLength(0);
+    expect(w.html.dataset.changeKind).toBe("radial");
+    w.dataArrives("/", undefined, "idle");
+    expect(w.transitions).toHaveLength(1);
+    w.transitions[0].finish();
+    pageCommitted("/");
+    w.stop();
+  });
+
+  it("ends the change when a second popstate lands back on the committed page before the data arrives", () => {
+    const w = setup();
+    w.pop("/"); // Back: opens the change
+    expect(isPageSettled()).toBe(false);
+    w.pop("/work"); // Forward again, before the router has the data for "/"
+    expect(isPageSettled()).toBe(true);
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    w.stop();
+  });
+
+  it("takes and skips a transition the router starts for a move inside one page", () => {
+    const w = setup();
+    const original = w.doc.startViewTransition;
+    w.pop("/work"); // same page: a hash or a view
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    w.routerStartsTransition();
+    expect(w.transitions).toHaveLength(1);
+    expect(w.transitions[0].skipped).toBe(true);
+    expect(w.doc.startViewTransition).toBe(original);
     expect(isPageSettled()).toBe(true);
     w.stop();
   });
