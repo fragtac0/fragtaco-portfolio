@@ -1,0 +1,31 @@
+/* The dock's second row (the work page's switcher). It is not in either picture of a page change:
+ * it mounts closed, closes at once when a change starts (no transition, so the old picture has the
+ * one-row dock) and opens 140 ms after the change is over, by height and opacity over 260 ms.
+ * Height goes through `grid-template-rows` (0fr to 1fr), so the row's own height is never measured.
+ * The dock is fixed to the bottom of the screen, so nothing else on the page moves when it opens.
+ * Reduced motion: no animation, the row is simply there once the change is over. */
+.dock-row {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  /* Closed, the row adds nothing to the dock's width either, so the closed dock is as wide as the
+   * one-row dock of the page before it and the dock's box does not change size in the pictures. */
+  contain: inline-size;
+}
+.dock-row[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  contain: none;
+  transition:
+    grid-template-rows 260ms cubic-bezier(0.16, 1, 0.3, 1) 140ms,
+    opacity 260ms ease-out 140ms;
+}
+.dock-row-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dock-row[data-open="true"] {
+    transition: none;
+  }
+}

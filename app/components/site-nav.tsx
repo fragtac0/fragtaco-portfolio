@@ -3,6 +3,8 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ComponentType, ReactNode } from "react";
 import type { SiteNavigationItem, SiteSocialLink } from "../types";
 import DockNav from "./react-bits/dock-nav";
+import { useDockRowOpen } from "./use-dock-row";
+import "./dock-row.css";
 import { inertProps } from "../utils/inert";
 import { externalLinkProps } from "../utils/link";
 import { activeNavKey, isHomeSectionId } from "../utils/nav";
@@ -63,6 +65,8 @@ export default function SiteNav({
   // preload at once (a <Link prefetch="intent"> alone waits 100 ms, and a tap does not last that long).
   const [dockReached, setDockReached] = useState(false);
   const reachDock = () => setDockReached(true);
+  // The second row opens after a page change is over and closes when the next one starts.
+  const rowOpen = useDockRowOpen();
   const isHomePage = location.pathname === "/";
   // One row is a pill; two rows are a rounded panel, or the pill's ends would cut into the upper row.
   const shape = upperRow ? "rounded-[1.75rem]" : "rounded-full";
@@ -93,7 +97,10 @@ export default function SiteNav({
     }
 
     const updateNavHeight = () => {
-      const height = nav.getBoundingClientRect().height;
+      // The dock's full height: the second row counts as open even while it is closed or opening, so
+      // what is sized from this (the work page's fades) does not change when the row arrives.
+      const clip = nav.querySelector<HTMLElement>(".dock-row-clip");
+      const height = nav.getBoundingClientRect().height + (clip ? clip.scrollHeight - clip.offsetHeight : 0);
       document.documentElement.style.setProperty("--site-nav-height", `${height}px`);
     };
 
@@ -191,8 +198,12 @@ export default function SiteNav({
         />
 
         {upperRow ? (
-          <div className="relative mb-1 flex max-w-full items-center justify-start overflow-x-auto border-b border-white/10 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-1.5 sm:justify-center sm:overflow-visible sm:pb-1.5 [&::-webkit-scrollbar]:hidden">
-            {upperRow}
+          <div className="dock-row" data-open={rowOpen} {...inertProps(!rowOpen)}>
+            <div className="dock-row-clip">
+              <div className="relative mb-1 flex max-w-full items-center justify-start overflow-x-auto border-b border-white/10 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-1.5 sm:justify-center sm:overflow-visible sm:pb-1.5 [&::-webkit-scrollbar]:hidden">
+                {upperRow}
+              </div>
+            </div>
           </div>
         ) : null}
 

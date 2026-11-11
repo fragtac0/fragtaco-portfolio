@@ -1,0 +1,183 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__ls=0;window.__lsrc=[];\ntry{new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput){window.__ls+=e.value;for(const x of e.sources||[])window.__lsrc.push(Math.round(performance.now())+' '+e.value.toFixed(4)+' '+(x.node&&(x.node.tagName+'.'+String(x.node.className).slice(0,40))))}}).observe({type:'layout-shift',buffered:true})}catch(e){}\nwindow.__dr=function(){\n window.__lsrc=[];const r={s:[],t0:0,on:true,from:location.pathname,over:0,seen:false,ls0:window.__ls};window.__r=r;\n document.addEventListener('click',()=>{r.t0=performance.now()},{capture:true,once:true});\n const pic=sel=>{const c=getComputedStyle(document.documentElement,sel);return [Math.round(parseFloat(c.width)||0),Math.round(parseFloat(c.height)||0)]};\n const f=n=>{if(!r.on)return;\n  if(r.t0){\n   const g=document.querySelector('[data-dock-glass]'),row=document.querySelector('.dock-row');\n   const b=g?g.getBoundingClientRect():null;\n   const clip=row?row.firstElementChild.getBoundingClientRect():null;\n   const kind=!!document.documentElement.dataset.changeKind;\n   if(kind)r.seen=true;\n   if(r.seen&&!kind&&!r.over)r.over=n;\n   r.s.push({t:Math.round(n-r.t0),p:location.pathname,k:kind?1:0,gh:b?+b.height.toFixed(1):null,gb:b?+b.bottom.toFixed(1):null,gw:b?+b.width.toFixed(1):null,\n    row:row?+clip.height.toFixed(1):null,op:row?+(+getComputedStyle(row).opacity).toFixed(2):null,\n    grp:pic('::view-transition-group(site-dock)'),old:pic('::view-transition-old(site-dock)'),nw:pic('::view-transition-new(site-dock)'),\n    mn:(()=>{const m=document.querySelector('main');if(!m)return null;const q=m.getBoundingClientRect();return [Math.round(q.top),Math.round(q.height)]})(),nv:getComputedStyle(document.documentElement).getPropertyValue('--site-nav-height')});\n  }\n  requestAnimationFrame(f)};\n requestAnimationFrame(f);return 'armed'};\nwindow.__stop=function(){const r=window.__r;return new Promise(res=>{const w=setInterval(()=>{\n if(r.over&&performance.now()-r.over>800){clearInterval(w);r.on=false;\n  const ov=Math.round(r.over-r.t0),S=r.s,dur=S.filter(x=>x.k);\n  const rng=(a,k)=>{const v=a.map(x=>x[k]).filter(x=>x!=null);return v.length?[Math.min(...v),Math.max(...v)]:null};\n  const pr=(a,k,i)=>{const v=a.map(x=>x[k]?x[k][i]:null).filter(x=>x!=null&&(k==='mn'||x>0));return v.length?[Math.min(...v),Math.max(...v)]:null};\n  const dest=S.filter(x=>x.t>ov&&x.mn);\n  const after=S.filter(x=>x.t>ov), fin=after.length?after[after.length-1].row:null, finOp=after.length?after[after.length-1].op:null;\n  const firstAfter=after.find(x=>x.row>0.5), full=after.find(x=>fin!=null&&x.row>=fin-0.5&&x.op>=0.99);\n  const trace=[];let last='';for(const x of S){const key=[x.row,x.op,x.gh,x.k,x.p].join();if(key!==last){trace.push([x.t,x.p,x.k,x.row,x.op,x.gh,x.gb]);last=key}}\n  res({from:r.from,to:location.pathname,changeOverMs:ov,\n   duringChange:{glassHeight:rng(dur,'gh'),glassBottom:rng(dur,'gb'),glassWidth:rng(dur,'gw'),rowHeight:rng(dur,'row'),rowOpacity:rng(dur,'op'),\n    groupW:pr(dur,'grp',0),groupH:pr(dur,'grp',1),oldH:pr(dur,'old',1),newH:pr(dur,'nw',1),samples:dur.length},\n   row:{finalHeight:fin,finalOpacity:finOp,startedAfterOverMs:firstAfter?Math.round(firstAfter.t-ov):null,fullyOpenAfterOverMs:full?Math.round(full.t-ov):null},\n   pageUnderAfterChange:{mainTop:pr(dest,'mn',0),mainHeight:pr(dest,'mn',1),navHeightVar:[...new Set(dest.map(x=>x.nv))]},layoutShiftSum:+(window.__ls-r.ls0).toFixed(4),shiftSources:window.__lsrc.slice(-6),trace:trace.slice(0,60)})}\n },50);\n setTimeout(()=>{clearInterval(w);res({error:'timeout',path:location.pathname,over:r.over})},20000)})};",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "move": [
+   676,
+   846
+  ],
+  "wait": 700
+ },
+ {
+  "label": "arm home to work",
+  "eval": "__dr()"
+ },
+ {
+  "click": [
+   676,
+   846
+  ]
+ },
+ {
+  "label": "home to work",
+  "eval": "__stop()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "move": [
+   932,
+   791
+  ],
+  "wait": 700
+ },
+ {
+  "label": "arm work to timeline",
+  "eval": "__dr()"
+ },
+ {
+  "click": [
+   932,
+   791
+  ]
+ },
+ {
+  "label": "work to timeline",
+  "eval": "__stop()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "move": [
+   559,
+   846
+  ],
+  "wait": 700
+ },
+ {
+  "label": "arm timeline to home",
+  "eval": "__dr()"
+ },
+ {
+  "click": [
+   559,
+   846
+  ]
+ },
+ {
+  "label": "timeline to home",
+  "eval": "__stop()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "move": [
+   676,
+   846
+  ],
+  "wait": 700
+ },
+ {
+  "label": "arm home to work again",
+  "eval": "__dr()"
+ },
+ {
+  "click": [
+   676,
+   846
+  ]
+ },
+ {
+  "label": "home to work again",
+  "eval": "__stop()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "move": [
+   559,
+   846
+  ],
+  "wait": 700
+ },
+ {
+  "label": "arm work to home",
+  "eval": "__dr()"
+ },
+ {
+  "click": [
+   559,
+   846
+  ]
+ },
+ {
+  "label": "work to home",
+  "eval": "__stop()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "reduce": true
+ },
+ {
+  "move": [
+   676,
+   846
+  ],
+  "wait": 700
+ },
+ {
+  "label": "arm home to work, reduced motion",
+  "eval": "__dr()"
+ },
+ {
+  "click": [
+   676,
+   846
+  ]
+ },
+ {
+  "label": "home to work, reduced motion",
+  "eval": "__stop()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "move": [
+   559,
+   846
+  ],
+  "wait": 700
+ },
+ {
+  "label": "arm work to home, reduced motion",
+  "eval": "__dr()"
+ },
+ {
+  "click": [
+   559,
+   846
+  ]
+ },
+ {
+  "label": "work to home, reduced motion",
+  "eval": "__stop()"
+ },
+ {
+  "wait": 1500
+ }
+]
