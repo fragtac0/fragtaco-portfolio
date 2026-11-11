@@ -1,16 +1,16 @@
 // Writes scripts/audit/page-change.json: home to work and back at 1440x900, dpr 2, CPU 4x, with a
 // rAF frame-gap recorder started in the page before each click and read by polling after (the
 // headless page does not advance timers while idle, so the read is a setInterval inside an eval).
-// usage: node scripts/audit/make-page-change.mjs   then   BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/page-change.json <outdir>
+// usage: node scripts/audit/make-page-change.mjs [cpu=4]   then   BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/page-change.json <outdir>
 import { writeFileSync } from "node:fs";
 
 const init = `
 try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}
 window.__loaf=[];
 try{new PerformanceObserver(l=>{for(const e of l.getEntries())window.__loaf.push({s:+e.startTime.toFixed(0),d:+e.duration.toFixed(0),b:+(e.blockingDuration||0).toFixed(0),rs:+((e.renderStart||e.startTime)-e.startTime).toFixed(0),sl:+((e.styleAndLayoutStart||e.startTime)-e.startTime).toFixed(0),sc:(e.scripts||[]).map(x=>(x.invoker||'')+' '+(x.sourceFunctionName||'')+' '+(x.sourceURL||'').split('/').pop()+':'+(x.sourceCharPosition||0)+' '+x.duration.toFixed(0)+(x.forcedStyleAndLayoutDuration>5?' forced'+x.forcedStyleAndLayoutDuration.toFixed(0):'')).slice(0,8)})}).observe({type:'long-animation-frame',buffered:true})}catch(e){}
-window.__rec=function(){const r={g:[],on:true,t0:0,tp:0,from:location.pathname};window.__r=r;let last=performance.now();
+window.__rec=function(now){const r={g:[],on:true,t0:now?performance.now():0,tp:0,from:location.pathname};window.__r=r;let last=performance.now();
  const f=n=>{r.g.push([n,n-last]);last=n;if(r.on)requestAnimationFrame(f)};requestAnimationFrame(f);
- document.addEventListener('click',()=>{r.t0=performance.now()},{capture:true,once:true});
+ if(!now)document.addEventListener('click',()=>{r.t0=performance.now()},{capture:true,once:true});
  const ob=setInterval(()=>{if(!r.tp&&location.pathname!==r.from){r.tp=performance.now();clearInterval(ob)}},4);return 'rec'};
 window.__stop=function(){const r=window.__r;return new Promise(res=>{const w=setInterval(()=>{if(r.tp&&performance.now()-r.tp>1000){clearInterval(w);r.on=false;
  const gs=r.g.filter(x=>x[0]>=r.t0);const top=[...gs].sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>[+(x[0]-r.t0).toFixed(0),+x[1].toFixed(1)]);
@@ -22,7 +22,7 @@ window.__stop=function(){const r=window.__r;return new Promise(res=>{const w=set
 const wait = (ms) => ({ wait: ms });
 const steps = [
   { size: [1440, 900], dpr: 2, init, go: "{{BASE}}/", wait: 6000 },
-  { cpu: 4, wait: 4000 },
+  { cpu: Number(process.argv[2] ?? 4), wait: 4000 },
   { move: [676, 846], wait: 700 }, // hover first: the other page's code preloads on intent
   { label: "arm home to work", eval: "__rec()" },
   { click: [676, 846] }, // the work tab
@@ -37,5 +37,13 @@ const steps = [
   { label: "arm home to work again", eval: "__rec()" },
   { click: [676, 846] },
   { label: "home to work (2nd)", eval: "__stop()" },
+  wait(4000),
+  { label: "arm Back (work to home)", eval: "__rec(true)" },
+  { eval: "history.back()" },
+  { label: "Back, work to home", eval: "__stop()" },
+  wait(4000),
+  { label: "arm Forward (home to work)", eval: "__rec(true)" },
+  { eval: "history.forward()" },
+  { label: "Forward, home to work", eval: "__stop()" },
 ];
 writeFileSync(new URL("./page-change.json", import.meta.url), JSON.stringify(steps, null, 1) + "\n");

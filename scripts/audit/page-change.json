@@ -5,7 +5,7 @@
    900
   ],
   "dpr": 2,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__loaf=[];\ntry{new PerformanceObserver(l=>{for(const e of l.getEntries())window.__loaf.push({s:+e.startTime.toFixed(0),d:+e.duration.toFixed(0),b:+(e.blockingDuration||0).toFixed(0),rs:+((e.renderStart||e.startTime)-e.startTime).toFixed(0),sl:+((e.styleAndLayoutStart||e.startTime)-e.startTime).toFixed(0),sc:(e.scripts||[]).map(x=>(x.invoker||'')+' '+(x.sourceFunctionName||'')+' '+(x.sourceURL||'').split('/').pop()+':'+(x.sourceCharPosition||0)+' '+x.duration.toFixed(0)+(x.forcedStyleAndLayoutDuration>5?' forced'+x.forcedStyleAndLayoutDuration.toFixed(0):'')).slice(0,8)})}).observe({type:'long-animation-frame',buffered:true})}catch(e){}\nwindow.__rec=function(){const r={g:[],on:true,t0:0,tp:0,from:location.pathname};window.__r=r;let last=performance.now();\n const f=n=>{r.g.push([n,n-last]);last=n;if(r.on)requestAnimationFrame(f)};requestAnimationFrame(f);\n document.addEventListener('click',()=>{r.t0=performance.now()},{capture:true,once:true});\n const ob=setInterval(()=>{if(!r.tp&&location.pathname!==r.from){r.tp=performance.now();clearInterval(ob)}},4);return 'rec'};\nwindow.__stop=function(){const r=window.__r;return new Promise(res=>{const w=setInterval(()=>{if(r.tp&&performance.now()-r.tp>1000){clearInterval(w);r.on=false;\n const gs=r.g.filter(x=>x[0]>=r.t0);const top=[...gs].sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>[+(x[0]-r.t0).toFixed(0),+x[1].toFixed(1)]);\n const loaf=window.__loaf.filter(e=>e.s+e.d>=r.t0).map(e=>({at:e.s-Math.round(r.t0),d:e.d,b:e.b,rs:e.rs,sl:e.sl,sc:e.sc}));\n res({from:r.from,to:location.pathname,pathAfterMs:+(r.tp-r.t0).toFixed(0),frames:gs.length,max:+Math.max(...gs.map(x=>x[1])).toFixed(1),over34:gs.filter(x=>x[1]>34).length,over20:gs.filter(x=>x[1]>20).length,top,loaf})}},50);\n setTimeout(()=>{clearInterval(w);res({error:'timeout',path:location.pathname})},15000)})};",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__loaf=[];\ntry{new PerformanceObserver(l=>{for(const e of l.getEntries())window.__loaf.push({s:+e.startTime.toFixed(0),d:+e.duration.toFixed(0),b:+(e.blockingDuration||0).toFixed(0),rs:+((e.renderStart||e.startTime)-e.startTime).toFixed(0),sl:+((e.styleAndLayoutStart||e.startTime)-e.startTime).toFixed(0),sc:(e.scripts||[]).map(x=>(x.invoker||'')+' '+(x.sourceFunctionName||'')+' '+(x.sourceURL||'').split('/').pop()+':'+(x.sourceCharPosition||0)+' '+x.duration.toFixed(0)+(x.forcedStyleAndLayoutDuration>5?' forced'+x.forcedStyleAndLayoutDuration.toFixed(0):'')).slice(0,8)})}).observe({type:'long-animation-frame',buffered:true})}catch(e){}\nwindow.__rec=function(now){const r={g:[],on:true,t0:now?performance.now():0,tp:0,from:location.pathname};window.__r=r;let last=performance.now();\n const f=n=>{r.g.push([n,n-last]);last=n;if(r.on)requestAnimationFrame(f)};requestAnimationFrame(f);\n if(!now)document.addEventListener('click',()=>{r.t0=performance.now()},{capture:true,once:true});\n const ob=setInterval(()=>{if(!r.tp&&location.pathname!==r.from){r.tp=performance.now();clearInterval(ob)}},4);return 'rec'};\nwindow.__stop=function(){const r=window.__r;return new Promise(res=>{const w=setInterval(()=>{if(r.tp&&performance.now()-r.tp>1000){clearInterval(w);r.on=false;\n const gs=r.g.filter(x=>x[0]>=r.t0);const top=[...gs].sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>[+(x[0]-r.t0).toFixed(0),+x[1].toFixed(1)]);\n const loaf=window.__loaf.filter(e=>e.s+e.d>=r.t0).map(e=>({at:e.s-Math.round(r.t0),d:e.d,b:e.b,rs:e.rs,sl:e.sl,sc:e.sc}));\n res({from:r.from,to:location.pathname,pathAfterMs:+(r.tp-r.t0).toFixed(0),frames:gs.length,max:+Math.max(...gs.map(x=>x[1])).toFixed(1),over34:gs.filter(x=>x[1]>34).length,over20:gs.filter(x=>x[1]>20).length,top,loaf})}},50);\n setTimeout(()=>{clearInterval(w);res({error:'timeout',path:location.pathname})},15000)})};",
   "go": "{{BASE}}/",
   "wait": 6000
  },
@@ -80,6 +80,34 @@
  },
  {
   "label": "home to work (2nd)",
+  "eval": "__stop()"
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "label": "arm Back (work to home)",
+  "eval": "__rec(true)"
+ },
+ {
+  "eval": "history.back()"
+ },
+ {
+  "label": "Back, work to home",
+  "eval": "__stop()"
+ },
+ {
+  "wait": 4000
+ },
+ {
+  "label": "arm Forward (home to work)",
+  "eval": "__rec(true)"
+ },
+ {
+  "eval": "history.forward()"
+ },
+ {
+  "label": "Forward, home to work",
   "eval": "__stop()"
  }
 ]
