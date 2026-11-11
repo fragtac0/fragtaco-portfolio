@@ -1,3 +1,4 @@
+import { isDrag, pressIsStale, startsPress } from "./shelf-drag";
 import { clamp, panFromDrag, wheelPanPx } from "./shelf-math";
 import type { OpenPath, ShelfCtx } from "./shelf-open";
 import type { Book } from "./shelf-scene";
@@ -121,6 +122,12 @@ export function createShelfInput(
     openBook(gl.books[st.focusIdx]);
   }
 
+  /** Forgets the press: the pointer is up, cancelled, or never had its pointerup. */
+  function endPress() {
+    st.down = null;
+    canvas.classList.remove("dragging");
+  }
+
   const handlers: ShelfInputHandlers = {
     running: ctx.running,
     opened: () => !!st.opened,
@@ -129,17 +136,14 @@ export function createShelfInput(
       if (!gl) return;
       setNdc(e);
       st.inside = e.pointerType === "mouse";
+      // a mouse moving with no button held has no press: its pointerup went elsewhere
+      if (pressIsStale(st.down, e)) endPress();
       const d = st.down;
       if (!d || d.id !== e.pointerId || st.opened) return;
       const dx = e.clientX - d.x;
-      if (!d.moved && Math.abs(dx) > 6) {
+      if (!d.moved && isDrag(dx)) {
         d.moved = true;
         canvas.classList.add("dragging");
-        try {
-          canvas.setPointerCapture(e.pointerId);
-        } catch {
-          // the pointer is already gone: the drag simply ends with it
-        }
       }
       if (!d.moved) return;
       const x = panFromDrag(d.cx, dx, gl.dist, canvas.clientHeight, gl.maxX);
@@ -157,7 +161,13 @@ export function createShelfInput(
     pointerDown(e) {
       if (e.pointerType === "mouse" && e.button !== 0) return;
       setNdc(e);
-      if (st.down) return; // a second finger does not take over the drag
+      if (!startsPress(st.down, e)) return; // a second finger does not take over the drag
+      try {
+        // captured from the press, so its pointerup always lands here, never on a header button
+        canvas.setPointerCapture(e.pointerId);
+      } catch {
+        // the pointer is already gone: the press simply ends with it
+      }
       st.down = {
         id: e.pointerId,
         x: e.clientX,
@@ -173,8 +183,7 @@ export function createShelfInput(
       setNdc(e);
       const d = st.down;
       if (!d || d.id !== e.pointerId) return;
-      st.down = null;
-      canvas.classList.remove("dragging");
+      endPress();
       const gl = ctx.scene();
       if (d.moved) {
         // the release speed carries on, unless the pointer was held still before letting go
@@ -192,17 +201,17 @@ export function createShelfInput(
       if (hit) openBook(hit);
     },
     pointerCancel(e) {
-      if (st.down?.id !== e.pointerId) return;
-      st.down = null;
-      canvas.classList.remove("dragging");
+      if (st.down?.id === e.pointerId) endPress();
     },
     wheel(e) {
-      const gl = ctx.scene();
-      if (!gl || !ctx.running() || st.opened) return;
       const lines = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1;
       const px = wheelPanPx(e.deltaX * lines, e.deltaY * lines, e.shiftKey);
       if (px === null) return;
+      // a sideways swipe is ours while the layer is up, even when it does not pan (it must not
+      // also swipe the browser back); this listener exists only while the layer is mounted
       e.preventDefault();
+      const gl = ctx.scene();
+      if (!gl || !ctx.running() || st.opened) return;
       cam.x = clamp(cam.x + (px * gl.dist) / canvas.clientHeight, -gl.maxX, gl.maxX);
       cam.xV = 0;
       st.camTarget = null;

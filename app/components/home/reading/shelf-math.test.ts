@@ -18,6 +18,7 @@ import {
   initialCamX,
   introSeconds,
   markerLeft,
+  markerShown,
   openPhases,
   panFromDrag,
   spring,
@@ -264,6 +265,30 @@ describe("markerLeft", () => {
   });
   it("is 0 when there is nowhere to go", () => {
     expect(markerLeft(0, 0, 1)).toBe(0);
+  });
+});
+
+describe("markerShown", () => {
+  it("hides when the shelf does not move or the thumb would fill the track", () => {
+    expect(markerShown(0, 1)).toBe(false);
+    expect(markerShown(0.3, 1)).toBe(false);
+    expect(markerShown(0.3, 0.9995)).toBe(false);
+  });
+  it("shows when there is somewhere to go and the thumb is shorter than the track", () => {
+    expect(markerShown(0.3, 0.8)).toBe(true);
+  });
+  it("hides in the gap where the shelf can still move but is all on screen", () => {
+    // needW <= visible width < needW / 0.9: maxX is above 0 and visibleFraction is 1
+    let gap = 0;
+    for (let aspect = 0.3; aspect <= 3; aspect += 0.01) {
+      const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span: 2.4 });
+      const visible = visibleFraction(dist, aspect, FOV_DEG, 2.4);
+      if (maxX > 0 && visible >= 0.999) {
+        gap++;
+        expect(markerShown(maxX, visible)).toBe(false);
+      }
+    }
+    expect(gap).toBeGreaterThan(0);
   });
 });
 

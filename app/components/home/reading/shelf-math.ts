@@ -185,6 +185,11 @@ export function visibleFraction(
   return Math.min(1, visible / (span + 0.9));
 }
 
+/** The marker is shown only when the shelf is wider than the screen, so its thumb is shorter than the track. */
+export function markerShown(maxX: number, visible: number): boolean {
+  return maxX > 0 && visible < 0.999;
+}
+
 /** The position marker's thumb: its left edge as a share (0..1) of the track, for the camera at `camX`. */
 export function markerLeft(camX: number, maxX: number, visible: number): number {
   if (maxX <= 0) return 0;

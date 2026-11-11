@@ -1,4 +1,4 @@
-import { markerLeft } from "./shelf-math";
+import { markerLeft, markerShown } from "./shelf-math";
 
 /**
  * The shelf's small overlays: the hint line and the position marker under the plank. The marker is
@@ -42,7 +42,7 @@ export function createMarkerSync(): (
     if (el === lastEl && key === lastKey) return;
     lastEl = el;
     lastKey = key;
-    el.hidden = maxX <= 0;
+    el.hidden = !markerShown(maxX, visible);
     el.dataset.camX = camX.toFixed(3);
     el.dataset.maxX = maxX.toFixed(3);
     const thumb = el.firstElementChild;
