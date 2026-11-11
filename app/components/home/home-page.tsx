@@ -160,6 +160,7 @@ export default function HomePage({
           videos={videos}
           onOpen={openLayer}
           onNear={onBlockNear}
+          blocked={open}
         />
         <SiteNav
           items={navigationItems}

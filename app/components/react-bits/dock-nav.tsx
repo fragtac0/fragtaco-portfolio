@@ -45,6 +45,9 @@ function DockItemIcon({ itemKey }: { itemKey: SiteNavigationItem["key"] }) {
   return null;
 }
 
+/* At 320 px the dock's content was 18 px wider than its pill (D-119): under 340 px the tabs' minimum
+ * width is 4.5rem (72 px, their natural width) and the social icons are 32 px, 4 px less each. Wider
+ * screens are unchanged. */
 function DockNavItem({ item, isActive, onClick }: DockNavItemProps) {
   return (
     <MotionLink
@@ -56,7 +59,7 @@ function DockNavItem({ item, isActive, onClick }: DockNavItemProps) {
       whileHover={{ scale: 1.07, y: -2 }}
       whileTap={{ scale: 0.96 }}
       transition={{ type: "spring", stiffness: 420, damping: 24 }}
-      className="relative z-10 min-w-[4.65rem] shrink-0 rounded-full px-2.5 py-2.5 text-center font-doto text-[length:var(--t-micro)] font-black tracking-[0.06em] outline-none focus-visible:ring-1 focus-visible:ring-fog/30 sm:min-w-[7rem] sm:px-6 sm:py-3 sm:text-[14px] sm:tracking-[0.12em] text-fog"
+      className="relative z-10 min-w-[4.65rem] max-[339px]:min-w-[4.5rem] shrink-0 rounded-full px-2.5 py-2.5 text-center font-doto text-[length:var(--t-micro)] font-black tracking-[0.06em] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-fog sm:min-w-[7rem] sm:px-6 sm:py-3 sm:text-[14px] sm:tracking-[0.12em] text-fog"
     >
       {isActive ? (
         <motion.span
