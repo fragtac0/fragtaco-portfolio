@@ -70,10 +70,15 @@ export function parallaxShift(
   vh: number,
   plane: Pick<Plane, "parallax">,
 ): { x: number; y: number } {
-  if (!pointer) return { x: 0, y: 0 };
+  if (!pointer || !(vw > 0) || !(vh > 0)) return { x: 0, y: 0 };
+  if (!Number.isFinite(pointer.x) || !Number.isFinite(pointer.y))
+    return { x: 0, y: 0 };
+  // a captured drag can leave the window: the lean stops at the edge
+  const px = clamp(pointer.x / vw, 0, 1);
+  const py = clamp(pointer.y / vh, 0, 1);
   return {
-    x: (0.5 - pointer.x / vw) * 28 * plane.parallax,
-    y: (0.5 - pointer.y / vh) * 20 * plane.parallax,
+    x: (0.5 - px) * 28 * plane.parallax,
+    y: (0.5 - py) * 20 * plane.parallax,
   };
 }
 
@@ -109,11 +114,10 @@ export function arrival(
   distanceFromCentre: number,
   pitch: number,
 ): { alpha: number; scale: number } {
-  const delay =
-    pitch > 0
-      ? Math.min(ARRIVAL_MAX_DELAY, (distanceFromCentre / pitch) * ARRIVAL_STEP)
-      : 0;
-  const p = clamp((sinceLoadedMs - delay) / ARRIVAL_MS, 0, 1);
+  const raw = pitch > 0 ? (distanceFromCentre / pitch) * ARRIVAL_STEP : 0;
+  const delay = Number.isNaN(raw) ? 0 : clamp(raw, 0, ARRIVAL_MAX_DELAY);
+  const since = Number.isNaN(sinceLoadedMs) ? 0 : sinceLoadedMs;
+  const p = clamp((since - delay) / ARRIVAL_MS, 0, 1);
   const e = 1 - Math.pow(1 - p, 3);
   return { alpha: e, scale: 0.96 + 0.04 * e };
 }
