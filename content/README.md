@@ -17,12 +17,12 @@ This portfolio uses git-backed content files so routine updates do not require R
 ## Work page (`work.json`)
 
 - `intro`: `title` and `text`; the text has at most 20 words.
-- `stack`: tools, each `{ id, mark, label }`; `mark` is 1 to 3 characters.
+- `stack`: tools, each `{ id, mark, label, icon? }`; `mark` is 1 to 3 characters. `icon` is a file under `public/stack/` (`/stack/name.svg` or `.png`); with none, the mark is shown.
 - `longForm` and `shortForm`: videos, each `{ id, title, for, year, url, cover?, source }`. `source` is `youtube`, `instagram`, `vimeo` or `other`. `url` is https.
 - `clients`: each `{ id, name, handle, avatar, url, socials: [{ type, url }] }`. A social `type` is `youtube`, `instagram`, `x` or `website`.
 - `cover` and `avatar` are a path under `public/` (starting with `/`) or an https URL. A YouTube item may leave `cover` out: its link must then hold the 11-character video id, and the thumbnail is taken from it at runtime. Items of other sources with no cover get a seeded placeholder from picsum.photos.
 - Ids must be unique within each list.
-- The current entries are placeholders, titled "Placeholder".
+- The current entries are placeholders: 35 long form (`long-01` to `long-35`) and 35 short form (`short-01` to `short-35`), with made-up titles and years, and `for` set to "Placeholder". Their pictures come from picsum.photos at run time and are never stored.
 
 ## Timeline page (`timeline.json`)
 

@@ -12,6 +12,8 @@ export default tseslint.config(
       ".cache/**",
       ".vercel/**",
       "public/**",
+      "vendor/**",
+      "scripts/*.d.mts",
       "eslint.config.js",
     ],
   },

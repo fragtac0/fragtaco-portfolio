@@ -1,0 +1,22 @@
+{
+  "centre": {
+    "lon": 226.795,
+    "lat": 18.366
+  },
+  "spanDeg": 14,
+  "lonScale": 0.9490631544751487,
+  "lonSpanDeg": 14.751389234726204,
+  "tile": 512,
+  "levels": 5,
+  "size": 8192,
+  "credit": "NASA / JPL-Caltech / USGS / Arizona State University",
+  "sources": [
+    "https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/mars/mars_simp_cyl.map&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=THEMIS&SRS=EPSG:4326",
+    "https://astrogeology.usgs.gov/search/map/mars_themis_day_ir_global_mosaic_100m_v12"
+  ],
+  "grade": {
+    "black": 0.22,
+    "white": 0.78,
+    "gamma": 1.25
+  }
+}

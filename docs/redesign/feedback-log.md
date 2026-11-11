@@ -12,6 +12,7 @@ Every round of feedback on the home page redesign, what changed in response, and
 4. [Round 3: feedback on v3](#round-3-feedback-on-v3-2026-11-02)
 5. [Round 4: feedback on the built shelf and walls](#round-4-feedback-on-the-built-shelf-and-walls-2026-11-05)
 6. [Round 5: audit, polish and the work page](#round-5-audit-polish-and-the-work-page-2026-11-11)
+   - [Round 6: feedback on the built preview](#round-6-feedback-on-the-built-preview-2026-11-11) (at the end)
 7. [Decisions so far](#decisions-so-far)
 8. [Open questions](#open-questions)
 9. [Later, not now](#later-not-now)
@@ -295,6 +296,8 @@ None open. Asked after v3 and answered on 2026-11-02:
 - R38 work page (part 4): the dock on `/work` has a second row (all, long form, short form, clients, timeline). Choosing a kind pulls its items out of the rings and lays them flat in a scrolling view (long form in a brick pattern, short form taller covers, clients in a loose honeycomb) with a 600 ms staggered travel; the other rings scale out, the tools become a still row at the top right, and the view is in the address (`?view=long`), so Back works and a link opens it directly. Videos show a caption and dim their neighbours on hover; clients show their socials on hover or focus (first tap on touch).
 - R39 timeline (part 2): `/timeline` shows one square for each day since 1 December 2020 on one canvas, coloured by role (the last square is today and reads freelance, with a slow pulse; the first day of each role has a notched corner). It opens zoomed out with every day visible; the wheel or a pinch zooms towards the pointer, drag or two fingers pan, `+`, `-`, `0` and the arrow keys work, and two buttons zoom and fit. Month names and year rules appear at 10 px a square, day numbers at 28 px. Hover, tap or Shift with the arrow keys shows the date and role. The label block (gilt) names the page, the dates, the day count and the way back to work, with each role and its days under it. Reached from the work page's switcher; the dock shows work.
 - R39.4 final review fixes: the dock's glass blurs again (the view-transition name moved from the header to the pill), dead code and two dependencies removed, the work tab is `aria-current="true"` on `/timeline`, 700 px is desktop in CSS and JS alike, `/work` has a skip link, tabpanel wiring and a `headers` export; the device checklist above is for Aditya's M-05 check.
+- R40.1 assets and installs (round 6): `shaders` 4.0.7 is installed and imported nowhere yet; the ObsidianUI gallery source sits unchanged in `vendor/obsidianui/` (excluded from lint and typecheck); the eight stack icons are in `public/stack/` and listed in `work.json`; `work.json` holds 35 long form and 35 short form placeholders; `docs/redesign/credits.md` and `docs/redesign/shaders-notes.md` are new.
+- R40 assets and Mars (round 6, part 1): the `shaders` library is installed, the gallery source is kept as a reference copy, all eight app icons on the work page are the real ones from Wikimedia Commons, 35 long form and 35 short form placeholder videos are in place, and the Olympus Mons tile pyramid (13.7 MB, graded orange, summit crater in the middle) is ready for the map page. Check picture: docs/redesign/screenshots/r40-mars-grade.jpg.
 
 ## Round 5: final status (11 November 2026)
 
@@ -304,3 +307,81 @@ None open. Asked after v3 and answered on 2026-11-02:
 - Comparison page: `docs/redesign/compare/index.html` (open from disk; rows marked "not stored in the repo" need the local images in `compare/local/`).
 - Measured: see the measured table above (every scenario 0 frames over 20 ms in headless Chrome; LCP 5.0 s on the slow 4G phone profile because the loader reveals the roles line by design).
 - Waiting for Aditya: the device checks in the table above; real videos, covers, clients and the intro line in `content/site/work.json`; the role dates in `content/site/timeline.json`; whether a Mac mouse wheel should zoom the timeline; the variations in spec section 8.
+
+## Round 6: feedback on the built preview (2026-11-11)
+
+Given after looking at the local preview of the round 5 build. Design outline: [2026-11-11-round6-design.md](../superpowers/specs/2026-11-11-round6-design.md). Build plan: [2026-11-11-round6.md](../superpowers/plans/2026-11-11-round6.md).
+
+**Asked for**
+
+Order of work: get every asset and install first, then fix the bugs, then build the features. Fable analyses, asks and plans; Sonnet builds; Opus oversees.
+
+Work page
+- The stack marks become the real app icons, and sit a little further from the centre. Every radius grows.
+- Everything should overflow the screen like the Vitra chairs page, so the amount of work feels massive. More videos, wider, two layers each of long form and short form, larger thumbnails. Try alternating layers against two and two.
+- Remove the clients panel and hide clients on the whole site for now. The focus is long form and short form.
+- The background looks bad: either flat or with real depth. Install the `shaders` library and find something better with the design skills.
+- The bottom row reads Long form, Short form, My experience. No All tab, no Clients tab.
+- On the long form and short form views the stack icons at the top right go. Something useful takes that corner.
+- Each video wall becomes the ObsidianUI art gallery component: far smaller margins, a very slow movement, a scale small enough that every video is on screen. Not endless like the YouTube wall. Long form the same with its own scale.
+- Moving between long form and short form does not go back through the rings. A glass change, or the old videos leave and the new ones scale in.
+- The switcher row appears oddly; it should arrive on a slight delay.
+- On a phone and on a tablet the ring items overlap with no pattern.
+
+Page changes
+- Home to work is buggy and laggy.
+- Every page change (home, work, experience and between them) uses the same liquid-glass refraction as the paintings. Find the right use of a radial and a linear reveal.
+
+My experience (replaces the timeline)
+- Remove the day grid. Show Olympus Mons on Mars from straight above, peak in the centre, in high resolution, 2D throughout.
+- Trace a line toward the mountain that marks the main moments: part-time short form editor (Feb 2021), graduated and full time (Jun 2021), social media manager (Jan 2022), started making YouTube videos and Reels (Sep 2022), content head and producer (Jan 2023, find a better title), interviewed the German embassy's spokesperson at the embassy (Jun 2024), quit and went freelance full time (Dec 2025). Better words for all of it.
+- "Now" is a repeating radar ping.
+- Two zoom states: zoomed out with the whole mountain and small markers; zoomed in, moving around like Google Earth.
+- A separate layer can point out places on and around the mountain.
+- Zoomed out: "My experience" at the top left with a short description of the path from engineer to editor to content producer to full-time freelancer, and the mountain's name with the tallest-peak fact, like the painting captions.
+- Sent while the plan was being written: use a good orange picture of the mountain, not a brown one, so it belongs on the site; add an elliptical blur on all the edges so the eye stays on the middle.
+- The point of the page: a lot of interests, a jack of all trades.
+
+YouTube wall
+- The glow is too much. Tone it down; balance.
+- A subtle fish-eye warp at the borders.
+- No more lifting on hover. A large wall, a very small proximity effect on hover, and only on click does the chosen video take the centre with its title, subscribers and the rest below while the others move apart (reference: a museum collection wall).
+
+Book shelf
+- Keep the 3D books but lay the spines out flat, face on, large (reference: a row of scanned spines). On click the book lifts up, not out, and shows its cover as a 3D object.
+- Real spine pictures would be best. Brighter, less contrasty lighting; it should feel like a nice space.
+
+Whole site
+- Dark and orange is right, but it must not feel sad, depressing or over-saturated. Keep the contrast; fix the overall feel.
+
+**Answers to questions (2026-11-11)**
+
+| Question | Answer |
+| --- | --- |
+| Which apps get real icons | The 8 already shown: Premiere Pro, After Effects, Final Cut Pro, Blender, Photoshop, Illustrator, Figma, Lightroom |
+| Real videos or placeholders | Placeholders, 30 to 40 of each kind (60 was too many) |
+| Top-right corner on the video walls | A return mark that goes back to the rings |
+| Background | Deep and layered |
+| Where "now" sits | Part-way up, still climbing |
+| Route shape | Follows the terrain; it must not reach the peak ("I am still early in my career") |
+| Names in the copy | First company was Bharat in Germany; left in Dec 2025 to freelance |
+| Where the story starts | 2017: IIT (crossed out), started engineering at VESIT, Mumbai |
+| Wall depth | One flat plane; the two depth planes and the lean from round 5 go |
+| Book spines | Designed spines for now; photos can replace them later, one image per book |
+| Site mood | Warmer, cleaner darks: neutral warm charcoal grounds, cream carries the light, orange only for accents, glows cut back |
+| Review step | Plan, then build straight away |
+| Company name | "Bharat in Germany" is confirmed, as written in the experience words |
+| Wording of the moments | Will be revised later; build with the words in the design outline, all kept in `content/site/experience.json` so a later edit touches only that file |
+| App icons | Real icons for as many of the 8 as possible: the vendor's product page, press or brand kit, its App Store or Mac App Store listing artwork, or Wikimedia Commons all count; never redrawn by hand; the two-letter mark only when none of those gives a usable file |
+
+**My calls (say if any is wrong)**
+
+- Long form and short form become their own addresses (`/work/long-form`, `/work/short-form`) and the timeline becomes `/experience`, so one glass page change covers every move. `/timeline` redirects.
+- Radial reveal (from the control that was clicked) for moves between sections; linear sweep for the move between long form and short form.
+- The ring overlap on phones and tablets is fixed by the ring rebuild, not by a patch to the old layout: items keep a fixed clearance at every width and the outer rings run off the screen.
+- At laptop sizes the ring thumbnails grow only a little (about 100 to 115 px wide at 1440 by 900), because 70 upright videos that never overlap need the room. They grow with the screen. The walls show every video.
+- Alternating layers (long, short, long, short) ship; the two-and-two order is one constant away and both are photographed for comparison.
+- Spines may use serif and script type: they are book art, not interface.
+- Real app icons come from the vendor or Wikimedia Commons with the source recorded. Any icon that cannot be sourced that way keeps its two-letter mark and is listed.
+- "Bharat in Germany" is read as the company's name for all roles from Feb 2021 to Dec 2025.
+- The `shaders` background needs WebGPU; other browsers get a still gradient.

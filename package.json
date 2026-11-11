@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "sync:videos": "vite-node --config scripts/vite.sync.config.ts scripts/sync-videos.ts",
     "paintings": "node scripts/make-paintings.mjs",
+    "mars": "node scripts/make-mars.mjs",
     "lint": "eslint . --cache --cache-location .cache/eslint",
     "check": "npm run typecheck && npm run lint && npm run build"
   },
@@ -30,6 +31,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.6.0",
+    "shaders": "4.0.7",
     "tailwindcss": "^4.1.13",
     "three": "0.169.0",
     "vite": "^6.4.1",

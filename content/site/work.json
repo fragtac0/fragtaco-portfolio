@@ -7,405 +7,613 @@
     {
       "id": "premiere",
       "mark": "Pr",
-      "label": "Premiere Pro"
+      "label": "Premiere Pro",
+      "icon": "/stack/premiere-pro.svg"
     },
     {
       "id": "aftereffects",
       "mark": "Ae",
-      "label": "After Effects"
+      "label": "After Effects",
+      "icon": "/stack/after-effects.svg"
     },
     {
       "id": "finalcut",
       "mark": "Fc",
-      "label": "Final Cut Pro"
+      "label": "Final Cut Pro",
+      "icon": "/stack/final-cut-pro.png"
     },
     {
       "id": "blender",
       "mark": "Bl",
-      "label": "Blender"
+      "label": "Blender",
+      "icon": "/stack/blender.svg"
     },
     {
       "id": "photoshop",
       "mark": "Ps",
-      "label": "Photoshop"
+      "label": "Photoshop",
+      "icon": "/stack/photoshop.svg"
     },
     {
       "id": "illustrator",
       "mark": "Ai",
-      "label": "Illustrator"
+      "label": "Illustrator",
+      "icon": "/stack/illustrator.svg"
     },
     {
       "id": "figma",
       "mark": "Fg",
-      "label": "Figma"
+      "label": "Figma",
+      "icon": "/stack/figma.svg"
     },
     {
       "id": "lightroom",
       "mark": "Lr",
-      "label": "Lightroom"
+      "label": "Lightroom",
+      "icon": "/stack/lightroom.svg"
     }
   ],
   "longForm": [
     {
-      "id": "ft-long-01",
-      "title": "Placeholder long 01",
+      "id": "long-01",
+      "title": "Harbour Lights",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2021,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-01/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-02",
-      "title": "Placeholder long 02",
+      "id": "long-02",
+      "title": "The Last Ferry",
       "for": "Placeholder",
       "year": 2026,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-02/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-03",
-      "title": "Placeholder long 03",
+      "id": "long-03",
+      "title": "Paper Cities",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2024,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-03/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-04",
-      "title": "Placeholder long 04",
+      "id": "long-04",
+      "title": "Night Market",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2022,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-04/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-05",
-      "title": "Placeholder long 05",
+      "id": "long-05",
+      "title": "Signal Fade",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2020,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-05/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-06",
-      "title": "Placeholder long 06",
+      "id": "long-06",
+      "title": "Quiet Engine",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2025,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-06/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-07",
-      "title": "Placeholder long 07",
+      "id": "long-07",
+      "title": "Salt and Iron",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2023,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-07/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-08",
-      "title": "Placeholder long 08",
+      "id": "long-08",
+      "title": "Midnight Reel",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2021,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-08/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-09",
-      "title": "Placeholder long 09",
+      "id": "long-09",
+      "title": "Open Road Diary",
       "for": "Placeholder",
       "year": 2026,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-09/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-10",
-      "title": "Placeholder long 10",
+      "id": "long-10",
+      "title": "Glass Garden",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2024,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-10/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-11",
-      "title": "Placeholder long 11",
+      "id": "long-11",
+      "title": "Slow Orbit",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2022,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-11/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-12",
-      "title": "Placeholder long 12",
+      "id": "long-12",
+      "title": "Field Notes",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2020,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-12/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-13",
-      "title": "Placeholder long 13",
+      "id": "long-13",
+      "title": "The Long Cut",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2025,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-13/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-14",
-      "title": "Placeholder long 14",
+      "id": "long-14",
+      "title": "Copper Hours",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2023,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-14/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-15",
-      "title": "Placeholder long 15",
+      "id": "long-15",
+      "title": "Low Tide",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2021,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-15/640/360",
       "source": "other"
     },
     {
-      "id": "ft-long-16",
-      "title": "Placeholder long 16",
+      "id": "long-16",
+      "title": "Static Bloom",
       "for": "Placeholder",
       "year": 2026,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-long-16/640/360",
+      "source": "other"
+    },
+    {
+      "id": "long-17",
+      "title": "Rooftop Sessions",
+      "for": "Placeholder",
+      "year": 2024,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-18",
+      "title": "Neon Archive",
+      "for": "Placeholder",
+      "year": 2022,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-19",
+      "title": "Winter Cargo",
+      "for": "Placeholder",
+      "year": 2020,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-20",
+      "title": "Afterglow Tape",
+      "for": "Placeholder",
+      "year": 2025,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-21",
+      "title": "Distant Relay",
+      "for": "Placeholder",
+      "year": 2023,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-22",
+      "title": "Green Room",
+      "for": "Placeholder",
+      "year": 2021,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-23",
+      "title": "Tidal Drift",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-24",
+      "title": "Ember Line",
+      "for": "Placeholder",
+      "year": 2024,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-25",
+      "title": "North Platform",
+      "for": "Placeholder",
+      "year": 2022,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-26",
+      "title": "Studio Nine",
+      "for": "Placeholder",
+      "year": 2020,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-27",
+      "title": "Dust and Daylight",
+      "for": "Placeholder",
+      "year": 2025,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-28",
+      "title": "Blue Hour Club",
+      "for": "Placeholder",
+      "year": 2023,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-29",
+      "title": "Second Take",
+      "for": "Placeholder",
+      "year": 2021,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-30",
+      "title": "Wide Horizon",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-31",
+      "title": "Backlot",
+      "for": "Placeholder",
+      "year": 2024,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-32",
+      "title": "The Quiet Season",
+      "for": "Placeholder",
+      "year": 2022,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-33",
+      "title": "Parallel Lines",
+      "for": "Placeholder",
+      "year": 2020,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-34",
+      "title": "Harvest Moon",
+      "for": "Placeholder",
+      "year": 2025,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "long-35",
+      "title": "Final Frame",
+      "for": "Placeholder",
+      "year": 2023,
+      "url": "https://www.youtube.com/@fragtaco",
       "source": "other"
     }
   ],
   "shortForm": [
     {
-      "id": "ft-short-01",
-      "title": "Placeholder short 01",
+      "id": "short-01",
+      "title": "Cut in 30",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2023,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-01/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-02",
-      "title": "Placeholder short 02",
+      "id": "short-02",
+      "title": "Beat Drop",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2021,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-02/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-03",
-      "title": "Placeholder short 03",
+      "id": "short-03",
+      "title": "Before and After",
       "for": "Placeholder",
       "year": 2026,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-03/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-04",
-      "title": "Placeholder short 04",
+      "id": "short-04",
+      "title": "Hook First",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2024,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-04/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-05",
-      "title": "Placeholder short 05",
+      "id": "short-05",
+      "title": "Smash Cut",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2022,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-05/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-06",
-      "title": "Placeholder short 06",
+      "id": "short-06",
+      "title": "Loop Me",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2020,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-06/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-07",
-      "title": "Placeholder short 07",
+      "id": "short-07",
+      "title": "One Take",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2025,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-07/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-08",
-      "title": "Placeholder short 08",
+      "id": "short-08",
+      "title": "Quick Fix",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2023,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-08/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-09",
-      "title": "Placeholder short 09",
+      "id": "short-09",
+      "title": "Zoom Trick",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2021,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-09/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-10",
-      "title": "Placeholder short 10",
+      "id": "short-10",
+      "title": "Match Cut",
       "for": "Placeholder",
       "year": 2026,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-10/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-11",
-      "title": "Placeholder short 11",
+      "id": "short-11",
+      "title": "Speed Ramp",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2024,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-11/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-12",
-      "title": "Placeholder short 12",
+      "id": "short-12",
+      "title": "Text Pop",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2022,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-12/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-13",
-      "title": "Placeholder short 13",
+      "id": "short-13",
+      "title": "Sound Swap",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2020,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-13/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-14",
-      "title": "Placeholder short 14",
+      "id": "short-14",
+      "title": "Glow Up",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2025,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-14/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-15",
-      "title": "Placeholder short 15",
+      "id": "short-15",
+      "title": "Frame Skip",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2023,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-15/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-16",
-      "title": "Placeholder short 16",
+      "id": "short-16",
+      "title": "Hard Cut",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2021,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-16/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-17",
-      "title": "Placeholder short 17",
+      "id": "short-17",
+      "title": "Slow Reveal",
       "for": "Placeholder",
       "year": 2026,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-17/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-18",
-      "title": "Placeholder short 18",
+      "id": "short-18",
+      "title": "Light Leak",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2024,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-18/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-19",
-      "title": "Placeholder short 19",
+      "id": "short-19",
+      "title": "Jump Scare",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2022,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-19/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-20",
-      "title": "Placeholder short 20",
+      "id": "short-20",
+      "title": "Color Pass",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2020,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-20/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-21",
-      "title": "Placeholder short 21",
+      "id": "short-21",
+      "title": "Tiny Tour",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2025,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-21/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-22",
-      "title": "Placeholder short 22",
+      "id": "short-22",
+      "title": "Rewind",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2023,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-22/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-23",
-      "title": "Placeholder short 23",
+      "id": "short-23",
+      "title": "Split Screen",
       "for": "Placeholder",
-      "year": 2026,
+      "year": 2021,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-23/360/640",
       "source": "other"
     },
     {
-      "id": "ft-short-24",
-      "title": "Placeholder short 24",
+      "id": "short-24",
+      "title": "Mask Wipe",
       "for": "Placeholder",
       "year": 2026,
       "url": "https://www.youtube.com/@fragtaco",
-      "cover": "https://picsum.photos/seed/ft-short-24/360/640",
+      "source": "other"
+    },
+    {
+      "id": "short-25",
+      "title": "Freeze Frame",
+      "for": "Placeholder",
+      "year": 2024,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-26",
+      "title": "Handheld",
+      "for": "Placeholder",
+      "year": 2022,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-27",
+      "title": "Time Lapse",
+      "for": "Placeholder",
+      "year": 2020,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-28",
+      "title": "Shake It",
+      "for": "Placeholder",
+      "year": 2025,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-29",
+      "title": "Fade Out",
+      "for": "Placeholder",
+      "year": 2023,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-30",
+      "title": "Clean Cut",
+      "for": "Placeholder",
+      "year": 2021,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-31",
+      "title": "Cold Open",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-32",
+      "title": "Stop Motion",
+      "for": "Placeholder",
+      "year": 2024,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-33",
+      "title": "Whip Pan",
+      "for": "Placeholder",
+      "year": 2022,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-34",
+      "title": "Beat Sync",
+      "for": "Placeholder",
+      "year": 2020,
+      "url": "https://www.youtube.com/@fragtaco",
+      "source": "other"
+    },
+    {
+      "id": "short-35",
+      "title": "Reverse",
+      "for": "Placeholder",
+      "year": 2025,
+      "url": "https://www.youtube.com/@fragtaco",
       "source": "other"
     }
   ],
