@@ -52,6 +52,10 @@
   );
   animation: work-drift-accent 110s ease-in-out infinite alternate;
 }
+/* the timeline page: the same ground, the glows at half strength */
+.work-bg-half .work-glow {
+  opacity: 0.5;
+}
 @keyframes work-drift-ember {
   from { translate: 0 0; }
   to { translate: 26vmax 22vmax; }

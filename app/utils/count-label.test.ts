@@ -11,4 +11,10 @@ describe("countLabel", () => {
     expect(countLabel(0, "book", "books")).toBe("0 books");
     expect(countLabel(51, "video", "videos")).toBe("51 videos");
   });
+  it("groups thousands the same way everywhere", () => {
+    expect(countLabel(999, "day", "days")).toBe("999 days");
+    expect(countLabel(1065, "day", "days")).toBe("1,065 days");
+    expect(countLabel(2172, "day", "days")).toBe("2,172 days");
+    expect(countLabel(1000000, "day", "days")).toBe("1,000,000 days");
+  });
 });
