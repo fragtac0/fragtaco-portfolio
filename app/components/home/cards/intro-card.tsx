@@ -65,7 +65,7 @@ export default function IntroCard({ about, cardRef, mode, hot }: IntroCardProps)
           </div>
           <div className="card-foot">
             <Link className="pill" to="/work">
-              See the reel
+              See the work
             </Link>
             <span className="kbd-hint">Esc or ← to close</span>
           </div>

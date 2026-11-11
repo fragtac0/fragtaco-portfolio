@@ -20,6 +20,12 @@
     font-family: "IBM Plex Mono", monospace;
   }
 
+  /* a mouse click, or focus moved by a script after one, never leaves a ring: only keyboard focus shows it
+     (each component draws its own ring under :focus-visible) */
+  :where(a, button, [role="button"], [tabindex]):focus:not(:focus-visible) {
+    outline: none;
+  }
+
   ::selection {
     background: theme(colors.accent);
     color: theme(colors.theme.black);

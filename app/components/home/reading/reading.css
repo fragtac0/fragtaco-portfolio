@@ -66,14 +66,14 @@
 .home-layer .book-info h3 {
   font-family: "Space Mono", monospace;
   font-weight: 700;
-  font-size: clamp(22px, 2vw, 30px);
+  font-size: clamp(24px, 2vw, 30px);
   line-height: 1.2;
   margin: 0 0 10px;
   color: var(--cream);
 }
 .home-layer .book-info .by {
-  font-size: 12.5px;
-  color: rgba(253, 252, 230, 0.6);
+  font-size: var(--t-meta);
+  color: var(--ink-2);
   margin: 0;
 }
 .home-layer .book-info .note {
@@ -82,7 +82,7 @@
   border-radius: 14px;
   padding: 14px 16px;
   color: rgba(217, 164, 65, 0.9);
-  font-size: 12.5px;
+  font-size: var(--t-body);
   line-height: 1.75;
 }
 .home-layer .book-info button {
@@ -95,7 +95,7 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
-  font-size: 12.5px;
+  font-size: var(--t-meta);
 }
 .home-layer .book-info button:focus-visible {
   outline: 2px solid var(--cream);
@@ -144,14 +144,14 @@
 .home-layer .fb-note h3 {
   font-family: "Space Mono", monospace;
   font-weight: 700;
-  font-size: clamp(22px, 2vw, 30px);
+  font-size: clamp(24px, 2vw, 30px);
   line-height: 1.2;
   margin: 0 0 10px;
   color: var(--cream);
 }
 .home-layer .fb-note .by {
-  font-size: 12.5px;
-  color: rgba(253, 252, 230, 0.6);
+  font-size: var(--t-meta);
+  color: var(--ink-2);
   margin: 0;
 }
 .home-layer .fb-note .note {
@@ -160,7 +160,7 @@
   border-radius: 14px;
   padding: 14px 16px;
   color: rgba(217, 164, 65, 0.9);
-  font-size: 12.5px;
+  font-size: var(--t-body);
   line-height: 1.75;
 }
 .home-layer .fb-note button {
@@ -173,7 +173,7 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
-  font-size: 12.5px;
+  font-size: var(--t-meta);
 }
 .home-layer .fb-note button:focus-visible {
   outline: 2px solid var(--cream);

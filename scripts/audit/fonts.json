@@ -1,0 +1,107 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "go": "{{BASE}}/",
+  "wait": 8000,
+  "eval": "JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})())",
+  "label": "hero"
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39,
+  "wait": 1500,
+  "eval": "JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})())",
+  "label": "intro"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37,
+  "wait": 1500,
+  "eval": "JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})())",
+  "label": "credits"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "eval": "document.getElementById(\"below\").scrollIntoView();new Promise(r=>setTimeout(r,1500)).then(()=>JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})()))",
+  "label": "blocks"
+ },
+ {
+  "eval": "document.querySelector(\"[data-xp=reading]\").click();new Promise(r=>setTimeout(r,3500)).then(()=>JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})()))",
+  "label": "reading"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1500
+ },
+ {
+  "eval": "document.querySelector(\"[data-xp=watching]\").click();new Promise(r=>setTimeout(r,3500)).then(()=>JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})()))",
+  "label": "watching"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/",
+  "wait": 8000,
+  "eval": "JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})())",
+  "label": "hero"
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39,
+  "wait": 1500,
+  "eval": "JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})())",
+  "label": "intro"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37,
+  "wait": 1500,
+  "eval": "JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})())",
+  "label": "credits"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "eval": "document.getElementById(\"below\").scrollIntoView();new Promise(r=>setTimeout(r,1500)).then(()=>JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})()))",
+  "label": "blocks"
+ },
+ {
+  "eval": "document.querySelector(\"[data-xp=reading]\").click();new Promise(r=>setTimeout(r,3500)).then(()=>JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})()))",
+  "label": "reading"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1500
+ },
+ {
+  "eval": "document.querySelector(\"[data-xp=watching]\").click();new Promise(r=>setTimeout(r,3500)).then(()=>JSON.stringify((()=>{const m={};document.querySelectorAll(\"body *\").forEach(e=>{if(![...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;const cs=getComputedStyle(e);if(cs.visibility===\"hidden\"||+cs.opacity===0||e.closest(\".sr-only\"))return;const fs=parseFloat(cs.fontSize);if(fs>=24)return;const col=cs.color;const a=(col.match(/rgba?\\(([^)]+)\\)/)||[0,\"\"])[1].split(\",\").map(Number);const alpha=a.length>3?a[3]:1;const k=fs.toFixed(1)+(alpha<0.62?\" LOWALPHA\"+alpha:\"\");(m[k]=m[k]||[]).push((e.className&&typeof e.className===\"string\"?e.className.split(\" \")[0]:e.tagName)+\":\"+e.textContent.trim().slice(0,14))});for(const k in m)m[k]=[m[k].length,...new Set(m[k])].slice(0,6);return m})()))",
+  "label": "watching"
+ }
+]

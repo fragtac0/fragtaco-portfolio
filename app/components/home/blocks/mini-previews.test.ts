@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SiteBook } from "../../../types";
-import { inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
+import { fitMiniShelf, miniShelfScale, inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 
 const book = (over: Partial<SiteBook>): SiteBook => ({
   id: "b",
@@ -68,5 +68,40 @@ describe("miniWallColumns", () => {
 describe("miniThumbUrl", () => {
   it("uses the small thumbnail", () => {
     expect(miniThumbUrl("abc")).toBe("https://i.ytimg.com/vi/abc/mqdefault.jpg");
+  });
+});
+
+describe("fitMiniShelf", () => {
+  const spines = [{ w: 20 }, { w: 30 }];
+  it("caps the scale at 1.6", () => {
+    expect(fitMiniShelf(spines, 200, 3)).toBe(1.6);
+  });
+  it("scales the row (spines plus gaps) to the inner width", () => {
+    expect(fitMiniShelf(spines, 60, 3)).toBeCloseTo(60 / 53, 10);
+  });
+  it("shrinks a row that is wider than the space", () => {
+    expect(fitMiniShelf(spines, 26.5, 3)).toBeCloseTo(0.5, 10);
+  });
+  it("is 1 with no spines or no room measured yet", () => {
+    expect(fitMiniShelf([], 200, 3)).toBe(1);
+    expect(fitMiniShelf(spines, 0, 3)).toBe(1);
+  });
+});
+
+describe("miniShelfScale", () => {
+  const spines = [
+    { w: 20, h: 100 },
+    { w: 30, h: 200 },
+  ];
+  it("is the width fit when the tallest spine has room", () => {
+    expect(miniShelfScale(spines, 60, 1000, 3)).toBeCloseTo(60 / 53, 10);
+  });
+  it("is held back so the tallest spine fits the available height", () => {
+    expect(miniShelfScale(spines, 200, 250, 3)).toBeCloseTo(1.25, 10);
+  });
+  it("never goes below 0.5 for a tiny height, and is 1 for no spines or no height yet", () => {
+    expect(miniShelfScale(spines, 200, 20, 3)).toBe(0.5);
+    expect(miniShelfScale([], 200, 250, 3)).toBe(1);
+    expect(miniShelfScale(spines, 200, 0, 3)).toBe(1);
   });
 });
