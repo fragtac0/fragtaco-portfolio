@@ -5,6 +5,8 @@ import {
   itemWidth,
   ringCapacity,
   ringRadius,
+  SUB_RING_FACTOR,
+  subRingRadius,
   slotAngle,
   slotPosition,
   splitRing,
@@ -153,5 +155,24 @@ describe("slotAngle and slotPosition", () => {
     const below = slotPosition(90, 100, 500, 400);
     expect(below.x).toBeCloseTo(500);
     expect(below.y).toBeCloseTo(500);
+  });
+});
+
+describe("subRingRadius", () => {
+  it("is the ring itself at index 0 and a factor further out at 1", () => {
+    expect(subRingRadius(100, 0)).toBe(100);
+    expect(subRingRadius(100, 1)).toBeCloseTo(100 * SUB_RING_FACTOR);
+    expect(subRingRadius(100, 2)).toBeCloseTo(100 * SUB_RING_FACTOR ** 2);
+  });
+
+  it("treats a bad index as the ring itself", () => {
+    expect(subRingRadius(100, -1)).toBe(100);
+    expect(subRingRadius(100, Number.NaN)).toBe(100);
+  });
+
+  it("is the radius splitRing measures the second ring's capacity at", () => {
+    const radius = 450;
+    const { rings } = splitRing("short", 500, radius);
+    expect(rings[1]).toBe(ringCapacity("short", subRingRadius(radius, 1)));
   });
 });

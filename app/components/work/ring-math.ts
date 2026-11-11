@@ -11,13 +11,18 @@ export const RING = {
 
 /** Each item takes its width plus 30% for the gap. */
 const GAP = 1.3;
-/** The second sub-ring of a split ring sits this much further out. */
-const OUTER = 1.14;
+/** Each further sub-ring of a split ring sits this much further out than the one inside it. */
+export const SUB_RING_FACTOR = 1.14;
 const PHONE_WIDTH = 700;
 const PHONE_BOOST = 1.25;
 
 const circumference = (r: number) => (Number.isFinite(r) && r > 0 ? 2 * Math.PI * r : 0);
 const whole = (n: number) => (Number.isFinite(n) && n > 0 ? Math.floor(n) : 0);
+
+/** Radius of a ring's sub-ring: 0 is the ring itself, 1 the second ring of a split ring. */
+export function subRingRadius(radius: number, index: number): number {
+  return radius * SUB_RING_FACTOR ** Math.max(0, whole(index));
+}
 
 export function ringRadius(id: RingId, vw: number, vh: number): number {
   const base = RING[id].radius * Math.min(vw, vh);
@@ -39,7 +44,7 @@ export function itemWidth(id: RingId, count: number, radius: number): number {
 
 /**
  * Item counts for the ring itself and, if the items do not fit at minimum
- * width, a second ring at radius * 1.14. Whatever neither holds is `hidden`
+ * width, a second ring at `subRingRadius(radius, 1)`. Whatever neither holds is `hidden`
  * (shown only in the picked view). No items gives no rings.
  */
 export function splitRing(
@@ -52,7 +57,7 @@ export function splitRing(
   const inner = ringCapacity(id, radius);
   if (n <= inner) return { rings: [n], hidden: 0 };
   const first = Math.min(n, inner);
-  const outer = Math.min(n - first, ringCapacity(id, radius * OUTER));
+  const outer = Math.min(n - first, ringCapacity(id, subRingRadius(radius, 1)));
   const rings = [first, outer].filter((c) => c > 0);
   return { rings, hidden: n - first - outer };
 }
