@@ -9,7 +9,8 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   position: fixed;
   inset: 0;
-  overflow: hidden;
+  overflow: hidden; /* old browsers; `clip` below cannot be scrolled to by focus, `hidden` can */
+  overflow: clip;
   background: #050403;
   color: var(--ink-1);
 }
@@ -19,6 +20,7 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  overflow: clip;
   pointer-events: none;
 }
 .work-glow {
@@ -88,7 +90,7 @@
 .work-intro {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: var(--z-hero); /* above the rings, which come later in the page */
   display: grid;
   place-content: center;
   justify-items: center;
@@ -132,7 +134,7 @@
 }
 /* the ring the pointer or keyboard is on sits above the others, so its label is never covered */
 .work-ring-group:has(.work-item:hover, .work-item-face:focus-visible) {
-  z-index: 3;
+  z-index: var(--z-cards);
 }
 .work-ring {
   position: absolute;
@@ -199,17 +201,21 @@
   background: #191411;
   color: inherit;
   cursor: pointer;
-  scale: var(--s, 1);
   transition: scale 220ms var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
-.work-item:hover,
-.work-item:has(:focus-visible) {
-  z-index: 1; /* the item you are on sits above its neighbours */
+/* hover and keyboard focus are separate rules so a browser without :has() still gets the hover */
+.work-item:hover {
+  z-index: var(--z-hero); /* the item you are on sits above its neighbours */
 }
-.work-item:hover .work-item-face,
+.work-item:has(:focus-visible) {
+  z-index: var(--z-hero);
+}
+.work-item:hover .work-item-face {
+  scale: 1.12;
+}
 .work-item:has(:focus-visible) .work-item-face {
-  scale: calc(var(--s, 1) * 1.12);
+  scale: 1.12;
 }
 .work-item-face:focus-visible {
   outline: 2px solid var(--ink-1);
@@ -270,19 +276,17 @@
 .work-item[data-side="left"] .work-label {
   right: calc(100% + 14px);
 }
-.work-item:hover .work-label,
+.work-item:hover .work-label {
+  opacity: 1;
+}
 .work-item:has(:focus-visible) .work-label {
   opacity: 1;
 }
 
 /* ---------- phones ---------- */
-/* The rings are drawn at the screen's width here, so the items are drawn a little smaller to keep room
-   between rings, and the intro is the title and one short line, with a dark halo so a passing item never mutes it. */
-@media (max-width: 700px) {
-  .work-page {
-    --s: 0.78;
-  }
-  .work-text {
+/* Item sizes and ring radii on a phone come from ring-math (`fitScale`), so the first two rings fit the
+   screen's width. The intro is the title and one short line, with a dark halo so a passing item never mutes it. */
+@media (max-width: 700px) {  .work-text {
     max-width: 15ch; /* narrow enough to sit inside the stack ring */
     margin-top: 10px;
     font-size: var(--t-meta);

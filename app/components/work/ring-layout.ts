@@ -1,5 +1,5 @@
 // Turns item counts and the screen size into the rings to draw. Pure: no DOM, safe on the server.
-import { RING, type RingId, itemWidth, ringRadius, slotAngle, splitRing, subRingRadius } from "./ring-math";
+import { RING, type RingId, fitScale, planRings, slotAngle, subRingRadius } from "./ring-math";
 
 /** Inside to outside: the order the rings are drawn and tabbed through. */
 export const RING_ORDER: readonly RingId[] = ["stack", "long", "short", "clients"];
@@ -28,23 +28,20 @@ export interface SubRingSpec {
 }
 
 /**
- * Every ring to draw for these item counts, inside to outside. A ring that does not fit at minimum
- * width is split in two; items neither holds are left out (they show only in a picked view). All of a
- * ring's sub-rings share the first one's item size so the ring reads as one.
+ * Every ring to draw for these item counts, inside to outside (see `planRings` and `fitScale`: items
+ * are drawn smaller on a phone so the first two rings fit its width, and rings are pushed out so none
+ * touches the one inside it). A ring that does not fit at minimum size is split in two; items neither
+ * holds are left out (they show only in a picked view). All of a ring's sub-rings share one item size.
  */
 export function layoutRings(counts: Record<RingId, number>, vw: number, vh: number): SubRingSpec[] {
+  const scale = fitScale(counts, vw, vh);
   const specs: SubRingSpec[] = [];
 
-  RING_ORDER.forEach((id, order) => {
-    const radius = ringRadius(id, vw, vh);
-    const { rings } = splitRing(id, counts[id], radius);
-    if (rings.length === 0) return;
-
-    const width = itemWidth(id, rings[0], radius);
-    const height = width / RING[id].aspect;
+  for (const plan of planRings(counts, vw, vh, scale)) {
+    const { id } = plan;
     let next = 0;
 
-    rings.forEach((count, sub) => {
+    plan.counts.forEach((count, sub) => {
       // The second ring sits half a slot round so its items fall between the first ring's.
       const phase = sub % 2 === 1 ? 180 / count : 0;
       const slots = Array.from({ length: count }, (_, i) => ({
@@ -55,16 +52,16 @@ export function layoutRings(counts: Record<RingId, number>, vw: number, vh: numb
       specs.push({
         id,
         sub,
-        order,
-        radius: subRingRadius(radius, sub),
+        order: RING_ORDER.indexOf(id),
+        radius: subRingRadius(plan.radius, sub),
         period: RING[id].period,
         dir: sub % 2 === 1 ? (RING[id].dir === 1 ? -1 : 1) : RING[id].dir,
-        width,
-        height,
+        width: plan.width,
+        height: plan.height,
         slots,
       });
     });
-  });
+  }
 
   return specs;
 }

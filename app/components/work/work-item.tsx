@@ -1,14 +1,8 @@
 import type { CSSProperties, FocusEvent, PointerEvent, ReactElement } from "react";
-import type { WorkClient, WorkStackItem, WorkVideo } from "../../types";
 import { coverUrl } from "../../content/work-media";
 import { labelSide } from "./ring-layout";
+import type { RingEntry } from "./ring-entries";
 import type { ViewId } from "./view-layout";
-
-/** What one slot in a ring shows. */
-export type RingEntry =
-  | { kind: "stack"; item: WorkStackItem }
-  | { kind: "video"; item: WorkVideo; tall: boolean }
-  | { kind: "client"; item: WorkClient };
 
 interface WorkItemProps {
   entry: RingEntry;

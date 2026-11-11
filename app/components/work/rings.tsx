@@ -1,23 +1,15 @@
 import type { CSSProperties } from "react";
 import type { SiteWork } from "../../types";
+import { entriesFor } from "./ring-entries";
 import { layoutRings, type SubRingSpec } from "./ring-layout";
 import type { RingId } from "./ring-math";
 import { useStageSize } from "./use-stage-size";
-import WorkItem, { type RingEntry } from "./work-item";
+import WorkItem from "./work-item";
 import type { ViewId } from "./view-layout";
 
 interface RingsProps {
   work: SiteWork;
   onPickView: (view: ViewId) => void;
-}
-
-function entriesFor(work: SiteWork): Record<RingId, RingEntry[]> {
-  return {
-    stack: work.stack.map((item) => ({ kind: "stack", item })),
-    long: work.longForm.map((item) => ({ kind: "video", item, tall: false })),
-    short: work.shortForm.map((item) => ({ kind: "video", item, tall: true })),
-    clients: work.clients.map((item) => ({ kind: "client", item })),
-  };
 }
 
 const LABEL: Record<RingId, string> = {
@@ -59,7 +51,9 @@ export default function Rings({ work, onPickView }: RingsProps) {
         >
           {subs.map((spec) => (
             <ul
-              key={spec.sub}
+              // Keyed by layout: when a resize moves items between this ring and its sub-ring, the ring
+              // is made afresh so it and its items start their turn together and items stay upright.
+              key={`${spec.sub}-${spec.slots.length}`}
               className="work-ring"
               data-ring={id}
               data-sub={spec.sub}

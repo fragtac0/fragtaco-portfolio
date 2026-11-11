@@ -11,10 +11,11 @@ describe("layoutRings", () => {
       "stack:0:8",
       "long:0:15",
       "long:1:1",
-      "short:0:24",
+      "short:0:22",
+      "short:1:2",
       "clients:0:10",
     ]);
-    expect(specs.map((s) => s.order)).toEqual([0, 1, 1, 2, 3]);
+    expect(specs.map((s) => s.order)).toEqual([0, 1, 1, 2, 2, 3]);
   });
 
   it("uses the ring's radius, period and direction", () => {
