@@ -17,3 +17,5 @@ scripts/audit/sheet.sh /tmp/out sheet-loader 4 480 300 load-0500 load-1200 load-
 - Step files named in the plan that are not here yet (`shelf.json`, `wall.json`, `history.json`, `nav.json`, `fonts.json`, `loader-throttled.json`, `shelf-cold.json`) are written by whoever runs that check, following the same pattern, and committed with the task.
 
 Frame timing inside a step: evaluate a promise that samples `requestAnimationFrame` gaps for a few seconds and resolves with the worst gap and how many were over 20 ms.
+
+- Headless Chrome does not advance timers or CSS transitions while the page is idle between steps (nothing animating). State that depends on a timer (a layer closing, a hint fading) must be read with an `eval` that polls inside the page (a `setInterval` promise), not after a plain `wait`.
