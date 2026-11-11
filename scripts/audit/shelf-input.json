@@ -1,0 +1,20 @@
+[
+ {"size": [390, 844], "dpr": 2, "mobile": false, "touch": false, "go": "{{BASE}}/#reading", "wait": 6000},
+ {"eval": "(()=>{const m=document.querySelector('.home-layer .shelf-marker');return {cam:m&&m.dataset.camX,max:m&&m.dataset.maxX,markerVisible:m?getComputedStyle(m).display!=='none'&&getComputedStyle(m).visibility!=='hidden':null,hint:(document.querySelector('.home-layer .xp-hint')||{}).textContent}})()", "label": "phone-open"},
+ {"shot": "local-phone-open-warm"},
+ {"shot": "local-phone-open"},
+ {"mdrag": [80, 480, 330, 480, 20], "wait": 1500, "eval": "document.querySelector('.home-layer .shelf-marker').dataset.camX", "label": "mouse-drag-right"},
+ {"mdrag": [330, 480, 20, 480, 20], "wait": 300, "eval": "document.querySelector('.home-layer .shelf-marker').dataset.camX", "label": "mouse-drag-left"},
+ {"mdrag": [330, 480, 20, 480, 20], "wait": 1500, "eval": "[document.querySelector('.home-layer .shelf-marker').dataset.camX, document.querySelector('.home-layer .shelf-marker').dataset.maxX, getComputedStyle(document.querySelector('.book-info')).opacity]", "label": "mouse-drag-left-end-no-open"},
+ {"shot": "local-phone-right-end"},
+ {"wheel": [195, 480, -60, 0, 10], "wait": 1200, "eval": "document.querySelector('.home-layer .shelf-marker').dataset.camX", "label": "wheel-sideways"},
+ {"wheel": [195, 480, 0, 60, 5], "wait": 600, "eval": "document.querySelector('.home-layer .shelf-marker').dataset.camX", "label": "wheel-vertical-no-pan"},
+ {"click": [195, 480], "wait": 1200, "eval": "[getComputedStyle(document.querySelector('.book-info')).opacity, document.querySelector('.book-info').textContent.trim().slice(0,30)]", "label": "mouse-click-opens"},
+ {"key": "Escape", "vk": 27, "wait": 1200},
+ {"touch": true, "drag": [300, 480, 60, 480, 15], "wait": 1500, "eval": "document.querySelector('.home-layer .shelf-marker').dataset.camX", "label": "touch-drag"},
+ {"tap": [195, 480], "wait": 1200, "eval": "[getComputedStyle(document.querySelector('.book-info')).opacity, document.querySelector('.book-info').textContent.trim().slice(0,30)]", "label": "touch-tap-opens"},
+ {"touch": false, "size": [1440, 900], "dpr": 1, "go": "{{BASE}}/#reading", "wait": 300, "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<3500)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)})", "label": "desk-frames-dropin"},
+ {"eval": "(()=>{const m=document.querySelector('.home-layer .shelf-marker');return {max:m&&m.dataset.maxX,markerShown:m?getComputedStyle(m).display!=='none':null}})()", "label": "desk-no-pan"},
+ {"mdrag": [500, 500, 900, 500, 20], "wait": 800, "eval": "document.querySelector('.home-layer .shelf-marker').dataset.camX", "label": "desk-drag-camX"},
+ {"eval": "(()=>{const h=document.querySelector('.home-layer header')||document.querySelector('.home-layer .xp-head');return h?[getComputedStyle(h).backgroundImage.slice(0,60),h.getBoundingClientRect().height]:'no header'})()", "label": "header"}
+]

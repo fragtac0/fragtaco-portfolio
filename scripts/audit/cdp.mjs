@@ -1,7 +1,7 @@
 // Drive a headless Chrome over the DevTools protocol: run a list of steps
 // (navigate, wait, eval, key, click, shot) and print each eval result.
 // usage: BASE=http://localhost:5178 node scripts/audit/cdp.mjs <steps.json> <outdir>
-// Step keys: size, dpr, mobile, touch, reduce, net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk),
+// Step keys: size, dpr, mobile, touch, reduce, net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk), mdrag [x0,y0,x1,y1,n] (mouse), wheel [x,y,dx,dy,n],
 // click, move, sweep, tap, drag, eval (+label), shot. "{{BASE}}" in a steps file is replaced by $BASE.
 import { spawn } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -48,6 +48,8 @@ for (const s of steps) {
   if (s.sweep) { const [x0, y0, x1, y1, n] = s.sweep; for (let i = 0; i <= n; i++) { await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x0 + (x1 - x0) * i / n, y: y0 + (y1 - y0) * i / n }); await sleep(16); } }
   if (s.tap) { const tp = [{ x: s.tap[0], y: s.tap[1] }]; await send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: tp }); await sleep(60); await send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] }); }
   if (s.drag) { const [x0, y0, x1, y1, n] = s.drag; await send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: x0, y: y0 }] }); for (let i = 1; i <= n; i++) { await send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: x0 + (x1 - x0) * i / n, y: y0 + (y1 - y0) * i / n }] }); await sleep(16); } await send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] }); }
+  if (s.mdrag) { const [x0, y0, x1, y1, n] = s.mdrag; await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x0, y: y0 }); await send("Input.dispatchMouseEvent", { type: "mousePressed", x: x0, y: y0, button: "left", buttons: 1, clickCount: 1 }); for (let i = 1; i <= n; i++) { await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x0 + (x1 - x0) * i / n, y: y0 + (y1 - y0) * i / n, button: "left", buttons: 1 }); await sleep(16); } await send("Input.dispatchMouseEvent", { type: "mouseReleased", x: x1, y: y1, button: "left", buttons: 0, clickCount: 1 }); }
+  if (s.wheel) { const [x, y, dx, dy, n] = s.wheel; for (let i = 0; i < (n ?? 1); i++) { await send("Input.dispatchMouseEvent", { type: "mouseWheel", x, y, deltaX: dx, deltaY: dy }); await sleep(16); } }
   if (s.eval) {
     const r = await send("Runtime.evaluate", { expression: s.eval, awaitPromise: true, returnByValue: true });
     console.log(JSON.stringify({ step: s.label ?? "eval", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description }));
