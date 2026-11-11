@@ -1,0 +1,21 @@
+[
+ {
+  "size": [1440, 900],
+  "cpu": 4,
+  "init": "window.__sc=[];(function(){const t0=performance.now();let last=t0;function f(n){const s=document.querySelector('.shelf-scene');const st=s?s.getAttribute('data-shelf'):null;const lay=document.querySelector('.home-layer');const g=n-last;last=n;window.__sc.push([Math.round(n),Math.round(g),st,!!document.querySelector('.shelf-placeholder'),lay?lay.className:'']);if(n-t0<12000)requestAnimationFrame(f)}requestAnimationFrame(f)})()",
+  "go": "{{BASE}}/#reading",
+  "wait": 11000,
+  "eval": "(()=>{const a=window.__sc;const firstPh=a.find(x=>x[3]);const firstLeave=a.find(x=>x[2]==='leaving');const live=a.filter(x=>x[2]==='live');const firstLive=live.length?live[0]:null;const states=[...new Set(a.map(x=>x[2]))];const between=firstPh&&firstLeave?a.filter(x=>x[0]>=firstPh[0]&&x[0]<=firstLeave[0]):[];return {states,placeholderAt:firstPh&&firstPh[0],leavingAt:firstLeave&&firstLeave[0],prepMs:firstPh&&firstLeave?firstLeave[0]-firstPh[0]:null,maxGapWhilePreparing:between.length?Math.max(...between.slice(1).map(x=>x[1])):null,over50WhilePreparing:between.slice(1).filter(x=>x[1]>50).length,firstLiveAt:firstLive&&firstLive[0]}})()",
+  "label": "cold-timeline"
+ },
+ {
+  "eval": "(()=>{const a=window.__sc;const ph=a.filter(x=>x[3]);const firstPh=ph[0];const layerOnRows=a.filter(x=>/\\bon\\b|ready|open/.test(x[4]));return {firstLayerClassRow:layerOnRows[0],firstPlaceholderRow:firstPh,layerClassesSeen:[...new Set(a.map(x=>x[4]))].slice(0,8)}})()",
+  "label": "cold-layer-vs-placeholder"
+ },
+ {
+  "shot": "local-shelf-cold-warm"
+ },
+ {
+  "shot": "local-shelf-cold-after"
+ }
+]
