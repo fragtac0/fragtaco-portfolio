@@ -1,10 +1,4 @@
-import type {
-  SiteClient,
-  SiteNavigationItem,
-  SiteProject,
-  SiteWorkExperience,
-  SiteWorkMilestone,
-} from "../types";
+import type { SiteNavigationItem } from "../types";
 
 export function ensureUniqueBy<T>(
   items: T[],
@@ -24,56 +18,6 @@ export function ensureUniqueBy<T>(
   }
 
   return items;
-}
-
-export function sortProjects(projects: SiteProject[]): SiteProject[] {
-  return [...projects].sort((left, right) => {
-    if (left.featured !== right.featured) {
-      return Number(right.featured) - Number(left.featured);
-    }
-
-    if (left.sortOrder !== right.sortOrder) {
-      return left.sortOrder - right.sortOrder;
-    }
-
-    return right.year - left.year;
-  });
-}
-
-export function sortWorkExperiences(
-  items: SiteWorkExperience[],
-): SiteWorkExperience[] {
-  return [...items].sort((left, right) => {
-    if (left.sortOrder !== right.sortOrder) {
-      return left.sortOrder - right.sortOrder;
-    }
-
-    return left.yearStart - right.yearStart;
-  });
-}
-
-export function filterPublishedProjects(projects: SiteProject[]): SiteProject[] {
-  return projects.filter((project) => project.published);
-}
-
-export function sortMilestones(
-  milestones: SiteWorkMilestone[],
-): SiteWorkMilestone[] {
-  return [...milestones].sort((left, right) => left.date - right.date);
-}
-
-export function filterPublishedWorkExperiences(
-  items: SiteWorkExperience[],
-): SiteWorkExperience[] {
-  return items.filter((item) => item.published);
-}
-
-export function sortClients(clients: SiteClient[]): SiteClient[] {
-  return [...clients].sort((left, right) => left.sortOrder - right.sortOrder);
-}
-
-export function filterPublishedClients(clients: SiteClient[]): SiteClient[] {
-  return clients.filter((client) => client.published);
 }
 
 export function filterVisibleNavItems(

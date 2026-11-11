@@ -97,101 +97,6 @@ export interface SiteHomeContent {
   credits: SiteCredits;
 }
 
-export type WorkExperienceKind = "education" | "self-taught" | "job" | "freelance";
-export type WorkExperienceKeyframeType = "linear" | "bezier" | "ease";
-
-export interface WorkExperienceLink {
-  type: "instagram" | "youtube";
-  url: string;
-}
-
-export interface SiteWorkExperience {
-  id: string;
-  parentId?: string;
-  kind: WorkExperienceKind;
-  track: 1 | 2 | 3;
-  clipColor: string;
-  topBarOpacity: number;
-  keyframeType: WorkExperienceKeyframeType;
-  role: string;
-  readoutTitle?: string;
-  company: string;
-  periodLabel: string;
-  yearStart: number;
-  yearEnd: number | null;
-  summary: string;
-  location?: string;
-  links: WorkExperienceLink[];
-  keyframes: number[];
-  published: boolean;
-  sortOrder: number;
-}
-
-export interface WorkMilestoneLink {
-  type: "instagram" | "youtube";
-  url: string;
-  label: string;
-}
-
-export interface SiteWorkMilestone {
-  id: string;
-  date: number;
-  monthLabel: string;
-  title: string;
-  summary: string;
-  links: WorkMilestoneLink[];
-}
-
-export interface SiteWorkExperienceSection {
-  sectionTitle: string;
-  timelineStart: number;
-  items: SiteWorkExperience[];
-  milestones: SiteWorkMilestone[];
-}
-
-export interface SiteProject {
-  id: string;
-  slug: string;
-  title: string;
-  summary: string;
-  description: string;
-  tech: string[];
-  githubUrl?: string | null;
-  liveUrl?: string | null;
-  image?: string | null;
-  featured: boolean;
-  published: boolean;
-  sortOrder: number;
-  year: number;
-  role: string;
-  status: string;
-}
-
-export interface SiteProjectsGroup {
-  sectionTitle: string;
-  items: SiteProject[];
-}
-
-export interface SiteProjectsSection {
-  sectionTitle: string;
-  longForm: SiteProjectsGroup;
-  shortForm: SiteProjectsGroup;
-}
-
-export interface SiteTechStackItem {
-  id: string;
-  label: string;
-  group: string;
-  sortOrder: number;
-}
-
-export interface SiteTechStackSection {
-  eyebrow: string;
-  title: string;
-  description: string;
-  items: SiteTechStackItem[];
-}
-
 export interface ReachOutAction {
   label: string;
   href: string;
@@ -232,18 +137,37 @@ export interface SiteSocialLink {
   url: string;
 }
 
-export interface SiteClient {
+export type WorkSource = "youtube" | "instagram" | "vimeo" | "other";
+
+export interface WorkVideo {
+  id: string;
+  title: string;
+  for: string;
+  year: number;
+  url: string;
+  cover?: string;
+  source: WorkSource;
+}
+
+export interface WorkClient {
   id: string;
   name: string;
   handle: string;
-  image: string;
-  url: string | null;
-  published: boolean;
-  sortOrder: number;
+  avatar: string;
+  url: string;
+  socials: { type: "youtube" | "instagram" | "x" | "website"; url: string }[];
 }
 
-export interface SiteClientsSection {
-  sectionTitle: string;
-  items: SiteClient[];
+export interface WorkStackItem {
+  id: string;
+  mark: string;
+  label: string;
 }
 
+export interface SiteWork {
+  intro: { title: string; text: string };
+  stack: WorkStackItem[];
+  longForm: WorkVideo[];
+  shortForm: WorkVideo[];
+  clients: WorkClient[];
+}

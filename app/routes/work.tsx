@@ -1,12 +1,17 @@
 import { json, type MetaFunction } from "@remix-run/node";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useLoaderData } from "@remix-run/react";
-import ProjectsSection from "../components/projects/projects-section";
-import SiteNav from "../components/site-nav";
+import WorkPage from "../components/work/work-page";
 import { getWorkPageContent } from "../content/loaders.server";
 
 export const meta: MetaFunction = () => [
   { title: "Work - FragTaco" },
 ];
+
+// The view (`?view=long`) is only a way of looking at the same content, so changing it does not need the
+// page's data again: the view changes at once and Back is instant.
+export const shouldRevalidate: ShouldRevalidateFunction = ({ currentUrl, nextUrl, defaultShouldRevalidate }) =>
+  currentUrl.pathname === nextUrl.pathname ? false : defaultShouldRevalidate;
 
 export async function loader() {
   const workPageContent = await getWorkPageContent();
@@ -23,27 +28,8 @@ export async function loader() {
   );
 }
 
-export default function WorkPage() {
-  const {
-    clients,
-    navigationItems,
-    projects,
-    reachOut,
-    socialLinks,
-    techStack,
-    workExperience,
-  } = useLoaderData<typeof loader>();
+export default function Work() {
+  const data = useLoaderData<typeof loader>();
 
-  return (
-    <main className="bg-ink text-white">
-      <SiteNav items={navigationItems} socialLinks={socialLinks} />
-      <ProjectsSection
-        clients={clients}
-        projects={projects}
-        reachOut={reachOut}
-        techStack={techStack}
-        workExperience={workExperience}
-      />
-    </main>
-  );
+  return <WorkPage {...data} />;
 }

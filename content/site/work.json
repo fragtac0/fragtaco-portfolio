@@ -1,0 +1,544 @@
+{
+  "intro": {
+    "title": "Work",
+    "text": "Six years of cutting long videos, shorts and brand films for creators and companies."
+  },
+  "stack": [
+    {
+      "id": "premiere",
+      "mark": "Pr",
+      "label": "Premiere Pro"
+    },
+    {
+      "id": "aftereffects",
+      "mark": "Ae",
+      "label": "After Effects"
+    },
+    {
+      "id": "finalcut",
+      "mark": "Fc",
+      "label": "Final Cut Pro"
+    },
+    {
+      "id": "blender",
+      "mark": "Bl",
+      "label": "Blender"
+    },
+    {
+      "id": "photoshop",
+      "mark": "Ps",
+      "label": "Photoshop"
+    },
+    {
+      "id": "illustrator",
+      "mark": "Ai",
+      "label": "Illustrator"
+    },
+    {
+      "id": "figma",
+      "mark": "Fg",
+      "label": "Figma"
+    },
+    {
+      "id": "lightroom",
+      "mark": "Lr",
+      "label": "Lightroom"
+    }
+  ],
+  "longForm": [
+    {
+      "id": "ft-long-01",
+      "title": "Placeholder long 01",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-01/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-02",
+      "title": "Placeholder long 02",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-02/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-03",
+      "title": "Placeholder long 03",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-03/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-04",
+      "title": "Placeholder long 04",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-04/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-05",
+      "title": "Placeholder long 05",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-05/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-06",
+      "title": "Placeholder long 06",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-06/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-07",
+      "title": "Placeholder long 07",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-07/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-08",
+      "title": "Placeholder long 08",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-08/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-09",
+      "title": "Placeholder long 09",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-09/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-10",
+      "title": "Placeholder long 10",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-10/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-11",
+      "title": "Placeholder long 11",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-11/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-12",
+      "title": "Placeholder long 12",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-12/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-13",
+      "title": "Placeholder long 13",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-13/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-14",
+      "title": "Placeholder long 14",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-14/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-15",
+      "title": "Placeholder long 15",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-15/640/360",
+      "source": "other"
+    },
+    {
+      "id": "ft-long-16",
+      "title": "Placeholder long 16",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-long-16/640/360",
+      "source": "other"
+    }
+  ],
+  "shortForm": [
+    {
+      "id": "ft-short-01",
+      "title": "Placeholder short 01",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-01/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-02",
+      "title": "Placeholder short 02",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-02/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-03",
+      "title": "Placeholder short 03",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-03/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-04",
+      "title": "Placeholder short 04",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-04/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-05",
+      "title": "Placeholder short 05",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-05/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-06",
+      "title": "Placeholder short 06",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-06/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-07",
+      "title": "Placeholder short 07",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-07/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-08",
+      "title": "Placeholder short 08",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-08/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-09",
+      "title": "Placeholder short 09",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-09/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-10",
+      "title": "Placeholder short 10",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-10/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-11",
+      "title": "Placeholder short 11",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-11/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-12",
+      "title": "Placeholder short 12",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-12/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-13",
+      "title": "Placeholder short 13",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-13/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-14",
+      "title": "Placeholder short 14",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-14/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-15",
+      "title": "Placeholder short 15",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-15/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-16",
+      "title": "Placeholder short 16",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-16/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-17",
+      "title": "Placeholder short 17",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-17/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-18",
+      "title": "Placeholder short 18",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-18/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-19",
+      "title": "Placeholder short 19",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-19/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-20",
+      "title": "Placeholder short 20",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-20/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-21",
+      "title": "Placeholder short 21",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-21/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-22",
+      "title": "Placeholder short 22",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-22/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-23",
+      "title": "Placeholder short 23",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-23/360/640",
+      "source": "other"
+    },
+    {
+      "id": "ft-short-24",
+      "title": "Placeholder short 24",
+      "for": "Placeholder",
+      "year": 2026,
+      "url": "https://www.youtube.com/@fragtaco",
+      "cover": "https://picsum.photos/seed/ft-short-24/360/640",
+      "source": "other"
+    }
+  ],
+  "clients": [
+    {
+      "id": "ft-client-01",
+      "name": "Placeholder client 01",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-01/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    },
+    {
+      "id": "ft-client-02",
+      "name": "Placeholder client 02",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-02/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    },
+    {
+      "id": "ft-client-03",
+      "name": "Placeholder client 03",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-03/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    },
+    {
+      "id": "ft-client-04",
+      "name": "Placeholder client 04",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-04/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    },
+    {
+      "id": "ft-client-05",
+      "name": "Placeholder client 05",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-05/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    },
+    {
+      "id": "ft-client-06",
+      "name": "Placeholder client 06",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-06/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    },
+    {
+      "id": "ft-client-07",
+      "name": "Placeholder client 07",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-07/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    },
+    {
+      "id": "ft-client-08",
+      "name": "Placeholder client 08",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-08/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    },
+    {
+      "id": "ft-client-09",
+      "name": "Placeholder client 09",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-09/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    },
+    {
+      "id": "ft-client-10",
+      "name": "Placeholder client 10",
+      "handle": "@placeholder",
+      "avatar": "https://picsum.photos/seed/ft-client-10/160/160",
+      "url": "https://www.youtube.com/@fragtaco",
+      "socials": [
+        {
+          "type": "youtube",
+          "url": "https://www.youtube.com/@fragtaco"
+        }
+      ]
+    }
+  ]
+}

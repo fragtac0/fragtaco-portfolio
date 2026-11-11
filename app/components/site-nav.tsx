@@ -1,6 +1,6 @@
 import { PrefetchPageLinks, useLocation, useNavigate } from "@remix-run/react";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import type { SiteNavigationItem, SiteSocialLink } from "../types";
 import DockNav from "./react-bits/dock-nav";
 import { inertProps } from "../utils/inert";
@@ -26,6 +26,9 @@ interface SiteNavProps {
   items: SiteNavigationItem[];
   socialLinks: SiteSocialLink[];
   home?: SiteNavHome;
+  /** A second row of controls inside the same glass, above the tabs (the work page's switcher). The
+   * dock looks as it always did without one. */
+  upperRow?: ReactNode;
 }
 
 const SOCIAL_ICON_MAP: Record<
@@ -49,6 +52,7 @@ export default function SiteNav({
   items,
   socialLinks,
   home,
+  upperRow,
 }: SiteNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -60,6 +64,8 @@ export default function SiteNav({
   const [dockReached, setDockReached] = useState(false);
   const reachDock = () => setDockReached(true);
   const isHomePage = location.pathname === "/";
+  // One row is a pill; two rows are a rounded panel, or the pill's ends would cut into the upper row.
+  const shape = upperRow ? "rounded-[1.75rem]" : "rounded-full";
   const visibleItems = items.filter(
     (item): item is SiteNavigationItem => item.key === "home" || item.key === "work",
   );
@@ -173,15 +179,21 @@ export default function SiteNav({
         onPointerEnter={reachDock}
         onPointerDown={reachDock}
         onFocus={reachDock}
-        className="pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden rounded-full border border-fog/14 bg-[rgba(17,12,8,0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5">
+        className={`pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden ${shape} border border-fog/14 bg-[rgba(17,12,8,0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5`}>
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(180deg,rgba(255,236,214,0.16),rgba(255,236,214,0.04)_42%,rgba(0,0,0,0.14))]"
+          className={`pointer-events-none absolute inset-0 ${shape} bg-[linear-gradient(180deg,rgba(255,236,214,0.16),rgba(255,236,214,0.04)_42%,rgba(0,0,0,0.14))]`}
         />
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-px rounded-full border border-black/20"
+          className={`pointer-events-none absolute inset-px ${shape} border border-black/20`}
         />
+
+        {upperRow ? (
+          <div className="relative mb-1 flex max-w-full items-center justify-start overflow-x-auto border-b border-white/10 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-1.5 sm:justify-center sm:overflow-visible sm:pb-1.5 [&::-webkit-scrollbar]:hidden">
+            {upperRow}
+          </div>
+        ) : null}
 
         <nav
           aria-label="Primary"

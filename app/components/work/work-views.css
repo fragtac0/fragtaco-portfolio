@@ -1,0 +1,309 @@
+/*
+ * The picked views of the work page (long form, short form, clients). Which view is showing is
+ * `data-view` on `.work-page`, set by use-view-flip.ts together with the travel animation; the
+ * three picked views share these rules. Spec: docs/superpowers/specs/2026-11-11-polish-and-work-page-design.md, 4.4 and 4.5.
+ *
+ * In a picked view: the rings that were not picked go out past the screen (use-view-flip animates
+ * them; the rules here are where they end up); the stack is a still row at the top right; the picked
+ * kind's `<ul>` stops being a ring and its items are placed at --vx, --vy (from `pickedLayout`) in a
+ * stage that scrolls on its own. Only transform-type properties and opacity animate.
+ */
+
+/* ---------- title and intro ---------- */
+.work-intro {
+  transition: opacity 250ms ease-out;
+}
+.work-page:not([data-view="all"]) .work-intro {
+  opacity: 0; /* still there for a screen reader: only its look goes */
+  animation: none;
+}
+.work-view-title {
+  position: absolute;
+  left: 48px;
+  top: 28px;
+  z-index: var(--z-cards);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 200ms ease-out, visibility 0s linear 200ms;
+}
+.work-page:not([data-view="all"]) .work-view-title {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 350ms ease-out 200ms, visibility 0s;
+}
+.work-view-name {
+  margin: 0;
+  font-family: Doto, monospace;
+  font-weight: 800;
+  font-size: var(--t-title);
+  line-height: 1.1;
+  color: var(--ink-1);
+}
+.work-view-count {
+  margin: 6px 0 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--t-meta);
+  line-height: 1.3;
+  color: var(--ink-2);
+}
+
+/* dark fades at the top and bottom keep the title and the dock readable over the scrolling content */
+.work-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: var(--z-hero);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 350ms ease-out;
+}
+.work-fade-top {
+  top: 0;
+  height: 150px;
+  background: linear-gradient(var(--ground) 35%, var(--ground-clear));
+}
+.work-fade-bottom {
+  bottom: 0;
+  height: calc(var(--site-nav-height, 130px) + 72px);
+  background: linear-gradient(to top, var(--ground) 45%, var(--ground-clear));
+}
+.work-page:not([data-view="all"]) .work-fade {
+  opacity: 1;
+}
+
+/* ---------- the rings ---------- */
+/* The rings that were not picked end up scaled up, clear and out of the way (use-view-flip plays
+   the way there and back, 350 ms; `visibility` waits for it so they stay in view while they leave). */
+.work-page:not([data-view="all"]) .work-ring-group:not([data-ring="stack"]) {
+  scale: 1.6;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 350ms;
+}
+/* the picked ring becomes the scrolling stage */
+.work-page[data-view="long"] .work-ring-group[data-ring="long"],
+.work-page[data-view="short"] .work-ring-group[data-ring="short"],
+.work-page[data-view="clients"] .work-ring-group[data-ring="clients"] {
+  scale: 1;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding: 150px 0 calc(var(--site-nav-height, 130px) + 72px);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink-1) 30%, transparent) transparent;
+}
+/* the stack: a still row at the top right, above the fades */
+.work-page:not([data-view="all"]) .work-ring-group[data-ring="stack"] {
+  z-index: var(--z-cards);
+}
+/* room under the last row for the caption and the dock */
+.work-view-end {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: calc(var(--site-nav-height, 130px) + 40px);
+  transform: translateY(var(--vy, 0px));
+  pointer-events: none;
+}
+.work-page[data-view="long"] .work-ring-group[data-ring="long"] .work-view-end,
+.work-page[data-view="short"] .work-ring-group[data-ring="short"] .work-view-end,
+.work-page[data-view="clients"] .work-ring-group[data-ring="clients"] .work-view-end {
+  display: block;
+}
+
+/* Items that fit in no ring wait unseen until their view is picked. They are placed like the others
+   from the start (nobody sees them in a ring), and a ring that is not picked keeps them hidden. */
+.work-ring[data-extra] {
+  display: contents;
+  animation: none;
+}
+.work-item[data-extra] {
+  width: var(--vw);
+  height: var(--vh);
+  margin: 0;
+  transform: translate(var(--vx), var(--vy));
+  visibility: hidden;
+}
+.work-item[data-extra] .work-item-turn {
+  animation: none;
+}
+
+/* The picked ring and the stack (and only they) stop turning and are laid out flat: a ring stops being
+   a box of its own and its items go to their places on the stage. The other rings keep their shape
+   and their turn, so what scales out and fades is the ring itself, not a grid. */
+:is(
+    .work-page[data-view="long"] :is([data-ring="long"], [data-ring="stack"]),
+    .work-page[data-view="short"] :is([data-ring="short"], [data-ring="stack"]),
+    .work-page[data-view="clients"] :is([data-ring="clients"], [data-ring="stack"])
+  ) {
+  & .work-ring {
+    display: contents;
+    animation: none;
+  }
+  & .work-item-turn {
+    animation: none;
+  }
+  & .work-item {
+    width: var(--vw);
+    height: var(--vh);
+    margin: 0;
+    transform: translate(var(--vx), var(--vy));
+  }
+  /* `inherit`, so a hidden ring hides them */
+  & .work-item[data-extra] {
+    visibility: inherit;
+  }
+  & .work-label {
+    display: none;
+  }
+  & .work-mark {
+    font-size: calc(var(--vw) * 0.43);
+  }
+  & .work-item:hover .work-item-face,
+  & .work-item:has(:focus-visible) .work-item-face {
+    scale: 1.05;
+  }
+  /* a caption appears once the item has landed, each 12 ms after the one before */
+  & .work-caption {
+    opacity: 1;
+    transition: opacity 250ms ease-out calc(450ms + var(--i, 0) * 12ms);
+  }
+  /* a client's caption holds links, and the pointer crosses it on its way to the socials */
+  & .work-item[data-kind="client"] .work-caption {
+    pointer-events: auto;
+  }
+}
+
+/* ---------- captions ---------- */
+.work-caption {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  display: grid;
+  gap: 2px;
+  width: var(--vcap);
+  translate: -50% 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--t-meta);
+  line-height: 1.3;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-out;
+}
+.work-item[data-kind="video"] .work-caption {
+  text-align: left;
+}
+.work-caption-title,
+.work-caption-sub {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.work-caption-title {
+  color: var(--ink-1);
+}
+/* a client's name may take two lines (phones are narrow), a video's title and line stay one each */
+.work-item[data-kind="client"] .work-caption-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.work-caption-sub {
+  color: var(--ink-2);
+}
+/* videos: the one you are on brightens and the rest dim to 70% */
+.work-page:not([data-view="all"]) .work-item[data-kind="video"] {
+  transition: opacity 180ms ease-out;
+}
+.work-page:not([data-view="all"]) .work-item-face img {
+  transition: filter 180ms ease-out;
+}
+.work-page:not([data-view="all"]) .work-ring-group:has(.work-item[data-kind="video"]:hover) .work-item[data-kind="video"]:not(:hover),
+.work-page:not([data-view="all"]) .work-ring-group:has(.work-item[data-kind="video"] .work-item-face:focus-visible) .work-item[data-kind="video"]:not(:has(.work-item-face:focus-visible)) {
+  opacity: 0.7;
+}
+.work-page:not([data-view="all"]) .work-item[data-kind="video"]:hover .work-cover img,
+.work-page:not([data-view="all"]) .work-item[data-kind="video"]:has(:focus-visible) .work-cover img {
+  filter: brightness(1.15);
+}
+
+/* clients: the socials show on hover, on focus anywhere in the item, or after a first tap */
+.client-socials {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease-out;
+}
+.work-page[data-view="all"] .client-socials {
+  display: none; /* in a ring they are neither seen nor reached by Tab */
+}
+.work-item:hover .client-socials,
+.work-item:focus-within .client-socials,
+.work-item[data-open] .client-socials {
+  opacity: 1;
+  pointer-events: auto;
+}
+.client-social {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--ink-2);
+  font-size: var(--t-body); /* the icon's size: 15px */
+  outline: none;
+  transition: color 150ms ease-out, background-color 150ms ease-out;
+}
+.client-social:hover {
+  color: var(--ink-1);
+  background: color-mix(in srgb, var(--ink-1) 11%, transparent);
+}
+.client-social:focus-visible {
+  color: var(--ink-1);
+  box-shadow: 0 0 0 2px var(--ink-1);
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 700px) {
+  .work-view-title {
+    left: 16px;
+    top: 20px;
+  }
+  .work-fade-top {
+    height: 130px;
+  }
+  .work-page[data-view="long"] .work-ring-group[data-ring="long"],
+  .work-page[data-view="short"] .work-ring-group[data-ring="short"],
+  .work-page[data-view="clients"] .work-ring-group[data-ring="clients"] {
+    scroll-padding-top: 130px;
+  }
+}
+
+/* ---------- reduced motion: a view change is a short crossfade (use-view-flip), and nothing else moves ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .work-intro,
+  .work-view-title,
+  .work-fade,
+  .work-caption,
+  .work-item,
+  .client-socials,
+  .work-item-face img {
+    transition: none;
+  }
+}

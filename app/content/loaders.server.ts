@@ -1,15 +1,11 @@
 import {
   getBooks,
-  getClientsSection,
   getHeroPaintings,
   getHomeContent,
   getNavigationItems,
-  getProjectsSection,
-  getReachOutSection,
   getSocialLinks,
-  getTechStackSection,
   getVideos,
-  getWorkExperienceSection,
+  getWork,
 } from "./site-content.server";
 
 /**
@@ -44,31 +40,11 @@ export async function getHomePageContent(random: () => number = Math.random) {
 }
 
 export async function getWorkPageContent() {
-  const [
-    clients,
-    navigationItems,
-    projects,
-    reachOut,
-    socialLinks,
-    techStack,
-    workExperience,
-  ] = await Promise.all([
-    getClientsSection(),
+  const [work, navigationItems, socialLinks] = await Promise.all([
+    getWork(),
     getNavigationItems(),
-    getProjectsSection(),
-    getReachOutSection(),
     getSocialLinks(),
-    getTechStackSection(),
-    getWorkExperienceSection(),
   ]);
 
-  return {
-    clients,
-    navigationItems,
-    projects,
-    reachOut,
-    socialLinks,
-    techStack,
-    workExperience,
-  };
+  return { work, navigationItems, socialLinks };
 }
