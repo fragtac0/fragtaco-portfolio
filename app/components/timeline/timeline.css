@@ -186,7 +186,7 @@
 }
 
 /* ---------- phones: the label block is one row, the roles open from a button ---------- */
-@media (max-width: 700px) {
+@media (max-width: 699.98px) {
   .tl-legend {
     top: 12px;
     left: 12px;

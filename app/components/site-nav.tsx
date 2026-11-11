@@ -176,6 +176,7 @@ export default function SiteNav({
       {...inertProps(isDockDown)}
     >
       <div
+        data-dock-glass
         onPointerEnter={reachDock}
         onPointerDown={reachDock}
         onFocus={reachDock}
@@ -202,6 +203,7 @@ export default function SiteNav({
           <DockNav
             items={visibleItems}
             activeKey={activeKey}
+            pathname={location.pathname}
             onItemClick={handleClick}
           />
           {visibleSocialLinks.length > 0 ? (
@@ -236,7 +238,7 @@ export default function SiteNav({
       </div>
       {dockReached
         ? visibleItems
-            .filter((item) => item.key !== activeKey)
+            .filter((item) => item.href !== location.pathname)
             .map((item) => <PrefetchPageLinks key={item.key} page={item.href} />)
         : null}
     </header>

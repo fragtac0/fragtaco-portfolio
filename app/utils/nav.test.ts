@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeNavKey, isHomeSectionId } from "./nav";
+import { activeNavKey, isHomeSectionId, tabCurrent } from "./nav";
 
 describe("activeNavKey", () => {
   it("reads the home page as home", () => {
@@ -29,5 +29,22 @@ describe("isHomeSectionId", () => {
   it("keeps the old about link working", () => {
     expect(isHomeSectionId("about")).toBe(true);
     expect(isHomeSectionId("reading")).toBe(false);
+  });
+});
+
+describe("tabCurrent", () => {
+  it("says page on a tab's own address", () => {
+    expect(tabCurrent("/", "/", true)).toBe("page");
+    expect(tabCurrent("/work", "/work", true)).toBe("page");
+  });
+
+  it("says true on a page that only belongs to the tab", () => {
+    expect(tabCurrent("/work", "/timeline", true)).toBe("true");
+    expect(tabCurrent("/work", "/work/some-project", true)).toBe("true");
+  });
+
+  it("says nothing on a tab that is not the active one", () => {
+    expect(tabCurrent("/", "/work", false)).toBeUndefined();
+    expect(tabCurrent("/work", "/", false)).toBeUndefined();
   });
 });

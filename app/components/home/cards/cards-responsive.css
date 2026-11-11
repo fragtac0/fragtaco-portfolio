@@ -1,5 +1,5 @@
 /* the cards on a phone (under 700 px) and on a phone held sideways; imported after cards.css */
-@media (max-width: 700px) {
+@media (max-width: 699.98px) {
   .home-hero .card.right,
   .home-hero .card.left {
     width: min(84vw, 360px);

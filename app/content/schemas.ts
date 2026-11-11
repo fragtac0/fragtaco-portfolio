@@ -8,19 +8,6 @@ const HrefSchema = z.union([
   z.string().regex(rootRelativePathPattern, "Expected URL or root-relative path"),
 ]);
 
-export const FactSchema = z.object({
-  id: z.string().min(1),
-  category: z.string().min(1),
-  headline: z.string().min(1),
-  body: z.string().min(1),
-});
-
-export const FactsSectionSchema = z.object({
-  sectionTitle: z.string().min(1),
-  eyebrow: z.string().min(1),
-  items: z.array(FactSchema).min(1),
-});
-
 export const HeroPaintingSchema = z.object({
   id: z.string().min(1),
   file: z.string().min(1),

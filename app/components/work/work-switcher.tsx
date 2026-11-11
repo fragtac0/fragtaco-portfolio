@@ -15,6 +15,10 @@ const TAB =
 const IDLE = "opacity-[var(--dock-idle)]";
 const ACTIVE = "border border-accent/40 bg-accent/[0.16] opacity-100 shadow-[inset_0_1px_0_rgba(255,236,214,0.18)]";
 
+/** The ids the tabs and the stage they control point at each other with. */
+export const STAGE_ID = "work-stage";
+export const tabId = (view: ViewId) => `work-tab-${view}`;
+
 interface WorkSwitcherProps {
   view: ViewId;
   onSelect: (view: ViewId) => void;
@@ -22,15 +26,16 @@ interface WorkSwitcherProps {
 
 /**
  * The second row of the dock on /work: all, long form, short form and clients are tabs (a
- * `tablist`) that change the view in place, and timeline is a link to its own page. The arrow keys,
- * Home and End move focus along the row (to the link too); Enter or Space chooses the tab that has
- * focus. Only the picked tab is in the Tab order; the rest of the row is reached by arrows.
+ * `tablist`) that change the view in place (the stage is their `tabpanel`), and timeline is a link
+ * to its own page. The arrow keys, Home and End move focus along the four tabs only; Enter or Space
+ * chooses the tab that has focus. Only the picked tab is in the Tab order, and the Timeline link is
+ * reached by Tab after it.
  */
 export default function WorkSwitcher({ view, onSelect }: WorkSwitcherProps) {
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
     if (!keys.includes(e.key)) return;
-    const stops = [...e.currentTarget.querySelectorAll<HTMLElement>("[data-switcher-stop]")];
+    const stops = [...e.currentTarget.querySelectorAll<HTMLElement>("[role=tab]")];
     const at = stops.indexOf(document.activeElement as HTMLElement);
     if (at < 0) return;
     e.preventDefault();
@@ -49,9 +54,10 @@ export default function WorkSwitcher({ view, onSelect }: WorkSwitcherProps) {
               key={tab.view}
               type="button"
               role="tab"
+              id={tabId(tab.view)}
               aria-selected={active}
+              aria-controls={STAGE_ID}
               tabIndex={active ? 0 : -1}
-              data-switcher-stop=""
               data-view-tab={tab.view}
               className={`${TAB} ${active ? ACTIVE : IDLE}`}
               onClick={() => onSelect(tab.view)}
@@ -66,7 +72,6 @@ export default function WorkSwitcher({ view, onSelect }: WorkSwitcherProps) {
         to="/timeline"
         viewTransition
         prefetch="intent"
-        data-switcher-stop=""
         className={`${TAB} ${IDLE}`}
       >
         Timeline

@@ -16,8 +16,6 @@ export default defineConfig({
       "motion/react",
       "react-icons/fa6",
       "react-icons/si",
-      "clsx",
-      "tailwind-merge",
     ],
   },
 });

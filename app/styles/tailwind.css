@@ -28,6 +28,6 @@
 
   ::selection {
     background: theme(colors.accent);
-    color: theme(colors.theme.black);
+    color: #000000;
   }
 }

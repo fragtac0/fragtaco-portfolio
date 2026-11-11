@@ -6,19 +6,6 @@ export interface SiteHeroContent {
   roles: string;
 }
 
-export interface SiteFact {
-  id: string;
-  category: string;
-  headline: string;
-  body: string;
-}
-
-export interface SiteFactsSection {
-  sectionTitle: string;
-  eyebrow: string;
-  items: SiteFact[];
-}
-
 export interface SiteHeroPainting {
   id: string;
   file: string;

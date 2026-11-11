@@ -147,7 +147,7 @@ html.locked body {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 699.98px) {
   .home-layer .xp-hint {
     white-space: normal;
     width: 88vw;

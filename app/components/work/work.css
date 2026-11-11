@@ -293,7 +293,7 @@
 /* ---------- phones ---------- */
 /* Item sizes and ring radii on a phone come from ring-math (`fitScale`), so the first two rings fit the
    screen's width. The intro is the title and one short line, with a dark halo so a passing item never mutes it. */
-@media (max-width: 700px) {
+@media (max-width: 699.98px) {
   .work-text {
     max-width: 15ch; /* narrow enough to sit inside the stack ring */
     margin-top: 10px;

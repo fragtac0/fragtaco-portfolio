@@ -4,7 +4,6 @@ import type { ZodType } from "zod";
 import { ensureUniqueBy, filterVisibleNavItems } from "./mappers";
 import {
   BooksSectionSchema,
-  FactsSectionSchema,
   HeroPaintingsSchema,
   HomeContentSchema,
   NavigationItemSchema,
@@ -17,7 +16,6 @@ import {
 import type {
   SiteBook,
   SiteReachOutSection,
-  SiteFactsSection,
   SiteHeroPainting,
   SiteHomeContent,
   SiteNavigationItem,
@@ -67,16 +65,6 @@ export async function getBooks(): Promise<SiteBook[]> {
 export async function getVideos(): Promise<SiteVideosFile> {
   const content = await loadJsonFile("videos.json", VideosFileSchema);
   const items = ensureUniqueBy(content.items, (item) => item.id, "video id");
-
-  return {
-    ...content,
-    items,
-  };
-}
-
-export async function getFactsSection(): Promise<SiteFactsSection> {
-  const content = await loadJsonFile("facts.json", FactsSectionSchema);
-  const items = ensureUniqueBy(content.items, (item) => item.id, "fact id");
 
   return {
     ...content,
