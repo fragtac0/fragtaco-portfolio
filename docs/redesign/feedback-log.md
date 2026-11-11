@@ -223,6 +223,16 @@ Load for `/` on a phone profile (390x844, dpr 2, slow 4G at 1638 kbit/s and 150 
 | Total transfer | 1049 KB in 47 requests | 1027 KB in 47 requests | Varies with the painting chosen for the first visit (one run read 1397 KB, because that painting is 480 KB). |
 | Largest files | `aditya.jpg` 196 KB, `three.module.js` 172 KB (requested at 3.35 s, idle time), `destruction-of-pompeii.webp` 128 KB, `isle-of-the-dead.webp` 89 KB | same files | Before, the portrait was requested at 493 ms, before the first painting finished. After, on a 1440x900 desktop load it is first requested at 4858 ms (after the loader) and shows on the intro card when it opens. |
 
+### Device check (audit M-05, for Aditya)
+
+Everything above was measured in headless Chrome on a fast laptop. These three checks need real hardware; write down what feels wrong (stutter, a blank panel, a gesture that does nothing, text too small), with the device and page.
+
+| Device | What to try |
+| --- | --- |
+| A mid-range Android phone (Chrome) | Home: the loader and hero (paintings change every 10 s, no jank); open and close both cards; reading layer: the shelf drag, flick and tap on a book; watching layer: wall drag and tap on a video; `/work`: the rings turn, tap an item, switch All, Long form, Short form, Clients and scroll a view; `/timeline`: pinch to zoom, drag to pan, tap a square. |
+| An iPhone in Safari, portrait and landscape | The same list. Landscape with a card open: the card fills the screen and the dock and cue are hidden. Check the dock clears the home indicator, the frosted dock shows the page through it, the page blur between pages plays (or the page just changes if Safari lacks it), and `/work` and `/timeline` do not scroll the page itself. |
+| A laptop with integrated graphics (Chrome or Safari) | Hero and cards; shelf drag, flick and tap; wall drag and tap (watch the frame rate); `/work` rings and the four views; `/timeline` zoom with the mouse wheel and with a two-finger trackpad pinch and scroll. |
+
 ---
 
 ## Decisions so far
@@ -284,3 +294,4 @@ None open. Asked after v3 and answered on 2026-11-02:
 - R38 work page (part 3): `/work` has the four rings turning round the intro (tools, long form, short form, clients; alternating directions, items upright, hover or focus pauses only that ring), the two drifting glows under the dot screen and grain, and the 500 ms staggered arrival; reduced motion stands everything still.
 - R38 work page (part 4): the dock on `/work` has a second row (all, long form, short form, clients, timeline). Choosing a kind pulls its items out of the rings and lays them flat in a scrolling view (long form in a brick pattern, short form taller covers, clients in a loose honeycomb) with a 600 ms staggered travel; the other rings scale out, the tools become a still row at the top right, and the view is in the address (`?view=long`), so Back works and a link opens it directly. Videos show a caption and dim their neighbours on hover; clients show their socials on hover or focus (first tap on touch).
 - R39 timeline (part 2): `/timeline` shows one square for each day since 1 December 2020 on one canvas, coloured by role (the last square is today and reads freelance, with a slow pulse; the first day of each role has a notched corner). It opens zoomed out with every day visible; the wheel or a pinch zooms towards the pointer, drag or two fingers pan, `+`, `-`, `0` and the arrow keys work, and two buttons zoom and fit. Month names and year rules appear at 10 px a square, day numbers at 28 px. Hover, tap or Shift with the arrow keys shows the date and role. The label block (gilt) names the page, the dates, the day count and the way back to work, with each role and its days under it. Reached from the work page's switcher; the dock shows work.
+- R39.4 final review fixes: the dock's glass blurs again (the view-transition name moved from the header to the pill), dead code and two dependencies removed, the work tab is `aria-current="true"` on `/timeline`, 700 px is desktop in CSS and JS alike, `/work` has a skip link, tabpanel wiring and a `headers` export; the device checklist above is for Aditya's M-05 check.
