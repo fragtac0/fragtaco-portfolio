@@ -24,7 +24,7 @@ yarn typecheck      # tsc --noEmit
 yarn lint           # eslint, including jsx-a11y
 yarn build          # production build
 yarn start          # serve the build (run yarn build first)
-yarn check          # typecheck, lint and build in one go
+yarn run check      # typecheck, lint and build in one go (plain `yarn check` is a Yarn built-in, not this script)
 ```
 
 Timing and animation should be judged on the production build (`yarn build`, then `yarn start`), not the dev server.
@@ -59,7 +59,7 @@ Re-encodes the originals in `public/paintings/` into the 1600 px and 2560 px Web
 
 ## Audit and performance tools
 
-- `scripts/audit/`: headless Chrome driven over the DevTools protocol, for screenshots, frame timing and load numbers. A run is a JSON steps file, for example `BASE=http://localhost:5181 node scripts/audit/cdp.mjs scripts/audit/measure.json /tmp/out`. How it works, and the quirks of headless timers, are in [scripts/audit/README.md](scripts/audit/README.md).
+- `scripts/audit/`: headless Chrome driven over the DevTools protocol, for screenshots, frame timing and load numbers. A run is a JSON steps file, for example, after `yarn build`, serve the production build with `PORT=5180 npx remix-serve build/server/nodejs-*/index.js` and run `BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/measure.json /tmp/out` (`BASE` names that server). Use the production build: `yarn dev` does not hydrate in headless Chrome. How it works, and the quirks of headless timers, are in [scripts/audit/README.md](scripts/audit/README.md).
 - `scripts/perf/sample-frames.js`: a snippet to paste into the DevTools console. `await sampleFrames(5000)` resolves `{ n, avg, p95, max, over20 }` for the frames drawn in those 5 seconds. Use it on a phone or a slow laptop through remote debugging.
 
 ## The redesign docs

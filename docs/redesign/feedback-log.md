@@ -191,7 +191,7 @@ Decisions taken while building, for Aditya to overrule:
 
 ### Measured (R37)
 
-Production build, headless Chrome on the build machine at 60 Hz, frame gaps from `requestAnimationFrame` (the same sampler as `scripts/perf/sample-frames.js`). Every scenario was sampled at three sizes: 1440x900 (dpr 1), 390x844 (dpr 2, touch) and 390x844 with the CPU throttled 4x. The result was the same in all three, and in every scenario, so the table lists each scenario once.
+Production build, headless Chrome on the build machine at 60 Hz, frame gaps from `requestAnimationFrame` (the same method as `scripts/perf/sample-frames.js`, which also reports the 95th percentile). Every scenario was sampled at three sizes: 1440x900 (dpr 1), 390x844 (dpr 2, touch) and 390x844 with the CPU throttled 4x. The result was the same in all three, and in every scenario, so the table lists each scenario once.
 
 | Scenario | Sizes | Frames | Average | Worst frame | Frames over 20 ms |
 | --- | --- | --- | --- | --- | --- |
@@ -214,14 +214,14 @@ Caveat: this is a fast laptop in headless Chrome, so it shows the code does no a
 
 Load for `/` on a phone profile (390x844, dpr 2, slow 4G at 1638 kbit/s and 150 ms latency, CPU 4x, cache off). Lighthouse is not installed and may not be added, so these come from `scripts/audit/load-metrics.json` (run through `scripts/audit/cdp.mjs`), not from Lighthouse; treat them as close, not identical, to a Lighthouse mobile run.
 
-| Measure | Value | Note |
-| --- | --- | --- |
-| First contentful paint | 744 ms | |
-| DOMContentLoaded | 728 ms | |
-| Largest contentful paint | 5.8 s | Above the 2.5 s target. The element is the roles line, which the loader reveals as part of its sequence. |
-| Cumulative layout shift | 0.006 | |
-| Total transfer | 1049 KB in 47 requests | Varies with the painting chosen for the first visit (one run read 1397 KB, because that painting is 480 KB). |
-| Largest files | `aditya.jpg` 196 KB, `three.module.js` 172 KB (requested at 3.35 s, idle time), `destruction-of-pompeii.webp` 128 KB, `isle-of-the-dead.webp` 89 KB | After the portrait change the portrait is requested at about 5.3 s, after the loader, instead of 493 ms. |
+| Measure | Before the portrait change (3eaaa28) | After (7780d64) | Note |
+| --- | --- | --- | --- |
+| First contentful paint | 744 ms | 720 ms | |
+| DOMContentLoaded | 728 ms | not recorded | |
+| Largest contentful paint | 5.8 s | 5.0 s (4976 ms) | Above the 2.5 s target. The element is the roles line, which the loader reveals as part of its sequence. |
+| Cumulative layout shift | 0.006 | 0.004 | |
+| Total transfer | 1049 KB in 47 requests | 1027 KB in 47 requests | Varies with the painting chosen for the first visit (one run read 1397 KB, because that painting is 480 KB). |
+| Largest files | `aditya.jpg` 196 KB, `three.module.js` 172 KB (requested at 3.35 s, idle time), `destruction-of-pompeii.webp` 128 KB, `isle-of-the-dead.webp` 89 KB | same files | Before, the portrait was requested at 493 ms, before the first painting finished. After, on a 1440x900 desktop load it is first requested at 4858 ms (after the loader) and shows on the intro card when it opens. |
 
 ---
 
