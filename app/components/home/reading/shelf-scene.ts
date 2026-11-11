@@ -11,7 +11,7 @@ import {
   topCanvas,
   woodCanvas,
 } from "./shelf-canvases";
-import { FRONT, WALLZ, bookSize } from "./shelf-math";
+import { FRONT, SHELF_GAP, WALLZ, bookSize } from "./shelf-math";
 
 /**
  * Builds the shelf's three.js scene: renderer, lights, one box per book with its contact and wall
@@ -85,16 +85,24 @@ export async function loadShelfFonts(): Promise<void> {
   });
 }
 
+/** Runs the steps one after another, spread over time (`createSlicer().run`). */
+export type RunSteps = (steps: Array<() => void>) => Promise<void>;
+
+/** Books painted per step, and textures uploaded per step. */
+const BOOKS_PER_STEP = 3;
+const UPLOADS_PER_STEP = 3;
+
 /**
- * `nextIdle` yields to the browser between slices of work; if it rejects (the engine was
- * disposed), everything built so far is freed and the rejection is passed on. `onCover` is told
- * about each book as it is built, so its real cover can start downloading right away.
+ * The work is cut into small steps handed to `run`, which decides when each one happens (idle time,
+ * or back to back when the shelf is waited for); if `run` rejects (the engine was disposed),
+ * everything built so far is freed and the rejection is passed on. `onCover` is told about each
+ * book as it is built, so its real cover can start downloading right away.
  */
 export async function buildShelfScene(
   T: Three,
   canvas: HTMLCanvasElement,
   books: SiteBook[],
-  nextIdle: () => Promise<void>,
+  run: RunSteps,
   onCover?: (tex: THREE.CanvasTexture, d: SiteBook) => void,
 ): Promise<ShelfScene> {
   const disposables: { dispose(): void }[] = [];
@@ -154,7 +162,7 @@ export async function buildShelfScene(
     const unit = track(new T.PlaneGeometry(1, 1));
 
     const list: Book[] = [];
-    for (let i = 0; i < books.length; i++) {
+    const makeBook = (i: number) => {
       const d = books[i];
       const { H, W, T: thick } = bookSize(d);
       const coverTex = toTex(coverCanvas(d, null));
@@ -196,8 +204,15 @@ export async function buildShelfScene(
         order: i,
         tilt: (rnd(i) - 0.5) * 0.4,
       });
-      if (i % 3 === 2) await nextIdle(); // texture painting is spread over idle time, a few books at a time
+    };
+    // texture painting is spread over time, a few books at a time
+    const bookSteps: Array<() => void> = [];
+    for (let from = 0; from < books.length; from += BOOKS_PER_STEP) {
+      bookSteps.push(() => {
+        for (let i = from; i < Math.min(from + BOOKS_PER_STEP, books.length); i++) makeBook(i);
+      });
     }
+    await run(bookSteps);
 
     const qUp = new T.Quaternion().setFromRotationMatrix(
       new T.Matrix4().makeBasis(
@@ -209,7 +224,7 @@ export async function buildShelfScene(
     const yAxis = new T.Vector3(0, 1, 0);
     const zAxis = new T.Vector3(0, 0, 1);
     const qY = (a: number) => new T.Quaternion().setFromAxisAngle(yAxis, a);
-    const gap = 0.014;
+    const gap = SHELF_GAP;
     const span = list.reduce((s, b) => s + b.T, 0) + gap * (list.length - 1);
     let x = -span / 2;
     list.forEach((b, i) => {
@@ -230,9 +245,8 @@ export async function buildShelfScene(
     scene.add(band);
 
     // compile and upload now, so opening the shelf does not stall on its first frame, but in
-    // small idle slices: the shader compile on its own, then a few textures at a time
-    await nextIdle();
-    r.compile(scene, camera);
+    // small slices: the shader compile on its own, then a few textures at a time
+    await run([() => r.compile(scene, camera)]);
     const maps = new Set<THREE.Texture>();
     scene.traverse((o) => {
       if (!(o instanceof T.Mesh)) return;
@@ -243,10 +257,13 @@ export async function buildShelfScene(
       }
     });
     const todo = [...maps];
-    for (let i = 0; i < todo.length; i += 3) {
-      await nextIdle();
-      for (const map of todo.slice(i, i + 3)) r.initTexture(map);
+    const uploadSteps: Array<() => void> = [];
+    for (let i = 0; i < todo.length; i += UPLOADS_PER_STEP) {
+      uploadSteps.push(() => {
+        for (const map of todo.slice(i, i + UPLOADS_PER_STEP)) r.initTexture(map);
+      });
     }
+    await run(uploadSteps);
 
     return {
       T,

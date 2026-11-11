@@ -12,6 +12,8 @@ export const INCH = 0.17;
 export const FRONT = 0.55;
 /** The wall behind the books (z). */
 export const WALLZ = FRONT - 1.4;
+/** The gap between neighbouring spines on the plank (world units). */
+export const SHELF_GAP = 0.014;
 /** Seconds each book takes to fall in and fade up. */
 export const DROP = 1.5;
 /** Seconds between one book starting to fall and the next. */
