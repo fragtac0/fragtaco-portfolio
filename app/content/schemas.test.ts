@@ -7,6 +7,10 @@ import {
   HeroPaintingsSchema,
   HomeContentSchema,
   VideosFileSchema,
+  WorkClientSchema,
+  WorkSchema,
+  WorkStackItemSchema,
+  WorkVideoSchema,
 } from "./schemas";
 
 const readSiteJson = (fileName: string): unknown =>
@@ -184,5 +188,140 @@ describe("HeroPaintingSchema blur", () => {
   it("requires a blur on a painting that is not missing", () => {
     expect(() => HeroPaintingSchema.parse(base)).toThrow();
     expect(() => HeroPaintingSchema.parse({ ...base, missing: true })).not.toThrow();
+  });
+});
+
+const validWorkVideo = {
+  id: "ft-long-01",
+  title: "Placeholder long 01",
+  for: "Placeholder",
+  year: 2026,
+  url: "https://www.youtube.com/@fragtaco",
+  cover: "https://picsum.photos/seed/ft-long-01/640/360",
+  source: "other",
+};
+
+const validWorkClient = {
+  id: "ft-client-01",
+  name: "Placeholder client 01",
+  handle: "@placeholder",
+  avatar: "https://picsum.photos/seed/ft-client-01/160/160",
+  url: "https://www.youtube.com/@fragtaco",
+  socials: [{ type: "youtube", url: "https://www.youtube.com/@fragtaco" }],
+};
+
+describe("work.json", () => {
+  const work = WorkSchema.parse(readSiteJson("work.json"));
+
+  it("parses and holds the placeholder content", () => {
+    expect(work.stack).toHaveLength(8);
+    expect(work.longForm).toHaveLength(16);
+    expect(work.shortForm).toHaveLength(24);
+    expect(work.clients).toHaveLength(10);
+  });
+
+  it("keeps the tools in the old tech stack's order", () => {
+    expect(work.stack.map((item) => item.mark)).toEqual([
+      "Pr", "Ae", "Fc", "Bl", "Ps", "Ai", "Fg", "Lr",
+    ]);
+  });
+
+  it("has an intro of at most 20 words", () => {
+    expect(work.intro.text.trim().split(/\s+/).length).toBeLessThanOrEqual(20);
+  });
+
+  it("has no em or en dash in any string", () => {
+    const dashes = collectStrings(readSiteJson("work.json")).filter((s) => /[\u2013\u2014]/.test(s));
+
+    expect(dashes).toEqual([]);
+  });
+});
+
+describe("WorkStackItemSchema", () => {
+  it("accepts a mark of 1 to 3 characters", () => {
+    expect(WorkStackItemSchema.safeParse({ id: "a", mark: "Pr", label: "Premiere Pro" }).success).toBe(true);
+    expect(WorkStackItemSchema.safeParse({ id: "a", mark: "P", label: "x" }).success).toBe(true);
+    expect(WorkStackItemSchema.safeParse({ id: "a", mark: "Pre", label: "x" }).success).toBe(true);
+  });
+
+  it("rejects an empty mark and one of 4 characters", () => {
+    expect(WorkStackItemSchema.safeParse({ id: "a", mark: "", label: "x" }).success).toBe(false);
+    expect(WorkStackItemSchema.safeParse({ id: "a", mark: "Prem", label: "x" }).success).toBe(false);
+  });
+});
+
+describe("WorkVideoSchema", () => {
+  it("accepts a valid video", () => {
+    expect(WorkVideoSchema.safeParse(validWorkVideo).success).toBe(true);
+  });
+
+  it("requires an https url", () => {
+    expect(WorkVideoSchema.safeParse({ ...validWorkVideo, url: "http://example.com/a" }).success).toBe(false);
+  });
+
+  it("accepts a root-relative cover and rejects a protocol-relative or http one", () => {
+    expect(WorkVideoSchema.safeParse({ ...validWorkVideo, cover: "/work/a.jpg" }).success).toBe(true);
+    expect(WorkVideoSchema.safeParse({ ...validWorkVideo, cover: "//cdn.example.com/a.jpg" }).success).toBe(false);
+    expect(WorkVideoSchema.safeParse({ ...validWorkVideo, cover: "http://example.com/a.jpg" }).success).toBe(false);
+  });
+
+  it("lets a YouTube item omit its cover only when its url holds a video id", () => {
+    const { cover: _cover, ...noCover } = validWorkVideo;
+    void _cover;
+
+    expect(
+      WorkVideoSchema.safeParse({ ...noCover, source: "youtube", url: "https://youtu.be/GrtKxfATyTw" }).success,
+    ).toBe(true);
+    expect(
+      WorkVideoSchema.safeParse({ ...noCover, source: "youtube", url: "https://www.youtube.com/@fragtaco" }).success,
+    ).toBe(false);
+    expect(
+      WorkVideoSchema.safeParse({ ...noCover, source: "instagram", url: "https://www.instagram.com/reel/abc/" }).success,
+    ).toBe(true);
+  });
+
+  it("rejects an unknown source", () => {
+    expect(WorkVideoSchema.safeParse({ ...validWorkVideo, source: "tiktok" }).success).toBe(false);
+  });
+});
+
+describe("WorkClientSchema", () => {
+  it("accepts a valid client and rejects an avatar that is neither a path nor https", () => {
+    expect(WorkClientSchema.safeParse(validWorkClient).success).toBe(true);
+    expect(WorkClientSchema.safeParse({ ...validWorkClient, avatar: "avatar.png" }).success).toBe(false);
+  });
+
+  it("rejects an unknown social type", () => {
+    expect(
+      WorkClientSchema.safeParse({ ...validWorkClient, socials: [{ type: "tiktok", url: "https://x.com/a" }] }).success,
+    ).toBe(false);
+  });
+});
+
+describe("WorkSchema", () => {
+  const base = {
+    intro: { title: "Work", text: "Short text." },
+    stack: [{ id: "a", mark: "Pr", label: "Premiere Pro" }],
+    longForm: [validWorkVideo],
+    shortForm: [],
+    clients: [validWorkClient],
+  };
+
+  it("accepts a minimal valid file", () => {
+    expect(WorkSchema.safeParse(base).success).toBe(true);
+  });
+
+  it("rejects an intro of 21 words", () => {
+    const text = Array.from({ length: 21 }, (_, i) => `w${i}`).join(" ");
+
+    expect(WorkSchema.safeParse({ ...base, intro: { title: "Work", text } }).success).toBe(false);
+  });
+
+  it("rejects a repeated id within one list", () => {
+    expect(WorkSchema.safeParse({ ...base, longForm: [validWorkVideo, validWorkVideo] }).success).toBe(false);
+    expect(WorkSchema.safeParse({ ...base, clients: [validWorkClient, validWorkClient] }).success).toBe(false);
+    expect(
+      WorkSchema.safeParse({ ...base, stack: [base.stack[0], base.stack[0]] }).success,
+    ).toBe(false);
   });
 });

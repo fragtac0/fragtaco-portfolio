@@ -1,0 +1,33 @@
+/* The work page: ink ground, the introduction in the middle. Type and ink come from tokens.css. */
+.work-page {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: 0 24px;
+  background: #050403;
+  color: var(--ink-1);
+  overflow: hidden;
+}
+
+.work-intro {
+  max-width: 34ch;
+  text-align: center;
+}
+
+.work-title {
+  margin: 0;
+  font-family: Doto, monospace;
+  font-weight: 800;
+  font-size: var(--t-display);
+  line-height: 1;
+  color: var(--ink-1);
+}
+
+.work-text {
+  margin: 20px 0 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--ink-2);
+}

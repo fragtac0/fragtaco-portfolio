@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { youtubeId } from "./work-media";
 
 const rootRelativePathPattern = /^\/(?!\/).+/;
 
@@ -110,112 +111,6 @@ export const VideosFileSchema = z.object({
   items: z.array(VideoSchema),
 });
 
-export const WorkExperienceKindSchema = z.enum([
-  "education",
-  "self-taught",
-  "job",
-  "freelance",
-]);
-
-export const WorkExperienceLinkSchema = z.object({
-  type: z.enum(["instagram", "youtube"]),
-  url: z.string().url(),
-});
-
-export const WorkExperienceKeyframeTypeSchema = z.enum(["linear", "bezier", "ease"]);
-
-export const WorkExperienceSchema = z.object({
-  id: z.string().min(1),
-  parentId: z.string().min(1).optional(),
-  kind: WorkExperienceKindSchema,
-  track: z.union([z.literal(1), z.literal(2), z.literal(3)]),
-  clipColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Expected a 6-digit hex color"),
-  topBarOpacity: z.number().min(0).max(1),
-  keyframeType: WorkExperienceKeyframeTypeSchema,
-  role: z.string().min(1),
-  readoutTitle: z.string().min(1).optional(),
-  company: z.string().min(1),
-  periodLabel: z.string().min(1),
-  yearStart: z.number().min(1900).max(2100),
-  yearEnd: z.number().min(1900).max(2100).nullable(),
-  summary: z.string().min(1),
-  location: z.string().min(1).optional(),
-  links: z.array(WorkExperienceLinkSchema),
-  keyframes: z.array(z.number().min(0).max(1)),
-  published: z.boolean(),
-  sortOrder: z.number().int().nonnegative(),
-});
-
-// Milestones are point-in-time markers (the M1 lane), not date-range
-// clips — a distinct shape from WorkExperienceSchema rather than a
-// variant of it. Their links carry a readable label ("watch the
-// interview") since the milestone readout renders them as text, not the
-// icon-only links row the clip readout uses.
-export const WorkMilestoneLinkSchema = z.object({
-  type: z.enum(["instagram", "youtube"]),
-  url: z.string().url(),
-  label: z.string().min(1),
-});
-
-export const WorkMilestoneSchema = z.object({
-  id: z.string().min(1),
-  date: z.number().min(1900).max(2100),
-  monthLabel: z.string().min(1),
-  title: z.string().min(1),
-  summary: z.string().min(1),
-  links: z.array(WorkMilestoneLinkSchema).default([]),
-});
-
-export const WorkExperienceSectionSchema = z.object({
-  sectionTitle: z.string().min(1),
-  timelineStart: z.number().int().min(1900).max(2100),
-  items: z.array(WorkExperienceSchema),
-  milestones: z.array(WorkMilestoneSchema).default([]),
-});
-
-export const ProjectSchema = z.object({
-  id: z.string().min(1),
-  slug: z.string().min(1),
-  title: z.string().min(1),
-  summary: z.string().min(1),
-  description: z.string().min(1),
-  tech: z.array(z.string().min(1)).min(1),
-  githubUrl: z.string().url().nullable().optional(),
-  liveUrl: z.string().url().nullable().optional(),
-  image: z.string().min(1).nullable().optional(),
-  featured: z.boolean(),
-  published: z.boolean(),
-  sortOrder: z.number().int().nonnegative(),
-  year: z.number().int().min(1900).max(2100),
-  role: z.string().min(1),
-  status: z.string().min(1),
-});
-
-export const ProjectsGroupSchema = z.object({
-  sectionTitle: z.string().min(1),
-  items: z.array(ProjectSchema),
-});
-
-export const ProjectsSectionSchema = z.object({
-  sectionTitle: z.string().min(1),
-  longForm: ProjectsGroupSchema,
-  shortForm: ProjectsGroupSchema,
-});
-
-export const TechStackItemSchema = z.object({
-  id: z.string().min(1),
-  label: z.string().min(1),
-  group: z.string().min(1),
-  sortOrder: z.number().int().nonnegative(),
-});
-
-export const TechStackSectionSchema = z.object({
-  eyebrow: z.string().min(1),
-  title: z.string().min(1),
-  description: z.string().min(1),
-  items: z.array(TechStackItemSchema).min(1),
-});
-
 export const ReachOutActionSchema = z.object({
   label: z.string().min(1),
   href: HrefSchema,
@@ -256,17 +151,64 @@ export const SocialLinkSchema = z.object({
   url: z.string().url(),
 });
 
-export const ClientSchema = z.object({
+// Work page (content/site/work.json). A cover or avatar is a path under public/ or a full https URL.
+const ImageRefSchema = z.union([
+  z.string().url().startsWith("https://"),
+  z.string().regex(rootRelativePathPattern, "Expected an https URL or a root-relative path"),
+]);
+
+const HttpsUrlSchema = z.string().url().startsWith("https://");
+
+export const WorkSourceSchema = z.enum(["youtube", "instagram", "vimeo", "other"]);
+
+export const WorkStackItemSchema = z.object({
+  id: z.string().min(1),
+  mark: z.string().min(1).max(3),
+  label: z.string().min(1),
+});
+
+export const WorkVideoSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    for: z.string().min(1),
+    year: z.number().int().min(1900).max(2100),
+    url: HttpsUrlSchema,
+    cover: ImageRefSchema.optional(),
+    source: WorkSourceSchema,
+  })
+  .refine((video) => video.source !== "youtube" || video.cover !== undefined || youtubeId(video.url) !== null, {
+    message: "A YouTube item without a cover needs a URL that holds an 11-character video id",
+    path: ["url"],
+  });
+
+export const WorkClientSocialSchema = z.object({
+  type: z.enum(["youtube", "instagram", "x", "website"]),
+  url: HttpsUrlSchema,
+});
+
+export const WorkClientSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   handle: z.string().min(1),
-  image: z.string().min(1),
-  url: z.string().url().nullable(),
-  published: z.boolean(),
-  sortOrder: z.number().int().nonnegative(),
+  avatar: ImageRefSchema,
+  url: HttpsUrlSchema,
+  socials: z.array(WorkClientSocialSchema),
 });
 
-export const ClientsSectionSchema = z.object({
-  sectionTitle: z.string().min(1),
-  items: z.array(ClientSchema),
+const hasUniqueIds = (items: { id: string }[]) => new Set(items.map((item) => item.id)).size === items.length;
+const uniqueIds = { message: "Ids must be unique within the list" };
+
+export const WorkSchema = z.object({
+  intro: z.object({
+    title: z.string().min(1),
+    text: z
+      .string()
+      .min(1)
+      .refine((text) => text.trim().split(/\s+/).length <= 20, "The intro text has at most 20 words"),
+  }),
+  stack: z.array(WorkStackItemSchema).refine(hasUniqueIds, uniqueIds),
+  longForm: z.array(WorkVideoSchema).refine(hasUniqueIds, uniqueIds),
+  shortForm: z.array(WorkVideoSchema).refine(hasUniqueIds, uniqueIds),
+  clients: z.array(WorkClientSchema).refine(hasUniqueIds, uniqueIds),
 });

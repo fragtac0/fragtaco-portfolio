@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getHomePageContent } from "./loaders.server";
+import { getHomePageContent, getWorkPageContent } from "./loaders.server";
 import { getBooks, getVideos } from "./site-content.server";
 
 describe("getHomePageContent", () => {
@@ -54,5 +54,17 @@ describe("site content loaders", () => {
 
     expect(file.playlistId).toBeTruthy();
     expect(file.items.length).toBeGreaterThanOrEqual(40);
+  });
+});
+
+describe("getWorkPageContent", () => {
+  it("returns the work file, the dock's tabs and the social links", async () => {
+    const content = await getWorkPageContent();
+
+    expect(Object.keys(content).sort()).toEqual(["navigationItems", "socialLinks", "work"]);
+    expect(content.work.intro.title).toBe("Work");
+    expect(content.work.longForm).toHaveLength(16);
+    expect(content.navigationItems.map((item) => item.key)).toEqual(["home", "work"]);
+    expect(content.socialLinks.length).toBeGreaterThan(0);
   });
 });

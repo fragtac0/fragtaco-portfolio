@@ -9,7 +9,7 @@ The home page is one scene: a public-domain painting that changes every 10 secon
 | Route | What it is |
 | --- | --- |
 | `/` | The home page: loader (once per session), hero, cards, the reading and watching layers. `/#reading` and `/#watching` open a layer directly. |
-| `/work` | The work page (projects, experience, tech stack, ways to reach out). A new work page is being built; see `docs/redesign/`. |
+| `/work` | The work page: an introduction on a dark ground for now. The rotating rings (tools, long form, short form, clients) are being built; see `docs/redesign/`. |
 | `/api/page-view` | POST only. Counts a page view in Upstash Redis. |
 
 ## Run, test and check
@@ -45,7 +45,8 @@ Everything the pages show comes from files, so most edits need no code.
 | Books on the shelf (title, author, ISBN, size, spine colour, note) | `content/site/books.json` |
 | Videos on the wall and channel subscriber counts | `content/site/videos.json`, written by `yarn sync:videos` (do not edit by hand) |
 | Hero paintings (title, artist, year, blurred placeholder) | `content/site/hero-paintings.json`; the pictures are in `public/paintings/` |
-| Projects, experience, tech stack, reach out, navigation, social links | the other files in `content/site/`; fields and rules are in [content/README.md](content/README.md) |
+| The work page (intro, tools, long and short videos, clients; placeholders for now) | `content/site/work.json` |
+| Reach out, navigation, social links | the other files in `content/site/`; fields and rules are in [content/README.md](content/README.md) |
 
 Invalid content fails when it is loaded and in the tests (`app/content/schemas.ts`).
 

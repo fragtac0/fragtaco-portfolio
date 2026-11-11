@@ -1,7 +1,6 @@
 import { json, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import ProjectsSection from "../components/projects/projects-section";
-import SiteNav from "../components/site-nav";
+import WorkPage from "../components/work/work-page";
 import { getWorkPageContent } from "../content/loaders.server";
 
 export const meta: MetaFunction = () => [
@@ -23,27 +22,8 @@ export async function loader() {
   );
 }
 
-export default function WorkPage() {
-  const {
-    clients,
-    navigationItems,
-    projects,
-    reachOut,
-    socialLinks,
-    techStack,
-    workExperience,
-  } = useLoaderData<typeof loader>();
+export default function Work() {
+  const data = useLoaderData<typeof loader>();
 
-  return (
-    <main className="bg-ink text-white">
-      <SiteNav items={navigationItems} socialLinks={socialLinks} />
-      <ProjectsSection
-        clients={clients}
-        projects={projects}
-        reachOut={reachOut}
-        techStack={techStack}
-        workExperience={workExperience}
-      />
-    </main>
-  );
+  return <WorkPage {...data} />;
 }

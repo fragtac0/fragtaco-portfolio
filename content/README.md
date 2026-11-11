@@ -1,102 +1,35 @@
 # Content Guide
 
-This portfolio uses git-backed content files so routine updates do not require React or route changes.
+This portfolio uses git-backed content files so routine updates do not require React or route changes. Invalid content fails when it is loaded and in the tests (`app/content/schemas.ts`).
 
 ## Directory layout
 
-- `content/site/home.json`: hero copy, about paragraphs, Spotify playlists, and books
-- `content/site/projects.json`: project section headings and project cards
-- `content/site/reach-out.json`: bottom work-page contact funnels and CTAs
-- `content/site/tech-stack.json`: tech stack section copy and ordered tool list
-- `content/site/work-experience.json`: work experience section heading and entries
+- `content/site/home.json`: hero copy, about card and credits card
+- `content/site/books.json`: the books on the shelf
+- `content/site/videos.json`: the videos on the wall (written by `yarn sync:videos`, do not edit by hand)
+- `content/site/hero-paintings.json`: the hero paintings
+- `content/site/work.json`: the work page (intro, tools, long and short videos, clients)
+- `content/site/reach-out.json`: contact funnels and CTAs (not shown on a page yet)
 - `content/site/navigation.json`: primary navigation items
 - `content/site/social-links.json`: reusable outbound profile links
 
-## Project fields
+## Work page (`work.json`)
 
-Every project entry requires:
-
-- `id`
-- `slug`
-- `title`
-- `summary`
-- `description`
-- `tech`
-- `featured`
-- `published`
-- `sortOrder`
-- `year`
-- `role`
-- `status`
-
-`githubUrl`, `liveUrl`, and `image` are optional.
-
-## Reach out fields
-
-Every reach-out lane requires:
-
-- `id`
-- `label`
-- `title`
-- `description`
-- `actions`
-
-`options` is optional and works well for playful secondary prompts.
-
-## Tech stack fields
-
-Every tech stack item requires:
-
-- `id`
-- `label`
-- `group`
-- `sortOrder`
-
-`accent` is optional and gives important tools a stronger visual treatment.
-
-## Work experience fields
-
-Every work experience entry requires:
-
-- `id`
-- `role`
-- `company`
-- `periodLabel`
-- `startDate`
-- `summary`
-- `highlights`
-- `links`
-- `published`
-- `sortOrder`
-
-`endDate` and `location` are optional.
+- `intro`: `title` and `text`; the text has at most 20 words.
+- `stack`: tools, each `{ id, mark, label }`; `mark` is 1 to 3 characters.
+- `longForm` and `shortForm`: videos, each `{ id, title, for, year, url, cover?, source }`. `source` is `youtube`, `instagram`, `vimeo` or `other`. `url` is https.
+- `clients`: each `{ id, name, handle, avatar, url, socials: [{ type, url }] }`. A social `type` is `youtube`, `instagram`, `x` or `website`.
+- `cover` and `avatar` are a path under `public/` (starting with `/`) or an https URL. A YouTube item may leave `cover` out: its link must then hold the 11-character video id, and the thumbnail is taken from it at runtime. Items of other sources with no cover get a seeded placeholder from picsum.photos.
+- Ids must be unique within each list.
+- The current entries are placeholders, titled "Placeholder".
 
 ## Publishing and sorting
 
-- Hidden items are kept in the repo by setting `published: false`
-- Projects are ordered by `featured` first and then `sortOrder`
-- Work experience entries are ordered by `sortOrder` and then `startDate`
-- Navigation items render only when `visible: true`
-
-## Common edits
-
-### Add a new project
-
-1. Open `content/site/projects.json`
-2. Add a new object to `items`
-3. Set a unique `id` and `slug`
-4. Keep `published: false` until you want it visible
-
-### Add a new job
-
-1. Open `content/site/work-experience.json`
-2. Add a new object to `items`
-3. Set a unique `id`
-4. Use `sortOrder` to position it
+- Navigation items render only when `visible: true`.
+- Lists on the work page appear in the order they have in the file.
 
 ## Validation rules
 
-- IDs and slugs must be unique
-- Dates must use sortable `YYYY-MM-DD`
+- Ids must be unique
 - External links must be valid URLs
-- Invalid content fails during loading and tests
+- No em or en dashes in any copy
