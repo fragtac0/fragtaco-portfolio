@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "@remix-run/react";
-import { useRef, useState } from "react";
+import { useRef, useState, type MouseEvent } from "react";
 import type { SiteNavigationItem, SiteSocialLink, SiteWork } from "../../types";
 import SiteNav from "../site-nav";
 import { introLine } from "./ring-layout";
@@ -7,7 +7,7 @@ import Rings from "./rings";
 import { useViewFlip } from "./use-view-flip";
 import { viewCount, viewFromSearch, viewTitle, viewTotal, type PickedView, type ViewId } from "./view-layout";
 import WorkBackground from "./work-background";
-import WorkSwitcher from "./work-switcher";
+import WorkSwitcher, { STAGE_ID, tabId } from "./work-switcher";
 import "./work.css";
 import "./work-views.css";
 
@@ -41,10 +41,19 @@ export default function WorkPage({ work, navigationItems, socialLinks }: WorkPag
     navigate(next === "all" ? "?" : `?view=${next}`, { replace: false, preventScrollReset: true });
   };
 
+  // Twenty or so tab stops sit in the rings before the dock: this link goes straight to the view tabs.
+  const skipToSwitcher = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    document.getElementById(tabId(view))?.focus();
+  };
+
   return (
     <main className="work-page" ref={rootRef} data-view={openedWith}>
+      <a className="work-skip" href={`#${tabId(view)}`} onClick={skipToSwitcher}>
+        Skip to the view switcher
+      </a>
       <WorkBackground />
-      <div className="work-stage">
+      <div className="work-stage" id={STAGE_ID} role="tabpanel" aria-labelledby={tabId(view)}>
         <div className="work-intro">
           <h1 className="work-title">{work.intro.title}</h1>
           <p className="work-text">

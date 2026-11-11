@@ -6,19 +6,6 @@ export interface SiteHeroContent {
   roles: string;
 }
 
-export interface SiteFact {
-  id: string;
-  category: string;
-  headline: string;
-  body: string;
-}
-
-export interface SiteFactsSection {
-  sectionTitle: string;
-  eyebrow: string;
-  items: SiteFact[];
-}
-
 export interface SiteHeroPainting {
   id: string;
   file: string;
@@ -170,4 +157,22 @@ export interface SiteWork {
   longForm: WorkVideo[];
   shortForm: WorkVideo[];
   clients: WorkClient[];
+}
+
+export interface TimelineRole {
+  id: string;
+  label: string;
+  from: string;
+  color: string;
+}
+
+export interface TimelineMark {
+  date: string;
+  label: string;
+}
+
+export interface SiteTimeline {
+  start: string;
+  roles: TimelineRole[];
+  marks: TimelineMark[];
 }

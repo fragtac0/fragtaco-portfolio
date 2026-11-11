@@ -42,7 +42,7 @@
   --space-section: clamp(72px, 10vh, 120px);
 }
 
-@media (max-width: 700px) {
+@media (max-width: 699.98px) {
   :root {
     --t-body: 14px;
     --t-lead: 15px;
@@ -57,7 +57,7 @@
   --card-h: clamp(520px, 72dvh, 760px);
   --cream: #fdfce6;
 }
-@media (max-width: 700px) {
+@media (max-width: 699.98px) {
   .home-page {
     --dock-clear: 84px;
     --rail: 46px;

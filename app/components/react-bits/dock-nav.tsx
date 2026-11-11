@@ -3,16 +3,19 @@ import { motion } from "motion/react";
 import type { MouseEvent } from "react";
 import { FaClapperboard, FaHouse } from "react-icons/fa6";
 import type { SiteNavigationItem } from "../../types";
+import { tabCurrent } from "../../utils/nav";
 
 interface DockNavItemProps {
   item: SiteNavigationItem;
   isActive: boolean;
+  pathname: string;
   onClick: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 interface DockNavProps {
   items: SiteNavigationItem[];
   activeKey: SiteNavigationItem["key"] | null;
+  pathname: string;
   onItemClick: (
     event: MouseEvent<HTMLAnchorElement>,
     item: SiteNavigationItem,
@@ -48,13 +51,13 @@ function DockItemIcon({ itemKey }: { itemKey: SiteNavigationItem["key"] }) {
 /* At 320 px the dock's content was 18 px wider than its pill (D-119): under 340 px the tabs' minimum
  * width is 4.5rem (72 px, their natural width) and the social icons are 32 px, 4 px less each. Wider
  * screens are unchanged. */
-function DockNavItem({ item, isActive, onClick }: DockNavItemProps) {
+function DockNavItem({ item, isActive, pathname, onClick }: DockNavItemProps) {
   return (
     <MotionLink
       to={item.href}
       viewTransition
       prefetch="intent"
-      aria-current={isActive ? "page" : undefined}
+      aria-current={tabCurrent(item.href, pathname, isActive)}
       onClick={onClick}
       whileHover={{ scale: 1.07, y: -2 }}
       whileTap={{ scale: 0.96 }}
@@ -83,7 +86,7 @@ function DockNavItem({ item, isActive, onClick }: DockNavItemProps) {
   );
 }
 
-export default function DockNav({ items, activeKey, onItemClick }: DockNavProps) {
+export default function DockNav({ items, activeKey, pathname, onItemClick }: DockNavProps) {
   return (
     <div className="relative flex shrink-0 items-center justify-center gap-0.5 sm:gap-1">
       {items.map((item) => (
@@ -91,6 +94,7 @@ export default function DockNav({ items, activeKey, onItemClick }: DockNavProps)
           key={item.key}
           item={item}
           isActive={item.key === activeKey}
+          pathname={pathname}
           onClick={(event) => onItemClick(event, item)}
         />
       ))}

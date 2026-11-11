@@ -9,6 +9,7 @@ This portfolio uses git-backed content files so routine updates do not require R
 - `content/site/videos.json`: the videos on the wall (written by `yarn sync:videos`, do not edit by hand)
 - `content/site/hero-paintings.json`: the hero paintings
 - `content/site/work.json`: the work page (intro, tools, long and short videos, clients)
+- `content/site/timeline.json`: the timeline page (start date, roles, marked days)
 - `content/site/reach-out.json`: contact funnels and CTAs (not shown on a page yet)
 - `content/site/navigation.json`: primary navigation items
 - `content/site/social-links.json`: reusable outbound profile links
@@ -22,6 +23,13 @@ This portfolio uses git-backed content files so routine updates do not require R
 - `cover` and `avatar` are a path under `public/` (starting with `/`) or an https URL. A YouTube item may leave `cover` out: its link must then hold the 11-character video id, and the thumbnail is taken from it at runtime. Items of other sources with no cover get a seeded placeholder from picsum.photos.
 - Ids must be unique within each list.
 - The current entries are placeholders, titled "Placeholder".
+
+## Timeline page (`timeline.json`)
+
+- `start`: the first day, `YYYY-MM-DD` (a real date).
+- `roles`: each `{ id, label, from, color }`, in strictly ascending `from` order; the first `from` equals `start`; a role runs until the next one starts. `color` is `#rrggbb`. Ids are unique.
+- `marks`: marked days, each `{ date, label }`, not before `start`. Empty for now.
+- The last square is the day the page is requested (the server's UTC date), so nothing here needs updating daily.
 
 ## Publishing and sorting
 

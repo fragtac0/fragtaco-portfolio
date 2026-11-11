@@ -14,3 +14,10 @@ export function activeNavKey(pathname: string): NavigationKey | null {
   if (underPath(pathname, "/work") || underPath(pathname, "/timeline")) return "work";
   return null;
 }
+
+/** A tab's `aria-current`: "page" when the page is the tab's own address, "true" when the page only
+ * belongs to the tab (the work tab on /timeline), nothing otherwise. */
+export function tabCurrent(href: string, pathname: string, isActive: boolean): "page" | "true" | undefined {
+  if (pathname === href) return "page";
+  return isActive ? "true" : undefined;
+}

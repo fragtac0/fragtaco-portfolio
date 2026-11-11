@@ -280,7 +280,7 @@
 }
 
 /* ---------- phones ---------- */
-@media (max-width: 700px) {
+@media (max-width: 699.98px) {
   .work-view-title {
     left: 16px;
     top: 20px;
@@ -306,4 +306,24 @@
   .work-item-face img {
     transition: none;
   }
+}
+
+/* ---------- skip link ---------- */
+/* First in the tab order; hidden until it has focus, then a small pill at the top left. */
+.work-skip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: var(--z-dock);
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #050403;
+  border: 1px solid rgba(245, 239, 230, 0.4);
+  color: var(--ink-1);
+  font-size: var(--t-meta);
+  transform: translateY(-200%);
+  transition: transform 160ms ease-out;
+}
+.work-skip:focus-visible {
+  transform: translateY(0);
 }

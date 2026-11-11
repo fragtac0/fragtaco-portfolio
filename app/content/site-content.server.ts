@@ -4,23 +4,23 @@ import type { ZodType } from "zod";
 import { ensureUniqueBy, filterVisibleNavItems } from "./mappers";
 import {
   BooksSectionSchema,
-  FactsSectionSchema,
   HeroPaintingsSchema,
   HomeContentSchema,
   NavigationItemSchema,
   ReachOutSectionSchema,
   SocialLinkSchema,
+  TimelineSchema,
   VideosFileSchema,
   WorkSchema,
 } from "./schemas";
 import type {
   SiteBook,
   SiteReachOutSection,
-  SiteFactsSection,
   SiteHeroPainting,
   SiteHomeContent,
   SiteNavigationItem,
   SiteSocialLink,
+  SiteTimeline,
   SiteVideosFile,
   SiteWork,
 } from "../types";
@@ -72,22 +72,16 @@ export async function getVideos(): Promise<SiteVideosFile> {
   };
 }
 
-export async function getFactsSection(): Promise<SiteFactsSection> {
-  const content = await loadJsonFile("facts.json", FactsSectionSchema);
-  const items = ensureUniqueBy(content.items, (item) => item.id, "fact id");
-
-  return {
-    ...content,
-    items,
-  };
-}
-
 export async function getReachOutSection(): Promise<SiteReachOutSection> {
   return loadJsonFile("reach-out.json", ReachOutSectionSchema);
 }
 
 export async function getWork(): Promise<SiteWork> {
   return loadJsonFile("work.json", WorkSchema);
+}
+
+export async function getTimeline(): Promise<SiteTimeline> {
+  return loadJsonFile("timeline.json", TimelineSchema);
 }
 
 export async function getNavigationItems(): Promise<SiteNavigationItem[]> {
