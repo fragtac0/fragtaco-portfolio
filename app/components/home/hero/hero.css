@@ -214,6 +214,17 @@
   }
 }
 
+/* a phone held sideways: the hero is exactly the screen, so the cards (centred in it) sit on the screen;
+   the cue would land on the name, and phones do not show it anyway (see below) */
+@media (max-height: 480px) {
+  .home-hero {
+    min-height: 100dvh;
+  }
+  .home-hero .cue {
+    display: none;
+  }
+}
+
 @media (max-width: 700px) {
   .home-hero .cue {
     display: none;

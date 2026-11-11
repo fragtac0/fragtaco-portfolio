@@ -1,5 +1,5 @@
 import { useEffect, type RefObject } from "react";
-import { fitMiniShelf } from "./mini-previews";
+import { miniShelfScale } from "./mini-previews";
 
 /** The gap between spines in the mini shelf (blocks.css `.ms-row`), and the room it keeps below and above. */
 export const MINI_GAP = 3;
@@ -8,7 +8,7 @@ const LIFT = 16; /* headroom for the hover lift */
 
 /**
  * Sets `--ms-fit` on the mini shelf's row: the scale that spans the preview's inner width (its width
- * less its side padding), kept small enough that the tallest spine stays inside the preview. Re-run
+ * less its side padding) as far as the preview's height allows (`miniShelfScale`). Re-run
  * whenever the preview is resized. No React state: the value goes straight to the element.
  */
 export function useMiniFit(
@@ -20,13 +20,11 @@ export function useMiniFit(
     const art = artRef.current;
     const row = rowRef.current;
     if (!art || !row || spines.length === 0) return;
-    const tallest = Math.max(...spines.map((s) => s.h));
     const apply = () => {
       const css = getComputedStyle(art);
       const inner = art.clientWidth - parseFloat(css.paddingLeft) - parseFloat(css.paddingRight);
-      const byWidth = fitMiniShelf(spines, inner, MINI_GAP);
-      const byHeight = Math.max(0.5, (art.clientHeight - FLOOR - LIFT) / tallest);
-      row.style.setProperty("--ms-fit", String(Math.min(byWidth, byHeight)));
+      const room = art.clientHeight - FLOOR - LIFT;
+      row.style.setProperty("--ms-fit", String(miniShelfScale(spines, inner, room, MINI_GAP)));
     };
     apply();
     const ro = new ResizeObserver(apply);

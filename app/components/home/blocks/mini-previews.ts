@@ -59,3 +59,20 @@ export function fitMiniShelf(spines: readonly { w: number }[], innerWidth: numbe
   if (row <= 0) return 1;
   return Math.min(MINI_SHELF_MAX_SCALE, innerWidth / row);
 }
+
+/**
+ * The mini shelf's scale: the width fit (fitMiniShelf), held back so the tallest spine still fits
+ * `availableHeight` (the preview's height above the plank, with room for the hover lift), and never
+ * below 0.5. 1 when there is nothing to fit or no height is known yet.
+ */
+export function miniShelfScale(
+  spines: readonly { w: number; h: number }[],
+  innerWidth: number,
+  availableHeight: number,
+  gap: number,
+): number {
+  if (spines.length === 0 || availableHeight <= 0) return 1;
+  const tallest = Math.max(...spines.map((s) => s.h));
+  const byHeight = tallest > 0 ? availableHeight / tallest : Infinity;
+  return Math.max(0.5, Math.min(fitMiniShelf(spines, innerWidth, gap), byHeight));
+}

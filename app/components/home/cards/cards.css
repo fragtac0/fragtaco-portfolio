@@ -302,51 +302,6 @@ html.cards-open {
   background: rgba(253, 252, 230, 0.06);
 }
 
-@media (max-width: 700px) {
-  .home-hero .card.right,
-  .home-hero .card.left {
-    width: min(84vw, 360px);
-    border-radius: 22px;
-  }
-  .home-hero .card {
-    --card-scale: 0.5;
-  }
-  .home-hero .rail span {
-    letter-spacing: 0.24em;
-  }
-  .home-hero .card-body {
-    padding: 18px 16px 16px;
-  }
-  .home-hero .intro-body {
-    display: block;
-    overflow-y: auto;
-  }
-  .home-hero .intro-body .ph {
-    height: auto;
-    aspect-ratio: 4/3;
-    margin-bottom: 18px;
-    background-position: 60% 62%;
-  }
-  .home-hero .intro-text {
-    overflow: visible;
-    padding: 0;
-  }
-  .home-hero .intro-text .display {
-    font-size: 40px;
-  }
-  .home-hero .cr-head .display {
-    font-size: 28px;
-  }
-}
-
-/* a phone held sideways: the card takes the full height between the top edge and the bottom edge, and
-   the dock's clearance is ignored (the page is locked while a card is open) */
-@media (max-height: 480px) {
-  .home-hero .card {
-    height: calc(100dvh - 24px);
-  }
-}
-
 /* reduced motion: a card opens in place with a fade (home-fade in tokens.css), a plain tint fades in behind it */
 @media (prefers-reduced-motion: reduce) {
   .home-hero .card.open {

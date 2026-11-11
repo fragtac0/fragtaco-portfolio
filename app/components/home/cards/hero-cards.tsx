@@ -6,6 +6,7 @@ import CreditsCard from "./credits-card";
 import type { NavContext, NavInput, NavState } from "./hero-nav";
 import IntroCard from "./intro-card";
 import "./cards.css";
+import "./cards-responsive.css";
 import { useCardInput } from "./use-card-input";
 import { NO_HOT, useCardPoses } from "./use-card-poses";
 

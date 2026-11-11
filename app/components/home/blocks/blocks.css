@@ -58,7 +58,8 @@ html.intro .home-blocks {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: clamp(580px, 70vh, 720px);
+  /* 70vh, but never so tall that the section (space, block, space and the dock's band) outgrows the screen */
+  min-height: clamp(580px, min(70vh, 100dvh - 2 * var(--space-section) - var(--dock-clear)), 720px);
   border-radius: var(--r-lg);
   overflow: hidden;
   isolation: isolate;
@@ -116,7 +117,7 @@ html.intro .home-blocks {
 .home-blocks .blk-art {
   position: relative;
   flex: 1;
-  min-height: clamp(300px, 26vw, 370px); /* tall enough for the mini shelf to span the width at its scale */
+  min-height: 300px;
   margin-top: clamp(14px, 2vw, 26px);
   pointer-events: none;
   overflow: hidden;

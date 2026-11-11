@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SiteBook } from "../../../types";
-import { fitMiniShelf, inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
+import { fitMiniShelf, miniShelfScale, inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 
 const book = (over: Partial<SiteBook>): SiteBook => ({
   id: "b",
@@ -85,5 +85,23 @@ describe("fitMiniShelf", () => {
   it("is 1 with no spines or no room measured yet", () => {
     expect(fitMiniShelf([], 200, 3)).toBe(1);
     expect(fitMiniShelf(spines, 0, 3)).toBe(1);
+  });
+});
+
+describe("miniShelfScale", () => {
+  const spines = [
+    { w: 20, h: 100 },
+    { w: 30, h: 200 },
+  ];
+  it("is the width fit when the tallest spine has room", () => {
+    expect(miniShelfScale(spines, 60, 1000, 3)).toBeCloseTo(60 / 53, 10);
+  });
+  it("is held back so the tallest spine fits the available height", () => {
+    expect(miniShelfScale(spines, 200, 250, 3)).toBeCloseTo(1.25, 10);
+  });
+  it("never goes below 0.5 for a tiny height, and is 1 for no spines or no height yet", () => {
+    expect(miniShelfScale(spines, 200, 20, 3)).toBe(0.5);
+    expect(miniShelfScale([], 200, 250, 3)).toBe(1);
+    expect(miniShelfScale(spines, 200, 0, 3)).toBe(1);
   });
 });
