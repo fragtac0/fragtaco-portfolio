@@ -12,6 +12,19 @@
  * when the transition finishes, is skipped, or fails.
  */
 import type { NavigateFunction } from "@remix-run/react";
+import {
+  captureNextTransition,
+  commitCount,
+  committedPathname,
+  isPageSettled,
+  nextCommit,
+  onCommit,
+  setBusy,
+  subscribeSettled,
+  type ViewTransitionLike,
+} from "./change-state";
+
+export { isPageSettled, pageCommitted, subscribeSettled } from "./change-state";
 
 export type ChangeKind = "radial" | "linear-left" | "linear-right" | "fade";
 export interface Point {
@@ -46,21 +59,6 @@ export function planChange(p: {
   return { kind, origin, radius, ms: MS[kind] };
 }
 
-// ---- settled: false from the start of a change until it is over
-
-let busy = false;
-const listeners = new Set<() => void>();
-function setBusy(next: boolean) {
-  if (busy === next) return;
-  busy = next;
-  listeners.forEach((l) => l());
-}
-export const subscribeSettled = (listener: () => void) => {
-  listeners.add(listener);
-  return () => void listeners.delete(listener);
-};
-export const isPageSettled = () => !busy;
-
 /**
  * Runs `fn` `quietMs` after the page is settled (that long after the change is over; at once plus the wait
  * when nothing is changing). For work that has no use during the arrival, such as warming a scene that is
@@ -73,7 +71,7 @@ export function afterSettled(quietMs: number, fn: () => void): () => void {
     off();
     timer = window.setTimeout(fn, quietMs);
   };
-  if (busy) off = subscribeSettled(() => busy || start());
+  if (!isPageSettled()) off = subscribeSettled(() => isPageSettled() && start());
   else start();
   return () => {
     off();
@@ -81,46 +79,10 @@ export function afterSettled(quietMs: number, fn: () => void): () => void {
   };
 }
 
-// ---- commits: the router tells us when the new page is in the DOM
-
-/** Longest a Back or Forward transition waits for the new page to commit, so it cannot hang. */
-const COMMIT_TIMEOUT_MS = 4000;
-/** Longest a change may keep the page unsettled, whatever the browser or the network does. */
-const FAILSAFE_MS = 8000;
-
-type ViewTransitionLike = ReturnType<Document["startViewTransition"]>;
-
-let commitSeq = 0;
-let committedPath: string | null = null;
-const commitListeners = new Set<() => void>();
-
-/** Called by the root layout in a layout effect each time the location changes: the new page is committed. */
-export function pageCommitted(pathname: string) {
-  commitSeq++;
-  committedPath = pathname;
-  for (const listener of [...commitListeners]) listener();
-}
-
-function onCommit(listener: () => void): () => void {
-  commitListeners.add(listener);
-  return () => void commitListeners.delete(listener);
-}
-
-/** Resolves on the next commit (or after the timeout). `onWake` hands back a function that resolves it early. */
-function nextCommit(onWake: (wake: () => void) => void): Promise<void> {
-  return new Promise<void>((resolve) => {
-    let timer = 0;
-    let off = () => {};
-    const wake = () => {
-      window.clearTimeout(timer);
-      off();
-      resolve();
-    };
-    timer = window.setTimeout(wake, COMMIT_TIMEOUT_MS);
-    off = onCommit(wake);
-    onWake(wake);
-  });
-}
+/** Longest a change may keep the page unsettled, whatever the browser or the network does. A data wait
+ * longer than this ends the change (marks cleared, page settled) before the router starts its transition;
+ * that transition then runs unmarked, which is harmless. */
+const FAILSAFE_MS = 30000;
 
 // ---- the change itself
 
@@ -152,7 +114,8 @@ function open(plan: ChangePlan) {
   prev?.stop();
   const html = document.documentElement;
   let transition: ViewTransitionLike | null = null;
-  let cleanup = () => {};
+  const cleanups: Array<() => void> = [];
+  const cleanup = () => cleanups.splice(0).forEach((fn) => fn());
   let failsafe = 0;
   let over = () => {};
   const entry: Running = {
@@ -189,7 +152,7 @@ function open(plan: ChangePlan) {
     done,
     over,
     hasTransition: () => transition !== null,
-    onCleanup: (fn: () => void) => void (cleanup = fn),
+    onCleanup: (fn: () => void) => void cleanups.push(fn),
     /** Follows a view transition: the change is over when it finishes, whatever way. */
     adopt(t: ViewTransitionLike) {
       transition = t;
@@ -199,38 +162,15 @@ function open(plan: ChangePlan) {
     },
   };
 }
+type Change = ReturnType<typeof open>;
 
 /**
- * Lets the next `document.startViewTransition` call through and hands its transition to `onCaptured`.
- * The router makes that call itself, once the destination's loaders are done, so the old page stays
- * live while data loads and the transition's update step holds only the React commit. Returns the
- * function that puts things back (also done by the first call).
+ * The router will make the view transition itself (once the destination's loaders are done, with the
+ * old page live): take it when it does. A commit with no transition (a redirect, the same place, a
+ * failed load) ends the change.
  */
-function captureNextTransition(onCaptured: (t: ViewTransitionLike) => void): () => void {
-  const doc = document;
-  // eslint-disable-next-line @typescript-eslint/unbound-method -- called back with `doc` as `this`
-  const original = doc.startViewTransition;
-  const hadOwn = Object.prototype.hasOwnProperty.call(doc, "startViewTransition");
-  const wrapped = ((...args: Parameters<Document["startViewTransition"]>) => {
-    restore();
-    const t = original.apply(doc, args);
-    onCaptured(t);
-    return t;
-  }) as Document["startViewTransition"];
-  function restore() {
-    if (doc.startViewTransition !== wrapped) return;
-    if (hadOwn) doc.startViewTransition = original;
-    else delete (doc as { startViewTransition?: unknown }).startViewTransition;
-  }
-  doc.startViewTransition = wrapped;
-  return restore;
-}
-
-/** A click: the router does the navigation with `viewTransition` and starts the transition when it commits. */
-function runRouted(plan: ChangePlan, go: () => void): Promise<void> {
-  const c = open(plan);
+function captureRouterTransition(c: Change) {
   const restore = captureNextTransition((t) => c.adopt(t));
-  // a commit with no transition (a redirect, the same place, a failed load) ends the change
   const offCommit = onCommit(() => {
     if (!c.hasTransition()) c.over();
   });
@@ -238,23 +178,15 @@ function runRouted(plan: ChangePlan, go: () => void): Promise<void> {
     restore();
     offCommit();
   });
-  try {
-    go();
-  } catch (err) {
-    console.error("page change: could not start the navigation", err);
-    c.over();
-  }
-  return c.done;
 }
 
-/** Back and Forward, once the router has its data: the update step holds until the new page is committed. */
-function runUpdate(plan: ChangePlan): Promise<void> {
-  const c = open(plan);
-  const seq = commitSeq;
+/** The router will not make a transition: make one whose update step holds until the new page is committed. */
+function startOwnTransition(c: Change) {
+  const seq = commitCount();
   let wake = () => {};
   const update = async () => {
     // the router may have committed already (before the browser took its picture)
-    if (commitSeq !== seq) return;
+    if (commitCount() !== seq) return;
     await nextCommit((w) => (wake = w));
   };
   c.onCleanup(() => wake());
@@ -263,7 +195,6 @@ function runUpdate(plan: ChangePlan): Promise<void> {
   } catch {
     void update().then(c.over, c.over);
   }
-  return c.done;
 }
 
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -300,47 +231,67 @@ export function changePage(
     go(false);
     return Promise.resolve();
   }
-  return runRouted(plan, () => go(true));
+  const c = open(plan);
+  captureRouterTransition(c);
+  try {
+    go(true);
+  } catch (err) {
+    console.error("page change: could not start the navigation", err);
+    c.over();
+  }
+  return c.done;
 }
 
 /** The slice of Remix's router (`window.__remixRouter`) that Back and Forward use. */
-interface RouterLike {
-  subscribe(fn: (state: { navigation: { state: string }; location: { pathname: string } }) => void): () => void;
+export interface RouterLike {
+  subscribe(
+    fn: (
+      state: { navigation: { state: string }; location: { pathname: string } },
+      info?: { viewTransitionOpts?: unknown },
+    ) => void,
+  ): () => void;
 }
 
 /**
- * Back and Forward: the router handles the navigation itself and has no transition option for it, so
- * this waits until the router has the destination's data (a state with no navigation pending, at the
- * new address) and then starts the transition, whose update step holds only the commit: a radial
- * reveal from the centre of the screen. A move inside one page (the work view, a hash) is left to that
- * page. Returns the function that stops watching.
+ * Back and Forward: the change opens at the popstate (marks, busy). Once the router has the
+ * destination's data (a state with no navigation pending, at the new address) it either starts the
+ * view transition itself, which it does on a POP when the same pair of pages was changed with a
+ * transition before (`viewTransitionOpts`; then this takes that transition, the same as for a click),
+ * or it does not, and then this starts one whose update step holds only the commit. Radial from the
+ * centre of the screen. A move inside one page (the work view, a hash) is left to that page. Returns
+ * the function that stops watching.
  */
 export function watchHistory(): () => void {
   if (typeof window === "undefined") return () => undefined;
   let stopWaiting = () => {};
   const onPop = () => {
     stopWaiting();
-    if (window.location.pathname === committedPath) return;
+    if (window.location.pathname === committedPathname()) return;
     const plan = planNow("radial");
     if (plan.kind === "none") return;
     const router = (window as { __remixRouter?: RouterLike }).__remixRouter;
+    const c = open(plan);
     if (!router) {
-      void runUpdate(plan);
+      startOwnTransition(c);
       return;
     }
     const path = window.location.pathname;
-    let timer = 0;
-    const off = router.subscribe((state) => {
+    const off = router.subscribe((state, info) => {
       if (state.navigation.state !== "idle" || state.location.pathname !== path) return;
       stopWaiting();
-      void runUpdate(plan);
+      if (info?.viewTransitionOpts) captureRouterTransition(c);
+      else startOwnTransition(c);
     });
-    timer = window.setTimeout(() => stopWaiting(), FAILSAFE_MS);
+    const timer = window.setTimeout(() => stopWaiting(), FAILSAFE_MS);
     stopWaiting = () => {
       window.clearTimeout(timer);
       off();
       stopWaiting = () => {};
     };
+    // a newer change, or the end of this one, stops the wait
+    c.onCleanup(() => stopWaiting());
+    // a commit with no transition of any kind ends the change
+    c.onCleanup(onCommit(() => !c.hasTransition() && c.over()));
   };
   // capture: ahead of the router's own listener
   window.addEventListener("popstate", onPop, { capture: true });

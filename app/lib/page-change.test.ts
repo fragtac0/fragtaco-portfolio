@@ -1,6 +1,6 @@
 import type { NavigateFunction } from "@remix-run/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { afterSettled, changePage, isPageSettled, pageCommitted, planChange, subscribeSettled } from "./page-change";
+import { afterSettled, changePage, isPageSettled, pageCommitted, planChange, subscribeSettled, watchHistory, type RouterLike } from "./page-change";
 
 const screen = { vw: 1440, vh: 900 };
 
@@ -215,6 +215,95 @@ describe("changePage", () => {
     expect(navigate).toHaveBeenCalledWith("/work", { viewTransition: false });
     expect(env.html.dataset.changeKind).toBeUndefined();
     expect(isPageSettled()).toBe(true);
+  });
+});
+
+describe("watchHistory", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  /** The environment plus a popstate handler and a router stub that can report its state. */
+  function setup() {
+    const env = fakeEnvironment();
+    const win = (globalThis as unknown as { window: Record<string, unknown> }).window;
+    let onPop: () => void = () => {};
+    const location = { pathname: "/work" };
+    win.location = location;
+    win.addEventListener = (_: string, fn: () => void) => void (onPop = fn);
+    let subscriber: Parameters<RouterLike["subscribe"]>[0] = () => {};
+    win.__remixRouter = {
+      subscribe: (fn: typeof subscriber) => {
+        subscriber = fn;
+        return () => {};
+      },
+    };
+    pageCommitted("/work");
+    const stop = watchHistory();
+    return {
+      ...env,
+      stop,
+      /** The browser goes Back to `path`. */
+      pop(path: string) {
+        location.pathname = path;
+        onPop();
+      },
+      /** The router has the data for `path`; `opts` is what it passes when it will start the transition itself. */
+      dataArrives(path: string, opts?: unknown) {
+        subscriber({ navigation: { state: "idle" }, location: { pathname: path } }, { viewTransitionOpts: opts });
+      },
+      routerStartsTransition() {
+        // looked up now: the module may have put its capture in front of the document's own
+        (env.doc.startViewTransition as (u: () => void) => unknown)(() => pageCommitted("/"));
+      },
+    };
+  }
+
+  it("takes the router's own transition on a POP it will animate, and starts none of its own", async () => {
+    const w = setup();
+    w.pop("/");
+    // opened at the popstate: marked, unsettled, and rendering is not held (no transition yet)
+    expect(w.html.dataset.changeKind).toBe("radial");
+    expect(isPageSettled()).toBe(false);
+    expect(w.transitions).toHaveLength(0);
+    w.dataArrives("/", { currentLocation: {}, nextLocation: {} });
+    expect(w.transitions).toHaveLength(0); // still none: the router makes it
+    w.routerStartsTransition();
+    expect(w.transitions).toHaveLength(1);
+    await tick();
+    // the commit inside the router's transition does not end the change; its finish does
+    expect(isPageSettled()).toBe(false);
+    expect(w.html.dataset.changeKind).toBe("radial");
+    w.transitions[0].finish();
+    await tick();
+    expect(isPageSettled()).toBe(true);
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    w.stop();
+  });
+
+  it("starts its own transition on a POP the router will not animate", async () => {
+    const w = setup();
+    w.pop("/");
+    w.dataArrives("/"); // no viewTransitionOpts
+    expect(w.transitions).toHaveLength(1);
+    pageCommitted("/");
+    await tick();
+    w.transitions[0].finish();
+    await tick();
+    expect(isPageSettled()).toBe(true);
+    w.stop();
+  });
+
+  it("ignores a move inside one page and a state that is still loading", () => {
+    const w = setup();
+    w.pop("/work"); // same path as the committed page
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    w.pop("/");
+    w.dataArrives("/work"); // a different address: not this navigation
+    expect(w.transitions).toHaveLength(0);
+    pageCommitted("/"); // a commit with no transition at all ends the change
+    expect(isPageSettled()).toBe(true);
+    w.stop();
   });
 });
 
