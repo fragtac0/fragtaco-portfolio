@@ -35,6 +35,22 @@
 .home-layer .xp-head > * {
   pointer-events: auto;
 }
+/* an open video has its own Close: the layer's header steps aside, and cannot be reached (it is inert) */
+.home-layer .xp-head {
+  transition:
+    opacity 0.3s ease,
+    visibility 0s linear 0s;
+}
+.home-layer .xp-head.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s ease,
+    visibility 0s linear 0.3s;
+}
+.home-layer .xp-head.hidden > * {
+  pointer-events: none;
+}
 .home-layer .xp-head .display {
   font-size: var(--t-title);
 }

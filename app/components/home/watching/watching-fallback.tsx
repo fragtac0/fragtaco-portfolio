@@ -1,5 +1,5 @@
 import type { SiteVideo } from "../../../types";
-import type { WallControl } from "./wall-engine";
+import type { WallControl } from "./wall-types";
 import type { WallPick } from "./pick-channel";
 import { thumbUrl } from "./wall-math";
 

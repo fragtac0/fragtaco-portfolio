@@ -5,8 +5,15 @@ import { useLayerControl } from "../layer/layer-context";
 import "./watching.css";
 import VideoDetail, { type VideoDetailHandle } from "./video-detail";
 import type { PickChannel, WallPick } from "./pick-channel";
-import type { WallEngine } from "./wall-engine";
+import type { WallEngine } from "./wall-types";
+import WallPlaceholder from "./wall-placeholder";
 import WatchingFallback, { gridWall } from "./watching-fallback";
+
+/** How long the placeholder takes to fade out (watching.css `.wall-placeholder`). */
+const PLACEHOLDER_FADE_MS = 300;
+
+/** What stands in for the wall: nothing, the flat placeholder, or the placeholder fading out. */
+type Placeholder = "none" | "shown" | "leaving";
 
 type WatchingSceneProps = {
   /** Null on the server and until HomePage has created it on the client. */
@@ -21,10 +28,14 @@ type WatchingSceneProps = {
  * The watching pane's DOM. The engine draws into the host and drives the chip and the hint
  * through the elements it is handed; this component only provides them, starts and stops the
  * engine, shows the detail view for a picked tile, and registers the hooks Esc uses to close an
- * open video before the layer. While a video is open everything behind it is `inert`.
+ * open video before the layer. While a video is open everything behind it is `inert`, and the
+ * layer's own header is hidden (through the layer context). Once the layer is active the engine
+ * prepares urgently; if the wall is not ready by then, a flat placeholder shows until its first
+ * frame (`data-wall` on the scene says which: `shown`, `leaving` or `live`). A lost graphics
+ * context switches to the plain grid.
  */
 function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
-  const { registerSceneHooks } = useLayerControl();
+  const { registerSceneHooks, setHeaderHidden } = useLayerControl();
   const sceneRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -36,8 +47,35 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
   const open = pick !== null;
   // No WebGL (or `?nogl=1`), or a wall that failed to start: a static grid of thumbnails opens the
   // same detail view. This scene only ever renders on the client, after the layer opens.
-  const [fallback, setFallback] = useState(() => !hasWebGL());
+  const [fallback, setFallback] = useState(() => !hasWebGL() || !!engine?.hasFailed());
   const lastKey = useRef<string | null>(null);
+
+  const [placeholder, setPlaceholder] = useState<Placeholder>("none");
+  // Decided in the render where the layer becomes active, so the placeholder is in the first frame
+  // the layer shows. Only on becoming active: closing keeps what stood in for the wall while the
+  // stage fades out.
+  const [wasActive, setWasActive] = useState(false);
+  if (active !== wasActive) {
+    setWasActive(active);
+    if (active) setPlaceholder(engine && !fallback && !engine.ready() ? "shown" : "none");
+  }
+  const placeholderRef = useRef(placeholder);
+  useEffect(() => {
+    placeholderRef.current = placeholder;
+  });
+  useEffect(() => {
+    if (placeholder !== "leaving") return;
+    const timer = window.setTimeout(() => setPlaceholder("none"), PLACEHOLDER_FADE_MS);
+    return () => window.clearTimeout(timer);
+  }, [placeholder]);
+
+  // The layer is open and waiting: do not yield to idle time while the wall is prepared. Not while
+  // it grows: the clip-path grow runs on the main thread and back-to-back slices would cut into it.
+  useEffect(() => {
+    if (fallback || !engine || !active) return;
+    engine.setUrgent(true);
+    return () => engine.setUrgent(false);
+  }, [engine, active, fallback]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -50,8 +88,10 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
     if (fallback || !engine || !host || !chip || !hint) return unregister;
     engine.mount({ host, chip, hint });
     const unsubscribe = picks.subscribe((p) => setPick(p));
+    const unlost = engine.onLost(() => setFallback(true));
     return () => {
       unsubscribe();
+      unlost();
       unregister();
       engine.unmount();
     };
@@ -60,30 +100,31 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
   useEffect(() => {
     if (fallback || !engine || !active) return;
     let live = true;
-    engine.start();
+    const waited = placeholderRef.current === "shown";
     // the wall could not start (no context, a failed shader): show the grid instead
-    void Promise.resolve().then(() => {
-      if (live && engine.hasFailed()) setFallback(true);
-    });
+    void engine
+      .start({
+        onFirstFrame: () => {
+          if (live && waited) setPlaceholder("leaving");
+        },
+      })
+      .then(() => {
+        if (live && engine.hasFailed()) setFallback(true);
+      });
     return () => {
       live = false;
       engine.stop();
     };
   }, [engine, active, fallback]);
 
-  // While a video is open the wall and the layer's own header are inert, so Tab stays on the
-  // detail view; when it has closed they wake up and focus goes back to the wall stage.
+  // While a video is open the wall is inert and the layer's header is hidden (and inert), so Tab
+  // stays on the detail view; when it has closed they wake up and focus goes back to the wall stage.
   const wasOpen = useRef(false);
   useLayoutEffect(() => {
-    const head = sceneRef.current
-      ?.closest(".home-layer")
-      ?.querySelector<HTMLElement>(".xp-head");
-    const targets = [mainRef.current, head];
-    for (const el of targets) {
-      if (!el) continue;
-      if (open) el.setAttribute("inert", "");
-      else el.removeAttribute("inert");
-    }
+    const main = mainRef.current;
+    if (open) main?.setAttribute("inert", "");
+    else main?.removeAttribute("inert");
+    setHeaderHidden(open);
     if (!open && wasOpen.current) {
       const back = fallback
         ? sceneRef.current?.querySelector<HTMLElement>(`[data-key="${lastKey.current}"]`)
@@ -92,14 +133,19 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
     }
     wasOpen.current = open;
     return () => {
-      for (const el of targets) el?.removeAttribute("inert");
+      main?.removeAttribute("inert");
+      setHeaderHidden(false);
     };
-  }, [open, fallback]);
+  }, [open, fallback, setHeaderHidden]);
 
   const video = pick ? (videos[pick.index] ?? null) : null;
 
   return (
-    <div ref={sceneRef} className="wall-scene">
+    <div
+      ref={sceneRef}
+      className="wall-scene"
+      data-wall={fallback || placeholder === "none" ? "live" : placeholder}
+    >
       <div ref={mainRef} className="wall-main">
         {fallback ? (
           <WatchingFallback
@@ -112,6 +158,9 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
         ) : (
           <>
             <div ref={hostRef} className="wall-host" />
+            {placeholder !== "none" && (
+              <WallPlaceholder count={videos.length} leaving={placeholder === "leaving"} />
+            )}
             <div className="wall-vig" />
             <div ref={chipRef} className="chip" aria-live="polite">
               <b />

@@ -57,6 +57,8 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
   const pushedRef = useRef(false);
   const [layerFrom, setLayerFrom] = useState<HTMLElement | null>(null);
   const sceneHooks = useRef<LayerSceneHooks>({});
+  // Set by a scene through the layer context; the layer is the one that hides its own header.
+  const [headerHidden, setHeaderHidden] = useState(false);
   const layerLive = layer.phase === "growing" || layer.phase === "open";
 
   const openLayer = useCallback<LayerControl["openLayer"]>(
@@ -94,7 +96,7 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
     };
   }, []);
   const layerControl = useMemo<LayerControl>(
-    () => ({ openLayer, closeLayer, registerSceneHooks }),
+    () => ({ openLayer, closeLayer, registerSceneHooks, setHeaderHidden }),
     [openLayer, closeLayer, registerSceneHooks],
   );
 
@@ -125,6 +127,7 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
       setLayerOpen(false);
       hero?.setParked("layer", false);
       html.classList.remove("locked");
+      setHeaderHidden(false);
     };
   }, [layerActive, heroRef, setLayerOpen]);
 
@@ -171,6 +174,7 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
     layerFrom,
     layerActive,
     layerControl,
+    headerHidden,
     openLayer,
     closeLayer,
     dispatchLayer,

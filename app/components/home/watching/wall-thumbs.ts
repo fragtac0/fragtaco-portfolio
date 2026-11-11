@@ -14,8 +14,8 @@ export type Thumbs = {
   pumpFrame(): boolean;
   /** Starts the background pump if thumbnails are waiting (the wall's own loop is not running). */
   kick(): void;
-  /** 1 for a cell whose thumbnail is on the atlas, indexed like `atlas.cells`. */
-  loaded: Float32Array;
+  /** When each cell's thumbnail went up (performance.now ms), 0 until it has; indexed like `atlas.cells`. The arrival animation's clock. */
+  loadedAt: Float64Array;
   dispose(): void;
 };
 
@@ -36,7 +36,7 @@ export function createThumbs(
       `The wall shows ${a.cells.length} of ${videos.length} videos: the thumbnail atlas is full.`,
     );
   }
-  const loaded = new Float32Array(a.cells.length);
+  const loadedAt = new Float64Array(a.cells.length);
   const queue: Array<[number, HTMLImageElement]> = [];
   const images = new Set<HTMLImageElement>();
   let disposed = false;
@@ -81,7 +81,7 @@ export function createThumbs(
     const first = thumbUrl(v, "sd");
     let img = await loadImage(first);
     if (!img || img.naturalWidth <= 200) {
-      const hq = `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`;
+      const hq = thumbUrl(v, "hq");
       if (img) drop(img);
       img = hq === first ? null : await loadImage(hq);
     }
@@ -116,7 +116,7 @@ export function createThumbs(
         a.ch,
       );
       g.texSubImage2D(g.TEXTURE_2D, 0, c.x, c.y, g.RGBA, g.UNSIGNED_BYTE, cell);
-      loaded[i] = 1;
+      loadedAt[i] = performance.now();
       drop(img);
     }
     g.generateMipmap(g.TEXTURE_2D);
@@ -139,7 +139,7 @@ export function createThumbs(
   return {
     pumpFrame,
     kick: schedulePump,
-    loaded,
+    loadedAt,
     dispose() {
       if (disposed) return;
       disposed = true;

@@ -1,5 +1,6 @@
 import type { SiteBook } from "~/types";
 import { createSlicer } from "../../../utils/idle";
+import { watchContextLost } from "../context-lost";
 import { createCoverQueue } from "./shelf-covers";
 import { attachShelfInput, createShelfInput } from "./shelf-input";
 import { createOpenPath, type ShelfCtx, type ShelfEls, type ShelfState } from "./shelf-open";
@@ -26,9 +27,9 @@ import {
  * The engine owns its canvas: `prepare()` builds the whole scene in idle time while no layer is
  * mounted, so the layer opens onto a warm scene; once the layer is open and waiting, `setUrgent()`
  * makes the same steps run back to back (about 8 ms a frame) while a flat placeholder stands in.
- * `mount()` puts the canvas into the layer and wires the overlays,
- * `unmount()` takes it out again but keeps the GL scene for an instant re-open, and `dispose()`
- * (when the home page goes away) frees everything.
+ * `mount()` puts the canvas into the layer and wires the overlays, `unmount()` takes it out again
+ * but keeps the GL scene for an instant re-open, and `dispose()` (when the home page goes away)
+ * frees everything. A lost graphics context makes `hasFailed()` true and calls `onLost` listeners.
  *
  * Shadows are not a shadow map: each book has a soft contact shadow on the plank and a soft
  * shadow on the wall, animated with the book every frame. Opening a book copies the shelf once,
@@ -55,8 +56,10 @@ export type ShelfEngine = {
   stop(): void;
   unmount(): void;
   hasOpen(): boolean;
-  /** True once `prepare()` has run and the scene could not be built (no WebGL2, a throw). */
+  /** True once `prepare()` has run and the scene could not be built (no WebGL2, a throw), or the context was lost. */
   hasFailed(): boolean;
+  /** Called once when the graphics context is lost (the scene switches to its plain grid). */
+  onLost(cb: () => void): () => void;
   /** The scene is built, so `start()` shows it on the next frame. */
   ready(): boolean;
   /** Urgent: preparation stops yielding to idle time and runs in short slices every frame. */
@@ -83,6 +86,7 @@ export function createShelf(
   canvas.tabIndex = 0;
   canvas.setAttribute("role", "group");
   canvas.setAttribute("aria-label", STAGE_LABEL);
+  const lost = watchContextLost(canvas);
 
   /** The whole drop-in; nothing falls when motion is reduced. */
   const intro = () => (reduced ? 0 : introSeconds(books.length));
@@ -292,8 +296,7 @@ export function createShelf(
       st.fitW = 0; // a new mount refits: the marker and camera limits are for this stage
       next.hint.textContent = hintText(opts.fine, canvas.clientWidth < NARROW_PX);
       setNote(false);
-      const ac = new AbortController();
-      listeners = ac;
+      const ac = (listeners = new AbortController());
       attachShelfInput(canvas, handlers, ac.signal);
       next.info
         .querySelector("button")
@@ -305,8 +308,8 @@ export function createShelf(
       onFirstFrame = opts?.onFirstFrame ?? null;
       await prepare();
       if (my !== runToken || !els) return;
-      if (!gl) {
-        if (failed) els.hint.textContent = HINT_NO_GL;
+      if (!gl || lost.lost()) {
+        els.hint.textContent = HINT_NO_GL;
         return;
       }
       fit();
@@ -314,15 +317,11 @@ export function createShelf(
       const skipped = opts?.skipIntro ? Math.max(intro() + 0.4, CAMERA.dollyS) : 0;
       st.t0 = performance.now() - skipped * 1000;
       cam.x = initialCamX(gl.maxX, canvas.clientWidth < NARROW_PX);
-      cam.xV = 0;
-      st.flickV = 0;
+      cam.xV = st.flickV = 0;
       fadeBag.fade = fadeBag.fadeV = 0;
       for (const b of gl.books) b.anim = { hover: 0, hoverV: 0, open: 0, openV: 0 };
-      st.opened = null;
-      st.hoverHit = null;
+      st.opened = st.hoverHit = st.camTarget = st.down = null;
       st.focusIdx = -1;
-      st.camTarget = null;
-      st.down = null;
       st.dirty = true;
       gl.renderer.clear();
       running = true;
@@ -336,7 +335,8 @@ export function createShelf(
     unmount,
 
     hasOpen: () => !!st.opened,
-    hasFailed: () => failed,
+    hasFailed: () => failed || lost.lost(),
+    onLost: lost.subscribe,
     ready: () => !!gl,
     setUrgent: (on) => slicer.setUrgent(on),
     closeBook: () => closeBook(true),

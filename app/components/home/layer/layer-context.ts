@@ -15,6 +15,8 @@ export type LayerControl = {
   closeLayer: () => void;
   /** Returns the function that unregisters the hooks. */
   registerSceneHooks: (hooks: LayerSceneHooks) => () => void;
+  /** A scene hides the layer's header while it shows something over it (an open video). */
+  setHeaderHidden: (hidden: boolean) => void;
 };
 
 /** No default: a component that needs the layer outside HomePage is a bug, not a no-op. */

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import { inertProps } from "../../../utils/inert";
 import "./layer.css";
 import { FADE_MS, GROW_MS, SCENE_DELAY_MS, type LayerKind, type LayerState } from "./layer-state";
 
@@ -35,6 +36,8 @@ type InterestLayerProps = {
   from: HTMLElement | null;
   title: string;
   meta: string;
+  /** A scene is showing something over the header (an open video): fade it out and make it inert. */
+  headerHidden?: boolean;
   onClose: () => void;
   /** Dispatched once the grow has finished (the scene may start) and the shrink has finished. */
   onGrown: () => void;
@@ -48,6 +51,7 @@ export default function InterestLayer({
   from,
   title,
   meta,
+  headerHidden = false,
   onClose,
   onGrown,
   onShrunk,
@@ -178,7 +182,7 @@ export default function InterestLayer({
       aria-modal="true"
       aria-labelledby="home-layer-title"
     >
-      <header className="xp-head">
+      <header className={headerHidden ? "xp-head hidden" : "xp-head"} {...inertProps(headerHidden)}>
         <div className="xp-titles">
           <h2 className="display" id="home-layer-title">
             {title}

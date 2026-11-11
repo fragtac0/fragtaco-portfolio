@@ -30,11 +30,11 @@ describe("tileSize", () => {
 });
 
 describe("columnOffset", () => {
-  it("drifts even columns forward and odd columns backward at 0.72 speed", () => {
+  it("drifts near columns forward and far columns backward at 0.72 x 0.6 speed", () => {
     expect(columnOffset(10, 0)).toBeCloseTo(10 * SPEED);
     expect(columnOffset(10, 2)).toBeCloseTo(10 * SPEED + 2 * 53);
-    expect(columnOffset(10, 1)).toBeCloseTo(-10 * SPEED * 0.72 + 53);
-    expect(columnOffset(10, -1)).toBeCloseTo(-10 * SPEED * 0.72 - 53);
+    expect(columnOffset(10, 1)).toBeCloseTo(-10 * SPEED * 0.72 * 0.6 + 53);
+    expect(columnOffset(10, -1)).toBeCloseTo(-10 * SPEED * 0.72 * 0.6 - 53);
   });
 });
 
@@ -67,11 +67,12 @@ describe("atlasLayout", () => {
   it("caps the atlas at the largest texture that holds whole rows", () => {
     const large = atlasLayout(200, false);
     expect(large.ah).toBe(4096);
-    expect(large.cells).toHaveLength(large.capacity);
-    expect(large.capacity).toBeLessThan(200);
+    expect(large.capacity).toBe(112);
+    expect(large.cells).toHaveLength(112);
     const small = atlasLayout(200, true);
     expect(small.ah).toBe(2048);
-    expect(small.cells).toHaveLength(small.capacity);
+    expect(small.capacity).toBe(112);
+    expect(small.cells).toHaveLength(112);
     for (const a of [large, small]) {
       for (const c of a.cells) {
         expect(c.y + a.ch).toBeLessThanOrEqual(a.ah);
@@ -107,6 +108,12 @@ describe("thumbUrl", () => {
     );
     expect(thumbUrl({ id: "abc12345678", thumb: "sd" }, "mq")).toMatch(
       /\/abc12345678\/mqdefault\.jpg$/,
+    );
+  });
+
+  it("asks for hqdefault when hq is wanted, whatever the video has", () => {
+    expect(thumbUrl({ id: "abc12345678", thumb: "sd" }, "hq")).toMatch(
+      /\/abc12345678\/hqdefault\.jpg$/,
     );
   });
 });
@@ -192,6 +199,30 @@ describe("layoutTiles", () => {
   });
 });
 
+describe("layoutTiles with few videos", () => {
+  it("skips columns that have no video", () => {
+    const size = tileSize(1440);
+    const tiles = layoutTiles({
+      panX: 0,
+      panY: 0,
+      vw: 1440,
+      vh: 800,
+      pitchX: size.pitchX,
+      pitchY: size.pitchY,
+      t: 0,
+      count: 3,
+    });
+    expect(tiles.length).toBeGreaterThan(0);
+    for (const tl of tiles) {
+      expect(tl.idx).toBeGreaterThanOrEqual(0);
+      expect(tl.idx).toBeLessThan(3);
+      const cx = Number(tl.key.split(",")[0]);
+      expect(((cx % 8) + 8) % 8).toBeLessThan(3);
+    }
+    expect(new Set(tiles.map((tl) => tl.idx))).toEqual(new Set([0, 1, 2]));
+  });
+});
+
 describe("hitTile", () => {
   const size = tileSize(1440);
   const tiles = layoutTiles({
@@ -212,17 +243,41 @@ describe("hitTile", () => {
     );
   });
 
-  it("resolves a point in a gap to a tile, never null", () => {
-    const tl = tiles.find((t) => t.x > 200 && t.x < 800 && t.y > 100 && t.y < 500);
+  it("resolves a point in a gap to the nearer neighbour, never null", () => {
+    const moving = layoutTiles({
+      panX: 0,
+      panY: 0,
+      vw: 1440,
+      vh: 800,
+      pitchX: size.pitchX,
+      pitchY: size.pitchY,
+      t: 7.3,
+      count: 53,
+    });
+    const tl = moving.find(
+      (t) => t.x > 200 && t.x < 800 && t.y > 100 && t.y < 500,
+    );
     expect(tl).toBeDefined();
     if (!tl) return;
-    // exactly in the gap to the right of this tile
-    const gx = tl.x + size.cw + size.gap / 2;
+    const [cx, cy] = tl.key.split(",").map(Number);
     const gy = tl.y + size.ch / 2;
-    const key = hitTile(tiles, gx, gy, size);
-    expect(key).not.toBeNull();
-    const right = tiles.find((t) => t.key === key);
-    expect(right).toBeDefined();
+    // a quarter of the way across the gap to the right: still this tile
+    expect(hitTile(moving, tl.x + size.cw + size.gap * 0.25, gy, size)).toBe(
+      tl.key,
+    );
+    // three quarters across: the column to the right
+    const right = hitTile(moving, tl.x + size.cw + size.gap * 0.75, gy, size);
+    expect(right).not.toBeNull();
+    expect(Number(right?.split(",")[0])).toBe(cx + 1);
+    // a quarter of the way down the gap below: still this tile
+    const gx = tl.x + size.cw / 2;
+    expect(hitTile(moving, gx, tl.y + size.ch + size.gap * 0.25, size)).toBe(
+      tl.key,
+    );
+    // three quarters down: the tile below, same column
+    expect(hitTile(moving, gx, tl.y + size.ch + size.gap * 0.75, size)).toBe(
+      `${cx},${cy + 1}`,
+    );
   });
 
   it("returns null outside the grid", () => {
@@ -235,7 +290,7 @@ describe("tileTransform", () => {
   const ch = 169;
 
   it("grows the hovered tile by 13 percent", () => {
-    const r = tileTransform({ cx: 500, cy: 400, dx: 0, dy: 0, f: 1, w: 0, cw, ch });
+    const r = tileTransform({ cx: 500, cy: 400, dx: 0, dy: 0, f: 1, weight: 0, cw, ch });
     expect(r.w).toBeCloseTo(cw * 1.13, 5);
     expect(r.h).toBeCloseTo(ch * 1.13, 5);
     expect(r.cx).toBe(500);
@@ -244,7 +299,7 @@ describe("tileTransform", () => {
   });
 
   it("shrinks a neighbour and pushes it away from the focus", () => {
-    const r = tileTransform({ cx: 500, cy: 400, dx: 100, dy: -50, f: 0, w: 1, cw, ch });
+    const r = tileTransform({ cx: 500, cy: 400, dx: 100, dy: -50, f: 0, weight: 1, cw, ch });
     expect(r.w).toBeCloseTo(cw * 0.965, 5);
     expect(r.h).toBeCloseTo(ch * 0.965, 5);
     expect(r.cx).toBeCloseTo(500 + 100 * 0.16, 5);
@@ -252,7 +307,7 @@ describe("tileTransform", () => {
   });
 
   it("leaves a tile alone with no focus", () => {
-    const r = tileTransform({ cx: 10, cy: 20, dx: 5, dy: 5, f: 0, w: 0, cw, ch });
+    const r = tileTransform({ cx: 10, cy: 20, dx: 5, dy: 5, f: 0, weight: 0, cw, ch });
     expect(r).toEqual({ cx: 10, cy: 20, w: cw, h: ch, rad: 12 });
   });
 });

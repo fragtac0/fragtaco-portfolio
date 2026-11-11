@@ -4,7 +4,8 @@ import { hasWebGL, hasWebGL2 } from "../../lib/webgl-support";
 import type { LayerKind } from "./layer/layer-state";
 import { createShelf, type ShelfEngine } from "./reading/shelf-engine";
 import { createPickChannel } from "./watching/pick-channel";
-import { createWall, type WallEngine } from "./watching/wall-engine";
+import { createWall } from "./watching/wall-engine";
+import type { WallEngine } from "./watching/wall-types";
 
 /**
  * The shelf engine lives as long as the page. Creating it only makes a canvas (no GL, no
@@ -65,7 +66,7 @@ export function useSceneEngines(books: SiteBook[], videos: SiteVideo[]) {
       if (kind === "reading") {
         if (hasWebGL2()) void shelf?.prepare();
       } else if (hasWebGL()) {
-        wall?.prepare();
+        void wall?.prepare();
       }
     },
     [shelf, wall],
