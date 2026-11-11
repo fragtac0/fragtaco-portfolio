@@ -163,6 +163,23 @@ export const noCountMessage = (
     ? `no subscriber count at ${url}, keeping the previous count`
     : `no count found at ${url}, and there is no previous count`;
 
+export const channelFailedMessage = (
+  url: string,
+  previous: string | null | undefined,
+  error: unknown,
+): string =>
+  `channel fetch failed for ${url}, ${previous ? "keeping the previous count" : "and there is no previous count"} (${String(error)})`;
+
+export const thumbFailedMessage = (
+  id: string,
+  previous: "sd" | "hq" | undefined,
+  error: unknown,
+): string =>
+  `thumbnail check failed for ${id}, ${previous ? `keeping the previous value (${previous})` : "no previous value, using sd"} (${String(error)})`;
+
+export const retryMessage = (error: unknown, delayMs: number): string =>
+  `playlist fetch failed (${String(error)}), retrying in ${delayMs / 1000} s`;
+
 /** Runs `worker` over `items`, at most `limit` at a time, keeping order. */
 export const mapLimit = async <T, R>(
   items: T[],
@@ -185,10 +202,12 @@ export const mapLimit = async <T, R>(
 export const withRetry = async <T>(
   task: () => Promise<T>,
   delayMs: number,
+  onRetry: (error: unknown) => void = () => undefined,
 ): Promise<T> => {
   try {
     return await task();
-  } catch {
+  } catch (error) {
+    onRetry(error);
     await new Promise((resolve) => setTimeout(resolve, delayMs));
     return task();
   }

@@ -4,12 +4,15 @@ import type { SiteVideo } from "../app/types";
 import {
   diffVideos,
   extractInitialData,
+  channelFailedMessage,
   hasContinuation,
   mapLimit,
   mergeSubscribers,
   noCountMessage,
   parsePlaylist,
   parseSubscribers,
+  retryMessage,
+  thumbFailedMessage,
   thumbFromStatus,
   withRetry,
 } from "./youtube";
@@ -48,7 +51,9 @@ const main = async (): Promise<void> => {
   );
 
   const page = extractInitialData(
-    await withRetry(() => fetchText(PLAYLIST_URL), RETRY_DELAY_MS),
+    await withRetry(() => fetchText(PLAYLIST_URL), RETRY_DELAY_MS, (error) =>
+      console.warn(`Warning: ${retryMessage(error, RETRY_DELAY_MS)}`),
+    ),
   );
   if (hasContinuation(page)) {
     console.warn(
@@ -73,7 +78,7 @@ const main = async (): Promise<void> => {
       counts.set(url, mergeSubscribers(count, previousSubs.get(url)));
     } catch (error) {
       console.warn(
-        `Warning: channel fetch failed for ${url}, keeping the previous count (${String(error)})`,
+        `Warning: ${channelFailedMessage(url, previousSubs.get(url), error)}`,
       );
       counts.set(url, previousSubs.get(url) ?? null);
     }
@@ -89,7 +94,7 @@ const main = async (): Promise<void> => {
       return thumbFromStatus(res.status, before);
     } catch (error) {
       console.warn(
-        `Warning: thumbnail check failed for ${entry.id}, keeping the previous value (${String(error)})`,
+        `Warning: ${thumbFailedMessage(entry.id, before, error)}`,
       );
       return thumbFromStatus(null, before);
     }

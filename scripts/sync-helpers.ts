@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { VideosFileSchema } from "../app/content/schemas";
 import type { SiteVideo } from "../app/types";
 
@@ -24,9 +24,14 @@ export const readPrevious = (
   return [];
 };
 
-/** Writes to `<file>.tmp`, then renames over `file`, so a crash never leaves half a file. */
+/** Writes to `<file>.tmp`, then renames over `file`, so a crash never leaves half a file; a failed write removes the temp file. */
 export const writeFileAtomic = (file: string, content: string): void => {
   const temp = `${file}.tmp`;
-  writeFileSync(temp, content);
-  renameSync(temp, file);
+  try {
+    writeFileSync(temp, content);
+    renameSync(temp, file);
+  } catch (error) {
+    rmSync(temp, { force: true });
+    throw error;
+  }
 };

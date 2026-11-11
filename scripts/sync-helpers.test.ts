@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -73,5 +73,13 @@ describe("writeFileAtomic", () => {
     writeFileSync(file, "old");
     writeFileAtomic(file, "new");
     expect(readFileSync(file, "utf8")).toBe("new");
+  });
+
+  it("removes the temp file and rethrows when the rename fails", () => {
+    const file = path.join(dir, "videos.json");
+    mkdirSync(file);
+    writeFileSync(path.join(file, "keep"), "x");
+    expect(() => writeFileAtomic(file, "new")).toThrow();
+    expect(existsSync(`${file}.tmp`)).toBe(false);
   });
 });

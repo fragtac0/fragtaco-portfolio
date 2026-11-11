@@ -5,12 +5,15 @@ import type { SiteVideo } from "../app/types";
 import {
   diffVideos,
   extractInitialData,
+  channelFailedMessage,
   hasContinuation,
   mapLimit,
   mergeSubscribers,
   noCountMessage,
   parsePlaylist,
   parseSubscribers,
+  retryMessage,
+  thumbFailedMessage,
   thumbFromStatus,
   withRetry,
 } from "./youtube";
@@ -36,6 +39,17 @@ describe("parsePlaylist", () => {
 
   it("skips a video lockup without a title and reports its id", () => {
     expect(parsePlaylist(playlist).skipped).toEqual(["untitledVid1"]);
+  });
+
+  it("treats a whitespace-only title or channel as missing", () => {
+    const blanked = (from: string): unknown =>
+      JSON.parse(readFixture("playlist.json").replace(from, '"content": "   "')) as unknown;
+    const title = parsePlaylist(blanked('"content": "Every Type of Mimicry Explained"'));
+    expect(title.skipped).toContain("GrtKxfATyTw");
+    expect(title.videos.map((v) => v.id)).not.toContain("GrtKxfATyTw");
+    const channel = parsePlaylist(blanked('"content": "daninblue"'));
+    expect(channel.skipped).toContain("GrtKxfATyTw");
+    expect(channel.videos.map((v) => v.id)).not.toContain("GrtKxfATyTw");
   });
 
   it("reads id, title, channel and channel url", () => {
@@ -196,6 +210,17 @@ describe("withRetry", () => {
     expect(task).toHaveBeenCalledTimes(2);
   });
 
+  it("reports the first error before retrying", async () => {
+    const onRetry = vi.fn();
+    const task = vi
+      .fn<() => Promise<string>>()
+      .mockRejectedValueOnce(new Error("boom"))
+      .mockResolvedValueOnce("ok");
+    await withRetry(task, 0, onRetry);
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    expect(String(onRetry.mock.calls[0]?.[0])).toContain("boom");
+  });
+
   it("throws the second error and tries only twice", async () => {
     const task = vi.fn<() => Promise<string>>().mockRejectedValue(new Error("down"));
     await expect(withRetry(task, 0)).rejects.toThrow("down");
@@ -219,5 +244,25 @@ describe("mergeSubscribers header without a count", () => {
   it("keeps the previous count when the header has none", () => {
     const html = '<script>"pageHeaderViewModel":{"x":"no number here"}</script>';
     expect(mergeSubscribers(parseSubscribers(html), "100K")).toBe("100K");
+  });
+});
+
+describe("failure messages", () => {
+  it("channel fetch failure only claims to keep a count that exists", () => {
+    expect(channelFailedMessage("u", "1K", "e")).toContain("keeping the previous count");
+    const none = channelFailedMessage("u", undefined, "e");
+    expect(none).toContain("no previous count");
+    expect(none).not.toContain("keeping");
+  });
+
+  it("thumbnail failure only claims to keep a value that exists", () => {
+    expect(thumbFailedMessage("id", "hq", "e")).toContain("keeping the previous value (hq)");
+    const none = thumbFailedMessage("id", undefined, "e");
+    expect(none).toContain("using sd");
+    expect(none).not.toContain("keeping");
+  });
+
+  it("retry message names the delay in seconds", () => {
+    expect(retryMessage("boom", 2000)).toBe("playlist fetch failed (boom), retrying in 2 s");
   });
 });
