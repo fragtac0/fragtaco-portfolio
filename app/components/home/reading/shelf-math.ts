@@ -14,6 +14,10 @@ export const FRONT = 0.55;
 export const WALLZ = FRONT - 1.4;
 /** The gap between neighbouring spines on the plank (world units). */
 export const SHELF_GAP = 0.014;
+/** The shelf camera's vertical field of view, in degrees. */
+export const FOV_DEG = 26;
+/** Plank thickness (world units). */
+export const PLANK_H = 0.09;
 /** Seconds each book takes to fall in and fade up. */
 export const DROP = 1.5;
 /** Seconds between one book starting to fall and the next. */

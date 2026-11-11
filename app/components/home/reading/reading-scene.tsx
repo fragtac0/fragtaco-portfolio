@@ -24,8 +24,8 @@ type ReadingSceneProps = {
 /**
  * The reading pane's DOM. The engine draws into the host and drives the blur, dim and note
  * through the elements it is handed; this component only provides them, starts and stops the
- * engine, and registers the hooks Esc uses to close an open book before the layer. While it is
- * mounted the engine prepares urgently. If the shelf is not ready when the layer becomes active, a
+ * engine, and registers the hooks Esc uses to close an open book before the layer. Once the layer
+ * is active (open and waiting) the engine prepares urgently. If the shelf is not ready when the layer becomes active, a
  * flat placeholder shows until its first frame is drawn (and the drop-in is skipped: the books were
  * already "there"); a shelf that was ready drops its books in as usual.
  */
@@ -58,12 +58,13 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
     return () => window.clearTimeout(timer);
   }, [placeholder]);
 
-  // the layer is open and waiting: do not yield to idle time while the shelf is prepared
+  // The layer is open and waiting: do not yield to idle time while the shelf is prepared. Not while
+  // it grows: the clip-path grow runs on the main thread and back-to-back slices would cut into it.
   useEffect(() => {
-    if (fallback || !engine) return;
+    if (fallback || !engine || !active) return;
     engine.setUrgent(true);
     return () => engine.setUrgent(false);
-  }, [engine, fallback]);
+  }, [engine, active, fallback]);
 
   useEffect(() => {
     if (fallback) return;

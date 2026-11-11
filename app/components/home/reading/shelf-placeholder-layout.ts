@@ -1,11 +1,18 @@
 import type { SiteBook } from "~/types";
 import { miniSpine } from "../blocks/mini-previews";
-import { bookSize, cameraAt, CAMERA, fitCamera, FRONT, INCH, SHELF_GAP, WALLZ } from "./shelf-math";
+import {
+  bookSize,
+  cameraAt,
+  CAMERA,
+  fitCamera,
+  FOV_DEG,
+  FRONT,
+  INCH,
+  PLANK_H,
+  SHELF_GAP,
+  WALLZ,
+} from "./shelf-math";
 
-/** The shelf camera's field of view (shelf-scene.ts), in degrees. */
-const FOV_DEG = 26;
-/** Plank thickness (shelf-scene.ts). */
-const PLANK_H = 0.09;
 
 export type PlaceholderLayout = {
   /** One flat bar per book: left edge and size in px, relative to the stage. */

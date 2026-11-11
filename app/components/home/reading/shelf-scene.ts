@@ -11,7 +11,7 @@ import {
   topCanvas,
   woodCanvas,
 } from "./shelf-canvases";
-import { FRONT, SHELF_GAP, WALLZ, bookSize } from "./shelf-math";
+import { FOV_DEG, FRONT, PLANK_H, SHELF_GAP, WALLZ, bookSize } from "./shelf-math";
 
 /**
  * Builds the shelf's three.js scene: renderer, lights, one box per book with its contact and wall
@@ -125,7 +125,7 @@ export async function buildShelfScene(
     r.toneMapping = T.ACESFilmicToneMapping;
     r.toneMappingExposure = 1.12;
     const scene = new T.Scene();
-    const camera = new T.PerspectiveCamera(26, 1, 0.1, 80);
+    const camera = new T.PerspectiveCamera(FOV_DEG, 1, 0.1, 80);
     scene.add(new T.HemisphereLight(0xfff2df, 0x140b05, 0.75));
     const key = new T.DirectionalLight(0xfff3e4, 2.6);
     key.position.set(-2.4, 4.4, 4.6);
@@ -233,7 +233,7 @@ export async function buildShelfScene(
       x += b.T + gap;
     });
     const plank = new T.Mesh(
-      track(new T.BoxGeometry(span + 1, 0.09, FRONT + 0.1 - WALLZ)),
+      track(new T.BoxGeometry(span + 1, PLANK_H, FRONT + 0.1 - WALLZ)),
       std(toTex(woodCanvas()), 0.68),
     );
     plank.position.set(0, -0.045, (FRONT + 0.1 + WALLZ) / 2);
