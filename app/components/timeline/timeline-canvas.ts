@@ -40,6 +40,8 @@ export interface Timeline {
   /** The view being drawn now (it lags the target while a zoom eases). */
   view(): View;
   fit(animate?: boolean): void;
+  /** Call when the reduced-motion setting changes: redraws and restarts or stops the pulse. */
+  refresh(): void;
   hit(px: number, py: number): number | null;
   zoomBy(factor: number, animate?: boolean): void;
   model(): TimelineModel;
@@ -52,7 +54,7 @@ export function createTimeline(canvas: HTMLCanvasElement, data: SiteTimeline, to
   const ctx = canvas.getContext("2d");
   const model = buildModel(data, today);
   if (!ctx) {
-    return { setView() {}, view: () => ({ scale: 1, x: 0, y: 0 }), fit() {}, hit: () => null, zoomBy() {}, model: () => model, dispose() {} };
+    return { setView() {}, view: () => ({ scale: 1, x: 0, y: 0 }), fit() {}, refresh() {}, hit: () => null, zoomBy() {}, model: () => model, dispose() {} };
   }
 
   let vw = 0;
@@ -282,6 +284,7 @@ export function createTimeline(canvas: HTMLCanvasElement, data: SiteTimeline, to
     setView,
     view: () => current,
     fit: (animate = true) => setView(fitV, animate),
+    refresh: draw,
     hit: (px, py) => hitCell(current, px, py, cols, model.total),
     zoomBy: (factor, animate = true) => controls.zoomAt(factor, vw / 2, vh / 2, animate && !reduced()),
     model: () => model,

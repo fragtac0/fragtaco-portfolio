@@ -1,6 +1,6 @@
 // Pointer, wheel and keyboard input for the timeline canvas. It only turns events into calls on the
 // controls the canvas module hands in; it keeps no picture state of its own.
-import { moveFocus, PAN_STEP, wheelIntent, wheelZoomFactor } from "./timeline-motion";
+import { isTypingTarget, moveFocus, PAN_STEP, wheelIntent, wheelZoomFactor } from "./timeline-motion";
 
 /** Zoom factor of one `+` or `-` press and of the two buttons. */
 export const KEY_ZOOM = 1.5;
@@ -114,8 +114,13 @@ export function attachInput(canvas: HTMLCanvasElement, ctl: Controls): () => voi
     ctl.zoomAt(wheelZoomFactor(e), at.x, at.y, !ctl.reduced());
   };
 
+  // The keys work from anywhere on the page (nothing is focused on arrival), except while typing in a field.
+  // Shift with the arrows moves the focus cell, so it is for the canvas itself.
   const onKey = (e: KeyboardEvent) => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
+    const target = e.target as HTMLElement | null;
+    if (target && isTypingTarget(target.tagName ?? "", target.isContentEditable === true)) return;
+    if (e.shiftKey && e.key.startsWith("Arrow") && document.activeElement !== canvas) return;
     const { vw, vh, cols, total } = ctl.size();
     const animate = !ctl.reduced();
     const arrows = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
@@ -150,7 +155,7 @@ export function attachInput(canvas: HTMLCanvasElement, ctl: Controls): () => voi
   canvas.addEventListener("pointercancel", onUp);
   canvas.addEventListener("pointerleave", onLeave);
   canvas.addEventListener("wheel", onWheel, { passive: false });
-  canvas.addEventListener("keydown", onKey);
+  window.addEventListener("keydown", onKey);
   canvas.addEventListener("blur", onBlur);
 
   return () => {
@@ -160,7 +165,7 @@ export function attachInput(canvas: HTMLCanvasElement, ctl: Controls): () => voi
     canvas.removeEventListener("pointercancel", onUp);
     canvas.removeEventListener("pointerleave", onLeave);
     canvas.removeEventListener("wheel", onWheel);
-    canvas.removeEventListener("keydown", onKey);
+    window.removeEventListener("keydown", onKey);
     canvas.removeEventListener("blur", onBlur);
   };
 }

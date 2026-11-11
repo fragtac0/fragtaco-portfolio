@@ -4,6 +4,7 @@ import {
   easeOutCubic,
   fitInsets,
   fitWithInsets,
+  isTypingTarget,
   lerpView,
   MAX_SCALE,
   moveFocus,
@@ -198,5 +199,21 @@ describe("limits used with the zoom", () => {
     const big = zoomAt(fit, 100, 700, 400, fit.scale, MAX_SCALE);
     expect(big.scale).toBe(MAX_SCALE);
     expect(clampView(big, 56, 39, 1440, 900).scale).toBe(MAX_SCALE);
+  });
+});
+
+describe("isTypingTarget", () => {
+  it("is true for text fields, selects and editable content, whatever the tag's case", () => {
+    expect(isTypingTarget("INPUT", false)).toBe(true);
+    expect(isTypingTarget("textarea", false)).toBe(true);
+    expect(isTypingTarget("Select", false)).toBe(true);
+    expect(isTypingTarget("DIV", true)).toBe(true);
+  });
+
+  it("is false for the canvas, the body, links and buttons", () => {
+    expect(isTypingTarget("CANVAS", false)).toBe(false);
+    expect(isTypingTarget("BODY", false)).toBe(false);
+    expect(isTypingTarget("A", false)).toBe(false);
+    expect(isTypingTarget("BUTTON", false)).toBe(false);
   });
 });

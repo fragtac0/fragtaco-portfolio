@@ -186,7 +186,7 @@ function drawRings(ctx: CanvasRenderingContext2D, st: DrawState, only: Set<numbe
 function drawDays(ctx: CanvasRenderingContext2D, st: DrawState, cells: number[]): void {
   const s = st.view.scale;
   const big = Math.max(10, s * 0.3);
-  const small = Math.max(9, s * 0.21);
+  const small = Math.max(10, s * 0.21);
   ctx.textAlign = "left";
   for (const i of cells) {
     const x = st.view.x + (i % st.cols) * s + s * 0.2;

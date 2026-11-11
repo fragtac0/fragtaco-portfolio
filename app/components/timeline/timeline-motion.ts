@@ -105,3 +105,10 @@ export function revealCell(view: View, index: number, cols: number, vw: number, 
 export function sameView(a: View, b: View): boolean {
   return Math.abs(a.scale - b.scale) < 0.01 && Math.abs(a.x - b.x) < 0.5 && Math.abs(a.y - b.y) < 0.5;
 }
+
+/** True for an element that takes typed text (so the page's own keys must leave it alone). */
+export function isTypingTarget(tagName: string, isContentEditable: boolean): boolean {
+  const tag = tagName.toUpperCase();
+
+  return isContentEditable || tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+}

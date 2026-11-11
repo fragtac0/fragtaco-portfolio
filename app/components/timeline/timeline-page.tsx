@@ -20,7 +20,10 @@ interface TimelinePageProps {
 const CANVAS_LABEL =
   "Timeline: one square for each day since 1 December 2020, coloured by role. Arrow keys pan, plus and minus zoom, 0 fits the whole timeline, and Shift with the arrow keys moves between days.";
 
-const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// One query for the page's life (`matches` stays current); the canvas is told when it changes.
+let reducedQuery: MediaQueryList | null = null;
+const reducedMotionQuery = () => (reducedQuery ??= window.matchMedia("(prefers-reduced-motion: reduce)"));
+const reducedMotion = () => reducedMotionQuery().matches;
 
 /**
  * The timeline page: every day since the start is a square on one canvas (`createTimeline`), coloured
@@ -76,8 +79,12 @@ export default function TimelinePage({ timeline, today, navigationItems, socialL
       onHover: (hit) => showTip(hit, engineRef.current),
     });
     engineRef.current = engine;
+    const query = reducedMotionQuery();
+    const onMotionChange = () => engine.refresh();
+    query.addEventListener("change", onMotionChange);
 
     return () => {
+      query.removeEventListener("change", onMotionChange);
       engine.dispose();
       engineRef.current = null;
     };
