@@ -97,11 +97,11 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 | D-89 | 14 | three 0.169 is WebGL2-only, R30 fallback must cover no-WebGL2 | open |
 | D-90 | 14 | un-timed cover painter can starve on a never-idle page (cosmetic) | open |
 | D-91 | 14 | prepare() ~26 idle slices (deep-link start verified prompt) | fixed (R35.1) |
-| D-92 | 15 | layoutTiles out-of-range idx when count < 8 (unreachable today) | open |
-| D-93 | 15 | hitTile gap test weak | open |
-| D-94 | 15 | capacity cap not pinned to 112 | open |
-| D-95 | 15 | tileTransform input/output both named w | open |
-| D-96 | 15 | unused cols option and DRIFT export | open |
+| D-92 | 15 | layoutTiles out-of-range idx when count < 8 (unreachable today) | fixed (R36.1) |
+| D-93 | 15 | hitTile gap test weak | fixed (R36.1) |
+| D-94 | 15 | capacity cap not pinned to 112 | fixed (R36.1) |
+| D-95 | 15 | tileTransform input/output both named w | fixed (R36.1) |
+| D-96 | 15 | unused cols option and DRIFT export | fixed (R36.1) |
 | D-97 | 16 | createPickChannel exported from a component file (Fast Refresh) | fixed (R31.3) |
 | D-98 | 16 | right-click/non-primary pointers open tiles | open |
 | D-99 | 16 | no webglcontextlost handling | open |

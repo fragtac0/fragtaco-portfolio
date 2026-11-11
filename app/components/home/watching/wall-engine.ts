@@ -8,7 +8,6 @@ import {
   type WallCtx,
 } from "./wall-input";
 import {
-  DRIFT,
   atlasLayout,
   cellUv,
   columnOffset,
@@ -71,6 +70,8 @@ export type WallEngine = {
   dispose(): void;
 };
 
+/** Pixels the whole wall pans sideways per second. */
+const DRIFT = 3;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 const HINT_FINE =
@@ -265,7 +266,7 @@ export function createWall(
       const dx = cx - focus.x;
       const dy = cy - focus.y;
       const w = lens * focusWeight(dx, dy, pitchX);
-      const tr = tileTransform({ cx, cy, dx, dy, f, w, cw, ch });
+      const tr = tileTransform({ cx, cy, dx, dy, f, weight: w, cw, ch });
       tl.f = f;
       tl.cx = tr.cx;
       tl.cy = tr.cy;
