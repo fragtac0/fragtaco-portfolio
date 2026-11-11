@@ -12,6 +12,7 @@ Every round of feedback on the home page redesign, what changed in response, and
 4. [Round 3: feedback on v3](#round-3-feedback-on-v3-2026-11-02)
 5. [Round 4: feedback on the built shelf and walls](#round-4-feedback-on-the-built-shelf-and-walls-2026-11-05)
 6. [Round 5: audit, polish and the work page](#round-5-audit-polish-and-the-work-page-2026-11-11)
+   - [Round 6: feedback on the built preview](#round-6-feedback-on-the-built-preview-2026-11-11) (at the end)
 7. [Decisions so far](#decisions-so-far)
 8. [Open questions](#open-questions)
 9. [Later, not now](#later-not-now)
@@ -304,3 +305,78 @@ None open. Asked after v3 and answered on 2026-11-02:
 - Comparison page: `docs/redesign/compare/index.html` (open from disk; rows marked "not stored in the repo" need the local images in `compare/local/`).
 - Measured: see the measured table above (every scenario 0 frames over 20 ms in headless Chrome; LCP 5.0 s on the slow 4G phone profile because the loader reveals the roles line by design).
 - Waiting for Aditya: the device checks in the table above; real videos, covers, clients and the intro line in `content/site/work.json`; the role dates in `content/site/timeline.json`; whether a Mac mouse wheel should zoom the timeline; the variations in spec section 8.
+
+## Round 6: feedback on the built preview (2026-11-11)
+
+Given after looking at the local preview of the round 5 build. Design outline: [2026-11-11-round6-design.md](../superpowers/specs/2026-11-11-round6-design.md). Build plan: [2026-11-11-round6.md](../superpowers/plans/2026-11-11-round6.md).
+
+**Asked for**
+
+Order of work: get every asset and install first, then fix the bugs, then build the features. Fable analyses, asks and plans; Sonnet builds; Opus oversees.
+
+Work page
+- The stack marks become the real app icons, and sit a little further from the centre. Every radius grows.
+- Everything should overflow the screen like the Vitra chairs page, so the amount of work feels massive. More videos, wider, two layers each of long form and short form, larger thumbnails. Try alternating layers against two and two.
+- Remove the clients panel and hide clients on the whole site for now. The focus is long form and short form.
+- The background looks bad: either flat or with real depth. Install the `shaders` library and find something better with the design skills.
+- The bottom row reads Long form, Short form, My experience. No All tab, no Clients tab.
+- On the long form and short form views the stack icons at the top right go. Something useful takes that corner.
+- Each video wall becomes the ObsidianUI art gallery component: far smaller margins, a very slow movement, a scale small enough that every video is on screen. Not endless like the YouTube wall. Long form the same with its own scale.
+- Moving between long form and short form does not go back through the rings. A glass change, or the old videos leave and the new ones scale in.
+- The switcher row appears oddly; it should arrive on a slight delay.
+- On a phone and on a tablet the ring items overlap with no pattern.
+
+Page changes
+- Home to work is buggy and laggy.
+- Every page change (home, work, experience and between them) uses the same liquid-glass refraction as the paintings. Find the right use of a radial and a linear reveal.
+
+My experience (replaces the timeline)
+- Remove the day grid. Show Olympus Mons on Mars from straight above, peak in the centre, in high resolution, 2D throughout.
+- Trace a line toward the mountain that marks the main moments: part-time short form editor (Feb 2021), graduated and full time (Jun 2021), social media manager (Jan 2022), started making YouTube videos and Reels (Sep 2022), content head and producer (Jan 2023, find a better title), interviewed the German embassy's spokesperson at the embassy (Jun 2024), quit and went freelance full time (Dec 2025). Better words for all of it.
+- "Now" is a repeating radar ping.
+- Two zoom states: zoomed out with the whole mountain and small markers; zoomed in, moving around like Google Earth.
+- A separate layer can point out places on and around the mountain.
+- Zoomed out: "My experience" at the top left with a short description of the path from engineer to editor to content producer to full-time freelancer, and the mountain's name with the tallest-peak fact, like the painting captions.
+- Sent while the plan was being written: use a good orange picture of the mountain, not a brown one, so it belongs on the site; add an elliptical blur on all the edges so the eye stays on the middle.
+- The point of the page: a lot of interests, a jack of all trades.
+
+YouTube wall
+- The glow is too much. Tone it down; balance.
+- A subtle fish-eye warp at the borders.
+- No more lifting on hover. A large wall, a very small proximity effect on hover, and only on click does the chosen video take the centre with its title, subscribers and the rest below while the others move apart (reference: a museum collection wall).
+
+Book shelf
+- Keep the 3D books but lay the spines out flat, face on, large (reference: a row of scanned spines). On click the book lifts up, not out, and shows its cover as a 3D object.
+- Real spine pictures would be best. Brighter, less contrasty lighting; it should feel like a nice space.
+
+Whole site
+- Dark and orange is right, but it must not feel sad, depressing or over-saturated. Keep the contrast; fix the overall feel.
+
+**Answers to questions (2026-11-11)**
+
+| Question | Answer |
+| --- | --- |
+| Which apps get real icons | The 8 already shown: Premiere Pro, After Effects, Final Cut Pro, Blender, Photoshop, Illustrator, Figma, Lightroom |
+| Real videos or placeholders | Placeholders, 30 to 40 of each kind (60 was too many) |
+| Top-right corner on the video walls | A return mark that goes back to the rings |
+| Background | Deep and layered |
+| Where "now" sits | Part-way up, still climbing |
+| Route shape | Follows the terrain; it must not reach the peak ("I am still early in my career") |
+| Names in the copy | First company was Bharat in Germany; left in Dec 2025 to freelance |
+| Where the story starts | 2017: IIT (crossed out), started engineering at VESIT, Mumbai |
+| Wall depth | One flat plane; the two depth planes and the lean from round 5 go |
+| Book spines | Designed spines for now; photos can replace them later, one image per book |
+| Site mood | Warmer, cleaner darks: neutral warm charcoal grounds, cream carries the light, orange only for accents, glows cut back |
+| Review step | Plan, then build straight away |
+
+**My calls (say if any is wrong)**
+
+- Long form and short form become their own addresses (`/work/long-form`, `/work/short-form`) and the timeline becomes `/experience`, so one glass page change covers every move. `/timeline` redirects.
+- Radial reveal (from the control that was clicked) for moves between sections; linear sweep for the move between long form and short form.
+- The ring overlap on phones and tablets is fixed by the ring rebuild, not by a patch to the old layout: items keep a fixed clearance at every width and the outer rings run off the screen.
+- At laptop sizes the ring thumbnails grow only a little (about 100 to 115 px wide at 1440 by 900), because 70 upright videos that never overlap need the room. They grow with the screen. The walls show every video.
+- Alternating layers (long, short, long, short) ship; the two-and-two order is one constant away and both are photographed for comparison.
+- Spines may use serif and script type: they are book art, not interface.
+- Real app icons come from the vendor or Wikimedia Commons with the source recorded. Any icon that cannot be sourced that way keeps its two-letter mark and is listed.
+- "Bharat in Germany" is read as the company's name for all roles from Feb 2021 to Dec 2025.
+- The `shaders` background needs WebGPU; other browsers get a still gradient.
