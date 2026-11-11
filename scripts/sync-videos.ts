@@ -1,20 +1,26 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { VideosFileSchema } from "../app/content/schemas";
 import type { SiteVideo } from "../app/types";
 import {
   diffVideos,
   extractInitialData,
+  hasContinuation,
+  mapLimit,
   mergeSubscribers,
+  noCountMessage,
   parsePlaylist,
   parseSubscribers,
+  thumbFromStatus,
+  withRetry,
 } from "./youtube";
+import { readPrevious, writeFileAtomic } from "./sync-helpers";
 
 const PLAYLIST_ID = "PLV4vaojDpwnw";
 const PLAYLIST_URL = `https://www.youtube.com/playlist?list=${PLAYLIST_ID}`;
 const OUTPUT = path.join(process.cwd(), "content", "site", "videos.json");
 const CONCURRENCY = 4;
 const REQUEST_TIMEOUT_MS = 20_000;
+const RETRY_DELAY_MS = 2_000;
 const HEADERS = {
   "Accept-Language": "en-US,en;q=0.9",
   "User-Agent":
@@ -34,40 +40,25 @@ const fetchText = async (url: string): Promise<string> => {
   return res.text();
 };
 
-/** Runs `worker` over `items`, at most `limit` at a time, keeping order. */
-const mapLimit = async <T, R>(
-  items: T[],
-  limit: number,
-  worker: (item: T) => Promise<R>,
-): Promise<R[]> => {
-  const results = new Array<R>(items.length);
-  let next = 0;
-  const run = async (): Promise<void> => {
-    while (next < items.length) {
-      const index = next++;
-      results[index] = await worker(items[index]);
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, run));
-  return results;
-};
-
-const readPrevious = (): SiteVideo[] => {
-  if (!existsSync(OUTPUT)) return [];
-  const parsed = VideosFileSchema.safeParse(
-    JSON.parse(readFileSync(OUTPUT, "utf8")),
-  );
-  return parsed.success ? parsed.data.items : [];
-};
-
 const main = async (): Promise<void> => {
-  const previous = readPrevious();
+  const previous = readPrevious(OUTPUT);
   const previousById = new Map(previous.map((v) => [v.id, v]));
   const previousSubs = new Map(
     previous.map((v) => [v.channelUrl, v.subscribers]),
   );
 
-  const entries = parsePlaylist(extractInitialData(await fetchText(PLAYLIST_URL)));
+  const page = extractInitialData(
+    await withRetry(() => fetchText(PLAYLIST_URL), RETRY_DELAY_MS),
+  );
+  if (hasContinuation(page)) {
+    console.warn(
+      "Warning: playlist longer than one page; only the first page was read",
+    );
+  }
+  const { videos: entries, skipped } = parsePlaylist(page);
+  for (const id of skipped) {
+    console.warn(`Warning: skipped ${id}, it has no title or channel`);
+  }
   if (entries.length === 0) throw new Error("The playlist has no videos");
   console.log(`Playlist: ${entries.length} videos`);
 
@@ -77,9 +68,7 @@ const main = async (): Promise<void> => {
     try {
       const count = parseSubscribers(await fetchText(url));
       if (count === null) {
-        console.warn(
-          `Warning: no subscriber count at ${url}, keeping the previous count`,
-        );
+        console.warn(`Warning: ${noCountMessage(url, previousSubs.get(url))}`);
       }
       counts.set(url, mergeSubscribers(count, previousSubs.get(url)));
     } catch (error) {
@@ -91,17 +80,18 @@ const main = async (): Promise<void> => {
   });
 
   const thumbs = await mapLimit(entries, CONCURRENCY, async (entry) => {
+    const before = previousById.get(entry.id)?.thumb;
     try {
       const res = await request(
         `https://i.ytimg.com/vi/${entry.id}/sddefault.jpg`,
         "HEAD",
       );
-      return res.status === 200 ? ("sd" as const) : ("hq" as const);
+      return thumbFromStatus(res.status, before);
     } catch (error) {
       console.warn(
         `Warning: thumbnail check failed for ${entry.id}, keeping the previous value (${String(error)})`,
       );
-      return previousById.get(entry.id)?.thumb ?? ("sd" as const);
+      return thumbFromStatus(null, before);
     }
   });
 
@@ -116,7 +106,7 @@ const main = async (): Promise<void> => {
     syncedAt: new Date().toISOString(),
     items,
   });
-  writeFileSync(OUTPUT, `${JSON.stringify(file, null, 2)}\n`);
+  writeFileAtomic(OUTPUT, `${JSON.stringify(file, null, 2)}\n`);
 
   const diff = diffVideos(previous, items);
   const nulls = items.filter((v) => v.subscribers === null).length;

@@ -6,18 +6,18 @@ Status: **open** until a task changes it to **fixed (commit)** or **closed (reas
 
 | No. | From task | Note | Status |
 | --- | --- | --- | --- |
-| D-01 | 2 | any non-200 thumb HEAD stored as hq (only 404 should be) | open |
-| D-02 | 2 | readPrevious JSON.parse outside safeParse aborts on corrupt videos.json | open |
-| D-03 | 2 | write not atomic (temp file + rename) | open |
-| D-04 | 2 | diffVideos compares JSON.stringify (key-order dependent) | open |
-| D-05 | 2 | mapLimit / keep-previous / trim / "header present no count" untested | open |
-| D-06 | 2 | one unavailable video lockup throws and blocks the whole sync | open |
-| D-07 | 2 | playlist continuation (>100 items) ignored silently | open |
-| D-08 | 2 | no retry on transient playlist fetch failure | open |
-| D-09 | 2 | vite-node prints Remix future-flag warnings (use a dedicated --config) | open |
-| D-10 | 2 | warning text "keeping the previous count" is false when there is no previous count | open |
-| D-11 | 2 | readPrevious returns [] silently on an invalid committed file, disabling keep-previous for that run | open |
-| D-12 | 3 | loaders.test.ts unique-id assertion can never fail (ensureUniqueBy throws first) | open |
+| D-01 | 2 | any non-200 thumb HEAD stored as hq (only 404 should be) | fixed (R37.1) |
+| D-02 | 2 | readPrevious JSON.parse outside safeParse aborts on corrupt videos.json | fixed (R37.1) |
+| D-03 | 2 | write not atomic (temp file + rename) | fixed (R37.1) |
+| D-04 | 2 | diffVideos compares JSON.stringify (key-order dependent) | fixed (R37.1) |
+| D-05 | 2 | mapLimit / keep-previous / trim / "header present no count" untested | fixed (R37.1) |
+| D-06 | 2 | one unavailable video lockup throws and blocks the whole sync | fixed (R37.1) |
+| D-07 | 2 | playlist continuation (>100 items) ignored silently | fixed (R37.1): warns that only the first page was read; following the continuation stays out of scope (53 videos today) |
+| D-08 | 2 | no retry on transient playlist fetch failure | fixed (R37.1) |
+| D-09 | 2 | vite-node prints Remix future-flag warnings (use a dedicated --config) | fixed (R37.1) |
+| D-10 | 2 | warning text "keeping the previous count" is false when there is no previous count | fixed (R37.1) |
+| D-11 | 2 | readPrevious returns [] silently on an invalid committed file, disabling keep-previous for that run | fixed (R37.1) |
+| D-12 | 3 | loaders.test.ts unique-id assertion can never fail (ensureUniqueBy throws first) | closed (the assertion is redundant by design: `ensureUniqueBy` throws on a duplicate before the test can see one, so the test only confirms the load succeeds; the duplicate-id test is D-13) |
 | D-13 | 3 | no duplicate-id test | open |
 | D-14 | 3 | long destructuring line in loaders.server.ts:35 | open |
 | D-15 | 3 | home response carries books+videos (~18 KB) before anything renders them | open |

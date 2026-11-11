@@ -139,6 +139,42 @@
                               }
                             }
                           }
+                        },
+                        {
+                          "lockupViewModel": {
+                            "contentId": "untitledVid1",
+                            "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+                            "metadata": {
+                              "lockupMetadataViewModel": {
+                                "metadata": {
+                                  "contentMetadataViewModel": {
+                                    "metadataRows": [
+                                      {
+                                        "metadataParts": [
+                                          {
+                                            "text": {
+                                              "content": "daninblue",
+                                              "commandRuns": [
+                                                {
+                                                  "onTap": {
+                                                    "innertubeCommand": {
+                                                      "browseEndpoint": {
+                                                        "canonicalBaseUrl": "/@daninblue"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          }
                         }
                       ]
                     }

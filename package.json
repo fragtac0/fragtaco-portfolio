@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "sync:videos": "vite-node scripts/sync-videos.ts",
+    "sync:videos": "vite-node --config scripts/vite.sync.config.ts scripts/sync-videos.ts",
     "paintings": "node scripts/make-paintings.mjs",
     "lint": "eslint . --cache --cache-location .cache/eslint",
     "check": "npm run typecheck && npm run lint && npm run build"
