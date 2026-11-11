@@ -212,3 +212,50 @@ export const WorkSchema = z.object({
   shortForm: z.array(WorkVideoSchema).refine(hasUniqueIds, uniqueIds),
   clients: z.array(WorkClientSchema).refine(hasUniqueIds, uniqueIds),
 });
+
+// Timeline page (content/site/timeline.json). Dates are real ISO days; each role runs until the next starts.
+const isRealIsoDate = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+};
+
+const IsoDateSchema = z.string().refine(isRealIsoDate, "Expected a real date as YYYY-MM-DD");
+
+export const TimelineRoleSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  from: IsoDateSchema,
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Expected a colour as #rrggbb"),
+});
+
+export const TimelineMarkSchema = z.object({
+  date: IsoDateSchema,
+  label: z.string().min(1),
+});
+
+// ISO dates compare correctly as strings.
+export const TimelineSchema = z
+  .object({
+    start: IsoDateSchema,
+    roles: z.array(TimelineRoleSchema).min(1).refine(hasUniqueIds, uniqueIds),
+    marks: z.array(TimelineMarkSchema),
+  })
+  .superRefine((timeline, ctx) => {
+    if (timeline.roles.length > 0 && timeline.roles[0].from !== timeline.start) {
+      ctx.addIssue({ code: "custom", path: ["roles", 0, "from"], message: "The first role starts on the start date" });
+    }
+    timeline.roles.forEach((role, i) => {
+      if (i > 0 && role.from <= timeline.roles[i - 1].from) {
+        ctx.addIssue({ code: "custom", path: ["roles", i, "from"], message: "Roles must be in strictly ascending date order" });
+      }
+    });
+    timeline.marks.forEach((mark, i) => {
+      if (mark.date < timeline.start) {
+        ctx.addIssue({ code: "custom", path: ["marks", i, "date"], message: "A mark cannot be before the start date" });
+      }
+    });
+  });

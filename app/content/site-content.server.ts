@@ -10,6 +10,7 @@ import {
   NavigationItemSchema,
   ReachOutSectionSchema,
   SocialLinkSchema,
+  TimelineSchema,
   VideosFileSchema,
   WorkSchema,
 } from "./schemas";
@@ -21,6 +22,7 @@ import type {
   SiteHomeContent,
   SiteNavigationItem,
   SiteSocialLink,
+  SiteTimeline,
   SiteVideosFile,
   SiteWork,
 } from "../types";
@@ -88,6 +90,10 @@ export async function getReachOutSection(): Promise<SiteReachOutSection> {
 
 export async function getWork(): Promise<SiteWork> {
   return loadJsonFile("work.json", WorkSchema);
+}
+
+export async function getTimeline(): Promise<SiteTimeline> {
+  return loadJsonFile("timeline.json", TimelineSchema);
 }
 
 export async function getNavigationItems(): Promise<SiteNavigationItem[]> {

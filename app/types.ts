@@ -171,3 +171,21 @@ export interface SiteWork {
   shortForm: WorkVideo[];
   clients: WorkClient[];
 }
+
+export interface TimelineRole {
+  id: string;
+  label: string;
+  from: string;
+  color: string;
+}
+
+export interface TimelineMark {
+  date: string;
+  label: string;
+}
+
+export interface SiteTimeline {
+  start: string;
+  roles: TimelineRole[];
+  marks: TimelineMark[];
+}
