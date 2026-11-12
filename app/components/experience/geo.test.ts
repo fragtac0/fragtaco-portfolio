@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { CENTRE, LEVELS, LON_SCALE, LON_SPAN_DEG, SIZE, SPAN_DEG, TILE } from "../../../scripts/mars-frame.mjs";
 import {
   ManifestSchema,
   extentRadius,
@@ -17,12 +16,21 @@ import {
   type Manifest,
 } from "./geo";
 
+// The round 6 tile pyramid's frame, kept here until Task 19 deletes the pyramid with the code that reads it.
+const CENTRE = { lon: 226.795, lat: 18.366 };
+const SPAN_DEG = 14;
+const LON_SCALE = Math.cos((CENTRE.lat * Math.PI) / 180);
+const LON_SPAN_DEG = SPAN_DEG / LON_SCALE;
+const TILE = 512;
+const LEVELS = 5;
+const SIZE = TILE * 2 ** (LEVELS - 1);
+
 const manifest: Manifest = ManifestSchema.parse(
   JSON.parse(readFileSync(path.join(process.cwd(), "public", "mars", "manifest.json"), "utf8")),
 );
 
 describe("the manifest", () => {
-  it("parses and agrees with scripts/mars-frame.mjs", () => {
+  it("parses and holds the round 6 frame constants", () => {
     expect(manifest.centre).toEqual(CENTRE);
     expect(manifest.spanDeg).toBe(SPAN_DEG);
     expect(manifest.lonScale).toBeCloseTo(LON_SCALE, 12);

@@ -8,11 +8,10 @@
 //   y = 0.5 - (lat - c.lat) / spanDeg
 //
 // and in picture pixels at the top level of the tile pyramid that is the fraction times `size`.
-// scripts/mars-frame.mjs holds the same constants for the script that made the tiles; the tests
-// compare the two.
+// The round 7 map's own frame lives in scripts/mars-frame.mjs; this file is round 6 and goes in Task 19.
 import { z } from "zod";
 
-/** `public/mars/manifest.json`, written by `scripts/make-mars.mjs`. */
+/** `public/mars/manifest.json`, written by the round 6 version of `scripts/make-mars.mjs`. */
 export const ManifestSchema = z.object({
   centre: z.object({ lon: z.number(), lat: z.number() }),
   spanDeg: z.number().positive(),
