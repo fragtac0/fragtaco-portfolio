@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import type { SiteNavigationItem, SiteSocialLink, SiteTimeline } from "../../types";
-import SiteNav from "../site-nav";
+import type { SiteTimeline } from "../../types";
 import WorkBackground from "../work/work-background";
 import { createTimeline, type HoverHit, type Timeline } from "./timeline-canvas";
 import { KEY_ZOOM } from "./timeline-input";
@@ -13,8 +12,6 @@ import "./timeline.css";
 interface TimelinePageProps {
   timeline: SiteTimeline;
   today: string;
-  navigationItems: SiteNavigationItem[];
-  socialLinks: SiteSocialLink[];
 }
 
 const CANVAS_LABEL =
@@ -31,7 +28,7 @@ const reducedMotion = () => reducedMotionQuery().matches;
  * tooltip and the spoken day are written straight into the DOM from the canvas's hover callback, so
  * nothing in React changes per frame; the canvas mirrors its view in `data-scale`, `data-x` and `data-y`.
  */
-export default function TimelinePage({ timeline, today, navigationItems, socialLinks }: TimelinePageProps) {
+export default function TimelinePage({ timeline, today }: TimelinePageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const liveRef = useRef<HTMLParagraphElement>(null);
@@ -148,7 +145,6 @@ export default function TimelinePage({ timeline, today, navigationItems, socialL
           ))}
         </tbody>
       </table>
-      <SiteNav items={navigationItems} socialLinks={socialLinks} />
     </main>
   );
 }

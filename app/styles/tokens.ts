@@ -5,6 +5,9 @@
  */
 export const GROUND = "#0e0e0d";
 export const SURFACE_1 = "#171716";
+/** The work ground's pool of light and its ember at their brightest (`--ground-pool`, `--ground-ember`), for the shader. */
+export const GROUND_POOL = "#2a2927";
+export const GROUND_EMBER = "#6a2a0b";
 /** The accent and the cream of tokens.css (`--accent`, and `--cream` under `.home-page`), for the glass front's pictures. */
 export const ACCENT = "#fc4c00";
 export const CREAM = "#fdfce6";

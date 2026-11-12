@@ -1,0 +1,331 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__submits=0;\nif(window.GPUQueue){const s=GPUQueue.prototype.submit;GPUQueue.prototype.submit=function(){window.__submits++;return s.apply(this,arguments)}}\nwindow.__t0=performance.now();\nwindow.__canvas=()=>document.querySelector('canvas.work-ground-still');window.__shaderCanvas=()=>document.querySelector('canvas[data-renderer=shaders]');\nwindow.__waitGround=async(ms)=>{const t=performance.now();while(performance.now()-t<(ms||12000)&&!document.querySelector('.work-ground-fade[data-shown=true]'))await new Promise(r=>setTimeout(r,25));await new Promise(r=>setTimeout(r,200));return window.__canvas()};\nwindow.__ground=()=>{const c=window.__canvas(),f=document.querySelector('.work-ground-fade'),b=document.querySelector('.work-ground-box');const r=b&&b.getBoundingClientRect();const sr=c&&c.getBoundingClientRect();return{stillCss:sr&&[Math.round(sr.width),Math.round(sr.height)],framesDrawn:f&&f.dataset.groundFrames,still:!!c,shaderRunning:!!window.__shaderCanvas(),backing:c&&[c.width,c.height],boxCss:r&&[Math.round(r.width),Math.round(r.height)],shown:f&&f.dataset.shown,k:f&&f.style.getPropertyValue('--ground-k'),dpr:devicePixelRatio,screenCss:[innerWidth,innerHeight],pixelsPerScreenCssPx:c&&+(c.width/innerWidth).toFixed(3),pixelsPerStillCssPx:c&&+(c.width/c.clientWidth).toFixed(3)}};\nwindow.__frames=(ms)=>new Promise(res=>{let last=0,max=0,over20=0,n=0;const t0=performance.now();const tick=t=>{if(last){const d=t-last;n++;if(d>max)max=d;if(d>20)over20++}last=t;if(t-t0<ms)requestAnimationFrame(tick);else res(JSON.stringify({frames:n,maxGap:Math.round(max*10)/10,over20}))};requestAnimationFrame(tick)});\nwindow.__submitsOver=(ms)=>new Promise(res=>{const a=window.__submits;setTimeout(()=>res(window.__submits-a),ms)});\nwindow.__bare=(on)=>{for(const s of ['.work-stage','[data-row-open]','.wall-page']){document.querySelectorAll(s).forEach(e=>e.style.visibility=on?'hidden':'')}};\nwindow.__fakeHidden=(h)=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>h});Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>h?'hidden':'visible'});document.dispatchEvent(new Event('visibilitychange'))};\n",
+  "reduce": false,
+  "nocache": true
+ },
+ {
+  "go": "{{BASE}}/work",
+  "wait": 400
+ },
+ {
+  "eval": "(async()=>{const c=await window.__waitGround(15000);return JSON.stringify({mountedAtMs:Math.round(performance.now()-window.__t0),chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('ground-scene')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/1024),decodedKB:Math.round(e.decodedBodySize/1024)})),state:window.__ground()})})()",
+  "label": "1-run-1440x900"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "requests": {
+   "match": "ground-scene"
+  },
+  "label": "1-requests (every host touched while loading /work and starting the ground)"
+ },
+ {
+  "eval": "window.__ground()",
+  "label": "1-ground-after-fade"
+ },
+ {
+  "shot": "r43-ground-warm"
+ },
+ {
+  "shot": "r43-ground-1440-rings"
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "1-sample-with-rings (1440x900, dpr 1)"
+ },
+ {
+  "eval": "window.__bare(true);1",
+  "label": "1-hide-rings-and-dock"
+ },
+ {
+  "wait": 300
+ },
+ {
+  "shot": "r43-ground-warm2"
+ },
+ {
+  "shot": "r43-ground-1440-bare"
+ },
+ {
+  "sample": {
+   "grid": [
+    12,
+    6
+   ]
+  },
+  "label": "1-sample-ground-only (1440x900, dpr 1)"
+ },
+ {
+  "eval": "window.__bare(false);1",
+  "label": "1-show-rings-again"
+ },
+ {
+  "wait": 500
+ },
+ {
+  "eval": "window.__frames(6000)",
+  "label": "1-frames-ground-running (6 s, 1440x900, CPU 1x, rings turning)"
+ },
+ {
+  "eval": "(async()=>{const a=await window.__submitsOver(2000);return JSON.stringify({submitsIn2s:a,perSecond:a/2})})()",
+  "label": "1-gpu-submits-per-second (idle after the first frames; was 60 with the drivers)"
+ },
+ {
+  "eval": "(async()=>{const before=!!window.__canvas();window.__fakeHidden(true);await new Promise(r=>setTimeout(r,300));const hiddenStill=!!window.__canvas();const s=await window.__submitsOver(1000);window.__fakeHidden(false);await new Promise(r=>setTimeout(r,500));return JSON.stringify({stillBefore:before,stillWhileHidden:hiddenStill,shaderRunningWhileHidden:!!window.__shaderCanvas(),gpuSubmitsInOneSecondWhileHidden:s,stillAfterReturn:!!window.__canvas(),shaderRunningAfterReturn:!!window.__shaderCanvas()})})()",
+  "label": "1-hidden-tab (a still is on screen, no shader exists, nothing is submitted)"
+ },
+ {
+  "wait": 800
+ },
+ {
+  "eval": "(async()=>{window.__keep=window.__canvas();const go=async(href)=>{const a=[...document.querySelectorAll('a')].find(x=>x.getAttribute('href')===href);if(!a)return 'no link '+href;a.click();const t=performance.now();while(performance.now()-t<6000&&location.pathname!==href)await new Promise(r=>setTimeout(r,50));await new Promise(r=>setTimeout(r,2500));return location.pathname+' same canvas: '+(window.__canvas()===window.__keep)};const a=await go('/work/long-form');const b=await go('/work/short-form');return JSON.stringify([a,b])})()",
+  "label": "1-persists-across-work-addresses"
+ },
+ {
+  "shot": "r43-ground-warm3"
+ },
+ {
+  "shot": "r43-ground-short-form"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/work",
+  "wait": 400
+ },
+ {
+  "eval": "(async()=>{await window.__waitGround(15000);await new Promise(r=>setTimeout(r,800));return JSON.stringify(window.__ground())})()",
+  "label": "2-dpr2-1440x900"
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "2-sample (1440x900, dpr 2)"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/work",
+  "wait": 400
+ },
+ {
+  "eval": "(async()=>{await window.__waitGround(15000);await new Promise(r=>setTimeout(r,800));return JSON.stringify(window.__ground())})()",
+  "label": "3-phone-390x844-dpr3"
+ },
+ {
+  "eval": "(async()=>{await new Promise(r=>setTimeout(r,1500));const a=await window.__submitsOver(2000);return JSON.stringify({submitsIn2s:a,perSecond:a/2})})()",
+  "label": "3-gpu-submits-per-second-phone"
+ },
+ {
+  "shot": "r43-ground-warm4"
+ },
+ {
+  "shot": "r43-ground-390-rings"
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "3-sample-with-rings (390x844, dpr 3)"
+ },
+ {
+  "eval": "window.__bare(true);1",
+  "label": "3-hide-rings-and-dock"
+ },
+ {
+  "wait": 300
+ },
+ {
+  "shot": "r43-ground-warm5"
+ },
+ {
+  "shot": "r43-ground-390-bare"
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "3-sample-ground-only (390x844, dpr 3)"
+ },
+ {
+  "size": [
+   1920,
+   1080
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/work",
+  "wait": 400
+ },
+ {
+  "eval": "(async()=>{await window.__waitGround(15000);await new Promise(r=>setTimeout(r,800));window.__bare(true);return JSON.stringify(window.__ground())})()",
+  "label": "4-1920x1080"
+ },
+ {
+  "wait": 300
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "4-sample-ground-only (1920x1080, dpr 1)"
+ },
+ {
+  "size": [
+   900,
+   1000
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false
+ },
+ {
+  "eval": "(async()=>{const t=performance.now();while(performance.now()-t<6000&&(document.querySelector('.work-ground-fade').dataset.groundFrames!=='2'||document.querySelector('.work-ground-fade').dataset.groundLive!=='false'))await new Promise(r=>setTimeout(r,50));await new Promise(r=>setTimeout(r,300));const s=await window.__submitsOver(1000);return JSON.stringify({state:window.__ground(),submitsInOneSecondAfter:s})})()",
+  "label": "4-resize-1920x1080-to-900x1000 (framesDrawn goes 1 to 2: a new frame is taken, then idle again)"
+ },
+ {
+  "requests": {
+   "match": "ground-scene"
+  },
+  "label": "reset"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "JSON.stringify({still:!!window.__canvas(),shaderRunning:!!window.__shaderCanvas(),wash:!!document.querySelector('.work-wash'),groundNode:!!document.querySelector('.work-bg-ground')})",
+  "label": "5-experience-has-no-ground"
+ },
+ {
+  "requests": {
+   "match": "ground-scene"
+  },
+  "label": "5-experience-requests"
+ },
+ {
+  "requests": {
+   "match": "ground-scene"
+  },
+  "label": "reset"
+ },
+ {
+  "reduce": true,
+  "go": "{{BASE}}/work",
+  "wait": 3500
+ },
+ {
+  "eval": "JSON.stringify({still:!!window.__canvas(),shaderRunning:!!window.__shaderCanvas(),wash:!!document.querySelector('.work-wash')})",
+  "label": "6-reduced-motion-state"
+ },
+ {
+  "requests": {
+   "match": "ground-scene"
+  },
+  "label": "6-reduced-motion-requests"
+ },
+ {
+  "shot": "r43-ground-warm6"
+ },
+ {
+  "shot": "r43-ground-css-fallback"
+ },
+ {
+  "eval": "window.__bare(true);1",
+  "label": "6-hide-rings-and-dock"
+ },
+ {
+  "wait": 300
+ },
+ {
+  "shot": "r43-ground-warm7"
+ },
+ {
+  "shot": "r43-ground-1440-bare-fallback"
+ },
+ {
+  "sample": {
+   "grid": [
+    12,
+    6
+   ]
+  },
+  "label": "6-sample-fallback-ground-only (1440x900)"
+ },
+ {
+  "reduce": false
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "requests": {
+   "match": "ground-scene"
+  },
+  "label": "reset"
+ },
+ {
+  "init": "try{delete Navigator.prototype.gpu}catch(e){}",
+  "go": "{{BASE}}/work",
+  "wait": 3500
+ },
+ {
+  "eval": "JSON.stringify({gpu:!!navigator.gpu,still:!!window.__canvas(),shaderRunning:!!window.__shaderCanvas(),wash:!!document.querySelector('.work-wash')})",
+  "label": "7-no-webgpu-state"
+ },
+ {
+  "requests": {
+   "match": "ground-scene"
+  },
+  "label": "7-no-webgpu-requests"
+ },
+ {
+  "eval": "window.__frames(4000)",
+  "label": "7-frames-without-ground (the same page, 4 s, for comparison)"
+ }
+]

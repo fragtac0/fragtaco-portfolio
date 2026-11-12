@@ -1,0 +1,35 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\n// every ring and its items' turn-back to one random share of the ring's period, paused\nwindow.__phase=(seed)=>{let s=seed>>>0;const rnd=()=>((s=(Math.imul(s,1664525)+1013904223)>>>0)/4294967296);\n document.getAnimations().filter(a=>a.animationName==='work-ring-in').forEach(a=>a.finish());\n for(const ul of document.querySelectorAll('.work-ring')){const f=rnd();\n  for(const a of ul.getAnimations({subtree:true})){if(a.animationName!=='work-spin'&&a.animationName!=='work-unspin')continue;\n   a.pause();a.currentTime=f*a.effect.getTiming().duration}}return seed};\n// the smallest gap between two item boxes (negative: they overlap) at the current phase\nwindow.__gap=()=>{const b=[...document.querySelectorAll('.work-item-turn')].map(e=>{const r=e.getBoundingClientRect();return{l:r.left,r:r.right,t:r.top,b:r.bottom,id:e.parentElement.dataset.id}});\n let min=Infinity,pair='',touching=0;\n for(let i=0;i<b.length;i++)for(let j=i+1;j<b.length;j++){const a=b[i],c=b[j];\n  const g=Math.max(a.l-c.r,c.l-a.r,a.t-c.b,c.t-a.b);if(g<min){min=g;pair=a.id+' / '+c.id}if(g<11.99)touching++}\n return{n:b.length,min,pair,touching}};\nwindow.__sweep=(k)=>{let min=Infinity,pair='',touching=0,n=0;\n for(let i=1;i<=k;i++){window.__phase(i*7919);const g=window.__gap();n=g.n;touching+=g.touching;if(g.min<min){min=g.min;pair=g.pair}}\n return{items:n,phases:k,minGap:+min.toFixed(2),worst:pair,pairsUnder12:touching}};\n// frame gaps over ms: how many frames, the average, the 95th percentile, the worst and how many were over 20 ms\nwindow.__frames=(ms)=>new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<ms)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);\n r(JSON.stringify({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length}))}}requestAnimationFrame(f)});\n// every ring back to the start of its turn, still running, and where its first item then is\nwindow.__start=(sel)=>{document.getAnimations().filter(a=>a.animationName==='work-ring-in').forEach(a=>a.finish());\n for(const a of document.getAnimations())if(a.animationName==='work-spin'||a.animationName==='work-unspin')a.currentTime=0;\n const r=document.querySelector(sel).getBoundingClientRect();return JSON.stringify([Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)])};\n// wait for every ring of the plan to be mounted (one per frame after the page change)\nwindow.__ready=(want)=>new Promise(res=>{const t0=performance.now();const w=setInterval(()=>{\n const n=document.querySelectorAll('.work-ring').length;\n if((n>=want&&document.querySelectorAll('.work-item').length>0)||performance.now()-t0>6000){clearInterval(w);res(n)}},30)});\n// the arrival of the rings as the page sets it: a recorder from the start of the page notes each ring group's\n// animation the first frame it is seen (delay, length and where it starts) and when that was\nwindow.__arr=[];(function(){const t0=performance.now();const f=()=>{\n for(const g of document.querySelectorAll('.work-ring-group')){if(g.__seen)continue;const a=g.getAnimations().find(x=>x.animationName==='work-ring-in');\n  if(a){g.__seen=1;const t=a.effect.getTiming();window.__arr.push({ring:g.dataset.ring,delay:t.delay,duration:t.duration,from:a.effect.getKeyframes()[0].scale,seenAtMs:Math.round(performance.now()-t0)})}}\n if(performance.now()-t0<3500)requestAnimationFrame(f)};requestAnimationFrame(f)})();\nwindow.__arrival=()=>JSON.stringify(window.__arr);\n// the intro inside the stack ring: the least room between its text and the stack icons, in px\nwindow.__intro=()=>{const cx=innerWidth/2,cy=innerHeight/2;const ul=document.querySelector('.work-ring[data-ring-id=\"stack\"]');\n const R=parseFloat(ul.style.getPropertyValue('--r'));const icon=ul.querySelector('.work-item-turn').getBoundingClientRect().width;\n let far=0;const rects=[];for(const el of document.querySelectorAll('.work-title,.work-text-full,.work-text-short')){\n  if(getComputedStyle(el).display==='none')continue;const r=document.createRange();r.selectNodeContents(el);rects.push(...r.getClientRects())}\n for(const r of rects)for(const x of [r.left,r.right])for(const y of [r.top,r.bottom])far=Math.max(far,Math.hypot(x-cx,y-cy));\n return{stackRadius:+R.toFixed(1),icon,textReach:+far.toFixed(1),roomToIcons:+(R-icon/2-far).toFixed(1)}};\n// neutral generated pictures (no third party) when the real ones cannot be loaded\nwindow.__fake=()=>{let i=0;for(const img of document.querySelectorAll('.work-cover img')){i++;const tall=img.closest('.work-item').dataset.ring==='short';\n const W=tall?360:640,H=tall?640:360,hue=(i*47)%360;\n const svg='<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 '+W+' '+H+'\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl('+hue+',45%,38%)\"/><stop offset=\"1\" stop-color=\"hsl('+((hue+60)%360)+',50%,22%)\"/></linearGradient></defs><rect width=\"'+W+'\" height=\"'+H+'\" fill=\"url(#g)\"/><path d=\"M0 0H90L0 90Z\" fill=\"rgba(255,255,255,.35)\"/><text x=\"'+W/2+'\" y=\"'+(H/2+30)+'\" font-family=\"monospace\" font-size=\"'+Math.round(H*.22)+'\" text-anchor=\"middle\" fill=\"rgba(255,255,255,.85)\">'+i+'</text></svg>';\n img.src='data:image/svg+xml;utf8,'+encodeURIComponent(svg)}return i};",
+  "go": "{{BASE}}/work",
+  "wait": 1500,
+  "eval": "window.__ready(5)",
+  "label": "ready"
+ },
+ {
+  "eval": "window.__fake()",
+  "wait": 600,
+  "label": "generated pictures on tiles"
+ },
+ {
+  "eval": "window.__sweep(40)",
+  "label": "overlap at 40 phases"
+ },
+ {
+  "eval": "window.__phase(104729)",
+  "wait": 300
+ },
+ {
+  "shot": "warm-rings-mode"
+ },
+ {
+  "shot": "rings-mode"
+ }
+]

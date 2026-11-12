@@ -1,22 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { activeNavKey, isHomeSectionId, tabCurrent } from "./nav";
+import { activeNavKey, isHomeSectionId, legacyViewTarget, tabCurrent } from "./nav";
 
 describe("activeNavKey", () => {
   it("reads the home page as home", () => {
     expect(activeNavKey("/")).toBe("home");
   });
 
-  it("reads /work and /timeline, and anything under them, as work", () => {
+  it("reads /work and /experience, and anything under them, as work", () => {
     expect(activeNavKey("/work")).toBe("work");
     expect(activeNavKey("/work/")).toBe("work");
     expect(activeNavKey("/work/some-project")).toBe("work");
-    expect(activeNavKey("/timeline")).toBe("work");
-    expect(activeNavKey("/timeline/2024")).toBe("work");
+    expect(activeNavKey("/work/long-form")).toBe("work");
+    expect(activeNavKey("/work/short-form")).toBe("work");
+    expect(activeNavKey("/experience")).toBe("work");
   });
 
   it("matches whole path segments only", () => {
     expect(activeNavKey("/workshop")).toBeNull();
-    expect(activeNavKey("/timelines")).toBeNull();
+    expect(activeNavKey("/experiences")).toBeNull();
+    expect(activeNavKey("/timeline")).toBeNull();
   });
 
   it("gives null for any other page", () => {
@@ -39,12 +41,28 @@ describe("tabCurrent", () => {
   });
 
   it("says true on a page that only belongs to the tab", () => {
-    expect(tabCurrent("/work", "/timeline", true)).toBe("true");
+    expect(tabCurrent("/work", "/experience", true)).toBe("true");
+    expect(tabCurrent("/work", "/work/long-form", true)).toBe("true");
     expect(tabCurrent("/work", "/work/some-project", true)).toBe("true");
   });
 
   it("says nothing on a tab that is not the active one", () => {
     expect(tabCurrent("/", "/work", false)).toBeUndefined();
     expect(tabCurrent("/work", "/", false)).toBeUndefined();
+  });
+});
+
+describe("legacyViewTarget", () => {
+  it("sends round 5 ?view= links to the new addresses", () => {
+    expect(legacyViewTarget("?view=long")).toBe("/work/long-form");
+    expect(legacyViewTarget("?view=short")).toBe("/work/short-form");
+    expect(legacyViewTarget("?view=clients")).toBe("/work");
+  });
+
+  it("leaves anything else alone", () => {
+    expect(legacyViewTarget("")).toBeNull();
+    expect(legacyViewTarget("?view=all")).toBeNull();
+    expect(legacyViewTarget("?view=other")).toBeNull();
+    expect(legacyViewTarget("?x=1")).toBeNull();
   });
 });

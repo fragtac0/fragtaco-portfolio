@@ -46,19 +46,191 @@
   "wait": 1200
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/work\\\"]\").click(); 1",
-  "wait": 3000
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/work\\\"]\").click(); new Promise(r=>setTimeout(r,2500)).then(()=>1)"
  },
  {
   "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
   "label": "work"
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); 1",
-  "wait": 3000
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,2500)).then(()=>1)"
  },
  {
   "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
   "label": "home-from-work"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__arm=()=>{const k=new Set();window.__k=k;const h=document.documentElement;\n new MutationObserver(()=>{if(h.dataset.changeKind)k.add(h.dataset.changeKind)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});return 'armed'};\nwindow.__state=()=>({path:location.pathname,title:document.title,\n active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.replace(', back to the rings','').trim().toLowerCase()+'='+e.getAttribute('aria-current')),\n kind:[...(window.__k||[])].join('+')||'none',\n rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row',\n hint:document.querySelector('[data-work-tab][aria-current]')?.textContent.endsWith(', back to the rings')??'no-current-link'});\nwindow.__move=(act,want)=>{window.__arm();act();return new Promise(res=>setTimeout(()=>{const got=window.__state();\n const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},1900))};",
+  "go": "{{BASE}}/work",
+  "wait": 2500,
+  "label": "tour: hard load /work",
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "work -> long form (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "long -> short (row, linear-right)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"linear-right\"})"
+ },
+ {
+  "label": "short -> long (row, linear-left)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"linear-left\"})"
+ },
+ {
+  "label": "long -> experience (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> short (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "short -> experience (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> experience again = rings (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "work -> short (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "short -> rings (return mark, radial)",
+  "eval": "__move(()=>{document.querySelector('.return-mark').click()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "work -> long (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "arm for Esc",
+  "eval": "__arm()"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "label": "long -> rings (Esc, radial)",
+  "wait": 1900,
+  "eval": "JSON.stringify((()=>{const got=__state();const want={\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"};return{ok:got.path===want.path&&got.title===want.title&&got.kind===want.kind&&got.active.join()===want.active.join(),got,want}})())"
+ },
+ {
+  "label": "work -> short (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "short -> rings (dock work tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "work -> experience (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> rings (dock work tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "work -> long (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "long -> home (dock home tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]').click()},{\"path\":\"/\",\"title\":\"FragTaco - Aditya Bhoir\",\"active\":[\"home=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "home -> work (dock work tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "work -> experience (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> home (dock home tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]').click()},{\"path\":\"/\",\"title\":\"FragTaco - Aditya Bhoir\",\"active\":[\"home=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "back: home -> experience (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "back: experience -> work (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "back: work -> home (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/\",\"title\":\"FragTaco - Aditya Bhoir\",\"active\":[\"home=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "back: home -> long (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "forward: long -> home (radial)",
+  "eval": "__move(()=>{history.forward()},{\"path\":\"/\",\"title\":\"FragTaco - Aditya Bhoir\",\"active\":[\"home=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "forward: home -> work (radial)",
+  "eval": "__move(()=>{history.forward()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "forward: work -> experience (radial)",
+  "eval": "__move(()=>{history.forward()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> long (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "long -> short (row, linear-right)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"linear-right\"})"
+ },
+ {
+  "label": "back: short -> long (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "forward: long -> short (radial)",
+  "eval": "__move(()=>{history.forward()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "hard load /work/short-form (row open at once)",
+  "go": "{{BASE}}/work/short-form",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "hard load /experience",
+  "go": "{{BASE}}/experience",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "hard load /timeline redirects",
+  "go": "{{BASE}}/timeline",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "hard load /work?view=long redirects",
+  "go": "{{BASE}}/work?view=long",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "hard load /work?view=clients redirects",
+  "go": "{{BASE}}/work?view=clients",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
  }
 ]

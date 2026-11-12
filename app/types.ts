@@ -149,6 +149,8 @@ export interface WorkStackItem {
   id: string;
   mark: string;
   label: string;
+  /** The app's own icon, a file under /stack/. With none, the two-letter mark is shown. */
+  icon?: string;
 }
 
 export interface SiteWork {

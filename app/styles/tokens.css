@@ -23,6 +23,8 @@
      The paint shader and the wall shader repeat these as colours (app/styles/tokens.ts); a test keeps them equal. */
   --ground: #0e0e0d; /* page grounds: work, experience, layers, the hero's fallback */
   --ground-clear: color-mix(in srgb, var(--ground) 0%, transparent); /* the ground faded out, for fades */
+  --ground-pool: #2a2927; /* the work ground's one soft pool of light at its brightest (a dark cream-grey: the ground lifted by about a tenth of cream) */
+  --ground-ember: #6a2a0b; /* its low ember of orange at its brightest (the accent at about a third over the ground), never full strength */
   --surface-1: #171716; /* panels, placeholders, tiles before their picture loads */
   --surface-2: #21201f; /* raised panels, chips */
   --line: rgba(253, 252, 230, 0.1); /* hairlines and borders */

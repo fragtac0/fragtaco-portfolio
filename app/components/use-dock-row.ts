@@ -1,3 +1,4 @@
+import { useLocation } from "@remix-run/react";
 import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import { usePageSettled } from "../lib/use-page-settled";
 
@@ -22,7 +23,8 @@ export interface DockRow {
  *   drop it to the page.
  * - The glass's closed and open widths are measured on mount and on resize and handed to the CSS
  *   (`--dock-w-closed`, `--dock-w-open`), so the glass grows in width with the row's height, on one
- *   curve, instead of snapping when the row's width starts to count.
+ *   curve, instead of snapping when the row's width starts to count. They are measured again when the
+ *   address changes, because a dock that stays across pages (the work layout) may have a different link current.
  */
 export function useDockRow(enabled: boolean): DockRow {
   const open = usePageSettled();
@@ -30,6 +32,7 @@ export function useDockRow(enabled: boolean): DockRow {
   const rowRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const wasOpen = useRef(open);
+  const { pathname } = useLocation();
 
   useIsoLayoutEffect(() => {
     if (wasOpen.current && !open && rowRef.current?.contains(document.activeElement)) {
@@ -60,7 +63,7 @@ export function useDockRow(enabled: boolean): DockRow {
     window.addEventListener("resize", measure);
     void document.fonts?.ready.then(measure);
     return () => window.removeEventListener("resize", measure);
-  }, [enabled]);
+  }, [enabled, pathname]);
 
   return { open, glassRef, rowRef, navRef };
 }

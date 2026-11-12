@@ -1,317 +1,358 @@
 import { describe, expect, it } from "vitest";
 import {
-  BAND_GAP,
-  CENTRE_CLEAR,
-  FIT_MARGIN,
-  MIN_SCALE,
-  RING,
-  type RingId,
-  fitScale,
-  itemExtent,
-  planRings,
-  itemWidth,
+  L_MAX,
+  L_MIN,
+  RING_ORDER_MODE,
+  clear,
+  halfDiagonal,
   ringCapacity,
-  ringRadius,
-  SUB_RING_FACTOR,
-  subRingRadius,
+  ringKinds,
+  ringPlan,
   slotAngle,
-  slotPosition,
-  splitRing,
+  stackIconSize,
+  stackRadius,
+  tileSize,
+  type RingOrderMode,
+  type RingPlan,
 } from "./ring-math";
 
-const IDS: RingId[] = ["stack", "long", "short", "clients"];
-const COUNTS = [0, 1, 8, 40, 120];
+/** Review Focus 1: the sizes and the counts per kind. */
+const SIZES: [number, number][] = [
+  [320, 568],
+  [568, 320],
+  [640, 360],
+  [667, 375],
+  [375, 667],
+  [360, 640],
+  [500, 400],
+  [390, 844],
+  [820, 1180],
+  [1024, 768],
+  [1440, 900],
+  [2560, 1440],
+  [1920, 1080],
+];
+const COUNTS = [1, 8, 35, 120];
+const MODES: RingOrderMode[] = ["alternating", "paired"];
 
-describe("ringRadius", () => {
-  it("is the ring's fraction of the shorter side", () => {
-    expect(ringRadius("stack", 1440, 900)).toBe(189);
-    expect(ringRadius("clients", 900, 1440)).toBeCloseTo(0.68 * 900);
+const plan = (vw: number, vh: number, n: number, mode?: RingOrderMode): RingPlan =>
+  ringPlan(vw, vh, { stack: 8, long: n, short: n }, mode);
+
+describe("clear", () => {
+  it("is the diagonal of the box two rectangles' half-extents and the gap make", () => {
+    // a 100 by 56.25 and a 56.25 by 100 tile: both sides (78.125 + 12) wide
+    const d = clear({ w: 100, h: 56.25 }, { w: 56.25, h: 100 });
+    expect(d).toBeCloseTo(Math.SQRT2 * 90.125, 6);
   });
 
-  it("is the same fraction on a phone (a phone's items shrink instead, see fitScale)", () => {
-    expect(ringRadius("stack", 390, 844)).toBeCloseTo(0.21 * 390);
-    expect(ringRadius("stack", 700, 844)).toBeCloseTo(0.21 * 700);
+  it("takes a gap, 12 by default, and is symmetric", () => {
+    const a = { w: 60, h: 60 };
+    const b = { w: 100, h: 56.25 };
+    expect(clear(a, b)).toBe(clear(b, a));
+    expect(clear(a, a)).toBeCloseTo(Math.SQRT2 * 72, 6);
+    expect(clear(a, a, 0)).toBeCloseTo(Math.SQRT2 * 60, 6);
+  });
+
+  it("is enough: centres that far apart never overlap, at any offset", () => {
+    const a = { w: 110, h: 61.875 };
+    const b = { w: 61.875, h: 110 };
+    const gap = 12;
+    const d = clear(a, b, gap);
+    for (let deg = 0; deg < 360; deg += 1) {
+      const dx = d * Math.cos((deg * Math.PI) / 180);
+      const dy = d * Math.sin((deg * Math.PI) / 180);
+      const xGap = Math.abs(dx) - (a.w + b.w) / 2;
+      const yGap = Math.abs(dy) - (a.h + b.h) / 2;
+      expect(Math.max(xGap, yGap)).toBeGreaterThanOrEqual(gap - 1e-9);
+    }
   });
 });
 
-describe("itemWidth", () => {
-  it("clamps up to the minimum", () => {
-    expect(itemWidth("long", 16, 306)).toBe(96);
+describe("stack ring", () => {
+  it("has icons of 60 px, 52 px under 700 px wide", () => {
+    expect(stackIconSize(1440)).toBe(60);
+    expect(stackIconSize(700)).toBe(60);
+    expect(stackIconSize(699)).toBe(52);
   });
 
-  it("clamps down to the maximum", () => {
-    expect(itemWidth("long", 8, 306)).toBe(176);
+  it("has radius min(max(190, 0.24 vh), 0.42 vw)", () => {
+    expect(stackRadius(1440, 900)).toBeCloseTo(216);
+    expect(stackRadius(1024, 768)).toBe(190);
+    expect(stackRadius(1920, 1080)).toBeCloseTo(259.2);
+    expect(stackRadius(390, 844)).toBeCloseTo(0.42 * 390);
   });
 
-  it("follows the circumference between the bounds", () => {
-    // a tall cover's extent along the ring is its height, 16/9 of its width
-    const w = itemWidth("short", 20, 450);
-    expect(w).toBeCloseTo((2 * Math.PI * 450) / (20 * 1.3 * (16 / 9)));
-    expect(w).toBeGreaterThan(RING.short.min);
-    expect(w).toBeLessThan(RING.short.max);
+  it("keeps its icons inside the screen's width on the narrowest screens", () => {
+    for (const vw of [320, 340, 360, 375]) {
+      expect(stackRadius(vw, 700) + stackIconSize(vw) / 2).toBeLessThanOrEqual(vw / 2);
+    }
+  });
+});
+
+describe("tileSize and ringKinds", () => {
+  it("makes long form L by 0.5625 L and short form 0.5625 L by L", () => {
+    expect(tileSize("long", 160)).toEqual({ w: 160, h: 90 });
+    expect(tileSize("short", 160)).toEqual({ w: 90, h: 160 });
   });
 
-  it.each(IDS.flatMap((id) => COUNTS.map((c) => [id, c] as const)))(
-    "%s with %i items stays finite and within bounds",
-    (id, count) => {
-      for (const r of [0, 50, 306, 1000]) {
-        const w = itemWidth(id, count, r);
-        expect(Number.isFinite(w)).toBe(true);
-        expect(w).toBeGreaterThanOrEqual(RING[id].min);
-        expect(w).toBeLessThanOrEqual(RING[id].max);
-      }
-    },
-  );
+  it("orders the rings long, short, long, short, or long, long, short, short", () => {
+    expect(ringKinds(4, "alternating")).toEqual(["long", "short", "long", "short"]);
+    expect(ringKinds(4, "paired")).toEqual(["long", "long", "short", "short"]);
+  });
 
-  it("gives a ring of none the maximum rather than dividing by zero", () => {
-    expect(itemWidth("clients", 0, 300)).toBe(72);
+  it("puts long inside and short outside with two rings, in both modes", () => {
+    expect(ringKinds(2, "alternating")).toEqual(["long", "short"]);
+    expect(ringKinds(2, "paired")).toEqual(["long", "short"]);
+  });
+
+  it("ships alternating", () => {
+    expect(RING_ORDER_MODE).toBe("alternating");
   });
 });
 
 describe("ringCapacity", () => {
-  it("is how many minimum-width items fit with their gap", () => {
-    expect(ringCapacity("short", 450)).toBe(22); // 96px tall at minimum, not 54 wide
-    expect(ringCapacity("long", 306)).toBe(15);
-  });
-
-  it("is zero for a ring with no radius", () => {
-    expect(ringCapacity("short", 0)).toBe(0);
-    expect(ringCapacity("short", -5)).toBe(0);
-    expect(ringCapacity("short", Number.NaN)).toBe(0);
-  });
-});
-
-describe("splitRing", () => {
-  it("keeps one ring when the items fit", () => {
-    expect(splitRing("short", 22, 450)).toEqual({ rings: [22], hidden: 0 });
-    expect(splitRing("long", 15, 306)).toEqual({ rings: [15], hidden: 0 });
-    expect(splitRing("stack", 1, 189)).toEqual({ rings: [1], hidden: 0 });
-  });
-
-  it("keeps one ring at exactly its capacity", () => {
-    expect(splitRing("short", 22, 450)).toEqual({ rings: [22], hidden: 0 });
-    expect(splitRing("short", 23, 450).rings).toEqual([22, 1]);
-  });
-
-  it("fills the inner ring, then puts the rest on the outer one", () => {
-    expect(splitRing("short", 40, 450)).toEqual({ rings: [22, 18], hidden: 0 });
-    expect(splitRing("short", 24, 450)).toEqual({ rings: [22, 2], hidden: 0 });
-  });
-
-  it("hides what neither ring can hold", () => {
-    expect(splitRing("short", 120, 450)).toEqual({ rings: [22, 25], hidden: 73 });
-    expect(splitRing("short", 47, 450)).toEqual({ rings: [22, 25], hidden: 0 });
-    expect(splitRing("short", 48, 450)).toEqual({ rings: [22, 25], hidden: 1 });
-  });
-
-  it("returns no rings for no items", () => {
-    expect(splitRing("long", 0, 306)).toEqual({ rings: [], hidden: 0 });
-    expect(splitRing("long", -3, 306)).toEqual({ rings: [], hidden: 0 });
-  });
-
-  it.each(IDS.flatMap((id) => COUNTS.map((c) => [id, c] as const)))(
-    "%s with %i items places every item once, or hides it",
-    (id, count) => {
-      for (const r of [0, 120, 306, 700]) {
-        const { rings, hidden } = splitRing(id, count, r);
-        expect(rings.reduce((a, b) => a + b, 0) + hidden).toBe(count);
-        expect(rings.length).toBeLessThanOrEqual(2);
-        expect(hidden).toBeGreaterThanOrEqual(0);
-        for (const n of rings) expect(n).toBeGreaterThan(0);
-      }
-    },
-  );
-
-  it("hides everything when the ring has no radius", () => {
-    expect(splitRing("short", 8, 0)).toEqual({ rings: [], hidden: 8 });
-  });
-
-  it("does not fractionalise a count", () => {
-    const { rings, hidden } = splitRing("short", 24.7, 450);
-    expect(rings.every(Number.isInteger)).toBe(true);
-    expect(Number.isInteger(hidden)).toBe(true);
-  });
-});
-
-describe("slotAngle and slotPosition", () => {
-  it("starts at the top and goes round clockwise", () => {
-    expect(slotAngle(0, 8)).toBe(-90);
-    expect(slotAngle(2, 8)).toBe(0);
-    expect(slotAngle(4, 8)).toBe(90);
-  });
-
-  it("is safe for a ring of none", () => {
-    expect(slotAngle(0, 0)).toBe(-90);
-    expect(slotAngle(3, 0)).toBe(-90);
-    expect(Number.isFinite(slotAngle(0, 1))).toBe(true);
-    expect(slotAngle(0, 1)).toBe(-90);
-  });
-
-  it.each([1, 8, 40, 120])("spreads %i slots evenly over the turn", (n) => {
-    const step = slotAngle(1, n) - slotAngle(0, n);
-    expect(step).toBeCloseTo(360 / n);
-    expect(slotAngle(n - 1, n)).toBeLessThan(270);
-  });
-
-  it("puts angle -90 straight above the centre", () => {
-    const p = slotPosition(-90, 100, 500, 400);
-    expect(p.x).toBeCloseTo(500);
-    expect(p.y).toBeCloseTo(300);
-  });
-
-  it("puts 0 to the right and 90 below", () => {
-    const right = slotPosition(0, 100, 500, 400);
-    expect(right.x).toBeCloseTo(600);
-    expect(right.y).toBeCloseTo(400);
-    const below = slotPosition(90, 100, 500, 400);
-    expect(below.x).toBeCloseTo(500);
-    expect(below.y).toBeCloseTo(500);
-  });
-});
-
-describe("subRingRadius", () => {
-  it("is the ring itself at index 0 and a factor further out at 1", () => {
-    expect(subRingRadius(100, 0)).toBe(100);
-    expect(subRingRadius(100, 1)).toBeCloseTo(100 * SUB_RING_FACTOR);
-    expect(subRingRadius(100, 2)).toBeCloseTo(100 * SUB_RING_FACTOR ** 2);
-  });
-
-  it("treats a bad index as the ring itself", () => {
-    expect(subRingRadius(100, -1)).toBe(100);
-    expect(subRingRadius(100, Number.NaN)).toBe(100);
-  });
-
-  it("is the radius splitRing measures the second ring's capacity at", () => {
-    const radius = 450;
-    const { rings } = splitRing("short", 500, radius);
-    expect(rings[1]).toBe(ringCapacity("short", subRingRadius(radius, 1)));
-  });
-});
-
-describe("itemExtent", () => {
-  it("is the longest side: the width for wide and square items, the height for tall ones", () => {
-    expect(itemExtent("long", 96)).toBe(96);
-    expect(itemExtent("stack", 50)).toBe(50);
-    expect(itemExtent("clients", 50)).toBe(50);
-    expect(itemExtent("short", 54)).toBeCloseTo(96);
-  });
-});
-
-describe("scale", () => {
-  it("shrinks the bounds and the capacity's item size, and 1 changes nothing", () => {
-    expect(itemWidth("long", 40, 306, 0.5)).toBe(48);
-    expect(itemWidth("long", 4, 306, 0.5)).toBe(88);
-    expect(itemWidth("long", 16, 306, 1)).toBe(itemWidth("long", 16, 306));
-    expect(ringCapacity("long", 306, 0.5)).toBe(30);
-    expect(splitRing("long", 16, 306, 0.5)).toEqual({ rings: [16], hidden: 0 });
-  });
-
-  it("falls back to 1 for a bad scale", () => {
-    expect(itemWidth("long", 16, 306, 0)).toBe(96);
-    expect(itemWidth("long", 16, 306, Number.NaN)).toBe(96);
-  });
-});
-
-const WORK = { stack: 8, long: 16, short: 24, clients: 10 };
-const SCREENS: [number, number][] = [
-  [1920, 1080],
-  [1440, 900],
-  [1024, 768],
-  [768, 1024],
-  [390, 844],
-  [360, 780],
-  [320, 568],
-];
-
-describe("planRings", () => {
-  it("leaves rings at their nominal radius when nothing touches", () => {
-    const plans = planRings(WORK, 1440, 900);
-    expect(plans.map((p) => p.id)).toEqual(["stack", "long", "short", "clients"]);
-    expect(plans[0].radius).toBe(189);
-    expect(plans[1].radius).toBe(306);
-  });
-
-  it.each(SCREENS)("keeps the intro's space and a gap between every ring's band at %ix%i", (vw, vh) => {
-    for (const scale of [1, 0.7, 0.4]) {
-      const plans = planRings(WORK, vw, vh, scale);
-      expect(plans[0].radius - plans[0].extent / 2).toBeGreaterThanOrEqual(CENTRE_CLEAR - 1e-6);
-      for (let i = 1; i < plans.length; i++) {
-        const inside = plans[i - 1].outer + plans[i - 1].extent / 2;
-        const here = plans[i].radius - plans[i].extent / 2;
-        expect(here - inside).toBeGreaterThanOrEqual(BAND_GAP - 1e-6);
-      }
+  it("is the most items whose neighbours meet clear, so one more would not", () => {
+    const size = tileSize("long", 110);
+    for (const r of [357, 499, 640, 781]) {
+      const n = ringCapacity(r, size);
+      expect(2 * r * Math.sin(Math.PI / n)).toBeGreaterThanOrEqual(clear(size, size));
+      expect(2 * r * Math.sin(Math.PI / (n + 1))).toBeLessThan(clear(size, size));
     }
   });
 
-  it("never lets neighbours on a ring touch: slot spacing is at least the item's longest side", () => {
-    for (const [vw, vh] of SCREENS) {
-      for (const p of planRings(WORK, vw, vh, fitScale(WORK, vw, vh))) {
-        const radii = [p.radius, p.outer];
-        p.counts.forEach((count, sub) => {
-          expect((2 * Math.PI * radii[sub]) / count).toBeGreaterThanOrEqual(p.extent * 1.3 - 1e-6);
+  it("is 1 where the ring cannot hold two", () => {
+    expect(ringCapacity(50, tileSize("long", 200))).toBe(1);
+    expect(ringCapacity(0, tileSize("long", 100))).toBe(1);
+  });
+});
+
+describe("ringPlan: the worked numbers of spec 6.2", () => {
+  it("gives 4 video rings about 141 px apart at 1440 by 900, L near 110, room for all 70", () => {
+    const p = plan(1440, 900, 35);
+    const video = p.rings.filter((r) => r.kind !== "stack");
+    expect(video.map((r) => r.id)).toEqual(["long-1", "short-1", "long-2", "short-2"]);
+    expect(p.L).toBeGreaterThanOrEqual(104);
+    expect(p.L).toBeLessThanOrEqual(114);
+    expect(p.hidden).toEqual({ long: 0, short: 0 });
+    expect(video[1].radius - video[0].radius).toBeCloseTo(141.4, 0);
+    expect(video.reduce((n, r) => n + r.count, 0)).toBe(70);
+  });
+
+  it("has L near 155 at 1920 by 1080", () => {
+    const p = plan(1920, 1080, 35);
+    expect(p.L).toBeGreaterThanOrEqual(150);
+    expect(p.L).toBeLessThanOrEqual(160);
+    expect(p.rings.filter((r) => r.kind !== "stack")).toHaveLength(4);
+  });
+
+  it("has 2 video rings and L near 104 at 390 by 844, showing about 32 videos", () => {
+    const p = plan(390, 844, 35);
+    const video = p.rings.filter((r) => r.kind !== "stack");
+    expect(video.map((r) => r.kind)).toEqual(["long", "short"]);
+    expect(p.L).toBeGreaterThanOrEqual(100);
+    expect(p.L).toBeLessThanOrEqual(108);
+    const shown = video.reduce((n, r) => n + r.count, 0);
+    expect(shown).toBeGreaterThanOrEqual(30);
+    expect(shown).toBeLessThanOrEqual(34);
+    expect(p.hidden.long + p.hidden.short).toBe(70 - shown);
+  });
+
+  it("uses 3 rings where 4 would need L under 96 (820 by 1180, 1024 by 768)", () => {
+    for (const [vw, vh] of [[820, 1180], [1024, 768]]) {
+      const p = plan(vw, vh, 35);
+      expect(p.L).toBeGreaterThanOrEqual(L_MIN);
+      expect(p.rings.filter((r) => r.kind !== "stack").map((r) => r.radius).length).toBeLessThanOrEqual(3);
+    }
+  });
+});
+
+describe("ringPlan: no overlap at any ring phase", () => {
+  for (const mode of MODES) {
+    for (const [vw, vh] of SIZES) {
+      for (const n of COUNTS) {
+        it(`${mode}, ${vw} by ${vh}, ${n} per kind`, () => {
+          const p = plan(vw, vh, n, mode);
+          const rings = p.rings;
+
+          // neighbours on one ring: the chord between them meets clear
+          for (const r of rings) {
+            if (r.count < 2) continue;
+            const chord = 2 * r.radius * Math.sin(Math.PI / r.count);
+            expect(chord).toBeGreaterThanOrEqual(clear(r.size, r.size) - 1e-9);
+          }
+
+          // every pair of rings, not only neighbours: radii at least clear apart
+          for (let i = 0; i < rings.length; i++) {
+            for (let j = i + 1; j < rings.length; j++) {
+              expect(rings[j].radius - rings[i].radius).toBeGreaterThanOrEqual(
+                clear(rings[i].size, rings[j].size) - 1e-9,
+              );
+            }
+          }
         });
       }
     }
-  });
-
-  it("pushes a ring out when the ring inside it has a sub-ring", () => {
-    const plans = planRings(WORK, 1440, 900);
-    const long = plans[1];
-    expect(long.counts.length).toBe(2);
-    expect(plans[2].radius - plans[2].extent / 2).toBeGreaterThanOrEqual(long.outer + long.extent / 2 + BAND_GAP - 1e-6);
-  });
-
-  it("skips rings with no items and keeps the clear space for the first one drawn", () => {
-    const plans = planRings({ stack: 0, long: 0, short: 0, clients: 3 }, 1440, 900);
-    expect(plans.map((p) => p.id)).toEqual(["clients"]);
-    expect(planRings({ stack: 0, long: 0, short: 0, clients: 0 }, 1440, 900)).toEqual([]);
-  });
-
-  it("pushes a lone ring off the middle when its nominal radius would eat the intro's space", () => {
-    const [stack] = planRings({ stack: 8, long: 0, short: 0, clients: 0 }, 100, 100);
-    expect(stack.radius - stack.extent / 2).toBeGreaterThanOrEqual(CENTRE_CLEAR - 1e-6);
-  });
+  }
 });
 
-describe("fitScale", () => {
-  it("is 1 from 700px wide up", () => {
-    expect(fitScale(WORK, 700, 900)).toBe(1);
-    expect(fitScale(WORK, 1440, 900)).toBe(1);
-    expect(fitScale(WORK, 0, 0)).toBe(1);
+describe("ringPlan: limits", () => {
+  for (const mode of MODES) {
+    for (const [vw, vh] of SIZES) {
+      it(`${mode}, ${vw} by ${vh}: radii, L and the stack ring`, () => {
+        for (const n of COUNTS) {
+          const p = plan(vw, vh, n, mode);
+          for (const r of p.rings) expect(r.radius).toBeLessThanOrEqual(0.92 * halfDiagonal(vw, vh) + 1e-9);
+          expect(p.L).toBeGreaterThanOrEqual(L_MIN);
+          expect(p.L).toBeLessThanOrEqual(L_MAX);
+          const stack = p.rings.find((r) => r.kind === "stack")!;
+          expect(stack.radius + stack.size.w / 2).toBeLessThanOrEqual(vw / 2);
+          expect(stack.count).toBe(8);
+        }
+      });
+    }
+  }
+
+  it("falls back 4, 3, 2, then 1 video ring (long form), then none: the stack ring alone (R34)", () => {
+    const rings = (vw: number, vh: number) => plan(vw, vh, 35).rings.filter((r) => r.kind !== "stack").length;
+    expect(rings(2560, 1440)).toBe(4);
+    expect(rings(1440, 900)).toBe(4);
+    expect(rings(1024, 768)).toBe(3);
+    expect(rings(820, 1180)).toBe(3);
+    expect(rings(390, 844)).toBe(2);
+    expect(rings(320, 568)).toBe(1);
+    expect(rings(500, 400)).toBe(0);
+    // one ring is long form, the inner kind, in both modes
+    for (const mode of MODES) {
+      const one = plan(320, 568, 35, mode).rings.filter((r) => r.kind !== "stack");
+      expect(one.map((r) => r.kind)).toEqual(["long"]);
+    }
+    // no video rings: every video is hidden, the stack ring is still drawn
+    const none = plan(500, 400, 35);
+    expect(none.rings.map((r) => r.kind)).toEqual(["stack"]);
+    expect(none.hidden).toEqual({ long: 35, short: 35 });
   });
 
-  it.each([
-    [390, 844],
-    [360, 780],
-    [320, 568],
-    [414, 896],
-    [699, 900],
-  ])("fits the stack and long rings, sub-ring and half an item included, inside %ix%i", (vw, vh) => {
-    const scale = fitScale(WORK, vw, vh);
-    expect(scale).toBeGreaterThan(MIN_SCALE);
-    expect(scale).toBeLessThanOrEqual(1);
-    for (const p of planRings(WORK, vw, vh, scale)) {
-      if (p.id === "stack" || p.id === "long") {
-        expect(p.outer + p.extent / 2).toBeLessThanOrEqual(vw / 2 - FIT_MARGIN + 1e-6);
+  it("holds the pair rule, the 0.92 cap and L from 96 to 220 on a grid of 280 to 2600 by 280 to 1600 (every 40 px)", () => {
+    for (const mode of MODES) {
+      for (let vw = 280; vw <= 2600; vw += 40) {
+        for (let vh = 280; vh <= 1600; vh += 40) {
+          for (const n of COUNTS) {
+            const p = plan(vw, vh, n, mode);
+            const tag = `${mode} ${vw}x${vh} n=${n}`;
+            expect(p.L, tag).toBeGreaterThanOrEqual(L_MIN);
+            expect(p.L, tag).toBeLessThanOrEqual(L_MAX);
+            for (let i = 0; i < p.rings.length; i++) {
+              const r = p.rings[i];
+              expect(r.radius, tag).toBeLessThanOrEqual(0.92 * halfDiagonal(vw, vh) + 1e-9);
+              if (r.count > 1) {
+                expect(2 * r.radius * Math.sin(Math.PI / r.count), tag).toBeGreaterThanOrEqual(clear(r.size, r.size) - 1e-9);
+              }
+              for (let j = i + 1; j < p.rings.length; j++) {
+                const q = p.rings[j];
+                expect(q.radius - r.radius, tag).toBeGreaterThanOrEqual(clear(r.size, q.size) - 1e-9);
+              }
+            }
+          }
+        }
       }
     }
   });
 
-  it("is the largest scale that fits: one step up does not", () => {
-    for (const [vw, vh] of [[390, 844], [320, 568]]) {
-      const scale = fitScale(WORK, vw, vh);
-      if (scale >= 1) continue;
-      const bigger = planRings(WORK, vw, vh, scale + 0.01).filter((p) => p.id === "stack" || p.id === "long");
-      expect(bigger.some((p) => p.outer + p.extent / 2 > vw / 2 - FIT_MARGIN)).toBe(true);
+  it("goes round the ring the other way each ring, the stack ring first, with the periods of the spec", () => {
+    const p = plan(1440, 900, 35);
+    expect(p.rings.map((r) => r.dir)).toEqual([1, -1, 1, -1, 1]);
+    expect(p.rings.map((r) => r.periodS)).toEqual([90, 150, 190, 230, 270]);
+  });
+
+  it("draws nothing on a screen of no size, or one that is not a size, and hides every video", () => {
+    for (const [vw, vh] of [[0, 0], [-5, 100], [Number.NaN, 800], [20, 20]]) {
+      const p = ringPlan(vw, vh, { stack: 8, long: 35, short: 35 });
+      expect(p.rings).toEqual([]);
+      expect(p.hidden).toEqual({ long: 35, short: 35 });
+      expect(p.L).toBeGreaterThanOrEqual(L_MIN);
     }
   });
 
-  it("lets the outer two rings run past the screen's sides", () => {
-    const plans = planRings(WORK, 390, 844, fitScale(WORK, 390, 844));
-    expect(plans[3].radius).toBeGreaterThan(390 / 2);
+  it("copes with no items", () => {
+    const none = ringPlan(1440, 900, { stack: 0, long: 0, short: 0 });
+    expect(none.rings).toEqual([]);
+    expect(none.hidden).toEqual({ long: 0, short: 0 });
+    expect(ringPlan(1440, 900, { stack: Number.NaN, long: -3, short: 2.7 }).hidden).toEqual({ long: 0, short: 0 });
+  });
+});
+
+describe("ringPlan: counts and what is left out", () => {
+  it("counts what does not fit as hidden, and the rings hold exactly the rest", () => {
+    for (const [vw, vh] of SIZES) {
+      for (const n of COUNTS) {
+        const p = plan(vw, vh, n);
+        for (const kind of ["long", "short"] as const) {
+          const held = p.rings.filter((r) => r.kind === kind).reduce((s, r) => s + r.count, 0);
+          expect(held + p.hidden[kind]).toBe(n);
+          // a ring is never over capacity
+          for (const r of p.rings.filter((x) => x.kind === kind)) {
+            expect(r.count).toBeLessThanOrEqual(ringCapacity(r.radius, r.size));
+          }
+        }
+      }
+    }
   });
 
-  it("copes with no items", () => {
-    expect(fitScale({ stack: 0, long: 0, short: 0, clients: 0 }, 390, 844)).toBe(1);
+  it("hides nothing for 1 and 8 of each kind, and hides the surplus for 120", () => {
+    for (const [vw, vh] of SIZES) {
+      // where the screen has rings of both kinds (a phone in portrait with one ring has no short ring: all short are hidden)
+      const kinds = new Set(plan(vw, vh, 35).rings.map((r) => r.kind));
+      if (kinds.has("long") && kinds.has("short")) {
+        expect(plan(vw, vh, 1).hidden).toEqual({ long: 0, short: 0 });
+        expect(plan(vw, vh, 8).hidden).toEqual({ long: 0, short: 0 });
+      }
+      const big = plan(vw, vh, 120);
+      expect(big.hidden.long).toBeGreaterThan(0);
+      expect(big.hidden.short).toBeGreaterThan(0);
+    }
+  });
+
+  it("keeps a few items near the middle: 8 of a kind sit on its innermost ring", () => {
+    const p = plan(1440, 900, 8);
+    expect(p.rings.map((r) => r.id)).toEqual(["stack", "long-1", "short-1"]);
+    expect(p.rings.map((r) => r.count)).toEqual([8, 8, 8]);
+  });
+
+  it("shares a kind's items over its rings in proportion to their capacity", () => {
+    const [a, b] = plan(1440, 900, 35).rings.filter((r) => r.kind === "long");
+    expect(a.count + b.count).toBe(35);
+    expect(a.count).toBeLessThan(b.count);
+    expect(Math.abs(a.count / ringCapacity(a.radius, a.size) - b.count / ringCapacity(b.radius, b.size))).toBeLessThan(0.1);
+  });
+
+  it("keeps the stack ring to what it can hold", () => {
+    const p = ringPlan(320, 568, { stack: 50, long: 0, short: 0 });
+    expect(p.rings).toHaveLength(1);
+    expect(p.rings[0].count).toBe(ringCapacity(p.rings[0].radius, p.rings[0].size));
+  });
+
+  it("is the same plan whether it has the default mode or the shipped one", () => {
+    expect(ringPlan(1440, 900, { stack: 8, long: 35, short: 35 })).toEqual(
+      ringPlan(1440, 900, { stack: 8, long: 35, short: 35 }, RING_ORDER_MODE),
+    );
+  });
+
+  it("paired puts both long rings inside both short rings, with a smaller L than alternating", () => {
+    const paired = plan(1440, 900, 35, "paired");
+    expect(paired.rings.filter((r) => r.kind !== "stack").map((r) => r.kind)).toEqual(["long", "long", "short", "short"]);
+    expect(paired.L).toBeLessThanOrEqual(plan(1440, 900, 35, "alternating").L);
+    expect(paired.L).toBeGreaterThanOrEqual(L_MIN);
+  });
+});
+
+describe("slotAngle", () => {
+  it("starts at the top and goes clockwise", () => {
+    expect(slotAngle(0, 4)).toBe(-90);
+    expect(slotAngle(1, 4)).toBe(0);
+    expect(slotAngle(2, 4)).toBe(90);
+  });
+
+  it("copes with no slots", () => {
+    expect(slotAngle(0, 0)).toBe(-90);
   });
 });
