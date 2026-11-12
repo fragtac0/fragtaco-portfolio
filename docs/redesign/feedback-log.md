@@ -580,3 +580,14 @@ Fourth preview: `docs/redesign/round7-preview-4/index.html`. The trail is the fi
 - The ledge of rock layers is the shelf. No gradient ground behind either shelf.
 
 Fifth preview: `docs/redesign/round7-preview-5/index.html`. The camera stays put while the chosen milestone is inside a comfortable part of the view and otherwise glides on a critically damped spring; the card takes whichever of five places round its milestone covers the fewest others, and fades any it still covers; the grain is coarse (1.5 to 3 px specks), strong and still. Decided for the build: the rock ledge under the books, and no Eclipse ground behind the book shelf or the YouTube shelf.
+
+**Feedback on the fifth preview (2026-11-13)**
+
+- Something is wrong with how the text appears in the cards (shown in a recording that could not be read).
+- The picture is cut off at one edge and a black bar shows. A slight zoom in.
+- Maps in the references feel finished because of a grid and a few small marks in the corners and at chosen places. Try that: a grid that does not distract, good dotted lines, plain lines and small shapes, without overdoing it. Not the photo tiles of the reference.
+- The soft blur toward the corners and edges of the Mars map should be there, very subtle.
+- Background: far too much grain. Very, very subtle.
+- Shelves: no gradient, but not empty either. Something that is there.
+
+Sixth preview: `docs/redesign/round7-preview-6/index.html`. The overview is zoomed to 1.1 so the picture always covers the frame (the bar came from the view sitting 30 map units left of centre at a zoom of exactly 1). The chart layer: a 5 degree grid with dotted 2.5 degree steps, crosses where the 5 degree lines meet, dotted rings 150 and 300 km from the summit, a triangle on the summit, north, degree labels, a 200 km scale bar, four corner marks, two edge squares and a position readout that follows the chosen milestone. Cards now fade out completely before their words and place change. Grain is a fifth of the last preview. Three still grounds for the shelves: the mountain in contour lines, the chart grid, a field of dots.

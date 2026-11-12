@@ -20,6 +20,7 @@ export default tseslint.config(
       "docs/redesign/round7-preview-3/**",
       "docs/redesign/round7-preview-4/**",
       "docs/redesign/round7-preview-5/**",
+      "docs/redesign/round7-preview-6/**",
     ],
   },
   js.configs.recommended,
