@@ -44,7 +44,7 @@ export default function Rings({ work, arrived }: RingsProps) {
       {layout.rings.map((ring) => {
         const nth = seen[ring.kind]++;
         return (
-          <Staged key={ring.id} arrived={arrived} order={ring.order} step={16}>
+          <Staged key={ring.id} arrived={arrived} order={ring.order} step={0}>
             <div className="work-ring-group" data-ring={ring.kind} style={{ "--g": ring.order } as CSSProperties}>
               <ul
                 // Keyed by count: when a resize moves items between rings, the ring is made afresh so it

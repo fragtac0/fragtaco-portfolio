@@ -21,8 +21,6 @@ export const TILE_ASPECT = 9 / 16;
 /** The video tile's long side L runs from this to that. */
 export const L_MIN = 96;
 export const L_MAX = 220;
-/** Below this a screen is too small for any plan (L never goes lower, whatever the clearance). */
-const L_FLOOR = 8;
 /** The outermost ring's radius as a share of the half-diagonal. */
 export const OUTER_SHARE = 0.92;
 /** Seconds for one turn: the stack ring, then each video ring outward. */
@@ -137,10 +135,12 @@ export interface RingPlan {
 const whole = (n: number) => (Number.isFinite(n) && n > 0 ? Math.floor(n) : 0);
 
 /**
- * The rings for a screen and item counts. The number of video rings is 4 if `L` can be 96 or more with
- * the clearance rule holding between every pair of rings, else 3, else 2 (then `L` may fall below 96, on
- * screens under about 360 px wide, because clearance wins). Each kind's items fill its rings from the
- * inside out, shared out by capacity; the first items in content order are kept.
+ * The rings for a screen and item counts. L is never below 96 (R34): the number of video rings is the
+ * largest of 4, 3, 2 or 1 (long form, the inner kind in both modes) for which `L` can be 96 or more with the
+ * clearance rule holding between every pair of rings (the stack ring included), else none: the stack ring
+ * alone, every video then being on the walls. A plan whose scan failed is never returned. Each kind's
+ * items fill its rings from the inside out, shared out by capacity; the first items in content order
+ * are kept.
  */
 export function ringPlan(
   vw: number,
@@ -153,16 +153,25 @@ export function ringPlan(
   const inner = stackRadius(vw, vh);
   const outer = Math.max(inner, OUTER_SHARE * halfDiagonal(vw, vh));
 
-  let kinds = ringKinds(4, mode);
-  let step = (outer - inner) / 4;
-  let L: number | null = null;
-  for (const n of [4, 3, 2]) {
-    kinds = ringKinds(n, mode);
-    step = (outer - inner) / n;
-    L = largestFit(kinds, step, stackSize, n === 2 ? L_FLOOR : L_MIN);
-    if (L !== null) break;
+  // a screen too small (or not a size at all) for even the stack ring: nothing is drawn
+  if (!(inner > 0) || !Number.isFinite(outer)) {
+    return { L: L_MIN, rings: [], hidden: { long: whole(counts.long), short: whole(counts.short) } };
   }
-  const fit = L ?? L_FLOOR;
+
+  let kinds: ("long" | "short")[] = [];
+  let step = 0;
+  let fit = L_MIN;
+  for (const n of [4, 3, 2, 1]) {
+    const k = ringKinds(n, mode);
+    const s = (outer - inner) / n;
+    const L = largestFit(k, s, stackSize, L_MIN);
+    if (L !== null) {
+      kinds = k;
+      step = s;
+      fit = L;
+      break;
+    }
+  }
 
   const rings: PlannedRing[] = [];
   const stackCount = Math.min(whole(counts.stack), ringCapacity(inner, stackSize));

@@ -30,6 +30,13 @@ window.__gap=()=>{const b=[...document.querySelectorAll('.work-item-turn')].map(
 window.__sweep=(k)=>{let min=Infinity,pair='',touching=0,n=0;
  for(let i=1;i<=k;i++){window.__phase(i*7919);const g=window.__gap();n=g.n;touching+=g.touching;if(g.min<min){min=g.min;pair=g.pair}}
  return{items:n,phases:k,minGap:+min.toFixed(2),worst:pair,pairsUnder12:touching}};
+// frame gaps over ms: how many frames, the average, the 95th percentile, the worst and how many were over 20 ms
+window.__frames=(ms)=>new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<ms)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);
+ r(JSON.stringify({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length}))}}requestAnimationFrame(f)});
+// every ring back to the start of its turn, still running, and where its first item then is
+window.__start=(sel)=>{document.getAnimations().filter(a=>a.animationName==='work-ring-in').forEach(a=>a.finish());
+ for(const a of document.getAnimations())if(a.animationName==='work-spin'||a.animationName==='work-unspin')a.currentTime=0;
+ const r=document.querySelector(sel).getBoundingClientRect();return JSON.stringify([Math.round(r.left+r.width/2),Math.round(r.top+r.height/2)])};
 // wait for every ring of the plan to be mounted (one per frame after the page change)
 window.__ready=(want)=>new Promise(res=>{const t0=performance.now();const w=setInterval(()=>{
  const n=document.querySelectorAll('.work-ring').length;
@@ -60,7 +67,9 @@ const SIZES = [
   { name: "1920x1080", size: [1920, 1080], dpr: 1, rings: 5, pictures: true },
   { name: "820x1180", size: [820, 1180], dpr: 1, rings: 4, pictures: true, mobile: true, touch: true },
   { name: "390x844", size: [390, 844], dpr: 2, rings: 3, pictures: true, mobile: true, touch: true },
-  { name: "320x568", size: [320, 568], dpr: 1, rings: 3, mobile: true, touch: true },
+  { name: "375x667", size: [375, 667], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
+  { name: "568x320", size: [568, 320], dpr: 2, rings: 1, pictures: true, mobile: true, touch: true },
+  { name: "320x568", size: [320, 568], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
   { name: "1024x768", size: [1024, 768], dpr: 1, rings: 4 },
   { name: "2560x1440", size: [2560, 1440], dpr: 1, rings: 5 },
 ];
@@ -113,9 +122,28 @@ steps.push({ label: "pointer on a long-1 video: only long-1 paused", eval: state
 steps.push({ move: [5, 5], wait: 150 });
 steps.push({ label: "pointer away: all running again", eval: state });
 steps.push({ move: HOVER.stack, wait: 150 });
-steps.push({ label: "pointer on a stack icon: the stack ring paused, no scale", eval: state + ";" });
+steps.push({
+  label: "pointer on a stack icon: the stack ring paused, the icon does not grow",
+  eval: `JSON.stringify({rings:${state.replace(/`/g, "'")},scale:getComputedStyle(document.querySelector('.work-item:hover .work-item-face')).scale,hovered:document.querySelector('.work-item:hover').dataset.kind})`,
+});
 steps.push({ move: [5, 5] });
-steps.push({ reduce: true, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(5)", label: "reduced motion: ready" });
+// Frame timing, CPU 4 times slower, after the arrival: at rest, then with the pointer on a ring item (that ring paused).
+// The hover points are the first long-1 item at the start of a turn (read by the step before each).
+const FRAME_RUNS = [
+  { name: "1440x900 dpr 2", size: [1440, 900], dpr: 2, mobile: false, touch: false, hover: [806, 103] },
+  { name: "390x844 dpr 3", size: [390, 844], dpr: 3, mobile: true, touch: true, hover: [266, 135] },
+];
+for (const f of FRAME_RUNS) {
+  steps.push({ size: f.size, dpr: f.dpr, mobile: f.mobile, touch: f.touch, cpu: 4, go: "{{BASE}}/work", wait: 3000, eval: "window.__ready(" + (f.mobile ? 3 : 5) + ")", label: `frames ${f.name}: ready` });
+  steps.push({ wait: 1200, label: `frames ${f.name} at rest, 4 s`, eval: "window.__frames(4000)" });
+  steps.push({ label: `frames ${f.name}: first long-1 item at the start of the turn`, eval: `window.__start('.work-ring[data-ring-id="long-1"] .work-item-turn')` });
+  steps.push({ move: f.hover, wait: 200 });
+  steps.push({ label: `frames ${f.name} with the pointer on a ring item, 4 s`, eval: `window.__frames(4000)` });
+  steps.push({ label: `frames ${f.name}: a ring is paused (hover took)`, eval: `JSON.stringify(document.querySelectorAll('.work-item:hover').length)` });
+  steps.push({ move: [5, 5], cpu: 1 });
+}
+
+steps.push({ reduce: true, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(5)", label: "reduced motion: ready" });
 steps.push({
   label: "reduced motion: no ring or item is turning",
   eval: `JSON.stringify({turning:document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin').length,
