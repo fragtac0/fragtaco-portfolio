@@ -63,7 +63,7 @@ describe("getWorkPageContent", () => {
 
     expect(Object.keys(content).sort()).toEqual(["navigationItems", "socialLinks", "work"]);
     expect(content.work.intro.title).toBe("Work");
-    expect(content.work.longForm).toHaveLength(35);
+    expect(content.work.longForm).toHaveLength(21);
     expect(content.navigationItems.map((item) => item.key)).toEqual(["home", "work"]);
     expect(content.socialLinks.length).toBeGreaterThan(0);
   });

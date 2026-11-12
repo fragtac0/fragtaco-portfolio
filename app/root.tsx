@@ -10,6 +10,7 @@ import {
   useRouteLoaderData,
 } from "@remix-run/react";
 import { useEffect, useLayoutEffect, type PropsWithChildren } from "react";
+import SpineFonts from "./components/spine-fonts";
 import PageViewTracker from "./components/page-view-tracker";
 import { preloadImage } from "./components/home/hero/painting-cycle";
 import { recallPainting } from "./components/home/hero/painting-memory";
@@ -78,6 +79,7 @@ export function Layout({ children }: PropsWithChildren) {
         <Meta />
         {preload ? <link {...preload} /> : null}
         <Links />
+        <SpineFonts />
       </head>
       <body>
         {children}

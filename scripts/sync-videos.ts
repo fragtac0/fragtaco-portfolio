@@ -3,20 +3,20 @@ import { VideosFileSchema } from "../app/content/schemas";
 import type { SiteVideo } from "../app/types";
 import {
   diffVideos,
-  extractInitialData,
   channelFailedMessage,
-  hasContinuation,
   mapLimit,
   mergeSubscribers,
   noCountMessage,
-  parsePlaylist,
   parseSubscribers,
+  type PlaylistEntry,
   retryMessage,
   thumbFailedMessage,
   thumbFromStatus,
   withRetry,
 } from "./youtube";
 import { readPrevious, writeFileAtomic } from "./sync-helpers";
+import { parseListedVideo, toPlaylistEntry, type ListedVideo } from "./playlist-listing";
+import { FIELDS, runYtDlp } from "./ytdlp";
 
 const PLAYLIST_ID = "PLV4vaojDpwnw";
 const PLAYLIST_URL = `https://www.youtube.com/playlist?list=${PLAYLIST_ID}`;
@@ -50,19 +50,30 @@ const main = async (): Promise<void> => {
     previous.map((v) => [v.channelUrl, v.subscribers]),
   );
 
-  const page = extractInitialData(
-    await withRetry(() => fetchText(PLAYLIST_URL), RETRY_DELAY_MS, (error) =>
-      console.warn(`Warning: ${retryMessage(error, RETRY_DELAY_MS)}`),
-    ),
-  );
-  if (hasContinuation(page)) {
-    console.warn(
-      "Warning: playlist longer than one page; only the first page was read",
-    );
-  }
-  const { videos: entries, skipped } = parsePlaylist(page);
-  for (const id of skipped) {
-    console.warn(`Warning: skipped ${id}, it has no title or channel`);
+  // The playlist is read with yt-dlp, which follows every page (the playlist's own web page stops at 100).
+  const listed = (
+    await withRetry(
+      () => runYtDlp(["--flat-playlist", "--print", FIELDS, PLAYLIST_URL]),
+      RETRY_DELAY_MS,
+      (error) => console.warn(`Warning: ${retryMessage(error, RETRY_DELAY_MS)}`),
+    )
+  )
+    .split("\n")
+    .map(parseListedVideo)
+    .filter((video): video is ListedVideo => video !== null);
+
+  // The flat listing leaves out the channel link of a few videos: ask for those one by one.
+  const entries: PlaylistEntry[] = [];
+  for (const video of listed) {
+    let entry = toPlaylistEntry(video);
+    if (entry === null) {
+      const alone = parseListedVideo(
+        (await runYtDlp(["--no-playlist", "--print", FIELDS, `https://www.youtube.com/watch?v=${video.id}`])).split("\n")[0] ?? "",
+      );
+      entry = alone === null ? null : toPlaylistEntry(alone);
+    }
+    if (entry === null) console.warn(`Warning: skipped ${video.id}, it has no title or channel`);
+    else entries.push(entry);
   }
   if (entries.length === 0) throw new Error("The playlist has no videos");
   console.log(`Playlist: ${entries.length} videos`);

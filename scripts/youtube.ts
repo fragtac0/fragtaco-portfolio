@@ -7,108 +7,11 @@ export interface PlaylistEntry {
   channelUrl: string;
 }
 
-export interface ParsedPlaylist {
-  videos: PlaylistEntry[];
-  /** Ids of video lockups that lacked a title, channel or channel link. */
-  skipped: string[];
-}
-
 export interface VideoDiff {
   added: number;
   removed: number;
   changed: number;
 }
-
-const VIDEO_LOCKUP = "LOCKUP_CONTENT_TYPE_VIDEO";
-const YOUTUBE_ORIGIN = "https://www.youtube.com";
-
-/** Walks `path` through objects and arrays; yields undefined at any gap. */
-const at = (value: unknown, ...path: Array<string | number>): unknown => {
-  let current = value;
-  for (const key of path) {
-    if (current === null || typeof current !== "object") return undefined;
-    current = (current as Record<string | number, unknown>)[key];
-  }
-  return current;
-};
-
-const asString = (value: unknown): string | undefined =>
-  typeof value === "string" && value.trim() !== "" ? value : undefined;
-
-export const extractInitialData = (html: string): unknown => {
-  const match = /var ytInitialData = (\{.*?\});<\/script>/s.exec(html);
-  if (!match?.[1]) throw new Error("ytInitialData not found");
-  return JSON.parse(match[1]) as unknown;
-};
-
-export const parsePlaylist = (data: unknown): ParsedPlaylist => {
-  const contents = at(
-    data,
-    "contents",
-    "twoColumnBrowseResultsRenderer",
-    "tabs",
-    0,
-    "tabRenderer",
-    "content",
-    "sectionListRenderer",
-    "contents",
-    0,
-    "itemSectionRenderer",
-    "contents",
-  );
-  if (!Array.isArray(contents)) {
-    throw new Error("Playlist items not found in ytInitialData");
-  }
-
-  const videos: PlaylistEntry[] = [];
-  const skipped: string[] = [];
-  for (const item of contents as unknown[]) {
-    const lockup = at(item, "lockupViewModel");
-    if (at(lockup, "contentType") !== VIDEO_LOCKUP) continue;
-
-    const text = at(
-      lockup,
-      "metadata",
-      "lockupMetadataViewModel",
-      "metadata",
-      "contentMetadataViewModel",
-      "metadataRows",
-      0,
-      "metadataParts",
-      0,
-      "text",
-    );
-    const id = asString(at(lockup, "contentId"));
-    const title = asString(
-      at(lockup, "metadata", "lockupMetadataViewModel", "title", "content"),
-    );
-    const channel = asString(at(text, "content"))?.trim();
-    const basePath = asString(
-      at(
-        text,
-        "commandRuns",
-        0,
-        "onTap",
-        "innertubeCommand",
-        "browseEndpoint",
-        "canonicalBaseUrl",
-      ),
-    );
-    if (!id || !title || !channel || !basePath) {
-      skipped.push(id ?? "unknown id");
-      continue;
-    }
-    videos.push({ id, title, channel, channelUrl: `${YOUTUBE_ORIGIN}${basePath}` });
-  }
-  return { videos, skipped };
-};
-
-/** True when the page carries a continuation token: the playlist has more than one page. */
-export const hasContinuation = (value: unknown): boolean => {
-  if (value === null || typeof value !== "object") return false;
-  if ("continuationItemRenderer" in value) return true;
-  return Object.values(value).some(hasContinuation);
-};
 
 export const parseSubscribers = (channelHtml: string): string | null => {
   const headerAt = channelHtml.indexOf('"pageHeaderViewModel"');

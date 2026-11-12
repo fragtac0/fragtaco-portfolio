@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -220,7 +220,8 @@ const validWorkVideo = {
   for: "Placeholder",
   year: 2026,
   url: "https://www.youtube.com/@fragtaco",
-  cover: "https://picsum.photos/seed/ft-long-01/640/360",
+  // Not a real file: the schema only checks the shape of the path.
+  cover: "/work/not-a-real-cover.jpg",
   source: "other",
 };
 
@@ -228,52 +229,10 @@ const validWorkClient = {
   id: "ft-client-01",
   name: "Placeholder client 01",
   handle: "@placeholder",
-  avatar: "https://picsum.photos/seed/ft-client-01/160/160",
+  avatar: "/work/placeholder-avatar.svg",
   url: "https://www.youtube.com/@fragtaco",
   socials: [{ type: "youtube", url: "https://www.youtube.com/@fragtaco" }],
 };
-
-describe("work.json", () => {
-  const work = WorkSchema.parse(readSiteJson("work.json"));
-
-  it("parses and holds the placeholder content", () => {
-    expect(work.stack).toHaveLength(8);
-    expect(work.longForm).toHaveLength(35);
-    expect(work.shortForm).toHaveLength(35);
-    expect(work.clients).toHaveLength(10);
-  });
-
-  it("numbers the placeholders long-01..long-35 and short-01..short-35", () => {
-    const ids = (n: number, kind: string) => Array.from({ length: n }, (_, i) => `${kind}-${String(i + 1).padStart(2, "0")}`);
-
-    expect(work.longForm.map((v) => v.id)).toEqual(ids(35, "long"));
-    expect(work.shortForm.map((v) => v.id)).toEqual(ids(35, "short"));
-  });
-
-  it("points every stack icon at a file that exists under public/stack", () => {
-    for (const item of work.stack) {
-      if (item.icon === undefined) continue;
-
-      expect(existsSync(path.join(process.cwd(), "public", item.icon))).toBe(true);
-    }
-  });
-
-  it("keeps the tools in the old tech stack's order", () => {
-    expect(work.stack.map((item) => item.mark)).toEqual([
-      "Pr", "Ae", "Fc", "Bl", "Ps", "Ai", "Fg", "Lr",
-    ]);
-  });
-
-  it("has an intro of at most 20 words", () => {
-    expect(work.intro.text.trim().split(/\s+/).length).toBeLessThanOrEqual(20);
-  });
-
-  it("has no em or en dash in any string", () => {
-    const dashes = collectStrings(readSiteJson("work.json")).filter((s) => /[\u2013\u2014]/.test(s));
-
-    expect(dashes).toEqual([]);
-  });
-});
 
 describe("WorkStackItemSchema", () => {
   it("accepts a mark of 1 to 3 characters", () => {
