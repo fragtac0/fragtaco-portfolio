@@ -1,6 +1,6 @@
 import type { SiteVideo } from "~/types";
-import { chipSub } from "./wall-planes";
 import type { Tile, WallState } from "./wall-types";
+import { edgeWarp } from "./wall-warp";
 
 /**
  * The wall's small DOM outputs: the chip under the focused tile (title, then channel and how many
@@ -9,6 +9,11 @@ import type { Tile, WallState } from "./wall-types";
  */
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+
+/** The chip's second line: the channel, and how many other videos from it are on the wall. */
+export function chipSub(channel: string, more: number): string {
+  return more >= 1 ? `${channel}, ${more} more from this channel` : channel;
+}
 
 export type Chip = {
   /** Moves the chip under the focused tile, or hides it. `more` is the focused channel's other videos. */
@@ -25,7 +30,7 @@ export function createChip(videos: readonly SiteVideo[], st: WallState): Chip {
     reset: () => (idx = -1),
     place(chip, list, more) {
       const top = list[list.length - 1];
-      if (!chip || st.frozen || !top || top.key !== st.hoverKey || top.f <= 0.5) {
+      if (!chip || st.choice || !top || top.key !== st.hoverKey || top.f <= 0.5) {
         chip?.classList.remove("on");
         return;
       }
@@ -38,20 +43,26 @@ export function createChip(videos: readonly SiteVideo[], st: WallState): Chip {
         w = chip.offsetWidth;
         h = chip.offsetHeight;
       }
-      // title and channel sit right under the video
-      const x = clamp(top.cx - w / 2, 12, Math.max(12, st.vw - w - 12));
-      let y = top.cy + top.h / 2 + 14;
-      if (y + h > st.vh - 12) y = top.cy - top.h / 2 - 14 - h;
+      // title and channel sit right under the video, where the fish-eye shows it
+      const below = edgeWarp(top.cx, top.cy + top.h / 2 + 14, st.vw, st.vh);
+      const x = clamp(below[0] - w / 2, 12, Math.max(12, st.vw - w - 12));
+      let y = below[1];
+      if (y + h > st.vh - 12) y = edgeWarp(top.cx, top.cy - top.h / 2 - 14, st.vw, st.vh)[1] - h;
       chip.style.transform = `translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`;
       chip.classList.add("on");
     },
   };
 }
 
-/** `data-lean` ("x,y" in px, the near plane's lean) and `data-echo` (other videos in the focused channel). */
+/**
+ * `data-echo`: how many other videos the focused channel has on the wall. `data-chosen`: the key of
+ * the chosen video (empty when none). `data-under`: how many visible tiles stand in the chosen
+ * video's text block, and `data-overlaps` how many pairs of visible tiles overlap (both must be 0
+ * once the wall is open).
+ */
 export function createProbe(canvas: HTMLElement) {
   const last: Record<string, string> = {};
-  return (name: "lean" | "echo", value: string) => {
+  return (name: "echo" | "chosen" | "under" | "overlaps", value: string) => {
     if (last[name] === value) return;
     last[name] = value;
     canvas.dataset[name] = value;

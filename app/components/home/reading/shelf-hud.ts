@@ -1,14 +1,13 @@
 import { markerLeft, markerShown } from "./shelf-math";
 
 /**
- * The shelf's small overlays: the hint line and the position marker under the plank. The marker is
+ * The shelf's small overlays: the hint line and the position marker under the line. The marker is
  * a 2px track with a thumb that shows where the camera is along a shelf wider than the screen; it
  * moves with `transform` only and is hidden when the whole shelf fits.
  */
 
 const HINT_FINE = "Hover to pull a book out. Click to open it.";
-const HINT_FINE_NARROW =
-  "Drag or scroll sideways to look along the shelf. Click a book to open it.";
+const HINT_FINE_NARROW = "Drag sideways to browse. Click a book to open it.";
 const HINT_TOUCH = "Tap a book to open it. Drag to look along the shelf.";
 export const HINT_NO_GL = "The shelf could not start in this browser.";
 

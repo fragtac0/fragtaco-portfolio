@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { SiteBook } from "../../../types";
+import { headerBottom } from "./shelf-head";
 import { placeholderLayout, type PlaceholderLayout } from "./shelf-placeholder-layout";
 
 type ShelfPlaceholderProps = {
@@ -9,7 +10,7 @@ type ShelfPlaceholderProps = {
 };
 
 /**
- * What the shelf layer shows until the 3D shelf is ready: the plank and one flat bar per book, in
+ * What the shelf layer shows until the 3D shelf is ready: the hairline and one flat bar per book, in
  * the book's spine colour, where the 3D shelf will stand (`placeholderLayout`). It sits over the
  * engine's canvas and fades away when the first frame has been drawn; ReadingScene removes it after.
  * Decorative only, so it is hidden from assistive technology and ignores the pointer.
@@ -23,7 +24,9 @@ export default function ShelfPlaceholder({ books, leaving }: ShelfPlaceholderPro
     const el = ref.current;
     if (!el) return;
     const measure = () =>
-      setLayout(placeholderLayout(books, { w: el.clientWidth, h: el.clientHeight }));
+      setLayout(
+        placeholderLayout(books, { w: el.clientWidth, h: el.clientHeight }, headerBottom(el)),
+      );
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
@@ -39,12 +42,12 @@ export default function ShelfPlaceholder({ books, leaving }: ShelfPlaceholderPro
       {layout && (
         <>
           <div
-            className="sp-plank"
+            className="sp-line"
             style={{
-              left: layout.plank.left,
-              top: layout.plank.top,
-              width: layout.plank.width,
-              height: layout.plank.height,
+              left: layout.line.left,
+              top: layout.line.top,
+              width: layout.line.width,
+              height: layout.line.height,
             }}
           />
           {layout.bars.map((bar, i) => (
@@ -56,7 +59,7 @@ export default function ShelfPlaceholder({ books, leaving }: ShelfPlaceholderPro
                 top: layout.floor - bar.height,
                 width: bar.width,
                 height: bar.height,
-                backgroundColor: books[i].spine,
+                backgroundColor: books[i].color,
               }}
             />
           ))}

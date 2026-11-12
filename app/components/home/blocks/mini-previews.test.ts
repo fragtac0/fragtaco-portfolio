@@ -10,7 +10,7 @@ const book = (over: Partial<SiteBook>): SiteBook => ({
   isbn: "0",
   heightIn: 9,
   aspect: 0.65,
-  spine: "#7a2b1e",
+  color: "#7a2b1e",
   style: "plain",
   note: "",
   ...over,
@@ -36,7 +36,7 @@ describe("miniSpine", () => {
     expect(s.height).toBe(189);
   });
   it("carries the spine colour, its ink and the band flag", () => {
-    const s = miniSpine(book({ spine: "#101010", style: "band" }));
+    const s = miniSpine(book({ color: "#101010", style: "band" }));
     expect(s.background).toBe("#101010");
     expect(s.ink).toBe("#f6f0e2");
     expect(s.band).toBe(true);

@@ -1,22 +1,21 @@
-import { clamp } from "./shelf-math";
+import { clamp, FRONT } from "./shelf-math";
+import { headerBottom } from "./shelf-head";
+import { liftLayout, sideBySide } from "./shelf-lift";
 import type { Book, ShelfScene } from "./shelf-scene";
 
 /**
- * The open-book path: draw the shelf once without the book, keep that as the blurred backdrop,
- * lift the book to the middle beside its note, and put it all back on close. The engine owns the
- * state; this module reads and writes it through the context it is given.
+ * The open-book path: work out where the lifted book goes and where its note stands (`liftLayout`),
+ * show the note and put it all back on close. The row stays where it is and dims (the pose does
+ * that). The engine owns the state; this module reads and writes it through the context it is given.
  */
 
 export type ShelfEls = {
   /** The canvas goes in here. */
   host: HTMLElement;
-  /** Half-resolution snapshot of the shelf, blurred in CSS while a book is open. */
-  blur: HTMLCanvasElement;
-  dim: HTMLElement;
   /** The note card: `h3`, `.by`, `.note` and a `button`. */
   info: HTMLElement;
   hint: HTMLElement;
-  /** The position marker under the plank: a track with one thumb child (`.shelf-marker`). */
+  /** The position marker under the line: a track with one thumb child (`.shelf-marker`). */
   marker?: HTMLElement;
   /** Optional polite live region for screen readers. */
   status?: HTMLElement;
@@ -49,6 +48,8 @@ export type ShelfState = {
   camTarget: number | null;
   fitW: number;
   fitH: number;
+  /** The header's bottom the last fit was made under (px). */
+  fitTop: number;
 };
 
 /** What the engine lends to the modules it split off: its canvas, state and live accessors. */
@@ -69,12 +70,10 @@ export type OpenPath = {
   openBook: (b: Book) => void;
   /** `refocus`: give focus back to the stage (not when the whole layer is going away). */
   closeBook: (refocus: boolean) => void;
-  /** Shows or hides the blur, dim and note, and keeps the hidden note out of the tab order. */
+  /** Shows or hides the note, and keeps the hidden note out of the tab order. */
   setNote: (on: boolean) => void;
   announce: (text: string) => void;
 };
-
-const WIDE = () => window.innerWidth > 860;
 
 export function createOpenPath(ctx: ShelfCtx): OpenPath {
   const { canvas, st } = ctx;
@@ -84,41 +83,69 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
     if (els?.status) els.status.textContent = text;
   };
 
-  /** The open book and its note sit side by side, and the pair is centred on screen. */
+  /**
+   * Works out where the lifted book goes (`liftLayout`, in pixels), puts the note card beside it
+   * (wide) and hands the pose its numbers in world units: how far it rises, where its centre ends
+   * up, how large it is drawn (never larger than in the row) and the highest its centre may go
+   * (its top stays under the header).
+   */
   function layoutOpen(b: Book, gl: ShelfScene, els: ShelfEls) {
-    const { T, camera, ray, ndc2, fwd } = gl;
+    const { camera } = gl;
     const info = els.info;
     const vw = canvas.clientWidth;
     const vh = canvas.clientHeight;
-    const tanH = Math.tan(T.MathUtils.degToRad(camera.fov / 2));
-    const wide = WIDE();
-    const dist = b.H / (2 * tanH * (wide ? 0.6 : 0.4));
-    const ppu = vh / (2 * tanH * dist);
-    const bw = (b.W * Math.cos(0.3) + b.T * Math.sin(0.3)) * ppu;
-    const gapPx = clamp(vw * 0.035, 28, 64);
-    const iw = info.offsetWidth;
-    let sx = vw / 2;
-    let sy = vh * 0.36;
-    if (wide) {
-      const x0 = (vw - (bw + gapPx + iw)) / 2;
-      sx = x0 + bw / 2;
-      sy = vh * 0.5;
-      info.style.left = Math.round(x0 + bw + gapPx) + "px";
+    const wide = sideBySide(window.innerWidth, window.innerHeight);
+    const sc = gl.scale;
+    const baseRow = vh / 2 + camera.position.y * sc; // the row of the books' feet
+    const rowH = b.H * sc;
+    const yaw = 0.3; // the cover's turn, as in the pose
+    const out = liftLayout({
+      vw,
+      vh,
+      rowX: vw / 2 + (b.base.x - camera.position.x) * sc,
+      rowTop: baseRow - rowH,
+      rowH,
+      coverW: (b.W * Math.cos(yaw) + b.T * Math.sin(yaw)) * sc,
+      headBottom: headerBottom(canvas),
+      baseRow,
+      wide,
+      note: { w: info.offsetWidth, h: info.offsetHeight },
+      gap: clamp(vw * 0.035, 28, 64),
+    });
+    if (out.note) {
+      info.style.left = Math.round(out.note.left) + "px";
+      info.style.top = Math.round(out.note.centreY) + "px";
     } else {
-      info.style.left = "";
+      info.style.left = info.style.top = ""; // the stylesheet's bottom sheet
     }
-    ndc2.set((sx / vw) * 2 - 1, 1 - (sy / vh) * 2);
-    ray.setFromCamera(ndc2, camera);
-    camera.getWorldDirection(fwd);
-    const dir = ray.ray.direction;
-    b.openPos.copy(ray.ray.origin).addScaledVector(dir, dist / dir.dot(fwd));
+    // read by scripts/audit/shelf.json: the lifted book's box on the stage (left, top, right, bottom) and its rise
+    const bw = (b.W * Math.cos(yaw) + b.T * Math.sin(yaw)) * sc * out.scale;
+    const bh = rowH * out.scale;
+    canvas.dataset.openBox = [out.cx - bw / 2, out.cy - bh / 2, out.cx + bw / 2, out.cy + bh / 2]
+      .map(Math.round)
+      .join(",");
+    canvas.dataset.openLift = String(Math.round(out.lift));
+    // and the cover texture's size in pixels, to set against the box (times the renderer's pixel ratio)
+    const cimg = b.coverTex.image as { width?: number; height?: number } | undefined;
+    canvas.dataset.openCover = `${cimg?.width ?? 0}x${cimg?.height ?? 0}`;
+    canvas.dataset.pixelRatio = String(gl.renderer.getPixelRatio());
+    // screen to world: the camera sits at (cam.x, yc) and sees `scale` pixels per unit
+    const worldY = (py: number) => camera.position.y + (vh / 2 - py) / sc;
+    b.lift = out.lift / sc;
+    b.openScale = out.scale;
+    b.yMax = worldY(out.top + rowH / 2); // the book's top never passes the header
+    b.openPos.set(
+      camera.position.x + (out.cx - vw / 2) / sc,
+      worldY(out.cy),
+      FRONT + b.W / 2 + 0.12, // in front of every neighbour (the pose's z for a risen book)
+    );
   }
 
   const setNote = (on: boolean) => {
     const els = ctx.els();
     if (!els) return;
-    const { info, blur, dim, hint, marker } = els;
-    for (const el of [blur, dim, info]) el.classList.toggle("on", on);
+    const { info, hint, marker } = els;
+    info.classList.toggle("on", on);
     hint.classList.toggle("off", on);
     marker?.classList.toggle("off", on);
     // a hidden note is out of the tab order and the reading order
@@ -131,32 +158,19 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
     const els = ctx.els();
     if (!gl || !els || !ctx.running()) return;
     if (st.opened || performance.now() - st.t0 < ctx.intro() * 1000) return;
-    const { renderer: r, scene, camera } = gl;
-    // draw the shelf once without the book that is about to leave, and keep that as the backdrop
-    b.g.visible = b.contact.visible = b.wallSh.visible = false;
-    r.render(scene, camera);
-    const w = Math.round(canvas.width / 2);
-    const h = Math.round(canvas.height / 2);
-    const bx = els.blur.getContext("2d");
-    // reallocate only when the size changes (assigning a size clears and reallocates the canvas)
-    if (els.blur.width !== w) els.blur.width = w;
-    if (els.blur.height !== h) els.blur.height = h;
-    if (bx) {
-      bx.clearRect(0, 0, w, h);
-      bx.drawImage(canvas, 0, 0, w, h);
-    }
-    b.g.visible = true;
     st.opened = b;
     st.dirty = true;
-    layoutOpen(b, gl, els);
+    st.camTarget = null; // the camera stays where it is, so the book is laid out where the row is now
     const { info } = els;
     const set = (sel: string, text: string) => {
       const el = info.querySelector(sel);
       if (el) el.textContent = text;
     };
+    // the note's text first: a narrow screen's sheet is as tall as its text
     set("h3", b.d.title);
     set(".by", `${b.d.author}, ${b.d.pages} pages`);
     set(".note", b.d.note);
+    layoutOpen(b, gl, els);
     setNote(true);
     announce(`${b.d.title}, ${b.d.author}, ${b.d.pages} pages. ${b.d.note}`);
     info.querySelector<HTMLElement>("button")?.focus({ preventScroll: true });

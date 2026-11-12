@@ -4,13 +4,15 @@ import type { WallPick } from "./pick-channel";
 import { thumbUrl } from "./wall-math";
 
 /**
- * A minimal wall for the detail view when there is no WebGL wall: nothing to freeze, thaw or
- * hold, and the tile to fly back into is the grid button with that key.
+ * A minimal wall for the detail view when there is no WebGL wall: nothing to freeze, release or
+ * thaw, the detail view shows the picture itself, and the tile to fly back into is the grid
+ * button with that key.
  */
 export const gridWall: WallControl = {
+  spreads: false,
   freeze() {},
+  release() {},
   thaw() {},
-  hold() {},
   rectOf(key) {
     const el = document.querySelector<HTMLElement>(`.wall-scene .fb-videos [data-key="${CSS.escape(key)}"]`);
     return el ? el.getBoundingClientRect() : null;

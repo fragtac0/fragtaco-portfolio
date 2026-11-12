@@ -15,6 +15,80 @@
  },
  {
   "move": [
+   1400,
+   850
+  ],
+  "wait": 600,
+  "eval": "new Promise(r=>{const t0=performance.now();const c=document.querySelector('.wall-scene .chip');const i=setInterval(()=>{if(c.classList.contains('on')||performance.now()-t0>3000){clearInterval(i);r([c.classList.contains('on'),c.querySelector('b').textContent.slice(0,50)])}},50)})",
+  "label": "corner-chip"
+ },
+ {
+  "click": [
+   1400,
+   850
+  ],
+  "wait": 300,
+  "eval": "[document.querySelector('.vov h3')?.textContent === document.querySelector('.wall-scene .chip b').textContent]",
+  "label": "corner-click-opens-the-hovered-tile"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{if(getComputedStyle(document.querySelector('.vov')).display==='none'||performance.now()-t0>3000){clearInterval(i);r(getComputedStyle(document.querySelector('.vov')).display)}},50)})",
+  "label": "corner-detail-closed"
+ },
+ {
+  "move": [
+   10,
+   10
+  ],
+  "wait": 300,
+  "eval": "new Promise(r=>{const t0=performance.now();const c=document.querySelector('.wall-scene .chip');const i=setInterval(()=>{if(c.classList.contains('on')||performance.now()-t0>3000){clearInterval(i);r([c.classList.contains('on'),c.querySelector('b').textContent.slice(0,50)])}},50)})",
+  "label": "top-left-corner-chip"
+ },
+ {
+  "click": [
+   10,
+   10
+  ],
+  "wait": 300,
+  "eval": "[document.querySelector('.vov h3')?.textContent === document.querySelector('.wall-scene .chip b').textContent, getComputedStyle(document.querySelector('.vov')).display]",
+  "label": "top-left-click-opens"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{if(getComputedStyle(document.querySelector('.vov')).display==='none'||performance.now()-t0>3000){clearInterval(i);r(getComputedStyle(document.querySelector('.vov')).display)}},50)})",
+  "label": "top-left-detail-closed"
+ },
+ {
+  "move": [
+   720,
+   450
+  ],
+  "wait": 900,
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush-frames"
+ },
+ {
+  "shot": "local-r44-wall-hover-centre"
+ },
+ {
+  "move": [
+   1380,
+   60
+  ],
+  "wait": 900,
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush-frames"
+ },
+ {
+  "shot": "local-r44-wall-hover-corner"
+ },
+ {
+  "move": [
    720,
    450
   ],
@@ -47,10 +121,250 @@
   "label": "detail-after-esc"
  },
  {
+  "move": [
+   600,
+   300
+  ],
+  "wait": 400
+ },
+ {
+  "click": [
+   600,
+   300
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=1000)r((()=>{const c=document.querySelector('.wall-host canvas').dataset;const z=document.querySelector('.vtext').getBoundingClientRect();const s=document.querySelector('.shot').getBoundingClientRect();const h=document.querySelector('.vov h3');const w=document.querySelector('.vov .watch');return {chosen:c.chosen,under:c.under,overlaps:c.overlaps,echo:c.echo,display:getComputedStyle(document.querySelector('.vov')).display,shot:[s.x,s.y,s.width,s.height].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),textInsideScreen:z.bottom<=innerHeight&&z.right<=innerWidth&&z.left>=0,textUnderShot:z.top>=s.bottom,shotLanded:document.querySelector('.shot').classList.contains('landed'),title:h.textContent.length>0,meta:document.querySelector('.vmeta').textContent,watch:[w.textContent,w.getAttribute('href').startsWith('https://www.youtube.com/watch?v='),w.rel],hintHidden:+getComputedStyle(document.querySelector('.wall-scene .xp-hint')).opacity}})());else requestAnimationFrame(f)})()})",
+  "label": "open-state"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush-frames"
+ },
+ {
+  "shot": "local-r44-open"
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under,overlaps:d.overlaps}})());else requestAnimationFrame(f)})()})",
+  "label": "arrow-right"
+ },
+ {
+  "key": "ArrowDown",
+  "vk": 40,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under,overlaps:d.overlaps}})());else requestAnimationFrame(f)})()})",
+  "label": "arrow-down"
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under,overlaps:d.overlaps}})());else requestAnimationFrame(f)})()})",
+  "label": "arrow-left"
+ },
+ {
+  "key": "ArrowUp",
+  "vk": 38,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under,overlaps:d.overlaps}})());else requestAnimationFrame(f)})()})",
+  "label": "arrow-up"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas').dataset;const seen=[c.chosen];for(let i=0;i<14;i++){window.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));await new Promise(q=>{const t=performance.now();(function f(){performance.now()-t>=60?q():requestAnimationFrame(f)})()});seen.push(c.chosen)}await new Promise(q=>{const t=performance.now();(function f(){performance.now()-t>=700?q():requestAnimationFrame(f)})()});return {moves:new Set(seen).size,last:c.chosen,under:c.under,overlaps:c.overlaps,keptStillAtTheEdge:seen.slice(-3).every(k=>k===seen[seen.length-1])}})()",
+  "label": "arrows-to-the-edge-then-stay"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
+  "label": "close-esc"
+ },
+ {
+  "move": [
+   600,
+   300
+  ],
+  "wait": 300
+ },
+ {
+  "click": [
+   600,
+   300
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const c=document.querySelector('.wall-host canvas').dataset.chosen;if(c||performance.now()-t0>3000){clearInterval(i);r(c)}},20)})",
+  "label": "reopen-for-button"
+ },
+ {
+  "wait": 700
+ },
+ {
+  "click": "(()=>{const b=document.querySelector('.vov .x').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()",
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
+  "label": "close-button"
+ },
+ {
+  "move": [
+   600,
+   300
+  ],
+  "wait": 300
+ },
+ {
+  "click": [
+   600,
+   300
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const c=document.querySelector('.wall-host canvas').dataset.chosen;if(c||performance.now()-t0>3000){clearInterval(i);r(c)}},20)})",
+  "label": "reopen-for-outside"
+ },
+ {
+  "wait": 700
+ },
+ {
+  "click": [
+   40,
+   450
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
+  "label": "close-click-outside"
+ },
+ {
+  "move": [
+   600,
+   300
+  ],
+  "wait": 300
+ },
+ {
+  "click": [
+   600,
+   300
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const c=document.querySelector('.wall-host canvas').dataset.chosen;if(c||performance.now()-t0>3000){clearInterval(i);r(c)}},20)})",
+  "label": "reopen-for-inside"
+ },
+ {
+  "wait": 700
+ },
+ {
+  "click": [
+   720,
+   400
+  ],
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=800)r([document.querySelector('.wall-host canvas').dataset.chosen!=='',getComputedStyle(document.querySelector('.vov')).display==='block']);else requestAnimationFrame(f)})()})",
+  "label": "click-on-the-video-keeps-it-open"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
+  "label": "close-esc-again"
+ },
+ {
   "key": "Escape",
   "vk": 27,
   "wait": 1200,
   "eval": "[document.documentElement.className, location.hash, !!document.querySelector(\".home-layer.on\")]",
   "label": "after-close"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "reduce": true,
+  "go": "{{BASE}}/#watching",
+  "wait": 4000
+ },
+ {
+  "move": [
+   600,
+   300
+  ],
+  "wait": 400
+ },
+ {
+  "click": [
+   600,
+   300
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const c=document.querySelector('.wall-host canvas').dataset;const z=document.querySelector('.vtext').getBoundingClientRect();const s=document.querySelector('.shot').getBoundingClientRect();const h=document.querySelector('.vov h3');const w=document.querySelector('.vov .watch');return {chosen:c.chosen,under:c.under,overlaps:c.overlaps,echo:c.echo,display:getComputedStyle(document.querySelector('.vov')).display,shot:[s.x,s.y,s.width,s.height].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),textInsideScreen:z.bottom<=innerHeight&&z.right<=innerWidth&&z.left>=0,textUnderShot:z.top>=s.bottom,shotLanded:document.querySelector('.shot').classList.contains('landed'),title:h.textContent.length>0,meta:document.querySelector('.vmeta').textContent,watch:[w.textContent,w.getAttribute('href').startsWith('https://www.youtube.com/watch?v='),w.rel],hintHidden:+getComputedStyle(document.querySelector('.wall-scene .xp-hint')).opacity}})());else requestAnimationFrame(f)})()})",
+  "label": "reduced-open-state"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
+  "label": "reduced-close"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "reduce": false,
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/#watching",
+  "wait": 4500
+ },
+ {
+  "tap": [
+   195,
+   330
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=1000)r((()=>{const c=document.querySelector('.wall-host canvas').dataset;const z=document.querySelector('.vtext').getBoundingClientRect();const s=document.querySelector('.shot').getBoundingClientRect();const h=document.querySelector('.vov h3');const w=document.querySelector('.vov .watch');return {chosen:c.chosen,under:c.under,overlaps:c.overlaps,echo:c.echo,display:getComputedStyle(document.querySelector('.vov')).display,shot:[s.x,s.y,s.width,s.height].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),textInsideScreen:z.bottom<=innerHeight&&z.right<=innerWidth&&z.left>=0,textUnderShot:z.top>=s.bottom,shotLanded:document.querySelector('.shot').classList.contains('landed'),title:h.textContent.length>0,meta:document.querySelector('.vmeta').textContent,watch:[w.textContent,w.getAttribute('href').startsWith('https://www.youtube.com/watch?v='),w.rel],hintHidden:+getComputedStyle(document.querySelector('.wall-scene .xp-hint')).opacity}})());else requestAnimationFrame(f)})()})",
+  "label": "phone-open-state"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush-frames"
+ },
+ {
+  "shot": "local-r44-open-phone"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelector('.vov .x').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()",
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
+  "label": "phone-close-button"
+ },
+ {
+  "tap": [
+   195,
+   330
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const c=document.querySelector('.wall-host canvas').dataset.chosen;if(c||performance.now()-t0>3000){clearInterval(i);r(c)}},20)})",
+  "label": "phone-reopen"
+ },
+ {
+  "wait": 700
+ },
+ {
+  "tap": [
+   195,
+   780
+  ],
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
+  "label": "phone-close-tap-outside"
  }
 ]

@@ -1,28 +1,22 @@
 import { describe, expect, it } from "vitest";
 import {
-  CAMERA,
   DROP,
   DROP_FALL,
-  FOV_DEG,
   FRONT,
   INCH,
   STAG,
   WALLZ,
   bookSize,
-  cameraAt,
   clamp,
   dropProgress,
   easeOut,
-  fitCamera,
   flick,
   initialCamX,
   introSeconds,
   markerLeft,
   markerShown,
-  openPhases,
   panFromDrag,
   spring,
-  visibleFraction,
   wheelPanPx,
 } from "./shelf-math";
 
@@ -34,13 +28,6 @@ describe("constants", () => {
     expect(DROP).toBe(1.5);
     expect(STAG).toBe(0.09);
     expect(DROP_FALL).toBe(0.6);
-    expect(CAMERA).toEqual({
-      lookY: 0.88,
-      lift: 0.1,
-      tilt: 0.09,
-      dollyFrom: 1.12,
-      dollyS: 2.6,
-    });
   });
 });
 
@@ -119,79 +106,6 @@ describe("spring", () => {
   });
 });
 
-describe("fitCamera", () => {
-  const half = (26 / 2) * (Math.PI / 180);
-  it("is at least the distance that fits the needed height", () => {
-    const { dist } = fitCamera({ fovDeg: 26, aspect: 1.6, span: 1.6 });
-    expect(dist).toBeGreaterThanOrEqual(3.05 / 2 / Math.tan(half));
-  });
-  it("has no pan range when the shelf fits", () => {
-    expect(fitCamera({ fovDeg: 26, aspect: 1.6, span: 1.6 }).maxX).toBe(0);
-  });
-  it("has a pan range on a narrow viewport", () => {
-    expect(fitCamera({ fovDeg: 26, aspect: 0.46, span: 14 }).maxX).toBeGreaterThan(0);
-  });
-  it("keeps the height fit as a floor and caps the pull-back", () => {
-    const dH = 3.05 / 2 / Math.tan(half);
-    expect(fitCamera({ fovDeg: 26, aspect: 0.46, span: 14 }).dist).toBeCloseTo(dH * 1.3, 10);
-    // a wide screen and a long shelf: the width fit would be far back, so the 2.3 cap holds it
-    expect(fitCamera({ fovDeg: 26, aspect: 1.6, span: 14 }).dist).toBeCloseTo(dH * 2.3, 10);
-  });
-  it("never goes closer than the height fit, however wide the screen", () => {
-    const dH = 3.05 / 2 / Math.tan(half);
-    expect(fitCamera({ fovDeg: 26, aspect: 3, span: 1.6 }).dist).toBeCloseTo(dH, 10);
-  });
-  it("with a real shelf (span about 2.8) a wide screen sits at the height fit and a phone at 1.3 times it", () => {
-    const dH = 3.05 / 2 / Math.tan(half);
-    expect(fitCamera({ fovDeg: 26, aspect: 1.6, span: 2.8 }).dist).toBeCloseTo(dH, 10);
-    const phone = fitCamera({ fovDeg: 26, aspect: 0.46, span: 2.8 });
-    expect(phone.dist).toBeCloseTo(dH * 1.3, 10);
-    expect(phone.maxX).toBeGreaterThan(0);
-  });
-});
-
-describe("cameraAt", () => {
-  it("starts pulled back and settles at the fitted distance", () => {
-    const start = cameraAt(0, 10);
-    expect(start.distance).toBeCloseTo(11.2, 10);
-    expect(start.lookY).toBe(0.88);
-    expect(start.y).toBeCloseTo(0.98 + 11.2 * 0.09, 10);
-    const end = cameraAt(5, 10);
-    expect(end.distance).toBeCloseTo(10, 10);
-    expect(end.y).toBeCloseTo(0.98 + 10 * 0.09, 10);
-  });
-  it("eases through the dolly", () => {
-    expect(cameraAt(1.3, 10).distance).toBeCloseTo(10 * (1.12 - 0.12 * 0.875), 10);
-  });
-});
-
-describe("openPhases", () => {
-  it("is closed at 0, pulled out at the split, fully open at 1", () => {
-    expect(openPhases(0)).toEqual({ pull: 0, present: 0 });
-    expect(openPhases(0.38)).toEqual({ pull: 1, present: 0 });
-    expect(openPhases(1)).toEqual({ pull: 1, present: 1 });
-  });
-  it("never turns while it is still sliding out", () => {
-    for (let o = 0; o <= 0.38; o += 0.01) expect(openPhases(o).present).toBe(0);
-  });
-  it("is fully pulled out before it starts to turn", () => {
-    for (let o = 0.38; o <= 1; o += 0.01) expect(openPhases(o).pull).toBe(1);
-  });
-  it("only ever moves forward as o rises", () => {
-    let last = openPhases(0);
-    for (let i = 1; i <= 200; i++) {
-      const cur = openPhases(i / 200);
-      expect(cur.pull).toBeGreaterThanOrEqual(last.pull);
-      expect(cur.present).toBeGreaterThanOrEqual(last.present);
-      last = cur;
-    }
-  });
-  it("clamps o outside 0..1", () => {
-    expect(openPhases(-0.5)).toEqual({ pull: 0, present: 0 });
-    expect(openPhases(1.5)).toEqual({ pull: 1, present: 1 });
-  });
-});
-
 describe("clamp", () => {
   it("limits to 0..1 by default", () => {
     expect(clamp(-0.5)).toBe(0);
@@ -218,12 +132,13 @@ describe("initialCamX", () => {
 
 describe("panFromDrag", () => {
   it("drags the shelf with the pointer and clamps at the ends", () => {
-    expect(panFromDrag(0, -200, 8.6, 844, 0.82)).toBe(0.82);
-    expect(panFromDrag(0, 200, 8.6, 844, 0.82)).toBe(-0.82);
+    expect(panFromDrag(0, -200, 400, 0.3)).toBe(0.3);
+    expect(panFromDrag(0, 200, 400, 0.3)).toBe(-0.3);
   });
-  it("is today's formula inside the range", () => {
-    expect(panFromDrag(0, 40, 8.6, 844, 0.82)).toBeCloseTo(-0.367, 3);
-    expect(panFromDrag(0.2, -10, 8.6, 844, 0.82)).toBeCloseTo(0.2 + (10 * 8.6 * 0.9) / 844, 10);
+  it("follows the pointer one to one inside the range", () => {
+    // 40 px at 400 px per unit is 0.1 units, against the drag
+    expect(panFromDrag(0, 40, 400, 0.82)).toBeCloseTo(-0.1, 10);
+    expect(panFromDrag(0.2, -10, 400, 0.82)).toBeCloseTo(0.225, 10);
   });
 });
 
@@ -251,24 +166,6 @@ describe("flick", () => {
   });
 });
 
-describe("visibleFraction", () => {
-  const span = 2.4;
-  it("is 1 when the shelf fits (maxX is 0)", () => {
-    const aspect = 1.6;
-    const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span });
-    expect(maxX).toBe(0);
-    expect(visibleFraction(dist, aspect, FOV_DEG, span)).toBe(1);
-  });
-  it("is the share of the shelf on screen when it is wider than the screen", () => {
-    const aspect = 390 / 844;
-    const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span });
-    expect(maxX).toBeGreaterThan(0);
-    const f = visibleFraction(dist, aspect, FOV_DEG, span);
-    expect(f).toBeGreaterThan(0);
-    expect(f).toBeLessThan(1);
-  });
-});
-
 describe("markerLeft", () => {
   it("runs from the left end of the track to the right end", () => {
     expect(markerLeft(-0.8, 0.8, 0.4)).toBe(0);
@@ -288,19 +185,6 @@ describe("markerShown", () => {
   });
   it("shows when there is somewhere to go and the thumb is shorter than the track", () => {
     expect(markerShown(0.3, 0.8)).toBe(true);
-  });
-  it("hides in the gap where the shelf can still move but is all on screen", () => {
-    // needW <= visible width < needW / 0.9: maxX is above 0 and visibleFraction is 1
-    let gap = 0;
-    for (let aspect = 0.3; aspect <= 3; aspect += 0.01) {
-      const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span: 2.4 });
-      const visible = visibleFraction(dist, aspect, FOV_DEG, 2.4);
-      if (maxX > 0 && visible >= 0.999) {
-        gap++;
-        expect(markerShown(maxX, visible)).toBe(false);
-      }
-    }
-    expect(gap).toBeGreaterThan(0);
   });
 });
 

@@ -6,6 +6,7 @@ import "./watching.css";
 import VideoDetail, { type VideoDetailHandle } from "./video-detail";
 import type { PickChannel, WallPick } from "./pick-channel";
 import type { WallEngine } from "./wall-types";
+import { echoSet } from "./wall-math";
 import WallPlaceholder from "./wall-placeholder";
 import WatchingFallback, { gridWall } from "./watching-fallback";
 
@@ -27,8 +28,9 @@ type WatchingSceneProps = {
 /**
  * The watching pane's DOM. The engine draws into the host and drives the chip and the hint
  * through the elements it is handed; this component only provides them, starts and stops the
- * engine, shows the detail view for a picked tile, and registers the hooks Esc uses to close an
- * open video before the layer. While a video is open everything behind it is `inert`, and the
+ * engine, shows the detail view for a picked tile (the arrow keys move the pick to another tile
+ * while it is open), and registers the hooks Esc uses to close an open video before the layer.
+ * While a video is open the wall behind it stays drawn (spread and dimmed) but is `inert`, and the
  * layer's own header is hidden (through the layer context). Once the layer is active the engine
  * prepares urgently; if the wall is not ready by then, a flat placeholder shows until its first
  * frame (`data-wall` on the scene says which: `shown`, `leaving` or `live`). A lost graphics
@@ -143,12 +145,14 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
   }, [open, fallback, setHeaderHidden]);
 
   const video = pick ? (videos[pick.index] ?? null) : null;
+  const more = pick ? echoSet(videos, pick.index).size : 0;
 
   return (
     <div
       ref={sceneRef}
       className="wall-scene"
       data-wall={fallback || placeholder === "none" ? "live" : placeholder}
+      data-open={open ? "true" : undefined}
     >
       <div ref={mainRef} className="wall-main">
         {fallback ? (
@@ -196,6 +200,7 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
           fromRect={pick?.rect ?? null}
           tileKey={pick?.key ?? null}
           wall={fallback || !engine ? gridWall : engine}
+          more={more}
           onClose={() => setPick(null)}
         />
       ) : null}

@@ -4,12 +4,10 @@ import {
   atlasLayout,
   cellUv,
   columnOffset,
-  focusWeight,
   hitTile,
   layoutTiles,
   thumbUrl,
   tileSize,
-  tileTransform,
 } from "./wall-math";
 
 describe("tileSize", () => {
@@ -30,11 +28,21 @@ describe("tileSize", () => {
 });
 
 describe("columnOffset", () => {
-  it("drifts near columns forward and far columns backward at 0.72 x 0.6 speed", () => {
+  it("drifts every column at the same speed, odd ones backward at 0.72 of it (the speed before R36)", () => {
+    expect(SPEED).toBe(7);
     expect(columnOffset(10, 0)).toBeCloseTo(10 * SPEED);
     expect(columnOffset(10, 2)).toBeCloseTo(10 * SPEED + 2 * 53);
-    expect(columnOffset(10, 1)).toBeCloseTo(-10 * SPEED * 0.72 * 0.6 + 53);
-    expect(columnOffset(10, -1)).toBeCloseTo(-10 * SPEED * 0.72 * 0.6 - 53);
+    expect(columnOffset(10, 1)).toBeCloseTo(-10 * SPEED * 0.72 + 53);
+    expect(columnOffset(10, -1)).toBeCloseTo(-10 * SPEED * 0.72 - 53);
+  });
+
+  it("moves alternate columns in opposite directions at one rate per kind", () => {
+    const rate = (cx: number) => columnOffset(20, cx) - columnOffset(10, cx);
+    expect(rate(0)).toBeGreaterThan(0);
+    expect(rate(1)).toBeLessThan(0);
+    expect(rate(2)).toBeCloseTo(rate(0));
+    expect(rate(-3)).toBeCloseTo(rate(1));
+    expect(rate(1) / rate(0)).toBeCloseTo(-0.72, 10);
   });
 });
 
@@ -115,14 +123,6 @@ describe("thumbUrl", () => {
     expect(thumbUrl({ id: "abc12345678", thumb: "sd" }, "hq")).toMatch(
       /\/abc12345678\/hqdefault\.jpg$/,
     );
-  });
-});
-
-describe("focusWeight", () => {
-  it("is 1 at the focus and fades out", () => {
-    expect(focusWeight(0, 0, 300)).toBe(1);
-    expect(focusWeight(3.5 * 300, 0, 300)).toBeLessThan(0.05);
-    expect(focusWeight(300, 0, 300)).toBeGreaterThan(focusWeight(600, 0, 300));
   });
 });
 
@@ -282,32 +282,5 @@ describe("hitTile", () => {
 
   it("returns null outside the grid", () => {
     expect(hitTile(tiles, -100000, -100000, size)).toBeNull();
-  });
-});
-
-describe("tileTransform", () => {
-  const cw = 300;
-  const ch = 169;
-
-  it("grows the hovered tile by 13 percent", () => {
-    const r = tileTransform({ cx: 500, cy: 400, dx: 0, dy: 0, f: 1, weight: 0, cw, ch });
-    expect(r.w).toBeCloseTo(cw * 1.13, 5);
-    expect(r.h).toBeCloseTo(ch * 1.13, 5);
-    expect(r.cx).toBe(500);
-    expect(r.cy).toBe(400);
-    expect(r.rad).toBeCloseTo(12 * 1.13, 5);
-  });
-
-  it("shrinks a neighbour and pushes it away from the focus", () => {
-    const r = tileTransform({ cx: 500, cy: 400, dx: 100, dy: -50, f: 0, weight: 1, cw, ch });
-    expect(r.w).toBeCloseTo(cw * 0.965, 5);
-    expect(r.h).toBeCloseTo(ch * 0.965, 5);
-    expect(r.cx).toBeCloseTo(500 + 100 * 0.16, 5);
-    expect(r.cy).toBeCloseTo(400 - 50 * 0.16, 5);
-  });
-
-  it("leaves a tile alone with no focus", () => {
-    const r = tileTransform({ cx: 10, cy: 20, dx: 5, dy: 5, f: 0, weight: 0, cw, ch });
-    expect(r).toEqual({ cx: 10, cy: 20, w: cw, h: ch, rad: 12 });
   });
 });

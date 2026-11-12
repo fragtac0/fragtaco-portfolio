@@ -54,7 +54,10 @@ export interface SiteBook {
   isbn: string;
   heightIn: number;
   aspect: number;
-  spine: string;
+  /** The ground colour of the book: the spine before the cover's own colours arrive, the placeholder bar and the plain grid. */
+  color: string;
+  /** A picture of the real spine, a path served from `public/` (for example `/books/story-spine.webp`). Optional. */
+  spine?: string;
   style: BookStyle;
   note: string;
 }
@@ -66,6 +69,8 @@ export interface SiteVideo {
   channelUrl: string;
   subscribers: string | null;
   thumb: "sd" | "hq";
+  /** The day it was published (YYYY-MM-DD), shown under a chosen video when the sync has it. */
+  published?: string | null;
 }
 
 export interface SiteVideosFile {

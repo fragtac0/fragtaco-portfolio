@@ -4,24 +4,20 @@ import { watchContextLost } from "../context-lost";
 import { createCoverQueue } from "./shelf-covers";
 import { attachShelfInput, createShelfInput } from "./shelf-input";
 import { createOpenPath, type ShelfCtx, type ShelfEls, type ShelfState } from "./shelf-open";
+import type { ShelfEngine } from "./shelf-engine-types";
 import { createAnimate, poseBooks } from "./shelf-pose";
 import { createMarkerSync, hintText, HINT_NO_GL } from "./shelf-hud";
 import { fitShelf } from "./shelf-fit";
-import { buildShelfScene, loadShelfFonts, type ShelfScene } from "./shelf-scene";
-import {
-  CAMERA,
-  cameraAt,
-  clamp,
-  flick,
-  initialCamX,
-  introSeconds,
-  NARROW_PX,
-} from "./shelf-math";
+import { buildShelfScene, loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
+import { loadSpinePhotos, retintSpine, stepSpineFades } from "./shelf-spines";
+import { spineColours } from "./spine-styles";
+import { clamp, flick, initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
 
 /**
- * The reading shelf: 14 books on a walnut plank, drawn with three.js. Ported from the `Shelf`
- * module of docs/redesign/mockups/home-v4.html (v4: 3.05 framing, slow drop-in with fade, springs
- * for hover, open and fade, covers uploaded outside the entrance).
+ * The reading shelf: 14 books in one row on a line, seen face on and drawn with three.js. Ported
+ * from the `Shelf` module of docs/redesign/mockups/home-v4.html (slow drop-in with fade, springs for
+ * hover, open and fade, covers uploaded outside the entrance); since R44.3 the camera is
+ * orthographic and the row is unlit, so no side of a book shows and the colours are true.
  *
  * three.js is only ever loaded with `import("three")`, inside `prepare()`, so it is its own chunk.
  * The engine owns its canvas: `prepare()` builds the whole scene in idle time while no layer is
@@ -31,10 +27,9 @@ import {
  * but keeps the GL scene for an instant re-open, and `dispose()` (when the home page goes away)
  * frees everything. A lost graphics context makes `hasFailed()` true and calls `onLost` listeners.
  *
- * Shadows are not a shadow map: each book has a soft contact shadow on the plank and a soft
- * shadow on the wall, animated with the book every frame. Opening a book copies the shelf once,
- * blurs that copy in CSS, and fades the live shelf into it, so the open book is the only thing
- * still being drawn.
+ * Shadows are not a shadow map: a lifted book has a soft shadow on the ground behind it, animated
+ * with the book every frame. Opening a book lifts it straight up and turns it to its cover (620 ms)
+ * while the row stays put and dims to 70%; the note shows beside it (shelf-open.ts, shelf-lift.ts).
  *
  * The per-frame book poses are shelf-pose.ts, the open-book path is shelf-open.ts, the real covers
  * shelf-covers.ts, the scene shelf-scene.ts, the sizing shelf-fit.ts, the hint and position marker
@@ -42,33 +37,7 @@ import {
  * the frame (including the flick after a drag) and the lifecycle.
  */
 
-export type { ShelfEls };
-
-export type ShelfEngine = {
-  prepare(): Promise<void>;
-  mount(els: ShelfEls): void;
-  /**
-   * Starts the loop once the scene is built. `skipIntro` places the books without the drop-in (a
-   * placeholder already showed them); `onFirstFrame` is called once, right after the first frame
-   * has been drawn.
-   */
-  start(opts?: { skipIntro?: boolean; onFirstFrame?: () => void }): Promise<void>;
-  stop(): void;
-  unmount(): void;
-  hasOpen(): boolean;
-  /** True once `prepare()` has run and the scene could not be built (no WebGL2, a throw), or the context was lost. */
-  hasFailed(): boolean;
-  /** Called once when the graphics context is lost (the scene switches to its plain grid). */
-  onLost(cb: () => void): () => void;
-  /** The scene is built, so `start()` shows it on the next frame. */
-  ready(): boolean;
-  /** Urgent: preparation stops yielding to idle time and runs in short slices every frame. */
-  setUrgent(on: boolean): void;
-  closeBook(): void;
-  focusNext(dir: 1 | -1): void;
-  openFocused(): void;
-  dispose(): void;
-};
+export type { ShelfEls, ShelfEngine };
 
 /** Thrown inside `build()` when the engine is disposed part-way through. */
 class Aborted extends Error {}
@@ -104,19 +73,36 @@ export function createShelf(
   let onFirstFrame: (() => void) | null = null;
   const slicer = createSlicer();
 
+  // Not running, or past the entrance with no book open and none still opening or closing: a cover is
+  // painted only then, so it never costs a frame of the lift.
+  const calm = () =>
+    !running ||
+    (performance.now() - st.t0 > (intro() + 0.3) * 1000 &&
+      !st.opened &&
+      !gl?.books.some((b) => b.anim.open > 0));
+
   // Real covers: downloaded, decoded, painted and uploaded outside the entrance (shelf-covers.ts).
   const covers = createCoverQueue({
     disposed: () => disposed,
     ready: () => !!gl,
     running: () => running,
-    calm: () => !running || (performance.now() - st.t0 > (intro() + 0.3) * 1000 && !st.opened),
+    calm: () => calm(),
     upload(t, c) {
       if (!gl) return;
       t.image = c;
       t.needsUpdate = true;
       gl.renderer.initTexture(t);
     },
+    pixels: (d) => gl?.books.find((k) => k.d.id === d.id)?.coverPx ?? 640,
+    // the cover's colours: the spine fades over to them while the loop runs, else it is repainted at once
+    colours(d, c) {
+      const b = gl?.books.find((k) => k.d.id === d.id);
+      if (!b) return;
+      retintSpine(b, spineColours(c), running && !reduced);
+      st.dirty = true;
+    },
   });
+  let stopPhotos: (() => void) | null = null;
 
   // interaction state
   const st: ShelfState = {
@@ -131,12 +117,12 @@ export function createShelf(
     flickV: 0,
     fitW: 0,
     fitH: 0,
+    fitTop: 0,
   };
   const cam = { x: 0, xV: 0 };
-  const fadeBag = { fade: 0, fadeV: 0 };
 
   const animate = createAnimate(reduced);
-  // the position marker under the plank (shelf-hud.ts)
+  // the position marker under the line (shelf-hud.ts)
   const syncMarker = createMarkerSync();
 
   // the open-book path and the input handlers work on this state through the context
@@ -172,7 +158,7 @@ export function createShelf(
 
   // ---- sizing (shelf-fit.ts)
 
-  const fit = () => fitShelf(ctx, books, closeBook);
+  const fit = () => fitShelf(ctx, closeBook);
 
   const { handlers, pick, focusNext, openFocused } = createShelfInput(ctx, openBookPath, fit);
 
@@ -186,7 +172,6 @@ export function createShelf(
     const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));
     last = now;
     const introS = intro();
-    const camPose = cameraAt(reduced ? CAMERA.dollyS : el, s.dist);
     // the open book keeps breathing, unless motion is reduced
     let busy = el < introS + 0.3 || st.dirty || (!!st.opened && !reduced);
 
@@ -202,11 +187,11 @@ export function createShelf(
       cam.x = x;
       busy = true;
     }
+    if (stepSpineFades(s.books, dt)) busy = true;
     syncMarker(els?.marker, cam.x, s.maxX, s.visible);
-    s.camera.position.set(cam.x, camPose.y, camPose.distance);
-    s.camera.lookAt(cam.x, camPose.lookY, 0);
+    s.camera.position.x = cam.x; // the fit set the height; the camera looks straight down -z
 
-    if (el > introS && !st.opened && covers.drain()) busy = true; // one late cover per frame
+    if (el > introS && calm() && covers.drain()) busy = true; // one late cover per frame
 
     const prev = st.hoverHit;
     st.hoverHit =
@@ -214,8 +199,6 @@ export function createShelf(
         ? pick(s.books)
         : null;
     if (st.hoverHit !== prev) canvas.style.cursor = st.hoverHit ? "pointer" : "";
-    if (animate(fadeBag, "fade", st.opened ? 1 : 0, 8, dt)) busy = true;
-    const keep = 1 - clamp(fadeBag.fade);
     const focused = st.focusIdx >= 0 ? s.books[st.focusIdx] : null;
 
     if (
@@ -227,16 +210,11 @@ export function createShelf(
         hover: st.hoverHit,
         focused,
         opened: st.opened,
-        keep,
         animate,
       })
     ) {
       busy = true;
     }
-    s.plank.material.opacity = keep;
-    s.plank.visible = keep > 0.004;
-    s.band.material.opacity = 0.7 * keep;
-    s.band.visible = keep > 0.004;
     if (busy) {
       s.renderer.render(s.scene, s.camera);
       st.dirty = false;
@@ -259,6 +237,13 @@ export function createShelf(
         }
         gl = g;
         covers.wake();
+        // a book with a picture of its spine shows that instead (none does yet)
+        stopPhotos = loadSpinePhotos(g.books, {
+          animate: () => running && !reduced,
+          shown: () => {
+            st.dirty = true;
+          },
+        });
       })
       .catch((err: unknown) => {
         if (err instanceof Aborted) return;
@@ -313,13 +298,12 @@ export function createShelf(
         return;
       }
       fit();
-      // a skipped drop-in starts past its end, camera dolly included
-      const skipped = opts?.skipIntro ? Math.max(intro() + 0.4, CAMERA.dollyS) : 0;
+      // a skipped drop-in starts past its end
+      const skipped = opts?.skipIntro ? intro() + 0.4 : 0;
       st.t0 = performance.now() - skipped * 1000;
       cam.x = initialCamX(gl.maxX, canvas.clientWidth < NARROW_PX);
       cam.xV = st.flickV = 0;
-      fadeBag.fade = fadeBag.fadeV = 0;
-      for (const b of gl.books) b.anim = { hover: 0, hoverV: 0, open: 0, openV: 0 };
+      for (const b of gl.books) b.anim = newBag();
       st.opened = st.hoverHit = st.camTarget = st.down = null;
       st.focusIdx = -1;
       st.dirty = true;
@@ -348,6 +332,7 @@ export function createShelf(
       unmount();
       disposed = true;
       covers.clear();
+      stopPhotos?.();
       gl?.dispose();
       gl = null;
     },

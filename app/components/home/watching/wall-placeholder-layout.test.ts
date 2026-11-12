@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PLANE, tileSize } from "./wall-math";
+import { tileSize } from "./wall-math";
 import { placeholderTiles } from "./wall-placeholder-layout";
 
 describe("placeholderTiles", () => {
@@ -13,8 +13,7 @@ describe("placeholderTiles", () => {
     const tiles = placeholderTiles(1440, 900, 51);
     const { cw } = tileSize(1440);
     expect(tiles.length).toBeGreaterThan(10);
-    // near tiles are exactly the wall's tile width
-    expect(tiles.some((t) => t.width === cw)).toBe(true);
+    expect(tiles.every((t) => t.width === cw)).toBe(true);
     // every tile touches the viewport
     for (const t of tiles) {
       expect(t.left).toBeLessThan(1440);
@@ -24,21 +23,13 @@ describe("placeholderTiles", () => {
     }
   });
 
-  it("draws far columns smaller about their own centre", () => {
+  it("gives every tile the wall's size, so no column is smaller", () => {
     const { cw, ch } = tileSize(1440);
-    const tiles = placeholderTiles(1440, 900, 51);
-    const far = tiles.find((t) => t.key.startsWith("1,"));
-    const near = tiles.find((t) => t.key.startsWith("0,"));
-    expect(far).toBeDefined();
-    expect(near).toBeDefined();
-    if (!far || !near) return;
-    expect(far.width).toBeCloseTo(cw * PLANE.far.scale);
-    expect(far.height).toBeCloseTo(ch * PLANE.far.scale);
-    expect(far.radius).toBeCloseTo(12 * PLANE.far.scale);
-    expect(near.radius).toBe(12);
-    // the inset is the same on both sides: the centre has not moved
-    const pitchX = tileSize(1440).pitchX;
-    expect(far.left + far.width / 2).toBeCloseTo(1 * pitchX + cw / 2);
+    for (const t of placeholderTiles(1440, 900, 51)) {
+      expect(t.width).toBe(cw);
+      expect(t.height).toBe(ch);
+      expect(t.radius).toBe(12);
+    }
   });
 
   it("leaves spare columns empty when there are fewer videos than columns", () => {

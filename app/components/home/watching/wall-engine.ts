@@ -3,18 +3,11 @@ import { createSlicer } from "../../../utils/idle";
 import { watchContextLost } from "../context-lost";
 import { drawTiles } from "./wall-draw";
 import { createWallGl, type WallGl } from "./wall-gl";
+import { countOverlaps, countUnderText, createChoiceLayout, picturesSettled } from "./wall-choice";
 import { createChip, createProbe } from "./wall-hud";
 import { attachWallInput, createWallInput } from "./wall-input";
-import {
-  atlasLayout,
-  cellUv,
-  columnOffset,
-  hitTile,
-  layoutTiles,
-  tileSize,
-  type Atlas,
-} from "./wall-math";
-import { createParallax, touchTarget } from "./wall-parallax";
+import { atlasLayout, cellUv, hitTile, layoutTiles, tileSize, type Atlas } from "./wall-math";
+import { createMotion } from "./wall-motion";
 import { createPose } from "./wall-pose";
 import { createThumbs, type Thumbs } from "./wall-thumbs";
 import {
@@ -26,13 +19,14 @@ import {
 } from "./wall-types";
 
 /**
- * The video wall: every thumbnail on one large, slowly drifting surface, drawn with raw WebGL1.
- * Ported from the `Wall` module of docs/redesign/mockups/home-v4.html. Each tile is its own quad,
- * so the focus effect moves and scales whole tiles instead of bending pixels: the focused video
- * grows a little, its neighbours make room, everything else softens a touch (a biased mipmap
- * lookup, so the faint blur is always on). On top of that the wall has depth (spec 3.7): alternate
- * columns sit further back, smaller, dimmer and slower; the wall leans against the pointer; the
- * focused video's channel stays bright with a hairline edge; and thumbnails arrive with a fade.
+ * The video wall: every thumbnail on one large, slowly drifting, flat surface, drawn with raw
+ * WebGL1 (spec 7). Ported from the `Wall` module of docs/redesign/mockups/home-v4.html. All tiles
+ * are one size and one brightness; alternate columns drift the opposite way. Hover is proximity
+ * only (wall-proximity.ts): tiles near the pointer grow a little and ease away from it, with a
+ * faint orange glow under the focused one, no lift and no dimming. The focused video's channel
+ * keeps a hairline edge, and thumbnails arrive with a fade. The wall is drawn to a texture and
+ * shown through a fish-eye at its borders (wall-warp.ts, wall-warp-pass.ts); the pointer goes
+ * through the inverse before anything is hit.
  *
  * The engine owns its canvas. `prepare()` creates the GL context, program and atlas texture in
  * steps (idle time, or short slices once `setUrgent(true)`) and starts loading thumbnails, so the
@@ -43,15 +37,11 @@ import {
  *
  * This file keeps the state, the frame and the lifecycle. The types are wall-types.ts, the GL
  * context and shaders wall-gl.ts, the thumbnails wall-thumbs.ts, the listeners and picking
- * wall-input.ts, the tiles' pose wall-pose.ts (with wall-planes.ts and wall-parallax.ts), their
- * drawing wall-draw.ts, the chip wall-hud.ts and the maths wall-math.ts.
+ * wall-input.ts, the tiles' pose wall-pose.ts, their drawing wall-draw.ts, the chip wall-hud.ts
+ * and the maths wall-math.ts.
  */
 
-/** Pixels the whole wall pans sideways per second. */
-const DRIFT = 3;
-
-const HINT_FINE =
-  "Drag or scroll to look around. Hover a video to bring it forward, click to open it.";
+const HINT_FINE = "Drag or scroll to look around. Hover a video to look closer, click to open it.";
 const HINT_KEYS = " Arrow keys and Enter work too.";
 const HINT_TOUCH = "Drag to look around. Tap a video to open it.";
 const HINT_NO_GL = "The wall could not start in this browser.";
@@ -92,16 +82,18 @@ export function createWall(
   let runToken = 0;
   let onFirstFrame: (() => void) | null = null;
   const slicer = createSlicer();
+  /** The still frame on the screen (see `frame`), or "" when the next frame must be drawn. */
+  let drawnStill = "";
 
   // interaction and view state, shared with the input code through the context
   const st = createWallState();
-  const { pan, vel, mouse } = st;
-  const focus = { x: 0, y: 0 };
-  let lens = 0;
-  let speedMul = 1;
+  const { pan, mouse } = st;
+  /** Where the tiles' nearness comes from, in flat wall coordinates. */
+  let point: { x: number; y: number } | null = null;
   let cursor = "";
   const pose = createPose(videos);
-  const parallax = createParallax(REDUCE);
+  const motion = createMotion(st, REDUCE);
+  const choiceOf = createChoiceLayout();
   const chip = createChip(videos, st);
   const probe = createProbe(canvas);
 
@@ -166,35 +158,11 @@ export function createWall(
     raf = requestAnimationFrame(frame);
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (st.held) return;
     const { vw, vh, size } = st;
     const { cw, ch, pitchX, pitchY } = size;
-    const hovering = FINE && mouse.inside && !st.dragging;
-    // the wall settles while you look at something, then drifts on again
-    speedMul +=
-      ((hovering || st.kbd !== null || st.frozen ? 0 : 1) - speedMul) * Math.min(1, dt * 2.5);
-    if (!REDUCE) st.t += dt * speedMul;
-    if (!st.dragging && !st.frozen) {
-      pan.x += vel.x * dt;
-      pan.y += vel.y * dt;
-      const k = Math.pow(0.05, dt);
-      vel.x *= k;
-      vel.y *= k;
-    }
-    if (!REDUCE) pan.x += DRIFT * dt * speedMul;
-    if (st.kbd && !st.frozen) {
-      // the keyboard focus pans the wall just far enough to keep its tile in view
-      const k = Math.min(1, dt * 6);
-      const xc = st.kbd.cx * pitchX - pan.x + cw / 2;
-      const yc = st.kbd.cy * pitchY - pan.y - columnOffset(st.t, st.kbd.cx) + ch / 2;
-      const mx = Math.min(pitchX * 0.75, vw / 2);
-      const my = Math.min(Math.max(pitchY * 0.75, 120), vh / 2);
-      pan.x += (xc < mx ? xc - mx : xc > vw - mx ? xc - (vw - mx) : 0) * k;
-      pan.y += (yc < my ? yc - my : yc > vh - my ? yc - (vh - my) : 0) * k;
-    }
-    // the wall leans against the pointer (a mouse) or a drag (touch); the near plane more
-    const lean = FINE ? (mouse.inside ? mouse : null) : touchTarget(vel, vw, vh);
-    if (!st.frozen) parallax.update(dt, lean, vw, vh); // holds while a video opens
+    const choosing = st.choice !== null;
+    const hovering = FINE && mouse.inside && !st.dragging && !choosing;
+    motion.step(dt, hovering);
     const list = layoutTiles({
       panX: pan.x,
       panY: pan.y,
@@ -205,8 +173,9 @@ export function createWall(
       t: st.t,
       count: atlas.cells.length,
     }) as Tile[];
-    parallax.lean(list);
-    if (!st.frozen) {
+    if (st.choice) {
+      st.hoverKey = st.choice.key; // the chosen video is the one in focus: its channel's others stay lit
+    } else {
       // nearest tile, gaps included, so the focus never drops between two videos
       st.hoverKey = hovering ? hitTile(list, mouse.x, mouse.y, size) : null;
       if (st.hoverKey === null && st.kbd && !st.dragging) {
@@ -214,24 +183,44 @@ export function createWall(
       }
     }
     const ft = st.hoverKey === null ? null : (list.find((tl) => tl.key === st.hoverKey) ?? null);
-    lens += ((ft ? 1 : 0) - lens) * Math.min(1, dt * 7);
-    if (ft) {
-      const fx = ft.x + cw / 2;
-      const fy = ft.y + ch / 2;
-      if (lens < 0.08) {
-        focus.x = fx;
-        focus.y = fy;
-      } else {
-        const k = Math.min(1, dt * 12);
-        focus.x += (fx - focus.x) * k;
-        focus.y += (fy - focus.y) * k;
-      }
-    }
+    // the pointer, or the keyboard's tile, is what the tiles near it answer to; a chosen video
+    // has the wall's attention instead
+    point = choosing
+      ? null
+      : hovering
+        ? { x: mouse.x, y: mouse.y }
+        : st.kbd && ft
+          ? { x: ft.x + cw / 2, y: ft.y + ch / 2 }
+          : null;
     const focusIdx = ft ? ft.idx : null;
-    pose.apply(list, { dt, size, hoverKey: st.hoverKey, lens, focus, focusIdx, reduced: REDUCE });
-    if (!st.frozen) thumbs?.pumpFrame();
+    const choice = choiceOf(st);
+    const ghosts = pose.apply(list, {
+      dt,
+      size,
+      hoverKey: st.hoverKey,
+      point,
+      focusIdx,
+      reduced: REDUCE,
+      choice,
+    });
+    thumbs?.pumpFrame();
 
-    drawTiles(wgl, list, { now, vw, vh, pitchX, reduced: REDUCE, uvs, loadedAt: thumbs?.loadedAt });
+    // a still wall (a video open, nothing travelling, every picture up and settled) keeps the frame
+    // that is already on the screen until something changes
+    const calm = choice && !pose.moving() && picturesSettled(thumbs?.loadedAt, now);
+    const calmSig = calm ? `${choice.key}|${vw}x${vh}` : "";
+    if (!calm || calmSig !== drawnStill) {
+      const draw = ghosts.length ? [...ghosts, ...list] : list;
+      if (!drawTiles(wgl, draw, { now, vw, vh, pitchX, reduced: REDUCE, uvs, loadedAt: thumbs?.loadedAt })) {
+        // the GPU cannot render to the wall's target: the plain grid takes over, as for a lost context
+        failed = true;
+        stop();
+        canvas.dispatchEvent(new Event("webglcontextlost"));
+        return;
+      }
+      wgl.endFrame(vw, vh);
+      drawnStill = calmSig;
+    }
     st.tiles = list;
     if (onFirstFrame) {
       const cb = onFirstFrame;
@@ -241,9 +230,10 @@ export function createWall(
 
     const echo = pose.echoFor(focusIdx);
     chip.place(els?.chip, list, echo.size);
-    const near = parallax.shift("near");
-    probe("lean", `${Math.round(near.x)},${Math.round(near.y)}`);
     probe("echo", String(echo.size));
+    probe("chosen", st.choice?.key ?? "");
+    probe("under", choice ? String(countUnderText(list, choice)) : "0");
+    probe("overlaps", choice ? String(countOverlaps(list, choice)) : "0");
     const cur = st.dragging ? "grabbing" : st.hoverKey ? "pointer" : "grab";
     if (cur !== cursor) canvas.style.cursor = cursor = cur;
   }
@@ -258,7 +248,8 @@ export function createWall(
     canvas.style.cursor = "";
     cursor = "";
     mouse.inside = false;
-    st.frozen = st.held = false;
+    st.choice = null;
+    drawnStill = "";
     st.dragging = false;
     st.down = null;
     st.kbd = null;
@@ -295,11 +286,12 @@ export function createWall(
         els.hint.textContent = HINT_NO_GL;
         return;
       }
-      lens = 0;
       st.hoverKey = null;
       st.kbd = null;
+      point = null;
       pose.reset();
-      st.frozen = st.held = false;
+      st.choice = null;
+      drawnStill = "";
       sizes();
       running = true;
       last = performance.now();
@@ -316,15 +308,20 @@ export function createWall(
     setUrgent: (on) => slicer.setUrgent(on),
     onLost: lost.subscribe,
 
+    spreads: true,
     freeze(key) {
-      st.frozen = true;
-      if (key) st.hoverKey = key;
+      if (!key || st.choice?.key === key) return;
+      const tl = st.tiles.find((x) => x.key === key);
+      if (!tl) return;
+      st.choice = { key, idx: tl.idx, live: true };
+      st.hoverKey = key;
+    },
+    release() {
+      if (st.choice) st.choice.live = false;
     },
     thaw() {
-      st.frozen = false;
-    },
-    hold(v) {
-      st.held = v;
+      st.choice = null;
+      pose.reset();
     },
     rectOf: input.rectOf,
 

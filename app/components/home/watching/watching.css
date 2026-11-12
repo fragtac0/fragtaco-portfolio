@@ -40,6 +40,13 @@
   max-width: min(92vw, 980px);
   text-align: center;
 }
+/* a chosen video has its own text: the hint would sit on the tiles behind it */
+.home-layer .wall-scene .xp-hint {
+  transition: opacity 0.2s ease;
+}
+.home-layer .wall-scene[data-open] .xp-hint {
+  opacity: 0;
+}
 .home-layer .wall-vig {
   position: absolute;
   inset: 0;
@@ -83,7 +90,9 @@
   color: var(--ink-3);
 }
 
-/* video detail: channel and subscribers above the shot, title and Watch below (mockup: .vov) */
+/* the detail view of a chosen video (spec 7, "Click"; video-detail.tsx). The wall stays drawn under
+   it, spread and dimmed. --sx, --sy, --sw place the picture and --zx .. --zh the text block, from
+   the same boxes the wall uses (wall-spread.ts), set on .vov by the component. */
 .home-layer .vov {
   position: fixed;
   inset: 0;
@@ -93,43 +102,25 @@
 .home-layer .vov.on {
   display: block;
 }
+/* a click on it closes; with the WebGL wall it is clear, so the wall shows */
 .home-layer .vov .bg {
   position: absolute;
   inset: 0;
+}
+/* without WebGL there is no wall to show: a dark backdrop, and the picture flies over it */
+.home-layer .vov:not(.gl) .bg {
   background: color-mix(in srgb, var(--ground) 95%, transparent);
   opacity: 0;
   transition: opacity 0.4s ease;
 }
-.home-layer .vov.show .bg {
+.home-layer .vov:not(.gl).show .bg {
   opacity: 1;
 }
-.home-layer .vstage {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(92vw, calc((100dvh - 270px) * 16 / 9), 1080px);
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.home-layer .vtop {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px;
-  font-size: var(--t-meta);
-}
-.home-layer .vtop .ch {
-  color: var(--cream);
-}
-.home-layer .vtop .subs {
-  color: var(--ink-3);
-  white-space: nowrap;
-}
 .home-layer .shot {
-  position: relative;
-  width: 100%;
+  position: absolute;
+  left: var(--sx);
+  top: var(--sy);
+  width: var(--sw);
   aspect-ratio: 16 / 9;
   border-radius: 20px;
   overflow: hidden;
@@ -140,26 +131,67 @@
     0 0 0 1px var(--line),
     var(--glow);
 }
+/* with the wall, the wall draws the video while it travels; this sharp picture fades in over it once it has landed */
+.home-layer .vov.gl .shot {
+  box-shadow: none;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.home-layer .vov.gl .shot.landed {
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
 .home-layer .shot img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
-.home-layer .vstage h3 {
+.home-layer .vtext {
+  position: absolute;
+  left: var(--zx);
+  top: var(--zy);
+  width: var(--zw);
+  min-height: var(--zh);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.home-layer .vtext h3 {
   font-family: "Space Mono", monospace;
   font-weight: 700;
-  font-size: clamp(18px, 2vw, 28px);
+  font-size: clamp(16px, 1.7vw, 24px);
   line-height: 1.3;
-  margin: 4px 0 0;
+  margin: 0;
+  color: var(--cream);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.home-layer .vmeta {
+  margin: 0 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 0;
+  font-size: var(--t-meta);
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+.home-layer .vmeta span + span::before {
+  content: "\00b7";
+  margin: 0 8px;
+}
+.home-layer .vmeta .ch {
   color: var(--cream);
 }
 .home-layer .watch {
-  align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  height: 46px;
-  padding: 0 26px;
+  height: 40px;
+  padding: 0 22px;
   border-radius: 999px;
   background: var(--accent);
   color: var(--ground);
@@ -176,13 +208,15 @@
   opacity: 0;
   transform: translateY(10px);
   transition:
-    opacity 0.35s ease,
-    transform 0.6s var(--ease);
+    opacity 0.2s ease,
+    transform 0.3s var(--ease);
 }
 .home-layer .vov.show .vfade {
   opacity: 1;
   transform: none;
-  transition-delay: 0.2s;
+  transition:
+    opacity 0.35s ease 0.2s,
+    transform 0.6s var(--ease) 0.2s;
 }
 .home-layer .vov .x {
   position: absolute;
@@ -206,8 +240,18 @@
 }
 
 @media (max-width: 699.98px) {
-  .home-layer .vstage {
-    gap: 10px;
+  .home-layer .vtext {
+    gap: 6px;
+  }
+  .home-layer .vtext h3 {
+    font-size: 16px;
+  }
+  .home-layer .vmeta {
+    font-size: var(--t-micro);
+  }
+  .home-layer .watch {
+    height: 38px;
+    padding: 0 18px;
   }
 }
 
@@ -215,19 +259,20 @@
   .home-layer .wall-placeholder {
     transition: none;
   }
-  /* the detail view does not fly: the shot and its text fade in and out instead */
+  /* nothing travels: the picture, its text and the backdrop fade in and out instead */
   .home-layer .vov .bg,
   .home-layer .vov .x {
     transition-duration: 0.3s !important;
   }
-  .home-layer .vov .shot {
+  .home-layer .vov:not(.gl) .shot {
     opacity: 0;
     transition: opacity 0.3s ease !important;
   }
-  .home-layer .vov.show .shot {
+  .home-layer .vov:not(.gl).show .shot {
     opacity: 1;
   }
-  .home-layer .vov .vfade {
+  .home-layer .vov .vfade,
+  .home-layer .vov.show .vfade {
     transform: none;
     transition: opacity 0.3s ease !important;
   }

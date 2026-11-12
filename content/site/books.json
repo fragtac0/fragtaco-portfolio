@@ -8,7 +8,7 @@
       "isbn": "9781879505629",
       "heightIn": 8.5,
       "aspect": 0.647,
-      "spine": "#ece6d6",
+      "color": "#ece6d6",
       "style": "plain",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -20,7 +20,7 @@
       "isbn": "9780292776241",
       "heightIn": 9,
       "aspect": 0.667,
-      "spine": "#2c3b43",
+      "color": "#2c3b43",
       "style": "band",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -32,7 +32,7 @@
       "isbn": "9780679756606",
       "heightIn": 8,
       "aspect": 0.65,
-      "spine": "#a8352a",
+      "color": "#a8352a",
       "style": "block",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -44,7 +44,7 @@
       "isbn": "9780240517384",
       "heightIn": 9,
       "aspect": 0.667,
-      "spine": "#c79a2a",
+      "color": "#c79a2a",
       "style": "plain",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -56,7 +56,7 @@
       "isbn": "9780060391683",
       "heightIn": 9.5,
       "aspect": 0.66,
-      "spine": "#151312",
+      "color": "#151312",
       "style": "band",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -68,7 +68,7 @@
       "isbn": "9781932907001",
       "heightIn": 9,
       "aspect": 0.667,
-      "spine": "#efe9dc",
+      "color": "#efe9dc",
       "style": "block",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -80,7 +80,7 @@
       "isbn": "9780593652886",
       "heightIn": 9.3,
       "aspect": 0.68,
-      "spine": "#e3ddd0",
+      "color": "#e3ddd0",
       "style": "plain",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -92,7 +92,7 @@
       "isbn": "9780761169253",
       "heightIn": 7.2,
       "aspect": 0.76,
-      "spine": "#1c1b19",
+      "color": "#1c1b19",
       "style": "block",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -104,7 +104,7 @@
       "isbn": "9780761178972",
       "heightIn": 7.2,
       "aspect": 0.76,
-      "spine": "#f0ece2",
+      "color": "#f0ece2",
       "style": "block",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -116,7 +116,7 @@
       "isbn": "9780140135152",
       "heightIn": 7.8,
       "aspect": 0.65,
-      "spine": "#c21f2b",
+      "color": "#c21f2b",
       "style": "plain",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -128,7 +128,7 @@
       "isbn": "9780060976255",
       "heightIn": 10,
       "aspect": 0.66,
-      "spine": "#d6b03a",
+      "color": "#d6b03a",
       "style": "band",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -140,7 +140,7 @@
       "isbn": "9781568989693",
       "heightIn": 9,
       "aspect": 0.78,
-      "spine": "#e04a26",
+      "color": "#e04a26",
       "style": "block",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -152,7 +152,7 @@
       "isbn": "9783721201451",
       "heightIn": 11,
       "aspect": 0.73,
-      "spine": "#dad8cf",
+      "color": "#dad8cf",
       "style": "plain",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
@@ -164,7 +164,7 @@
       "isbn": "9780465050659",
       "heightIn": 8.25,
       "aspect": 0.66,
-      "spine": "#1f4b73",
+      "color": "#1f4b73",
       "style": "band",
       "note": "Placeholder for one or two lines on why this book stays with you."
     }

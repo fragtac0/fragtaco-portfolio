@@ -1,9 +1,8 @@
-/* the reading shelf (mockup: #shelf, #shelfBlur, .shelf-dim, .book-info) */
+/* the reading shelf (mockup: #shelf, .book-info) */
 .home-layer .shelf-scene {
   position: absolute;
   inset: 0;
 }
-.home-layer .shelf-blur,
 .home-layer .shelf-host,
 .home-layer .shelf-canvas {
   position: absolute;
@@ -19,7 +18,7 @@
 .home-layer .shelf-canvas.dragging {
   cursor: grabbing;
 }
-/* where you are along a shelf wider than the screen: a 2px line under the plank, one thumb on it */
+/* where you are along a shelf wider than the screen: a 2px line under the books' line, one thumb on it */
 .home-layer .shelf-marker {
   position: absolute;
   left: 50%;
@@ -62,39 +61,18 @@
 .home-layer .shelf-placeholder.leaving {
   opacity: 0;
 }
-.home-layer .sp-plank {
+/* the books stand on one hairline, the same strength as the 3D row's (LINE_ALPHA in tokens.ts) */
+.home-layer .sp-line {
   position: absolute;
-  background: linear-gradient(var(--surface-2), var(--surface-1));
+  background: var(--line);
 }
 .home-layer .sp-bar {
   position: absolute;
-  border-radius: 3px 3px 2px 2px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
 }
 @media (prefers-reduced-motion: reduce) {
   .home-layer .shelf-placeholder {
     transition: none;
   }
-}
-.home-layer .shelf-blur {
-  opacity: 0;
-  filter: blur(14px) saturate(0.85);
-  transform: scale(1.04);
-  transition: opacity 0.55s ease;
-}
-.home-layer .shelf-blur.on {
-  opacity: 1;
-}
-.home-layer .shelf-dim {
-  position: absolute;
-  inset: 0;
-  background: color-mix(in srgb, var(--ground) 50%, transparent);
-  opacity: 0;
-  transition: opacity 0.55s ease;
-  pointer-events: none;
-}
-.home-layer .shelf-dim.on {
-  opacity: 1;
 }
 .home-layer .book-info {
   position: absolute;
@@ -110,7 +88,8 @@
     transform 0.7s var(--ease);
   padding: 24px 24px 22px;
   border-radius: 22px;
-  background: color-mix(in srgb, var(--surface-1) 72%, transparent);
+  /* the row stays sharp behind the card now (it only dims), so the card is fully solid: no spine type shows through */
+  background: var(--surface-1);
   outline: 1px solid var(--line);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
@@ -158,7 +137,8 @@
   outline-offset: 2px;
 }
 
-@media (max-width: 860px) {
+/* a sheet along the bottom on a phone held upright; beside the book on a landscape phone (sideBySide in shelf-lift.ts) */
+@media (max-width: 860px) and (min-height: 521px), (max-width: 639px) {
   .home-layer .book-info {
     left: 16px !important;
     right: 16px;
@@ -167,10 +147,30 @@
     width: auto;
     transform: translate3d(0, 12px, 0);
     padding: 18px;
-    background: color-mix(in srgb, var(--surface-1) 86%, transparent);
+    background: var(--surface-1);
   }
   .home-layer .book-info.on {
     transform: none;
+  }
+}
+
+/* a short screen (a landscape phone): a compact card, so it fits under the header beside the book */
+@media (max-height: 520px) {
+  .home-layer .book-info {
+    padding: 14px 16px 14px;
+    border-radius: 16px;
+  }
+  .home-layer .book-info h3 {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+  .home-layer .book-info .note {
+    margin: 12px 0 12px;
+    padding: 10px 12px;
+    line-height: 1.5;
+  }
+  .home-layer .book-info button {
+    height: 40px;
   }
 }
 

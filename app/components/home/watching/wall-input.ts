@@ -1,6 +1,8 @@
 import { isDrag, pressIsStale, startsPress } from "../reading/shelf-drag";
 import { columnOffset } from "./wall-math";
+import { nearestInDirection } from "./wall-spread";
 import type { Tile, WallCtx } from "./wall-types";
+import { edgeUnwarp, edgeWarp } from "./wall-warp";
 
 /**
  * The wall's pointer, wheel and keyboard. Touch: a tap opens the video straight away. Fine
@@ -13,6 +15,14 @@ import type { Tile, WallCtx } from "./wall-types";
  * running); `createWallInput` holds the handler bodies, which read and write the engine's state
  * through the context. Every listener is removed when `signal` aborts.
  *
+ * Once a video is chosen (`st.choice`) the wall takes no pointer input (the detail view's own
+ * layer catches a click outside); only the arrow keys work, moving the choice to the nearest tile
+ * in that direction among those on screen, or leaving it if there is none.
+ *
+ * The wall is shown through a fish-eye at its borders (wall-warp.ts), so a pointer position is put
+ * through `edgeUnwarp` before it is used to hit or focus a tile; a tile's rectangle for the detail
+ * view to fly from is where its corners show after `edgeWarp`.
+ *
  * A press is the primary pointer's, and for a mouse only button 0 (a right-click never opens a
  * video). It is captured from the press, so its release always lands on the stage, and a mouse that
  * moves with no button held drops it (its release went elsewhere), as on the shelf (shelf-drag.ts).
@@ -21,7 +31,7 @@ import type { Tile, WallCtx } from "./wall-types";
 export type WallInputHandlers = {
   /** The frame loop is running. */
   running: () => boolean;
-  /** A video is opening or open, or the wall is held. */
+  /** A video is chosen (opening, open or closing). */
   locked: () => boolean;
   pointerMove: (e: PointerEvent) => void;
   pointerDown: (e: PointerEvent) => void;
@@ -62,13 +72,14 @@ export function attachWallInput(
   window.addEventListener(
     "keydown",
     (e) => {
-      if (!h.running() || h.locked() || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (!h.running() || e.altKey || e.ctrlKey || e.metaKey) return;
       const move = ARROWS[e.key];
       if (move) {
         e.preventDefault();
-        if (document.activeElement !== canvas) canvas.focus({ preventScroll: true });
+        // a chosen video has the keyboard focus on its own layer: leave it there
+        if (!h.locked() && document.activeElement !== canvas) canvas.focus({ preventScroll: true });
         h.arrow(move[0], move[1]);
-      } else if (e.key === "Enter" && document.activeElement === canvas) {
+      } else if (e.key === "Enter" && !h.locked() && document.activeElement === canvas) {
         e.preventDefault();
         h.enter();
       }
@@ -97,7 +108,7 @@ export function createWallInput(
   const { pan, vel, mouse } = st;
 
   const kbdKey = () => (st.kbd ? `${st.kbd.cx},${st.kbd.cy}` : null);
-  const locked = () => st.frozen || st.held;
+  const locked = () => st.choice !== null;
 
   /** The topmost displaced tile under a point (the list is sorted, hovered last). */
   const hitAt = (x: number, y: number): Tile | null => {
@@ -107,8 +118,25 @@ export function createWallInput(
     }
     return null;
   };
-  const rectOfTile = (tl: Tile) =>
-    new DOMRect(st.ox + tl.cx - tl.w / 2, st.oy + tl.cy - tl.h / 2, tl.w, tl.h);
+  /** A viewport point, in flat wall coordinates. */
+  const toWall = (clientX: number, clientY: number) =>
+    edgeUnwarp(clientX - st.ox, clientY - st.oy, st.vw, st.vh);
+  /** Where the tile shows in the viewport: the box around its warped corners. */
+  const rectOfTile = (tl: Tile) => {
+    const l = tl.cx - tl.w / 2;
+    const t = tl.cy - tl.h / 2;
+    const pts = [
+      edgeWarp(l, t, st.vw, st.vh),
+      edgeWarp(l + tl.w, t, st.vw, st.vh),
+      edgeWarp(l, t + tl.h, st.vw, st.vh),
+      edgeWarp(l + tl.w, t + tl.h, st.vw, st.vh),
+    ];
+    const xs = pts.map((q) => q[0]);
+    const ys = pts.map((q) => q[1]);
+    const x0 = Math.min(...xs);
+    const y0 = Math.min(...ys);
+    return new DOMRect(st.ox + x0, st.oy + y0, Math.max(...xs) - x0, Math.max(...ys) - y0);
+  };
 
   /** Forgets the press: the pointer is up, cancelled, or never had its release. */
   function endPress() {
@@ -116,15 +144,34 @@ export function createWallInput(
     st.dragging = false;
   }
 
-  /** Freezes right here, so a second click cannot land while the detail view is opening. */
+  /** Chooses the tile right here, so a second click cannot land while the detail view is opening. */
   function pick(tl: Tile) {
-    st.frozen = true;
+    st.choice = { key: tl.key, idx: tl.idx, live: true };
     st.hoverKey = tl.key;
     onPick(tl.idx, rectOfTile(tl), tl.key);
   }
 
+  /** The arrow keys while a video is chosen: the choice moves to the nearest tile that way. */
+  function moveChoice(dx: number, dy: number) {
+    const cur = st.choice;
+    if (!cur?.live) return;
+    const { size, vw, vh } = st;
+    const here = st.tiles.find((tl) => tl.key === cur.key);
+    if (!here) return;
+    const from = { x: here.x + size.cw / 2, y: here.y + size.ch / 2 };
+    const near = st.tiles
+      .map((tl) => ({ tl, x: tl.x + size.cw / 2, y: tl.y + size.ch / 2 }))
+      .filter((c) => c.tl.key !== cur.key && c.x >= 0 && c.x <= vw && c.y >= 0 && c.y <= vh);
+    const to = nearestInDirection(from, near, dx, dy)?.tl;
+    if (!to) return;
+    st.choice = { key: to.key, idx: to.idx, live: true };
+    st.hoverKey = to.key;
+    onPick(to.idx, rectOfTile(to), to.key);
+  }
+
   function focusNext(dx: number, dy: number) {
-    if (!ctx.running() || locked() || !st.tiles.length) return;
+    if (!ctx.running() || !st.tiles.length) return;
+    if (st.choice) return moveChoice(dx, dy);
     const { size, vw, vh, t } = st;
     if (!st.kbd) {
       // start from the tile nearest the middle of the view
@@ -166,8 +213,7 @@ export function createWallInput(
     running: ctx.running,
     locked,
     pointerMove(e) {
-      mouse.x = e.clientX - st.ox;
-      mouse.y = e.clientY - st.oy;
+      [mouse.x, mouse.y] = toWall(e.clientX, e.clientY);
       mouse.inside = e.pointerType === "mouse";
       if (mouse.inside) st.kbd = null; // the pointer takes the focus back
       // a mouse moving with no button held has no press: its release went elsewhere
@@ -191,7 +237,7 @@ export function createWallInput(
       }
     },
     pointerDown(e) {
-      if (st.frozen || !e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
+      if (locked() || !e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
       if (!startsPress(st.down, e)) return;
       try {
         canvas.setPointerCapture(e.pointerId);
@@ -214,7 +260,8 @@ export function createWallInput(
       endPress();
       if (wasDrag || locked()) return;
       vel.x = vel.y = 0;
-      const tl = hitAt(e.clientX - st.ox, e.clientY - st.oy);
+      const [wx, wy] = toWall(e.clientX, e.clientY);
+      const tl = hitAt(wx, wy);
       if (tl) pick(tl);
     },
     pointerCancel(e) {
@@ -223,14 +270,14 @@ export function createWallInput(
     pointerLeave: () => (mouse.inside = false),
     wheel(e) {
       e.preventDefault();
-      if (st.frozen) return;
+      if (locked()) return;
       const m = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? st.vh : 1;
       pan.x += e.deltaX * m;
       pan.y += e.deltaY * m;
     },
     blur() {
       // the highlight lives only while the stage has focus (opening a video moves focus on)
-      if (st.frozen) return;
+      if (locked()) return;
       st.kbd = null;
     },
     arrow: focusNext,
