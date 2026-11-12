@@ -98,8 +98,8 @@ describe("emberCssAlphas", () => {
   it("only falls", () => {
     for (let i = 1; i < alphas.length; i++) expect(alphas[i][1]).toBeLessThan(alphas[i - 1][1]);
   });
-  it("matches the values written into work.css", () => {
-    const css = readFileSync(new URL("../work.css", import.meta.url), "utf8");
+  it("matches the values written into ground.css", () => {
+    const css = readFileSync(new URL("./ground.css", import.meta.url), "utf8");
     const written = [...css.matchAll(/var\(--ground-ember\) ([\d.]+)%, transparent\) (\d+)%/g)].map((m) => [Number(m[2]), Number(m[1])]);
     expect(written.length).toBe(alphas.length);
     written.forEach(([position, percent], i) => {

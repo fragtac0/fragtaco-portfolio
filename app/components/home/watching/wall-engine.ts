@@ -207,7 +207,7 @@ export function createWall(
 
     // a still wall (a video open, nothing travelling, every picture up and settled) keeps the frame
     // that is already on the screen until something changes
-    const calm = choice && !pose.moving() && picturesSettled(thumbs?.loadedAt, now);
+    const calm = choice && !pose.moving() && picturesSettled(thumbs?.loadedAt, now, undefined, thumbs?.failedAt);
     const calmSig = calm ? `${choice.key}|${vw}x${vh}` : "";
     if (!calm || calmSig !== drawnStill) {
       const draw = ghosts.length ? [...ghosts, ...list] : list;

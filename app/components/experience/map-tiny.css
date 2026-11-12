@@ -1,0 +1,46 @@
+/*
+ * R46.1, the smallest phones (320 x 568): the heading, the caption and the zoom column together covered the mountain and
+ * the year pills ran under them. Here the zoom buttons lie in a row at the lower right, and the caption is its title on the
+ * same line, bottom left; the line, the figures and the credit are still there (kept for a screen reader) and show when the
+ * heading's More is open (`data-more`), over the map, as an ordinary caption. Loaded after experience.css, which it overrides.
+ */
+@media (max-width: 359.98px) {
+  .map-controls {
+    flex-direction: row;
+    padding: 3px;
+    bottom: calc(var(--site-nav-height, 132px) + 10px + env(safe-area-inset-bottom));
+  }
+  .map-button {
+    width: 36px;
+    height: 36px;
+  }
+  .map-caption {
+    bottom: calc(var(--site-nav-height, 132px) + 10px + env(safe-area-inset-bottom));
+    width: calc(100vw - 32px - 124px);
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+  }
+  .map-caption::before {
+    inset: -8px -16px -8px -16px;
+    -webkit-filter: blur(10px);
+    filter: blur(10px);
+  }
+  .map-page:not([data-more]) :is(.map-caption-line, .map-caption-fact, .map-caption-credit) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .map-page[data-more] .map-caption {
+    bottom: calc(var(--site-nav-height, 132px) + 58px + env(safe-area-inset-bottom));
+    width: calc(100vw - 32px);
+  }
+  /* open: tighter, so the four lines end below the heading's Less button */
+  .map-page[data-more] .map-caption figcaption {
+    gap: 2px;
+    line-height: 1.3;
+  }
+}

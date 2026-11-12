@@ -1,10 +1,10 @@
 import {
   getBooks,
+  getExperience,
   getHeroPaintings,
   getHomeContent,
   getNavigationItems,
   getSocialLinks,
-  getTimeline,
   getVideos,
   getWork,
 } from "./site-content.server";
@@ -50,13 +50,13 @@ export async function getWorkPageContent() {
   return { work, navigationItems, socialLinks };
 }
 
-/** The timeline page's content. `today` is the server's UTC date (YYYY-MM-DD), so the last square is today. */
-export async function getTimelinePageContent(now: Date = new Date()) {
-  const [timeline, navigationItems, socialLinks] = await Promise.all([
-    getTimeline(),
+/** The experience page's content. `today` is the server's UTC date (YYYY-MM-DD): the last moment ("now") sits at it. */
+export async function getExperiencePageContent(now: Date = new Date()) {
+  const [experience, navigationItems, socialLinks] = await Promise.all([
+    getExperience(),
     getNavigationItems(),
     getSocialLinks(),
   ]);
 
-  return { timeline, today: now.toISOString().slice(0, 10), navigationItems, socialLinks };
+  return { experience, today: now.toISOString().slice(0, 10), navigationItems, socialLinks };
 }

@@ -1,0 +1,335 @@
+/*
+ * My experience, the Mars map (experience-page.tsx). A fixed page on the ground colour: the picture (first
+ * the level 1 tiles as images, then the canvas), the edge focus, two layers that follow the view, then the
+ * heading, the caption and the buttons. Stacking is the order in the document; the dock (--z-dock) is above all
+ * of it. Colours, sizes and layers come from tokens.css.
+ *
+ * The view reaches the page as CSS variables, written by the map engine each frame it moves:
+ *   --map-cx, --map-cy   the picture pixel (top level, 0 to --map-size) at the screen's centre, as numbers
+ *   --map-s              screen pixels per picture pixel, a number
+ *   --map-size           the picture's side at the top level, in px (8192)
+ */
+.map-page {
+  --map-fit-share: 0.78; /* view.ts FIT_RING_SHARE: the cliff ring's share of the smaller screen side at the overview */
+  --map-cliff-span: 0.67; /* view.ts CLIFF_SPAN: the ring's width as a share of the picture */
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  overflow: clip;
+  background: var(--ground);
+  color: var(--ink-1);
+  touch-action: none; /* the map takes every drag and pinch */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.map-page[data-engine="on"][data-mode="explore"] {
+  cursor: grab;
+}
+.map-page[data-drag] {
+  cursor: grabbing;
+}
+
+/* The picture before the canvas has painted (and for good without one): the overview's size and place in CSS alone,
+ * so a page change and the first paint show the mountain. It fades into the ground at its edges the way the canvas does. */
+.map-seed {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(min(100vw, 100dvh) * var(--map-fit-share) / var(--map-cliff-span));
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent),
+    linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent),
+    linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-composite: intersect;
+}
+.map-seed img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.map-seed img[width="2048"] {
+  grid-column: 1 / -1;
+}
+.map-page[data-painted] .map-seed {
+  visibility: hidden;
+}
+.map-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The layers that follow the view: the route (in the plane) and the moments, places and ping (in the pins), see map-layers.css. */
+.map-plane {
+  /* the picture itself: top level pixels, scaled with the map, the picture's top left corner where the view puts it */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--map-size, 8192) * 1px);
+  height: calc(var(--map-size, 8192) * 1px);
+  transform-origin: 0 0;
+  transform: scale(var(--map-s, 1)) translate(calc(var(--map-cx, 4096) * -1px), calc(var(--map-cy, 4096) * -1px));
+  pointer-events: none;
+  visibility: hidden; /* until the engine has set the variables */
+}
+.map-page[data-engine="on"] .map-plane {
+  visibility: visible;
+}
+.map-pins {
+  /* a screen-sized layer for what keeps its size: place a child at picture pixel (X, Y) with
+   * left: calc(50% + (X - var(--map-cx)) * var(--map-s) * 1px); top: calc(50% + (Y - var(--map-cy)) * var(--map-s) * 1px) */
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* The heading block (top left) and the caption (lower left): in the overview only. They sit on calm ground (spec 9.1):
+ *  - on a wide screen (the media query below) in a column left of the cliff ring. The picture's own fade and the
+ *    edge focus darken that side, and the column's width is the room between the page's left margin and the ring's
+ *    left edge at the overview, worked out from the same share the view uses (--map-fit-share, written by the page from
+ *    view.ts): --map-text-w. The ring's left edge is half the page less half the ring's width, the ring being
+ *    --map-fit-share of the smaller side;
+ *  - elsewhere (phones, tablets, a screen too narrow for that column) stacked: the heading above and the caption
+ *    below the mountain, each as wide as the screen allows (up to 640 px), on a patch of ground that is nearly opaque
+ *    through the text. */
+.map-page {
+  --map-gutter: 48px;
+}
+.map-heading,
+.map-caption {
+  position: absolute;
+  left: var(--map-gutter);
+  margin: 0;
+  pointer-events: none;
+  isolation: isolate;
+  transition: opacity 400ms ease-out;
+}
+.map-page[data-mode="explore"] .map-heading,
+.map-page[data-mode="explore"] .map-caption {
+  opacity: 0;
+}
+.map-heading {
+  top: 28px;
+  width: min(640px, calc(100vw - 2 * var(--map-gutter)));
+}
+.map-caption {
+  bottom: calc(var(--site-nav-height, 132px) + 40px); /* above the dock */
+  width: min(640px, calc(100vw - 2 * var(--map-gutter) - 56px)); /* room for the buttons at the right */
+  font-family: "Space Mono", monospace;
+}
+/* the patch of ground behind the words: a blurred slab of ground, so it has no edge to see. It reaches 40 to 56 px past
+ * the text (36 px at the column's right side), and the blur (24 px) takes the last 48 px of that: the text sits on ground
+ * at 87% or more, and the slab is half strength at its rim. Static, so the filter costs nothing per frame. */
+.map-heading::before,
+.map-caption::before {
+  --patch-right: 56px;
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -40px calc(var(--patch-right) * -1) -48px -56px;
+  background: color-mix(in srgb, var(--ground) 94%, transparent);
+  -webkit-filter: blur(24px);
+  filter: blur(24px);
+  pointer-events: none;
+}
+.map-title {
+  margin: 0;
+  font-family: Doto, monospace;
+  font-weight: 800;
+  font-size: var(--t-title);
+  line-height: 1.1;
+  color: var(--ink-1);
+}
+.map-text {
+  margin: 10px 0 0;
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.map-more {
+  display: none; /* phones only (below) */
+}
+.map-caption figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.map-caption-title {
+  font-style: italic;
+  font-size: var(--t-meta);
+  color: var(--ink-1);
+}
+.map-caption-line,
+.map-caption-fact,
+.map-caption-credit {
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+.map-caption-credit {
+  color: var(--ink-3);
+}
+
+/* The column layouts: a screen where the ring leaves a calm side. One scrim (a gradient of ground from the left edge,
+ * fading out past the column) darkens that side from top to bottom, so there are no separate patches to leave edges; the
+ * heading and the caption are one column. Its width is the room left of the ring's left edge at the overview.
+ *  - 4:3 and wider from 960 px wide (an iPad held wide, a small laptop): gutter 24 px, a 16 px gap to the ring, at most 300 px, and a
+ *    steeper fade (the ring is near);
+ *  - 16:10 from 1250 px wide, 3:2 from 1340 px wide: gutter 48 px, a 52 px gap, at most 360 px (this wins over the first). */
+.map-scrim {
+  display: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease-out;
+}
+.map-page[data-mode="explore"] .map-scrim {
+  opacity: 0;
+}
+@media (min-aspect-ratio: 4/3) and (min-width: 960px) {
+  .map-page {
+    --map-gutter: 24px;
+    --map-ring-left: calc(50vw - var(--map-fit-share) * min(100vw, 100dvh) / 2);
+    --map-text-w: min(300px, calc(var(--map-ring-left) - var(--map-gutter) - 16px));
+    --scrim-fade: 40px;
+  }
+  .map-heading,
+  .map-caption {
+    width: var(--map-text-w);
+  }
+  .map-heading::before,
+  .map-caption::before {
+    display: none;
+  }
+  .map-text {
+    font-size: var(--t-meta);
+  }
+  .map-scrim {
+    display: block;
+    --edge: calc(var(--map-gutter) + var(--map-text-w));
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--ground) 94%, transparent) var(--edge),
+      color-mix(in srgb, var(--ground) 80%, transparent) calc(var(--edge) + var(--scrim-fade) * 0.25),
+      color-mix(in srgb, var(--ground) 46%, transparent) calc(var(--edge) + var(--scrim-fade) * 0.5),
+      color-mix(in srgb, var(--ground) 14%, transparent) calc(var(--edge) + var(--scrim-fade) * 0.75),
+      transparent calc(var(--edge) + var(--scrim-fade))
+    );
+  }
+}
+@media (min-aspect-ratio: 3/2) and (min-width: 1340px), (min-aspect-ratio: 8/5) and (min-width: 1250px) {
+  .map-page {
+    --map-gutter: 48px;
+    --map-text-w: min(360px, calc(var(--map-ring-left) - var(--map-gutter) - 52px));
+    --scrim-fade: 84px;
+  }
+  .map-text {
+    font-size: var(--t-body);
+  }
+}
+
+/* The buttons (lower right, above the dock): the dock's glass, small. */
+.map-controls {
+  position: absolute;
+  right: 48px;
+  bottom: calc(var(--site-nav-height, 132px) + 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(var(--glass-rgb) / 0.46);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.map-button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-1);
+  cursor: pointer;
+  transition: background-color 150ms ease-out, opacity 150ms ease-out;
+}
+.map-button:hover:not(:disabled) {
+  background: rgb(var(--ink-rgb) / 0.08);
+}
+.map-button:focus-visible {
+  outline: 2px solid var(--ink-1);
+  outline-offset: 1px;
+}
+.map-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 699.98px) {
+  .map-page {
+    --map-gutter: 16px;
+  }
+  /* R46: the paragraph is two lines and a button opens the rest in place; the whole paragraph stays in the document */
+  .map-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: var(--t-meta);
+  }
+  .map-heading[data-open] .map-text {
+    display: block;
+    overflow: visible;
+  }
+  .map-more {
+    display: inline-block;
+    margin: 4px 0 0;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink-1);
+    font: inherit;
+    font-size: var(--t-meta);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .map-more:focus-visible {
+    outline: 2px solid var(--ink-1);
+    outline-offset: 2px;
+  }
+  .map-caption {
+    bottom: calc(var(--site-nav-height, 132px) + 28px + env(safe-area-inset-bottom));
+    width: calc(100vw - 96px);
+  }
+  .map-controls {
+    right: 16px;
+    bottom: calc(var(--site-nav-height, 132px) + 28px + env(safe-area-inset-bottom));
+  }
+}
+/* room for the Journey / Places switch under the title (map-places.css): 8 px gap, the switch's 40 px, 8 px */
+@media (max-width: 399.98px) {
+  .map-text {
+    margin-top: 56px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-heading,
+  .map-caption,
+  .map-button {
+    transition: none;
+  }
+}

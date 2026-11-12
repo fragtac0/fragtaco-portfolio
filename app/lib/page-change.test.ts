@@ -1,6 +1,7 @@
 import type { NavigateFunction } from "@remix-run/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { afterSettled, changePage, isPageSettled, pageCommitted, planChange, subscribeSettled, watchHistory, type RouterLike } from "./page-change";
+import { watchHistory, type RouterLike } from "./history-change";
+import { afterSettled, changePage, isPageSettled, pageCommitted, planChange, subscribeSettled } from "./page-change";
 
 const screen = { vw: 1440, vh: 900 };
 
@@ -57,7 +58,8 @@ function fakeEnvironment(opts: { supported?: boolean; finishedRejects?: boolean 
     },
   };
   const transitions: { skipped: boolean; finish: () => void; updated: boolean }[] = [];
-  const doc: Record<string, unknown> = { documentElement: html };
+  // querySelector, activeElement and body are read by dock-focus.ts when a change starts
+  const doc: Record<string, unknown> = { documentElement: html, querySelector: () => null, activeElement: null, body: {} };
   if (opts.supported !== false) {
     doc.startViewTransition = (update: () => Promise<void> | void) => {
       let finish = () => {};

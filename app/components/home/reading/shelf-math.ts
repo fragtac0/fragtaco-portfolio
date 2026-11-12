@@ -141,6 +141,13 @@ export const RENDER_DPR_MAX = 1.75;
 export function coverPixels(cssWidth: number, dpr: number): number {
   return Math.round(clamp(cssWidth * clamp(dpr, 1, RENDER_DPR_MAX), COVER_PX_MIN, COVER_PX_MAX));
 }
+/** A cover is repainted after a resize when its width in pixels would change by more than this factor either way. */
+export const COVER_REPAINT_RATIO = 1.4;
+/** True when a cover painted at `painted` pixels should be painted again at `wanted` (a big rotation or resize). */
+export function coverNeedsRepaint(painted: number, wanted: number): boolean {
+  if (!(painted > 0) || !(wanted > 0)) return false;
+  return Math.max(painted, wanted) / Math.min(painted, wanted) > COVER_REPAINT_RATIO;
+}
 /** Clear space kept between the layer's header and the tallest spine's top, in CSS pixels. */
 export const HEAD_GAP = 8;
 /**

@@ -65,5 +65,29 @@ export function useDockRow(enabled: boolean): DockRow {
     return () => window.removeEventListener("resize", measure);
   }, [enabled, pathname]);
 
+  // On a narrow screen the row scrolls sideways: keep the current tab fully in view (it was cut at 320 px: "My experi").
+  // Once the row is open (the glass grows to its width over 400 ms), and again when the fonts or the screen change.
+  useEffect(() => {
+    if (!enabled || !open) return;
+    const reveal = () => {
+      const scroller = rowRef.current?.querySelector<HTMLElement>(".dock-row-clip > div");
+      const tab = scroller?.querySelector<HTMLElement>('[aria-current="page"]');
+      if (!scroller || !tab || scroller.scrollWidth <= scroller.clientWidth + 1) return;
+      const box = scroller.getBoundingClientRect();
+      const at = tab.getBoundingClientRect();
+      const gap = 8;
+      if (at.right > box.right - gap) scroller.scrollLeft += at.right - box.right + gap;
+      else if (at.left < box.left + gap) scroller.scrollLeft -= box.left + gap - at.left;
+    };
+    reveal();
+    const late = window.setTimeout(reveal, 460);
+    window.addEventListener("resize", reveal);
+    void document.fonts?.ready.then(reveal);
+    return () => {
+      window.clearTimeout(late);
+      window.removeEventListener("resize", reveal);
+    };
+  }, [enabled, open, pathname]);
+
   return { open, glassRef, rowRef, navRef };
 }

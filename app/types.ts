@@ -166,20 +166,50 @@ export interface SiteWork {
   clients: WorkClient[];
 }
 
-export interface TimelineRole {
+export interface ExperienceMoment {
   id: string;
-  label: string;
-  from: string;
-  color: string;
-}
-
-export interface TimelineMark {
+  /** `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or `now` (the last moment only). */
   date: string;
+  /** The date as shown. */
   label: string;
+  title: string;
+  /** The part of the title shown struck through. */
+  struck?: string;
+  line: string;
 }
 
-export interface SiteTimeline {
-  start: string;
-  roles: TimelineRole[];
-  marks: TimelineMark[];
+export interface ExperiencePlace {
+  id: string;
+  name: string;
+  lon: number;
+  lat: number;
+  line: string;
+  sources: string[];
+  /** Where the name sits, in screen pixels from the feature. */
+  label?: { dx: number; dy: number };
+  /** The label sits on the cliff trace at this bearing from the summit (degrees clockwise from east). */
+  cliffBearing?: number;
+}
+
+export interface ExperienceFact {
+  id: string;
+  text: string;
+  source: string;
+}
+
+export interface SiteExperience {
+  frame: { centre: { lon: number; lat: number }; spanDeg: number };
+  heading: { title: string; text: string };
+  moments: ExperienceMoment[];
+  /** The words of the map's controls: the Journey and Places switch, the heading's More and Less. */
+  ui: { journey: string; places: string; more: string; less: string };
+  caption: { title: string; line: string; /** The fact shown with the caption (its height and width). */ factId: string; credit: string };
+  /** Hand-placed points of the route, in order (Task 19 places them on the picture). */
+  route: { lon: number; lat: number }[];
+  /** The cliff round the mountain (Olympus Rupes), traced by the Gazetteer as a closed ring. */
+  cliff: { source: string; points: { lon: number; lat: number }[] };
+  /** The summit craters' outer extent in degrees (Olympus Paterae). */
+  rim: { north: number; south: number; east: number; west: number; source: string };
+  places: ExperiencePlace[];
+  facts: ExperienceFact[];
 }

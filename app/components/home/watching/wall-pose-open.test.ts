@@ -275,4 +275,13 @@ describe("picturesSettled", () => {
     expect(picturesSettled(Float64Array.from([100, 300, 200]), 1000)).toBe(false);
     expect(picturesSettled(Float64Array.from([100, 300, 200]), 1600)).toBe(true);
   });
+
+  it("counts a picture that failed for good as settled, once its own wait is over", () => {
+    const loaded = Float64Array.from([100, 0, 200]);
+    const failed = Float64Array.from([0, 400, 0]);
+    expect(picturesSettled(loaded, 5000)).toBe(false); // the dead one alone keeps the wall busy
+    expect(picturesSettled(loaded, 5000, undefined, failed)).toBe(true);
+    expect(picturesSettled(loaded, 1500, undefined, failed)).toBe(false); // 400 + 1200 not over yet
+    expect(picturesSettled(Float64Array.from([100, 0, 0]), 5000, undefined, failed)).toBe(false); // another still loading
+  });
 });

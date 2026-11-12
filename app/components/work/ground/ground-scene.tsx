@@ -8,13 +8,13 @@
  * banding. The package has no way to idle (its frame loop redraws 60 times a second for ever, with or without
  * a driver), so the shader draws ONE frame: in its `onReady` (the same task as that frame, while the canvas can
  * still be read) the frame is copied to a 2D canvas and the shader is unmounted, which frees the GPU. The
- * slow drift (a full cycle of 80 s) is a CSS transform on the still (`work-ground-breathe` in work.css). If the
+ * slow drift (a full cycle of 80 s) is a CSS transform on the still (`work-ground-breathe` in ground.css). If the
  * copy comes out empty the shader is left running instead, so the picture is never lost. A resize that
  * changes the screen's size by more than 15% starts the shader again to take a new frame.
  * No hard shape, nothing the eye follows, and the pool and the ember are weak on purpose so the
  * thumbnails stay the brightest thing.
  * WorkBackground draws the same two gradients in CSS (`.work-wash`): keep the numbers in GROUND_LOOK
- * and in work.css equal, that still picture is the first frame of this one.
+ * and in ground.css equal, that still picture is the first frame of this one.
  *
  * Telemetry is off (the package would otherwise post the site's domain to shaders.com). The canvas is
  * drawn at no more than 1.25 device pixels per CSS pixel: the package caps at 2 (1.5 on phones) and has

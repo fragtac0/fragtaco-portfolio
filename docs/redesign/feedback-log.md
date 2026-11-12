@@ -2,7 +2,7 @@
 
 Every round of feedback on the home page redesign, what changed in response, and what is still open. Each round lists the requests as given, then what the next mockup did about them. Newest round is at the bottom.
 
-**Status (2026-11-11):** the home page redesign is built (R24 to R30) and live for review at https://fragtaco-portfolio.vercel.app. Round 5 produced an [audit](audit-2026-11-11.md), a [design outline](../superpowers/specs/2026-11-11-polish-and-work-page-design.md) and a [build plan](../superpowers/plans/2026-11-11-polish-and-work-page.md) for a polish pass, a new work page and a timeline page. The polish pass on the home page (R31 to R37) is built; the work page and the timeline are next.
+**Status (2026-11-13):** the home page redesign (R24 to R30), the round 5 polish pass and work page (R31 to R39) and round 6 (R40 to R46: the glass page change, the rebuilt work page and video walls, the flat YouTube wall and book shelf, the Mars experience page) are all built. Round 6 is six stacked pull requests (#17 to #22 on top of #16) and nothing is merged. It runs as a Vercel preview behind sign-in; the public link https://fragtaco-portfolio.vercel.app still shows the old version. Round 7 feedback on the round 6 build is recorded at the end of this file and is the next work; see [Round 6: final status](#round-6-final-status-13-november-2026). Earlier, round 5 produced an [audit](audit-2026-11-11.md), a [design outline](../superpowers/specs/2026-11-11-polish-and-work-page-design.md) and a [build plan](../superpowers/plans/2026-11-11-polish-and-work-page.md).
 
 ## Contents
 
@@ -13,6 +13,8 @@ Every round of feedback on the home page redesign, what changed in response, and
 5. [Round 4: feedback on the built shelf and walls](#round-4-feedback-on-the-built-shelf-and-walls-2026-11-05)
 6. [Round 5: audit, polish and the work page](#round-5-audit-polish-and-the-work-page-2026-11-11)
    - [Round 6: feedback on the built preview](#round-6-feedback-on-the-built-preview-2026-11-11) (at the end)
+   - [Round 6: final status](#round-6-final-status-13-november-2026) (at the end)
+   - [Round 7: feedback on the round 6 build](#round-7-feedback-on-the-round-6-build-2026-11-12) (at the end)
 7. [Decisions so far](#decisions-so-far)
 8. [Open questions](#open-questions)
 9. [Later, not now](#later-not-now)
@@ -307,6 +309,9 @@ None open. Asked after v3 and answered on 2026-11-02:
 - R43.3 the work ground (round 6): the work pages' flat background is replaced by a deep, layered one drawn with the `shaders` package (WebGPU): a near-black ground, one large soft pool of cool cream-grey light off centre, one low ember of orange in the lower right corner, the whole picture breathing very slowly (an 80 s cycle, a CSS transform: the shader draws one frame and the GPU then idles) under fine grain, and the site's dots and grain on top. It is dark on purpose (97% of the screen is darker than `#2a2826`, orange about 4%) so thumbnails stay the brightest thing. It lives in the layout, so it runs unbroken across Work, Long form and Short form; My experience keeps the map as its ground. Browsers without WebGPU, reduced motion and save-data get the same picture as a still gradient, and the package is then never downloaded. Pictures: `docs/redesign/screenshots/r43-ground-*.jpg`.
 - R43 the work page (round 6, part 4): the work page now has four addresses and one dock row (Long form, Short form, My experience), the rings are rebuilt wide with the real app icons and up to four rings of videos that never touch, the ground is a deep layered shader (a still gradient where WebGPU is missing), and the two walls show every video once, on one canvas, in a fitted grid with small 10 px gaps and the margins kept as small as the heading and the dock allow (each side is the larger of a 4% margin and the heading or dock band plus 12 px, on purpose, not the sum of the two): all 35 on screen at once at 1440 by 900 and on a phone (long form 7 by 5, short form 12 by 3; phone 4 by 9 and 6 by 6), the whole grid drifting a few pixels over 50 seconds, a drag moving it a little and letting it settle back, a light barrel curve, the tile under the pointer growing 4% with its title and year at the lower left. A click, a tap or Enter opens the video in a new tab; arrow keys move a ring. Without WebGL the same links show as a plain grid. Pictures: `docs/redesign/screenshots/r43-wall-*.jpg` (generated placeholder pictures, no real thumbnails).
 - R44 the home page (round 6, part 5, Tasks 12 to 16): **The YouTube wall** is flat with a calm drift: the near and far planes and the lean against the pointer are gone, so every tile is one size and one brightness and alternate columns drift in opposite directions at the speed they had before R36 (7 px a second, the odd ones at 0.72 of it backward). It is drawn flat to a texture and shown through a barrel warp that starts at 55% of the half-diagonal and pulls in 2.2% of it at the corners (the pointer is un-warped before it picks a tile). Hover no longer lifts a tile or dims the others: tiles within 220 px of the pointer grow by up to 4% and ease away by up to 4 px, and the focused tile has a faint orange glow (28 px, 16%). Reduced motion keeps the growth, with no easing and no push. A click on a video no longer opens a dark cover: the wall stays drawn, the chosen video travels to the middle, a little above it, at about twice its size (no wider than 52% of the screen, 86% on phones), the other tiles move away (up to 140 px for the nearest, none beyond 60% of the half-diagonal), shrink to 92% and dim to 55%, and the drift stops. Its title, channel, subscribers and a "Watch on YouTube" link stand under it, with the count of other videos from the same channel; tiles that would stand in that text fade out. Open 420 ms, close 320 ms; Esc, the close button or a click outside closes; the arrow keys move the choice to the nearest tile that way. Reduced motion: nothing travels, the video and its text fade. The wall's render target is in whole device pixels, so it stays sharp at 1.25, 1.5 and 2.625 times, and a GPU that cannot render to it sends the wall to its plain grid. **The book shelf** is flat, face on, large and evenly bright: the camera is orthographic, so no side of any book shows, and the 14 books stand in one straight row on one hairline (the cream at the strength of `--line`; the walnut plank, the dark band and the contact shadows are gone, and so is the camera's pull-in). The tallest spine is 78% of the layer's height and the row at most 88% of its width; on a narrow screen the height keeps at least 70% and the row pans sideways, the first and last book stopping 6% in from the edge. The books' feet are at 90% of the height (never closer than 84 px to the bottom, so a small phone keeps its hint clear; the narrow hint is shorter). The row is drawn unlit with no tone mapping, so a spine is exactly the colour it was painted, and the reading layer's ground is plain `--ground`. The row stands under the layer's header: the tallest spine's top is at least 8 px below it (the height rule reads the room between the header and the line; 78% and 70% stay the caps), so a short wide screen such as 844 by 390 no longer runs into the header. Each spine is drawn by code from the book's title and author in one of five styles chosen from the book's id (heavy condensed capitals, classic serif capitals between rules, italic serif title, typewriter, light wide-spaced capitals), reading top to bottom, as large as the spine allows (a long title steps down to 60%, then wraps to two lines). The colours come from the cover (its two main colours, read when the cover arrives; the ink is always at least 4.5:1 on the ground); before the cover arrives the spine uses the book's own colour and then fades over to the cover's (at most three at once; reduced motion changes at once). System fonts only. Each spine is painted at its size on screen times the device pixel ratio (at most 2), and again when the window changes size. A book can have a picture of its real spine: set `spine` in `content/site/books.json` to a path under `public/` (no book does yet). **Opening a book** lifts it straight up by 38% of its height and then turns it to its cover (620 ms, close is the same backwards): the books beside it do not move and dim to 70%, the book is lit softly from the upper left and casts a soft neutral shadow on the ground, and its note stands beside it in a fully solid card (a sheet along the bottom on a phone held upright, with the book shrunk to stay above it and under the header; beside the book, compact, on a landscape phone). The lift never takes the book's top above the header's bottom plus 8 px (the same line the fit keeps the tallest spine under), so the tallest books rise less than 38% (at 1440 by 900 the tallest does not rise, the first rises 152 px), and the book moves sideways only as far as it must to stay inside the screen and clear of its note. The lit look matches the row at rest, so there is no jump at the start of the rise. The open cover is painted about as large as it shows (its size times the pixel ratio, 256 to 1024 px) and drawn without mipmaps, so it is sharp on phones. With reduced motion nothing travels: the cover and the note fade in. The blurred backdrop is gone, the row stays sharp and dims.
+- R45 My experience (round 6, part 6, Tasks 17 to 19): `/experience` is the Mars map in place of the timeline (deleted, `/timeline` still redirects). `content/site/experience.json` holds the spec 9.4 words verbatim (and the few words of the controls), the route, the Gazetteer's cliff ring and summit extent, eight places and five facts with their source addresses, all checked by a zod schema; pure, tested modules in `app/components/experience/` do the projection, the route curve and moment positions by date, the view and tile selection, the journey (marker sides, no label on another) and the places. One 2D canvas draws the 512 px WebP tile pyramid in `public/mars/` (overview with the cliff ring at 78% of the smaller side, explore from 2 times, drag, wheel, pinch, double click, `+` `-` `0` Esc, arrows, `[` `]`, three buttons; 700 ms between the two; instant with reduced motion); the picture fades into the ground at its own edges and a screen-fixed edge focus frames it; no canvas or less data gives the level 2 picture as one image with the moments listed beside it. On top: the route (one SVG, 2 px at every zoom, drawn in 1.6 s, the part ahead of the chosen moment dashed, stopping short of the summit and not bending round the craters, which lie inside the stop radius), nine moment markers (a dot with the year, a card (date, title, line) in explore, `<s>` on IIT, a click or `[` `]` flies to it, a sheet above the dock on phones), the ping at "now" (a ring every 2.4 s, still under reduced motion), the Journey and Places switch (eight places with leader lines, Olympus Rupes labelled on the cliff trace), the heading block (two lines and More on phones, R46) and the caption. The heading and caption are a column on one scrim of ground from the left edge on wide screens and 4:3, stacked on phones. Fix rounds R45.1b (moment positions at the end of the route), R45.2b (calm ground, edge darkening, ImageBitmap tiles) and R45.3b (no Places label on a dot, every card shows its date, title and line in explore, clickable cards, the switch under the title on narrow phones). Audits: `scripts/audit/experience.json` (markers clear and in the screen, end is the ping, 2 px line, timings, flights, Places, phone, reduced motion, frame gaps), `experience-fallback.json`, `nav.json`, `dock-row.json`.
+- R46 whole-branch review fixes (round 6, Task 20 fix wave, R46.1): the arriving /experience page no longer shows the no-map fallback list during a dock change; no square box round the dock in a change; focus stays in the dock after a keyboard-started change; /experience at 320 by 568 is usable (zoom buttons in a row, the caption reduced to its title until More, the dock row scrolls the current tab into view); the map's drag-from-a-marker click guard is live; a dead YouTube thumbnail no longer keeps the wall redrawing; shelf covers repaint after a big resize or rotation; `page-change.ts`, `paint-engine.ts` and `work.css` are split under about 350 lines; two type sizes became tokens; three wall tidy-ups. Audits: `experience.json` (held changes into the map, 320 by 568), `nav.json` (keyboard cases), `experience-fallback.json`, `dock-row.json`.
+- R46.2 comparison page and status (round 6, Task 21): `docs/redesign/compare/index.html` has a Round 6 row (round 5 pictures beside round 6 pictures for the work rings, both walls, the page change frames, the YouTube wall at rest and with a video chosen, the shelf at rest and with a book lifted, and the timeline beside the experience page); pictures with thumbnails or covers are under `compare/local/` and not stored in the repo. The Round 6 final status section below records what shipped, what is not done and what is waiting for Aditya.
 
 ## Round 5: final status (11 November 2026)
 
@@ -394,3 +399,125 @@ Whole site
 - Real app icons come from the vendor or Wikimedia Commons with the source recorded. Any icon that cannot be sourced that way keeps its two-letter mark and is listed.
 - "Bharat in Germany" is read as the company's name for all roles from Feb 2021 to Dec 2025.
 - The `shaders` background needs WebGPU; other browsers get a still gradient.
+
+## Round 6: final status (13 November 2026)
+
+Round 6 is built and reviewed. This section is the summary for someone who has not followed the build. It was written before the round 7 feedback below is acted on, so nothing here answers that feedback.
+
+**Where it is**
+
+- Preview (Vercel, behind Vercel sign-in): https://fragtaco-portfolio-1u2qzllc4-workfragtaco-gmailcoms-projects.vercel.app . It is a preview deployment, not production. The public link https://fragtaco-portfolio.vercel.app still shows the old version (checked: `/experience` does not exist there); nothing was deployed to production and nothing was merged.
+- Pull requests, stacked, to merge in order on top of #16 (round 5): #17 R40 (assets and Mars), #18 R41 (bugs), #19 R42 (mood and glass), #20 R43 (work page), #21 R44 (home: wall and shelf), #22 R45 (My experience). The R46 fixes sit on the top branch, `r6/r45-experience` (pushed); this write-up and the comparison page (R46.2) are committed there but not pushed yet.
+- Comparison page: `docs/redesign/compare/index.html`, the Round 6 row at the bottom (round 5 beside round 6). Rows marked "not stored in the repo" need the local pictures in `compare/local/`.
+- Every task was reviewed by Opus, then one whole-branch review and one fix wave (R46.1). The re-review found no Critical or Important issue left. All audits in `scripts/audit/` pass on the production build.
+
+**What shipped, by part**
+
+- R40 assets and Mars: the `shaders` package, the ObsidianUI gallery source kept as a reference copy in `vendor/obsidianui/`, the eight real app icons (Wikimedia Commons, sources in `credits.md`), 35 long form and 35 short form placeholder videos, and the Olympus Mons tile pyramid (13.7 MB, graded orange) for the map.
+- R41 bugs: every page change goes through one module and the router loads the next page's data before the change starts, which removes the freeze while the network answered (the lag you saw). The work dock's second row arrives quietly after the change.
+- R42 mood and glass: warmer, cleaner darks as tokens, glows cut back to one small one. Every page change is now the liquid glass reveal from the clicked control (a sideways sweep between long form and short form), reduced motion keeps a short fade.
+- R43 work page: four addresses (`/work`, `/work/long-form`, `/work/short-form`, `/experience`) and one dock row, the rings rebuilt wide so they run off the screen with the real app icons and up to four rings of videos that never touch, the layered shader ground (a still gradient where WebGPU is missing), and both walls showing every video once with small gaps and margins. Clients are hidden everywhere (kept in the content file).
+- R44 home: the YouTube wall is flat with a calm drift and a light curve, and a chosen video travels to the middle while the others step back. The book shelf is flat, face on and large, with spines drawn by code in five styles from each book's colours, and a book lifts and turns to its cover beside a solid note card.
+- R45 My experience: `/experience` is a map of Olympus Mons with the route climbing it, nine moment markers, cards in explore, a Journey and Places switch, a ping at "now", the heading and caption. The timeline page is gone; `/timeline` redirects. Every word is in `content/site/experience.json`.
+- R46 whole-branch review fixes: no no-map list flashing during a change into the map, no square box round the dock in a change, focus stays in the dock after a keyboard change, the map works at 320 by 568, a dead YouTube thumbnail no longer keeps the wall redrawing, shelf covers repaint after a big resize, three files split under about 350 lines, two type sizes became tokens.
+
+**The glass level that passed the gate**
+
+Level (a), the banded bend, ships (ruling R33). Measured on the production build at 1440 by 900, dpr 2, CPU 4 times slower: 21 changes, every animating frame 16.7 to 16.8 ms except two single 33.3 ms frames (the base shows the same). The first frame after a change starts (the commit frame) is not counted (ruling R31: the browser holds the old picture while the new page is built; measured about 67 ms to work and 120 ms to home at 4 times slower, 33 to 50 ms with no slowdown). The bend itself only runs in Chromium. Other browsers get level (c): the reveal, the wandering edge and the glinting line without the bend, or the plain crossfade if the reveal cannot start.
+
+**Not sourced or not done**
+
+- Real content is still placeholder: the 70 videos, the clients, the book spine photos (the `spine` field is ready, no book uses it), and the video publish dates (the `published` field exists, unfilled).
+- All eight app icons were sourced, none missing. Two are weaker: the Illustrator icon is an older design than the other Adobe icons, and the Final Cut Pro icon is a 240 px PNG with square corners that may be the pre 2026 look.
+- Safari, Firefox and an iPhone have never been seen running the glass reveal, the WebGPU ground, the wall or the shelf. Only headless Chrome was used.
+- The route on the map stops short of the summit and bends round lower features, so it does not pass the two named craters (ruling R42); Pangboche and Karzok are Places.
+- Parked at the end of the review (ruling R50, no second fix wave): the dock's drop shadow is cut during a change, the dock's preload fires on focus after a mouse change, `/experience` at 360 by 640 is still crowded (three year pills under the caption; the fix is a short-screen condition in `map-tiny.css`), and Back and Forward still drop focus to the page body.
+- Other small leftovers: hover on a compact map card spreads over its neighbours, and card heights are estimated from character counts.
+- Round 7 feedback (below) is not built.
+
+**For Aditya to confirm or supply**
+
+From the design outline (section 12):
+
+- "Bharat in Germany" as the company name, and the wording of every moment (all in `content/site/experience.json`).
+- Real videos (links), real spine photos, real clients when they return.
+- Any app icon that could not be sourced (none this round; see the two weaker ones above).
+- The ring order, alternating or paired, from the two photographs `r43-rings-alternating.jpg` and `r43-rings-paired.jpg`.
+- Real device checks: Safari, an iPhone, a tablet. Look especially at the glass change, the work ground, the walls and the shelf, and at how heavy the rings feel on a real phone (about 78 shadowed layers, not measured on a phone).
+
+Taste calls made along the way, which are yours to overrule (the ruling in brackets):
+
+- The commit frame of a page change is not held to the 34 ms limit (R31) and the bend is Chromium only (R33).
+- Small landscape phones show few or no video tiles in the rings (R34); the walls hold every video.
+- Wall margins are as small as the heading and dock allow, a little closer to them than the outline's sum (R36); a chosen video pushes its neighbours about 61 px, not up to 140 (R37).
+- The shelf's floor on narrow screens is 70% of the layer, not 56% (R38); long spine titles step down to 60% then wrap (R39); four spines the same colour as the ground get a thin light edge (R40); the tallest book at a short screen only turns and does not rise (R41); a lifted book is small at 844 by 390; the cover colour picker favours black.
+- The map caption keeps the outline's words, but "tallest mountain" and the 27 km versus 40 km or more height need your word (R44). Olympus Rupes is labelled on the cliff trace (R43). In explore every card shows its line, so it is busier (R47). The route draws with a one-off dash animation, an exception to the animate-only list (R48). Places shows a name and one line, which may be dense (R49). On phones the heading is two lines with a More button (R46).
+- The warm darks are at the neutral edge of "warm" and the rails and hero cue are quiet; say if you want either stronger.
+
+## Round 7: feedback on the round 6 build (2026-11-12)
+
+Given after looking at the local build of round 6 (parts R40 to R45). Seven pictures came with it: the dark About tab, Omar's scanned book spines, an orange contour map of Mars, two tilted map screens with glass cards, the hard lower edge of the painting, and the shelf heading over thumbnails. They are third-party pictures, so they stay out of the repo (`docs/redesign/compare/local/`). Two screen recordings (the wall glitch and a reference grid) could not be read and were asked for again.
+
+**Asked for**
+
+Process: ask questions properly, improve the taste and the references, report back before starting. Show a quick HTML preview with several variations of the map before committing to one. Document everything in git.
+
+Video walls (long form and short form)
+- Something appears wrongly every time the page opens. If the warp causes it, the warp goes; the frames get bigger so the wall reads as a wall. The ObsidianUI reference was not followed closely enough.
+- The walls should arrive like the reference grid in the recording.
+- Clicking the tab that is already open must not go back to the portfolio page.
+- The "rings" button goes. A go-back button like the shelves have takes its place.
+
+Page changes
+- The change on the work pages is too fast and in step with nothing. It should be slow and easy, a little slower than the painting change, and the same everywhere: home, portfolio, long form, short form, my experience, and every combination.
+- Going back to home from work shows a black frame on the painting.
+- The dock bounces when Home is clicked and does not on Work. No bounce at all; the highlight box slides.
+
+Home
+- The painting's text appears before the next painting. It should fade out, then fade in once the new painting is up.
+- About and Credits lost their glow and shadow. They become an orange gradient with white text, with glow and shadow back, and their panels come in slower with an ease in and out.
+- The painting ends abruptly at its lower edge. A fading gradient or something better.
+- The ground behind the two shelves is flat. A slowly moving gradient.
+- The small shelf preview still shows the old books.
+
+Shelves
+- Opening or closing either shelf blanks the whole box first. It reads as a glitch.
+- The line of text at the bottom of both shelves goes.
+- The headings on both shelves are hard to read. Better layout and type sizes, with a ground that keeps them legible.
+- Spines: Omar's scanned spines look real and far better. Aditya offered to source real spines.
+- YouTube wall: the playlist now has 109 videos. Shuffle them, make the thumbnails smaller, and make the wall finite. A click moves the camera to the video (the video does not travel to the centre), the video grows to about today's size and the rest push away.
+- YouTube wall edges: blur, fish-eye and a colour fringe at the corners, with a dark fade on all four sides, enough for the text and the Esc button to read well.
+
+Portfolio page
+- The title "Work" becomes "My portfolio".
+- The app icons get a solid glass look, not see-through.
+- The background is very bad. Each page (portfolio, long form, short form) gets its own ground; not the same gradient everywhere.
+
+My experience
+- The map looks ugly and the overview has far too much text: only the mountain's name and the tallest-mountain line. The map fills the whole page in the overview.
+- The Mars picture should be calm and toned down like the contour reference, not bright or saturated.
+- The lines and the way things appear are disliked. The interface should take from the glass references: quiet, drawing more attention than the map.
+- Better labels for Journey and Places. Places appear one at a time, traced, boxed and captioned, teaching each one. Choosing Journey or Places removes the "My experience" text.
+- A different idea or location is allowed if Mars does not carry it.
+
+Content
+- Long form: 12 video links and every long form video on two channels (AllRiskIsCreative9 has 7, TheSamderShow has 2), 21 in all.
+
+**Answers to my questions**
+
+| Question | Answer |
+|---|---|
+| Which rings go | Only the "rings" button on the two walls. The rotating rings on the portfolio page stay |
+| Size of the YouTube wall | Still moved with the mouse, with smaller thumbnails; finite |
+| Short form wall for now | Placeholders until links arrive |
+| Real spines | Find real spine pictures online |
+| Where "My portfolio" appears | The page title only; the dock tab stays "work" |
+| Map view | Explore both flat and tilted |
+| Location | Mars done better, plus one idea that is not Mars |
+| What the preview covers | Map variations, backgrounds, the page change, a spine sample |
+
+**My calls (say if any is wrong)**
+
+- The preview page is a throwaway for choosing a direction. Nothing in it ships as it is.
+- Reference pictures, YouTube thumbnails, book covers and any spine picture found online stay in the git-ignored local folder until the rights question for spines is settled.
+- Round 6 finishes its last review step first; round 7 is built on top of it.

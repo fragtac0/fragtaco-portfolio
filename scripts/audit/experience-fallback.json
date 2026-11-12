@@ -1,0 +1,36 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "if(location.search==='?nocanvas'){HTMLCanvasElement.prototype.getContext=function(){return null}}",
+  "go": "{{BASE}}/experience?nocanvas",
+  "wait": 2500
+ },
+ {
+  "eval": "JSON.stringify({engine:document.querySelector('.map-page').dataset.engine,mosaic:(()=>{const i=document.querySelector('.map-seed img');return i&&i.getAttribute('src')+' '+i.naturalWidth})(),canvasPainted:document.querySelector('.map-page').dataset.painted??null,buttons:document.querySelectorAll('.map-button').length,tilesRequested:performance.getEntriesByType('resource').filter(e=>/\\/mars\\/[2-4]\\//.test(e.name)).length,ok:document.querySelector('.map-page').dataset.engine==='off'})",
+  "label": "no canvas: the mosaic image, no buttons, no fine tiles"
+ },
+ {
+  "shot": "r45-map-fallback-nocanvas"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "if(location.search==='?savedata'){Object.defineProperty(navigator,'connection',{value:{saveData:true}})}",
+  "go": "{{BASE}}/experience?savedata",
+  "wait": 2500
+ },
+ {
+  "eval": "JSON.stringify({engine:document.querySelector('.map-page').dataset.engine,mosaic:(()=>{const i=document.querySelector('.map-seed img');return i&&i.getAttribute('src')+' '+i.naturalWidth})(),canvasPainted:document.querySelector('.map-page').dataset.painted??null,buttons:document.querySelectorAll('.map-button').length,tilesRequested:performance.getEntriesByType('resource').filter(e=>/\\/mars\\/[2-4]\\//.test(e.name)).length,ok:document.querySelector('.map-page').dataset.engine==='off'})",
+  "label": "less data: the mosaic image, no buttons, no fine tiles"
+ },
+ {
+  "shot": "r45-map-fallback-savedata"
+ }
+]

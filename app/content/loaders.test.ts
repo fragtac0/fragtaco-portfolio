@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getHomePageContent, getTimelinePageContent, getWorkPageContent } from "./loaders.server";
+import { getHomePageContent, getExperiencePageContent, getWorkPageContent } from "./loaders.server";
 import { getBooks, getVideos } from "./site-content.server";
 
 describe("getHomePageContent", () => {
@@ -69,26 +69,26 @@ describe("getWorkPageContent", () => {
   });
 });
 
-describe("getTimelinePageContent", () => {
-  it("returns the timeline, today as a UTC date, the dock's tabs and the social links", async () => {
-    const content = await getTimelinePageContent(new Date("2026-11-11T09:30:00Z"));
+describe("getExperiencePageContent", () => {
+  it("returns the experience page, today as a UTC date, the dock's tabs and the social links", async () => {
+    const content = await getExperiencePageContent(new Date("2026-11-11T09:30:00Z"));
 
-    expect(Object.keys(content).sort()).toEqual(["navigationItems", "socialLinks", "timeline", "today"]);
+    expect(Object.keys(content).sort()).toEqual(["experience", "navigationItems", "socialLinks", "today"]);
     expect(content.today).toBe("2026-11-11");
-    expect(content.timeline.start).toBe("2020-12-01");
-    expect(content.timeline.roles).toHaveLength(6);
+    expect(content.experience.heading.title).toBe("My experience");
+    expect(content.experience.moments).toHaveLength(9);
     expect(content.navigationItems.map((item) => item.key)).toEqual(["home", "work"]);
     expect(content.socialLinks.length).toBeGreaterThan(0);
   });
 
   it("uses the UTC date, not the local one, around midnight", async () => {
-    expect((await getTimelinePageContent(new Date("2026-11-11T23:59:59.999Z"))).today).toBe("2026-11-11");
-    expect((await getTimelinePageContent(new Date("2026-11-12T00:00:00.000Z"))).today).toBe("2026-11-12");
-    expect((await getTimelinePageContent(new Date("2024-02-29T00:00:00Z"))).today).toBe("2024-02-29");
+    expect((await getExperiencePageContent(new Date("2026-11-11T23:59:59.999Z"))).today).toBe("2026-11-11");
+    expect((await getExperiencePageContent(new Date("2026-11-12T00:00:00.000Z"))).today).toBe("2026-11-12");
+    expect((await getExperiencePageContent(new Date("2024-02-29T00:00:00Z"))).today).toBe("2024-02-29");
   });
 
   it("defaults to the current date", async () => {
-    const content = await getTimelinePageContent();
+    const content = await getExperiencePageContent();
 
     expect(content.today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });

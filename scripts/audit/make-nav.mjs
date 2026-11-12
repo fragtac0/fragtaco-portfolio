@@ -41,6 +41,15 @@ const EXP = at("/experience", T.exp, ["my experience=page", "work=true"], "radia
 const HOME = at("/", T.home, ["home=page"], "radial");
 const k = (w, kind) => ({ ...w, kind });
 
+// R46.1 (M2): a change started from the keyboard inside the dock leaves focus inside the dock, on the new page's current tab
+// (not on <body>): focus a link, press Enter, wait for the change to end, read document.activeElement.
+const KEYED = (to) => `new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='${to}'&&!document.documentElement.dataset.changeKind||performance.now()-t0>5000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='${to}'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})`;
+const keyed = (label, focus, to) => [
+  { tour: true, label: `focus: ${label}`, eval: `document.querySelector('${focus}').focus(); 1` },
+  { tour: true, key: "Enter", vk: 13 },
+  { tour: true, label: `keyboard: ${label}: focus stays in the dock on the current tab`, eval: KEYED(to) },
+];
+
 const move = (label, act, want) => ({ tour: true, label, eval: `__move(()=>{${act}},${JSON.stringify(want)})` });
 const tour = [
   { tour: true, size: [1440, 900], init, go: "{{BASE}}/work", wait: 2500, label: "tour: hard load /work", eval: "JSON.stringify(__state())" },
@@ -79,6 +88,10 @@ const tour = [
   move("long -> short (row, linear-right)", ROW("/work/short-form"), k(SHORT, "linear-right")),
   move("back: short -> long (radial)", BACK, LONG),
   move("forward: long -> short (radial)", FWD, SHORT),
+  ...keyed("dock Work tab (short form -> rings)", "header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]", "/work"),
+  ...keyed("row Long form tab (rings -> long form)", "header[data-site-nav] [data-work-tab=\"/work/long-form\"]", "/work/long-form"),
+  ...keyed("row My experience tab (long form -> experience)", "header[data-site-nav] [data-work-tab=\"/experience\"]", "/experience"),
+  ...keyed("dock Home tab (experience -> home)", "header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]", "/"),
   { tour: true, label: "hard load /work/short-form (row open at once)", go: "{{BASE}}/work/short-form", wait: 2500, eval: "JSON.stringify(__state())" },
   { tour: true, label: "hard load /experience", go: "{{BASE}}/experience", wait: 2500, eval: "JSON.stringify(__state())" },
   { tour: true, label: "hard load /timeline redirects", go: "{{BASE}}/timeline", wait: 2500, eval: "JSON.stringify(__state())" },

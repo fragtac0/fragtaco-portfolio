@@ -85,7 +85,8 @@ export type ShelfScene = {
   /**
    * The fit changed: repaints the spines at the new on-screen size (`scale` CSS pixels per world
    * unit, times the pixel ratio). Straight away when `immediate`, otherwise once the size has
-   * stopped changing for a moment (a window being dragged); `done` is called when any spine changed.
+   * stopped changing for a moment (a window being dragged); `done` is called when any spine changed. A cover whose
+   * size on screen changed by more than 1.4 times is also painted again (`onCoverSize` of buildShelfScene).
    */
   fitSpines(scale: number, immediate: boolean, done: () => void): void;
   /** Frees the geometries, materials, textures and the GL context. */

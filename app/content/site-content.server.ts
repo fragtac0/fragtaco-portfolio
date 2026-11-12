@@ -5,22 +5,22 @@ import { ensureUniqueBy, filterVisibleNavItems } from "./mappers";
 import {
   BooksSectionSchema,
   HeroPaintingsSchema,
+  ExperienceSchema,
   HomeContentSchema,
   NavigationItemSchema,
   ReachOutSectionSchema,
   SocialLinkSchema,
-  TimelineSchema,
   VideosFileSchema,
   WorkSchema,
 } from "./schemas";
 import type {
   SiteBook,
+  SiteExperience,
   SiteReachOutSection,
   SiteHeroPainting,
   SiteHomeContent,
   SiteNavigationItem,
   SiteSocialLink,
-  SiteTimeline,
   SiteVideosFile,
   SiteWork,
 } from "../types";
@@ -80,8 +80,8 @@ export async function getWork(): Promise<SiteWork> {
   return loadJsonFile("work.json", WorkSchema);
 }
 
-export async function getTimeline(): Promise<SiteTimeline> {
-  return loadJsonFile("timeline.json", TimelineSchema);
+export async function getExperience(): Promise<SiteExperience> {
+  return loadJsonFile("experience.json", ExperienceSchema);
 }
 
 export async function getNavigationItems(): Promise<SiteNavigationItem[]> {
