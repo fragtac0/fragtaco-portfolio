@@ -17,7 +17,7 @@
   "wait": 1500
  },
  {
-  "label": "WAAPI part off (Element.animate throws, Document.getAnimations empty): reveal and bend still run",
+  "label": "Document.getAnimations empty (the animation cannot be seen): the check cannot confirm it and falls back to the crossfade within about 10 frames, no hang",
   "eval": "(()=>{Element.prototype.animate=function(){throw new Error('off')};Document.prototype.getAnimations=()=>[];return __watch('/','radial')})()"
  },
  {
@@ -37,5 +37,30 @@
  {
   "label": "the CSS animation never runs (killed by a rule): the check sees --glass-p stay 0 and falls back at about 90 ms; the mask is gone",
   "eval": "(async()=>{await new Promise(r=>setTimeout(r,200));const s=document.createElement('style');s.textContent='html::view-transition-new(root){animation:none!important}';document.head.appendChild(s);const h=document.documentElement;__ftChange('/','radial',{x:676,y:846});const seen=[];const pre=[];for(let i=0;i<30;i++){await new Promise(r=>setTimeout(r,40));seen.push((h.dataset.glassFallback!==undefined?'FB':'-')+':'+getComputedStyle(h,'::view-transition-new(root)').maskImage.slice(0,12))}s.remove();return [...new Set(seen)].join(' | ')})()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "WebKit-like: the pseudo-element's computed style gives no custom-property value; the animation advances, so it still counts as running (no fallback)",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "computed value empty: no fallback",
+  "eval": "(()=>{const g=window.getComputedStyle.bind(window);window.getComputedStyle=(el,ps)=>ps?{getPropertyValue:()=>'',maskImage:''}:g(el,ps);return __watch('/work','radial').then(r=>{window.getComputedStyle=g;return r})})()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "setup: the radial edge step fails (toDataURL throws for the 384 px line picture)",
+  "init": "{const o=HTMLCanvasElement.prototype.toDataURL;HTMLCanvasElement.prototype.toDataURL=function(...a){if(this.width===384)throw new Error('the radial line picture fails');return o.apply(this,a)}}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "the other pictures are made anyway; a radial change uses the gradient reveal and the bend, a linear one the pictures",
+  "eval": "(async()=>{const styles=[...document.querySelectorAll('style[data-glass-pictures]')].map(s=>/radial/.test(s.textContent)?'radial':'linear');const bendHref=!!document.getElementById('ft-glass-ring')?.getAttribute('href')&&!!document.getElementById('ft-glass-strip')?.getAttribute('href');const a=await __watch('/work','radial');await new Promise(r=>setTimeout(r,1200));const b=await __watch('/','linear-right');return JSON.stringify({pictureStyles:styles,bendMapsBoth:bendHref,radial:a.slice(0,200),linear:b.slice(0,200)})})()"
  }
 ]

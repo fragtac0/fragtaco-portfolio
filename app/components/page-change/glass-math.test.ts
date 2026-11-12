@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bendAt, easeGlass, frontAt, GLASS, GLASS_EASING, glassVars, isChromium, REACH, WARP } from "./glass-math";
+import { bendAt, easeGlass, frontAt, GLASS, GLASS_EASING, glassVars, isChromium, judgeGlass, REACH, SIGHT_FRAMES, WARP } from "./glass-math";
 
 const radial = { kind: "radial", radius: 1000, width: 1440 };
 const linear = { kind: "linear-right", radius: 1100, width: 1440 };
@@ -105,5 +105,38 @@ describe("isChromium", () => {
     expect(isChromium("Mozilla/5.0 AppleWebKit/537.36 Chrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0")).toBe(true);
     expect(isChromium("Mozilla/5.0 (Macintosh) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15")).toBe(false);
     expect(isChromium("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:140.0) Gecko/20100101 Firefox/140.0")).toBe(false);
+  });
+});
+
+describe("judgeGlass", () => {
+  const seen = { frames: 3, found: true, timeMs: 50, progress: 0.4, computed: 0.4 };
+  it("accepts an animation that has advanced and has progress", () => {
+    expect(judgeGlass(seen)).toBe("ok");
+  });
+  it("does not count an empty or unreadable computed value against it (WebKit)", () => {
+    expect(judgeGlass({ ...seen, computed: null })).toBe("ok");
+  });
+  it("waits while the animation has not shown up, started or advanced yet", () => {
+    expect(judgeGlass({ ...seen, found: false, frames: 2 })).toBe("wait");
+    expect(judgeGlass({ ...seen, timeMs: null })).toBe("wait");
+    expect(judgeGlass({ ...seen, timeMs: 4, frames: 1 })).toBe("wait");
+    expect(judgeGlass({ ...seen, frames: 1 })).toBe("wait");
+  });
+  it("falls back when the animation never shows up in the list", () => {
+    expect(judgeGlass({ ...seen, found: false, frames: SIGHT_FRAMES })).toBe("fallback");
+  });
+  it("falls back when the animation has advanced but its progress stays 0", () => {
+    expect(judgeGlass({ ...seen, progress: 0 })).toBe("fallback");
+  });
+  it("falls back when the style says 0 though the animation has clearly progressed", () => {
+    expect(judgeGlass({ ...seen, computed: 0, progress: 0.5 })).toBe("fallback");
+    // a style of 0 early in the easing, before any progress to speak of, is not a failure yet: look again
+    expect(judgeGlass({ ...seen, computed: 0, progress: 0.01 })).toBe("wait");
+    // with no readable progress, a style of 0 only counts once the animation has run for a while
+    expect(judgeGlass({ ...seen, computed: 0, progress: null, timeMs: 60 })).toBe("ok");
+    expect(judgeGlass({ ...seen, computed: 0, progress: null, timeMs: 200 })).toBe("fallback");
+  });
+  it("never falls back just because the animation has not advanced (a paused or throttled page)", () => {
+    expect(judgeGlass({ ...seen, timeMs: 0, frames: 500 })).toBe("wait");
   });
 });

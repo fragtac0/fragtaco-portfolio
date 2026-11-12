@@ -111,3 +111,36 @@ export function frontAt(t: number, plan: FrontPlan): Front {
 
 /** The bend (an SVG displacement filter on the view transition's pictures) is only used in Chromium browsers; others get the reveal and the line alone. */
 export const isChromium = (userAgent: string) => /Chrome\/\d/.test(userAgent);
+
+/** What the glass check sees of the CSS animation that runs `--glass-p`, on one animation frame. */
+export interface GlassSight {
+  /** Animation frames since the change began. */
+  frames: number;
+  /** Is the `glass-p` animation in `document.getAnimations()`? */
+  found: boolean;
+  /** Its `currentTime` in ms, or null before it has started. */
+  timeMs: number | null;
+  /** Its eased progress (0 to 1) from its timing, or null if unreadable. */
+  progress: number | null;
+  /** `--glass-p` as the computed style of the pseudo-element gives it, or null when empty or not a number (WebKit may give none). */
+  computed: number | null;
+}
+
+/** How many animation frames the animation gets to appear in the list (about a sixth of a second). */
+export const SIGHT_FRAMES = 10;
+
+/**
+ * Whether the glass reveal is really running: `ok`, `fallback` (the plain crossfade takes over) or `wait` (ask again next
+ * frame). Frame-based, not wall-clock. It falls back only if the animation never shows up in the list, or it has
+ * advanced and still has no progress, or the style says 0 while the animation has clearly progressed (5% or more) (a browser that runs
+ * the animation but does not apply the property). An empty or unreadable computed value does not count against it.
+ */
+export function judgeGlass(s: GlassSight): "ok" | "fallback" | "wait" {
+  if (!s.found) return s.frames >= SIGHT_FRAMES ? "fallback" : "wait";
+  if (s.timeMs === null || s.timeMs < 16 || s.frames < 2) return "wait"; // not advanced yet
+  if (s.progress !== null && s.progress <= 0) return "fallback";
+  // too early in the easing to tell a style of 0 from a style that has not moved yet: ask again
+  if (s.progress !== null && s.progress < 0.05) return "wait";
+  if (s.computed !== null && s.computed <= 0 && (s.progress !== null || s.timeMs > 100)) return "fallback";
+  return "ok";
+}
