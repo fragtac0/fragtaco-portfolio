@@ -2,6 +2,7 @@ import { clamp, flatFrame, LINE_PX } from "./shelf-math";
 import { placeMarker } from "./shelf-hud";
 import { headerBottom } from "./shelf-head";
 import type { ShelfCtx } from "./shelf-open";
+import type { Book } from "./shelf-scene-types";
 
 /**
  * Sizes the renderer and the orthographic camera to the canvas (`flatFrame`: the tallest spine at
@@ -12,6 +13,12 @@ import type { ShelfCtx } from "./shelf-open";
  * screen (`fitSpines`). Nothing happens when the size and the header's height are
  * unchanged since the last call. An open book is put back first, because its pose was laid out for the old size.
  */
+/** Read by scripts/audit: every book's cover width in pixels, wanted (`coverPx`) and painted (the texture's canvas). */
+export function readCovers(canvas: HTMLCanvasElement, books: Book[]): void {
+  canvas.dataset.coverWant = books.map((b) => b.coverPx).join(",");
+  canvas.dataset.coverTex = books.map((b) => (b.coverTex.image as HTMLCanvasElement | undefined)?.width ?? 0).join(",");
+}
+
 export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): void {
   const gl = ctx.scene();
   const els = ctx.els();
@@ -65,5 +72,6 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
     st.dirty = true;
   });
   readSpine();
+  readCovers(canvas, gl.books);
   st.dirty = true;
 }

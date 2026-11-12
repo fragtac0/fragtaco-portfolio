@@ -7,7 +7,7 @@ import { createOpenPath, type ShelfCtx, type ShelfEls, type ShelfState } from ".
 import type { ShelfEngine } from "./shelf-engine-types";
 import { createAnimate, poseBooks } from "./shelf-pose";
 import { createMarkerSync, hintText, HINT_NO_GL } from "./shelf-hud";
-import { fitShelf } from "./shelf-fit";
+import { fitShelf, readCovers } from "./shelf-fit";
 import { buildShelfScene, loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
 import { loadSpinePhotos, retintSpine, stepSpineFades } from "./shelf-spines";
 import { spineColours } from "./spine-styles";
@@ -89,9 +89,12 @@ export function createShelf(
     calm: () => calm(),
     upload(t, c) {
       if (!gl) return;
+      const old = t.image as HTMLCanvasElement | undefined;
+      if (old && (old.width !== c.width || old.height !== c.height)) t.dispose(); // new storage for a new size
       t.image = c;
       t.needsUpdate = true;
       gl.renderer.initTexture(t);
+      readCovers(canvas, gl.books);
     },
     pixels: (d) => gl?.books.find((k) => k.d.id === d.id)?.coverPx ?? 640,
     // the cover's colours: the spine fades over to them while the loop runs, else it is repainted at once
@@ -153,7 +156,14 @@ export function createShelf(
           step();
         }),
       );
-    return buildShelfScene(T, canvas, books, run, (tex, d) => covers.load(tex, d));
+    return buildShelfScene(
+      T,
+      canvas,
+      books,
+      run,
+      (tex, d) => covers.load(tex, d),
+      (tex, d) => covers.repaint(tex, d),
+    );
   }
 
   // ---- sizing (shelf-fit.ts)

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   COVER_PX_MAX,
   COVER_PX_MIN,
+  coverNeedsRepaint,
   coverPixels,
   LIFT,
   liftPhases,
@@ -101,5 +102,23 @@ describe("coverPixels", () => {
       last = p;
     }
     expect(coverPixels(400, 1.5)).toBeGreaterThan(coverPixels(400, 1));
+  });
+});
+
+describe("coverNeedsRepaint", () => {
+  it("repaints only when the width would change by more than 1.4 times, either way", () => {
+    expect(coverNeedsRepaint(516, 516)).toBe(false);
+    expect(coverNeedsRepaint(516, 700)).toBe(false); // 1.36
+    expect(coverNeedsRepaint(516, 730)).toBe(true); // 1.41
+    expect(coverNeedsRepaint(700, 516)).toBe(false);
+    expect(coverNeedsRepaint(730, 516)).toBe(true);
+  });
+  it("covers a turn of the phone: 844 by 390 to 390 by 844 changes the open cover about 1.9 times", () => {
+    expect(coverNeedsRepaint(coverPixels(160, 2), coverPixels(300, 2))).toBe(true);
+    expect(coverNeedsRepaint(coverPixels(300, 2), coverPixels(160, 2))).toBe(true);
+  });
+  it("never asks for a repaint on a missing size", () => {
+    expect(coverNeedsRepaint(0, 500)).toBe(false);
+    expect(coverNeedsRepaint(500, Number.NaN)).toBe(false);
   });
 });

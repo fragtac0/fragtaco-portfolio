@@ -16,6 +16,8 @@ export type Thumbs = {
   kick(): void;
   /** When each cell's thumbnail went up (performance.now ms), 0 until it has; indexed like `atlas.cells`. The arrival animation's clock. */
   loadedAt: Float64Array;
+  /** When a cell's thumbnail failed for good (both sizes), 0 otherwise. The cell stays empty; the wall counts it as settled. */
+  failedAt: Float64Array;
   dispose(): void;
 };
 
@@ -37,6 +39,7 @@ export function createThumbs(
     );
   }
   const loadedAt = new Float64Array(a.cells.length);
+  const failedAt = new Float64Array(a.cells.length);
   const queue: Array<[number, HTMLImageElement]> = [];
   const images = new Set<HTMLImageElement>();
   let disposed = false;
@@ -85,11 +88,15 @@ export function createThumbs(
       if (img) drop(img);
       img = hq === first ? null : await loadImage(hq);
     }
-    if (!img || disposed) return;
+    if (!img || disposed) {
+      if (!disposed) failedAt[i] = performance.now();
+      return;
+    }
     try {
       await img.decode();
     } catch {
       drop(img);
+      failedAt[i] = performance.now();
       return;
     }
     if (disposed) return;
@@ -140,6 +147,7 @@ export function createThumbs(
     pumpFrame,
     kick: schedulePump,
     loadedAt,
+    failedAt,
     dispose() {
       if (disposed) return;
       disposed = true;

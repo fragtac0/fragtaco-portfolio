@@ -19,8 +19,8 @@ export const FADE_MS = 300;
  * The most a tile is pushed, px, and the share of the half-diagonal beyond which there is none.
  * Between them the push falls away no faster than `PUSH_SLOPE` px per px of distance, so two
  * neighbours are never brought closer than the 8% they shrink and the gap between them leave
- * room for (tiles are at least 12% smaller than their pitch). That makes the push at the middle
- * `PUSH_SLOPE * reach`, well under the 140 px the spec allows, and no overlap to hide.
+ * room for (a tile is at least 7% smaller than its pitch, measured unshrunk: the ledger's figure). That makes
+ * the push at the middle `PUSH_SLOPE * reach`, well under the 140 px the spec allows, and no overlap to hide.
  */
 export const PUSH_MAX = 140;
 export const PUSH_REACH = 0.6;

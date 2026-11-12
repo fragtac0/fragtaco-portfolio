@@ -113,7 +113,33 @@ function hiddenFor(list: readonly Tile[], choice: PoseChoice, size: TileSize, re
   return hiddenTiles(boxes, choice.rect, choice.zone);
 }
 
+/**
+ * `hiddenFor` remembered while its inputs hold (a wall that is open and still asks every frame with the
+ * same choice, size and tile positions): the choice, the size, the mode and every tile's position.
+ */
+function hiddenCache() {
+  let sig = "";
+  let pos = new Float64Array(0);
+  let set: Set<string> = new Set();
+  return (list: readonly Tile[], choice: PoseChoice, size: TileSize, reduced: boolean): Set<string> => {
+    const { rect: r, zone: z } = choice;
+    const next = `${choice.key}|${r.x},${r.y},${r.w},${r.h}|${z.x},${z.y},${z.w},${z.h}|${choice.halfDiag}|${size.cw}x${size.ch}|${reduced}|${list.length}`;
+    let same = next === sig && pos.length === list.length * 2;
+    for (let i = 0; same && i < list.length; i++) same = pos[2 * i] === list[i].x && pos[2 * i + 1] === list[i].y;
+    if (same) return set;
+    sig = next;
+    pos = new Float64Array(list.length * 2);
+    list.forEach((tl, i) => {
+      pos[2 * i] = tl.x;
+      pos[2 * i + 1] = tl.y;
+    });
+    set = hiddenFor(list, choice, size, reduced);
+    return set;
+  };
+}
+
 export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
+  const hiddenOf = hiddenCache();
   const fstate = new Map<string, number>();
   const estate = new Map<string, number>();
   const seen = new Set<string>();
@@ -151,7 +177,6 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
     }
     return echo;
   };
-
 
   /** Poses a tile while the wall is open: spread, dim, hidden, or on its way to the chosen place. */
   function openTile(
@@ -239,7 +264,7 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
         : null;
       const ghosts: Tile[] = [];
       const kept = new Set<string>();
-      const hidden = choice ? hiddenFor(list, choice, p.size, p.reduced) : null;
+      const hidden = choice ? hiddenOf(list, choice, p.size, p.reduced) : null;
       for (const tl of list) {
         const f = ease(fstate, tl.key, tl.key === p.hoverKey ? 1 : 0, kf);
         const wantEcho = echoNow.has(tl.idx) ? 1 : 0;

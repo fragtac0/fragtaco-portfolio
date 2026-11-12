@@ -9,7 +9,7 @@ import {
   topCanvas,
 } from "./shelf-canvases";
 import { addShelfLights } from "./shelf-light";
-import { FRONT, SHELF_GAP, RENDER_DPR_MAX, WALLZ, bookSize, coverPixels, flatFrame, headGuess } from "./shelf-math";
+import { FRONT, SHELF_GAP, RENDER_DPR_MAX, WALLZ, bookSize, coverNeedsRepaint, coverPixels, flatFrame, headGuess } from "./shelf-math";
 import { newBag, type Book, type ShelfScene } from "./shelf-scene-types";
 import { createSpineFace, resizeSpines, spinePixels, MAX_DPR } from "./shelf-spines";
 
@@ -62,6 +62,8 @@ export async function buildShelfScene(
   books: SiteBook[],
   run: RunSteps,
   onCover?: (tex: THREE.CanvasTexture, d: SiteBook) => void,
+  /** A book's cover should be painted again at its new `coverPx` (the screen changed size a lot). */
+  onCoverSize?: (tex: THREE.CanvasTexture, d: SiteBook) => void,
 ): Promise<ShelfScene> {
   const disposables: { dispose(): void }[] = [];
   let spineTimer = 0;
@@ -280,7 +282,15 @@ export async function buildShelfScene(
       fitSpines(scale, immediate, done) {
         window.clearTimeout(spineTimer);
         const go = () => {
-          if (resizeSpines(list, scale, dpr())) done();
+          const changed = resizeSpines(list, scale, dpr());
+          // a cover is painted at its size on screen when open: after a big resize or a turn of the phone, paint it again
+          for (const b of list) {
+            const px = coverPixels(b.W * scale, dpr());
+            if (!coverNeedsRepaint(b.coverPx, px)) continue;
+            b.coverPx = px;
+            onCoverSize?.(b.coverTex, b.d);
+          }
+          if (changed) done();
         };
         if (immediate) go();
         else spineTimer = window.setTimeout(go, SPINE_RESIZE_MS);

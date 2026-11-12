@@ -60,18 +60,22 @@ export function countOverlaps(list: readonly Tile[], choice: PoseChoice): number
 
 /**
  * True when every picture is on the atlas and its arrival fade (and the placeholder's shimmer
- * before it) is over, so a still wall needs no new frames. False for no pictures at all.
+ * before it) is over, so a still wall needs no new frames. A picture that failed for good (`failedAt`,
+ * a removed video) counts as settled once `settleMs` has passed since it failed, so one dead video
+ * does not keep a still wall redrawing every frame. False for no pictures at all.
  */
 export function picturesSettled(
   loadedAt: ArrayLike<number> | undefined,
   now: number,
   settleMs = 1200,
+  failedAt?: ArrayLike<number>,
 ): boolean {
   if (!loadedAt || loadedAt.length === 0) return false;
   let latest = 0;
   for (let i = 0; i < loadedAt.length; i++) {
-    if (!(loadedAt[i] > 0)) return false;
-    if (loadedAt[i] > latest) latest = loadedAt[i];
+    const at = loadedAt[i] > 0 ? loadedAt[i] : (failedAt?.[i] ?? 0);
+    if (!(at > 0)) return false;
+    if (at > latest) latest = at;
   }
   return now - latest > settleMs;
 }
