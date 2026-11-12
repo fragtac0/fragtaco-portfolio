@@ -2,7 +2,7 @@
 // (navigate, wait, eval, key, click, shot) and print each eval result.
 // usage: BASE=http://localhost:5178 node scripts/audit/cdp.mjs <steps.json> <outdir>
 // Step keys: size, dpr, mobile, touch, reduce, net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk), mdrag [x0,y0,x1,y1,n] (mouse), wheel [x,y,dx,dy,n],
-// click, move, sweep, tap, drag, eval (+label), shot, requests ({match} + label: the hosts requested since the last such step), sample ({grid:[cols,rows]} + label: photographs the page and prints the share of pixels
+// click, move, sweep, tap, drag (click, move and tap also take a string: an expression the page answers with [x, y]), eval (+label), shot, requests ({match} + label: the hosts requested since the last such step), sample ({grid:[cols,rows]} + label: photographs the page and prints the share of pixels
 // darker than #2a2826, the share of orange-hued pixels and the average colour on a grid; see PIXEL_SAMPLER below). "{{BASE}}" in a steps file is replaced by $BASE.
 import { spawn } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -69,6 +69,8 @@ for (const s of steps) {
   if (s.cpu) await send("Emulation.setCPUThrottlingRate", { rate: s.cpu });
   if (s.go) { await send("Page.navigate", { url: s.go }); }
   if (s.wait) await sleep(s.wait);
+  // click, move and tap may be an expression (a string) that the page answers with [x, y]
+  for (const k of ["click", "move", "tap"]) if (typeof s[k] === "string") s[k] = (await send("Runtime.evaluate", { expression: s[k], awaitPromise: true, returnByValue: true })).result?.result?.value;
   if (s.key) for (const type of ["keyDown", "keyUp"]) {
     // Enter and Space need their text on the keyDown, or a focused button never activates
     const text = type === "keyDown" ? (s.key === "Enter" ? "\r" : s.key === " " ? " " : undefined) : undefined;

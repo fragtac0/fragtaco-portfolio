@@ -1,8 +1,8 @@
 import { useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
-import { coverUrl } from "../../content/work-media";
 import { changePage } from "../../lib/page-change";
 import type { WorkVideo } from "../../types";
+import VideoWall from "./gallery/video-wall";
 import ReturnMark from "./return-mark";
 import WallHeading from "./wall-heading";
 import "./work.css";
@@ -15,14 +15,12 @@ interface WallPageProps {
 
 /**
  * One video wall (`/work/long-form`, `/work/short-form`): the heading (kind and count) at the top
- * left, the return mark at the top right and, for now, a plain grid of the videos' links. Round 6
- * Task 11 puts the shader gallery on top and keeps this grid as the no-WebGL fallback. Pictures come from
- * `coverUrl` at run time and are never stored; each link opens the video in a new tab. Esc goes back to
- * the rings with the radial change, as the return mark does.
+ * left, the return mark at the top right and the wall itself (`VideoWall`: the shader gallery over the
+ * links, which stay as the list and as the picture where there is no WebGL). Esc goes back to the rings
+ * with the radial change, as the return mark does.
  */
 export default function WallPage({ kind, videos }: WallPageProps) {
   const navigate = useNavigate();
-  const tall = kind === "short";
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -36,24 +34,7 @@ export default function WallPage({ kind, videos }: WallPageProps) {
 
   return (
     <main className="wall-page" data-wall={kind}>
-      <div className="wall-scroll">
-        <ul className="wall-grid" aria-label={tall ? "Short form videos" : "Long form videos"}>
-          {videos.map((video) => (
-            <li key={video.id}>
-              <a
-                className="wall-tile"
-                href={video.url}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`${video.title}, for ${video.for}, ${video.year}`}
-              >
-                <img src={coverUrl(video, tall)} alt="" loading="lazy" decoding="async" />
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="wall-fade" aria-hidden="true" />
+      <VideoWall kind={kind} items={videos} />
       <WallHeading kind={kind} count={videos.length} />
       <ReturnMark />
     </main>

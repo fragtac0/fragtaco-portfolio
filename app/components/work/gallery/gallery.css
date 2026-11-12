@@ -1,0 +1,150 @@
+/*
+ * The video wall (round 6 spec 6.5): the stage under the heading and the return mark, the canvas of the
+ * gallery engine, the links (the visible wall until the engine runs, the accessible list after it) and the
+ * hover caption. Colours, sizes and layers come from tokens.css.
+ */
+.wall-stage {
+  position: absolute;
+  inset: 0;
+}
+.wall-canvas-host {
+  position: absolute;
+  inset: 0;
+}
+.wall-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The links. Fitted (data-fit, set once the wall is measured): each one sits where the engine draws its picture. */
+.wall-links {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none; /* only the links take the pointer, so the canvas keeps the rest */
+}
+.wall-links li {
+  position: absolute;
+  pointer-events: auto;
+}
+.wall-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface-1);
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+.wall-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wall-tile:hover {
+  transform: scale(1.04);
+}
+.wall-tile:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: -2px;
+}
+
+/* Server HTML, and the moment before the wall is measured: a plain grid of links (it also serves a browser
+   with no scripts). It stays hidden for a short while so a measured wall never jumps; without scripts it shows. */
+.wall-stage:not([data-fit]) .wall-links {
+  display: grid;
+  gap: 10px;
+  inset: 80px 4vw calc(var(--site-nav-height, 140px) + 24px);
+  align-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  opacity: 0;
+  animation: wall-links-late 1ms linear 2500ms forwards;
+  pointer-events: auto;
+}
+.wall-stage:not([data-fit]) .wall-links li {
+  position: relative;
+}
+.wall-stage:not([data-fit]) .wall-tile {
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+[data-wall="short"] .wall-stage:not([data-fit]) .wall-links {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 112px), 1fr));
+}
+[data-wall="short"] .wall-stage:not([data-fit]) .wall-tile {
+  aspect-ratio: 9 / 16;
+}
+@keyframes wall-links-late {
+  to {
+    opacity: 1;
+  }
+}
+
+/* The engine is running: the links stay, in place, as the list for keyboard and screen reader (they take
+   focus; the ring is drawn by the engine). They fade out over the pictures that the engine fades in. */
+.wall-stage[data-live] .wall-links li {
+  pointer-events: none;
+}
+.wall-stage[data-live] .wall-tile {
+  opacity: 0;
+  transform: none;
+  transition: opacity 500ms ease-out 250ms;
+}
+.wall-stage[data-live] .wall-tile:focus-visible {
+  outline: none;
+}
+
+/* the hover caption, in the style of the painting caption (home hero) */
+.wall-caption {
+  position: absolute;
+  left: clamp(16px, 3.4vw, 48px);
+  bottom: clamp(20px, 3.4vh, 32px);
+  z-index: var(--z-hero);
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ground) 72%, transparent);
+  font-family: "Space Mono", monospace;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+  pointer-events: none;
+}
+.wall-caption.on {
+  opacity: 1;
+}
+.wall-caption .t {
+  display: block;
+  font-style: italic;
+  font-size: var(--t-meta);
+  color: var(--ink-1);
+}
+.wall-caption .a {
+  display: block;
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+/* a finger leaves nothing to hover; the caption belongs to the pointer and the keyboard */
+@media (hover: none) {
+  .wall-caption:not(.on) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wall-tile,
+  .wall-stage[data-live] .wall-tile,
+  .wall-caption {
+    transition: none;
+  }
+  .wall-stage:not([data-fit]) .wall-links {
+    animation-duration: 0.01ms;
+  }
+}
