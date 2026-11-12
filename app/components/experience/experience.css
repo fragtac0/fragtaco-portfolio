@@ -1,0 +1,231 @@
+/*
+ * My experience, the Mars map (experience-page.tsx). A fixed page on the ground colour: the picture (first
+ * the level 1 tiles as images, then the canvas), the edge focus, two layers that follow the view, then the
+ * heading, the caption and the buttons. Stacking is the order in the document; the dock (--z-dock) is above all
+ * of it. Colours, sizes and layers come from tokens.css.
+ *
+ * The view reaches the page as CSS variables, written by the map engine each frame it moves:
+ *   --map-cx, --map-cy   the picture pixel (top level, 0 to --map-size) at the screen's centre, as numbers
+ *   --map-s              screen pixels per picture pixel, a number
+ *   --map-size           the picture's side at the top level, in px (8192)
+ */
+.map-page {
+  --map-fit-share: 0.78; /* view.ts FIT_RING_SHARE: the cliff ring's share of the smaller screen side at the overview */
+  --map-cliff-span: 0.67; /* view.ts CLIFF_SPAN: the ring's width as a share of the picture */
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  overflow: clip;
+  background: var(--ground);
+  color: var(--ink-1);
+  touch-action: none; /* the map takes every drag and pinch */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.map-page[data-engine="on"][data-mode="explore"] {
+  cursor: grab;
+}
+.map-page[data-drag] {
+  cursor: grabbing;
+}
+
+/* The picture before the canvas has painted (and for good without one): the overview's size and place in CSS alone,
+ * so a page change and the first paint show the mountain. It fades into the ground at its edges the way the canvas does. */
+.map-seed {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(min(100vw, 100dvh) * var(--map-fit-share) / var(--map-cliff-span));
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent),
+    linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent),
+    linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-composite: intersect;
+}
+.map-seed img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.map-seed img[width="2048"] {
+  grid-column: 1 / -1;
+}
+.map-page[data-painted] .map-seed {
+  visibility: hidden;
+}
+.map-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The layers that follow the view (for the route, the moments and the places). Empty here. */
+.map-plane {
+  /* the picture itself: top level pixels, scaled with the map, the picture's top left corner where the view puts it */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--map-size, 8192) * 1px);
+  height: calc(var(--map-size, 8192) * 1px);
+  transform-origin: 0 0;
+  transform: scale(var(--map-s, 1)) translate(calc(var(--map-cx, 4096) * -1px), calc(var(--map-cy, 4096) * -1px));
+  pointer-events: none;
+  visibility: hidden; /* until the engine has set the variables */
+}
+.map-page[data-engine="on"] .map-plane {
+  visibility: visible;
+}
+.map-pins {
+  /* a screen-sized layer for what keeps its size: place a child at picture pixel (X, Y) with
+   * left: calc(50% + (X - var(--map-cx)) * var(--map-s) * 1px); top: calc(50% + (Y - var(--map-cy)) * var(--map-s) * 1px) */
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* The heading block (top left) and the caption (lower left): in the overview only. */
+.map-heading,
+.map-caption {
+  position: absolute;
+  left: 48px;
+  margin: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease-out;
+}
+.map-page[data-mode="explore"] .map-heading,
+.map-page[data-mode="explore"] .map-caption {
+  opacity: 0;
+}
+.map-heading {
+  top: 28px;
+  width: min(360px, calc(100vw - 96px));
+  isolation: isolate;
+}
+/* a soft patch of ground behind the words, so they stay readable where the picture reaches them */
+.map-heading::before,
+.map-caption::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -36px -64px -44px -64px;
+  background: radial-gradient(
+    ellipse closest-side,
+    color-mix(in srgb, var(--ground) 88%, transparent) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.map-title {
+  margin: 0;
+  font-family: Doto, monospace;
+  font-weight: 800;
+  font-size: var(--t-title);
+  line-height: 1.1;
+  color: var(--ink-1);
+}
+.map-text {
+  margin: 10px 0 0;
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.map-caption {
+  bottom: calc(var(--site-nav-height, 132px) + 40px); /* above the dock */
+  width: min(340px, calc(100vw - 96px));
+  font-family: "Space Mono", monospace;
+  isolation: isolate;
+}
+.map-caption figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.map-caption-title {
+  font-style: italic;
+  font-size: var(--t-meta);
+  color: var(--ink-1);
+}
+.map-caption-line,
+.map-caption-fact,
+.map-caption-credit {
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+.map-caption-credit {
+  color: var(--ink-3);
+}
+
+/* The buttons (lower right, above the dock): the dock's glass, small. */
+.map-controls {
+  position: absolute;
+  right: 48px;
+  bottom: calc(var(--site-nav-height, 132px) + 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(var(--glass-rgb) / 0.46);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.map-button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-1);
+  cursor: pointer;
+  transition: background-color 150ms ease-out, opacity 150ms ease-out;
+}
+.map-button:hover:not(:disabled) {
+  background: rgb(253 252 230 / 0.08);
+}
+.map-button:focus-visible {
+  outline: 2px solid var(--ink-1);
+  outline-offset: 1px;
+}
+.map-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 699.98px) {
+  .map-heading,
+  .map-caption {
+    left: 16px;
+  }
+  .map-heading {
+    width: calc(100vw - 32px);
+  }
+  .map-caption {
+    bottom: calc(var(--site-nav-height, 132px) + 28px + env(safe-area-inset-bottom));
+    width: calc(100vw - 96px);
+  }
+  .map-controls {
+    right: 16px;
+    bottom: calc(var(--site-nav-height, 132px) + 28px + env(safe-area-inset-bottom));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-heading,
+  .map-caption,
+  .map-button {
+    transition: none;
+  }
+}
