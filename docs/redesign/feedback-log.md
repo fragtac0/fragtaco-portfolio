@@ -599,3 +599,10 @@ Sixth preview: `docs/redesign/round7-preview-6/index.html`. The overview is zoom
 - Shelf ground: the field of dots, much smaller, moving, barely visible.
 
 Seventh preview: `docs/redesign/round7-preview-7/index.html`. Grid lines every 2.5 degrees at 4% and 7% (crosses every 5 degrees at 26%), fading on the same curve as the picture. Grain at 0.1. Dots every 7 px, 0.8 to 1.7 px across, 2% to 10% strong, with a slow swell.
+
+**Feedback on the seventh preview (2026-11-13)**
+
+- "My experience" and "Olympus Mons" in capitals.
+- The grid is needed in My climb too: faded, and following the same map.
+
+Eighth preview: `docs/redesign/round7-preview-8/index.html`. Both titles are set in capitals. The grid is now a set of point rows that take the height of the ground under them, so in the overview it is the same flat grid and in My climb it runs up and over the mountain. Over the dark ground its ink is raised (lines to about 10% and 18%, crosses to 42%) so it reads as the same faint grid. Measured in the pane: 541 frames in 4.5 s through the change, longest frame 11 ms.
