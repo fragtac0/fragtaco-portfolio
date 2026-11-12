@@ -570,3 +570,13 @@ Third preview: `docs/redesign/round7-preview-3/index.html` (same local server, `
 - Shelf: the original single row, on the new shelves.
 
 Fourth preview: `docs/redesign/round7-preview-4/index.html`. The trail is the first one with each point pushed away from the summit (the last by 40%). The very large Mars picture and the mask on the terrain canvas are gone, as the likeliest causes of the glitch. Measured in the Browser pane at 848 px wide, device pixel ratio 2: the move into My climb ran 505 frames in 4.2 s with the longest frame 9 ms, and the camera's height and position never reversed.
+
+**Feedback on the fourth preview (2026-11-13)**
+
+- The card covers other things on the map.
+- No line of help text under the map.
+- The camera snaps where it should ease, and it does not need to move for every milestone: only when milestones are far apart.
+- The grain on the background cannot be seen the way it can in the reference.
+- The ledge of rock layers is the shelf. No gradient ground behind either shelf.
+
+Fifth preview: `docs/redesign/round7-preview-5/index.html`. The camera stays put while the chosen milestone is inside a comfortable part of the view and otherwise glides on a critically damped spring; the card takes whichever of five places round its milestone covers the fewest others, and fades any it still covers; the grain is coarse (1.5 to 3 px specks), strong and still. Decided for the build: the rock ledge under the books, and no Eclipse ground behind the book shelf or the YouTube shelf.
