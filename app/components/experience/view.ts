@@ -19,6 +19,8 @@ export const FIT_RING_SHARE = 0.78;
 export const CLIFF_SPAN = 0.67;
 /** Explore starts at this many times the fit scale; zooming out past it goes back to the overview. */
 export const EXPLORE_MIN = 2;
+/** Flying to a moment or a place goes this many times the fit scale in, or closer if the view already is. */
+export const FOCUS_ZOOM = 3;
 /** The greatest scale: one picture pixel to one screen pixel (the picture's native size). */
 export const MAX_SCALE = 1;
 /** The time a fly takes, in milliseconds. */

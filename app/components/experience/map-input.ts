@@ -8,7 +8,7 @@ import {
   arrowStep, DRAG_SLOP, isArrow, isDoubleTap, keyAction, modeOf, panView, pinchEnd, pinchView, stepAction, wheelAction,
   wheelFactor, ZOOM_STEP, type Action, type Mode, type Tap,
 } from "./map-input-math";
-import { fitView, MAX_SCALE, type View } from "./view";
+import { fitScale, fitView, FLY_MS, FOCUS_ZOOM, MAX_SCALE, type View } from "./view";
 
 export type MapState = { mode: Mode; canIn: boolean; canOut: boolean };
 
@@ -19,7 +19,14 @@ export type InputHooks = {
   onStep?(dir: -1 | 1): void;
 };
 
-export type MapControls = { zoomIn(): void; zoomOut(): void; fit(): void; detach(): void };
+export type MapControls = {
+  zoomIn(): void;
+  zoomOut(): void;
+  fit(): void;
+  /** Fly to a picture point (top level pixels) and show it `up` screen pixels above the centre, at `FOCUS_ZOOM` times the fit scale or closer. */
+  focusOn(x: number, y: number, up?: number): void;
+  detach(): void;
+};
 
 type Pt = { x: number; y: number };
 
@@ -76,6 +83,8 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
   }
 
   const isUi = (t: EventTarget | null) => t instanceof Element && t.closest("[data-map-ui]") !== null;
+  // a press on a marker or a card is its own (a click), not the start of a drag; the wheel over one still zooms
+  const isHit = (t: EventTarget | null) => isUi(t) || (t instanceof Element && t.closest("[data-map-hit]") !== null);
 
   function startPinch() {
     const [a, b] = [...pts.values()];
@@ -89,7 +98,7 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
   }
 
   function onDown(e: PointerEvent) {
-    if (isUi(e.target) || (e.pointerType === "mouse" && e.button !== 0)) return;
+    if (isHit(e.target) || (e.pointerType === "mouse" && e.button !== 0)) return;
     try {
       root.setPointerCapture(e.pointerId);
     } catch {
@@ -270,6 +279,13 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
     zoomIn: () => step(ZOOM_STEP),
     zoomOut: () => step(1 / ZOOM_STEP),
     fit: toFit,
+    focusOn(x, y, up = 0) {
+      const { w, h } = box();
+      const scale = Math.max(map.target().scale, FOCUS_ZOOM * fitScale(w, h, m));
+
+      map.setView({ cx: x, cy: y + up / scale, scale }, true, FLY_MS);
+      report();
+    },
     detach() {
       root.removeEventListener("pointerdown", onDown);
       root.removeEventListener("pointermove", onMove);

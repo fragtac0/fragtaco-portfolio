@@ -1,0 +1,334 @@
+/*
+ * The layers of the Mars map that follow the view (experience-page.tsx): the route, the moments and the ping
+ * (the places, the switch, the sheet and the fallback list are in map-places.css). Positions come from the CSS
+ * variables the map engine writes on the page (see experience.css): `--map-cx`, `--map-cy` (the picture pixel at
+ * the screen's centre) and `--map-s` (screen px per picture px). A marker's own `--x`, `--y` are picture pixels.
+ * Colours, sizes and layers come from tokens.css.
+ */
+
+/* ---- The route: one SVG in picture pixels, 2 screen px wide at every zoom ---- */
+.route {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+  transition: opacity 250ms ease-out;
+}
+.route path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.route-casing {
+  stroke: color-mix(in srgb, var(--ground) 55%, transparent);
+  stroke-width: calc(5px / var(--map-s, 1));
+  stroke-dasharray: calc(var(--len) * 1px) calc(var(--len) * 1px);
+}
+.route-line {
+  stroke: var(--ink-1);
+  stroke-width: calc(2px / var(--map-s, 1));
+  /* the travelled part is solid; with no moment chosen the whole line is */
+  stroke-dasharray: calc(var(--dash) * 1px) calc(var(--len) * 1px);
+  transition: stroke-dasharray 500ms ease-out;
+}
+.route-ahead {
+  stroke: var(--ink-1);
+  stroke-width: calc(2px / var(--map-s, 1));
+  stroke-dasharray: calc(7px / var(--map-s, 1)) calc(9px / var(--map-s, 1));
+  opacity: 0;
+  transition: opacity 400ms ease-out;
+}
+.route-ahead[data-shown="yes"] {
+  opacity: 0.5;
+}
+.map-page[data-route="wait"] .route {
+  opacity: 0;
+}
+/* drawn from the start over 1.6 s once the page is settled (paint only, on a 2 px line, once) */
+.map-page[data-route="draw"] .route-line,
+.map-page[data-route="draw"] .route-casing {
+  animation: route-draw 1.6s cubic-bezier(0.45, 0, 0.25, 1) both;
+}
+@keyframes route-draw {
+  from {
+    stroke-dashoffset: calc(var(--len) * 1px);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---- Where markers sit ---- */
+.map-pins {
+  visibility: hidden;
+}
+.map-page[data-engine="on"] .map-pins {
+  visibility: visible;
+}
+.map-pins-journey,
+.map-pins-places {
+  position: absolute;
+  inset: 0;
+  transition: opacity 250ms ease-out, visibility 0s linear 0s;
+}
+.moment,
+.place {
+  position: absolute;
+  left: calc(50% + (var(--x) - var(--map-cx, 4096)) * var(--map-s, 1) * 1px);
+  top: calc(50% + (var(--y) - var(--map-cy, 4096)) * var(--map-s, 1) * 1px);
+  width: 0;
+  height: 0;
+}
+/* Journey shows the route and the moments, Places the named features: the other is hidden (and out of the tab order) */
+.map-page[data-layer="places"] .route,
+.map-page[data-layer="places"] .map-pins-journey,
+.map-page[data-layer="journey"] .map-pins-places {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 250ms ease-out, visibility 0s linear 250ms;
+}
+
+/* ---- Moments ---- */
+.moment-button,
+.place-button {
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-1);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.moment-button:focus-visible,
+.place-button:focus-visible {
+  outline: 2px solid var(--ink-1);
+  outline-offset: 2px;
+}
+.moment-button {
+  opacity: 0;
+}
+.map-page[data-route="draw"] .moment-button {
+  animation: moment-in 360ms ease-out both;
+  animation-delay: calc(var(--s) * 1.6s);
+}
+@keyframes moment-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.moment-dot {
+  position: absolute;
+  left: 9px;
+  top: 9px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ink-1);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ground) 70%, transparent);
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+}
+.moment[data-now] .moment-dot {
+  left: 8px;
+  top: 8px;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+}
+.moment[data-active] .moment-dot,
+.moment-button:hover .moment-dot {
+  transform: scale(1.35);
+}
+.moment[data-active] .moment-dot {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ground) 70%, transparent), 0 0 0 4px var(--accent);
+}
+.moment-year,
+.moment-card {
+  position: absolute;
+  pointer-events: none;
+  transition: opacity 250ms ease-out, visibility 0s linear 0s;
+}
+.moment-year {
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ground) 72%, transparent);
+  color: var(--ink-1);
+  font-family: "Space Mono", monospace;
+  font-size: var(--t-micro);
+  line-height: 1;
+  white-space: nowrap;
+}
+.moment[data-side="n"] .moment-year,
+.moment[data-side="n"] .moment-card {
+  left: 50%;
+  bottom: calc(100% - 2px);
+  transform: translateX(-50%);
+}
+.moment[data-side="s"] .moment-year,
+.moment[data-side="s"] .moment-card {
+  left: 50%;
+  top: calc(100% - 2px);
+  transform: translateX(-50%);
+}
+.moment[data-side="e"] .moment-year,
+.moment[data-side="e"] .moment-card {
+  left: calc(100% - 2px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+.moment[data-side="w"] .moment-year,
+.moment[data-side="w"] .moment-card {
+  right: calc(100% - 2px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+.moment[data-side="ne"] .moment-year,
+.moment[data-side="ne"] .moment-card {
+  left: calc(100% - 6px);
+  bottom: calc(100% - 6px);
+}
+.moment[data-side="nw"] .moment-year,
+.moment[data-side="nw"] .moment-card {
+  right: calc(100% - 6px);
+  bottom: calc(100% - 6px);
+}
+.moment[data-side="se"] .moment-year,
+.moment[data-side="se"] .moment-card {
+  left: calc(100% - 6px);
+  top: calc(100% - 6px);
+}
+.moment[data-side="sw"] .moment-year,
+.moment[data-side="sw"] .moment-card {
+  right: calc(100% - 6px);
+  top: calc(100% - 6px);
+}
+.moment[data-now] .moment-year {
+  margin: 0;
+}
+.moment[data-now][data-side="n"] .moment-year {
+  bottom: calc(100% + 8px);
+}
+.moment[data-now][data-side="s"] .moment-year {
+  top: calc(100% + 8px);
+}
+.moment[data-now][data-side="e"] .moment-year {
+  left: calc(100% + 8px);
+}
+.moment[data-now][data-side="w"] .moment-year {
+  right: calc(100% + 8px);
+}
+
+/* the card (explore): the date and the title; the one the visitor is at, or hovers, also shows its line */
+.moment-card {
+  width: 176px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgb(var(--glass-rgb) / 0.86);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 250ms ease-out, visibility 0s linear 250ms;
+}
+.moment-date {
+  display: block;
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+}
+.moment-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 2px;
+  font-size: var(--t-meta);
+  line-height: 1.3;
+  color: var(--ink-1);
+}
+.moment-title s {
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--accent);
+}
+.moment-line {
+  display: none;
+  margin-top: 4px;
+  font-size: var(--t-micro);
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.map-page[data-mode="explore"] .moment-card {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.map-page[data-mode="explore"] .moment-year {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 250ms ease-out, visibility 0s linear 250ms;
+}
+.moment[data-active] {
+  z-index: 2;
+}
+.moment:hover,
+.moment:focus-within {
+  z-index: 3;
+}
+.moment[data-active] .moment-card,
+.moment-button:hover .moment-card,
+.moment-button:focus-visible .moment-card {
+  width: 236px;
+  border-color: var(--accent);
+  background: rgb(var(--glass-rgb) / 0.94);
+}
+.moment[data-active] .moment-title,
+.moment-button:hover .moment-title,
+.moment-button:focus-visible .moment-title {
+  -webkit-line-clamp: unset;
+}
+.moment[data-active] .moment-line,
+.moment-button:hover .moment-line,
+.moment-button:focus-visible .moment-line {
+  display: block;
+}
+
+/* ---- The ping: a ring that grows and fades every 2.4 s round the "now" dot ---- */
+.now-ping {
+  position: absolute;
+  left: -17px;
+  top: -17px;
+  width: 34px;
+  height: 34px;
+  pointer-events: none;
+}
+.now-ping-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.3);
+}
+.map-page[data-route="draw"] .now-ping-ring {
+  animation: now-ping 2.4s ease-out 1.6s infinite;
+}
+@keyframes now-ping {
+  from {
+    opacity: 0.9;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+

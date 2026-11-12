@@ -31,11 +31,11 @@ export async function loader() {
 
 // The Mars map (spec 9). The dock and its row come from WorkShell, so My experience is the current link of the row.
 export default function Experience() {
-  const { navigationItems, socialLinks, experience } = useLoaderData<typeof loader>();
+  const { navigationItems, socialLinks, experience, today } = useLoaderData<typeof loader>();
 
   return (
     <WorkShell navigationItems={navigationItems} socialLinks={socialLinks} ground={false}>
-      <ExperiencePage experience={experience} />
+      <ExperiencePage experience={experience} today={today} />
     </WorkShell>
   );
 }

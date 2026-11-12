@@ -13,15 +13,19 @@
     { "id": "now", "date": "now", "label": "Now", "title": "Freelance creative editor", "line": "Still climbing." }
   ],
   "caption": { "title": "Olympus Mons, Mars", "line": "The tallest mountain known in the solar system.", "factId": "height-width", "credit": "Image: NASA / JPL-Caltech / USGS / Arizona State University" },
+  "ui": { "journey": "Journey", "places": "Places", "more": "More", "less": "Less" },
   "route": [
-    { "lon": 221.04, "lat": 14.953 },
-    { "lon": 222.145, "lat": 14.918 },
-    { "lon": 223.187, "lat": 15.059 },
-    { "lon": 223.933, "lat": 15.349 },
-    { "lon": 224.62, "lat": 15.627 },
-    { "lon": 225.153, "lat": 15.873 },
-    { "lon": 225.556, "lat": 16.058 },
-    { "lon": 225.815, "lat": 16.175 }
+    { "lon": 232.374, "lat": 18.181 },
+    { "lon": 231.564, "lat": 18.208 },
+    { "lon": 230.985, "lat": 18.158 },
+    { "lon": 230.383, "lat": 18.068 },
+    { "lon": 229.963, "lat": 17.389 },
+    { "lon": 229.416, "lat": 16.279 },
+    { "lon": 228.477, "lat": 15.363 },
+    { "lon": 227.251, "lat": 15.286 },
+    { "lon": 226.288, "lat": 15.64 },
+    { "lon": 225.552, "lat": 16.148 },
+    { "lon": 225.119, "lat": 16.719 }
   ],
   "cliff": {
     "source": "https://planetarynames.wr.usgs.gov/Feature/4454",
@@ -105,14 +109,14 @@
   },
   "rim": { "north": 18.92, "south": 17.72, "east": 227.46, "west": 226.13, "source": "https://planetarynames.wr.usgs.gov/Feature/15695" },
   "places": [
-    { "id": "olympus-mons", "name": "Olympus Mons", "lon": 226.2, "lat": 18.65, "line": "A mons, 610.13 km across. The name was approved in 1973.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/4453"] },
-    { "id": "olympus-paterae", "name": "Olympus Paterae", "lon": 226.81, "lat": 18.32, "line": "The summit patera group, 85 km across. The name was approved in 2017.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/15695"] },
-    { "id": "zeus-patera", "name": "Zeus Patera", "lon": 227.07, "lat": 18.39, "line": "A patera 65 km across, named for the Greek god of sky, thunder and lightning, king of the gods of Mount Olympus.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/15689"] },
-    { "id": "hera-patera", "name": "Hera Patera", "lon": 226.23, "lat": 18.45, "line": "A patera 32 km across, named for the Greek goddess of women and marriage, wife of Zeus.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/15691"] },
-    { "id": "olympus-rupes", "name": "Olympus Rupes", "lon": 226.44, "lat": 18.4, "line": "The scarp that rings the mountain, up to 6 km high.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/4454", "https://science.nasa.gov/resource/viking-1-orbiter-image-olympus-mons/"] },
-    { "id": "pangboche", "name": "Pangboche", "lon": 226.6, "lat": 17.28, "line": "A crater 10.16 km across, named for a village in Nepal.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/14145"] },
-    { "id": "karzok", "name": "Karzok", "lon": 228.26, "lat": 18.4, "line": "A crater 15.29 km across, named for a village in Kashmir.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/14144"] },
-    { "id": "nix-olympica", "name": "Nix Olympica", "lon": 230.0, "lat": 19.78, "line": "An albedo feature name meaning Snows of Olympus, approved in 1958.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/4314"] }
+    { "id": "olympus-mons", "name": "Olympus Mons", "lon": 226.2, "lat": 18.65, "line": "A mons, 610.13 km across. The name was approved in 1973.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/4453"], "label": { "dx": -70, "dy": -109 } },
+    { "id": "olympus-paterae", "name": "Olympus Paterae", "lon": 226.81, "lat": 18.32, "line": "The summit patera group, 85 km across. The name was approved in 2017.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/15695"], "label": { "dx": 80, "dy": 97 } },
+    { "id": "zeus-patera", "name": "Zeus Patera", "lon": 227.07, "lat": 18.39, "line": "A patera 65 km across, named for the Greek god of sky, thunder and lightning, king of the gods of Mount Olympus.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/15689"], "label": { "dx": 60, "dy": -108 } },
+    { "id": "hera-patera", "name": "Hera Patera", "lon": 226.23, "lat": 18.45, "line": "A patera 32 km across, named for the Greek goddess of women and marriage, wife of Zeus.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/15691"], "label": { "dx": -70, "dy": 10 } },
+    { "id": "olympus-rupes", "name": "Olympus Rupes", "lon": 226.44, "lat": 18.4, "line": "The scarp that rings the mountain, up to 6 km high.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/4454", "https://science.nasa.gov/resource/viking-1-orbiter-image-olympus-mons/"], "label": { "dx": 28, "dy": 0 }, "cliffBearing": 275 },
+    { "id": "pangboche", "name": "Pangboche", "lon": 226.6, "lat": 17.28, "line": "A crater 10.16 km across, named for a village in Nepal.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/14145"], "label": { "dx": -70, "dy": 40 } },
+    { "id": "karzok", "name": "Karzok", "lon": 228.26, "lat": 18.4, "line": "A crater 15.29 km across, named for a village in Kashmir.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/14144"], "label": { "dx": 30, "dy": -7 } },
+    { "id": "nix-olympica", "name": "Nix Olympica", "lon": 230.0, "lat": 19.78, "line": "An albedo feature name meaning Snows of Olympus, approved in 1958.", "sources": ["https://planetarynames.wr.usgs.gov/Feature/4314"], "label": { "dx": -40, "dy": -105 } }
   ],
   "facts": [
     { "id": "height-width", "text": "27 kilometers high, over 600 kilometers across at its base.", "source": "https://science.nasa.gov/resource/viking-1-orbiter-image-olympus-mons/" },

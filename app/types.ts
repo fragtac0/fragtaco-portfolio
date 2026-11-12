@@ -185,6 +185,10 @@ export interface ExperiencePlace {
   lat: number;
   line: string;
   sources: string[];
+  /** Where the name sits, in screen pixels from the feature. */
+  label?: { dx: number; dy: number };
+  /** The label sits on the cliff trace at this bearing from the summit (degrees clockwise from east). */
+  cliffBearing?: number;
 }
 
 export interface ExperienceFact {
@@ -197,6 +201,8 @@ export interface SiteExperience {
   frame: { centre: { lon: number; lat: number }; spanDeg: number };
   heading: { title: string; text: string };
   moments: ExperienceMoment[];
+  /** The words of the map's controls: the Journey and Places switch, the heading's More and Less. */
+  ui: { journey: string; places: string; more: string; less: string };
   caption: { title: string; line: string; /** The fact shown with the caption (its height and width). */ factId: string; credit: string };
   /** Hand-placed points of the route, in order (Task 19 places them on the picture). */
   route: { lon: number; lat: number }[];

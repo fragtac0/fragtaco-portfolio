@@ -47,6 +47,10 @@ const PlaceSchema = z.object({
   lat: LonLatSchema.shape.lat,
   line: text,
   sources: z.array(SourceSchema).min(1),
+  /** Where the name sits, in screen pixels from the feature (a leader line joins them). Default: to its right. */
+  label: z.object({ dx: z.number(), dy: z.number() }).optional(),
+  /** A feature that is a line, not a point (the cliff): the label sits on the cliff trace, at this bearing from the summit (degrees clockwise from east). */
+  cliffBearing: z.number().min(0).max(360).optional(),
 });
 
 const FactSchema = z.object({ id: text, text, source: SourceSchema });
@@ -69,6 +73,8 @@ export const ExperienceSchema = z
     heading: z.object({ title: text, text }),
     moments: z.array(MomentSchema).min(2).refine(hasUniqueIds, uniqueIds),
     caption: z.object({ title: text, line: text, factId: text, credit: text }),
+    /** The few words of the map's own controls. */
+    ui: z.object({ journey: text, places: text, more: text, less: text }),
     route: z.array(LonLatSchema).min(2),
     cliff: z.object({ source: SourceSchema, points: z.array(LonLatSchema).min(3) }),
     rim: z.object({ north: z.number(), south: z.number(), east: z.number(), west: z.number(), source: SourceSchema }),

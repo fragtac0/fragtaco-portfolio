@@ -28,10 +28,11 @@ This portfolio uses git-backed content files so routine updates do not require R
 
 - `frame`: the Mars picture's centre (longitude, latitude) and span in degrees; the same numbers as `public/mars/manifest.json` (a test compares them).
 - `heading`: `title` and `text`. `moments`: each `{ id, date, label, title, struck?, line }`. `date` is `YYYY`, `YYYY-MM` or `YYYY-MM-DD` (or `now` for the last one) and sets where the moment sits on the route; `label` is the date as shown. `struck` is the part of the title shown struck through. Dates ascend; ids are unique.
+- `ui`: the words of the map's own controls: `journey`, `places` (the switch at the top right), `more`, `less` (the heading's button on phones). Every visible word on the page comes from this file.
 - `caption`: the picture's caption (`title`, `line`, `credit`) and `factId`, the fact shown with it (its height and width).
 - `route`: the route's points in order, `{ lon, lat }` (Mars longitude is east, 0 to 360), inside the frame. The first is outside the cliff, a later one inside it, and the last is no nearer the summit than 60% of the way from the cliff to the summit crater's rim (the schema checks this against `cliff` and `rim`).
 - `cliff`: the Gazetteer's trace of Olympus Rupes as a closed ring of points, with its `source`. `rim`: the extent of Olympus Paterae (`north`, `south`, `east`, `west`, degrees) with its `source`.
-- `places`: at most 8, each `{ id, name, lon, lat, line, sources }`, inside the frame; `facts`: each `{ id, text, source }`. Sources are https addresses of the USGS Gazetteer of Planetary Nomenclature or NASA. Nothing is written from memory.
+- `places`: at most 8, each `{ id, name, lon, lat, line, sources, label?, cliffBearing? }`, inside the frame; `label` is `{ dx, dy }`, where the name sits in screen pixels from the feature (default: to its right), and `cliffBearing` (degrees clockwise from east, seen from the summit) puts the label on the cliff trace instead of at the feature's centre (Olympus Rupes is a line, and its Gazetteer centre is on the mountain); `facts`: each `{ id, text, source }`. Sources are https addresses of the USGS Gazetteer of Planetary Nomenclature or NASA. Nothing is written from memory.
 - No em or en dash in any string.
 
 ## Publishing and sorting

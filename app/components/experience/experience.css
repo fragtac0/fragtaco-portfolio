@@ -68,7 +68,7 @@
   height: 100%;
 }
 
-/* The layers that follow the view (for the route, the moments and the places). Empty here. */
+/* The layers that follow the view: the route (in the plane) and the moments, places and ping (in the pins), see map-layers.css. */
 .map-plane {
   /* the picture itself: top level pixels, scaled with the map, the picture's top left corner where the view puts it */
   position: absolute;
@@ -155,6 +155,9 @@
   line-height: 1.5;
   color: var(--ink-2);
 }
+.map-more {
+  display: none; /* phones only (below) */
+}
 .map-caption figcaption {
   display: flex;
   flex-direction: column;
@@ -176,13 +179,28 @@
   color: var(--ink-3);
 }
 
-/* The column layout: a wide screen, where the ring leaves a calm side. Width = the room left of the ring (the page's margin
- * and a 52 px gap taken off), at most 360 px. The two clauses are the smallest screens (by shape) where that room is
- * 220 px or more: 16:10 from 1250 px wide, 3:2 from 1340 px wide. */
-@media (min-aspect-ratio: 3/2) and (min-width: 1340px), (min-aspect-ratio: 8/5) and (min-width: 1250px) {
+/* The column layouts: a screen where the ring leaves a calm side. One scrim (a gradient of ground from the left edge,
+ * fading out past the column) darkens that side from top to bottom, so there are no separate patches to leave edges; the
+ * heading and the caption are one column. Its width is the room left of the ring's left edge at the overview.
+ *  - 4:3 and wider from 960 px wide (an iPad held wide, a small laptop): gutter 24 px, a 16 px gap to the ring, at most 300 px, and a
+ *    steeper fade (the ring is near);
+ *  - 16:10 from 1250 px wide, 3:2 from 1340 px wide: gutter 48 px, a 52 px gap, at most 360 px (this wins over the first). */
+.map-scrim {
+  display: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease-out;
+}
+.map-page[data-mode="explore"] .map-scrim {
+  opacity: 0;
+}
+@media (min-aspect-ratio: 4/3) and (min-width: 960px) {
   .map-page {
+    --map-gutter: 24px;
     --map-ring-left: calc(50vw - var(--map-fit-share) * min(100vw, 100dvh) / 2);
-    --map-text-w: min(360px, calc(var(--map-ring-left) - var(--map-gutter) - 52px));
+    --map-text-w: min(300px, calc(var(--map-ring-left) - var(--map-gutter) - 16px));
+    --scrim-fade: 40px;
   }
   .map-heading,
   .map-caption {
@@ -190,7 +208,32 @@
   }
   .map-heading::before,
   .map-caption::before {
-    --patch-right: 36px; /* ends 16 px before the ring's left edge (its soft rim reaches it) */
+    display: none;
+  }
+  .map-text {
+    font-size: var(--t-meta);
+  }
+  .map-scrim {
+    display: block;
+    --edge: calc(var(--map-gutter) + var(--map-text-w));
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--ground) 94%, transparent) var(--edge),
+      color-mix(in srgb, var(--ground) 80%, transparent) calc(var(--edge) + var(--scrim-fade) * 0.25),
+      color-mix(in srgb, var(--ground) 46%, transparent) calc(var(--edge) + var(--scrim-fade) * 0.5),
+      color-mix(in srgb, var(--ground) 14%, transparent) calc(var(--edge) + var(--scrim-fade) * 0.75),
+      transparent calc(var(--edge) + var(--scrim-fade))
+    );
+  }
+}
+@media (min-aspect-ratio: 3/2) and (min-width: 1340px), (min-aspect-ratio: 8/5) and (min-width: 1250px) {
+  .map-page {
+    --map-gutter: 48px;
+    --map-text-w: min(360px, calc(var(--map-ring-left) - var(--map-gutter) - 52px));
+    --scrim-fade: 84px;
+  }
+  .map-text {
+    font-size: var(--t-body);
   }
 }
 
@@ -237,6 +280,36 @@
 @media (max-width: 699.98px) {
   .map-page {
     --map-gutter: 16px;
+  }
+  /* R46: the paragraph is two lines and a button opens the rest in place; the whole paragraph stays in the document */
+  .map-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: var(--t-meta);
+  }
+  .map-heading[data-open] .map-text {
+    display: block;
+    overflow: visible;
+  }
+  .map-more {
+    display: inline-block;
+    margin: 4px 0 0;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink-1);
+    font: inherit;
+    font-size: var(--t-meta);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .map-more:focus-visible {
+    outline: 2px solid var(--ink-1);
+    outline-offset: 2px;
   }
   .map-caption {
     bottom: calc(var(--site-nav-height, 132px) + 28px + env(safe-area-inset-bottom));
