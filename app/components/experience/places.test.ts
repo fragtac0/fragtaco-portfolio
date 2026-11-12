@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { frameOf, toLonLat } from "./geo";
 import experience from "../../../content/site/experience.json";
-import { bearingOf, cliffPointAt, leaderOf, placePoint } from "./places";
+import { hits } from "./journey";
+import { bearingOf, cliffPointAt, leaderOf, placeDotBox, placeLabelBox, placePoint } from "./places";
 
 const frame = { ...frameOf({ lon: 226.795, lat: 18.366 }, 14), size: 8192 };
 const at = (r: number, deg: number) => {
@@ -69,5 +70,55 @@ describe("the content's places", () => {
 
   it("gives every place a label offset", () => {
     for (const p of experience.places) expect(p.label, p.id).toBeDefined();
+  });
+
+  // the overview's scale (screen px per picture px) for a screen: 0.78 of the smaller side over the cliff ring's 0.67 of 8192 px
+  const fit = (w: number, h: number) => (0.78 * Math.min(w, h)) / (0.67 * 8192);
+  const screens = [
+    { name: "1440 x 900", scale: fit(1440, 900), phone: false },
+    { name: "1920 x 1080", scale: fit(1920, 1080), phone: false },
+    { name: "1024 x 768", scale: fit(1024, 768), phone: false },
+    { name: "390 x 844", scale: fit(390, 844), phone: true },
+    { name: "360 x 740", scale: fit(360, 740), phone: true },
+  ];
+
+  it("keeps every label off every dot (its own and the others') and off every other label, on each screen", () => {
+    const spots = experience.places.map((p) => placePoint(p, experience.cliff.points, f));
+
+    for (const { name, scale, phone } of screens) {
+      const dots = spots.map((p) => ({ x: p.x * scale, y: p.y * scale }));
+      const boxes = experience.places.map((p, i) => placeLabelBox(dots[i], p, phone));
+
+      boxes.forEach((box, i) => {
+        dots.forEach((dot, k) => {
+          expect(hits(box, placeDotBox(dot)), `${experience.places[i].name}'s label on ${experience.places[k].name}'s dot at ${name}`).toBe(false);
+        });
+        for (let k = i + 1; k < boxes.length; k++) {
+          expect(hits(box, boxes[k]), `${experience.places[i].name}'s label on ${experience.places[k].name}'s at ${name}`).toBe(false);
+        }
+      });
+    }
+  });
+});
+
+describe("placeLabelBox", () => {
+  const place = { name: "Name", line: "x".repeat(60), label: { dx: 40, dy: -20 } };
+
+  it("puts a side label's near edge on the offset, centred up or down; a phone's offset is 0.6 of that", () => {
+    const side = placeLabelBox({ x: 100, y: 100 }, place, false);
+
+    expect(side.x0).toBe(140);
+    expect((side.y0 + side.y1) / 2).toBe(80);
+    const left = placeLabelBox({ x: 100, y: 100 }, { ...place, label: { dx: -40, dy: 0 } }, false);
+
+    expect(left.x1).toBe(60);
+    const above = placeLabelBox({ x: 100, y: 100 }, { ...place, label: { dx: 5, dy: -50 } }, false);
+
+    expect(above.y1).toBe(50);
+    expect((above.x0 + above.x1) / 2).toBe(105);
+    const below = placeLabelBox({ x: 100, y: 100 }, { ...place, label: { dx: 0, dy: 50 } }, false);
+
+    expect(below.y0).toBe(150);
+    expect(placeLabelBox({ x: 100, y: 100 }, place, true).x0).toBeCloseTo(124);
   });
 });

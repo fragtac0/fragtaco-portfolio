@@ -70,7 +70,19 @@ const motion = (label) => ({
 });
 
 const placesOk = (label) => ({
-  eval: run(`await settle();await sleep(500);const labels=[...document.querySelectorAll('.place-label')].map(R),dots=[...document.querySelectorAll('.place-dot')].map(R);let ov=0;for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++)if(hit(labels[i],labels[j]))ov++;const routeHidden=getComputedStyle(document.querySelector('.route')).opacity==='0',momentsHidden=getComputedStyle(document.querySelector('.map-pins-journey')).visibility==='hidden',names=[...document.querySelectorAll('.place-name')].map(n=>n.textContent),lines=[...document.querySelectorAll('.place-line')].map(n=>n.textContent.length>0&&getComputedStyle(n).display!=='none');return JSON.stringify({places:labels.length,names,labelOverlaps:ov,labelsInside:labels.every(inside),dotsInside:dots.every(inside),routeHidden,momentsHidden,oneLineEach:innerWidth>=700?lines.every(Boolean):'name only on a phone (the line is in the sheet)',ok:labels.length===8&&ov===0&&labels.every(inside)&&dots.every(inside)&&routeHidden&&momentsHidden})`),
+  eval: run(`await settle();await sleep(500);const labels=[...document.querySelectorAll('.place-label')].map(R),dots=[...document.querySelectorAll('.place-dot')].map(R);let ov=0,onDot=0;for(let i=0;i<labels.length;i++){for(let j=i+1;j<labels.length;j++)if(hit(labels[i],labels[j]))ov++;for(let k=0;k<dots.length;k++)if(hit(labels[i],dots[k]))onDot++}const routeHidden=getComputedStyle(document.querySelector('.route')).opacity==='0',momentsHidden=getComputedStyle(document.querySelector('.map-pins-journey')).visibility==='hidden',names=[...document.querySelectorAll('.place-name')].map(n=>n.textContent),lines=[...document.querySelectorAll('.place-line')].map(n=>n.textContent.length>0&&getComputedStyle(n).display!=='none');return JSON.stringify({places:labels.length,names,labelOverlaps:ov,labelOnDot:onDot,labelsInside:labels.every(inside),dotsInside:dots.every(inside),routeHidden,momentsHidden,oneLineEach:innerWidth>=700?lines.every(Boolean):'name only on a phone (the line is in the sheet)',ok:labels.length===8&&ov===0&&onDot===0&&labels.every(inside)&&dots.every(inside)&&routeHidden&&momentsHidden})`),
+  label,
+});
+
+// the title and the Journey / Places switch share no pixel, the switch is inside the screen, and the paragraph starts below it
+const topRow = (label) => ({
+  eval: run(`await settle();const t=document.querySelector('.map-title'),g=document.createRange();g.selectNodeContents(t);const tr=g.getBoundingClientRect(),title={x0:tr.left,y0:tr.top,x1:tr.right,y1:tr.bottom},sw=R(document.querySelector('.map-mode')),text=R(document.querySelector('.map-text'));return JSON.stringify({title:[title.x0,title.y0,title.x1,title.y1].map(Math.round),switch:[sw.x0,sw.y0,sw.x1,sw.y1].map(Math.round),text:[text.x0,text.y0,text.x1,text.y1].map(Math.round),titleOnSwitch:hit(title,sw),switchOnText:hit(sw,text),switchInside:inside(sw),ok:!hit(title,sw)&&!hit(sw,text)&&inside(sw)})`),
+  label,
+});
+
+// explore, all cards: date, title and line (the line hidden only on a collapsed card), none on another card or on a dot, the active one in full
+const cardsOk = (label) => ({
+  eval: run(`await settle();await sleep(400);const all=[...document.querySelectorAll('.moment')].map(m=>({m,c:m.querySelector('.moment-card'),r:R(m.querySelector('.moment-card')),d:R(m.querySelector('.moment-dot'))})),on=all.filter(x=>getComputedStyle(x.c).visibility==='visible'&&x.r.x1>0&&x.r.x0<innerWidth&&x.r.y1>0&&x.r.y0<innerHeight);let overlaps=0,onDot=0;for(let i=0;i<on.length;i++){for(let j=i+1;j<on.length;j++)if(hit(on[i].r,on[j].r))overlaps++;for(const o of all)if(o!==on[i]&&hit(on[i].r,o.d))onDot++}const words=on.every(x=>x.c.querySelector('.moment-date').textContent&&x.c.querySelector('.moment-title').textContent&&x.c.querySelector('.moment-line').textContent),lineShown=on.every(x=>x.m.hasAttribute('data-compact')?getComputedStyle(x.c.querySelector('.moment-line')).display==='none':getComputedStyle(x.c.querySelector('.moment-line')).display!=='none'),compact=on.filter(x=>x.m.hasAttribute('data-compact')).length,activeFull=on.filter(x=>x.m.hasAttribute('data-active')&&x.m.hasAttribute('data-compact')).length===0,clickable=on.every(x=>getComputedStyle(x.c).pointerEvents==='auto');return JSON.stringify({cardsOnScreen:on.length,sides:on.map(x=>x.m.dataset.cardSide+(x.m.hasAttribute('data-compact')?'c':'')),collapsed:compact,overlaps,onDot,words,lineShown,activeFull,clickable,ok:on.length>=2&&overlaps===0&&onDot===0&&words&&lineShown&&activeFull&&clickable})`),
   label,
 });
 
@@ -78,6 +90,7 @@ const r453 = [
   { size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/experience", wait: 2500 },
   markers("R45.3 desktop overview: nine markers visible and clear of each other, pills inside, nothing at the summit, the end is the ping, the line is 2 px"),
   motion("the route draws over 1.6 s and the ping rings every 2.4 s"),
+  topRow("desktop: the title and the switch share no pixel"),
   { shot: "r45-experience-warm" },
   { shot: "r45-experience-desktop-overview" },
   // text behind the heading and caption: hide the words and sample the picture (grid 8 x 6: heading columns 0 to 1 rows 0 to 2, caption rows 4 to 5)
@@ -97,10 +110,19 @@ const r453 = [
   { key: "[", vk: 219 },
   { eval: run(`await settle();const cur=[...document.querySelectorAll('.moment-button')].findIndex(b=>b.getAttribute('aria-current')==='true');return JSON.stringify({current:cur,ok:cur===2})`), label: "[ twice goes back two moments (Jun 2021)" },
   { eval: run(`const first=document.querySelector('.map-pins-journey .moment:nth-child(1) .moment-title');return JSON.stringify({struck:first.querySelector('s')?.textContent,title:first.textContent,ok:first.querySelector('s')?.textContent==='IIT'})`), label: "IIT is struck through (an <s>) in the first card" },
+  // explore at 3 times the overview's zoom around Feb and Jun 2021: every card has its words; a click on a card's words picks it; a drag that starts on one pans
+  cardsOk("explore (Jun 2021 active, about 3x): every card on screen shows its date, title and line, none on another card or a dot"),
+  { shot: "r45-experience-3x-warm" },
+  { shot: "r45-experience-3x-feb-jun-2021" },
+  { click: ctr('.map-pins-journey .moment:nth-child(2) .moment-title') },
+  { eval: run(`const v=await settle(),b=document.querySelector('${momentBtn(2)}'),r=R(b),cur=[...document.querySelectorAll('.moment-button')].findIndex(x=>x.getAttribute('aria-current')==='true');window.__v0=P();return JSON.stringify({current:cur,mode:${PAGE}.dataset.mode,centreOff:[+((r.x0+r.x1)/2-innerWidth/2).toFixed(1),+((r.y0+r.y1)/2-innerHeight/2).toFixed(1)],clampedAtRightEdge:Math.abs(v.cx-(8192-innerWidth/(2*v.s)))<1,ok:cur===1&&${PAGE}.dataset.mode==='explore'&&(Math.abs((r.x0+r.x1)/2-innerWidth/2)<2||Math.abs(v.cx-(8192-innerWidth/(2*v.s)))<1)&&Math.abs((r.y0+r.y1)/2-innerHeight/2)<2})`), label: "a click on the words of the Feb 2021 card picks it and flies to it (Feb 2021 is near the picture's right edge, so the view stops at the edge, not centred)" },
+  { mdrag: `(()=>{const r=document.querySelector('.map-pins-journey .moment:nth-child(3) .moment-title').getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return [x,y,x+160,y+90,12]})()` },
+  { eval: run(`const v=await settle(),a=window.__v0,cur=[...document.querySelectorAll('.moment-button')].findIndex(x=>x.getAttribute('aria-current')==='true');return JSON.stringify({moved:[+(v.cx-a.cx).toFixed(1),+(v.cy-a.cy).toFixed(1)],current:cur,ok:Math.abs(v.cx-a.cx)>20&&Math.abs(v.cy-a.cy)>10&&cur===1&&Math.abs(v.s-a.s)<1e-6})`), label: "a drag that starts on the Jun 2021 card pans the map and does not pick it (still Feb 2021)" },
+  { eval: `document.querySelector('.map-page').dataset.mode`, label: "still explore" },
   { key: "Escape", vk: 27 },
   // Places
   { eval: `document.querySelector('.map-mode-button:nth-child(2)').click();1` },
-  placesOk("Places: 8 labels clear of each other and inside the screen, the route and the moments hidden"),
+  placesOk("Places: 8 labels clear of each other and of every dot, inside the screen, the route and the moments hidden"),
   { eval: run(`const rupes=document.querySelectorAll('.place')[4],x=+rupes.style.getPropertyValue('--x'),y=+rupes.style.getPropertyValue('--y');return JSON.stringify({rupes:rupes.querySelector('.place-name').textContent,at:[x,y],note:'checked against the cliff trace by places.test.ts and the content test'})`), label: "Olympus Rupes position (picture px)" },
   { shot: "r45-experience-warm3" },
   { shot: "r45-experience-desktop-places" },
@@ -127,14 +149,33 @@ const r453 = [
   { shot: "r45-experience-warm5" },
   { shot: "r45-experience-phone-explore" },
   { eval: `document.querySelector('.map-mode-button:nth-child(2)').click();document.querySelector('[aria-label="Show the whole mountain"]').click();1` },
-  placesOk("phone Places: 8 names clear of each other and inside the screen"),
+  placesOk("phone Places: 8 names clear of each other and of every dot, inside the screen"),
   { shot: "r45-experience-warm6" },
   { shot: "r45-experience-phone-places" },
+  // 360 x 740 and 320 x 568: the title and the switch never share a pixel (the switch goes under the title), nine markers clear, places clear
+  { size: [360, 740], dpr: 2, mobile: true, touch: true, go: "{{BASE}}/experience", wait: 2500 },
+  topRow("360 x 740: the title and the switch share no pixel"),
+  markers("R45.3 360 x 740 overview: nine markers visible and clear of each other, pills inside, nothing at the summit"),
+  { eval: `document.querySelector('.map-more').click();new Promise(r=>setTimeout(()=>r(1),200))` },
+  topRow("360 x 740 with the paragraph open: the title and the switch share no pixel"),
+  { eval: `document.querySelector('.map-more').click();document.querySelector('.map-mode-button:nth-child(2)').click();new Promise(r=>setTimeout(()=>r(1),600))` },
+  placesOk("360 x 740 Places: 8 names clear of each other and of every dot, inside the screen"),
+  { shot: "r45-experience-360x740-places-warm" },
+  { shot: "r45-experience-360x740-places" },
+  { eval: `document.querySelector('.map-mode-button:nth-child(1)').click();new Promise(r=>setTimeout(()=>r(1),600))` },
+  { shot: "r45-experience-360x740-warm" },
+  { shot: "r45-experience-360x740" },
+  { size: [320, 568], dpr: 2, mobile: true, touch: true, go: "{{BASE}}/experience", wait: 2500 },
+  topRow("320 x 568: the title and the switch share no pixel"),
+  { shot: "r45-experience-320x568-warm" },
+  { shot: "r45-experience-320x568" },
   { size: [1024, 768], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/experience", wait: 2500 },
   markers("R45.3 1024 x 768: nine markers visible and clear, pills inside"),
   { eval: run(`const r=q=>R(document.querySelector(q)),h=r('.map-heading'),c=r('.map-caption'),ringTop=innerHeight/2-0.78*Math.min(innerWidth,innerHeight)/2,ringLeft=innerWidth/2-0.78*Math.min(innerWidth,innerHeight)/2;return JSON.stringify({headingRight:Math.round(h.x1),captionRight:Math.round(c.x1),ringLeft:Math.round(ringLeft),headingBottom:Math.round(h.y1),captionTop:Math.round(c.y0),ok:h.x1<=ringLeft&&c.x1<=ringLeft&&h.y1<c.y0&&c.y1<=innerHeight})`), label: "1024 x 768: heading and caption stay left of the cliff ring (the mountain is clear), heading above caption" },
   { shot: "r45-experience-1024x768-warm" },
   { shot: "r45-experience-1024x768" },
+  { eval: `document.querySelector('.map-mode-button:nth-child(2)').click();new Promise(r=>setTimeout(()=>r(1),600))` },
+  placesOk("1024 x 768 Places: 8 labels clear of each other and of every dot, inside the screen"),
   { size: [1920, 1080], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/experience", wait: 2500 },
   markers("R45.3 1920 x 1080: nine markers visible and clear"),
   { shot: "r45-experience-1920x1080-warm" },

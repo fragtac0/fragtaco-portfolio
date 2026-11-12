@@ -39,7 +39,9 @@ const ARROW_TAP_MS = 50;
 
 export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hooks: InputHooks): MapControls {
   const pts = new Map<number, Pt>();
-  let drag: { id: number; x: number; y: number; sx: number; sy: number; moved: boolean } | null = null;
+  // `onMarker`: the press began on a marker or a card. It is not captured (a click must still reach the marker), so it
+  // only becomes a drag, and takes the pointer, once it has moved past the slop; the click that follows a drag is swallowed.
+  let drag: { id: number; x: number; y: number; sx: number; sy: number; moved: boolean; onMarker: boolean } | null = null;
   let pinch: { start: View; dist: number; mid: Pt; from: Mode } | null = null;
   let tap: Tap | null = null;
   let lastWheel = 0;
@@ -83,8 +85,16 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
   }
 
   const isUi = (t: EventTarget | null) => t instanceof Element && t.closest("[data-map-ui]") !== null;
-  // a press on a marker or a card is its own (a click), not the start of a drag; the wheel over one still zooms
-  const isHit = (t: EventTarget | null) => isUi(t) || (t instanceof Element && t.closest("[data-map-hit]") !== null);
+  // a press on a marker or a card is a click unless it moves (then it pans like any other press); the wheel over one still zooms
+  const isMarker = (t: EventTarget | null) => t instanceof Element && t.closest("[data-map-hit]") !== null;
+
+  /** A drag that began on a marker ends with a click on the map's own element; swallow it so the marker is not picked. */
+  function swallowNextClick() {
+    const swallow = (ev: Event) => ev.stopPropagation();
+
+    root.addEventListener("click", swallow, { capture: true, once: true });
+    setTimeout(() => root.removeEventListener("click", swallow, { capture: true }), 0);
+  }
 
   function startPinch() {
     const [a, b] = [...pts.values()];
@@ -97,18 +107,24 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
     drag = null;
   }
 
-  function onDown(e: PointerEvent) {
-    if (isHit(e.target) || (e.pointerType === "mouse" && e.button !== 0)) return;
+  function capture(id: number) {
     try {
-      root.setPointerCapture(e.pointerId);
+      root.setPointerCapture(id);
     } catch {
       /* the pointer is already gone */
     }
+  }
+
+  function onDown(e: PointerEvent) {
+    if (isUi(e.target) || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const onMarker = isMarker(e.target);
+
+    if (!onMarker) capture(e.pointerId);
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pts.size === 2) startPinch();
     else if (pts.size === 1) {
-      map.setView(map.view()); // stop a move in flight where it is
-      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, moved: false };
+      if (!onMarker) map.setView(map.view()); // stop a move in flight where it is
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, moved: false, onMarker };
     }
   }
 
@@ -128,6 +144,11 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
       report();
     } else if (drag && drag.id === e.pointerId) {
       if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < DRAG_SLOP) return;
+      if (drag.onMarker && !drag.moved) {
+        capture(e.pointerId);
+        map.setView(map.view()); // stop a move in flight where it is
+        swallowNextClick();
+      }
       drag.moved = true;
       root.dataset.drag = "1";
       // the overview has nothing to pan: the picture is whole
@@ -155,11 +176,11 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
         drag = null; // the finger left down is not a drag
       }
     } else if (drag && drag.id === e.pointerId) {
-      const moved = drag.moved;
+      const { moved, onMarker } = drag;
 
       drag = null;
       delete root.dataset.drag;
-      if (moved || e.type !== "pointerup") return;
+      if (moved || onMarker || e.type !== "pointerup") return;
       const now: Tap = { t: e.timeStamp, x: e.clientX, y: e.clientY };
 
       if (isDoubleTap(tap, now)) {

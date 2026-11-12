@@ -3,6 +3,7 @@ import manifestJson from "../../../public/mars/manifest.json";
 import { usePageArrived, usePageSettled } from "../../lib/use-page-settled";
 import type { SiteExperience } from "../../types";
 import { useReducedMotion } from "../work/gallery/use-reduced-motion";
+import { planCards, scaleOfStep, zoomStepOf } from "./card-layout";
 import EdgeFocus from "./edge-focus";
 import { StruckTitle, MomentList } from "./experience-plain";
 import { ManifestSchema, type Manifest } from "./geo";
@@ -21,6 +22,7 @@ import RouteLayer from "./route-layer";
 import { CLIFF_SPAN, FIT_RING_SHARE, type View } from "./view";
 import "./experience.css";
 import "./map-layers.css";
+import "./map-cards.css";
 import "./map-places.css";
 
 /** The tile pyramid's description (`public/mars/manifest.json`, made by `yarn mars`), checked once on load. */
@@ -73,6 +75,16 @@ export default function ExperiencePage({ experience, today }: { experience: Site
   const spots = useMemo(() => places.map((p) => placePoint(p, experience.cliff.points, frame)), [places, experience.cliff, frame]);
   const [layer, setLayer] = useState<Layer>("journey");
   const [active, setActive] = useState<number | null>(null);
+  // the zoom in quarter octaves (null until the map has a view): the cards are laid out again when it or the active moment changes, not every frame
+  const [zoomStep, setZoomStep] = useState<number | null>(null);
+  const stepRef = useRef<number | null>(null);
+  const cards = useMemo(
+    () =>
+      zoomStep === null
+        ? null
+        : planCards(journey.moments, moments, journey.moments.map((m) => m.placement), scaleOfStep(zoomStep), active),
+    [zoomStep, journey, moments, active],
+  );
   const [activePlace, setActivePlace] = useState<number | null>(null);
   const settled = usePageSettled();
   const page = useRef<HTMLElement>(null);
@@ -135,7 +147,15 @@ export default function ExperiencePage({ experience, today }: { experience: Site
     try {
       map = createMap(cv, MANIFEST, {
         reduced,
-        onView: (v) => writeView(el, v),
+        onView: (v) => {
+          writeView(el, v);
+          const step = zoomStepOf(v.scale);
+
+          if (step !== stepRef.current) {
+            stepRef.current = step;
+            setZoomStep(step);
+          }
+        },
         onPaint: () => {
           el.dataset.painted = String(Math.round(performance.now() - t0)); // milliseconds after the change ended
         },
@@ -186,7 +206,7 @@ export default function ExperiencePage({ experience, today }: { experience: Site
       <EdgeFocus />
       <div className="map-scrim" aria-hidden="true" />
       <div className="map-plane" aria-hidden="true">
-        <RouteLayer journey={journey} travelled={layer === "journey" && state.mode === "explore" && active !== null ? journey.moments[active].s : null} />
+        <RouteLayer journey={journey} size={MANIFEST.size} travelled={layer === "journey" && state.mode === "explore" && active !== null ? journey.moments[active].s : null} />
       </div>
       <div className="map-pins" role="group" aria-label={layer === "journey" ? "Moments on the map" : "Places on the map"} data-layer={layer}>
         <div className="map-pins-journey">
@@ -195,6 +215,7 @@ export default function ExperiencePage({ experience, today }: { experience: Site
               key={moment.id}
               moment={moment}
               spot={journey.moments[i]}
+              card={cards?.[i] ?? null}
               active={active === i}
               now={moment.date === "now"}
               onPick={() => pickMoment(i)}

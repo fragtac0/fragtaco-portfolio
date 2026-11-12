@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { frameOf } from "./geo";
 import experience from "../../../content/site/experience.json";
-import { buildJourney, dotBox, hits, labelBox, LABEL_SCALE, placementFor, stepMoment, yearOf } from "./journey";
+import { buildJourney, chooseSides, dotBox, hits, labelBox, LABEL_SCALE, placementFor, stepMoment, yearOf, type Placement } from "./journey";
 
 const frame = { ...frameOf({ lon: 226.795, lat: 18.366 }, 14), size: 8192 };
 const route = [
@@ -37,13 +37,49 @@ describe("buildJourney", () => {
     expect(yearOf({ id: "x", date: "2024-06-10", label: "x" })).toBe("2024");
   });
 
-  it("puts neighbours' labels on opposite sides", () => {
-    for (let i = 1; i < j.moments.length; i++) {
-      const a = j.moments[i - 1].placement;
-      const b = j.moments[i].placement;
+  it("sits no year's pill on another pill or on any dot, at the scale it is fitted for, when the moments are spread along the line", () => {
+    const spread = [
+      { id: "a", date: "2017", label: "2017" },
+      { id: "b", date: "2019-06", label: "Jun 2019" },
+      { id: "c", date: "2022-01", label: "Jan 2022" },
+      { id: "d", date: "2024-06", label: "Jun 2024" },
+      { id: "now", date: "now", label: "Now" },
+    ];
+    const sj = buildJourney(route, spread, "2026-11-12", frame);
+    const boxes = sj.moments.map((m) => labelBox(m, m.placement, m.year, LABEL_SCALE));
 
-      expect(a === b).toBe(false);
-    }
+    boxes.forEach((a, i) => {
+      sj.moments.forEach((m, k) => {
+        if (k !== i) expect(hits(a, dotBox(m, LABEL_SCALE)), `pill ${i} on dot ${k}`).toBe(false);
+        if (k > i) expect(hits(a, boxes[k]), `pill ${i} on pill ${k}`).toBe(false);
+      });
+    });
+  });
+});
+
+describe("chooseSides", () => {
+  const years = ["2021", "2021", "2021"];
+
+  it("keeps the preferred side of a moment that has room", () => {
+    const far = [{ x: 0, y: 0 }, { x: 2000, y: 0 }, { x: 0, y: 2000 }];
+
+    expect(chooseSides(far, ["n", "e", "w"], years)).toEqual(["n", "e", "w"]);
+  });
+
+  it("moves a pill off the side where it would sit on another moment's dot", () => {
+    // at LABEL_SCALE, 300 px of picture is about 14 screen px: B's dot is where A's pill would go
+    const pair = [{ x: 0, y: 0 }, { x: 0, y: -250 }];
+    const sides = chooseSides(pair, ["n", "s"], ["2021", "2022"]);
+
+    expect(sides[0]).not.toBe("n");
+  });
+
+  it("gives back the preferred sides when no choice clears everything", () => {
+    // ten moments on one spot: at most a few pills fit round a dot
+    const crowd = Array.from({ length: 10 }, () => ({ x: 100, y: 100 }));
+    const preferred: Placement[] = ["n", "s", "e", "w", "ne", "nw", "se", "sw", "n", "s"];
+
+    expect(chooseSides(crowd, preferred, crowd.map(() => "2021"))).toEqual(preferred);
   });
 });
 

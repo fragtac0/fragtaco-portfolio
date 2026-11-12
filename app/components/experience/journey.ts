@@ -1,6 +1,6 @@
 // The journey on the map (spec 9.3): the route as one curve in picture pixels, and where each moment sits on it
 // with the side its label takes. Pure maths, no DOM, no clock ("today" is passed in).
-import { toPixel, type Frame, type LonLat, type Point } from "./geo";
+import type { Frame, LonLat, Point } from "./geo";
 import { momentPositions, routeCurve } from "./route";
 
 export type Placement = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
@@ -53,23 +53,26 @@ export const LABEL_SCALE = 0.048;
 
 export type Rect = { x0: number; y0: number; x1: number; y1: number };
 
-/** Where a year's pill sits relative to its dot, in screen px (the CSS in map-layers.css puts it the same way). */
-function labelRect(side: Placement, w: number): Rect {
+/**
+ * Where a box of `w` by `h` screen px sits relative to its dot for a side (the CSS in map-layers.css puts a year's
+ * pill and a card the same way: 12 px off the dot on the four sides, 8 px on the diagonals).
+ */
+export function sideRect(side: Placement, w: number, h: number = LABEL.h): Rect {
   const g = LABEL.gap;
 
-  if (side === "n") return { x0: -w / 2, x1: w / 2, y0: -g - LABEL.h, y1: -g };
-  if (side === "s") return { x0: -w / 2, x1: w / 2, y0: g, y1: g + LABEL.h };
-  if (side === "e") return { x0: g, x1: g + w, y0: -LABEL.h / 2, y1: LABEL.h / 2 };
-  if (side === "w") return { x0: -g - w, x1: -g, y0: -LABEL.h / 2, y1: LABEL.h / 2 };
+  if (side === "n") return { x0: -w / 2, x1: w / 2, y0: -g - h, y1: -g };
+  if (side === "s") return { x0: -w / 2, x1: w / 2, y0: g, y1: g + h };
+  if (side === "e") return { x0: g, x1: g + w, y0: -h / 2, y1: h / 2 };
+  if (side === "w") return { x0: -g - w, x1: -g, y0: -h / 2, y1: h / 2 };
   const d = LABEL.diag;
   const x = side === "ne" || side === "se" ? { x0: d, x1: d + w } : { x0: -d - w, x1: -d };
 
-  return side === "ne" || side === "nw" ? { ...x, y0: -d - LABEL.h, y1: -d } : { ...x, y0: d, y1: d + LABEL.h };
+  return side === "ne" || side === "nw" ? { ...x, y0: -d - h, y1: -d } : { ...x, y0: d, y1: d + h };
 }
 
 /** A year's pill and the dot's disc as screen rectangles for a moment at picture pixel `p` and `scale` (the audit and the tests use these too). */
 export function labelBox(p: Point, side: Placement, year: string, scale: number): Rect {
-  const r = labelRect(side, year.length * 7.2 + 12);
+  const r = sideRect(side, year.length * 7.2 + 12);
 
   return { x0: p.x * scale + r.x0, x1: p.x * scale + r.x1, y0: p.y * scale + r.y0, y1: p.y * scale + r.y1 };
 }
@@ -140,9 +143,4 @@ export function stepMoment(active: number | null, dir: -1 | 1, count: number): n
   if (active === null) return dir === 1 ? 0 : count - 1;
 
   return Math.min(count - 1, Math.max(0, active + dir));
-}
-
-/** Where a place is on the picture: at its own longitude and latitude. */
-export function pointOf(p: LonLat, frame: Frame): Point {
-  return toPixel(p.lon, p.lat, frame);
 }

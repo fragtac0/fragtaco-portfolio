@@ -320,6 +320,12 @@
     bottom: calc(var(--site-nav-height, 132px) + 28px + env(safe-area-inset-bottom));
   }
 }
+/* room for the Journey / Places switch under the title (map-places.css): 8 px gap, the switch's 40 px, 8 px */
+@media (max-width: 399.98px) {
+  .map-text {
+    margin-top: 56px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .map-heading,
   .map-caption,

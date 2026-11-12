@@ -1,0 +1,111 @@
+/*
+ * The cards of the moments in explore (moment-marker.tsx, laid out by card-layout.ts): the date, the title and the
+ * line, on the side of the dot the layout chose (`data-card-side`). The year pills, the dots and the ping are in
+ * map-layers.css; same variables. A card's width, padding and line heights here are the numbers in card-layout.ts (`CARD`).
+ */
+
+/* the card (explore): the date, the title and the line. Where two cards cannot both fit at the zoom (card-layout.ts) the
+ * one that is not active is collapsed to the date and the title (data-compact), and its line shows on hover or focus. */
+.moment-card {
+  box-sizing: border-box;
+  width: 224px; /* card-layout.ts CARD.w, with the padding and the line heights there */
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgb(var(--glass-rgb) / 0.86);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 250ms ease-out, visibility 0s linear 250ms;
+}
+.moment[data-card-side="n"] .moment-card {
+  left: 50%;
+  bottom: calc(100% - 2px);
+  transform: translateX(-50%);
+}
+.moment[data-card-side="s"] .moment-card {
+  left: 50%;
+  top: calc(100% - 2px);
+  transform: translateX(-50%);
+}
+.moment[data-card-side="e"] .moment-card {
+  left: calc(100% - 2px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+.moment[data-card-side="w"] .moment-card {
+  right: calc(100% - 2px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+.moment[data-card-side="ne"] .moment-card {
+  left: calc(100% - 6px);
+  bottom: calc(100% - 6px);
+}
+.moment[data-card-side="nw"] .moment-card {
+  right: calc(100% - 6px);
+  bottom: calc(100% - 6px);
+}
+.moment[data-card-side="se"] .moment-card {
+  left: calc(100% - 6px);
+  top: calc(100% - 6px);
+}
+.moment[data-card-side="sw"] .moment-card {
+  right: calc(100% - 6px);
+  top: calc(100% - 6px);
+}
+.moment-date {
+  display: block;
+  font-size: var(--t-micro);
+  line-height: 14px;
+  color: var(--ink-3);
+}
+.moment-title {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--t-meta);
+  line-height: 17px;
+  color: var(--ink-1);
+}
+.moment-title s {
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--accent);
+}
+.moment-line {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--t-micro);
+  line-height: 15px;
+  color: var(--ink-2);
+}
+.moment[data-compact] .moment-line {
+  display: none;
+}
+.map-page[data-mode="explore"] .moment-card {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+  pointer-events: auto; /* the words are clickable (a click flies to the moment); a drag that starts on one still pans (map-input.ts) */
+  cursor: pointer;
+}
+.map-page[data-mode="explore"] .moment-year {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 250ms ease-out, visibility 0s linear 250ms;
+}
+.moment[data-active] {
+  z-index: 2;
+}
+.moment:hover,
+.moment:focus-within {
+  z-index: 3;
+}
+.moment[data-active] .moment-card,
+.moment-button:hover .moment-card,
+.moment-button:focus-visible .moment-card {
+  border-color: var(--accent);
+  background: rgb(var(--glass-rgb) / 0.94);
+}
+.moment[data-compact] .moment-button:hover .moment-line,
+.moment[data-compact] .moment-button:focus-visible .moment-line {
+  display: block;
+}

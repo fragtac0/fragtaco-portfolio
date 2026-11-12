@@ -227,6 +227,16 @@
   }
 }
 
+/* Under 400 px the title (187 px wide) and the switch (161 px) do not share a row: the switch goes under the title, left,
+ * and the paragraph (experience.css) starts below it. */
+@media (max-width: 399.98px) {
+  .map-mode {
+    top: 62px;
+    right: auto;
+    left: 16px;
+  }
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   .route,
