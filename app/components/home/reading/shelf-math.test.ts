@@ -1,19 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
-  CAMERA,
   DROP,
   DROP_FALL,
-  FOV_DEG,
   FRONT,
   INCH,
   STAG,
+  SHELF_GAP,
   WALLZ,
   bookSize,
-  cameraAt,
   clamp,
   dropProgress,
   easeOut,
-  fitCamera,
+  flatFit,
+  flatFrame,
   flick,
   initialCamX,
   introSeconds,
@@ -22,7 +21,6 @@ import {
   openPhases,
   panFromDrag,
   spring,
-  visibleFraction,
   wheelPanPx,
 } from "./shelf-math";
 
@@ -34,13 +32,6 @@ describe("constants", () => {
     expect(DROP).toBe(1.5);
     expect(STAG).toBe(0.09);
     expect(DROP_FALL).toBe(0.6);
-    expect(CAMERA).toEqual({
-      lookY: 0.88,
-      lift: 0.1,
-      tilt: 0.09,
-      dollyFrom: 1.12,
-      dollyS: 2.6,
-    });
   });
 });
 
@@ -119,50 +110,98 @@ describe("spring", () => {
   });
 });
 
-describe("fitCamera", () => {
-  const half = (26 / 2) * (Math.PI / 180);
-  it("is at least the distance that fits the needed height", () => {
-    const { dist } = fitCamera({ fovDeg: 26, aspect: 1.6, span: 1.6 });
-    expect(dist).toBeGreaterThanOrEqual(3.05 / 2 / Math.tan(half));
+const HEIGHTS = [8.5, 9, 8, 9, 9.5, 9, 9.3, 7.2, 7.2, 7.8, 10, 9, 11, 8.25];
+const PAGES = [146, 254, 220, 160, 466, 195, 432, 160, 224, 176, 224, 224, 176, 368];
+/** The real 14 books: the row's width and the tallest spine, in world units. */
+const row = (() => {
+  const sizes = HEIGHTS.map((heightIn, i) => bookSize({ heightIn, aspect: 0.66, pages: PAGES[i] }));
+  const span = sizes.reduce((sum, s) => sum + s.T, 0) + SHELF_GAP * (sizes.length - 1);
+  return { span, tallest: Math.max(...sizes.map((s) => s.H)) };
+})();
+/** The sizes the review looks at (layer width by height). */
+const SIZES: Array<[number, number]> = [
+  [320, 568],
+  [390, 844],
+  [820, 1180],
+  [1024, 768],
+  [1440, 900],
+  [2560, 1440],
+];
+
+describe("flatFit", () => {
+  it("fits the row to 88% of the width when that is smaller than the height rule", () => {
+    // a row 1.5 wide and 1 high on a 1000 by 1000 stage: the width rule gives 586.7, the height rule 780
+    const f = flatFit({ vw: 1000, vh: 1000, rowWidth: 1.5, tallest: 1 });
+    expect(f.scale).toBeCloseTo(880 / 1.5, 10);
+    expect(f.pans).toBe(false);
   });
-  it("has no pan range when the shelf fits", () => {
-    expect(fitCamera({ fovDeg: 26, aspect: 1.6, span: 1.6 }).maxX).toBe(0);
+  it("fits the tallest spine to 78% of the height when the row has room", () => {
+    const f = flatFit({ vw: 2000, vh: 800, rowWidth: 2, tallest: 1 });
+    expect(f.scale).toBeCloseTo(624, 10);
+    expect(f.pans).toBe(false);
   });
-  it("has a pan range on a narrow viewport", () => {
-    expect(fitCamera({ fovDeg: 26, aspect: 0.46, span: 14 }).maxX).toBeGreaterThan(0);
+  it("keeps 56% of the height and pans when the width rule would shrink the tallest below it", () => {
+    const f = flatFit({ vw: 390, vh: 844, rowWidth: 3, tallest: 1 });
+    expect(f.pans).toBe(true);
+    expect(f.scale).toBeCloseTo(0.56 * 844, 10);
   });
-  it("keeps the height fit as a floor and caps the pull-back", () => {
-    const dH = 3.05 / 2 / Math.tan(half);
-    expect(fitCamera({ fovDeg: 26, aspect: 0.46, span: 14 }).dist).toBeCloseTo(dH * 1.3, 10);
-    // a wide screen and a long shelf: the width fit would be far back, so the 2.3 cap holds it
-    expect(fitCamera({ fovDeg: 26, aspect: 1.6, span: 14 }).dist).toBeCloseTo(dH * 2.3, 10);
-  });
-  it("never goes closer than the height fit, however wide the screen", () => {
-    const dH = 3.05 / 2 / Math.tan(half);
-    expect(fitCamera({ fovDeg: 26, aspect: 3, span: 1.6 }).dist).toBeCloseTo(dH, 10);
-  });
-  it("with a real shelf (span about 2.8) a wide screen sits at the height fit and a phone at 1.3 times it", () => {
-    const dH = 3.05 / 2 / Math.tan(half);
-    expect(fitCamera({ fovDeg: 26, aspect: 1.6, span: 2.8 }).dist).toBeCloseTo(dH, 10);
-    const phone = fitCamera({ fovDeg: 26, aspect: 0.46, span: 2.8 });
-    expect(phone.dist).toBeCloseTo(dH * 1.3, 10);
-    expect(phone.maxX).toBeGreaterThan(0);
+
+  describe("with the real 14 books", () => {
+    for (const [vw, vh] of SIZES) {
+      it(`${vw} by ${vh}: tallest spine 56% to 78% of the height, the row inside 88% of the width or panning`, () => {
+        const { scale, pans } = flatFit({ vw, vh, rowWidth: row.span, tallest: row.tallest });
+        const tall = (scale * row.tallest) / vh;
+        expect(tall).toBeLessThanOrEqual(0.78 + 1e-9);
+        expect(tall).toBeGreaterThanOrEqual(0.56 - 1e-9);
+        if (pans) {
+          expect(tall).toBeCloseTo(0.56, 9);
+          expect(scale * row.span).toBeGreaterThan(0.88 * vw);
+        } else {
+          expect(scale * row.span).toBeLessThanOrEqual(0.88 * vw + 1e-9);
+        }
+      });
+    }
+    it("fits whole on the wide screens and pans on the narrow ones", () => {
+      const pans = (vw: number, vh: number) =>
+        flatFit({ vw, vh, rowWidth: row.span, tallest: row.tallest }).pans;
+      expect(pans(1440, 900)).toBe(false);
+      expect(pans(2560, 1440)).toBe(false);
+      expect(pans(1024, 768)).toBe(false);
+      expect(pans(320, 568)).toBe(true);
+      expect(pans(390, 844)).toBe(true);
+      expect(pans(820, 1180)).toBe(true);
+    });
+    it("is as large as fits: at 1440 by 900 the tallest spine is 78% or the row 88%", () => {
+      const f = flatFit({ vw: 1440, vh: 900, rowWidth: row.span, tallest: row.tallest });
+      const tall = (f.scale * row.tallest) / 900;
+      const wide = (f.scale * row.span) / 1440;
+      expect(Math.max(tall / 0.78, wide / 0.88)).toBeCloseTo(1, 9);
+    });
   });
 });
 
-describe("cameraAt", () => {
-  it("starts pulled back and settles at the fitted distance", () => {
-    const start = cameraAt(0, 10);
-    expect(start.distance).toBeCloseTo(11.2, 10);
-    expect(start.lookY).toBe(0.88);
-    expect(start.y).toBeCloseTo(0.98 + 11.2 * 0.09, 10);
-    const end = cameraAt(5, 10);
-    expect(end.distance).toBeCloseTo(10, 10);
-    expect(end.y).toBeCloseTo(0.98 + 10 * 0.09, 10);
+describe("flatFrame", () => {
+  it("puts the books' feet at 90% of the height", () => {
+    expect(flatFrame({ vw: 1440, vh: 900, ...row }).baseRow).toBe(810);
   });
-  it("eases through the dolly", () => {
-    expect(cameraAt(1.3, 10).distance).toBeCloseTo(10 * (1.12 - 0.12 * 0.875), 10);
-  });
+  for (const [vw, vh] of SIZES) {
+    it(`${vw} by ${vh}: the pan range stops the row's ends inside the edges and covers the reach`, () => {
+      const f = flatFrame({ vw, vh, ...row });
+      const viewW = vw / f.scale;
+      if (!f.pans) {
+        expect(f.maxX).toBe(0);
+        expect(f.visible).toBe(1);
+        return;
+      }
+      expect(f.maxX).toBeGreaterThan(0);
+      // at the left end of the pan, the row's left edge is 6% of the width from the screen edge
+      expect(((f.maxX + viewW / 2 - row.span / 2) * f.scale) / vw).toBeCloseTo(0.06, 9);
+      expect(f.visible).toBeGreaterThan(0);
+      expect(f.visible).toBeLessThan(1);
+      // the whole visible range is the reach
+      expect(viewW + 2 * f.maxX).toBeCloseTo(f.reach, 9);
+    });
+  }
 });
 
 describe("openPhases", () => {
@@ -218,12 +257,13 @@ describe("initialCamX", () => {
 
 describe("panFromDrag", () => {
   it("drags the shelf with the pointer and clamps at the ends", () => {
-    expect(panFromDrag(0, -200, 8.6, 844, 0.82)).toBe(0.82);
-    expect(panFromDrag(0, 200, 8.6, 844, 0.82)).toBe(-0.82);
+    expect(panFromDrag(0, -200, 400, 0.3)).toBe(0.3);
+    expect(panFromDrag(0, 200, 400, 0.3)).toBe(-0.3);
   });
-  it("is today's formula inside the range", () => {
-    expect(panFromDrag(0, 40, 8.6, 844, 0.82)).toBeCloseTo(-0.367, 3);
-    expect(panFromDrag(0.2, -10, 8.6, 844, 0.82)).toBeCloseTo(0.2 + (10 * 8.6 * 0.9) / 844, 10);
+  it("follows the pointer one to one inside the range", () => {
+    // 40 px at 400 px per unit is 0.1 units, against the drag
+    expect(panFromDrag(0, 40, 400, 0.82)).toBeCloseTo(-0.1, 10);
+    expect(panFromDrag(0.2, -10, 400, 0.82)).toBeCloseTo(0.225, 10);
   });
 });
 
@@ -251,24 +291,6 @@ describe("flick", () => {
   });
 });
 
-describe("visibleFraction", () => {
-  const span = 2.4;
-  it("is 1 when the shelf fits (maxX is 0)", () => {
-    const aspect = 1.6;
-    const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span });
-    expect(maxX).toBe(0);
-    expect(visibleFraction(dist, aspect, FOV_DEG, span)).toBe(1);
-  });
-  it("is the share of the shelf on screen when it is wider than the screen", () => {
-    const aspect = 390 / 844;
-    const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span });
-    expect(maxX).toBeGreaterThan(0);
-    const f = visibleFraction(dist, aspect, FOV_DEG, span);
-    expect(f).toBeGreaterThan(0);
-    expect(f).toBeLessThan(1);
-  });
-});
-
 describe("markerLeft", () => {
   it("runs from the left end of the track to the right end", () => {
     expect(markerLeft(-0.8, 0.8, 0.4)).toBe(0);
@@ -289,18 +311,11 @@ describe("markerShown", () => {
   it("shows when there is somewhere to go and the thumb is shorter than the track", () => {
     expect(markerShown(0.3, 0.8)).toBe(true);
   });
-  it("hides in the gap where the shelf can still move but is all on screen", () => {
-    // needW <= visible width < needW / 0.9: maxX is above 0 and visibleFraction is 1
-    let gap = 0;
-    for (let aspect = 0.3; aspect <= 3; aspect += 0.01) {
-      const { dist, maxX } = fitCamera({ fovDeg: FOV_DEG, aspect, span: 2.4 });
-      const visible = visibleFraction(dist, aspect, FOV_DEG, 2.4);
-      if (maxX > 0 && visible >= 0.999) {
-        gap++;
-        expect(markerShown(maxX, visible)).toBe(false);
-      }
+  it("agrees with the flat frame at every width: shown exactly when the row pans", () => {
+    for (let vw = 300; vw <= 2600; vw += 25) {
+      const f = flatFrame({ vw, vh: 800, ...row });
+      expect(markerShown(f.maxX, f.visible)).toBe(f.pans);
     }
-    expect(gap).toBeGreaterThan(0);
   });
 });
 

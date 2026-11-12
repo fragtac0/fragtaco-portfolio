@@ -146,7 +146,7 @@ export function createShelfInput(
         canvas.classList.add("dragging");
       }
       if (!d.moved) return;
-      const x = panFromDrag(d.cx, dx, gl.dist, canvas.clientHeight, gl.maxX);
+      const x = panFromDrag(d.cx, dx, gl.scale, gl.maxX);
       const dtS = (e.timeStamp - d.t) / 1000;
       if (dtS > 0) {
         const inst = (x - cam.x) / dtS;
@@ -212,7 +212,7 @@ export function createShelfInput(
       e.preventDefault();
       const gl = ctx.scene();
       if (!gl || !ctx.running() || st.opened) return;
-      cam.x = clamp(cam.x + (px * gl.dist) / canvas.clientHeight, -gl.maxX, gl.maxX);
+      cam.x = clamp(cam.x + px / gl.scale, -gl.maxX, gl.maxX);
       cam.xV = 0;
       st.camTarget = null;
       st.flickV = 0;

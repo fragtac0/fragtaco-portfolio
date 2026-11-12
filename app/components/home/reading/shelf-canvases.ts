@@ -3,7 +3,7 @@ import type { SiteBook } from "~/types";
 /**
  * The shelf's painters: every texture is drawn on a 2D canvas, so the books need no image files.
  * Ported from the `Shelf` module of docs/redesign/mockups/home-v4.html (spineCanvas, coverCanvas,
- * backCanvas, topCanvas, foreCanvas, woodCanvas, blobCanvas, softRectCanvas, bandCanvas).
+ * backCanvas, topCanvas, foreCanvas, softRectCanvas).
  * Client only: every function creates a canvas. Fonts Lora 500, Tektur 700 and IBM Plex Mono 500
  * must be loaded first (the engine waits for them).
  */
@@ -299,45 +299,7 @@ export function foreCanvas(d: PaintBook): HTMLCanvasElement {
   return c;
 }
 
-export function woodCanvas(): HTMLCanvasElement {
-  const c = mk(1024, 128);
-  const x = ctx2d(c);
-  const g = x.createLinearGradient(0, 0, 0, 128);
-  g.addColorStop(0, "#4b3121");
-  g.addColorStop(1, "#25170e");
-  x.fillStyle = g;
-  x.fillRect(0, 0, 1024, 128);
-  for (let i = 0; i < 70; i++) {
-    x.strokeStyle = `rgba(${Math.random() < 0.5 ? "18,9,3" : "128,86,54"},${
-      0.08 + Math.random() * 0.12
-    })`;
-    x.lineWidth = 0.6 + Math.random() * 1.6;
-    x.beginPath();
-    const y0 = Math.random() * 128;
-    x.moveTo(0, y0);
-    for (let X = 0; X <= 1024; X += 32) {
-      x.lineTo(X, y0 + Math.sin(X * 0.006 + i) * 3 + Math.sin(X * 0.021 + i * 2) * 1.2);
-    }
-    x.stroke();
-  }
-  grain(x, 1024, 128, 0.1);
-  return c;
-}
-
-/** Contact shadow on the plank. */
-export function blobCanvas(): HTMLCanvasElement {
-  const c = mk(128, 128);
-  const x = ctx2d(c);
-  const g = x.createRadialGradient(64, 64, 4, 64, 64, 64);
-  g.addColorStop(0, "rgba(0,0,0,.9)");
-  g.addColorStop(0.5, "rgba(0,0,0,.42)");
-  g.addColorStop(1, "rgba(0,0,0,0)");
-  x.fillStyle = g;
-  x.fillRect(0, 0, 128, 128);
-  return c;
-}
-
-/** A book's shadow on the wall: a rectangle with a blurred edge. */
+/** A lifted book's shadow on the ground behind it: a rectangle with a blurred edge. */
 export function softRectCanvas(): HTMLCanvasElement {
   const c = mk(128, 256);
   const x = ctx2d(c);
@@ -345,26 +307,5 @@ export function softRectCanvas(): HTMLCanvasElement {
   x.shadowBlur = 26;
   x.shadowOffsetX = 600;
   x.fillRect(30 - 600, 30, 68, 196);
-  return c;
-}
-
-/** The plank's shadow on the wall below it. */
-export function bandCanvas(): HTMLCanvasElement {
-  const c = mk(256, 128);
-  const x = ctx2d(c);
-  const g = x.createLinearGradient(0, 0, 0, 128);
-  g.addColorStop(0, "rgba(0,0,0,.9)");
-  g.addColorStop(0.35, "rgba(0,0,0,.35)");
-  g.addColorStop(1, "rgba(0,0,0,0)");
-  x.fillStyle = g;
-  x.fillRect(0, 0, 256, 128);
-  const e = x.createLinearGradient(0, 0, 256, 0);
-  e.addColorStop(0, "rgba(0,0,0,0)");
-  e.addColorStop(0.12, "#000");
-  e.addColorStop(0.88, "#000");
-  e.addColorStop(1, "rgba(0,0,0,0)");
-  x.globalCompositeOperation = "destination-in";
-  x.fillStyle = e;
-  x.fillRect(0, 0, 256, 128);
   return c;
 }

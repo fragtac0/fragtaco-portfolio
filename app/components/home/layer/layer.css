@@ -99,8 +99,9 @@
 .home-layer .xp-pane:not(.on) {
   display: none;
 }
+/* the shelf stands on plain ground, so the spines are seen as painted (spec 8) */
 .home-layer .pane-read {
-  background: radial-gradient(52% 46% at 50% 42%, var(--surface-2) 0%, var(--surface-1) 45%, var(--ground) 100%);
+  background: var(--ground);
 }
 .home-layer .pane-watch {
   background: radial-gradient(75% 65% at 50% 46%, var(--surface-1) 0%, var(--ground) 80%);

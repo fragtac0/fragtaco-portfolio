@@ -1,6 +1,9 @@
 import type { Book, ShelfScene } from "./shelf-scene";
 import { dropProgress, DROP_FALL, easeOut, openPhases, spring, WALLZ } from "./shelf-math";
 
+/** How far a hovered or focused book rises (world units). */
+const HOVER_LIFT = 0.1;
+
 /** A spring, or a snap when motion is reduced. Returns whether it is still moving. */
 export type Animate = (
   o: Record<string, number>,
@@ -37,9 +40,9 @@ export type PoseInput = {
 };
 
 /**
- * One frame of every book: the drop-in, hover lift, the open-book path, and the contact and wall
- * shadows that stay behind on the plank and the wall while a book lifts away. Moves the three.js
- * objects only; the springs live in each book's `anim`. Returns whether anything is still moving.
+ * One frame of every book: the drop-in, hover lift, the open-book path, and the soft wall shadow a
+ * lifted book casts (none while a book stands in the row). Moves the three.js objects only; the
+ * springs live in each book's `anim`. Returns whether anything is still moving.
  */
 export function poseBooks(s: ShelfScene, f: PoseInput): boolean {
   let busy = false;
@@ -52,13 +55,13 @@ export function poseBooks(s: ShelfScene, f: PoseInput): boolean {
     if (animate(a, "hover", b === f.hover || b === f.focused ? 1 : 0, 9, dt)) busy = true;
     if (animate(a, "open", b === f.opened ? 1 : 0, 5, dt)) busy = true;
     p.copy(b.base);
-    p.y += a.hover * 0.12 + (1 - e) * DROP_FALL;
-    p.z += a.hover * 0.16;
+    p.y += a.hover * HOVER_LIFT + (1 - e) * DROP_FALL;
     // two phases: slide straight out of the shelf (+z), clear of the neighbours, then travel and turn
     const { pull, present } = a.open > 0.001 ? openPhases(a.open) : { pull: 0, present: 0 };
     p.z += pull * (b.W + 0.12);
     if (present > 0) p.lerp(b.openPos, present);
     b.g.position.copy(p);
+    b.g.scale.setScalar(1 + (b.openScale - 1) * present);
     q.copy(b.baseQ);
     if (present > 0) {
       q.slerp(s.qOpen, present);
@@ -68,21 +71,17 @@ export function poseBooks(s: ShelfScene, f: PoseInput): boolean {
     }
     b.g.quaternion.copy(q);
     const op = a.open > 0.01 ? 1 : keep * Math.min(1, k * 2.2);
-    if (b.mats[0].opacity !== op) for (const m of b.mats) m.opacity = op;
+    if (b.mats[0].opacity !== op) {
+      for (let m = 0; m < b.mats.length; m++) b.mats[m].opacity = b.litMats[m].opacity = op;
+    }
+    s.setLit(b, a.open > 0.001); // only the book that is open is lit
     b.g.visible = op > 0.004;
-    // shadows are their own animation: they stay behind on the plank and the wall while the book lifts away
-    const lift = Math.min(1, Math.max(1 - e, a.hover * 0.45, a.open));
-    b.contact.position.set(b.base.x + 0.015, 0.003, b.base.z + 0.03 + a.hover * 0.12);
-    b.contact.scale.set((b.T + 0.16) * (1 + 0.5 * lift), (b.W + 0.3) * (1 + 0.25 * lift), 1);
-    b.contact.material.opacity = 0.85 * (1 - lift) * keep;
-    b.wallSh.position.set(p.x + 0.07 + a.hover * 0.05, p.y + 0.02, WALLZ);
-    b.wallSh.scale.set(
-      (b.T * 2.2 + 0.32) * (1 + 0.3 * a.hover),
-      (b.H * 1.15 + 0.26) * (1 + 0.12 * a.hover),
-      1,
-    );
-    b.wallSh.material.opacity = 0.8 * e * (1 - 0.5 * a.hover) * (1 - a.open) * keep;
-    b.contact.visible = b.contact.material.opacity > 0.004;
+    // a lifted book has a soft, neutral shadow on the ground behind it; one standing in the row has none
+    const lift = Math.min(1, a.hover * 0.6 + a.open);
+    const sc = b.g.scale.x;
+    b.wallSh.position.set(p.x + 0.04 * sc, p.y - 0.05 * sc, WALLZ);
+    b.wallSh.scale.set((b.T / 0.53) * sc + 0.1, (b.H / 0.77) * sc + 0.1, 1);
+    b.wallSh.material.opacity = 0.5 * lift * e * (a.open > 0.01 ? 1 : keep);
     b.wallSh.visible = b.wallSh.material.opacity > 0.004;
   }
   return busy;

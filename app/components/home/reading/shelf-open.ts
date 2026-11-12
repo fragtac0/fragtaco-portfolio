@@ -1,4 +1,4 @@
-import { clamp } from "./shelf-math";
+import { clamp, FRONT } from "./shelf-math";
 import type { Book, ShelfScene } from "./shelf-scene";
 
 /**
@@ -16,7 +16,7 @@ export type ShelfEls = {
   /** The note card: `h3`, `.by`, `.note` and a `button`. */
   info: HTMLElement;
   hint: HTMLElement;
-  /** The position marker under the plank: a track with one thumb child (`.shelf-marker`). */
+  /** The position marker under the line: a track with one thumb child (`.shelf-marker`). */
   marker?: HTMLElement;
   /** Optional polite live region for screen readers. */
   status?: HTMLElement;
@@ -84,17 +84,19 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
     if (els?.status) els.status.textContent = text;
   };
 
-  /** The open book and its note sit side by side, and the pair is centred on screen. */
+  /**
+   * The open book and its note sit side by side, and the pair is centred on screen. The camera is
+   * orthographic, so the book is brought forward in place and drawn larger (`openScale`, never
+   * smaller than it stands in the row) to about 60% of the height (40% on a phone).
+   */
   function layoutOpen(b: Book, gl: ShelfScene, els: ShelfEls) {
-    const { T, camera, ray, ndc2, fwd } = gl;
+    const { camera } = gl;
     const info = els.info;
     const vw = canvas.clientWidth;
     const vh = canvas.clientHeight;
-    const tanH = Math.tan(T.MathUtils.degToRad(camera.fov / 2));
     const wide = WIDE();
-    const dist = b.H / (2 * tanH * (wide ? 0.6 : 0.4));
-    const ppu = vh / (2 * tanH * dist);
-    const bw = (b.W * Math.cos(0.3) + b.T * Math.sin(0.3)) * ppu;
+    b.openScale = Math.max(1, (vh * (wide ? 0.6 : 0.4)) / (b.H * gl.scale));
+    const bw = (b.W * Math.cos(0.3) + b.T * Math.sin(0.3)) * gl.scale * b.openScale;
     const gapPx = clamp(vw * 0.035, 28, 64);
     const iw = info.offsetWidth;
     let sx = vw / 2;
@@ -107,11 +109,12 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
     } else {
       info.style.left = "";
     }
-    ndc2.set((sx / vw) * 2 - 1, 1 - (sy / vh) * 2);
-    ray.setFromCamera(ndc2, camera);
-    camera.getWorldDirection(fwd);
-    const dir = ray.ray.direction;
-    b.openPos.copy(ray.ray.origin).addScaledVector(dir, dist / dir.dot(fwd));
+    // screen position to world: the camera sits at (cam.x, yc) and sees `scale` pixels per unit
+    b.openPos.set(
+      camera.position.x + (sx - vw / 2) / gl.scale,
+      camera.position.y + (vh / 2 - sy) / gl.scale,
+      FRONT + 1,
+    );
   }
 
   const setNote = (on: boolean) => {
@@ -133,7 +136,7 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
     if (st.opened || performance.now() - st.t0 < ctx.intro() * 1000) return;
     const { renderer: r, scene, camera } = gl;
     // draw the shelf once without the book that is about to leave, and keep that as the backdrop
-    b.g.visible = b.contact.visible = b.wallSh.visible = false;
+    b.g.visible = b.wallSh.visible = false;
     r.render(scene, camera);
     const w = Math.round(canvas.width / 2);
     const h = Math.round(canvas.height / 2);

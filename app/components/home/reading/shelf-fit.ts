@@ -1,20 +1,16 @@
-import type { SiteBook } from "~/types";
-import { clamp, fitCamera, visibleFraction } from "./shelf-math";
+import { clamp, flatFrame, LINE_PX } from "./shelf-math";
 import { placeMarker } from "./shelf-hud";
 import type { ShelfCtx } from "./shelf-open";
-import { placeholderLayout } from "./shelf-placeholder-layout";
 
 /**
- * Sizes the renderer and camera to the canvas and works out how far the camera may pan, how much
- * of the shelf is on screen, and where the position marker goes (under the plank, where the flat
- * placeholder draws it). Nothing happens when the size is unchanged since the last call. An open
- * book is put back first, because its pose was laid out for the old size.
+ * Sizes the renderer and the orthographic camera to the canvas (`flatFrame`: the tallest spine at
+ * most 78% of the height, the row at most 88% of the width, the row pans when that would make it
+ * smaller than 56%), puts the line the books stand on at its row, and works out how far the camera
+ * may pan, how much of the row is on screen, and where the position marker goes (just under the
+ * line, where the flat placeholder draws it). Nothing happens when the size is unchanged since the
+ * last call. An open book is put back first, because its pose was laid out for the old size.
  */
-export function fitShelf(
-  ctx: ShelfCtx,
-  books: SiteBook[],
-  closeBook: (refocus: boolean) => void,
-): void {
+export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): void {
   const gl = ctx.scene();
   const els = ctx.els();
   if (!gl || !els) return;
@@ -26,16 +22,29 @@ export function fitShelf(
   st.fitW = w;
   st.fitH = h;
   if (st.opened) closeBook(true);
-  const { renderer: r, camera, span } = gl;
+  const { renderer: r, camera, span, line } = gl;
   r.setSize(w, h, false);
-  camera.aspect = w / h;
-  const f = fitCamera({ fovDeg: camera.fov, aspect: camera.aspect, span });
-  gl.dist = f.dist;
+  const tallest = Math.max(...gl.books.map((b) => b.H));
+  const f = flatFrame({ vw: w, vh: h, span, tallest });
+  gl.scale = f.scale;
   gl.maxX = f.maxX;
-  gl.visible = visibleFraction(f.dist, camera.aspect, camera.fov, span);
+  gl.visible = f.visible;
   cam.x = clamp(cam.x, -f.maxX, f.maxX);
-  const lay = placeholderLayout(books, { w, h });
-  if (lay) placeMarker(els.marker, lay.plank.top + lay.plank.height + 14);
+  // one world unit is `scale` pixels: the frustum is the stage, and world y 0 (the books' feet) is at `baseRow`
+  camera.left = -w / 2 / f.scale;
+  camera.right = w / 2 / f.scale;
+  camera.top = h / 2 / f.scale;
+  camera.bottom = -h / 2 / f.scale;
+  camera.position.y = (f.baseRow - h / 2) / f.scale;
   camera.updateProjectionMatrix();
+  // the hairline runs the row's reach, just under the books' feet
+  line.scale.set(f.reach, LINE_PX / f.scale, 1);
+  line.position.set(0, -LINE_PX / f.scale / 2, line.position.z);
+  placeMarker(els.marker, f.baseRow + LINE_PX + 14);
+  // read by scripts/audit/shelf.json: the tallest spine's share of the height, the row's of the width, the feet's row
+  canvas.dataset.tall = ((f.scale * tallest) / h).toFixed(4);
+  canvas.dataset.row = ((f.scale * span) / w).toFixed(4);
+  canvas.dataset.baseRow = String(f.baseRow);
+  canvas.dataset.pans = String(f.pans);
   st.dirty = true;
 }

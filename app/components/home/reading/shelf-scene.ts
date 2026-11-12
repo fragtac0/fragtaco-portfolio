@@ -1,22 +1,23 @@
 import type * as THREE from "three";
 import type { SiteBook } from "~/types";
+import { CREAM, LINE_ALPHA } from "../../../styles/tokens";
 import {
   backCanvas,
-  bandCanvas,
-  blobCanvas,
   coverCanvas,
   foreCanvas,
   softRectCanvas,
   spineCanvas,
   topCanvas,
-  woodCanvas,
 } from "./shelf-canvases";
-import { FOV_DEG, FRONT, PLANK_H, SHELF_GAP, WALLZ, bookSize } from "./shelf-math";
+import { FRONT, SHELF_GAP, WALLZ, bookSize } from "./shelf-math";
 
 /**
- * Builds the shelf's three.js scene: renderer, lights, one box per book with its contact and wall
- * shadows, the walnut plank and the band behind the shelf. Nothing here is drawn or animated;
- * the engine owns the frame loop and the state. three.js itself is passed in (the engine loads it
+ * Builds the shelf's three.js scene: renderer, an orthographic camera that looks straight at the
+ * spines, one box per book, a soft wall shadow for a lifted book, and the hairline the books
+ * stand on. The row is unlit (`MeshBasicMaterial`, no tone mapping), so a spine is exactly the
+ * colour it was painted; each book also has a lit material set (`litMats`) that the open book is
+ * swapped to by `setLit`, with the scene's two soft lights. Nothing here is drawn or animated; the
+ * engine owns the frame loop and the state. three.js itself is passed in (the engine loads it
  * with `import("three")`), so this module never imports it as a value.
  */
 
@@ -28,9 +29,11 @@ export type Book = {
   d: SiteBook;
   g: THREE.Group;
   mesh: THREE.Mesh;
-  mats: THREE.MeshStandardMaterial[];
+  /** The row's materials: unlit, so the colours are true. Their opacity fades the book. */
+  mats: THREE.MeshBasicMaterial[];
+  /** The same faces, lit softly; the open book uses these (`setLit`). */
+  litMats: THREE.MeshStandardMaterial[];
   coverTex: THREE.CanvasTexture;
-  contact: FlatMesh;
   wallSh: FlatMesh;
   H: number;
   W: number;
@@ -38,6 +41,8 @@ export type Book = {
   base: THREE.Vector3;
   baseQ: THREE.Quaternion;
   openPos: THREE.Vector3;
+  /** How much larger the open book is drawn than it stands in the row (1 or more). */
+  openScale: number;
   /** The numbers the springs animate, kept apart from the three.js objects. */
   anim: Bag;
   order: number;
@@ -48,30 +53,30 @@ export type ShelfScene = {
   T: Three;
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
+  camera: THREE.OrthographicCamera;
   books: Book[];
-  plank: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
-  band: FlatMesh;
+  /** The hairline the books stand on. */
+  line: FlatMesh;
+  /** The row's width in world units. */
   span: number;
-  dist: number;
+  /** CSS pixels per world unit (set by the fit). */
+  scale: number;
   maxX: number;
   /** The share (0..1) of the shelf's width on screen at once; 1 when it all fits. */
   visible: number;
   ray: THREE.Raycaster;
   ndc: THREE.Vector2;
   ndc2: THREE.Vector2;
-  fwd: THREE.Vector3;
   tmpV: THREE.Vector3;
   tmpQ: THREE.Quaternion;
   tmpQ2: THREE.Quaternion;
   yAxis: THREE.Vector3;
   qOpen: THREE.Quaternion;
+  /** Swaps a book between its unlit row materials and its lit ones. */
+  setLit(b: Book, lit: boolean): void;
   /** Frees the geometries, materials, textures and the GL context. */
   dispose(): void;
 };
-
-const fract = (v: number) => v - Math.floor(v);
-const rnd = (i: number) => fract(Math.sin(i * 127.1 + 3.7) * 43758.5453);
 
 /** Canvas text needs the faces loaded first. A failure only costs the fallback faces. */
 export async function loadShelfFonts(): Promise<void> {
@@ -122,20 +127,16 @@ export async function buildShelfScene(
   try {
     r.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
     r.outputColorSpace = T.SRGBColorSpace;
-    r.toneMapping = T.ACESFilmicToneMapping;
-    r.toneMappingExposure = 1.12;
+    r.toneMapping = T.NoToneMapping;
     const scene = new T.Scene();
-    const camera = new T.PerspectiveCamera(FOV_DEG, 1, 0.1, 80);
-    scene.add(new T.HemisphereLight(0xfff2df, 0x121211, 0.75));
-    const key = new T.DirectionalLight(0xfff3e4, 2.6);
-    key.position.set(-2.4, 4.4, 4.6);
+    // looks straight down -z; the fit sets the frustum (world units) and the height of the line
+    const camera = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 40);
+    camera.position.z = 10;
+    // the lit set is for the lifted book only
+    scene.add(new T.HemisphereLight(0xffffff, 0x8a8a86, 1.7));
+    const key = new T.DirectionalLight(0xfff6ea, 1.3);
+    key.position.set(-3, 4, 6);
     scene.add(key);
-    const fill = new T.DirectionalLight(0xc9d6ff, 0.35);
-    fill.position.set(3.4, 1.4, 3);
-    scene.add(fill);
-    const rim = new T.DirectionalLight(0xfc4c00, 1.7);
-    rim.position.set(2.6, 2.6, -3.6);
-    scene.add(rim);
 
     const toTex = (c: HTMLCanvasElement) => {
       const t = track(new T.CanvasTexture(c));
@@ -153,12 +154,12 @@ export async function buildShelfScene(
           toneMapped: false,
         }),
       );
-    const std = (map: THREE.Texture, roughness: number) =>
-      track(new T.MeshStandardMaterial({ map, roughness, transparent: true }));
+    const unlit = (map: THREE.Texture) =>
+      track(new T.MeshBasicMaterial({ map, transparent: true, toneMapped: false }));
+    const lit = (map: THREE.Texture, roughness: number) =>
+      track(new T.MeshStandardMaterial({ map, roughness, transparent: true, toneMapped: false }));
 
-    const blobTex = track(new T.CanvasTexture(blobCanvas()));
     const wallTex = track(new T.CanvasTexture(softRectCanvas()));
-    const bandTex = track(new T.CanvasTexture(bandCanvas()));
     const unit = track(new T.PlaneGeometry(1, 1));
 
     const list: Book[] = [];
@@ -167,21 +168,21 @@ export async function buildShelfScene(
       const { H, W, T: thick } = bookSize(d);
       const coverTex = toTex(coverCanvas(d, null));
       const topTex = toTex(topCanvas(d));
-      const mats = [
-        std(toTex(foreCanvas(d)), 0.92),
-        std(toTex(spineCanvas(d, thick, H)), 0.6),
-        std(topTex, 0.92),
-        std(topTex, 0.92),
-        std(coverTex, 0.4),
-        std(toTex(backCanvas(d)), 0.55),
+      const faces = [
+        toTex(foreCanvas(d)),
+        toTex(spineCanvas(d, thick, H)),
+        topTex,
+        topTex,
+        coverTex,
+        toTex(backCanvas(d)),
       ];
+      const rough = [0.92, 0.6, 0.92, 0.92, 0.4, 0.55];
+      const mats = faces.map(unlit);
+      const litMats = faces.map((f, k) => lit(f, rough[k]));
       const mesh = new T.Mesh(track(new T.BoxGeometry(W, H, thick)), mats);
       const g = new T.Group();
       g.add(mesh);
       scene.add(g);
-      const contact = new T.Mesh(unit, flat(blobTex, 0));
-      contact.rotation.x = -Math.PI / 2;
-      scene.add(contact);
       const wallSh = new T.Mesh(unit, flat(wallTex, 0));
       wallSh.renderOrder = -1;
       scene.add(wallSh);
@@ -191,8 +192,8 @@ export async function buildShelfScene(
         g,
         mesh,
         mats,
+        litMats,
         coverTex,
-        contact,
         wallSh,
         H,
         W,
@@ -200,6 +201,7 @@ export async function buildShelfScene(
         base: new T.Vector3(),
         baseQ: new T.Quaternion(),
         openPos: new T.Vector3(),
+        openScale: 1,
         anim: { hover: 0, hoverV: 0, open: 0, openV: 0 },
         order: i,
       });
@@ -221,26 +223,29 @@ export async function buildShelfScene(
       ),
     );
     const yAxis = new T.Vector3(0, 1, 0);
-    const qY = (a: number) => new T.Quaternion().setFromAxisAngle(yAxis, a);
     const gap = SHELF_GAP;
     const span = list.reduce((s, b) => s + b.T, 0) + gap * (list.length - 1);
     let x = -span / 2;
-    list.forEach((b, i) => {
-      b.base.set(x + b.T / 2, b.H / 2, FRONT - b.W / 2 + (rnd(i + 3) - 0.5) * 0.04);
-      b.baseQ.copy(qUp).premultiply(qY((rnd(i + 9) - 0.5) * 0.05));
+    list.forEach((b) => {
+      // one straight row: no yaw, so no side of any book shows (z is only for the open book to clear its neighbours)
+      b.base.set(x + b.T / 2, b.H / 2, FRONT - b.W / 2);
+      b.baseQ.copy(qUp);
       x += b.T + gap;
     });
-    const plank = new T.Mesh(
-      track(new T.BoxGeometry(span + 1, PLANK_H, FRONT + 0.1 - WALLZ)),
-      std(toTex(woodCanvas()), 0.68),
+    const line = new T.Mesh(
+      unit,
+      track(
+        new T.MeshBasicMaterial({
+          color: CREAM,
+          transparent: true,
+          opacity: LINE_ALPHA,
+          depthWrite: false,
+          toneMapped: false,
+        }),
+      ),
     );
-    plank.position.set(0, -0.045, (FRONT + 0.1 + WALLZ) / 2);
-    scene.add(plank);
-    const band = new T.Mesh(unit, flat(bandTex, 0.7));
-    band.scale.set(span + 2.2, 0.9, 1);
-    band.position.set(0.12, -0.5, WALLZ);
-    band.renderOrder = -1;
-    scene.add(band);
+    line.position.z = WALLZ;
+    scene.add(line);
 
     // compile and upload now, so opening the shelf does not stall on its first frame, but in
     // small slices: the shader compile on its own, then a few textures at a time
@@ -269,21 +274,25 @@ export async function buildShelfScene(
       scene,
       camera,
       books: list,
-      plank,
-      band,
+      line,
       span,
-      dist: 6,
+      scale: 1,
       maxX: 0,
       visible: 1,
       ray: new T.Raycaster(),
       ndc: new T.Vector2(-9, -9),
       ndc2: new T.Vector2(),
-      fwd: new T.Vector3(),
       tmpV: new T.Vector3(),
       tmpQ: new T.Quaternion(),
       tmpQ2: new T.Quaternion(),
       yAxis,
       qOpen: new T.Quaternion().setFromAxisAngle(yAxis, 0.3),
+      setLit(b, on) {
+        const set = on ? b.litMats : b.mats;
+        if (b.mesh.material === set) return;
+        for (let k = 0; k < set.length; k++) set[k].opacity = b.mats[k].opacity;
+        b.mesh.material = set;
+      },
       dispose,
     };
   } catch (err) {

@@ -8,16 +8,12 @@ import type { SiteBook } from "~/types";
 
 /** World units per inch of book height. */
 export const INCH = 0.17;
-/** Front edge of the plank (z). */
+/** Front edge of the books (z). */
 export const FRONT = 0.55;
 /** The wall behind the books (z). */
 export const WALLZ = FRONT - 1.4;
-/** The gap between neighbouring spines on the plank (world units). */
+/** The gap between neighbouring spines in the row (world units). */
 export const SHELF_GAP = 0.014;
-/** The shelf camera's vertical field of view, in degrees. */
-export const FOV_DEG = 26;
-/** Plank thickness (world units). */
-export const PLANK_H = 0.09;
 /** Seconds each book takes to fall in and fade up. */
 export const DROP = 1.5;
 /** How far each book falls while it drops in (world units; straight down, no tilt). */
@@ -27,15 +23,6 @@ export const STAG = 0.09;
 
 /** A stage narrower than this (px) starts the shelf at its left end. */
 export const NARROW_PX = 700;
-
-/** Camera framing. `dollyFrom` is the starting distance factor, eased to 1 over `dollyS` seconds. */
-export const CAMERA = {
-  lookY: 0.88,
-  lift: 0.1,
-  tilt: 0.09,
-  dollyFrom: 1.12,
-  dollyS: 2.6,
-} as const;
 
 const clamp01 = (k: number) => Math.min(1, Math.max(0, k));
 
@@ -110,34 +97,60 @@ export function spring(
   return true;
 }
 
-/** Camera distance that frames the shelf, and how far the camera may pan sideways. */
-export function fitCamera(p: {
-  fovDeg: number;
-  aspect: number;
-  span: number;
-}): { dist: number; maxX: number } {
-  const half = (p.fovDeg / 2) * (Math.PI / 180);
-  // room above the tallest book (11 in) for the header and a hover lift
-  const needH = 3.05;
-  const needW = p.span + 0.9;
-  const dW = needW / 2 / (Math.tan(half) * p.aspect);
-  const dH = needH / 2 / Math.tan(half);
-  const dist = Math.max(dH, Math.min(dW, dH * (p.aspect < 0.8 ? 1.3 : 2.3)));
-  const maxX = Math.max(0, needW / 2 - Math.tan(half) * p.aspect * dist * 0.9);
-  return { dist, maxX };
+/** The tallest spine fills at most this share of the layer's height (spec 8). */
+export const TALL_MAX = 0.78;
+/** The row fills at most this share of the layer's width. */
+export const ROW_MAX = 0.88;
+/** On a narrow screen the tallest spine never goes below this share of the height; the row pans instead. */
+export const TALL_MIN = 0.56;
+/** The line the books stand on, as a share of the layer's height from its top. */
+export const BASE_AT = 0.9;
+/** The hairline the books stand on, in CSS pixels. */
+export const LINE_PX = 1;
+
+/**
+ * How large the flat, face-on row is: `scale` is CSS pixels per world unit. The tallest spine fills
+ * at most 78% of the height and the row at most 88% of the width; when the width rule would shrink
+ * the tallest spine below 56% of the height the height keeps 56% and the row `pans` sideways.
+ * `rowWidth` and `tallest` are in world units, `vw` and `vh` in pixels.
+ */
+export function flatFit(p: { vw: number; vh: number; rowWidth: number; tallest: number }): {
+  scale: number;
+  pans: boolean;
+} {
+  const byHeight = (TALL_MAX * p.vh) / p.tallest;
+  const byWidth = (ROW_MAX * p.vw) / p.rowWidth;
+  const floor = (TALL_MIN * p.vh) / p.tallest;
+  const scale = Math.min(byHeight, byWidth);
+  return scale < floor ? { scale: floor, pans: true } : { scale, pans: false };
 }
 
-/** Camera height, distance and look-at height `elapsed` seconds after the intro starts. */
-export function cameraAt(
-  elapsed: number,
-  dist: number,
-): { y: number; distance: number; lookY: number } {
-  const ci = easeOut(clamp01(elapsed / CAMERA.dollyS));
-  const distance = dist * (CAMERA.dollyFrom - (CAMERA.dollyFrom - 1) * ci);
+/**
+ * The whole flat frame for a stage `vw` by `vh` px and a row `span` world units wide whose tallest
+ * book is `tallest` high: the scale, whether it pans, the pixel row of the line the books stand on,
+ * how far the camera may pan (world units each way; the row's ends stop 6% of the width inside the
+ * edges), the row's `reach` in world units (the row and that margin both sides: the hairline's
+ * width) and the share of the reach that is on screen at once. The 3D shelf and its
+ * placeholder both read this, so one replaces the other without a jump.
+ */
+export function flatFrame(p: { vw: number; vh: number; span: number; tallest: number }): {
+  scale: number;
+  pans: boolean;
+  baseRow: number;
+  maxX: number;
+  reach: number;
+  visible: number;
+} {
+  const { scale, pans } = flatFit({ vw: p.vw, vh: p.vh, rowWidth: p.span, tallest: p.tallest });
+  const viewW = p.vw / scale;
+  const reach = p.span + 2 * 0.06 * viewW;
   return {
-    y: CAMERA.lookY + CAMERA.lift + distance * CAMERA.tilt,
-    distance,
-    lookY: CAMERA.lookY,
+    scale,
+    pans,
+    baseRow: Math.round(BASE_AT * p.vh),
+    maxX: pans ? Math.max(0, reach / 2 - viewW / 2) : 0,
+    reach,
+    visible: Math.min(1, viewW / reach),
   };
 }
 
@@ -148,17 +161,11 @@ export function initialCamX(maxX: number, narrow: boolean): number {
 
 /**
  * The camera x while dragging: `startX` (the camera when the drag began) moved against the pointer
- * by `dxPx`, in world units at the camera distance `dist`, clamped to the shelf's ends. The 0.9
- * makes the books follow the finger slightly slower than 1:1 at the plank, like the mockup.
+ * by `dxPx`, in world units at `scale` pixels per world unit, clamped to the shelf's ends. The
+ * books follow the pointer one to one.
  */
-export function panFromDrag(
-  startX: number,
-  dxPx: number,
-  dist: number,
-  viewH: number,
-  maxX: number,
-): number {
-  return clamp(startX - ((dxPx * dist) / viewH) * 0.9, -maxX, maxX);
+export function panFromDrag(startX: number, dxPx: number, scale: number, maxX: number): number {
+  return clamp(startX - dxPx / scale, -maxX, maxX);
 }
 
 /** Speed (world units per second) below which a flick has settled. */
@@ -172,17 +179,6 @@ export function flick(v: number, dt: number): { dx: number; v: number } {
   const next = v * Math.pow(0.05, dt);
   if (Math.abs(next) < FLICK_STOP) return { dx: 0, v: 0 };
   return { dx: next * dt, v: next };
-}
-
-/** How much of the shelf's width (0..1) is on screen at once; 1 when it all fits. */
-export function visibleFraction(
-  dist: number,
-  aspect: number,
-  fovDeg: number,
-  span: number,
-): number {
-  const visible = 2 * Math.tan((fovDeg / 2) * (Math.PI / 180)) * aspect * dist;
-  return Math.min(1, visible / (span + 0.9));
 }
 
 /** The marker is shown only when the shelf is wider than the screen, so its thumb is shorter than the track. */

@@ -11,6 +11,8 @@ export const GROUND_EMBER = "#6a2a0b";
 /** The accent and the cream of tokens.css (`--accent`, and `--cream` under `.home-page`), for the glass front's pictures. */
 export const ACCENT = "#fc4c00";
 export const CREAM = "#fdfce6";
+/** The cream at the strength of `--line` (hairlines and borders), for the shelf's line in 3D. */
+export const LINE_ALPHA = 0.1;
 
 export function channels(hex: string): [number, number, number] {
   const n = parseInt(hex.slice(1), 16);

@@ -1,7 +1,7 @@
 import { markerLeft, markerShown } from "./shelf-math";
 
 /**
- * The shelf's small overlays: the hint line and the position marker under the plank. The marker is
+ * The shelf's small overlays: the hint line and the position marker under the line. The marker is
  * a 2px track with a thumb that shows where the camera is along a shelf wider than the screen; it
  * moves with `transform` only and is hidden when the whole shelf fits.
  */

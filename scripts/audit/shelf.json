@@ -21,6 +21,10 @@
   "label": "canvas"
  },
  {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "label": "flat-fit"
+ },
+ {
   "eval": "(async()=>{const c=document.querySelector(\".shelf-host canvas\");const r=c.getBoundingClientRect();const p=new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<2500)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)});for(let i=0;i<50;i++){c.dispatchEvent(new PointerEvent(\"pointermove\",{bubbles:true,clientX:r.left+r.width*(0.2+0.6*i/50),clientY:r.top+r.height*0.55,pointerType:\"mouse\"}));await new Promise(q=>setTimeout(q,40))}return p})()",
   "label": "frames-hover-sweep"
  },
@@ -57,5 +61,89 @@
  {
   "eval": "[document.documentElement.className, location.hash, !!document.querySelector(\".home-layer.on\")]",
   "label": "after-close"
+ },
+ {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "go": "{{BASE}}/?fit=0#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "label": "flat-fit-320x568"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "go": "{{BASE}}/?fit=1#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "label": "flat-fit-390x844"
+ },
+ {
+  "size": [
+   820,
+   1180
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?fit=2#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "label": "flat-fit-820x1180"
+ },
+ {
+  "shot": "local-warm-820"
+ },
+ {
+  "shot": "local-shelf-820x1180"
+ },
+ {
+  "size": [
+   1024,
+   768
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?fit=3#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "label": "flat-fit-1024x768"
+ },
+ {
+  "shot": "local-warm-1024"
+ },
+ {
+  "shot": "local-shelf-1024x768"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?fit=4#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "label": "flat-fit-1440x900"
+ },
+ {
+  "size": [
+   2560,
+   1440
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?fit=5#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "label": "flat-fit-2560x1440"
+ },
+ {
+  "shot": "local-warm-2560"
+ },
+ {
+  "shot": "local-shelf-2560x1440"
  }
 ]
