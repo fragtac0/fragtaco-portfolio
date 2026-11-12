@@ -1,6 +1,6 @@
 /*
  * The work page. A fixed stage (no page scroll): a dark ground with the site's
- * dot screen and grain, the intro in the middle, four rings turning round it. Rotation is CSS only:
+ * dot screen and grain, the intro in the middle, three rings turning round it. Rotation is CSS only:
  * each ring `ul` turns by `work-spin`, each item turns back by `work-unspin` so it stays upright, and
  * nothing here runs per frame in JavaScript. Only transform-type properties and opacity animate.
  * Type, ink and layers come from app/styles/tokens.css. Spec: docs/superpowers/specs/2026-11-11-polish-and-work-page-design.md, 4.
@@ -87,18 +87,15 @@
   inset: 0;
   pointer-events: none;
 }
-/* One ring (and its sub-ring). It scales up and fades in on arrival, each ring 60 ms after the one inside it.
-   The arrival runs once: use-view-flip sets data-arrived after it, so it does not start over when the rings come back from a view. */
+/* One ring (and its sub-ring). It scales up and fades in on arrival, each ring 60 ms after the one inside it. */
 .work-ring-group {
   position: absolute;
   inset: 0;
-}
-.work-page[data-view="all"]:not([data-arrived]) .work-ring-group {
   animation: work-ring-in 500ms var(--ease-out) backwards;
   animation-delay: calc(var(--g) * 60ms);
 }
 /* the ring the pointer or keyboard is on sits above the others, so its label is never covered */
-.work-page[data-view="all"] .work-ring-group:has(.work-item:hover, .work-item-face:focus-visible) {
+.work-ring-group:has(.work-item:hover, .work-item-face:focus-visible) {
   z-index: var(--z-cards);
 }
 .work-ring {
@@ -196,10 +193,6 @@
   border-radius: 10px;
   box-shadow: 0 0 0 1px var(--line), 0 8px 22px rgba(0, 0, 0, 0.4);
 }
-.work-avatar {
-  border-radius: 50%;
-  box-shadow: 0 0 0 1px rgba(253, 252, 230, 0.14), 0 8px 22px rgba(0, 0, 0, 0.4);
-}
 /* a tool: its mark in Doto on a dark square, a cream hairline; not a link */
 .work-mark {
   display: grid;
@@ -277,7 +270,7 @@
   .work-item-turn {
     animation: none;
   }
-  .work-page[data-view="all"]:not([data-arrived]) .work-ring-group {
+  .work-ring-group {
     animation: work-fade 300ms ease-out backwards;
     animation-delay: 0s;
   }
@@ -285,4 +278,24 @@
   .work-label {
     transition: none;
   }
+}
+
+/* ---------- skip link ---------- */
+/* First in the tab order; hidden until it has focus, then a small pill at the top left. */
+.work-skip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: var(--z-dock);
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+  color: var(--ink-1);
+  font-size: var(--t-meta);
+  transform: translateY(-200%);
+  transition: transform 160ms ease-out;
+}
+.work-skip:focus-visible {
+  transform: translateY(0);
 }

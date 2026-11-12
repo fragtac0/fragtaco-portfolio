@@ -1,21 +1,15 @@
-import { json, type HeadersFunction, type MetaFunction } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useLoaderData } from "@remix-run/react";
-import WorkPage from "../components/work/work-page";
+import { json, type HeadersFunction } from "@remix-run/node";
+import { Outlet, useLoaderData } from "@remix-run/react";
+import WorkShell from "../components/work/work-shell";
 import { getWorkPageContent } from "../content/loaders.server";
 
-export const meta: MetaFunction = () => [
-  { title: "Work - FragTaco" },
-];
-
+// The layout of the work addresses: `/work` (the rings), `/work/long-form` and `/work/short-form`. It loads
+// the work content once for all three (the children read it with `useRouteLoaderData("routes/work")`) and
+// holds the dock with its second row, so moving between them keeps one dock. `/experience` is a route of
+// its own that wears the same shell.
 export const headers: HeadersFunction = ({ loaderHeaders }) => ({
   "Cache-Control": loaderHeaders.get("Cache-Control") ?? "private, no-cache",
 });
-
-// The view (`?view=long`) is only a way of looking at the same content, so changing it does not need the
-// page's data again: the view changes at once and Back is instant.
-export const shouldRevalidate: ShouldRevalidateFunction = ({ currentUrl, nextUrl, defaultShouldRevalidate }) =>
-  currentUrl.pathname === nextUrl.pathname ? false : defaultShouldRevalidate;
 
 export async function loader() {
   const workPageContent = await getWorkPageContent();
@@ -32,8 +26,12 @@ export async function loader() {
   );
 }
 
-export default function Work() {
-  const data = useLoaderData<typeof loader>();
+export default function WorkLayout() {
+  const { navigationItems, socialLinks } = useLoaderData<typeof loader>();
 
-  return <WorkPage {...data} />;
+  return (
+    <WorkShell navigationItems={navigationItems} socialLinks={socialLinks}>
+      <Outlet />
+    </WorkShell>
+  );
 }

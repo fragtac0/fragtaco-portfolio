@@ -19,13 +19,13 @@ import {
   splitRing,
 } from "./ring-math";
 
-const IDS: RingId[] = ["stack", "long", "short", "clients"];
+const IDS: RingId[] = ["stack", "long", "short"];
 const COUNTS = [0, 1, 8, 40, 120];
 
 describe("ringRadius", () => {
   it("is the ring's fraction of the shorter side", () => {
     expect(ringRadius("stack", 1440, 900)).toBe(189);
-    expect(ringRadius("clients", 900, 1440)).toBeCloseTo(0.68 * 900);
+    expect(ringRadius("short", 900, 1440)).toBeCloseTo(0.5 * 900);
   });
 
   it("is the same fraction on a phone (a phone's items shrink instead, see fitScale)", () => {
@@ -64,7 +64,7 @@ describe("itemWidth", () => {
   );
 
   it("gives a ring of none the maximum rather than dividing by zero", () => {
-    expect(itemWidth("clients", 0, 300)).toBe(72);
+    expect(itemWidth("short", 0, 300)).toBe(96);
   });
 });
 
@@ -192,7 +192,7 @@ describe("itemExtent", () => {
   it("is the longest side: the width for wide and square items, the height for tall ones", () => {
     expect(itemExtent("long", 96)).toBe(96);
     expect(itemExtent("stack", 50)).toBe(50);
-    expect(itemExtent("clients", 50)).toBe(50);
+    expect(itemExtent("stack", 80)).toBe(80);
     expect(itemExtent("short", 54)).toBeCloseTo(96);
   });
 });
@@ -212,7 +212,7 @@ describe("scale", () => {
   });
 });
 
-const WORK = { stack: 8, long: 16, short: 24, clients: 10 };
+const WORK = { stack: 8, long: 16, short: 24 };
 const SCREENS: [number, number][] = [
   [1920, 1080],
   [1440, 900],
@@ -226,7 +226,7 @@ const SCREENS: [number, number][] = [
 describe("planRings", () => {
   it("leaves rings at their nominal radius when nothing touches", () => {
     const plans = planRings(WORK, 1440, 900);
-    expect(plans.map((p) => p.id)).toEqual(["stack", "long", "short", "clients"]);
+    expect(plans.map((p) => p.id)).toEqual(["stack", "long", "short"]);
     expect(plans[0].radius).toBe(189);
     expect(plans[1].radius).toBe(306);
   });
@@ -262,13 +262,13 @@ describe("planRings", () => {
   });
 
   it("skips rings with no items and keeps the clear space for the first one drawn", () => {
-    const plans = planRings({ stack: 0, long: 0, short: 0, clients: 3 }, 1440, 900);
-    expect(plans.map((p) => p.id)).toEqual(["clients"]);
-    expect(planRings({ stack: 0, long: 0, short: 0, clients: 0 }, 1440, 900)).toEqual([]);
+    const plans = planRings({ stack: 0, long: 0, short: 3 }, 1440, 900);
+    expect(plans.map((p) => p.id)).toEqual(["short"]);
+    expect(planRings({ stack: 0, long: 0, short: 0 }, 1440, 900)).toEqual([]);
   });
 
   it("pushes a lone ring off the middle when its nominal radius would eat the intro's space", () => {
-    const [stack] = planRings({ stack: 8, long: 0, short: 0, clients: 0 }, 100, 100);
+    const [stack] = planRings({ stack: 8, long: 0, short: 0 }, 100, 100);
     expect(stack.radius - stack.extent / 2).toBeGreaterThanOrEqual(CENTRE_CLEAR - 1e-6);
   });
 });
@@ -306,12 +306,12 @@ describe("fitScale", () => {
     }
   });
 
-  it("lets the outer two rings run past the screen's sides", () => {
+  it("lets the outer ring run past the screen's sides", () => {
     const plans = planRings(WORK, 390, 844, fitScale(WORK, 390, 844));
-    expect(plans[3].radius).toBeGreaterThan(390 / 2);
+    expect(plans[2].radius).toBeGreaterThan(390 / 2);
   });
 
   it("copes with no items", () => {
-    expect(fitScale({ stack: 0, long: 0, short: 0, clients: 0 }, 390, 844)).toBe(1);
+    expect(fitScale({ stack: 0, long: 0, short: 0 }, 390, 844)).toBe(1);
   });
 });

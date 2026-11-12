@@ -2,7 +2,7 @@
 import { RING, type RingId, fitScale, planRings, slotAngle, subRingRadius } from "./ring-math";
 
 /** Inside to outside: the order the rings are drawn and tabbed through. */
-export const RING_ORDER: readonly RingId[] = ["stack", "long", "short", "clients"];
+export const RING_ORDER: readonly RingId[] = ["stack", "long", "short"];
 
 export interface RingSlot {
   /** Position in that ring's item list. */
@@ -15,7 +15,7 @@ export interface SubRingSpec {
   id: RingId;
   /** 0 is the ring itself, 1 the second ring of a split ring. */
   sub: number;
-  /** Which of the four rings this is, centre out: sets the enter delay. */
+  /** Which of the three rings this is, centre out: sets the enter delay. */
   order: number;
   radius: number;
   /** Seconds for one turn. */
@@ -31,7 +31,7 @@ export interface SubRingSpec {
  * Every ring to draw for these item counts, inside to outside (see `planRings` and `fitScale`: items
  * are drawn smaller on a phone so the first two rings fit its width, and rings are pushed out so none
  * touches the one inside it). A ring that does not fit at minimum size is split in two; items neither
- * holds are left out (they show only in a picked view). All of a ring's sub-rings share one item size.
+ * holds are left out. All of a ring's sub-rings share one item size.
  */
 export function layoutRings(counts: Record<RingId, number>, vw: number, vh: number): SubRingSpec[] {
   const scale = fitScale(counts, vw, vh);

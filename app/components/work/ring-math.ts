@@ -1,12 +1,11 @@
 // Pure maths for the /work rings. No DOM, safe on the server.
 
-export type RingId = "stack" | "long" | "short" | "clients";
+export type RingId = "stack" | "long" | "short";
 
 export const RING = {
   stack: { radius: 0.21, period: 90, dir: 1, min: 44, max: 56, aspect: 1 },
   long: { radius: 0.34, period: 150, dir: -1, min: 96, max: 176, aspect: 16 / 9 },
   short: { radius: 0.5, period: 200, dir: 1, min: 54, max: 96, aspect: 9 / 16 },
-  clients: { radius: 0.68, period: 260, dir: -1, min: 44, max: 72, aspect: 1 },
 } as const;
 
 /** Each item takes its extent along the ring plus 30% for the gap. */
@@ -64,7 +63,7 @@ export function itemWidth(id: RingId, count: number, radius: number, scale = 1):
 /**
  * Item counts for the ring itself and, if the items do not fit at minimum
  * size, a second ring at `subRingRadius(radius, 1)`. Whatever neither holds is `hidden`
- * (shown only in the picked view). No items gives no rings.
+ * (left out). No items gives no rings.
  */
 export function splitRing(
   id: RingId,
@@ -96,7 +95,7 @@ export interface RingPlan {
   extent: number;
 }
 
-const ORDER: readonly RingId[] = ["stack", "long", "short", "clients"];
+const ORDER: readonly RingId[] = ["stack", "long", "short"];
 
 /**
  * Where each ring goes, inside to outside, with items drawn at `scale`. A ring starts at its
@@ -131,7 +130,7 @@ export function planRings(
 /**
  * How big items are drawn: 1 everywhere except a phone, where it is the largest scale (in steps of
  * 0.01) at which the stack and long-form rings, a long sub-ring and half an item included, sit fully
- * inside the screen's width with FIT_MARGIN to spare. The outer two rings run off the edges.
+ * inside the screen's width with FIT_MARGIN to spare. The outer ring runs off the edges.
  */
 export function fitScale(counts: Record<RingId, number>, vw: number, vh: number): number {
   if (!(vw > 0) || vw >= PHONE_WIDTH) return 1;

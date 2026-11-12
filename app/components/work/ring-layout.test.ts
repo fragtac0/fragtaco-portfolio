@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { RING_ORDER, introLine, labelSide, layoutRings } from "./ring-layout";
 import { RING, ringCapacity, ringRadius, subRingRadius } from "./ring-math";
 
-const WORK = { stack: 8, long: 16, short: 24, clients: 10 };
+const WORK = { stack: 8, long: 16, short: 24 };
 
 describe("layoutRings", () => {
-  it("draws the four rings, inside to outside, for the real content on a laptop", () => {
+  it("draws the three rings, inside to outside, for the real content on a laptop", () => {
     const specs = layoutRings(WORK, 1440, 900);
     expect(specs.map((s) => `${s.id}:${s.sub}:${s.slots.length}`)).toEqual([
       "stack:0:8",
@@ -13,9 +13,8 @@ describe("layoutRings", () => {
       "long:1:1",
       "short:0:22",
       "short:1:2",
-      "clients:0:10",
     ]);
-    expect(specs.map((s) => s.order)).toEqual([0, 1, 1, 2, 2, 3]);
+    expect(specs.map((s) => s.order)).toEqual([0, 1, 1, 2, 2]);
   });
 
   it("uses the ring's radius, period and direction", () => {
@@ -24,7 +23,7 @@ describe("layoutRings", () => {
     expect(stack.radius).toBe(ringRadius("stack", 1440, 900));
     expect(stack.period).toBe(RING.stack.period);
     expect(stack.dir).toBe(1);
-    expect(specs.find((s) => s.id === "clients")?.dir).toBe(-1);
+    expect(specs.find((s) => s.id === "short")?.dir).toBe(1);
   });
 
   it("turns a sub-ring the other way and puts it further out", () => {
@@ -60,7 +59,7 @@ describe("layoutRings", () => {
   });
 
   it("leaves out items neither ring holds", () => {
-    const specs = layoutRings({ stack: 0, long: 0, short: 500, clients: 0 }, 1440, 900);
+    const specs = layoutRings({ stack: 0, long: 0, short: 500 }, 1440, 900);
     const held = specs.reduce((n, s) => n + s.slots.length, 0);
     const radius = ringRadius("short", 1440, 900);
     expect(held).toBe(ringCapacity("short", radius) + ringCapacity("short", subRingRadius(radius, 1)));
@@ -68,10 +67,10 @@ describe("layoutRings", () => {
   });
 
   it("draws nothing for no items, and never assumes a first ring", () => {
-    expect(layoutRings({ stack: 0, long: 0, short: 0, clients: 0 }, 1440, 900)).toEqual([]);
-    const onlyClients = layoutRings({ stack: 0, long: 0, short: 0, clients: 3 }, 1440, 900);
-    expect(onlyClients).toHaveLength(1);
-    expect(onlyClients[0].order).toBe(3);
+    expect(layoutRings({ stack: 0, long: 0, short: 0 }, 1440, 900)).toEqual([]);
+    const onlyShort = layoutRings({ stack: 0, long: 0, short: 3 }, 1440, 900);
+    expect(onlyShort).toHaveLength(1);
+    expect(onlyShort[0].order).toBe(2);
   });
 
   it("copes with a screen of no size", () => {
