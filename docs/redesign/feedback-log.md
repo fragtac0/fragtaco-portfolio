@@ -606,3 +606,10 @@ Seventh preview: `docs/redesign/round7-preview-7/index.html`. Grid lines every 2
 - The grid is needed in My climb too: faded, and following the same map.
 
 Eighth preview: `docs/redesign/round7-preview-8/index.html`. Both titles are set in capitals. The grid is now a set of point rows that take the height of the ground under them, so in the overview it is the same flat grid and in My climb it runs up and over the mountain. Over the dark ground its ink is raised (lines to about 10% and 18%, crosses to 42%) so it reads as the same faint grid. Measured in the pane: 541 frames in 4.5 s through the change, longest frame 11 ms.
+
+**Feedback on the eighth preview (2026-11-13)**
+
+- The colours of the words should show their order of importance. The Olympus Mons block is too big.
+- "My experience" is the biggest, with a small description under it. "Olympus Mons" and the rest are smaller.
+
+Ninth preview: `docs/redesign/round7-preview-9/index.html`. Title 34 to 64 px in full cream; description 12.5 px at 70%; the name of the mountain 13 px, letter-spaced, in warm light orange (#ffc9a3); its line 11 px at 56%.
