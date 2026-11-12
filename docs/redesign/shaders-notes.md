@@ -134,3 +134,10 @@ The slow drift (full cycle 40 s or more) can come from `transform={{ offsetX, of
 - Does the drift loop need a CSS animation on the wrapper (`transform`) instead of in-shader motion? That is cheaper and fully under our control (a 60 s CSS `translate3d` on a canvas 6% larger than the screen).
 - The exact `onReady` timing in a headed browser, to fade the canvas in without a jump.
 - Whether `getWebGPUSupport()` (adapter request) is worth awaiting before mounting, to avoid a flash of an empty canvas on blocklisted GPUs.
+
+## 7. Upgrading `shaders` (added with R43.3b)
+
+- `app/components/work/ground/can-run.ts` (`libraryDprCap`) copies the package's private `maxPixelRatioForDevice` (2, or 1.5 on a coarse pointer up to 1366 px long), because the package does not export it and has no pixel-ratio prop. After any version bump, run `scripts/audit/ground.json` and read its backing-size steps: the canvas must stay at 1.25 device pixels per CSS pixel of the screen (`pixelsPerScreenCssPx` 1.25) at dpr 2 and on the phone profile.
+- The package's frame loop never idles (`shouldAnimate` is always true: 60 GPU submits a second even with no driver and a static scene; `isVisible` false drops it to one a second but cannot be set from outside). The ground therefore draws one frame, copies it from the canvas in `onReady` (the only moment the WebGPU canvas can be read), and unmounts the shader; the drift is a CSS transform on the copy. The package also measures its canvas with `getBoundingClientRect`, which a transform on an ancestor inflates, so the shader's box is never scaled. The `ground.json` submit counter (GPU submits per second) must stay at 0 after a bump, and `framesDrawn` must be 1 after a load.
+- The package's radial gradient is `radius * screen height` pixels, mixed in linear light; `work.css` (`.work-wash`) repeats that. A bump that changes either shows up as a difference between `r43-ground-1440-bare.jpg` and `r43-ground-1440-bare-fallback.jpg`.
+

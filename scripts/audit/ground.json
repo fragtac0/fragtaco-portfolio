@@ -7,7 +7,7 @@
   "dpr": 1,
   "mobile": false,
   "touch": false,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__submits=0;\nif(window.GPUQueue){const s=GPUQueue.prototype.submit;GPUQueue.prototype.submit=function(){window.__submits++;return s.apply(this,arguments)}}\nwindow.__t0=performance.now();\nwindow.__canvas=()=>document.querySelector('.work-ground-box canvas');\nwindow.__waitGround=async(ms)=>{const t=performance.now();while(performance.now()-t<(ms||12000)&&!window.__canvas())await new Promise(r=>setTimeout(r,25));return window.__canvas()};\nwindow.__ground=()=>{const c=window.__canvas(),f=document.querySelector('.work-ground-fade'),b=document.querySelector('.work-ground-box');const r=b&&b.getBoundingClientRect();return{canvas:!!c,backing:c&&[c.width,c.height],boxCss:r&&[Math.round(r.width),Math.round(r.height)],shown:f&&f.dataset.shown,k:f&&f.style.getPropertyValue('--ground-k'),dpr:devicePixelRatio,screenCss:[innerWidth,innerHeight],pixelsPerScreenCssPx:c&&+(c.width/innerWidth).toFixed(3)}};\nwindow.__frames=(ms)=>new Promise(res=>{let last=0,max=0,over20=0,n=0;const t0=performance.now();const tick=t=>{if(last){const d=t-last;n++;if(d>max)max=d;if(d>20)over20++}last=t;if(t-t0<ms)requestAnimationFrame(tick);else res(JSON.stringify({frames:n,maxGap:Math.round(max*10)/10,over20}))};requestAnimationFrame(tick)});\nwindow.__submitsOver=(ms)=>new Promise(res=>{const a=window.__submits;setTimeout(()=>res(window.__submits-a),ms)});\nwindow.__bare=(on)=>{for(const s of ['.work-stage','[data-row-open]','.wall-page']){document.querySelectorAll(s).forEach(e=>e.style.visibility=on?'hidden':'')}};\nwindow.__fakeHidden=(h)=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>h});Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>h?'hidden':'visible'});document.dispatchEvent(new Event('visibilitychange'))};\n",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__submits=0;\nif(window.GPUQueue){const s=GPUQueue.prototype.submit;GPUQueue.prototype.submit=function(){window.__submits++;return s.apply(this,arguments)}}\nwindow.__t0=performance.now();\nwindow.__canvas=()=>document.querySelector('canvas.work-ground-still');window.__shaderCanvas=()=>document.querySelector('canvas[data-renderer=shaders]');\nwindow.__waitGround=async(ms)=>{const t=performance.now();while(performance.now()-t<(ms||12000)&&!document.querySelector('.work-ground-fade[data-shown=true]'))await new Promise(r=>setTimeout(r,25));await new Promise(r=>setTimeout(r,200));return window.__canvas()};\nwindow.__ground=()=>{const c=window.__canvas(),f=document.querySelector('.work-ground-fade'),b=document.querySelector('.work-ground-box');const r=b&&b.getBoundingClientRect();const sr=c&&c.getBoundingClientRect();return{stillCss:sr&&[Math.round(sr.width),Math.round(sr.height)],framesDrawn:f&&f.dataset.groundFrames,still:!!c,shaderRunning:!!window.__shaderCanvas(),backing:c&&[c.width,c.height],boxCss:r&&[Math.round(r.width),Math.round(r.height)],shown:f&&f.dataset.shown,k:f&&f.style.getPropertyValue('--ground-k'),dpr:devicePixelRatio,screenCss:[innerWidth,innerHeight],pixelsPerScreenCssPx:c&&+(c.width/innerWidth).toFixed(3),pixelsPerStillCssPx:c&&+(c.width/c.clientWidth).toFixed(3)}};\nwindow.__frames=(ms)=>new Promise(res=>{let last=0,max=0,over20=0,n=0;const t0=performance.now();const tick=t=>{if(last){const d=t-last;n++;if(d>max)max=d;if(d>20)over20++}last=t;if(t-t0<ms)requestAnimationFrame(tick);else res(JSON.stringify({frames:n,maxGap:Math.round(max*10)/10,over20}))};requestAnimationFrame(tick)});\nwindow.__submitsOver=(ms)=>new Promise(res=>{const a=window.__submits;setTimeout(()=>res(window.__submits-a),ms)});\nwindow.__bare=(on)=>{for(const s of ['.work-stage','[data-row-open]','.wall-page']){document.querySelectorAll(s).forEach(e=>e.style.visibility=on?'hidden':'')}};\nwindow.__fakeHidden=(h)=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>h});Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>h?'hidden':'visible'});document.dispatchEvent(new Event('visibilitychange'))};\n",
   "reduce": false,
   "nocache": true
  },
@@ -63,8 +63,8 @@
  {
   "sample": {
    "grid": [
-    8,
-    5
+    12,
+    6
    ]
   },
   "label": "1-sample-ground-only (1440x900, dpr 1)"
@@ -81,12 +81,12 @@
   "label": "1-frames-ground-running (6 s, 1440x900, CPU 1x, rings turning)"
  },
  {
-  "eval": "window.__submitsOver(1000)",
-  "label": "1-gpu-submits-per-second"
+  "eval": "(async()=>{const a=await window.__submitsOver(2000);return JSON.stringify({submitsIn2s:a,perSecond:a/2})})()",
+  "label": "1-gpu-submits-per-second (idle after the first frames; was 60 with the drivers)"
  },
  {
-  "eval": "(async()=>{const before=!!window.__canvas();window.__fakeHidden(true);await new Promise(r=>setTimeout(r,300));const hiddenCanvas=!!window.__canvas();const s=await window.__submitsOver(1000);window.__fakeHidden(false);const back=await window.__waitGround(5000);return JSON.stringify({canvasBefore:before,canvasWhileHidden:hiddenCanvas,gpuSubmitsInOneSecondWhileHidden:s,canvasAfterReturn:!!back})})()",
-  "label": "1-hidden-tab"
+  "eval": "(async()=>{const before=!!window.__canvas();window.__fakeHidden(true);await new Promise(r=>setTimeout(r,300));const hiddenStill=!!window.__canvas();const s=await window.__submitsOver(1000);window.__fakeHidden(false);await new Promise(r=>setTimeout(r,500));return JSON.stringify({stillBefore:before,stillWhileHidden:hiddenStill,shaderRunningWhileHidden:!!window.__shaderCanvas(),gpuSubmitsInOneSecondWhileHidden:s,stillAfterReturn:!!window.__canvas(),shaderRunningAfterReturn:!!window.__shaderCanvas()})})()",
+  "label": "1-hidden-tab (a still is on screen, no shader exists, nothing is submitted)"
  },
  {
   "wait": 800
@@ -139,6 +139,10 @@
  {
   "eval": "(async()=>{await window.__waitGround(15000);await new Promise(r=>setTimeout(r,800));return JSON.stringify(window.__ground())})()",
   "label": "3-phone-390x844-dpr3"
+ },
+ {
+  "eval": "(async()=>{await new Promise(r=>setTimeout(r,1500));const a=await window.__submitsOver(2000);return JSON.stringify({submitsIn2s:a,perSecond:a/2})})()",
+  "label": "3-gpu-submits-per-second-phone"
  },
  {
   "shot": "r43-ground-warm4"
@@ -205,6 +209,19 @@
   "label": "4-sample-ground-only (1920x1080, dpr 1)"
  },
  {
+  "size": [
+   900,
+   1000
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false
+ },
+ {
+  "eval": "(async()=>{const t=performance.now();while(performance.now()-t<6000&&(document.querySelector('.work-ground-fade').dataset.groundFrames!=='2'||document.querySelector('.work-ground-fade').dataset.groundLive!=='false'))await new Promise(r=>setTimeout(r,50));await new Promise(r=>setTimeout(r,300));const s=await window.__submitsOver(1000);return JSON.stringify({state:window.__ground(),submitsInOneSecondAfter:s})})()",
+  "label": "4-resize-1920x1080-to-900x1000 (framesDrawn goes 1 to 2: a new frame is taken, then idle again)"
+ },
+ {
   "requests": {
    "match": "ground-scene"
   },
@@ -222,7 +239,7 @@
   "wait": 3500
  },
  {
-  "eval": "JSON.stringify({canvas:!!window.__canvas(),wash:!!document.querySelector('.work-wash'),groundNode:!!document.querySelector('.work-bg-ground')})",
+  "eval": "JSON.stringify({still:!!window.__canvas(),shaderRunning:!!window.__shaderCanvas(),wash:!!document.querySelector('.work-wash'),groundNode:!!document.querySelector('.work-bg-ground')})",
   "label": "5-experience-has-no-ground"
  },
  {
@@ -243,7 +260,7 @@
   "wait": 3500
  },
  {
-  "eval": "JSON.stringify({canvas:!!window.__canvas(),wash:!!document.querySelector('.work-wash')})",
+  "eval": "JSON.stringify({still:!!window.__canvas(),shaderRunning:!!window.__shaderCanvas(),wash:!!document.querySelector('.work-wash')})",
   "label": "6-reduced-motion-state"
  },
  {
@@ -257,6 +274,28 @@
  },
  {
   "shot": "r43-ground-css-fallback"
+ },
+ {
+  "eval": "window.__bare(true);1",
+  "label": "6-hide-rings-and-dock"
+ },
+ {
+  "wait": 300
+ },
+ {
+  "shot": "r43-ground-warm7"
+ },
+ {
+  "shot": "r43-ground-1440-bare-fallback"
+ },
+ {
+  "sample": {
+   "grid": [
+    12,
+    6
+   ]
+  },
+  "label": "6-sample-fallback-ground-only (1440x900)"
  },
  {
   "reduce": false
@@ -276,7 +315,7 @@
   "wait": 3500
  },
  {
-  "eval": "JSON.stringify({gpu:!!navigator.gpu,canvas:!!window.__canvas(),wash:!!document.querySelector('.work-wash')})",
+  "eval": "JSON.stringify({gpu:!!navigator.gpu,still:!!window.__canvas(),shaderRunning:!!window.__shaderCanvas(),wash:!!document.querySelector('.work-wash')})",
   "label": "7-no-webgpu-state"
  },
  {

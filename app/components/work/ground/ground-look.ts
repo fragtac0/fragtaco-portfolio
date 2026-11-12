@@ -1,7 +1,7 @@
 /**
  * The numbers of the work ground (spec 6.4), shared by the shader scene (ground-scene.tsx) and the CSS
- * picture that stands in for it (`.work-wash` in work.css, which repeats FALLOFF, the centres and the
- * sizes by hand: change both together). Pure, so it is tested (ground-look.test.ts) and WorkGround does
+ * picture that stands in for it (`.work-wash` in work.css, which repeats FALLOFF, the centres, the
+ * sizes and the drift by hand: change both together). Pure, so it is tested (ground-look.test.ts) and WorkGround does
  * not pull the `shaders` package in to read it.
  *
  * The package sizes a radial gradient in pixels as `radius * the screen's height`, and `aspect` squeezes
@@ -27,11 +27,13 @@ export const GROUND_LOOK = {
   ember: { color: GROUND_EMBER, x: 1.0, y: 1.02, radius: 0.6, aspect: 1.5 },
   /** Strength of the package's static grain, which hides banding; the site's own grain sits on top of it. */
   grain: 0.035,
-  /** A breath is the radius going out and back: cycles per second 1/70 and 1/90, so 70 s and 90 s (spec: 40 s or more). */
-  poolSpeed: 1 / 70,
-  emberSpeed: 1 / 90,
-  /** How far the radius breathes, as a share of its value. */
-  breath: { min: 0.88, max: 1.08 },
+  /**
+   * The drift. The picture is drawn once and does not move inside the package (a driver makes the package redraw
+   * at 60 frames a second for ever, for a change nobody can see). Instead the whole canvas breathes: a CSS
+   * animation (`work-ground-breathe`, transform only, on the compositor) scales it from 1 to `scale` and back
+   * about the pool, a full cycle every `seconds` (spec: 40 s or more). work.css repeats both numbers.
+   */
+  drift: { scale: 1.06, seconds: 80, originX: 0.34, originY: 0.4 },
 } as const;
 
 const hex2 = (n: number) => Math.round(Math.min(255, Math.max(0, n))).toString(16).padStart(2, "0");
@@ -58,6 +60,26 @@ export function poolStops(): GroundStop[] {
   return FALLOFF.map(([position, keep]) => ({ position, color: mixHex(GROUND, GROUND_POOL, keep) }));
 }
 
+const toLinear = (c: number) => {
+  const v = c / 255;
+  return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+};
+const toSrgb = (l: number) => 255 * (l <= 0.0031308 ? l * 12.92 : 1.055 * l ** (1 / 2.4) - 0.055);
+
+/**
+ * The package lays a translucent layer over the one below in linear light, which comes out much brighter
+ * than the same alpha laid in sRGB as CSS does. This is the alpha the CSS ember needs at each stop so that
+ * it lays down the same red over the ground as the shader's ember does (red is its strongest channel).
+ */
+export function emberCssAlphas(): Array<readonly [number, number]> {
+  const ground = channels(GROUND)[0];
+  const ember = channels(GROUND_EMBER)[0];
+  return FALLOFF.map(([position, keep]) => {
+    const lit = toSrgb(keep * toLinear(ember) + (1 - keep) * toLinear(ground));
+    return [position, Math.min(1, Math.max(0, (lit - ground) / (ember - ground)))] as const;
+  });
+}
+
 /** The ember's stops: the ember colour at the centre fading to nothing at the edge along FALLOFF (`#rrggbbaa`). */
 export function emberStops(): GroundStop[] {
   return FALLOFF.map(([position, keep]) => ({
@@ -77,12 +99,13 @@ export function reachFactor(width: number, height: number): number {
   return Math.min(1, (1.25 * width) / height);
 }
 
-/** The radius range a breath moves over, for a base radius. */
-export function breathRange(radius: number): { min: number; max: number } {
-  return { min: radius * GROUND_LOOK.breath.min, max: radius * GROUND_LOOK.breath.max };
-}
-
-/** Seconds a full breath takes at a speed in cycles per second. */
-export function breathSeconds(speed: number): number {
-  return 1 / speed;
+/**
+ * Whether the still picture taken at one screen size is too far from the screen now and the shader must be
+ * started again to take a new one: the width or the height moved by more than `tolerance` (a share; 15% so the collapsing address bar of a phone browser does not start it).
+ */
+export function needsRedraw(taken: readonly [number, number], now: readonly [number, number], tolerance = 0.15): boolean {
+  const [tw, th] = taken;
+  const [nw, nh] = now;
+  if (tw <= 0 || th <= 0) return true;
+  return Math.abs(nw - tw) / tw > tolerance || Math.abs(nh - th) / th > tolerance;
 }

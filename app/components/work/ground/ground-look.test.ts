@@ -1,6 +1,7 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { GROUND, GROUND_EMBER, GROUND_POOL } from "../../../styles/tokens";
-import { breathRange, breathSeconds, emberStops, FALLOFF, GROUND_LOOK, mixHex, poolStops, reachFactor } from "./ground-look";
+import { emberCssAlphas, emberStops, FALLOFF, GROUND_LOOK, mixHex, needsRedraw, poolStops, reachFactor } from "./ground-look";
 
 describe("mixHex", () => {
   it("returns the ends at 0 and 1 and the middle in between", () => {
@@ -39,15 +40,16 @@ describe("the pool and the ember", () => {
 });
 
 describe("the drift", () => {
-  it("takes no less than 40 s for a full breath", () => {
-    expect(breathSeconds(GROUND_LOOK.poolSpeed)).toBeGreaterThanOrEqual(40);
-    expect(breathSeconds(GROUND_LOOK.emberSpeed)).toBeGreaterThanOrEqual(40);
+  it("takes no less than 40 s for a full cycle", () => {
+    expect(GROUND_LOOK.drift.seconds).toBeGreaterThanOrEqual(40);
   });
-  it("moves the radius a little each way", () => {
-    const { min, max } = breathRange(1);
-    expect(min).toBeLessThan(1);
-    expect(max).toBeGreaterThan(1);
-    expect(max - min).toBeLessThan(0.3);
+  it("scales the canvas up a little and never down (so no edge is ever uncovered)", () => {
+    expect(GROUND_LOOK.drift.scale).toBeGreaterThan(1);
+    expect(GROUND_LOOK.drift.scale).toBeLessThanOrEqual(1.1);
+  });
+  it("breathes about the pool", () => {
+    expect(GROUND_LOOK.drift.originX).toBe(GROUND_LOOK.pool.x);
+    expect(GROUND_LOOK.drift.originY).toBe(GROUND_LOOK.pool.y);
   });
 });
 
@@ -65,5 +67,44 @@ describe("reachFactor", () => {
   it("is 1 for a size it cannot use", () => {
     expect(reachFactor(0, 800)).toBe(1);
     expect(reachFactor(800, 0)).toBe(1);
+  });
+});
+
+describe("needsRedraw", () => {
+  it("keeps the still for a small resize", () => {
+    expect(needsRedraw([1440, 900], [1440, 900])).toBe(false);
+    expect(needsRedraw([1440, 900], [1500, 940])).toBe(false);
+    expect(needsRedraw([390, 844], [390, 760])).toBe(false);
+  });
+  it("takes a new one when the width or height moves by more than 15%", () => {
+    expect(needsRedraw([1440, 900], [1800, 900])).toBe(true);
+    expect(needsRedraw([1440, 900], [1440, 700])).toBe(true);
+    expect(needsRedraw([390, 844], [844, 390])).toBe(true);
+  });
+  it("takes one when there was no usable size", () => {
+    expect(needsRedraw([0, 0], [1440, 900])).toBe(true);
+  });
+});
+
+describe("emberCssAlphas", () => {
+  const alphas = emberCssAlphas();
+  it("runs from full strength at the centre to nothing at the edge", () => {
+    expect(alphas[0][1]).toBeCloseTo(1, 5);
+    expect(alphas.at(-1)?.[1]).toBeCloseTo(0, 5);
+  });
+  it("is stronger than the share the shader keeps, because linear light is brighter than sRGB", () => {
+    for (let i = 1; i < alphas.length - 1; i++) expect(alphas[i][1]).toBeGreaterThan(FALLOFF[i][1]);
+  });
+  it("only falls", () => {
+    for (let i = 1; i < alphas.length; i++) expect(alphas[i][1]).toBeLessThan(alphas[i - 1][1]);
+  });
+  it("matches the values written into work.css", () => {
+    const css = readFileSync(new URL("../work.css", import.meta.url), "utf8");
+    const written = [...css.matchAll(/var\(--ground-ember\) ([\d.]+)%, transparent\) (\d+)%/g)].map((m) => [Number(m[2]), Number(m[1])]);
+    expect(written.length).toBe(alphas.length);
+    written.forEach(([position, percent], i) => {
+      expect(position).toBe(alphas[i][0] * 100);
+      expect(percent).toBeCloseTo(alphas[i][1] * 100, 0);
+    });
   });
 });

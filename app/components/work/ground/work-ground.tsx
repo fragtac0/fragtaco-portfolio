@@ -3,17 +3,18 @@ import { usePageArrived } from "../../../lib/use-page-settled";
 import WorkBackground from "../work-background";
 import { canRunGround, readGroundEnv } from "./can-run";
 
-type Scene = ComponentType<{ onReady: () => void; onUnavailable: () => void }>;
+type Scene = ComponentType<{ paused: boolean; onUnavailable: () => void }>;
 
 /**
  * The ground of the work addresses (spec 6.4), one for /work, /work/long-form and /work/short-form: it
  * lives in the layout (`routes/work.tsx` through WorkShell), so it keeps running while the pages change
  * above it. The server and the first paint get the still CSS picture (WorkBackground). Once the page
  * has arrived (`usePageArrived`: after a page change is over) and the browser is idle, the shader scene
- * is fetched with a dynamic import and its canvas fades in over the CSS picture, which matches its
- * first frame. Nothing is fetched without WebGPU, with reduced motion or save-data, and the scene is
- * taken away while the tab is hidden (the canvas and its frame loop are gone, not just paused).
- * Decorative.
+ * is fetched with a dynamic import and its picture fades in over the CSS picture, which matches it. The
+ * scene draws one frame, keeps it as a still and lets the GPU go (see ground-scene.tsx), so nothing runs
+ * per frame afterwards; while the tab is hidden a shader that is still drawing is taken down, and the CSS
+ * drift (a transform) is stopped by the browser. Nothing is fetched without WebGPU (or without a WebGPU
+ * adapter), with reduced motion or save-data. Decorative.
  */
 export default function WorkGround() {
   const arrived = usePageArrived();
@@ -46,7 +47,13 @@ export default function WorkGround() {
     let cancelled = false;
     const start = () => {
       loading.current = true;
-      import("./ground-scene")
+      // A blocklisted GPU has `navigator.gpu` but no adapter: find that out before downloading the package.
+      const gpu = (navigator as Navigator & { gpu?: { requestAdapter: () => Promise<unknown> } }).gpu;
+      Promise.resolve(gpu?.requestAdapter())
+        .then((adapter) => {
+          if (!adapter) throw new Error("no WebGPU adapter");
+          return import("./ground-scene");
+        })
         .then((module) => {
           if (!cancelled) setScene(() => module.default);
         })
@@ -67,12 +74,10 @@ export default function WorkGround() {
     };
   }, [arrived, allowed, dead, Scene]);
 
-  const live = Scene !== null && allowed && !dead && tabShown && arrived;
+  const live = Scene !== null && allowed && !dead && arrived;
   return (
     <WorkBackground ground>
-      {live ? <Scene onReady={noop} onUnavailable={() => setDead(true)} /> : null}
+      {live ? <Scene paused={!tabShown} onUnavailable={() => setDead(true)} /> : null}
     </WorkBackground>
   );
 }
-
-function noop() {}
