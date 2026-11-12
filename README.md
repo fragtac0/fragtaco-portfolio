@@ -42,7 +42,7 @@ Everything the pages show comes from files, so most edits need no code.
 | What | Where |
 | --- | --- |
 | Name, roles line, the about card and the credits card | `content/site/home.json` |
-| Books on the shelf (title, author, ISBN, size, spine colour, note) | `content/site/books.json` |
+| Books on the shelf (title, author, ISBN, size, colour, optional picture of the spine, note) | `content/site/books.json` |
 | Videos on the wall and channel subscriber counts | `content/site/videos.json`, written by `yarn sync:videos` (do not edit by hand) |
 | Hero paintings (title, artist, year, blurred placeholder) | `content/site/hero-paintings.json`; the pictures are in `public/paintings/` |
 | The work page (intro, tools, long and short videos, clients; placeholders for now) | `content/site/work.json` |

@@ -79,8 +79,8 @@ export default function ReadingFallback({ books }: ReadingFallbackProps) {
                   <span
                     className="fb-cover fb-cover-css"
                     style={{
-                      backgroundColor: b.spine,
-                      color: inkOn(b.spine),
+                      backgroundColor: b.color,
+                      color: inkOn(b.color),
                       aspectRatio: b.aspect,
                     }}
                     aria-hidden="true"

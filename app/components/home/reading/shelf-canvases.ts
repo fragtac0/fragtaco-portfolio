@@ -2,8 +2,8 @@ import type { SiteBook } from "~/types";
 
 /**
  * The shelf's painters: every texture is drawn on a 2D canvas, so the books need no image files.
- * Ported from the `Shelf` module of docs/redesign/mockups/home-v4.html (spineCanvas, coverCanvas,
- * backCanvas, topCanvas, foreCanvas, softRectCanvas).
+ * Ported from the `Shelf` module of docs/redesign/mockups/home-v4.html (coverCanvas, backCanvas,
+ * topCanvas, foreCanvas, softRectCanvas). The spine is no longer painted here: see spine-draw.ts.
  * Client only: every function creates a canvas. Fonts Lora 500, Tektur 700 and IBM Plex Mono 500
  * must be loaded first (the engine waits for them).
  */
@@ -20,7 +20,7 @@ const ctx2d = (c: HTMLCanvasElement): CanvasRenderingContext2D => {
   return x;
 };
 
-type PaintBook = Pick<SiteBook, "title" | "author" | "aspect" | "spine" | "style">;
+type PaintBook = Pick<SiteBook, "title" | "author" | "aspect" | "color">;
 
 const rgbOf = (h: string): [number, number, number] => [
   parseInt(h.slice(1, 3), 16),
@@ -74,102 +74,6 @@ function fitText(
   return s;
 }
 
-/** The spine, drawn lying down (the box's spine face is rotated), `T` thick and `H` tall. */
-export function spineCanvas(d: PaintBook, T: number, H: number): HTMLCanvasElement {
-  const ch = 1024;
-  const cw = Math.max(64, Math.round((ch * T) / H));
-  const c = mk(cw, ch);
-  const x = ctx2d(c);
-  const light = lum(d.spine) > 0.56;
-  const ink = light ? "#17120d" : "#f6f0e2";
-  const foil = light ? "#8f6b22" : "#d9a441";
-  x.fillStyle = d.spine;
-  x.fillRect(0, 0, cw, ch);
-  grain(x, cw, ch, 0.16);
-  x.globalAlpha = 0.05;
-  for (let y = 0; y < ch; y += 2) {
-    x.fillStyle = (y / 2) % 2 ? "#000" : "#fff";
-    x.fillRect(0, y, cw, 1);
-  }
-  x.globalAlpha = 1;
-  if (d.style === "band") {
-    x.fillStyle = foil;
-    for (const [p, h] of [
-      [0.05, 7],
-      [0.072, 2],
-      [0.926, 2],
-      [0.944, 7],
-    ] as const) {
-      x.fillRect(0, ch * p, cw, h);
-    }
-  }
-  if (d.style === "block") {
-    x.fillStyle = light ? "rgba(23,18,13,.92)" : "rgba(246,240,226,.94)";
-    x.fillRect(0, ch * 0.05, cw, ch * 0.2);
-  }
-  const fs = Math.min(cw * 0.42, 46);
-  const lastName = (d.author.split(" ").pop() ?? "").toUpperCase();
-  x.save();
-  x.translate(cw / 2, 0);
-  x.rotate(Math.PI / 2);
-  x.textBaseline = "middle";
-  const [t0, t1] = d.style === "block" ? [0.3, 0.93] : d.style === "band" ? [0.12, 0.72] : [0.07, 0.7];
-  const tf =
-    d.style === "block"
-      ? (s: number) => `700 ${s}px Tektur`
-      : (s: number) => `500 ${s}px Lora`;
-  fitText(x, d.title, tf, ch * (t1 - t0), fs);
-  x.fillStyle = d.style === "band" && !light ? "#f3e2b5" : ink;
-  x.textAlign = "left";
-  x.fillText(d.title, ch * t0, 2);
-  const af = (s: number) => `500 ${s}px "IBM Plex Mono"`;
-  if (d.style === "block") {
-    fitText(x, lastName, af, ch * 0.17, fs * 0.5);
-    x.fillStyle = d.spine;
-    x.textAlign = "center";
-    x.fillText(lastName, ch * 0.15, 1);
-  } else {
-    fitText(x, lastName, af, ch * 0.2, fs * 0.48);
-    x.globalAlpha = 0.8;
-    x.textAlign = "right";
-    x.fillText(lastName, ch * (d.style === "band" ? 0.89 : 0.93), 1);
-    x.globalAlpha = 1;
-  }
-  x.restore();
-  if (d.style === "plain") {
-    x.strokeStyle = ink;
-    x.globalAlpha = 0.55;
-    x.lineWidth = 2;
-    x.beginPath();
-    x.arc(cw / 2, ch * 0.965, Math.min(cw * 0.16, 9), 0, Math.PI * 2);
-    x.stroke();
-    x.globalAlpha = 1;
-  }
-  const g = x.createLinearGradient(0, 0, cw, 0);
-  for (const [o, col] of [
-    [0, "rgba(0,0,0,.58)"],
-    [0.12, "rgba(0,0,0,.14)"],
-    [0.36, "rgba(255,255,255,.17)"],
-    [0.55, "rgba(255,255,255,.05)"],
-    [0.85, "rgba(0,0,0,.2)"],
-    [1, "rgba(0,0,0,.62)"],
-  ] as const) {
-    g.addColorStop(o, col);
-  }
-  x.fillStyle = g;
-  x.fillRect(0, 0, cw, ch);
-  const v = x.createLinearGradient(0, 0, 0, ch);
-  v.addColorStop(0, "rgba(255,255,255,.08)");
-  v.addColorStop(0.5, "rgba(0,0,0,0)");
-  v.addColorStop(1, "rgba(0,0,0,.28)");
-  x.fillStyle = v;
-  x.fillRect(0, 0, cw, ch);
-  x.fillStyle = "rgba(0,0,0,.4)";
-  x.fillRect(0, 0, cw, 4);
-  x.fillRect(0, ch - 4, cw, 4);
-  return c;
-}
-
 /** The front cover: the Open Library image when `img` is given, otherwise a generated one. */
 export function coverCanvas(d: PaintBook, img: HTMLImageElement | null): HTMLCanvasElement {
   const cw = 640;
@@ -194,10 +98,10 @@ export function coverCanvas(d: PaintBook, img: HTMLImageElement | null): HTMLCan
     }
     x.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
   } else {
-    x.fillStyle = d.spine;
+    x.fillStyle = d.color;
     x.fillRect(0, 0, cw, ch);
     grain(x, cw, ch, 0.12);
-    x.fillStyle = lum(d.spine) > 0.56 ? "#17120d" : "#f6f0e2";
+    x.fillStyle = lum(d.color) > 0.56 ? "#17120d" : "#f6f0e2";
     x.textAlign = "left";
     x.textBaseline = "top";
     fitText(x, d.title, (s) => `500 ${s}px Lora`, cw * 0.8, 58);
@@ -235,7 +139,7 @@ export function coverCanvas(d: PaintBook, img: HTMLImageElement | null): HTMLCan
 export function backCanvas(d: PaintBook): HTMLCanvasElement {
   const c = mk(256, 384);
   const x = ctx2d(c);
-  x.fillStyle = d.spine;
+  x.fillStyle = d.color;
   x.fillRect(0, 0, 256, 384);
   grain(x, 256, 384, 0.14);
   const g = x.createLinearGradient(0, 0, 256, 384);
@@ -262,7 +166,7 @@ export function topCanvas(d: PaintBook): HTMLCanvasElement {
   g.addColorStop(1, "rgba(0,0,0,.1)");
   x.fillStyle = g;
   x.fillRect(0, 0, 512, 96);
-  x.fillStyle = d.spine;
+  x.fillStyle = d.color;
   x.fillRect(0, 0, 512, 7);
   x.fillRect(0, 89, 512, 7);
   x.fillRect(0, 0, 14, 96);
@@ -293,7 +197,7 @@ export function foreCanvas(d: PaintBook): HTMLCanvasElement {
   v.addColorStop(1, "rgba(0,0,0,.22)");
   x.fillStyle = v;
   x.fillRect(0, 0, 128, 1024);
-  x.fillStyle = d.spine;
+  x.fillStyle = d.color;
   x.fillRect(0, 0, 8, 1024);
   x.fillRect(120, 0, 8, 1024);
   return c;

@@ -85,6 +85,10 @@
   "label": "flat-fit-390x844"
  },
  {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const [w,h]=c.dataset.spinePx.split('x').map(Number);const dpr=Math.min(devicePixelRatio,2);const want=Math.round(+c.dataset.tall*c.clientHeight*dpr);return {spinePx:c.dataset.spinePx,dpr,wantH:want,tallOk:Math.abs(h-want)<=1,thinnest:w>=8}})()",
+  "label": "spine-px-390x844-dpr2"
+ },
+ {
   "size": [
    820,
    1180
@@ -130,6 +134,10 @@
   "label": "flat-fit-1440x900"
  },
  {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const [w,h]=c.dataset.spinePx.split('x').map(Number);const dpr=Math.min(devicePixelRatio,2);const want=Math.round(+c.dataset.tall*c.clientHeight*dpr);return {spinePx:c.dataset.spinePx,dpr,wantH:want,tallOk:Math.abs(h-want)<=1,thinnest:w>=8}})()",
+  "label": "spine-px-1440x900-dpr1"
+ },
+ {
   "size": [
    2560,
    1440
@@ -141,9 +149,22 @@
   "label": "flat-fit-2560x1440"
  },
  {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const [w,h]=c.dataset.spinePx.split('x').map(Number);const dpr=Math.min(devicePixelRatio,2);const want=Math.round(+c.dataset.tall*c.clientHeight*dpr);return {spinePx:c.dataset.spinePx,dpr,wantH:want,tallOk:Math.abs(h-want)<=1,thinnest:w>=8}})()",
+  "label": "spine-px-2560x1440-dpr1"
+ },
+ {
   "shot": "local-warm-2560"
  },
  {
   "shot": "local-shelf-2560x1440"
+ },
+ {
+  "size": [
+   1000,
+   700
+  ],
+  "wait": 300,
+  "eval": "new Promise(r=>{const c=document.querySelector('.shelf-host canvas');const t0=performance.now();const q=()=>{const h=+c.dataset.spinePx.split('x')[1];const want=Math.round(+c.dataset.tall*c.clientHeight*Math.min(devicePixelRatio,2));if(Math.abs(h-want)<=1||performance.now()-t0>2500)r({spinePx:c.dataset.spinePx,wantH:want,ms:Math.round(performance.now()-t0),ch:c.clientHeight});else setTimeout(q,50)};q()})",
+  "label": "spine-px-after-resize-1000x700"
  }
 ]

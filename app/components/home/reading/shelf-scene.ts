@@ -6,10 +6,10 @@ import {
   coverCanvas,
   foreCanvas,
   softRectCanvas,
-  spineCanvas,
   topCanvas,
 } from "./shelf-canvases";
-import { FRONT, SHELF_GAP, WALLZ, bookSize } from "./shelf-math";
+import { FRONT, SHELF_GAP, WALLZ, bookSize, flatFrame } from "./shelf-math";
+import { createSpineFace, resizeSpines, spinePixels, MAX_DPR, type SpineFace } from "./shelf-spines";
 
 /**
  * Builds the shelf's three.js scene: renderer, an orthographic camera that looks straight at the
@@ -34,6 +34,8 @@ export type Book = {
   /** The same faces, lit softly; the open book uses these (`setLit`). */
   litMats: THREE.MeshStandardMaterial[];
   coverTex: THREE.CanvasTexture;
+  /** The designed spine: its canvas is the spine's size on screen times the pixel ratio (shelf-spines.ts). */
+  spine: SpineFace;
   wallSh: FlatMesh;
   H: number;
   W: number;
@@ -74,6 +76,12 @@ export type ShelfScene = {
   qOpen: THREE.Quaternion;
   /** Swaps a book between its unlit row materials and its lit ones. */
   setLit(b: Book, lit: boolean): void;
+  /**
+   * The fit changed: repaints the spines at the new on-screen size (`scale` CSS pixels per world
+   * unit, times the pixel ratio). Straight away when `immediate`, otherwise once the size has
+   * stopped changing for a moment (a window being dragged); `done` is called when any spine changed.
+   */
+  fitSpines(scale: number, immediate: boolean, done: () => void): void;
   /** Frees the geometries, materials, textures and the GL context. */
   dispose(): void;
 };
@@ -93,6 +101,9 @@ export async function loadShelfFonts(): Promise<void> {
 /** Runs the steps one after another, spread over time (`createSlicer().run`). */
 export type RunSteps = (steps: Array<() => void>) => Promise<void>;
 
+/** A resize is repainted when it has held still this long. */
+const SPINE_RESIZE_MS = 140;
+
 /** Books painted per step, and textures uploaded per step. */
 const BOOKS_PER_STEP = 3;
 const UPLOADS_PER_STEP = 3;
@@ -111,6 +122,7 @@ export async function buildShelfScene(
   onCover?: (tex: THREE.CanvasTexture, d: SiteBook) => void,
 ): Promise<ShelfScene> {
   const disposables: { dispose(): void }[] = [];
+  let spineTimer = 0;
   const track = <D extends { dispose(): void }>(d: D): D => {
     disposables.push(d);
     return d;
@@ -118,6 +130,7 @@ export async function buildShelfScene(
 
   const r = new T.WebGLRenderer({ canvas, antialias: true, alpha: true });
   const dispose = () => {
+    window.clearTimeout(spineTimer);
     for (const d of disposables) d.dispose();
     disposables.length = 0;
     r.dispose();
@@ -162,15 +175,26 @@ export async function buildShelfScene(
     const wallTex = track(new T.CanvasTexture(softRectCanvas()));
     const unit = track(new T.PlaneGeometry(1, 1));
 
+    // the spines are first painted for the size the stage is most likely to be (the window); the fit repaints them if it is not
+    const sizes = books.map(bookSize);
+    const guess = flatFrame({
+      vw: window.innerWidth,
+      vh: window.innerHeight,
+      span: sizes.reduce((n, b) => n + b.T, 0) + SHELF_GAP * (books.length - 1),
+      tallest: Math.max(...sizes.map((b) => b.H)),
+    });
+    const dpr = () => Math.min(window.devicePixelRatio || 1, MAX_DPR);
+
     const list: Book[] = [];
     const makeBook = (i: number) => {
       const d = books[i];
       const { H, W, T: thick } = bookSize(d);
       const coverTex = toTex(coverCanvas(d, null));
+      const spine = createSpineFace(d, spinePixels(thick, H, guess.scale, dpr()), toTex);
       const topTex = toTex(topCanvas(d));
       const faces = [
         toTex(foreCanvas(d)),
-        toTex(spineCanvas(d, thick, H)),
+        spine.tex,
         topTex,
         topTex,
         coverTex,
@@ -194,6 +218,7 @@ export async function buildShelfScene(
         mats,
         litMats,
         coverTex,
+        spine,
         wallSh,
         H,
         W,
@@ -292,6 +317,14 @@ export async function buildShelfScene(
         if (b.mesh.material === set) return;
         for (let k = 0; k < set.length; k++) set[k].opacity = b.mats[k].opacity;
         b.mesh.material = set;
+      },
+      fitSpines(scale, immediate, done) {
+        window.clearTimeout(spineTimer);
+        const go = () => {
+          if (resizeSpines(list, scale, dpr())) done();
+        };
+        if (immediate) go();
+        else spineTimer = window.setTimeout(go, SPINE_RESIZE_MS);
       },
       dispose,
     };

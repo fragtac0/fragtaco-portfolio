@@ -56,7 +56,7 @@ export default function ShelfPlaceholder({ books, leaving }: ShelfPlaceholderPro
                 top: layout.floor - bar.height,
                 width: bar.width,
                 height: bar.height,
-                backgroundColor: books[i].spine,
+                backgroundColor: books[i].color,
               }}
             />
           ))}

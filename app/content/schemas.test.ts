@@ -35,7 +35,7 @@ const validBook = {
   isbn: "9780060391683",
   heightIn: 9.5,
   aspect: 0.66,
-  spine: "#151312",
+  color: "#151312",
   style: "band",
   note: "Placeholder for one or two lines on why this book stays with you.",
 };
@@ -87,11 +87,34 @@ describe("BooksSectionSchema", () => {
     );
   });
 
-  it("rejects a non-hex spine colour", () => {
+  it("rejects a non-hex book colour", () => {
     const result = BooksSectionSchema.safeParse({
-      items: [{ ...validBook, spine: "red" }],
+      items: [{ ...validBook, color: "red" }],
     });
     expect(result.success).toBe(false);
+  });
+
+  it("accepts a book without a spine picture and one with a path under public/", () => {
+    expect("spine" in validBook).toBe(false);
+    for (const spine of ["/books/story-spine.webp", "/books/a_b-1/c.JPG"]) {
+      const result = BooksSectionSchema.safeParse({ items: [{ ...validBook, spine }] });
+      expect(result.success, spine).toBe(true);
+    }
+  });
+
+  it("rejects a spine that is not an image path under public/", () => {
+    for (const spine of [
+      "#151312",
+      "books/story.webp",
+      "/books/../secret.png",
+      "https://example.com/a.png",
+      "/books/story.svg",
+      "/books/story",
+      "",
+    ]) {
+      const result = BooksSectionSchema.safeParse({ items: [{ ...validBook, spine }] });
+      expect(result.success, spine).toBe(false);
+    }
   });
 
   it("rejects an ISBN that is not 13 digits", () => {

@@ -18,8 +18,8 @@ export function miniSpine(book: SiteBook): {
   return {
     width: Math.round(14 + book.pages * 0.055),
     height: Math.round(book.heightIn * 21),
-    background: book.spine,
-    ink: inkOn(book.spine),
+    background: book.color,
+    ink: inkOn(book.color),
     band: book.style === "band",
   };
 }

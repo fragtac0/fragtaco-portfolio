@@ -9,6 +9,8 @@ import { createAnimate, poseBooks } from "./shelf-pose";
 import { createMarkerSync, hintText, HINT_NO_GL } from "./shelf-hud";
 import { fitShelf } from "./shelf-fit";
 import { buildShelfScene, loadShelfFonts, type ShelfScene } from "./shelf-scene";
+import { loadSpinePhotos, retintSpine, stepSpineFades } from "./shelf-spines";
+import { spineColours } from "./spine-styles";
 import { LINE_ALPHA } from "../../../styles/tokens";
 import { clamp, flick, initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
 
@@ -85,7 +87,15 @@ export function createShelf(
       t.needsUpdate = true;
       gl.renderer.initTexture(t);
     },
+    // the cover's colours: the spine fades over to them while the loop runs, else it is repainted at once
+    colours(d, c) {
+      const b = gl?.books.find((k) => k.d.id === d.id);
+      if (!b) return;
+      retintSpine(b, spineColours(c), running && !reduced);
+      st.dirty = true;
+    },
   });
+  let stopPhotos: (() => void) | null = null;
 
   // interaction state
   const st: ShelfState = {
@@ -170,6 +180,7 @@ export function createShelf(
       cam.x = x;
       busy = true;
     }
+    if (stepSpineFades(s.books, dt)) busy = true;
     syncMarker(els?.marker, cam.x, s.maxX, s.visible);
     s.camera.position.x = cam.x; // the fit set the height; the camera looks straight down -z
 
@@ -224,6 +235,13 @@ export function createShelf(
         }
         gl = g;
         covers.wake();
+        // a book with a picture of its spine shows that instead (none does yet)
+        stopPhotos = loadSpinePhotos(g.books, {
+          animate: () => running && !reduced,
+          shown: () => {
+            st.dirty = true;
+          },
+        });
       })
       .catch((err: unknown) => {
         if (err instanceof Aborted) return;
@@ -313,6 +331,7 @@ export function createShelf(
       unmount();
       disposed = true;
       covers.clear();
+      stopPhotos?.();
       gl?.dispose();
       gl = null;
     },

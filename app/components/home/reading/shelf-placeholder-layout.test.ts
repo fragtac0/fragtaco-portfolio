@@ -11,7 +11,7 @@ const book = (id: string, pages: number, heightIn: number): SiteBook => ({
   isbn: "",
   heightIn,
   aspect: 0.66,
-  spine: "#884422",
+  color: "#884422",
   style: "plain",
   note: "",
 });

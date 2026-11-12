@@ -1,6 +1,7 @@
 import type * as THREE from "three";
 import type { SiteBook } from "~/types";
 import { idleSlice } from "../../../utils/idle";
+import { coloursOfImage, type CoverColours } from "./cover-colours";
 import { coverCanvas } from "./shelf-canvases";
 
 /**
@@ -8,7 +9,8 @@ import { coverCanvas } from "./shelf-canvases";
  * decoded off the main thread, then painted (one per idle slice) and uploaded, and none of that
  * happens during the drop-in or while a book is open: while the scene is running, the painted
  * canvas waits in `pend` and the frame loop uploads one per frame after the entrance (`drain`).
- * A missing cover keeps the generated one. Decoded images are released as soon as they are
+ * The two main colours of each cover are read while it is painted, and handed to `colours` so the
+ * book's spine can go over to them. A missing cover keeps the generated one and the book's own colour. Decoded images are released as soon as they are
  * painted, so only the painted canvas is kept.
  */
 
@@ -23,6 +25,8 @@ export type CoverQueueDeps = {
   calm(): boolean;
   /** Hands a painted canvas to a texture and uploads it to the GPU. */
   upload(tex: THREE.CanvasTexture, canvas: HTMLCanvasElement): void;
+  /** The cover's dominant and secondary colours, read from the decoded image. */
+  colours(d: SiteBook, colours: CoverColours): void;
 };
 
 export type CoverQueue = {
@@ -77,6 +81,8 @@ export function createCoverQueue(deps: CoverQueueDeps): CoverQueue {
       const job = jobs.shift();
       if (job) {
         const c = coverCanvas(job.d, job.img);
+        const colours = coloursOfImage(job.img);
+        if (colours) deps.colours(job.d, colours);
         release(job.img);
         if (running) pend.push([job.tex, c]);
         else deps.upload(job.tex, c);
