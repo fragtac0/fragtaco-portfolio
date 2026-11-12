@@ -4,107 +4,413 @@
    1440,
    900
   ],
+  "dpr": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.length>=3||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
   "go": "{{BASE}}/",
-  "wait": 22000
+  "wait": 6000
  },
  {
-  "label": "click-work",
-  "eval": "(()=>{const a=[...document.querySelectorAll('header[data-site-nav] a')].find(x=>/reel|work/.test(x.textContent)); a.click(); return a.textContent.trim()})()",
+  "label": "to-work-00 (t=0.03)",
+  "eval": "__hold('/work','radial',0.03,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-00-warm"
+ },
+ {
+  "wait": 60,
   "shot": "to-work-00"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "to-work-01 (t=0.06)",
+  "eval": "__hold('/work','radial',0.06,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-01-warm"
  },
  {
   "wait": 60,
   "shot": "to-work-01"
  },
  {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "to-work-02 (t=0.1)",
+  "eval": "__hold('/work','radial',0.1,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-02-warm"
+ },
+ {
   "wait": 60,
   "shot": "to-work-02"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "to-work-03 (t=0.14)",
+  "eval": "__hold('/work','radial',0.14,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-03-warm"
  },
  {
   "wait": 60,
   "shot": "to-work-03"
  },
  {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "to-work-04 (t=0.19)",
+  "eval": "__hold('/work','radial',0.19,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-04-warm"
+ },
+ {
   "wait": 60,
   "shot": "to-work-04"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "to-work-05 (t=0.25)",
+  "eval": "__hold('/work','radial',0.25,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-05-warm"
  },
  {
   "wait": 60,
   "shot": "to-work-05"
  },
  {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "to-work-06 (t=0.33)",
+  "eval": "__hold('/work','radial',0.33,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-06-warm"
+ },
+ {
   "wait": 60,
   "shot": "to-work-06"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "to-work-07 (t=0.45)",
+  "eval": "__hold('/work','radial',0.45,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-07-warm"
  },
  {
   "wait": 60,
   "shot": "to-work-07"
  },
  {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "to-work-08 (t=0.65)",
+  "eval": "__hold('/work','radial',0.65,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-08-warm"
+ },
+ {
   "wait": 60,
   "shot": "to-work-08"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "to-work-09 (t=0.9)",
+  "eval": "__hold('/work','radial',0.9,676,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-work-09-warm"
  },
  {
   "wait": 60,
   "shot": "to-work-09"
  },
  {
-  "wait": 2000,
-  "shot": "work-warm"
+  "label": "release",
+  "eval": "__release()"
  },
  {
-  "shot": "work"
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
  },
  {
-  "label": "click-home",
-  "eval": "(()=>{const a=[...document.querySelectorAll('header[data-site-nav] a')].find(x=>/the cut|home/.test(x.textContent)); a.click(); return a.textContent.trim()})()",
+  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "label": "to work"
+ },
+ {
+  "label": "to-home-00 (t=0.03)",
+  "eval": "__hold('/','radial',0.03,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-00-warm"
+ },
+ {
+  "wait": 60,
   "shot": "to-home-00"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+ },
+ {
+  "label": "to-home-01 (t=0.06)",
+  "eval": "__hold('/','radial',0.06,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-01-warm"
  },
  {
   "wait": 60,
   "shot": "to-home-01"
  },
  {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+ },
+ {
+  "label": "to-home-02 (t=0.1)",
+  "eval": "__hold('/','radial',0.1,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-02-warm"
+ },
+ {
   "wait": 60,
   "shot": "to-home-02"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+ },
+ {
+  "label": "to-home-03 (t=0.14)",
+  "eval": "__hold('/','radial',0.14,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-03-warm"
  },
  {
   "wait": 60,
   "shot": "to-home-03"
  },
  {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+ },
+ {
+  "label": "to-home-04 (t=0.19)",
+  "eval": "__hold('/','radial',0.19,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-04-warm"
+ },
+ {
   "wait": 60,
   "shot": "to-home-04"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+ },
+ {
+  "label": "to-home-05 (t=0.25)",
+  "eval": "__hold('/','radial',0.25,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-05-warm"
  },
  {
   "wait": 60,
   "shot": "to-home-05"
  },
  {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+ },
+ {
+  "label": "to-home-06 (t=0.33)",
+  "eval": "__hold('/','radial',0.33,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-06-warm"
+ },
+ {
   "wait": 60,
   "shot": "to-home-06"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+ },
+ {
+  "label": "to-home-07 (t=0.45)",
+  "eval": "__hold('/','radial',0.45,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-07-warm"
  },
  {
   "wait": 60,
   "shot": "to-home-07"
  },
  {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+ },
+ {
+  "label": "to-home-08 (t=0.65)",
+  "eval": "__hold('/','radial',0.65,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-08-warm"
+ },
+ {
   "wait": 60,
   "shot": "to-home-08"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+ },
+ {
+  "label": "to-home-09 (t=0.9)",
+  "eval": "__hold('/','radial',0.9,559,846)"
+ },
+ {
+  "wait": 120,
+  "shot": "to-home-09-warm"
  },
  {
   "wait": 60,
   "shot": "to-home-09"
  },
  {
-  "wait": 2500,
-  "shot": "home-again-warm"
+  "label": "release",
+  "eval": "__release()"
  },
  {
-  "shot": "home-again"
- },
- {
-  "label": "locks",
-  "eval": "document.documentElement.className"
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
  }
 ]

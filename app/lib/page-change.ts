@@ -8,10 +8,13 @@
  * starting the ring motion) waits for that, so it never lands inside the transition.
  *
  * While a change runs, <html> carries `data-change-kind` and the origin as CSS variables
- * (`--change-x`, `--change-y`, `--change-r`, `--change-ms`) for page-transition.css. They are cleared
+ * (`--change-x`, `--change-y`, `--change-r`, `--change-w`, `--change-ms`) for glass.css and
+ * page-transition.css; components/page-change/glass-run.ts draws the glass front on the transition. They are cleared
  * when the transition finishes, is skipped, or fails.
  */
 import type { NavigateFunction } from "@remix-run/react";
+import { GLASS } from "../components/page-change/glass-math";
+import { startGlass } from "../components/page-change/glass-run";
 import {
   captureNextTransition,
   commitCount,
@@ -36,11 +39,13 @@ export interface ChangePlan {
   origin: Point;
   /** Distance from the origin to the farthest corner of the screen. */
   radius: number;
+  /** The viewport's width: the travel of a linear sweep. */
+  width: number;
   ms: number;
 }
 
 /** Spec 5.1: the radial reveal 560 ms, the linear sweep 480 ms, the reduced-motion fade 120 ms. */
-const MS: Record<ChangeKind, number> = { radial: 560, "linear-left": 480, "linear-right": 480, fade: 120 };
+const MS: Record<ChangeKind, number> = { radial: GLASS.radialMs, "linear-left": GLASS.linearMs, "linear-right": GLASS.linearMs, fade: 120 };
 
 /** Pure: what a change looks like on this screen. No View Transitions support gives `none` (the page just changes). */
 export function planChange(p: {
@@ -53,10 +58,11 @@ export function planChange(p: {
 }): ChangePlan {
   const origin = p.origin ?? { x: p.vw / 2, y: p.vh / 2 };
   const radius = Math.hypot(Math.max(origin.x, p.vw - origin.x), Math.max(origin.y, p.vh - origin.y));
-  if (!p.supported) return { kind: "none", origin, radius, ms: 0 };
-  if (p.reduced) return { kind: "fade", origin, radius, ms: MS.fade };
+  const width = p.vw;
+  if (!p.supported) return { kind: "none", origin, radius, width, ms: 0 };
+  if (p.reduced) return { kind: "fade", origin, radius, width, ms: MS.fade };
   const kind = p.kind ?? "radial";
-  return { kind, origin, radius, ms: MS[kind] };
+  return { kind, origin, radius, width, ms: MS[kind] };
 }
 
 /**
@@ -97,11 +103,12 @@ function mark(html: HTMLElement, plan: ChangePlan) {
   html.style.setProperty("--change-x", `${plan.origin.x}px`);
   html.style.setProperty("--change-y", `${plan.origin.y}px`);
   html.style.setProperty("--change-r", `${plan.radius}px`);
+  html.style.setProperty("--change-w", `${plan.width}px`);
   html.style.setProperty("--change-ms", `${plan.ms}ms`);
 }
 function unmark(html: HTMLElement) {
   delete html.dataset.changeKind;
-  for (const name of ["--change-x", "--change-y", "--change-r", "--change-ms"]) html.style.removeProperty(name);
+  for (const name of ["--change-x", "--change-y", "--change-r", "--change-w", "--change-ms"]) html.style.removeProperty(name);
 }
 
 /**
@@ -160,6 +167,7 @@ function open(plan: ChangePlan) {
       t.ready.catch(() => undefined);
       t.updateCallbackDone.catch(() => undefined);
       t.finished.then(over, over);
+      cleanups.push(startGlass(t, plan)); // the glass front, from the transition's `ready`; stopped with the change
     },
   };
 }

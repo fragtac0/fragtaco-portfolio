@@ -1,15 +1,17 @@
-/* The page change, built on the View Transitions API. app/lib/page-change.ts owns every change: the
- * router starts the transition itself once the destination's data is loaded (`viewTransition` on the
- * navigation; on Back and Forward too, or this module starts one), and the module puts `data-change-kind`
- * and the origin on <html> while the change runs (--change-x, --change-y, --change-r, --change-ms).
- * Browsers without the API change pages instantly. For now every kind is the same 200 ms crossfade, with
- * no blur: blurring two full-screen pictures was the lag. The glass reveal replaces it.
+/* The page change's shared rules. app/lib/page-change.ts owns every change: the router starts the view
+ * transition itself once the destination's data is loaded (`viewTransition` on the navigation; on Back
+ * and Forward too, or this module starts one), and the module puts `data-change-kind` and the origin on
+ * <html> while the change runs (--change-x, --change-y, --change-r, --change-w, --change-ms).
+ * The liquid-glass reveal for the radial and linear kinds is in page-change/glass.css. Here: the plain fade
+ * (reduced motion, 120 ms) and what any change not marked (a transition the router starts on its own)
+ * falls back to, a 200 ms crossfade with no blur. Browsers without the API change pages instantly.
  *
  * The dock keeps its own name so it stays still while the page behind it changes. The name sits on the
  * glass pill, not on the header: an element with a view-transition-name is a backdrop root, and the
  * pill's backdrop-blur would then blur only the header's own (empty) content instead of the page behind it. */
 ::view-transition-group(root) { animation-duration: 200ms; }
+html[data-change-kind="fade"]::view-transition-group(*) { animation-duration: var(--change-ms); }
 [data-dock-glass] { view-transition-name: site-dock; }
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(root) { animation-duration: 120ms; }
+  ::view-transition-group(*) { animation-duration: 120ms; }
 }

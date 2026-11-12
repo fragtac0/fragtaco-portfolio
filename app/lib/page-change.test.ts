@@ -21,6 +21,11 @@ describe("planChange", () => {
     expect(planChange({ supported: true, reduced: true, ...screen }).origin).toEqual({ x: 720, y: 450 });
   });
 
+  it("carries the viewport width, the travel of a linear sweep", () => {
+    expect(planChange({ supported: true, reduced: false, kind: "linear-right", ...screen }).width).toBe(1440);
+    expect(planChange({ supported: true, reduced: true, ...screen }).width).toBe(1440);
+  });
+
   it("keeps a given origin", () => {
     const origin = { x: 100, y: 800 };
     expect(planChange({ supported: true, reduced: false, origin, ...screen }).origin).toEqual(origin);
