@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { LIFT, liftPhases, OPEN_SECONDS, RISE_END, stepOpen, TURN_START } from "./shelf-math";
+import {
+  COVER_PX_MAX,
+  COVER_PX_MIN,
+  coverPixels,
+  LIFT,
+  liftPhases,
+  OPEN_SECONDS,
+  RENDER_DPR_MAX,
+  RISE_END,
+  stepOpen,
+  TURN_START,
+} from "./shelf-math";
 
 describe("liftPhases", () => {
   it("is down at 0 and fully lifted and turned at 1", () => {
@@ -66,5 +77,29 @@ describe("stepOpen", () => {
     expect(stepOpen(0.01, 0, 5)).toBe(0);
     expect(stepOpen(0, 0, 0.1)).toBe(0);
     expect(stepOpen(1, 1, 0.1)).toBe(1);
+  });
+});
+
+describe("coverPixels", () => {
+  it("paints a cover at its size on screen times the renderer's pixel ratio (at most 1.75)", () => {
+    expect(RENDER_DPR_MAX).toBe(1.75);
+    expect(coverPixels(295, 2)).toBe(516); // a phone: the cover is 295 CSS px wide, drawn at 1.75
+    expect(coverPixels(330, 1)).toBe(330); // a desktop screen
+    expect(coverPixels(330, 2)).toBe(578); // a retina laptop: 330 * 1.75
+    expect(coverPixels(330, 3)).toBe(578); // the ratio counts to 1.75 only
+  });
+  it("is never smaller than the floor or larger than the memory cap, and ignores a ratio under 1", () => {
+    expect(coverPixels(100, 2)).toBe(COVER_PX_MIN);
+    expect(coverPixels(900, 2)).toBe(COVER_PX_MAX);
+    expect(coverPixels(500, 0.5)).toBe(500);
+  });
+  it("grows with the cover and with the ratio", () => {
+    let last = 0;
+    for (let w = 100; w <= 700; w += 25) {
+      const p = coverPixels(w, 2);
+      expect(p).toBeGreaterThanOrEqual(last);
+      last = p;
+    }
+    expect(coverPixels(400, 1.5)).toBeGreaterThan(coverPixels(400, 1));
   });
 });

@@ -1,6 +1,6 @@
 import { clamp, FRONT } from "./shelf-math";
 import { headerBottom } from "./shelf-head";
-import { liftLayout, MARGIN, sideBySide } from "./shelf-lift";
+import { liftLayout, sideBySide } from "./shelf-lift";
 import type { Book, ShelfScene } from "./shelf-scene";
 
 /**
@@ -87,7 +87,7 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
    * Works out where the lifted book goes (`liftLayout`, in pixels), puts the note card beside it
    * (wide) and hands the pose its numbers in world units: how far it rises, where its centre ends
    * up, how large it is drawn (never larger than in the row) and the highest its centre may go
-   * (its top stays inside the layer).
+   * (its top stays under the header).
    */
   function layoutOpen(b: Book, gl: ShelfScene, els: ShelfEls) {
     const { camera } = gl;
@@ -125,11 +125,15 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
       .map(Math.round)
       .join(",");
     canvas.dataset.openLift = String(Math.round(out.lift));
+    // and the cover texture's size in pixels, to set against the box (times the renderer's pixel ratio)
+    const cimg = b.coverTex.image as { width?: number; height?: number } | undefined;
+    canvas.dataset.openCover = `${cimg?.width ?? 0}x${cimg?.height ?? 0}`;
+    canvas.dataset.pixelRatio = String(gl.renderer.getPixelRatio());
     // screen to world: the camera sits at (cam.x, yc) and sees `scale` pixels per unit
     const worldY = (py: number) => camera.position.y + (vh / 2 - py) / sc;
     b.lift = out.lift / sc;
     b.openScale = out.scale;
-    b.yMax = worldY(MARGIN + rowH / 2);
+    b.yMax = worldY(out.top + rowH / 2); // the book's top never passes the header
     b.openPos.set(
       camera.position.x + (out.cx - vw / 2) / sc,
       worldY(out.cy),

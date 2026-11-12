@@ -127,6 +127,20 @@ export const BASE_AT = 0.9;
 export const BOTTOM_PX = 84;
 /** The hairline the books stand on, in CSS pixels. */
 export const LINE_PX = 1;
+/** The painted cover's widest and narrowest width in pixels (`coverPixels`). */
+export const COVER_PX_MAX = 1024;
+export const COVER_PX_MIN = 256;
+/** The most device pixels the renderer draws per CSS pixel (a frame-cost cap: see shelf-scene.ts). */
+export const RENDER_DPR_MAX = 1.75;
+/**
+ * The width, in pixels, to paint a cover at: its size on screen when open (CSS px) times the pixel
+ * ratio the renderer draws at (at most `RENDER_DPR_MAX`), so the texture is about as large as the
+ * picture it makes, never much larger (a texture larger than its picture is blurred by the GPU's
+ * own filtering) and never past a memory limit.
+ */
+export function coverPixels(cssWidth: number, dpr: number): number {
+  return Math.round(clamp(cssWidth * clamp(dpr, 1, RENDER_DPR_MAX), COVER_PX_MIN, COVER_PX_MAX));
+}
 /** Clear space kept between the layer's header and the tallest spine's top, in CSS pixels. */
 export const HEAD_GAP = 8;
 /**

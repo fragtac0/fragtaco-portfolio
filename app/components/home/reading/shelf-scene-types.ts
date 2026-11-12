@@ -33,6 +33,8 @@ export type Book = {
   /** The same faces, lit softly; a lifted book uses these (`setLit`). */
   litMats: THREE.MeshStandardMaterial[];
   coverTex: THREE.CanvasTexture;
+  /** The width in pixels its cover is painted at: about its size on screen when open, times the pixel ratio. */
+  coverPx: number;
   /** The designed spine: its canvas is the spine's size on screen times the pixel ratio (shelf-spines.ts). */
   spine: SpineFace;
   wallSh: FlatMesh;

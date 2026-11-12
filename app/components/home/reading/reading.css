@@ -88,8 +88,8 @@
     transform 0.7s var(--ease);
   padding: 24px 24px 22px;
   border-radius: 22px;
-  /* the row stays sharp behind the card now (it only dims), so the card is close to solid */
-  background: color-mix(in srgb, var(--surface-1) 95%, transparent);
+  /* the row stays sharp behind the card now (it only dims), so the card is fully solid: no spine type shows through */
+  background: var(--surface-1);
   outline: 1px solid var(--line);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
@@ -147,7 +147,7 @@
     width: auto;
     transform: translate3d(0, 12px, 0);
     padding: 18px;
-    background: color-mix(in srgb, var(--surface-1) 96%, transparent);
+    background: var(--surface-1);
   }
   .home-layer .book-info.on {
     transform: none;

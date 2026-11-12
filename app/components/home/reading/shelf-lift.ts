@@ -1,4 +1,4 @@
-import { clamp, LIFT } from "./shelf-math";
+import { clamp, HEAD_GAP, LIFT } from "./shelf-math";
 
 /**
  * Where a lifted book goes and where its note stands, in CSS pixels on the stage. Pure: the open
@@ -6,7 +6,8 @@ import { clamp, LIFT } from "./shelf-math";
  * into world units for the pose.
  *
  * The book first rises straight up by 38% of its height (`lift`), but never so far that its top
- * leaves the layer (`MARGIN` from the top). Then it turns to its cover, which is wider than the
+ * passes the header's bottom plus `HEAD_GAP` (the line the fit keeps the tallest spine under), so
+ * the title and subtitle stay clear: the tallest books rise less than 38%, or not at all. Then it turns to its cover, which is wider than the
  * spine: on a wide screen the book and the note card (beside it) are kept inside the stage, the
  * book moving sideways only as far as that needs, and shrunk if the pair is still too wide; on a
  * narrow screen the card is a sheet along the bottom, so the book stays above it (and under the
@@ -53,6 +54,8 @@ export type LiftInput = {
 export type LiftOut = {
   /** How far the book rises, straight up (px). */
   lift: number;
+  /** The highest the book's top may ever be: the header's bottom plus `HEAD_GAP` (px). */
+  top: number;
   /** The final centre of the book and its size against the row's (1 or less). */
   cx: number;
   cy: number;
@@ -63,10 +66,12 @@ export type LiftOut = {
 
 /** Where the book stops: 1 or less of its row size, centred as far as it can be on `rowX` and `lifted`. */
 export function liftLayout(p: LiftInput): LiftOut {
-  const lift = clamp(LIFT * p.rowH, 0, Math.max(0, p.rowTop - MARGIN));
+  // never higher than the header's bottom plus its gap (and never above the layer's margin)
+  const top = Math.max(MARGIN, p.headBottom + HEAD_GAP);
+  const lift = clamp(LIFT * p.rowH, 0, Math.max(0, p.rowTop - top));
   const liftedCentre = p.rowTop - lift + p.rowH / 2;
   const sheetTop = p.vh - 16 - p.note.h - SHEET_GAP;
-  const areaTop = p.wide ? MARGIN : Math.min(p.headBottom, sheetTop - 40);
+  const areaTop = p.wide ? top : Math.min(top, sheetTop - 40);
   const areaBottom = p.wide ? p.vh - MARGIN : sheetTop;
   const availW = p.wide ? p.vw - 2 * MARGIN - p.gap - p.note.w : p.vw - 2 * MARGIN;
   const scale = clamp(
@@ -78,7 +83,7 @@ export function liftLayout(p: LiftInput): LiftOut {
   const h = p.rowH * scale;
   const cy = clamp(liftedCentre, areaTop + h / 2, Math.max(areaTop + h / 2, areaBottom - h / 2));
   if (!p.wide) {
-    return { lift, cx: clamp(p.rowX, MARGIN + w / 2, p.vw - MARGIN - w / 2), cy, scale, note: null };
+    return { lift, top, cx: clamp(p.rowX, MARGIN + w / 2, p.vw - MARGIN - w / 2), cy, scale, note: null };
   }
   // the pair is book and card side by side; the card goes to the side the book needs to move least for
   const total = w + p.gap + p.note.w;
@@ -91,6 +96,6 @@ export function liftLayout(p: LiftInput): LiftOut {
   const noteTop = p.vh <= SHORT_PX ? Math.max(MARGIN, p.headBottom) : MARGIN;
   const centreY = clamp(cy, noteTop + noteH / 2, Math.max(noteTop + noteH / 2, p.vh - MARGIN - noteH / 2));
   return cardRight
-    ? { lift, cx: right + w / 2, cy, scale, note: { left: right + w + p.gap, centreY } }
-    : { lift, cx: left + p.note.w + p.gap + w / 2, cy, scale, note: { left, centreY } };
+    ? { lift, top, cx: right + w / 2, cy, scale, note: { left: right + w + p.gap, centreY } }
+    : { lift, top, cx: left + p.note.w + p.gap + w / 2, cy, scale, note: { left, centreY } };
 }

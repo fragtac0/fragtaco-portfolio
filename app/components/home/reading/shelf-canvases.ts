@@ -75,11 +75,18 @@ function fitText(
 }
 
 /** The front cover: the Open Library image when `img` is given, otherwise a generated one. */
-export function coverCanvas(d: PaintBook, img: HTMLImageElement | null): HTMLCanvasElement {
+export function coverCanvas(
+  d: PaintBook,
+  img: HTMLImageElement | null,
+  /** The width to paint at, in pixels (`coverPixels`); the cover is designed on 640 and scaled to this. */
+  px = 640,
+): HTMLCanvasElement {
   const cw = 640;
   const ch = Math.round(640 / d.aspect);
-  const c = mk(cw, ch);
+  const k = px / cw;
+  const c = mk(px, Math.round(ch * k));
   const x = ctx2d(c);
+  x.scale(k, k);
   if (img) {
     const ia = img.naturalWidth / img.naturalHeight;
     const ca = cw / ch;

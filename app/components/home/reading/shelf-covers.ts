@@ -27,6 +27,8 @@ export type CoverQueueDeps = {
   upload(tex: THREE.CanvasTexture, canvas: HTMLCanvasElement): void;
   /** The cover's dominant and secondary colours, read from the decoded image. */
   colours(d: SiteBook, colours: CoverColours): void;
+  /** The width in pixels to paint this book's cover at (see `coverPixels`). */
+  pixels(d: SiteBook): number;
 };
 
 export type CoverQueue = {
@@ -80,7 +82,7 @@ export function createCoverQueue(deps: CoverQueueDeps): CoverQueue {
     } else {
       const job = jobs.shift();
       if (job) {
-        const c = coverCanvas(job.d, job.img);
+        const c = coverCanvas(job.d, job.img, deps.pixels(job.d));
         const colours = coloursOfImage(job.img);
         if (colours) deps.colours(job.d, colours);
         release(job.img);

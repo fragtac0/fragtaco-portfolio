@@ -9,7 +9,7 @@ import {
   topCanvas,
 } from "./shelf-canvases";
 import { addShelfLights } from "./shelf-light";
-import { FRONT, SHELF_GAP, WALLZ, bookSize, flatFrame, headGuess } from "./shelf-math";
+import { FRONT, SHELF_GAP, RENDER_DPR_MAX, WALLZ, bookSize, coverPixels, flatFrame, headGuess } from "./shelf-math";
 import { newBag, type Book, type ShelfScene } from "./shelf-scene-types";
 import { createSpineFace, resizeSpines, spinePixels, MAX_DPR } from "./shelf-spines";
 
@@ -80,7 +80,7 @@ export async function buildShelfScene(
   };
 
   try {
-    r.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+    r.setPixelRatio(Math.min(window.devicePixelRatio, RENDER_DPR_MAX));
     r.outputColorSpace = T.SRGBColorSpace;
     r.toneMapping = T.NoToneMapping;
     const scene = new T.Scene();
@@ -129,7 +129,12 @@ export async function buildShelfScene(
     const makeBook = (i: number) => {
       const d = books[i];
       const { H, W, T: thick } = bookSize(d);
-      const coverTex = toTex(coverCanvas(d, null));
+      // painted about as large as it shows on screen when open, and drawn without mipmaps: a texture
+      // larger than its picture is blended between two mip levels, which is what made covers soft on phones
+      const coverPx = coverPixels(W * guess.scale, dpr());
+      const coverTex = toTex(coverCanvas(d, null, coverPx));
+      coverTex.generateMipmaps = false;
+      coverTex.minFilter = T.LinearFilter;
       const spine = createSpineFace(d, spinePixels(thick, H, guess.scale, dpr()), toTex, dpr());
       const topTex = toTex(topCanvas(d));
       const faces = [
@@ -159,6 +164,7 @@ export async function buildShelfScene(
         mats,
         litMats,
         coverTex,
+        coverPx,
         spine,
         wallSh,
         H,

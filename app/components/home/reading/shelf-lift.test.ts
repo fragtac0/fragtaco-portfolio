@@ -7,7 +7,7 @@ import {
   sideBySide,
   type LiftInput,
 } from "./shelf-lift";
-import { LIFT } from "./shelf-math";
+import { HEAD_GAP, LIFT } from "./shelf-math";
 
 /** A wide stage like 1440 by 900: the row's feet at 810, a book 600 high, its cover 400 wide. */
 const wide = (over: Partial<LiftInput> = {}): LiftInput => ({
@@ -45,11 +45,21 @@ describe("liftLayout: the rise", () => {
     const o = liftLayout(wide({ rowH: 400, rowTop: 410, coverW: 260 }));
     expect(o.lift).toBeCloseTo(LIFT * 400, 9);
   });
-  it("caps the lift so the book's top stays inside the layer", () => {
-    // 38% of 600 is 228, but only 210 - 8 = 202 px lie above the book
+  it("caps the lift so the book's top stays under the header, with the fit's gap", () => {
+    // 38% of 600 is 228, but only 210 - (135 + 8) = 67 px lie between the book and the header
     const o = liftLayout(wide());
-    expect(o.lift).toBe(210 - MARGIN);
-    expect(o.cy - (o.scale * 600) / 2).toBeCloseTo(MARGIN, 9);
+    expect(o.lift).toBe(210 - (135 + HEAD_GAP));
+    expect(o.top).toBe(135 + HEAD_GAP);
+    expect(o.cy - (o.scale * 600) / 2).toBeCloseTo(135 + HEAD_GAP, 9);
+  });
+  it("does not lift the tallest book at all when its top already stands at the header's line", () => {
+    // 1440 by 900: the tallest spine's top is at header + 8
+    expect(liftLayout(wide({ rowTop: 143, rowH: 667, coverW: 440 })).lift).toBe(0);
+  });
+  it("still lifts a shorter book by 38% when it clears the header", () => {
+    const o = liftLayout(wide({ rowTop: 420, rowH: 390, coverW: 260 }));
+    expect(o.lift).toBeCloseTo(LIFT * 390, 9);
+    expect(420 - o.lift).toBeGreaterThanOrEqual(135 + HEAD_GAP);
   });
   it("does not lift a book that already touches the top", () => {
     expect(liftLayout(wide({ rowTop: 5 })).lift).toBe(0);
@@ -180,6 +190,11 @@ describe("liftLayout: every book at every column of the Review Focus sizes", () 
           const h = rowH * o.scale;
           const where = `${s.vw}x${s.vh} frac ${frac} x ${rowX.toFixed(0)}`;
           expect(o.cy - h / 2, where).toBeGreaterThanOrEqual(MARGIN - 1e-6);
+          // under the header with the fit's gap, at the top of the rise and where it settles
+          expect(o.cy - h / 2, where).toBeGreaterThanOrEqual(s.head + HEAD_GAP - 1e-6);
+          expect(s.baseRow - rowH - o.lift, where).toBeGreaterThanOrEqual(
+            Math.min(s.baseRow - rowH, s.head + HEAD_GAP) - 1e-6,
+          );
           expect(o.cx - w / 2, where).toBeGreaterThanOrEqual(MARGIN - 1e-6);
           expect(o.cx + w / 2, where).toBeLessThanOrEqual(s.vw - MARGIN + 1e-6);
           expect(o.cy + h / 2, where).toBeLessThanOrEqual(s.vh - MARGIN + 1e-6);

@@ -93,6 +93,7 @@ export function createShelf(
       t.needsUpdate = true;
       gl.renderer.initTexture(t);
     },
+    pixels: (d) => gl?.books.find((k) => k.d.id === d.id)?.coverPx ?? 640,
     // the cover's colours: the spine fades over to them while the loop runs, else it is repainted at once
     colours(d, c) {
       const b = gl?.books.find((k) => k.d.id === d.id);
