@@ -24,6 +24,7 @@ import "./experience.css";
 import "./map-layers.css";
 import "./map-cards.css";
 import "./map-places.css";
+import "./map-tiny.css";
 
 /** The tile pyramid's description (`public/mars/manifest.json`, made by `yarn mars`), checked once on load. */
 const MANIFEST: Manifest = ManifestSchema.parse(manifestJson);
@@ -95,6 +96,8 @@ export default function ExperiencePage({ experience, today }: { experience: Site
   const available = useSyncExternalStore(never, mapAvailable, () => true);
   const [failed, setFailed] = useState(false);
   const [state, setState] = useState<MapState>(OVERVIEW);
+  // the heading's More button: the paragraph on a phone, and on the smallest phones the rest of the caption too
+  const [more, setMore] = useState(false);
   const arrived = usePageArrived(1);
   // "on" from the moment the effect below runs for the arrived page
   const engine = !available || failed ? "off" : arrived ? "on" : "pending";
@@ -187,6 +190,7 @@ export default function ExperiencePage({ experience, today }: { experience: Site
       data-layer={layer}
       data-route={settled && engine === "on" ? "draw" : "wait"}
       data-sheet={state.mode === "explore" && sheet !== null ? "" : undefined}
+      data-more={more ? "" : undefined}
       aria-label="Map of Olympus Mons, Mars"
       // the overview's shape, from view.ts, so the CSS (the picture's seed, the width of the words' column) cannot drift from it
       style={{ "--map-fit-share": FIT_RING_SHARE, "--map-cliff-span": CLIFF_SPAN } as CSSProperties}
@@ -227,7 +231,7 @@ export default function ExperiencePage({ experience, today }: { experience: Site
           <PlacesLayer places={places} points={spots} active={activePlace} onPick={pickPlace} onKeyFocus={focusPlace} />
         </div>
       </div>
-      <HeadingBlock title={heading.title} text={heading.text} labels={ui} />
+      <HeadingBlock title={heading.title} text={heading.text} labels={ui} open={more} onToggle={() => setMore((o) => !o)} />
       <MapCaption title={caption.title} line={caption.line} fact={fact?.text} credit={caption.credit} />
       {engine === "on" ? (
         <>
@@ -240,11 +244,12 @@ export default function ExperiencePage({ experience, today }: { experience: Site
             line={sheet?.line ?? ""}
           />
         </>
-      ) : (
+      ) : engine === "off" ? (
+        // only when the map cannot run; while the page change is still on show nothing (the sr-only list below serves)
         <div className="map-fallback-list" data-map-ui="">
           <MomentList moments={moments} label="My experience, in order" />
         </div>
-      )}
+      ) : null}
       {engine !== "off" ? (
         <div className="sr-only">
           <MomentList moments={moments} label="My experience, in order" />

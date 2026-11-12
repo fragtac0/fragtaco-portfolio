@@ -86,6 +86,14 @@ const cardsOk = (label) => ({
   label,
 });
 
+// R46.1 (M3), the smallest phones: the year pills and the dots clear of the caption and the zoom buttons, the mountain mostly
+// uncovered, the zoom buttons clear of the caption, the dock row's current tab not cut at the right, the caption's other lines
+// kept in the document (and shown by More, which opens them over the map on request: only then is a pill under the words allowed).
+const tinyClear = (label, more) => ({
+  eval: run(`await settle();await sleep(2300);const q=s=>document.querySelector(s),cap=R(q('.map-caption')),ctl=R(q('.map-controls')),head=R(q('.map-heading')),pills=[...document.querySelectorAll('.moment-year')].map(R),dots=[...document.querySelectorAll('.moment-dot')].map(R),ringR=0.78*Math.min(innerWidth,innerHeight)/2,ring={x0:innerWidth/2-ringR,y0:innerHeight/2-ringR,x1:innerWidth/2+ringR,y1:innerHeight/2+ringR},area=r=>Math.max(0,r.x1-r.x0)*Math.max(0,r.y1-r.y0),cut=(a,b)=>({x0:Math.max(a.x0,b.x0),y0:Math.max(a.y0,b.y0),x1:Math.min(a.x1,b.x1),y1:Math.min(a.y1,b.y1)}),covered=(area(cut(ring,cap))+area(cut(ring,ctl))+area(cut(ring,head)))/area(ring),scroller=q('.dock-row-clip > div'),tab=q('header[data-site-nav] [data-work-tab][aria-current="page"]'),sr=scroller&&scroller.getBoundingClientRect(),tr=tab&&tab.getBoundingClientRect(),vis=s=>{const e=q(s),c=getComputedStyle(e),r=e.getBoundingClientRect();return r.width>8&&r.height>8&&c.visibility==='visible'},texts=['.map-caption-line','.map-caption-fact','.map-caption-credit'].map(s=>({s,inDom:!!q(s)&&q(s).textContent.length>0,shown:vis(s)}));const pillOnCaption=pills.filter(p=>hit(p,cap)).length,pillOnControls=pills.filter(p=>hit(p,ctl)).length,dotOnCaption=dots.filter(p=>hit(p,cap)).length,dotOnControls=dots.filter(p=>hit(p,ctl)).length,pillOnHeading=pills.filter(p=>hit(p,head)).length;return JSON.stringify({size:[innerWidth,innerHeight],caption:[cap.x0,cap.y0,cap.x1,cap.y1].map(Math.round),controls:[ctl.x0,ctl.y0,ctl.x1,ctl.y1].map(Math.round),captionInside:inside(cap),controlsInside:inside(ctl),captionOnControls:hit(cap,ctl),captionOnHeading:hit(cap,head),pillOnCaption,pillOnControls,dotOnCaption,dotOnControls,pillOnHeading,ringShareCovered:+covered.toFixed(3),tabRight:tr&&Math.round(tr.right),scrollerRight:sr&&Math.round(sr.right),tabCut:tr&&sr?tr.right>sr.right+1||tr.left<sr.left-1:'no tab',lines:texts,ok:${more ? "!hit(cap,head)&&" : "pillOnCaption===0&&pillOnControls===0&&dotOnCaption===0&&dotOnControls===0&&covered<0.25&&"}!hit(cap,ctl)&&inside(cap)&&inside(ctl)&&!!tr&&!!sr&&tr.right<=sr.right+1&&tr.left>=sr.left-1&&texts.every(t=>t.inDom)&&texts.every(t=>t.shown===${more ? "true" : "false"})})`),
+  label,
+});
+
 const r453 = [
   { size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/experience", wait: 2500 },
   markers("R45.3 desktop overview: nine markers visible and clear of each other, pills inside, nothing at the summit, the end is the ping, the line is 2 px"),
@@ -167,6 +175,12 @@ const r453 = [
   { shot: "r45-experience-360x740" },
   { size: [320, 568], dpr: 2, mobile: true, touch: true, go: "{{BASE}}/experience", wait: 2500 },
   topRow("320 x 568: the title and the switch share no pixel"),
+  tinyClear("R46.1 320 x 568 overview: pills and dots clear of the caption and the zoom buttons, the mountain mostly uncovered, the dock tab not cut", false),
+  { eval: `document.querySelector('.map-more').click();new Promise(r=>setTimeout(()=>r(1),600))` },
+  tinyClear("R46.1 320 x 568 with More open: the caption's line, figures and credit show and stay inside the screen", true),
+  { shot: "r46-experience-320x568-more-warm" },
+  { shot: "r46-experience-320x568-more" },
+  { eval: `document.querySelector('.map-more').click();new Promise(r=>setTimeout(()=>r(1),600))` },
   { shot: "r45-experience-320x568-warm" },
   { shot: "r45-experience-320x568" },
   { size: [1024, 768], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/experience", wait: 2500 },
@@ -180,6 +194,37 @@ const r453 = [
   markers("R45.3 1920 x 1080: nine markers visible and clear"),
   { shot: "r45-experience-1920x1080-warm" },
   { shot: "r45-experience-1920x1080" },
+];
+
+// I1 (R46.1): a client-side change into /experience never shows the no-map fallback list. The change is frozen mid-reveal with the
+// debug hook (`__hold`, as make-glass-frames.mjs does) and the arriving page is read: the page is the map's, engine "pending", and
+// there is no `.map-fallback-list`; after the change the engine is "on" and there still is none.
+const HOLD_INIT = `try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}
+window.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();
+ const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);
+  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});
+window.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}
+ const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);
+ setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});`;
+const arriving = (label) => ({
+  eval: `(()=>{const p=document.querySelector('.map-page');return JSON.stringify({path:location.pathname,mapPage:!!p,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,srList:document.querySelectorAll('.sr-only li').length,ok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0})})()`,
+  label,
+});
+const settledAfter = (label) => ({
+  eval: `new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))`,
+  label,
+});
+const heldIntoMap = (size, dpr, mobile, origin, tag) => [
+  { size, dpr, mobile, touch: mobile, init: HOLD_INIT, go: "{{BASE}}/work", wait: 3000 },
+  ...[0.1, 0.3, 0.6].flatMap((t) => [
+    { eval: `__hold('/experience','radial',${t},${origin[0]},${origin[1]})`, label: `hold the change into /experience at t=${t} (${tag})` },
+    arriving(`${tag}, t=${t}: the arriving map page shows no fallback list (engine pending)`),
+    { wait: 120, shot: `r46-held-${tag}-${t}-warm` },
+    { wait: 60, shot: `r46-held-${tag}-${t}` },
+    { eval: "__release()", label: "release" },
+    settledAfter(`${tag}, t=${t}: after the change the engine is on and there is still no fallback list`),
+    { eval: "__ftChange('/work','fade').then(()=>__release())", label: "back to /work" },
+  ]),
 ];
 
 const desktop = [
@@ -285,6 +330,15 @@ const desktop = [
     { shot: `r45-map-${w}x${h}` },
   ]),
   ...r453,
+  ...heldIntoMap([1440, 900], 1, false, [676, 846], "desktop"),
+  ...heldIntoMap([390, 844], 2, true, [200, 800], "phone"),
+  // M1 (R46.1): no square box round the dock during a change: held at t=0.25 from home into /experience (over the bright map)
+  { size: [1440, 900], dpr: 1, mobile: false, touch: false, init: HOLD_INIT, go: "{{BASE}}/", wait: 3500 },
+  { eval: `__hold('/experience','radial',0.25,676,846)`, label: "hold the change home to /experience at t=0.25" },
+  { eval: `JSON.stringify({clip:getComputedStyle(document.documentElement,'::view-transition-group(site-dock)').clipPath,ok:/round/.test(getComputedStyle(document.documentElement,'::view-transition-group(site-dock)').clipPath)})`, label: "the dock's view-transition group is clipped to a pill" },
+  { wait: 120, shot: "r46-held-dock-home-exp-0.25-warm" },
+  { wait: 60, shot: "r46-held-dock-home-exp-0.25" },
+  { eval: "__release()", label: "release" },
   // the same on a slow processor (4 times slower): reported, not a pass mark
   { cpu: 4, size: [1440, 900], dpr: 2, mobile: false, touch: false, go: "{{BASE}}/experience", wait: 3000 },
   { wheel: [720, 450, 0, -120, 1] },

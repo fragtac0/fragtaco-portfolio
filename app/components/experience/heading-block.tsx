@@ -1,9 +1,12 @@
-import { useId, useState } from "react";
+import { useId } from "react";
 
 type Props = {
   title: string;
   text: string;
   labels: { more: string; less: string };
+  /** Whether More is open: the page owns it, so the caption can follow on the smallest phones. */
+  open: boolean;
+  onToggle: () => void;
 };
 
 /**
@@ -11,8 +14,7 @@ type Props = {
  * paragraph is clamped to two lines by CSS and a button opens the rest in place; the whole paragraph is in the
  * document either way. The button is hidden wider than a phone, where the paragraph shows whole.
  */
-export default function HeadingBlock({ title, text, labels }: Props) {
-  const [open, setOpen] = useState(false);
+export default function HeadingBlock({ title, text, labels, open, onToggle }: Props) {
   const id = useId();
 
   return (
@@ -21,7 +23,7 @@ export default function HeadingBlock({ title, text, labels }: Props) {
       <p className="map-text" id={id}>
         {text}
       </p>
-      <button type="button" className="map-more" data-map-ui="" aria-expanded={open} aria-controls={id} onClick={() => setOpen((o) => !o)}>
+      <button type="button" className="map-more" data-map-ui="" aria-expanded={open} aria-controls={id} onClick={onToggle}>
         {open ? labels.less : labels.more}
       </button>
     </header>

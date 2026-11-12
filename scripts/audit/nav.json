@@ -204,6 +204,54 @@
   "eval": "__move(()=>{history.forward()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
  },
  {
+  "label": "focus: dock Work tab (short form -> rings)",
+  "eval": "document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').focus(); 1"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "label": "keyboard: dock Work tab (short form -> rings): focus stays in the dock on the current tab",
+  "eval": "new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='/work'&&!document.documentElement.dataset.changeKind||performance.now()-t0>5000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='/work'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})"
+ },
+ {
+  "label": "focus: row Long form tab (rings -> long form)",
+  "eval": "document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').focus(); 1"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "label": "keyboard: row Long form tab (rings -> long form): focus stays in the dock on the current tab",
+  "eval": "new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='/work/long-form'&&!document.documentElement.dataset.changeKind||performance.now()-t0>5000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='/work/long-form'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})"
+ },
+ {
+  "label": "focus: row My experience tab (long form -> experience)",
+  "eval": "document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').focus(); 1"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "label": "keyboard: row My experience tab (long form -> experience): focus stays in the dock on the current tab",
+  "eval": "new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='/experience'&&!document.documentElement.dataset.changeKind||performance.now()-t0>5000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='/experience'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})"
+ },
+ {
+  "label": "focus: dock Home tab (experience -> home)",
+  "eval": "document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]').focus(); 1"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "label": "keyboard: dock Home tab (experience -> home): focus stays in the dock on the current tab",
+  "eval": "new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='/'&&!document.documentElement.dataset.changeKind||performance.now()-t0>5000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='/'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})"
+ },
+ {
   "label": "hard load /work/short-form (row open at once)",
   "go": "{{BASE}}/work/short-form",
   "wait": 2500,

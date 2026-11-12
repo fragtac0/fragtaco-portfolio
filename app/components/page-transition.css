@@ -12,6 +12,10 @@
 ::view-transition-group(root) { animation-duration: 200ms; }
 html[data-change-kind="fade"]::view-transition-group(*) { animation-duration: var(--change-ms); }
 [data-dock-glass] { view-transition-name: site-dock; }
+/* the dock's view-transition group is a rectangle, and the glass's backdrop blur is drawn over all of it: over a bright page (the
+ * Mars map) a square-cornered box showed round the pill for the whole change. The pill is fully round while its row is closed,
+ * which it is during every change, so clip the group (and with it both pictures) to a pill. */
+::view-transition-group(site-dock) { clip-path: inset(0 round 9999px); }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*) { animation-duration: 120ms; }
 }

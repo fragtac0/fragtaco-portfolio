@@ -88,12 +88,20 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
   // a press on a marker or a card is a click unless it moves (then it pans like any other press); the wheel over one still zooms
   const isMarker = (t: EventTarget | null) => t instanceof Element && t.closest("[data-map-hit]") !== null;
 
-  /** A drag that began on a marker ends with a click on the map's own element; swallow it so the marker is not picked. */
+  /**
+   * A drag that began on a marker ends with a click on the map's own element (the pointer is captured); swallow it so
+   * the marker is not picked. The listener stays from the drag's first move until the click has come: it is dropped
+   * one task after the drag's pointerup (the click follows the pointerup in the same task), or at the next press.
+   */
+  let swallow: ((ev: Event) => void) | null = null;
+  function endSwallow() {
+    if (swallow) root.removeEventListener("click", swallow, { capture: true });
+    swallow = null;
+  }
   function swallowNextClick() {
-    const swallow = (ev: Event) => ev.stopPropagation();
-
-    root.addEventListener("click", swallow, { capture: true, once: true });
-    setTimeout(() => root.removeEventListener("click", swallow, { capture: true }), 0);
+    endSwallow();
+    swallow = (ev: Event) => ev.stopPropagation();
+    root.addEventListener("click", swallow, { capture: true });
   }
 
   function startPinch() {
@@ -119,6 +127,7 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
     if (isUi(e.target) || (e.pointerType === "mouse" && e.button !== 0)) return;
     const onMarker = isMarker(e.target);
 
+    endSwallow();
     if (!onMarker) capture(e.pointerId);
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pts.size === 2) startPinch();
@@ -180,6 +189,7 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
 
       drag = null;
       delete root.dataset.drag;
+      if (swallow) setTimeout(endSwallow, 0); // after the click that follows this pointerup
       if (moved || onMarker || e.type !== "pointerup") return;
       const now: Tap = { t: e.timeStamp, x: e.clientX, y: e.clientY };
 
@@ -308,6 +318,7 @@ export function attachMapInput(root: HTMLElement, map: MapApi, m: Manifest, hook
       report();
     },
     detach() {
+      endSwallow();
       root.removeEventListener("pointerdown", onDown);
       root.removeEventListener("pointermove", onMove);
       root.removeEventListener("pointerup", onUp);

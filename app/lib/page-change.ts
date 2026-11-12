@@ -10,15 +10,15 @@
  * While a change runs, <html> carries `data-change-kind` and the origin as CSS variables
  * (`--change-x`, `--change-y`, `--change-r`, `--change-w`, `--change-ms`) for glass.css and
  * page-transition.css; components/page-change/glass-run.ts draws the glass front on the transition. They are cleared
- * when the transition finishes, is skipped, or fails.
+ * when the transition finishes, is skipped, or fails. Back and Forward (`watchHistory`) live in history-change.ts.
  */
 import type { NavigateFunction } from "@remix-run/react";
 import { GLASS, glassVars } from "../components/page-change/glass-math";
 import { startGlass } from "../components/page-change/glass-run";
+import { focusInDock, restoreDockFocus } from "./dock-focus";
 import {
   captureNextTransition,
   commitCount,
-  committedPathname,
   isPageSettled,
   nextCommit,
   onCommit,
@@ -88,7 +88,7 @@ export function afterSettled(quietMs: number, fn: () => void): () => void {
 /** Longest a change may keep the page unsettled, whatever the browser or the network does. A data wait
  * longer than this ends the change (marks cleared, page settled) before the router starts its transition;
  * that transition then runs unmarked, which is harmless. */
-const FAILSAFE_MS = 30000;
+export const FAILSAFE_MS = 30000;
 
 // ---- the change itself
 
@@ -97,6 +97,9 @@ interface Running {
   stop(): void;
 }
 let current: Running | null = null;
+
+/** The end of a pending skip of the router's own transition (history-change.ts sets it); a new change ends it first. */
+export const skipHold: { end: (() => void) | null } = { end: null };
 
 function mark(html: HTMLElement, plan: ChangePlan) {
   html.dataset.changeKind = plan.kind;
@@ -116,8 +119,8 @@ function unmark(html: HTMLElement) {
  * The state of one change: the marks on <html>, the busy state, the failsafe and the promise. A newer
  * change takes over the marks and the busy state; the older one only resolves its promise.
  */
-function open(plan: ChangePlan) {
-  endSkip?.(); // a pending skip must not take this change's transition
+export function open(plan: ChangePlan) {
+  skipHold.end?.(); // a pending skip must not take this change's transition
   const prev = current;
   current = null;
   prev?.stop();
@@ -172,14 +175,14 @@ function open(plan: ChangePlan) {
     },
   };
 }
-type Change = ReturnType<typeof open>;
+export type Change = ReturnType<typeof open>;
 
 /**
  * The router will make the view transition itself (once the destination's loaders are done, with the
  * old page live): take it when it does. A commit with no transition (a redirect, the same place, a
  * failed load) ends the change.
  */
-function captureRouterTransition(c: Change) {
+export function captureRouterTransition(c: Change) {
   const restore = captureNextTransition((t) => c.adopt(t));
   const offCommit = onCommit(() => {
     if (!c.hasTransition()) c.over();
@@ -191,7 +194,7 @@ function captureRouterTransition(c: Change) {
 }
 
 /** The router will not make a transition: make one whose update step holds until the new page is committed. */
-function startOwnTransition(c: Change) {
+export function startOwnTransition(c: Change) {
   const seq = commitCount();
   let wake = () => {};
   const update = async () => {
@@ -208,7 +211,7 @@ function startOwnTransition(c: Change) {
 }
 
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const planNow = (kind?: ChangeKind, origin?: Point) =>
+export const planNow = (kind?: ChangeKind, origin?: Point) =>
   planChange({
     supported: "startViewTransition" in document,
     reduced: reduced(),
@@ -240,6 +243,7 @@ export function changePage(
     void go(false).catch(() => undefined);
     return Promise.resolve();
   }
+  const fromDock = focusInDock(); // a keyboard user who picked a dock tab keeps their place (dock-focus.ts)
   const c = open(plan);
   captureRouterTransition(c);
   try {
@@ -249,110 +253,9 @@ export function changePage(
     console.error("page change: could not start the navigation", err);
     c.over();
   }
-  return c.done;
-}
-
-/** The slice of Remix's router (`window.__remixRouter`) that Back and Forward use. */
-export interface RouterLike {
-  subscribe(
-    fn: (
-      state: { navigation: { state: string }; location: { pathname: string } },
-      info?: { viewTransitionOpts?: unknown },
-    ) => void,
-  ): () => void;
-}
-
-/**
- * A move inside one page that the router may still animate (it does so on a POP whenever the page's
- * address was ever changed with a transition): take its transition and skip it, so in-page moves (a
- * layer's hash, the work view) never crossfade the whole page. The wrapper goes after the next commit.
- */
-let endSkip: (() => void) | null = null;
-function skipRouterTransition() {
-  endSkip?.();
-  const restore = captureNextTransition((t) => {
-    t.ready.catch(() => undefined);
-    t.updateCallbackDone.catch(() => undefined);
-    t.finished.catch(() => undefined);
-    t.skipTransition();
-  });
-  let over = false;
-  const end = () => {
-    if (over) return;
-    over = true;
-    if (endSkip === end) endSkip = null;
-    window.clearTimeout(timer);
-    offCommit();
-    restore();
-  };
-  endSkip = end;
-  const timer = window.setTimeout(end, 4000);
-  const offCommit = onCommit(end);
-}
-
-/**
- * Back and Forward: the change opens at the popstate (marks, busy). Once the router has the
- * destination's data (a state with no navigation pending, at the new address) it either starts the
- * view transition itself, which it does on a POP when the same pair of pages was changed with a
- * transition before (`viewTransitionOpts`; then this takes that transition, the same as for a click),
- * or it does not, and then this starts one whose update step holds only the commit. Radial from the
- * centre of the screen. A move inside one page (the work view, a hash) gets no change, and a
- * transition the router would start for it is skipped. A second popstate that lands back on the
- * committed page ends a change still waiting for data. Returns the function that stops watching.
- */
-export function watchHistory(): () => void {
-  if (typeof window === "undefined") return () => undefined;
-  let stopWaiting = () => {};
-  let popChange: Change | null = null;
-  /** Calls `ready` with the router's info once it has the data for `path` (idle, at that address). */
-  const whenRouterHasData = (router: RouterLike, path: string, ready: (info?: { viewTransitionOpts?: unknown }) => void) => {
-    const off = router.subscribe((state, info) => {
-      if (state.navigation.state !== "idle" || state.location.pathname !== path) return;
-      stopWaiting();
-      ready(info);
-    });
-    const timer = window.setTimeout(() => stopWaiting(), FAILSAFE_MS);
-    stopWaiting = () => {
-      window.clearTimeout(timer);
-      off();
-      stopWaiting = () => {};
-    };
-  };
-  const onPop = () => {
-    stopWaiting();
-    const path = window.location.pathname;
-    const router = (window as { __remixRouter?: RouterLike }).__remixRouter;
-    if (path === committedPathname()) {
-      // back on the page that is shown (an in-page move, or a Back that undoes a Back still loading):
-      // a change still waiting for data is over, and the router's own transition, if any, is skipped
-      if (popChange && !popChange.hasTransition()) popChange.over();
-      popChange = null;
-      // The router's own popstate listener has run before this point (it has the new state already, so
-      // there is nothing to wait for), and it starts its transition a few effects later: be ready for it.
-      if (router && "startViewTransition" in document) skipRouterTransition();
-      return;
-    }
-    const plan = planNow("radial");
-    if (plan.kind === "none") return;
-    const c = open(plan);
-    popChange = c;
-    if (!router) {
-      startOwnTransition(c);
-      return;
-    }
-    whenRouterHasData(router, path, (info) => {
-      if (info?.viewTransitionOpts) captureRouterTransition(c);
-      else startOwnTransition(c);
-    });
-    // a newer change, or the end of this one, stops the wait
-    c.onCleanup(() => stopWaiting());
-    // a commit with no transition of any kind ends the change
-    c.onCleanup(onCommit(() => !c.hasTransition() && c.over()));
-  };
-  // capture: ahead of the router's own listener
-  window.addEventListener("popstate", onPop, { capture: true });
-  return () => {
-    stopWaiting();
-    window.removeEventListener("popstate", onPop, { capture: true });
-  };
+  return fromDock
+    ? c.done.then(() => {
+        if (isPageSettled()) restoreDockFocus(); // not when a newer change has taken over
+      })
+    : c.done;
 }

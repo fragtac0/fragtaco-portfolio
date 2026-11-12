@@ -822,6 +822,26 @@
   "label": "320 x 568: the title and the switch share no pixel"
  },
  {
+  "eval": "(async()=>{const P=()=>{const c=getComputedStyle(document.querySelector('.map-page'));return {s:+c.getPropertyValue('--map-s'),cx:+c.getPropertyValue('--map-cx'),cy:+c.getPropertyValue('--map-cy')}};const R=el=>{const r=el.getBoundingClientRect();return {x0:r.left,y0:r.top,x1:r.right,y1:r.bottom}};const hit=(a,b)=>a.x0<b.x1&&b.x0<a.x1&&a.y0<b.y1&&b.y0<a.y1;const inside=r=>r.x0>=0&&r.y0>=0&&r.x1<=innerWidth&&r.y1<=innerHeight;const sleep=ms=>new Promise(r=>setTimeout(r,ms));const toScreen=(X,Y)=>{const p=P();return [innerWidth/2+(X-p.cx)*p.s,innerHeight/2+(Y-p.cy)*p.s]};const settle=async()=>{let last='',n=0;for(let i=0;i<60;i++){const v=(()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})();const k=[v.cx,v.cy,v.s].join();n=k===last?n+1:0;last=k;if(n>=3)return v;await new Promise(r=>setTimeout(r,120))}return (()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})()};await settle();await sleep(2300);const q=s=>document.querySelector(s),cap=R(q('.map-caption')),ctl=R(q('.map-controls')),head=R(q('.map-heading')),pills=[...document.querySelectorAll('.moment-year')].map(R),dots=[...document.querySelectorAll('.moment-dot')].map(R),ringR=0.78*Math.min(innerWidth,innerHeight)/2,ring={x0:innerWidth/2-ringR,y0:innerHeight/2-ringR,x1:innerWidth/2+ringR,y1:innerHeight/2+ringR},area=r=>Math.max(0,r.x1-r.x0)*Math.max(0,r.y1-r.y0),cut=(a,b)=>({x0:Math.max(a.x0,b.x0),y0:Math.max(a.y0,b.y0),x1:Math.min(a.x1,b.x1),y1:Math.min(a.y1,b.y1)}),covered=(area(cut(ring,cap))+area(cut(ring,ctl))+area(cut(ring,head)))/area(ring),scroller=q('.dock-row-clip > div'),tab=q('header[data-site-nav] [data-work-tab][aria-current=\"page\"]'),sr=scroller&&scroller.getBoundingClientRect(),tr=tab&&tab.getBoundingClientRect(),vis=s=>{const e=q(s),c=getComputedStyle(e),r=e.getBoundingClientRect();return r.width>8&&r.height>8&&c.visibility==='visible'},texts=['.map-caption-line','.map-caption-fact','.map-caption-credit'].map(s=>({s,inDom:!!q(s)&&q(s).textContent.length>0,shown:vis(s)}));const pillOnCaption=pills.filter(p=>hit(p,cap)).length,pillOnControls=pills.filter(p=>hit(p,ctl)).length,dotOnCaption=dots.filter(p=>hit(p,cap)).length,dotOnControls=dots.filter(p=>hit(p,ctl)).length,pillOnHeading=pills.filter(p=>hit(p,head)).length;return JSON.stringify({size:[innerWidth,innerHeight],caption:[cap.x0,cap.y0,cap.x1,cap.y1].map(Math.round),controls:[ctl.x0,ctl.y0,ctl.x1,ctl.y1].map(Math.round),captionInside:inside(cap),controlsInside:inside(ctl),captionOnControls:hit(cap,ctl),captionOnHeading:hit(cap,head),pillOnCaption,pillOnControls,dotOnCaption,dotOnControls,pillOnHeading,ringShareCovered:+covered.toFixed(3),tabRight:tr&&Math.round(tr.right),scrollerRight:sr&&Math.round(sr.right),tabCut:tr&&sr?tr.right>sr.right+1||tr.left<sr.left-1:'no tab',lines:texts,ok:pillOnCaption===0&&pillOnControls===0&&dotOnCaption===0&&dotOnControls===0&&covered<0.25&&!hit(cap,ctl)&&inside(cap)&&inside(ctl)&&!!tr&&!!sr&&tr.right<=sr.right+1&&tr.left>=sr.left-1&&texts.every(t=>t.inDom)&&texts.every(t=>t.shown===false)})})()",
+  "label": "R46.1 320 x 568 overview: pills and dots clear of the caption and the zoom buttons, the mountain mostly uncovered, the dock tab not cut"
+ },
+ {
+  "eval": "document.querySelector('.map-more').click();new Promise(r=>setTimeout(()=>r(1),600))"
+ },
+ {
+  "eval": "(async()=>{const P=()=>{const c=getComputedStyle(document.querySelector('.map-page'));return {s:+c.getPropertyValue('--map-s'),cx:+c.getPropertyValue('--map-cx'),cy:+c.getPropertyValue('--map-cy')}};const R=el=>{const r=el.getBoundingClientRect();return {x0:r.left,y0:r.top,x1:r.right,y1:r.bottom}};const hit=(a,b)=>a.x0<b.x1&&b.x0<a.x1&&a.y0<b.y1&&b.y0<a.y1;const inside=r=>r.x0>=0&&r.y0>=0&&r.x1<=innerWidth&&r.y1<=innerHeight;const sleep=ms=>new Promise(r=>setTimeout(r,ms));const toScreen=(X,Y)=>{const p=P();return [innerWidth/2+(X-p.cx)*p.s,innerHeight/2+(Y-p.cy)*p.s]};const settle=async()=>{let last='',n=0;for(let i=0;i<60;i++){const v=(()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})();const k=[v.cx,v.cy,v.s].join();n=k===last?n+1:0;last=k;if(n>=3)return v;await new Promise(r=>setTimeout(r,120))}return (()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})()};await settle();await sleep(2300);const q=s=>document.querySelector(s),cap=R(q('.map-caption')),ctl=R(q('.map-controls')),head=R(q('.map-heading')),pills=[...document.querySelectorAll('.moment-year')].map(R),dots=[...document.querySelectorAll('.moment-dot')].map(R),ringR=0.78*Math.min(innerWidth,innerHeight)/2,ring={x0:innerWidth/2-ringR,y0:innerHeight/2-ringR,x1:innerWidth/2+ringR,y1:innerHeight/2+ringR},area=r=>Math.max(0,r.x1-r.x0)*Math.max(0,r.y1-r.y0),cut=(a,b)=>({x0:Math.max(a.x0,b.x0),y0:Math.max(a.y0,b.y0),x1:Math.min(a.x1,b.x1),y1:Math.min(a.y1,b.y1)}),covered=(area(cut(ring,cap))+area(cut(ring,ctl))+area(cut(ring,head)))/area(ring),scroller=q('.dock-row-clip > div'),tab=q('header[data-site-nav] [data-work-tab][aria-current=\"page\"]'),sr=scroller&&scroller.getBoundingClientRect(),tr=tab&&tab.getBoundingClientRect(),vis=s=>{const e=q(s),c=getComputedStyle(e),r=e.getBoundingClientRect();return r.width>8&&r.height>8&&c.visibility==='visible'},texts=['.map-caption-line','.map-caption-fact','.map-caption-credit'].map(s=>({s,inDom:!!q(s)&&q(s).textContent.length>0,shown:vis(s)}));const pillOnCaption=pills.filter(p=>hit(p,cap)).length,pillOnControls=pills.filter(p=>hit(p,ctl)).length,dotOnCaption=dots.filter(p=>hit(p,cap)).length,dotOnControls=dots.filter(p=>hit(p,ctl)).length,pillOnHeading=pills.filter(p=>hit(p,head)).length;return JSON.stringify({size:[innerWidth,innerHeight],caption:[cap.x0,cap.y0,cap.x1,cap.y1].map(Math.round),controls:[ctl.x0,ctl.y0,ctl.x1,ctl.y1].map(Math.round),captionInside:inside(cap),controlsInside:inside(ctl),captionOnControls:hit(cap,ctl),captionOnHeading:hit(cap,head),pillOnCaption,pillOnControls,dotOnCaption,dotOnControls,pillOnHeading,ringShareCovered:+covered.toFixed(3),tabRight:tr&&Math.round(tr.right),scrollerRight:sr&&Math.round(sr.right),tabCut:tr&&sr?tr.right>sr.right+1||tr.left<sr.left-1:'no tab',lines:texts,ok:!hit(cap,head)&&!hit(cap,ctl)&&inside(cap)&&inside(ctl)&&!!tr&&!!sr&&tr.right<=sr.right+1&&tr.left>=sr.left-1&&texts.every(t=>t.inDom)&&texts.every(t=>t.shown===true)})})()",
+  "label": "R46.1 320 x 568 with More open: the caption's line, figures and credit show and stay inside the screen"
+ },
+ {
+  "shot": "r46-experience-320x568-more-warm"
+ },
+ {
+  "shot": "r46-experience-320x568-more"
+ },
+ {
+  "eval": "document.querySelector('.map-more').click();new Promise(r=>setTimeout(()=>r(1),600))"
+ },
+ {
   "shot": "r45-experience-320x568-warm"
  },
  {
@@ -879,6 +899,230 @@
  },
  {
   "shot": "r45-experience-1920x1080"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/work",
+  "wait": 3000
+ },
+ {
+  "eval": "__hold('/experience','radial',0.1,676,846)",
+  "label": "hold the change into /experience at t=0.1 (desktop)"
+ },
+ {
+  "eval": "(()=>{const p=document.querySelector('.map-page');return JSON.stringify({path:location.pathname,mapPage:!!p,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,srList:document.querySelectorAll('.sr-only li').length,ok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0})})()",
+  "label": "desktop, t=0.1: the arriving map page shows no fallback list (engine pending)"
+ },
+ {
+  "wait": 120,
+  "shot": "r46-held-desktop-0.1-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r46-held-desktop-0.1"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "desktop, t=0.1: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "label": "back to /work"
+ },
+ {
+  "eval": "__hold('/experience','radial',0.3,676,846)",
+  "label": "hold the change into /experience at t=0.3 (desktop)"
+ },
+ {
+  "eval": "(()=>{const p=document.querySelector('.map-page');return JSON.stringify({path:location.pathname,mapPage:!!p,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,srList:document.querySelectorAll('.sr-only li').length,ok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0})})()",
+  "label": "desktop, t=0.3: the arriving map page shows no fallback list (engine pending)"
+ },
+ {
+  "wait": 120,
+  "shot": "r46-held-desktop-0.3-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r46-held-desktop-0.3"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "desktop, t=0.3: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "label": "back to /work"
+ },
+ {
+  "eval": "__hold('/experience','radial',0.6,676,846)",
+  "label": "hold the change into /experience at t=0.6 (desktop)"
+ },
+ {
+  "eval": "(()=>{const p=document.querySelector('.map-page');return JSON.stringify({path:location.pathname,mapPage:!!p,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,srList:document.querySelectorAll('.sr-only li').length,ok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0})})()",
+  "label": "desktop, t=0.6: the arriving map page shows no fallback list (engine pending)"
+ },
+ {
+  "wait": 120,
+  "shot": "r46-held-desktop-0.6-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r46-held-desktop-0.6"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "desktop, t=0.6: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "label": "back to /work"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/work",
+  "wait": 3000
+ },
+ {
+  "eval": "__hold('/experience','radial',0.1,200,800)",
+  "label": "hold the change into /experience at t=0.1 (phone)"
+ },
+ {
+  "eval": "(()=>{const p=document.querySelector('.map-page');return JSON.stringify({path:location.pathname,mapPage:!!p,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,srList:document.querySelectorAll('.sr-only li').length,ok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0})})()",
+  "label": "phone, t=0.1: the arriving map page shows no fallback list (engine pending)"
+ },
+ {
+  "wait": 120,
+  "shot": "r46-held-phone-0.1-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r46-held-phone-0.1"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "phone, t=0.1: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "label": "back to /work"
+ },
+ {
+  "eval": "__hold('/experience','radial',0.3,200,800)",
+  "label": "hold the change into /experience at t=0.3 (phone)"
+ },
+ {
+  "eval": "(()=>{const p=document.querySelector('.map-page');return JSON.stringify({path:location.pathname,mapPage:!!p,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,srList:document.querySelectorAll('.sr-only li').length,ok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0})})()",
+  "label": "phone, t=0.3: the arriving map page shows no fallback list (engine pending)"
+ },
+ {
+  "wait": 120,
+  "shot": "r46-held-phone-0.3-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r46-held-phone-0.3"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "phone, t=0.3: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "label": "back to /work"
+ },
+ {
+  "eval": "__hold('/experience','radial',0.6,200,800)",
+  "label": "hold the change into /experience at t=0.6 (phone)"
+ },
+ {
+  "eval": "(()=>{const p=document.querySelector('.map-page');return JSON.stringify({path:location.pathname,mapPage:!!p,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,srList:document.querySelectorAll('.sr-only li').length,ok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0})})()",
+  "label": "phone, t=0.6: the arriving map page shows no fallback list (engine pending)"
+ },
+ {
+  "wait": 120,
+  "shot": "r46-held-phone-0.6-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r46-held-phone-0.6"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "phone, t=0.6: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "label": "back to /work"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/",
+  "wait": 3500
+ },
+ {
+  "eval": "__hold('/experience','radial',0.25,676,846)",
+  "label": "hold the change home to /experience at t=0.25"
+ },
+ {
+  "eval": "JSON.stringify({clip:getComputedStyle(document.documentElement,'::view-transition-group(site-dock)').clipPath,ok:/round/.test(getComputedStyle(document.documentElement,'::view-transition-group(site-dock)').clipPath)})",
+  "label": "the dock's view-transition group is clipped to a pill"
+ },
+ {
+  "wait": 120,
+  "shot": "r46-held-dock-home-exp-0.25-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r46-held-dock-home-exp-0.25"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
  },
  {
   "cpu": 4,
