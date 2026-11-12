@@ -92,13 +92,25 @@
   pointer-events: none;
 }
 
-/* The heading block (top left) and the caption (lower left): in the overview only. */
+/* The heading block (top left) and the caption (lower left): in the overview only. They sit on calm ground (spec 9.1):
+ *  - on a wide screen (the media query below) in a column left of the cliff ring. The picture's own fade and the
+ *    edge focus darken that side, and the column's width is the room between the page's left margin and the ring's
+ *    left edge at the overview, worked out from the same share the view uses (--map-fit-share, written by the page from
+ *    view.ts): --map-text-w. The ring's left edge is half the page less half the ring's width, the ring being
+ *    --map-fit-share of the smaller side;
+ *  - elsewhere (phones, tablets, a screen too narrow for that column) stacked: the heading above and the caption
+ *    below the mountain, each as wide as the screen allows (up to 640 px), on a patch of ground that is nearly opaque
+ *    through the text. */
+.map-page {
+  --map-gutter: 48px;
+}
 .map-heading,
 .map-caption {
   position: absolute;
-  left: 48px;
+  left: var(--map-gutter);
   margin: 0;
   pointer-events: none;
+  isolation: isolate;
   transition: opacity 400ms ease-out;
 }
 .map-page[data-mode="explore"] .map-heading,
@@ -107,21 +119,26 @@
 }
 .map-heading {
   top: 28px;
-  width: min(360px, calc(100vw - 96px));
-  isolation: isolate;
+  width: min(640px, calc(100vw - 2 * var(--map-gutter)));
 }
-/* a soft patch of ground behind the words, so they stay readable where the picture reaches them */
+.map-caption {
+  bottom: calc(var(--site-nav-height, 132px) + 40px); /* above the dock */
+  width: min(640px, calc(100vw - 2 * var(--map-gutter) - 56px)); /* room for the buttons at the right */
+  font-family: "Space Mono", monospace;
+}
+/* the patch of ground behind the words: a blurred slab of ground, so it has no edge to see. It reaches 40 to 56 px past
+ * the text (36 px at the column's right side), and the blur (24 px) takes the last 48 px of that: the text sits on ground
+ * at 87% or more, and the slab is half strength at its rim. Static, so the filter costs nothing per frame. */
 .map-heading::before,
 .map-caption::before {
+  --patch-right: 56px;
   content: "";
   position: absolute;
   z-index: -1;
-  inset: -36px -64px -44px -64px;
-  background: radial-gradient(
-    ellipse closest-side,
-    color-mix(in srgb, var(--ground) 88%, transparent) 40%,
-    transparent 100%
-  );
+  inset: -40px calc(var(--patch-right) * -1) -48px -56px;
+  background: color-mix(in srgb, var(--ground) 94%, transparent);
+  -webkit-filter: blur(24px);
+  filter: blur(24px);
   pointer-events: none;
 }
 .map-title {
@@ -137,12 +154,6 @@
   font-size: var(--t-body);
   line-height: 1.5;
   color: var(--ink-2);
-}
-.map-caption {
-  bottom: calc(var(--site-nav-height, 132px) + 40px); /* above the dock */
-  width: min(340px, calc(100vw - 96px));
-  font-family: "Space Mono", monospace;
-  isolation: isolate;
 }
 .map-caption figcaption {
   display: flex;
@@ -163,6 +174,24 @@
 }
 .map-caption-credit {
   color: var(--ink-3);
+}
+
+/* The column layout: a wide screen, where the ring leaves a calm side. Width = the room left of the ring (the page's margin
+ * and a 52 px gap taken off), at most 360 px. The two clauses are the smallest screens (by shape) where that room is
+ * 220 px or more: 16:10 from 1250 px wide, 3:2 from 1340 px wide. */
+@media (min-aspect-ratio: 3/2) and (min-width: 1340px), (min-aspect-ratio: 8/5) and (min-width: 1250px) {
+  .map-page {
+    --map-ring-left: calc(50vw - var(--map-fit-share) * min(100vw, 100dvh) / 2);
+    --map-text-w: min(360px, calc(var(--map-ring-left) - var(--map-gutter) - 52px));
+  }
+  .map-heading,
+  .map-caption {
+    width: var(--map-text-w);
+  }
+  .map-heading::before,
+  .map-caption::before {
+    --patch-right: 36px; /* ends 16 px before the ring's left edge (its soft rim reaches it) */
+  }
 }
 
 /* The buttons (lower right, above the dock): the dock's glass, small. */
@@ -194,7 +223,7 @@
   transition: background-color 150ms ease-out, opacity 150ms ease-out;
 }
 .map-button:hover:not(:disabled) {
-  background: rgb(253 252 230 / 0.08);
+  background: rgb(var(--ink-rgb) / 0.08);
 }
 .map-button:focus-visible {
   outline: 2px solid var(--ink-1);
@@ -206,12 +235,8 @@
 }
 
 @media (max-width: 699.98px) {
-  .map-heading,
-  .map-caption {
-    left: 16px;
-  }
-  .map-heading {
-    width: calc(100vw - 32px);
+  .map-page {
+    --map-gutter: 16px;
   }
   .map-caption {
     bottom: calc(var(--site-nav-height, 132px) + 28px + env(safe-area-inset-bottom));

@@ -6,14 +6,16 @@ type Job = { url: string; ok: () => void; fail: () => void };
 function setup(o: { concurrency?: number; keep?: number } = {}) {
   const jobs: Job[] = [];
   const onLoad = vi.fn();
+  const closed: string[] = [];
+  // a stand-in for an ImageBitmap: it has a `close` that says which tile gave its memory back
   const load = (url: string) =>
-    new Promise<HTMLImageElement>((resolve, reject) => {
-      jobs.push({ url, ok: () => resolve({ src: url } as unknown as HTMLImageElement), fail: () => reject(new Error("x")) });
+    new Promise<ImageBitmap>((resolve, reject) => {
+      jobs.push({ url, ok: () => resolve({ src: url, close: () => closed.push(url) } as unknown as ImageBitmap), fail: () => reject(new Error("x")) });
     });
   const cache = createTileCache(onLoad, { ...o, load });
   const settle = () => new Promise((r) => setTimeout(r, 0));
 
-  return { cache, jobs, onLoad, settle };
+  return { cache, jobs, onLoad, settle, closed };
 }
 
 describe("tile cache", () => {
@@ -81,7 +83,7 @@ describe("tile cache", () => {
   });
 
   it("drops the least recently used finer tiles past `keep`, and never the coarse levels", async () => {
-    const { cache, jobs, settle } = setup({ concurrency: 1000, keep: 3 });
+    const { cache, jobs, settle, closed } = setup({ concurrency: 1000, keep: 3 });
     const fine = Array.from({ length: 6 }, (_, i) => ({ z: 4, x: i, y: 0 }));
 
     cache.want([...fine, { z: PINNED, x: 0, y: 0 }]);
@@ -101,6 +103,24 @@ describe("tile cache", () => {
     expect(cache.get(PINNED, 0, 0)).toBeDefined();
     expect(cache.get(4, 0, 0)).toBeUndefined(); // the oldest fine tile is gone
     expect(cache.get(4, 19, 1)).toBeDefined(); // the newest stays
+    expect(closed).toContain("/mars/4/0_0.webp"); // a dropped bitmap gives its memory back
+    expect(closed.some((u) => u.startsWith("/mars/2/"))).toBe(false); // a pinned one never does
+  });
+
+  it("closes what it holds on destroy, and a bitmap that arrives after it", async () => {
+    const { cache, jobs, settle, closed } = setup({ concurrency: 2 });
+
+    cache.want([
+      { z: 1, x: 0, y: 0 },
+      { z: 1, x: 1, y: 0 },
+    ]);
+    jobs[0].ok();
+    await settle();
+    cache.destroy();
+    expect(closed).toEqual(["/mars/1/0_0.webp"]);
+    jobs[1].ok();
+    await settle();
+    expect(closed).toEqual(["/mars/1/0_0.webp", "/mars/1/1_0.webp"]);
   });
 
   it("stops everything on destroy", async () => {

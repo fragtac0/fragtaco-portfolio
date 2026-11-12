@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import manifestJson from "../../../public/mars/manifest.json";
 import { usePageArrived } from "../../lib/use-page-settled";
 import type { SiteExperience } from "../../types";
@@ -9,7 +9,7 @@ import { MomentList } from "./experience-plain";
 import MapControls from "./map-controls";
 import { createMap } from "./map-engine";
 import { attachMapInput, type MapControls as Controls, type MapState } from "./map-input";
-import type { View } from "./view";
+import { CLIFF_SPAN, FIT_RING_SHARE, type View } from "./view";
 import "./experience.css";
 
 /** The tile pyramid's description (`public/mars/manifest.json`, made by `yarn mars`), checked once on load. */
@@ -107,7 +107,15 @@ export default function ExperiencePage({ experience, onStep }: { experience: Sit
   }, [arrived, available, reduced]);
 
   return (
-    <main ref={page} className="map-page" data-mode={state.mode} data-engine={engine} aria-label="Map of Olympus Mons, Mars">
+    <main
+      ref={page}
+      className="map-page"
+      data-mode={state.mode}
+      data-engine={engine}
+      aria-label="Map of Olympus Mons, Mars"
+      // the overview's shape, from view.ts, so the CSS (the picture's seed, the width of the words' column) cannot drift from it
+      style={{ "--map-fit-share": FIT_RING_SHARE, "--map-cliff-span": CLIFF_SPAN } as CSSProperties}
+    >
       {engine === "off" ? (
         <div className="map-seed">
           <img src="/mars/mosaic.webp" alt="Olympus Mons, Mars, seen from above" width={2048} height={2048} draggable={false} />

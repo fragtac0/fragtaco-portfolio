@@ -431,6 +431,111 @@
   "label": "phone frame gaps while panning and zooming"
  },
  {
+  "size": [
+   1280,
+   800
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "eval": "(async()=>{const settle=async()=>{let last='',n=0;for(let i=0;i<60;i++){const v=(()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})();const k=[v.cx,v.cy,v.s].join();n=k===last?n+1:0;last=k;if(n>=3)return v;await new Promise(r=>setTimeout(r,120))}return (()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})()};const v=await settle(),ringLeft=v.vw/2-0.78*Math.min(v.vw,v.vh)/2,r=q=>document.querySelector(q).getBoundingClientRect(),hd=r('.map-heading'),cp=r('.map-caption'),col=getComputedStyle(document.querySelector('.map-page')).getPropertyValue('--map-text-w').trim()!=='';return JSON.stringify({layout:col?'column':'stacked',ringLeft:Math.round(ringLeft),headingRight:Math.round(hd.right),captionRight:Math.round(cp.right),ok:col?(hd.right<=ringLeft-40&&cp.right<=ringLeft-40&&hd.left>=0):(hd.right<=v.vw&&cp.right<=v.vw&&hd.bottom<cp.top)})})()",
+  "label": "text on calm ground at 1280 x 800"
+ },
+ {
+  "shot": "r45-map-1280x800-warm"
+ },
+ {
+  "shot": "r45-map-1280x800"
+ },
+ {
+  "size": [
+   1024,
+   768
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "eval": "(async()=>{const settle=async()=>{let last='',n=0;for(let i=0;i<60;i++){const v=(()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})();const k=[v.cx,v.cy,v.s].join();n=k===last?n+1:0;last=k;if(n>=3)return v;await new Promise(r=>setTimeout(r,120))}return (()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})()};const v=await settle(),ringLeft=v.vw/2-0.78*Math.min(v.vw,v.vh)/2,r=q=>document.querySelector(q).getBoundingClientRect(),hd=r('.map-heading'),cp=r('.map-caption'),col=getComputedStyle(document.querySelector('.map-page')).getPropertyValue('--map-text-w').trim()!=='';return JSON.stringify({layout:col?'column':'stacked',ringLeft:Math.round(ringLeft),headingRight:Math.round(hd.right),captionRight:Math.round(cp.right),ok:col?(hd.right<=ringLeft-40&&cp.right<=ringLeft-40&&hd.left>=0):(hd.right<=v.vw&&cp.right<=v.vw&&hd.bottom<cp.top)})})()",
+  "label": "text on calm ground at 1024 x 768"
+ },
+ {
+  "shot": "r45-map-1024x768-warm"
+ },
+ {
+  "shot": "r45-map-1024x768"
+ },
+ {
+  "size": [
+   1366,
+   768
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "eval": "(async()=>{const settle=async()=>{let last='',n=0;for(let i=0;i<60;i++){const v=(()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})();const k=[v.cx,v.cy,v.s].join();n=k===last?n+1:0;last=k;if(n>=3)return v;await new Promise(r=>setTimeout(r,120))}return (()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})()};const v=await settle(),ringLeft=v.vw/2-0.78*Math.min(v.vw,v.vh)/2,r=q=>document.querySelector(q).getBoundingClientRect(),hd=r('.map-heading'),cp=r('.map-caption'),col=getComputedStyle(document.querySelector('.map-page')).getPropertyValue('--map-text-w').trim()!=='';return JSON.stringify({layout:col?'column':'stacked',ringLeft:Math.round(ringLeft),headingRight:Math.round(hd.right),captionRight:Math.round(cp.right),ok:col?(hd.right<=ringLeft-40&&cp.right<=ringLeft-40&&hd.left>=0):(hd.right<=v.vw&&cp.right<=v.vw&&hd.bottom<cp.top)})})()",
+  "label": "text on calm ground at 1366 x 768"
+ },
+ {
+  "shot": "r45-map-1366x768-warm"
+ },
+ {
+  "shot": "r45-map-1366x768"
+ },
+ {
+  "size": [
+   1920,
+   1080
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "eval": "(async()=>{const settle=async()=>{let last='',n=0;for(let i=0;i<60;i++){const v=(()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})();const k=[v.cx,v.cy,v.s].join();n=k===last?n+1:0;last=k;if(n>=3)return v;await new Promise(r=>setTimeout(r,120))}return (()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})()};const v=await settle(),ringLeft=v.vw/2-0.78*Math.min(v.vw,v.vh)/2,r=q=>document.querySelector(q).getBoundingClientRect(),hd=r('.map-heading'),cp=r('.map-caption'),col=getComputedStyle(document.querySelector('.map-page')).getPropertyValue('--map-text-w').trim()!=='';return JSON.stringify({layout:col?'column':'stacked',ringLeft:Math.round(ringLeft),headingRight:Math.round(hd.right),captionRight:Math.round(cp.right),ok:col?(hd.right<=ringLeft-40&&cp.right<=ringLeft-40&&hd.left>=0):(hd.right<=v.vw&&cp.right<=v.vw&&hd.bottom<cp.top)})})()",
+  "label": "text on calm ground at 1920 x 1080"
+ },
+ {
+  "shot": "r45-map-1920x1080-warm"
+ },
+ {
+  "shot": "r45-map-1920x1080"
+ },
+ {
+  "size": [
+   2560,
+   1440
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "eval": "(async()=>{const settle=async()=>{let last='',n=0;for(let i=0;i<60;i++){const v=(()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})();const k=[v.cx,v.cy,v.s].join();n=k===last?n+1:0;last=k;if(n>=3)return v;await new Promise(r=>setTimeout(r,120))}return (()=>{const e=document.querySelector('.map-page'),c=getComputedStyle(e),vw=innerWidth,vh=innerHeight,s=+c.getPropertyValue('--map-s'),cx=+c.getPropertyValue('--map-cx'),cy=+c.getPropertyValue('--map-cy');return {e,vw,vh,s,cx,cy,fit:0.78*Math.min(vw,vh)/(0.67*8192)}})()};const v=await settle(),ringLeft=v.vw/2-0.78*Math.min(v.vw,v.vh)/2,r=q=>document.querySelector(q).getBoundingClientRect(),hd=r('.map-heading'),cp=r('.map-caption'),col=getComputedStyle(document.querySelector('.map-page')).getPropertyValue('--map-text-w').trim()!=='';return JSON.stringify({layout:col?'column':'stacked',ringLeft:Math.round(ringLeft),headingRight:Math.round(hd.right),captionRight:Math.round(cp.right),ok:col?(hd.right<=ringLeft-40&&cp.right<=ringLeft-40&&hd.left>=0):(hd.right<=v.vw&&cp.right<=v.vw&&hd.bottom<cp.top)})})()",
+  "label": "text on calm ground at 2560 x 1440"
+ },
+ {
+  "shot": "r45-map-2560x1440-warm"
+ },
+ {
+  "shot": "r45-map-2560x1440"
+ },
+ {
   "cpu": 4,
   "size": [
    1440,

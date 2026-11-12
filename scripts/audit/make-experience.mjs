@@ -11,7 +11,8 @@
 //   frame gaps while panning and zooming (synthetic pointer and wheel events from the page, 16 ms apart, rAF sampled);
 //   keys +, -, 0, Escape, arrows, the buttons, a double click; the heading block fading out in explore;
 //   a last run with the CPU 4 times slower at dpr 2 (reported only);
-//   reduced motion (the move is instant); phone overview, a double tap and a drag.
+//   reduced motion (the move is instant); phone overview, a double tap and a drag;
+//   the heading and caption clear of the cliff ring at 1280, 1024, 1366, 1920 and 2560 wide (column layout, or stacked).
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -137,6 +138,15 @@ const desktop = [
   { shot: "r45-map-warm6" },
   { shot: "r45-map-phone-explore" },
   GAPS("phone frame gaps while panning and zooming", `pe('pointerdown',300,600);for(let i=0;i<60;i++){pe('pointermove',300-i*3,600-i*4);await sleep(16)}pe('pointerup',120,360);for(let i=0;i<40;i++){we(195,420,i<20?-60:60);await sleep(16)}`),
+  // the heading and the caption sit on calm ground (spec 9.1): in the column layout both end 40 px or more short of the
+  // cliff ring's left edge; stacked (phones, tablets, 4:3) both lie inside the screen with the ring clear of nothing to check,
+  // and the heading is above the caption. Also the brightness behind them is read from a screenshot by hand (see the report).
+  ...[[1280, 800], [1024, 768], [1366, 768], [1920, 1080], [2560, 1440]].flatMap(([w, h]) => [
+    { size: [w, h], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/experience", wait: 2500 },
+    { eval: out(`const v=await settle(),ringLeft=v.vw/2-0.78*Math.min(v.vw,v.vh)/2,r=q=>document.querySelector(q).getBoundingClientRect(),hd=r('.map-heading'),cp=r('.map-caption'),col=getComputedStyle(${PAGE}).getPropertyValue('--map-text-w').trim()!=='';return JSON.stringify({layout:col?'column':'stacked',ringLeft:Math.round(ringLeft),headingRight:Math.round(hd.right),captionRight:Math.round(cp.right),ok:col?(hd.right<=ringLeft-40&&cp.right<=ringLeft-40&&hd.left>=0):(hd.right<=v.vw&&cp.right<=v.vw&&hd.bottom<cp.top)})`), label: `text on calm ground at ${w} x ${h}` },
+    { shot: `r45-map-${w}x${h}-warm` },
+    { shot: `r45-map-${w}x${h}` },
+  ]),
   // the same on a slow processor (4 times slower): reported, not a pass mark
   { cpu: 4, size: [1440, 900], dpr: 2, mobile: false, touch: false, go: "{{BASE}}/experience", wait: 3000 },
   { wheel: [720, 450, 0, -120, 1] },

@@ -26,12 +26,18 @@
   -webkit-mask-image: radial-gradient(ellipse closest-side at 50% 50%, transparent 96%, #000 130%);
   mask-image: radial-gradient(ellipse closest-side at 50% 50%, transparent 96%, #000 130%);
 }
-/* darkening to 55% from the middle of an edge outward (corners too): the ground at 45% over the picture */
+/* darkening to 55% brightness (the ground at 45% over the picture) from the middle of every edge outward, corners
+ * too: the ramp starts at 82% of the ellipse and is at full strength by 98%, before the screen's edge at 100%, with
+ * an ease-in-out between (steps of a smoothstep). It is `closest-side`, so the strength is the same at the middle of
+ * the left edge, the top edge and everywhere past them, to the corners. */
 .edge-focus-dim {
   background: radial-gradient(
     ellipse closest-side at 50% 50%,
     transparent 82%,
-    color-mix(in srgb, var(--ground) 45%, transparent) 106%
+    color-mix(in srgb, var(--ground) 7%, transparent) 86%,
+    color-mix(in srgb, var(--ground) 23%, transparent) 90%,
+    color-mix(in srgb, var(--ground) 38%, transparent) 94%,
+    color-mix(in srgb, var(--ground) 45%, transparent) 98%
   );
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -42,7 +48,10 @@
     background: radial-gradient(
       ellipse closest-side at 50% 50%,
       transparent 82%,
-      color-mix(in srgb, var(--ground) 62%, transparent) 106%
+      color-mix(in srgb, var(--ground) 10%, transparent) 86%,
+      color-mix(in srgb, var(--ground) 32%, transparent) 90%,
+      color-mix(in srgb, var(--ground) 53%, transparent) 94%,
+      color-mix(in srgb, var(--ground) 62%, transparent) 98%
     );
   }
 }

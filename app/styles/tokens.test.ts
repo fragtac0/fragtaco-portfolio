@@ -8,6 +8,7 @@ import {
   GROUND_POOL,
   LINE_ALPHA,
   SURFACE_1,
+  channels,
   glslVec3,
   rgba,
 } from "./tokens";
@@ -25,6 +26,12 @@ describe("tokens.ts", () => {
     expect(token("--ground-ember")).toBe(GROUND_EMBER);
     // --line is the cream at LINE_ALPHA
     expect(/--line:\s*rgba\(253, 252, 230, ([0-9.]+)\);/.exec(css)?.[1]).toBe(String(LINE_ALPHA));
+  });
+
+  it("gives the ink's channel triple, the cream", () => {
+    expect(/--ink-rgb:\s*(\d+) (\d+) (\d+);/.exec(css)?.slice(1).map(Number)).toEqual(channels(CREAM));
+    // the three ink steps are that cream
+    expect(css.match(/--ink-[123]: rgba\(253, 252, 230,/g)).toHaveLength(3);
   });
 
   it("writes a hex colour as a canvas colour with an opacity", () => {

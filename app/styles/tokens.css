@@ -14,7 +14,8 @@
   --t-display: clamp(40px, 3.6vw, 56px); /* block titles */
   --t-hero: clamp(46px, 4vw, 80px); /* card headings */
 
-  /* ink: cream at 92% / 72% / 62% */
+  /* ink: cream at 92% / 72% / 62%; --ink-rgb is the cream as a channel triple, for a wash of it (rgb(var(--ink-rgb) / 0.08)) */
+  --ink-rgb: 253 252 230;
   --ink-1: rgba(253, 252, 230, 0.92); /* primary text */
   --ink-2: rgba(253, 252, 230, 0.72); /* secondary text */
   --ink-3: rgba(253, 252, 230, 0.62); /* quiet text, the lowest allowed */
