@@ -591,3 +591,11 @@ Fifth preview: `docs/redesign/round7-preview-5/index.html`. The camera stays put
 - Shelves: no gradient, but not empty either. Something that is there.
 
 Sixth preview: `docs/redesign/round7-preview-6/index.html`. The overview is zoomed to 1.1 so the picture always covers the frame (the bar came from the view sitting 30 map units left of centre at a zoom of exactly 1). The chart layer: a 5 degree grid with dotted 2.5 degree steps, crosses where the 5 degree lines meet, dotted rings 150 and 300 km from the summit, a triangle on the summit, north, degree labels, a 200 km scale bar, four corner marks, two edge squares and a position readout that follows the chosen milestone. Cards now fade out completely before their words and place change. Grain is a fifth of the last preview. Three still grounds for the shelves: the mountain in contour lines, the chart grid, a field of dots.
+
+**Feedback on the sixth preview (2026-11-13)**
+
+- The grid is too big and too visible. Keep it, but smaller and fainter, and it should fade out with the map through the tilt.
+- Grain: "Barely" is the one.
+- Shelf ground: the field of dots, much smaller, moving, barely visible.
+
+Seventh preview: `docs/redesign/round7-preview-7/index.html`. Grid lines every 2.5 degrees at 4% and 7% (crosses every 5 degrees at 26%), fading on the same curve as the picture. Grain at 0.1. Dots every 7 px, 0.8 to 1.7 px across, 2% to 10% strong, with a slow swell.
