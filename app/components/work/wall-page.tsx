@@ -5,7 +5,6 @@ import { changePage } from "../../lib/page-change";
 import type { WorkVideo } from "../../types";
 import ReturnMark from "./return-mark";
 import WallHeading from "./wall-heading";
-import WorkBackground from "./work-background";
 import "./work.css";
 import "./wall.css";
 
@@ -37,7 +36,6 @@ export default function WallPage({ kind, videos }: WallPageProps) {
 
   return (
     <main className="wall-page" data-wall={kind}>
-      <WorkBackground />
       <div className="wall-scroll">
         <ul className="wall-grid" aria-label={tall ? "Short form videos" : "Long form videos"}>
           {videos.map((video) => (

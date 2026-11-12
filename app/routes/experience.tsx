@@ -36,7 +36,7 @@ export default function Experience() {
   const { navigationItems, socialLinks, ...page } = useLoaderData<typeof loader>();
 
   return (
-    <WorkShell navigationItems={navigationItems} socialLinks={socialLinks}>
+    <WorkShell navigationItems={navigationItems} socialLinks={socialLinks} ground={false}>
       <TimelinePage {...page} />
     </WorkShell>
   );

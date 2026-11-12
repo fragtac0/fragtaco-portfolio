@@ -3,7 +3,6 @@ import { usePageArrived } from "../../lib/use-page-settled";
 import type { SiteWork } from "../../types";
 import { introLine } from "./ring-layout";
 import Rings from "./rings";
-import WorkBackground from "./work-background";
 import { ROW_ID } from "./work-switcher";
 import "./work.css";
 
@@ -30,7 +29,6 @@ export default function WorkPage({ work }: WorkPageProps) {
       <a className="work-skip" href={`#${ROW_ID}`} onClick={skipToRow}>
         Skip to the work links
       </a>
-      <WorkBackground />
       <div className="work-stage">
         <div className="work-intro">
           <h1 className="work-title">{work.intro.title}</h1>
