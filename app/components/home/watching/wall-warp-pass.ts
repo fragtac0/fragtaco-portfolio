@@ -9,6 +9,13 @@ import { WARP_INNER, WARP_MAX, warpMargin } from "./wall-warp";
  *
  * The texture lives on unit 1 only while this pass runs, so the atlas on unit 0 (wall-thumbs.ts)
  * is never disturbed.
+ *
+ * Sharpness: the margin is snapped up to whole device pixels (`ceil(m * dpr) / dpr`) and the
+ * target is the drawing buffer plus twice that margin, in device pixels, so at any pixel ratio
+ * (1.25, 1.5, 2.625 ...) a pixel of the wall's middle lands exactly on a texel of the target and
+ * the copy is not sampled between texels. If the GPU cannot render to the texture
+ * (`checkFramebufferStatus`), the pass does not start (`createWarpPass` returns null, and `begin`
+ * returns null for a size it cannot hold), and the wall takes its "could not start" path.
  */
 
 const f = (n: number) => n.toFixed(6);
@@ -36,8 +43,11 @@ export type WarpTarget = {
 };
 
 export type WarpPass = {
-  /** Sizes the target for a `vw` by `vh` screen (reallocating only when it changes), binds it and sets its viewport. */
-  begin(vw: number, vh: number): WarpTarget;
+  /**
+   * Sizes the target for a `vw` by `vh` screen (reallocating only when it changes), binds it and
+   * sets its viewport. Null when the GPU cannot render to a target of that size.
+   */
+  begin(vw: number, vh: number): WarpTarget | null;
   /** Draws the target to the canvas through the warp. Leaves the canvas bound and unit 0 active. */
   present(vw: number, vh: number): void;
   dispose(): void;
@@ -73,32 +83,63 @@ export function createWarpPass(g: WebGLRenderingContext, main: WebGLProgram): Wa
   const tex = g.createTexture();
   let tw = 0;
   let th = 0;
+  /** The margin in CSS px the target was last sized with (snapped to whole device pixels). */
+  let margin = 0;
+
+  /** (Re)allocates the target at `pw` by `ph` texels and attaches it; false when the GPU says it is incomplete. */
+  const allocate = (pw: number, ph: number): boolean => {
+    g.activeTexture(g.TEXTURE1);
+    g.bindTexture(g.TEXTURE_2D, tex);
+    g.texImage2D(g.TEXTURE_2D, 0, g.RGBA, pw, ph, 0, g.RGBA, g.UNSIGNED_BYTE, null);
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR);
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.CLAMP_TO_EDGE);
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.CLAMP_TO_EDGE);
+    g.bindFramebuffer(g.FRAMEBUFFER, fbo);
+    g.framebufferTexture2D(g.FRAMEBUFFER, g.COLOR_ATTACHMENT0, g.TEXTURE_2D, tex, 0);
+    const ok = g.checkFramebufferStatus(g.FRAMEBUFFER) === g.FRAMEBUFFER_COMPLETE;
+    g.bindTexture(g.TEXTURE_2D, null);
+    g.activeTexture(g.TEXTURE0);
+    return ok;
+  };
+  const release = () => {
+    g.bindFramebuffer(g.FRAMEBUFFER, null);
+    g.deleteFramebuffer(fbo);
+    g.deleteTexture(tex);
+    g.deleteProgram(prog);
+  };
+  // can this GPU render to a texture at all? (a one texel target, before anything depends on it)
+  const ready = allocate(1, 1);
+  g.bindFramebuffer(g.FRAMEBUFFER, null);
+  if (!ready) {
+    console.error("The wall's render target is incomplete.");
+    release();
+    return null;
+  }
 
   return {
     begin(vw, vh) {
-      const margin = warpMargin(vw, vh);
+      // the target has the canvas's density: the drawing buffer plus the margin in device pixels
+      const dprX = vw > 0 ? g.drawingBufferWidth / vw : 1;
+      const dprY = vh > 0 ? g.drawingBufferHeight / vh : 1;
+      const dm = Math.ceil(warpMargin(vw, vh) * dprX);
+      margin = dm / dprX;
       const width = vw + 2 * margin;
-      const height = vh + 2 * margin;
-      // the target has the canvas's density, and never more than the GPU can hold
-      const dpr = vw > 0 ? g.drawingBufferWidth / vw : 1;
-      const cap = (g.getParameter(g.MAX_TEXTURE_SIZE) as number) / Math.max(width, height);
-      const sc = Math.max(0.25, Math.min(dpr, cap));
-      const pw = Math.max(1, Math.round(width * sc));
-      const ph = Math.max(1, Math.round(height * sc));
+      const height = vh + 2 * margin * (dprX / dprY);
+      let pw = g.drawingBufferWidth + 2 * dm;
+      let ph = g.drawingBufferHeight + 2 * dm;
+      // never more than the GPU can hold (then the copy is resampled, as it was before)
+      const cap = g.getParameter(g.MAX_TEXTURE_SIZE) as number;
+      if (Math.max(pw, ph) > cap) {
+        const k = cap / Math.max(pw, ph);
+        pw = Math.max(1, Math.floor(pw * k));
+        ph = Math.max(1, Math.floor(ph * k));
+      }
       if (pw !== tw || ph !== th) {
-        g.activeTexture(g.TEXTURE1);
-        g.bindTexture(g.TEXTURE_2D, tex);
-        g.texImage2D(g.TEXTURE_2D, 0, g.RGBA, pw, ph, 0, g.RGBA, g.UNSIGNED_BYTE, null);
-        g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR);
-        g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
-        g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.CLAMP_TO_EDGE);
-        g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.CLAMP_TO_EDGE);
-        g.bindFramebuffer(g.FRAMEBUFFER, fbo);
-        g.framebufferTexture2D(g.FRAMEBUFFER, g.COLOR_ATTACHMENT0, g.TEXTURE_2D, tex, 0);
-        g.bindTexture(g.TEXTURE_2D, null);
-        g.activeTexture(g.TEXTURE0);
+        const ok = allocate(pw, ph);
         tw = pw;
         th = ph;
+        if (!ok) return null;
       }
       g.bindFramebuffer(g.FRAMEBUFFER, fbo);
       g.viewport(0, 0, pw, ph);
@@ -113,17 +154,13 @@ export function createWarpPass(g: WebGLRenderingContext, main: WebGLProgram): Wa
       g.bindTexture(g.TEXTURE_2D, tex);
       g.uniform1i(uTex, 1);
       g.uniform2f(uRes, vw, vh);
-      g.uniform1f(uMargin, warpMargin(vw, vh));
+      g.uniform1f(uMargin, margin);
       g.drawArrays(g.TRIANGLE_STRIP, 0, 4);
       g.bindTexture(g.TEXTURE_2D, null);
       g.activeTexture(g.TEXTURE0);
       g.useProgram(main);
       g.enable(g.BLEND);
     },
-    dispose() {
-      g.deleteFramebuffer(fbo);
-      g.deleteTexture(tex);
-      g.deleteProgram(prog);
-    },
+    dispose: release,
   };
 }

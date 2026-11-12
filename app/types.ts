@@ -66,6 +66,8 @@ export interface SiteVideo {
   channelUrl: string;
   subscribers: string | null;
   thumb: "sd" | "hq";
+  /** The day it was published (YYYY-MM-DD), shown under a chosen video when the sync has it. */
+  published?: string | null;
 }
 
 export interface SiteVideosFile {

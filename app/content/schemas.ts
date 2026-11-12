@@ -90,6 +90,10 @@ export const VideoSchema = z.object({
     .regex(/^[\d.,]+[KMB]?$/, "Expected a subscriber count like 158K")
     .nullable(),
   thumb: z.enum(["sd", "hq"]),
+  published: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}/, "Expected a date like 2024-03-12")
+    .nullish(),
 });
 
 export const VideosFileSchema = z.object({

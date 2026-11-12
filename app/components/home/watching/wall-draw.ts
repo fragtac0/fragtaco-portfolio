@@ -28,13 +28,16 @@ const GLOW_ALPHA = 0.16;
 /** The echo edge: cream, at 35%. */
 const ECHO_EDGE = 0.35;
 
-export function drawTiles(wgl: WallGl, list: readonly Tile[], d: DrawInput): void {
+/** Draws the frame; false when the target could not be made (nothing was drawn). */
+export function drawTiles(wgl: WallGl, list: readonly Tile[], d: DrawInput): boolean {
   const { gl: g, uniforms: U } = wgl;
-  wgl.beginFrame(d.vw, d.vh, d.reduced ? 0 : d.now / 1000);
+  if (!wgl.beginFrame(d.vw, d.vh, d.reduced ? 0 : d.now / 1000)) return false;
   for (const tl of list) {
+    if (tl.fade < 0.004) continue; // faded out of the text's way
     const L = tl.cx - tl.w / 2;
     const T = tl.cy - tl.h / 2;
-    if (tl.f > 0.01) wgl.quad(L, T, tl.w, tl.h, 1, GLOW_ALPHA * tl.f, GLOW_REACH, tl.rad);
+    if (tl.f > 0.01) wgl.quad(L, T, tl.w, tl.h, 1, GLOW_ALPHA * tl.f * tl.fade, GLOW_REACH, tl.rad);
+    g.uniform1f(U.uDim, tl.dim);
     const uv = d.uvs[tl.idx];
     g.uniform4f(U.uCell, uv[0], uv[1], uv[2], uv[3]);
     const a = arrivalOf({
@@ -46,14 +49,15 @@ export function drawTiles(wgl: WallGl, list: readonly Tile[], d: DrawInput): voi
     });
     if (!a.loaded || a.alpha < 1) {
       g.uniform1f(U.uLoaded, 0);
-      wgl.quad(L, T, tl.w, tl.h, 0, 1, 0, tl.rad); // the placeholder, until the picture is up
+      wgl.quad(L, T, tl.w, tl.h, 0, tl.fade, 0, tl.rad); // the placeholder, until the picture is up
     }
     if (a.loaded && a.alpha > 0) {
       const w = tl.w * a.scale;
       const h = tl.h * a.scale;
       g.uniform1f(U.uLoaded, 1);
-      wgl.quad(tl.cx - w / 2, tl.cy - h / 2, w, h, 0, a.alpha, 0, tl.rad * a.scale);
+      wgl.quad(tl.cx - w / 2, tl.cy - h / 2, w, h, 0, a.alpha * tl.fade, 0, tl.rad * a.scale);
     }
-    if (tl.e > 0.01) wgl.quad(L, T, tl.w, tl.h, 3, ECHO_EDGE * tl.e, 0, tl.rad);
+    if (tl.e > 0.01) wgl.quad(L, T, tl.w, tl.h, 3, ECHO_EDGE * tl.e * tl.fade, 0, tl.rad);
   }
+  return true;
 }

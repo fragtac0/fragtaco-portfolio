@@ -3,17 +3,11 @@ import { createSlicer } from "../../../utils/idle";
 import { watchContextLost } from "../context-lost";
 import { drawTiles } from "./wall-draw";
 import { createWallGl, type WallGl } from "./wall-gl";
+import { countUnderText, createChoiceLayout } from "./wall-choice";
 import { createChip, createProbe } from "./wall-hud";
 import { attachWallInput, createWallInput } from "./wall-input";
-import {
-  atlasLayout,
-  cellUv,
-  columnOffset,
-  hitTile,
-  layoutTiles,
-  tileSize,
-  type Atlas,
-} from "./wall-math";
+import { atlasLayout, cellUv, hitTile, layoutTiles, tileSize, type Atlas } from "./wall-math";
+import { createMotion } from "./wall-motion";
 import { createPose } from "./wall-pose";
 import { createThumbs, type Thumbs } from "./wall-thumbs";
 import {
@@ -46,9 +40,6 @@ import {
  * wall-input.ts, the tiles' pose wall-pose.ts, their drawing wall-draw.ts, the chip wall-hud.ts
  * and the maths wall-math.ts.
  */
-
-/** Pixels the whole wall pans sideways per second. */
-const DRIFT = 3;
 
 const HINT_FINE = "Drag or scroll to look around. Hover a video to look closer, click to open it.";
 const HINT_KEYS = " Arrow keys and Enter work too.";
@@ -94,12 +85,13 @@ export function createWall(
 
   // interaction and view state, shared with the input code through the context
   const st = createWallState();
-  const { pan, vel, mouse } = st;
-  let speedMul = 1;
+  const { pan, mouse } = st;
   /** Where the tiles' nearness comes from, in flat wall coordinates. */
   let point: { x: number; y: number } | null = null;
   let cursor = "";
   const pose = createPose(videos);
+  const motion = createMotion(st, REDUCE);
+  const choiceOf = createChoiceLayout();
   const chip = createChip(videos, st);
   const probe = createProbe(canvas);
 
@@ -164,32 +156,11 @@ export function createWall(
     raf = requestAnimationFrame(frame);
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (st.held) return;
     const { vw, vh, size } = st;
     const { cw, ch, pitchX, pitchY } = size;
-    const hovering = FINE && mouse.inside && !st.dragging;
-    // the wall settles while you look at something, then drifts on again
-    speedMul +=
-      ((hovering || st.kbd !== null || st.frozen ? 0 : 1) - speedMul) * Math.min(1, dt * 2.5);
-    if (!REDUCE) st.t += dt * speedMul;
-    if (!st.dragging && !st.frozen) {
-      pan.x += vel.x * dt;
-      pan.y += vel.y * dt;
-      const k = Math.pow(0.05, dt);
-      vel.x *= k;
-      vel.y *= k;
-    }
-    if (!REDUCE) pan.x += DRIFT * dt * speedMul;
-    if (st.kbd && !st.frozen) {
-      // the keyboard focus pans the wall just far enough to keep its tile in view
-      const k = Math.min(1, dt * 6);
-      const xc = st.kbd.cx * pitchX - pan.x + cw / 2;
-      const yc = st.kbd.cy * pitchY - pan.y - columnOffset(st.t, st.kbd.cx) + ch / 2;
-      const mx = Math.min(pitchX * 0.75, vw / 2);
-      const my = Math.min(Math.max(pitchY * 0.75, 120), vh / 2);
-      pan.x += (xc < mx ? xc - mx : xc > vw - mx ? xc - (vw - mx) : 0) * k;
-      pan.y += (yc < my ? yc - my : yc > vh - my ? yc - (vh - my) : 0) * k;
-    }
+    const choosing = st.choice !== null;
+    const hovering = FINE && mouse.inside && !st.dragging && !choosing;
+    motion.step(dt, hovering);
     const list = layoutTiles({
       panX: pan.x,
       panY: pan.y,
@@ -200,7 +171,9 @@ export function createWall(
       t: st.t,
       count: atlas.cells.length,
     }) as Tile[];
-    if (!st.frozen) {
+    if (st.choice) {
+      st.hoverKey = st.choice.key; // the chosen video is the one in focus: its channel's others stay lit
+    } else {
       // nearest tile, gaps included, so the focus never drops between two videos
       st.hoverKey = hovering ? hitTile(list, mouse.x, mouse.y, size) : null;
       if (st.hoverKey === null && st.kbd && !st.dragging) {
@@ -208,20 +181,36 @@ export function createWall(
       }
     }
     const ft = st.hoverKey === null ? null : (list.find((tl) => tl.key === st.hoverKey) ?? null);
-    // the pointer, or the keyboard's tile, is what the tiles near it answer to; it holds while a
-    // video opens
-    if (!st.frozen) {
-      point = hovering
+    // the pointer, or the keyboard's tile, is what the tiles near it answer to; a chosen video
+    // has the wall's attention instead
+    point = choosing
+      ? null
+      : hovering
         ? { x: mouse.x, y: mouse.y }
         : st.kbd && ft
           ? { x: ft.x + cw / 2, y: ft.y + ch / 2 }
           : null;
-    }
     const focusIdx = ft ? ft.idx : null;
-    pose.apply(list, { dt, size, hoverKey: st.hoverKey, point, focusIdx, reduced: REDUCE });
-    if (!st.frozen) thumbs?.pumpFrame();
+    const choice = choiceOf(st);
+    const ghosts = pose.apply(list, {
+      dt,
+      size,
+      hoverKey: st.hoverKey,
+      point,
+      focusIdx,
+      reduced: REDUCE,
+      choice,
+    });
+    thumbs?.pumpFrame();
 
-    drawTiles(wgl, list, { now, vw, vh, pitchX, reduced: REDUCE, uvs, loadedAt: thumbs?.loadedAt });
+    const draw = ghosts.length ? [...ghosts, ...list] : list;
+    if (!drawTiles(wgl, draw, { now, vw, vh, pitchX, reduced: REDUCE, uvs, loadedAt: thumbs?.loadedAt })) {
+      // the GPU cannot render to the wall's target: the plain grid takes over, as for a lost context
+      failed = true;
+      stop();
+      canvas.dispatchEvent(new Event("webglcontextlost"));
+      return;
+    }
     wgl.endFrame(vw, vh);
     st.tiles = list;
     if (onFirstFrame) {
@@ -233,6 +222,8 @@ export function createWall(
     const echo = pose.echoFor(focusIdx);
     chip.place(els?.chip, list, echo.size);
     probe("echo", String(echo.size));
+    probe("chosen", st.choice?.key ?? "");
+    probe("under", choice ? String(countUnderText(list, choice)) : "0");
     const cur = st.dragging ? "grabbing" : st.hoverKey ? "pointer" : "grab";
     if (cur !== cursor) canvas.style.cursor = cursor = cur;
   }
@@ -247,7 +238,7 @@ export function createWall(
     canvas.style.cursor = "";
     cursor = "";
     mouse.inside = false;
-    st.frozen = st.held = false;
+    st.choice = null;
     st.dragging = false;
     st.down = null;
     st.kbd = null;
@@ -288,7 +279,7 @@ export function createWall(
       st.kbd = null;
       point = null;
       pose.reset();
-      st.frozen = st.held = false;
+      st.choice = null;
       sizes();
       running = true;
       last = performance.now();
@@ -305,15 +296,20 @@ export function createWall(
     setUrgent: (on) => slicer.setUrgent(on),
     onLost: lost.subscribe,
 
+    spreads: true,
     freeze(key) {
-      st.frozen = true;
-      if (key) st.hoverKey = key;
+      if (!key || st.choice?.key === key) return;
+      const tl = st.tiles.find((x) => x.key === key);
+      if (!tl) return;
+      st.choice = { key, idx: tl.idx, live: true };
+      st.hoverKey = key;
+    },
+    release() {
+      if (st.choice) st.choice.live = false;
     },
     thaw() {
-      st.frozen = false;
-    },
-    hold(v) {
-      st.held = v;
+      st.choice = null;
+      pose.reset();
     },
     rectOf: input.rectOf,
 

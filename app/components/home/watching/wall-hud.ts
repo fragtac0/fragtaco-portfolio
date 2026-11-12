@@ -30,7 +30,7 @@ export function createChip(videos: readonly SiteVideo[], st: WallState): Chip {
     reset: () => (idx = -1),
     place(chip, list, more) {
       const top = list[list.length - 1];
-      if (!chip || st.frozen || !top || top.key !== st.hoverKey || top.f <= 0.5) {
+      if (!chip || st.choice || !top || top.key !== st.hoverKey || top.f <= 0.5) {
         chip?.classList.remove("on");
         return;
       }
@@ -54,10 +54,14 @@ export function createChip(videos: readonly SiteVideo[], st: WallState): Chip {
   };
 }
 
-/** `data-echo`: how many other videos the focused channel has on the wall. */
+/**
+ * `data-echo`: how many other videos the focused channel has on the wall. `data-chosen`: the key of
+ * the chosen video (empty when none). `data-under`: how many visible tiles stand in the chosen
+ * video's text block (it must be 0 once the wall is open).
+ */
 export function createProbe(canvas: HTMLElement) {
   const last: Record<string, string> = {};
-  return (name: "echo", value: string) => {
+  return (name: "echo" | "chosen" | "under", value: string) => {
     if (last[name] === value) return;
     last[name] = value;
     canvas.dataset[name] = value;

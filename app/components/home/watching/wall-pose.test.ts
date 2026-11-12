@@ -15,6 +15,9 @@ const tile = (key: string, idx: number): Tile => {
     y: cy * size.pitchY,
     f: 0,
     e: 0,
+    c: 0,
+    dim: 1,
+    fade: 1,
     cx: 0,
     cy: 0,
     w: 0,
@@ -82,7 +85,8 @@ describe("createPose", () => {
     }
     for (const t of list) {
       expect(t.w).toBeLessThanOrEqual(size.cw * 1.04 + 1e-9);
-      expect("dim" in t).toBe(false);
+      expect(t.dim).toBe(1);
+      expect(t.fade).toBe(1);
       expect("bias" in t).toBe(false);
     }
   });
@@ -163,6 +167,12 @@ describe("createPose", () => {
 });
 
 describe("drawRank and sortForDraw", () => {
+  it("ranks the chosen tile after the focused ones", () => {
+    expect(drawRank(1, 1)).toBeGreaterThan(drawRank(1, 0));
+    expect(drawRank(0, 0.5)).toBeGreaterThan(drawRank(1, 0));
+    expect(drawRank(0, 0)).toBe(0);
+  });
+
   it("ranks a focused tile after the rest, the more focused the later", () => {
     expect(drawRank(0)).toBe(0);
     expect(drawRank(0.005)).toBe(0);

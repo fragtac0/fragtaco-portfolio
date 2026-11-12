@@ -10,8 +10,14 @@ export type WallEls = {
   hint: HTMLElement;
 };
 
-/** The part of the wall the detail view drives; the no-WebGL grid supplies its own. */
-export type WallControl = Pick<WallEngine, "freeze" | "thaw" | "hold" | "rectOf">;
+/**
+ * The part of the wall the detail view drives; the no-WebGL grid supplies its own. `spreads` is
+ * true for the WebGL wall, which draws the chosen video itself; the grid has nothing to draw, so
+ * the detail view shows the picture.
+ */
+export type WallControl = Pick<WallEngine, "freeze" | "release" | "thaw" | "rectOf"> & {
+  spreads: boolean;
+};
 
 export type WallEngine = {
   /**
@@ -32,11 +38,17 @@ export type WallEngine = {
   start(opts?: { onFirstFrame?: () => void }): Promise<void>;
   stop(): void;
   unmount(): void;
-  /** While a video is open the wall stops, keeps that tile in focus, and takes no input. */
+  /** True: the wall draws the chosen video itself (see `WallControl`). */
+  readonly spreads: true;
+  /**
+   * A video is chosen: the drift stops, the chosen tile travels to the middle and the others
+   * spread away. A no-op for the tile that is already chosen.
+   */
   freeze(key?: string): void;
+  /** The close begins: the tiles travel back (the choice is held until `thaw`). */
+  release(): void;
+  /** The close is over: the choice is forgotten and the wall drifts on. */
   thaw(): void;
-  /** Stops drawing altogether, under the cover of the detail view. */
-  hold(v: boolean): void;
   /** The tile's current rectangle in viewport coordinates, or null when it is not in view. */
   rectOf(key: string): DOMRect | null;
   /** Move the keyboard focus one tile: (1, 0) right, (0, 1) down. */
@@ -50,7 +62,12 @@ export type Tile = LayoutTile & {
   f: number;
   /** How far it is in the focused video's channel echo, 0 to 1. */
   e: number;
-  /** Displaced centre, size and corner radius (the pointer's nudge). */
+  /** How much it is the chosen video (0 to 1, eased): 1 once it has travelled to the middle. */
+  c: number;
+  /** Its brightness (1, down to 0.55 for the others while a video is open) and its opacity (1; 0 for a tile in the text's way). */
+  dim: number;
+  fade: number;
+  /** Displaced centre, size and corner radius (the pointer's nudge, or the spread). */
   cx: number;
   cy: number;
   w: number;
@@ -77,10 +94,11 @@ export type WallState = {
   down: { id: number; x: number; y: number; lx: number; ly: number; ts: number } | null;
   dragging: boolean;
   hoverKey: string | null;
-  /** The detail view is opening or open: the wall settles and takes no input. */
-  frozen: boolean;
-  /** Not drawing at all, under the cover of the detail view. */
-  held: boolean;
+  /**
+   * The chosen video, from the click until the close is over: the wall is still and the tiles
+   * spread around it. `live` is false while it closes. The wall takes no input but the arrow keys.
+   */
+  choice: { key: string; idx: number; live: boolean } | null;
   /** The tiles of the last frame, hovered one last. */
   tiles: Tile[];
 };
@@ -99,8 +117,7 @@ export const createWallState = (): WallState => ({
   down: null,
   dragging: false,
   hoverKey: null,
-  frozen: false,
-  held: false,
+  choice: null,
   tiles: [],
 });
 

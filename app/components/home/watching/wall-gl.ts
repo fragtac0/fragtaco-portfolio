@@ -2,7 +2,8 @@
  * The wall's GL context, shaders and quad draw. One program draws every tile as a quad; a tile is
  * a rounded rectangle sampling its cell of the thumbnail atlas (`kind` 0, at `alpha`), and the same
  * program draws the orange glow under the focused tile (`kind` 1: 28 px, 16%, spec 7) and the
- * hairline cream edge of a tile in the focused channel's echo (`kind` 3). The atlas texture is
+ * hairline cream edge of a tile in the focused channel's echo (`kind` 3). A tile's picture is
+ * multiplied by `uDim` (1, or down to 0.55 for the tiles around a chosen video). The atlas texture is
  * wall-thumbs.ts's; it stays bound to unit 0. A frame draws flat into a texture a little larger
  * than the screen (`beginFrame`) and `endFrame` shows it through the border fish-eye
  * (wall-warp-pass.ts).
@@ -17,7 +18,7 @@ const SURFACE_VEC3 = glslVec3(SURFACE_1);
 const VS = `attribute vec2 p;uniform vec4 uRect;uniform vec2 uRes;uniform float uPad;uniform vec2 uOff;varying vec2 vL;
   void main(){vec2 sz=uRect.zw+2.*uPad;vec2 pos=uRect.xy-uPad+p*sz+uOff;vL=pos-uOff-(uRect.xy+uRect.zw*.5);vec2 c=pos/uRes*2.-1.;gl_Position=vec4(c.x,-c.y,0.,1.);}`;
 const FS = `precision highp float;varying vec2 vL;
-  uniform sampler2D uAtlas;uniform vec4 uRect,uCell;uniform float uKind,uAlpha,uRad,uLoaded,uTime;
+  uniform sampler2D uAtlas;uniform vec4 uRect,uCell;uniform float uKind,uAlpha,uRad,uLoaded,uTime,uDim;
   float sdBox(vec2 p,vec2 b,float r){vec2 q=abs(p)-b+r;return length(max(q,0.))+min(max(q.x,q.y),0.)-r;}
   void main(){
     float sd=sdBox(vL,uRect.zw*.5,uRad);
@@ -26,7 +27,7 @@ const FS = `precision highp float;varying vec2 vL;
     float a=(1.-smoothstep(-.8,.8,sd))*uAlpha;
     vec2 st=clamp(vL/uRect.zw+.5,0.,1.);
     vec3 col=uLoaded>.5?texture2D(uAtlas,uCell.xy+st*uCell.zw).rgb:${SURFACE_VEC3}+.022*sin(vL.x*.02-uTime*2.4);
-    gl_FragColor=vec4(col*a,a);
+    gl_FragColor=vec4(col*uDim*a,a);
   }`;
 
 const UNIFORMS = [
@@ -41,6 +42,7 @@ const UNIFORMS = [
   "uRad",
   "uLoaded",
   "uTime",
+  "uDim",
 ] as const;
 type UniformName = (typeof UNIFORMS)[number];
 export type WallUniforms = Record<UniformName, WebGLUniformLocation | null>;
@@ -51,8 +53,9 @@ export type WallGl = {
   /**
    * Starts a frame: binds the flat target (the screen plus the warp's margin), clears it and sets
    * the coordinates so tiles are placed in screen pixels, as if the target were the screen.
+   * False when the GPU cannot render to a target that size (nothing was drawn).
    */
-  beginFrame(vw: number, vh: number, time: number): void;
+  beginFrame(vw: number, vh: number, time: number): boolean;
   /** Shows the frame on the canvas through the border fish-eye. */
   endFrame(vw: number, vh: number): void;
   /** Draws one quad; `pad` grows it on every side (the glow reaches past the tile). */
@@ -109,6 +112,7 @@ export function createWallGl(canvas: HTMLCanvasElement): WallGl | null {
   const U = {} as WallUniforms;
   for (const k of UNIFORMS) U[k] = g.getUniformLocation(prog, k);
   g.uniform1i(U.uAtlas, 0);
+  g.uniform1f(U.uDim, 1);
   g.enable(g.BLEND);
   g.blendFunc(g.ONE, g.ONE_MINUS_SRC_ALPHA);
   const warp: WarpPass | null = createWarpPass(g, prog);
@@ -123,11 +127,13 @@ export function createWallGl(canvas: HTMLCanvasElement): WallGl | null {
     uniforms: U,
     beginFrame(vw, vh, time) {
       const t = warp.begin(vw, vh);
+      if (!t) return false;
       g.clearColor(0, 0, 0, 0);
       g.clear(g.COLOR_BUFFER_BIT);
       g.uniform2f(U.uRes, t.width, t.height);
       g.uniform2f(U.uOff, t.margin, t.margin);
       g.uniform1f(U.uTime, time);
+      return true;
     },
     endFrame(vw, vh) {
       warp.present(vw, vh);
