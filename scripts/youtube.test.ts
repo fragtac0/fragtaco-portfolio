@@ -4,13 +4,10 @@ import { describe, expect, it, vi } from "vitest";
 import type { SiteVideo } from "../app/types";
 import {
   diffVideos,
-  extractInitialData,
   channelFailedMessage,
-  hasContinuation,
   mapLimit,
   mergeSubscribers,
   noCountMessage,
-  parsePlaylist,
   parseSubscribers,
   retryMessage,
   thumbFailedMessage,
@@ -30,42 +27,6 @@ const video = (id: string, title: string): SiteVideo => ({
   thumb: "sd",
 });
 
-describe("parsePlaylist", () => {
-  const playlist: unknown = JSON.parse(readFixture("playlist.json"));
-
-  it("returns only the video lockups that have all their fields", () => {
-    expect(parsePlaylist(playlist).videos).toHaveLength(3);
-  });
-
-  it("skips a video lockup without a title and reports its id", () => {
-    expect(parsePlaylist(playlist).skipped).toEqual(["untitledVid1"]);
-  });
-
-  it("treats a whitespace-only title or channel as missing", () => {
-    const blanked = (from: string): unknown =>
-      JSON.parse(readFixture("playlist.json").replace(from, '"content": "   "')) as unknown;
-    const title = parsePlaylist(blanked('"content": "Every Type of Mimicry Explained"'));
-    expect(title.skipped).toContain("GrtKxfATyTw");
-    expect(title.videos.map((v) => v.id)).not.toContain("GrtKxfATyTw");
-    const channel = parsePlaylist(blanked('"content": "daninblue"'));
-    expect(channel.skipped).toContain("GrtKxfATyTw");
-    expect(channel.videos.map((v) => v.id)).not.toContain("GrtKxfATyTw");
-  });
-
-  it("reads id, title, channel and channel url", () => {
-    expect(parsePlaylist(playlist).videos[0]).toEqual({
-      id: "GrtKxfATyTw",
-      title: "Every Type of Mimicry Explained",
-      channel: "daninblue",
-      channelUrl: "https://www.youtube.com/@daninblue",
-    });
-  });
-
-  it("throws when the page has no playlist lockups", () => {
-    expect(() => parsePlaylist({})).toThrow();
-  });
-});
-
 describe("parseSubscribers", () => {
   it("reads the page header count, not a featured channel's", () => {
     expect(parseSubscribers(readFixture("channel-header.html"))).toBe("158K");
@@ -73,17 +34,6 @@ describe("parseSubscribers", () => {
 
   it("returns null when there is no count", () => {
     expect(parseSubscribers("<html></html>")).toBeNull();
-  });
-});
-
-describe("extractInitialData", () => {
-  it("parses the embedded object", () => {
-    const html = 'x<script>var ytInitialData = {"a":{"b":1}};</script>y';
-    expect(extractInitialData(html)).toEqual({ a: { b: 1 } });
-  });
-
-  it("throws when it is missing", () => {
-    expect(() => extractInitialData("<html>")).toThrow("ytInitialData not found");
   });
 });
 
@@ -115,17 +65,6 @@ describe("mergeSubscribers", () => {
   it("gives null when the page had none and there is no previous count", () => {
     expect(mergeSubscribers(null, undefined)).toBeNull();
     expect(mergeSubscribers(null, null)).toBeNull();
-  });
-});
-
-describe("hasContinuation", () => {
-  it("is false for a single page", () => {
-    expect(hasContinuation(JSON.parse(readFixture("playlist.json")))).toBe(false);
-  });
-
-  it("finds a continuationItemRenderer anywhere in the page", () => {
-    const data = { a: [{ b: { continuationItemRenderer: { token: "x" } } }] };
-    expect(hasContinuation(data)).toBe(true);
   });
 });
 

@@ -31,6 +31,11 @@ describe("placeholderArt", () => {
     expect(decode(placeholderArt("a", false))).toContain('viewBox="0 0 640 360"');
   });
 
+  it("has an intrinsic size (width and height), so a canvas can draw it in every browser", () => {
+    expect(decode(placeholderArt("a", true))).toMatch(/<svg [^>]*width="360" height="640"/);
+    expect(decode(placeholderArt("a", false))).toMatch(/<svg [^>]*width="640" height="360"/);
+  });
+
   it("draws a dark ground and two or three soft shapes", () => {
     for (let i = 0; i < 20; i++) {
       const svg = decode(placeholderArt(`seed-${i}`, i % 2 === 0));

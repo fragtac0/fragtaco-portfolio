@@ -40,7 +40,7 @@ export function placeholderArt(seed: string, upright: boolean): string {
 
   const ground = `hsl(${hue} ${Math.round(between(r, 18, 30))}% ${Math.round(between(r, 6, 11))}%)`;
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice">` +
     `<defs>${defs}</defs><rect width="${w}" height="${h}" fill="${ground}"/>${shapes}</svg>`;
 
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;

@@ -41,6 +41,7 @@ describe("idsFromListing", () => {
       JSON.stringify({ id: "aaaaaaaaaaa", url: "https://www.youtube.com/watch?v=aaaaaaaaaaa" }),
       JSON.stringify({ id: "bbbbbbbbbbb", url: "https://www.youtube.com/shorts/bbbbbbbbbbb" }),
       "WARNING: not json",
+      JSON.stringify({ id: "ddddddddddd", url: "https://www.youtube.com/shorts/ddddddddddd", webpage_url: "https://www.youtube.com/watch?v=ddddddddddd" }),
       JSON.stringify({ id: "UCqnltx9awILOOP53q80ASJg" }),
       JSON.stringify({ id: "ccccccccccc", webpage_url: "https://www.youtube.com/watch?v=ccccccccccc" }),
     ].join("\n");
