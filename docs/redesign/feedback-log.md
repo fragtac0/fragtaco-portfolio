@@ -13,6 +13,7 @@ Every round of feedback on the home page redesign, what changed in response, and
 5. [Round 4: feedback on the built shelf and walls](#round-4-feedback-on-the-built-shelf-and-walls-2026-11-05)
 6. [Round 5: audit, polish and the work page](#round-5-audit-polish-and-the-work-page-2026-11-11)
    - [Round 6: feedback on the built preview](#round-6-feedback-on-the-built-preview-2026-11-11) (at the end)
+   - [Round 7: feedback on the round 6 build](#round-7-feedback-on-the-round-6-build-2026-11-12) (at the end)
 7. [Decisions so far](#decisions-so-far)
 8. [Open questions](#open-questions)
 9. [Later, not now](#later-not-now)
@@ -396,3 +397,71 @@ Whole site
 - Real app icons come from the vendor or Wikimedia Commons with the source recorded. Any icon that cannot be sourced that way keeps its two-letter mark and is listed.
 - "Bharat in Germany" is read as the company's name for all roles from Feb 2021 to Dec 2025.
 - The `shaders` background needs WebGPU; other browsers get a still gradient.
+
+## Round 7: feedback on the round 6 build (2026-11-12)
+
+Given after looking at the local build of round 6 (parts R40 to R45). Seven pictures came with it: the dark About tab, Omar's scanned book spines, an orange contour map of Mars, two tilted map screens with glass cards, the hard lower edge of the painting, and the shelf heading over thumbnails. They are third-party pictures, so they stay out of the repo (`docs/redesign/compare/local/`). Two screen recordings (the wall glitch and a reference grid) could not be read and were asked for again.
+
+**Asked for**
+
+Process: ask questions properly, improve the taste and the references, report back before starting. Show a quick HTML preview with several variations of the map before committing to one. Document everything in git.
+
+Video walls (long form and short form)
+- Something appears wrongly every time the page opens. If the warp causes it, the warp goes; the frames get bigger so the wall reads as a wall. The ObsidianUI reference was not followed closely enough.
+- The walls should arrive like the reference grid in the recording.
+- Clicking the tab that is already open must not go back to the portfolio page.
+- The "rings" button goes. A go-back button like the shelves have takes its place.
+
+Page changes
+- The change on the work pages is too fast and in step with nothing. It should be slow and easy, a little slower than the painting change, and the same everywhere: home, portfolio, long form, short form, my experience, and every combination.
+- Going back to home from work shows a black frame on the painting.
+- The dock bounces when Home is clicked and does not on Work. No bounce at all; the highlight box slides.
+
+Home
+- The painting's text appears before the next painting. It should fade out, then fade in once the new painting is up.
+- About and Credits lost their glow and shadow. They become an orange gradient with white text, with glow and shadow back, and their panels come in slower with an ease in and out.
+- The painting ends abruptly at its lower edge. A fading gradient or something better.
+- The ground behind the two shelves is flat. A slowly moving gradient.
+- The small shelf preview still shows the old books.
+
+Shelves
+- Opening or closing either shelf blanks the whole box first. It reads as a glitch.
+- The line of text at the bottom of both shelves goes.
+- The headings on both shelves are hard to read. Better layout and type sizes, with a ground that keeps them legible.
+- Spines: Omar's scanned spines look real and far better. Aditya offered to source real spines.
+- YouTube wall: the playlist now has 109 videos. Shuffle them, make the thumbnails smaller, and make the wall finite. A click moves the camera to the video (the video does not travel to the centre), the video grows to about today's size and the rest push away.
+- YouTube wall edges: blur, fish-eye and a colour fringe at the corners, with a dark fade on all four sides, enough for the text and the Esc button to read well.
+
+Portfolio page
+- The title "Work" becomes "My portfolio".
+- The app icons get a solid glass look, not see-through.
+- The background is very bad. Each page (portfolio, long form, short form) gets its own ground; not the same gradient everywhere.
+
+My experience
+- The map looks ugly and the overview has far too much text: only the mountain's name and the tallest-mountain line. The map fills the whole page in the overview.
+- The Mars picture should be calm and toned down like the contour reference, not bright or saturated.
+- The lines and the way things appear are disliked. The interface should take from the glass references: quiet, drawing more attention than the map.
+- Better labels for Journey and Places. Places appear one at a time, traced, boxed and captioned, teaching each one. Choosing Journey or Places removes the "My experience" text.
+- A different idea or location is allowed if Mars does not carry it.
+
+Content
+- Long form: 12 video links and every long form video on two channels (AllRiskIsCreative9 has 7, TheSamderShow has 2), 21 in all.
+
+**Answers to my questions**
+
+| Question | Answer |
+|---|---|
+| Which rings go | Only the "rings" button on the two walls. The rotating rings on the portfolio page stay |
+| Size of the YouTube wall | Still moved with the mouse, with smaller thumbnails; finite |
+| Short form wall for now | Placeholders until links arrive |
+| Real spines | Find real spine pictures online |
+| Where "My portfolio" appears | The page title only; the dock tab stays "work" |
+| Map view | Explore both flat and tilted |
+| Location | Mars done better, plus one idea that is not Mars |
+| What the preview covers | Map variations, backgrounds, the page change, a spine sample |
+
+**My calls (say if any is wrong)**
+
+- The preview page is a throwaway for choosing a direction. Nothing in it ships as it is.
+- Reference pictures, YouTube thumbnails, book covers and any spine picture found online stay in the git-ignored local folder until the rights question for spines is settled.
+- Round 6 finishes its last review step first; round 7 is built on top of it.
