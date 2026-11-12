@@ -317,7 +317,7 @@ None open. Asked after v3 and answered on 2026-11-02:
 
 - Built: R31 to R39 (polish pass of the home page, the new work page, the timeline page), Tasks 0 to 25 of the plan, each reviewed by Opus, then one whole-branch review and one fix wave (the dock's glass blur, lost since R32, is back).
 - Pull requests, stacked, to merge in order: #7 R30, #8 R31, #9 R32, #10 R33, #11 R34, #12 R35, #13 R36, #14 R37, #15 R38, #16 R39.
-- Preview (Vercel, behind Vercel sign-in): https://fragtaco-portfolio-mnh4409tz-workfragtaco-gmailcoms-projects.vercel.app . The public link https://fragtaco-portfolio.vercel.app still shows the old version; nothing was deployed to production.
+- Preview (Vercel, behind Vercel sign-in): the newest preview deployment of the `fragtaco-portfolio` project in the Vercel dashboard (its address is kept out of this file because it contains the account name). The public link https://fragtaco-portfolio.vercel.app still shows the old version; nothing was deployed to production.
 - Comparison page: `docs/redesign/compare/index.html` (open from disk; rows marked "not stored in the repo" need the local images in `compare/local/`).
 - Measured: see the measured table above (every scenario 0 frames over 20 ms in headless Chrome; LCP 5.0 s on the slow 4G phone profile because the loader reveals the roles line by design).
 - Waiting for Aditya: the device checks in the table above; real videos, covers, clients and the intro line in `content/site/work.json`; the role dates in `content/site/timeline.json`; whether a Mac mouse wheel should zoom the timeline; the variations in spec section 8.
@@ -406,7 +406,7 @@ Round 6 is built and reviewed. This section is the summary for someone who has n
 
 **Where it is**
 
-- Preview (Vercel, behind Vercel sign-in): https://fragtaco-portfolio-1u2qzllc4-workfragtaco-gmailcoms-projects.vercel.app . It is a preview deployment, not production. The public link https://fragtaco-portfolio.vercel.app still shows the old version (checked: `/experience` does not exist there); nothing was deployed to production and nothing was merged.
+- Preview (Vercel, behind Vercel sign-in): the newest preview deployment of the `fragtaco-portfolio` project in the Vercel dashboard (its address is kept out of this file because it contains the account name). It is a preview deployment, not production. The public link https://fragtaco-portfolio.vercel.app still shows the old version (checked: `/experience` does not exist there); nothing was deployed to production and nothing was merged.
 - Pull requests, stacked, to merge in order on top of #16 (round 5): #17 R40 (assets and Mars), #18 R41 (bugs), #19 R42 (mood and glass), #20 R43 (work page), #21 R44 (home: wall and shelf), #22 R45 (My experience). The R46 fixes sit on the top branch, `r6/r45-experience` (pushed); this write-up and the comparison page (R46.2) are committed there but not pushed yet.
 - Comparison page: `docs/redesign/compare/index.html`, the Round 6 row at the bottom (round 5 beside round 6). Rows marked "not stored in the repo" need the local pictures in `compare/local/`.
 - Every task was reviewed by Opus, then one whole-branch review and one fix wave (R46.1). The re-review found no Critical or Important issue left. All audits in `scripts/audit/` pass on the production build.
@@ -521,3 +521,95 @@ Content
 - The preview page is a throwaway for choosing a direction. Nothing in it ships as it is.
 - Reference pictures, YouTube thumbnails, book covers and any spine picture found online stay in the git-ignored local folder until the rights question for spines is settled.
 - Round 6 finishes its last review step first; round 7 is built on top of it.
+
+**Preview page for choosing directions (2026-11-13)**
+
+`docs/redesign/round7-preview/index.html` is a throwaway page, served locally from `docs/redesign` (for example `python3 -m http.server 5190`, then `/round7-preview/`). It holds:
+
+1. The Olympus Mons map in four looks (ember contour, night contour, toned relief, relief with contour lines), each flat or tilted, with a glass interface, a three-way switch (Overview, My climb, The mountain), moments as stops on a road that is solid behind and dashed ahead, and places taught one at a time with a traced outline and a card. The contour lines are drawn in the browser from NASA's MOLA elevation picture; the relief is the Viking colour mosaic. Both are public domain and sit in `round7-preview/assets/`.
+2. An idea that is not Mars: a line map where every craft is a line and the moments are stations.
+3. Moving grounds, two options each for the portfolio page, the long form wall, the short form wall and the home shelves.
+4. The painting's reveal between two page pictures at five speeds (the painting takes 2.8 s; page changes take 0.56 s today).
+5. A row for real spine pictures, filled from the git-ignored local folder.
+
+**Feedback on the first preview (2026-11-13)**
+
+- Map, overview: the look of A (ember) but as a real picture, orange and toned down, with no contour lines. The road stays but thinner. The milestone marks are too flat.
+- Map, My climb: a real transition from the flat top-down picture to a tilted night contour. Lines crisp. The contour lines are raised by height, as in the reference of a mountain built from stacked lines, to give the mountain's scale. Depth blur and a closer zoom. No "1 / 9" stepper: the milestones themselves are clickable.
+- Map, The mountain: the orange toned picture, flat, no tilt. A Next button, not "1 / 6". Better information on each place, with the expeditions that have studied the mountain.
+- The line map idea is rejected.
+- Backgrounds: none liked. A second set in the manner of the reference: near-black with a soft orange glow and heavy film grain.
+- Page change: 3.5 seconds, radial from the centre of the screen, not from the dock tab.
+- Spines: finding real ones online failed (1 of 14). Draw them, designed in the manner of Stripe Press, and show them.
+- One more preview before anything is built.
+
+Second preview: `docs/redesign/round7-preview-2/index.html` (same local server, `/round7-preview-2/`).
+
+**Feedback on the second preview (2026-11-13)**
+
+- The map is far better. Keep this direction.
+- Overview to My climb: the camera lifts and then drops; the move is not smooth.
+- The far edge of the tilted view looks wrong. The ground should run on past the edges and blur out very slowly.
+- The contour rise is very good, but "now" sits too high up the mountain. A gentler climb: the road takes a loop round the mountain and the camera moves round it in 3D, in My climb only.
+- The glass cards are too big: about 75% of their size.
+- The pin feet do not sit on the road line.
+- "21, 22, 23" on the milestones is a poor label: icons or pictures instead.
+- The mountain: the highlight circles are generic and odd; something else. Show a much larger piece of the satellite picture and make it about Mars: start close with two or three things, then pull out to a bird's-eye view.
+- Backgrounds: Eclipse is the one. It should move, with a very subtle noise gradient.
+- Page change: 3.5 seconds, radial from the centre. Settled.
+- Spines: much better. Improve the shelf and the placement, with something that suits the theme or relates to Mars.
+- Another preview.
+
+Third preview: `docs/redesign/round7-preview-3/index.html` (same local server, `/round7-preview-3/`). The flat picture now follows the camera in 3D, so the change into My climb is a single move; the road is a loop of one and a third turns; the height picture covers 64 by 41.6 degrees so the ground runs past the edges; the tour ends on a 154 by 100 degree picture of Mars (Viking mosaic, public domain).
+
+**Feedback on the third preview (2026-11-13)**
+
+- Map: go back to the first trail, with its top and the other milestones a little lower. The loop round the mountain is rejected. The camera glitches.
+- Hide The mountain for now. Two states only: Overview and My climb.
+- Background: slow movement is right, but it needs grain for texture.
+- Shelf: the original single row, on the new shelves.
+
+Fourth preview: `docs/redesign/round7-preview-4/index.html`. The trail is the first one with each point pushed away from the summit (the last by 40%). The very large Mars picture and the mask on the terrain canvas are gone, as the likeliest causes of the glitch. Measured in the Browser pane at 848 px wide, device pixel ratio 2: the move into My climb ran 505 frames in 4.2 s with the longest frame 9 ms, and the camera's height and position never reversed.
+
+**Feedback on the fourth preview (2026-11-13)**
+
+- The card covers other things on the map.
+- No line of help text under the map.
+- The camera snaps where it should ease, and it does not need to move for every milestone: only when milestones are far apart.
+- The grain on the background cannot be seen the way it can in the reference.
+- The ledge of rock layers is the shelf. No gradient ground behind either shelf.
+
+Fifth preview: `docs/redesign/round7-preview-5/index.html`. The camera stays put while the chosen milestone is inside a comfortable part of the view and otherwise glides on a critically damped spring; the card takes whichever of five places round its milestone covers the fewest others, and fades any it still covers; the grain is coarse (1.5 to 3 px specks), strong and still. Decided for the build: the rock ledge under the books, and no Eclipse ground behind the book shelf or the YouTube shelf.
+
+**Feedback on the fifth preview (2026-11-13)**
+
+- Something is wrong with how the text appears in the cards (shown in a recording that could not be read).
+- The picture is cut off at one edge and a black bar shows. A slight zoom in.
+- Maps in the references feel finished because of a grid and a few small marks in the corners and at chosen places. Try that: a grid that does not distract, good dotted lines, plain lines and small shapes, without overdoing it. Not the photo tiles of the reference.
+- The soft blur toward the corners and edges of the Mars map should be there, very subtle.
+- Background: far too much grain. Very, very subtle.
+- Shelves: no gradient, but not empty either. Something that is there.
+
+Sixth preview: `docs/redesign/round7-preview-6/index.html`. The overview is zoomed to 1.1 so the picture always covers the frame (the bar came from the view sitting 30 map units left of centre at a zoom of exactly 1). The chart layer: a 5 degree grid with dotted 2.5 degree steps, crosses where the 5 degree lines meet, dotted rings 150 and 300 km from the summit, a triangle on the summit, north, degree labels, a 200 km scale bar, four corner marks, two edge squares and a position readout that follows the chosen milestone. Cards now fade out completely before their words and place change. Grain is a fifth of the last preview. Three still grounds for the shelves: the mountain in contour lines, the chart grid, a field of dots.
+
+**Feedback on the sixth preview (2026-11-13)**
+
+- The grid is too big and too visible. Keep it, but smaller and fainter, and it should fade out with the map through the tilt.
+- Grain: "Barely" is the one.
+- Shelf ground: the field of dots, much smaller, moving, barely visible.
+
+Seventh preview: `docs/redesign/round7-preview-7/index.html`. Grid lines every 2.5 degrees at 4% and 7% (crosses every 5 degrees at 26%), fading on the same curve as the picture. Grain at 0.1. Dots every 7 px, 0.8 to 1.7 px across, 2% to 10% strong, with a slow swell.
+
+**Feedback on the seventh preview (2026-11-13)**
+
+- "My experience" and "Olympus Mons" in capitals.
+- The grid is needed in My climb too: faded, and following the same map.
+
+Eighth preview: `docs/redesign/round7-preview-8/index.html`. Both titles are set in capitals. The grid is now a set of point rows that take the height of the ground under them, so in the overview it is the same flat grid and in My climb it runs up and over the mountain. Over the dark ground its ink is raised (lines to about 10% and 18%, crosses to 42%) so it reads as the same faint grid. Measured in the pane: 541 frames in 4.5 s through the change, longest frame 11 ms.
+
+**Feedback on the eighth preview (2026-11-13)**
+
+- The colours of the words should show their order of importance. The Olympus Mons block is too big.
+- "My experience" is the biggest, with a small description under it. "Olympus Mons" and the rest are smaller.
+
+Ninth preview: `docs/redesign/round7-preview-9/index.html`. Title 34 to 64 px in full cream; description 12.5 px at 70%; the name of the mountain 13 px, letter-spaced, in warm light orange (#ffc9a3); its line 11 px at 56%.

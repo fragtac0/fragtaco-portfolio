@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Round 7 preview 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Doto:wght@400..900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@300..900&family=Young+Serif&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="preview.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-title"><b>Round 7 preview 2</b><span>throwaway, for choosing directions. Nothing here ships as it is.</span></div>
+  <nav class="tabs" id="tabs">
+    <button data-sec="map" class="on">1 Map</button>
+    <button data-sec="grounds">2 Backgrounds</button>
+    <button data-sec="change">3 Page change</button>
+    <button data-sec="spines">4 Spines</button>
+  </nav>
+</header>
+
+<!-- ============ 1 MAP ============ -->
+<section class="sec on" id="sec-map">
+  <div class="stage" id="stage" data-mode="overview">
+    <div class="plane" id="plane">
+      <img class="relief" src="../round7-preview/assets/relief.jpg" alt="">
+      <div class="tone"></div>
+      <svg class="ink" id="ink" viewBox="0 0 1000 650" aria-hidden="true"></svg>
+    </div>
+    <div class="night" id="night"></div>
+    <canvas id="terrain"></canvas>
+    <canvas id="fx"></canvas>
+    <div class="focus focus-top"></div><div class="focus focus-top2"></div>
+    <div class="focus focus-bottom"></div>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+    <div class="pins" id="pins"></div>
+
+    <div class="hud">
+      <div class="heading" id="heading">
+        <h1>My experience</h1>
+        <p>Engineer, then editor, then producer, now freelance. Still climbing.</p>
+      </div>
+      <div class="switch glass" id="modeSwitch">
+        <button data-v="overview" class="on">Overview</button>
+        <button data-v="climb">My climb</button>
+        <button data-v="mountain">The mountain</button>
+      </div>
+      <div class="caption" id="caption">
+        <b>Olympus Mons</b>
+        <span>The tallest mountain known in the solar system.</span>
+      </div>
+      <div class="card glass" id="card"></div>
+      <button class="next glass" id="next"><span>Next</span><b id="nextName"></b><i>&#8594;</i></button>
+      <div class="hint" id="hint">Click a milestone, or use the arrow keys</div>
+    </div>
+  </div>
+  <p class="note"><b>Overview</b> is the real picture, toned orange, with no lines. <b>My climb</b> turns it into a tilted night map whose contour lines are lifted by their real height (stretched about nine times, or the mountain would look flat: it is 600 km wide and 22 km tall). The milestones stand on pins; click one. <b>The mountain</b> stays flat and orange and teaches seven things, one at a time, with the missions that studied them. Facts here are from memory of NASA and USGS pages and get a source each before the build. Picture: Viking orbiters. Heights: Mars Global Surveyor's laser altimeter. Both public domain.</p>
+</section>
+
+<!-- ============ 2 BACKGROUNDS ============ -->
+<section class="sec" id="sec-grounds">
+  <div class="chips">
+    <span class="chip-label">Show</span>
+    <div class="chipset" id="contentChips">
+      <button data-v="off" class="on">Ground only</button>
+      <button data-v="on">With sample content</button>
+    </div>
+  </div>
+  <div class="grounds" id="grounds"></div>
+  <p class="note">Six grounds in the manner of your reference: near-black, one soft orange light, heavy film grain. Each moves very slowly (the light drifts, the grain flickers). They are drawn live. Tell me which goes on which page: portfolio, long form, short form, behind the home shelves, behind each open shelf.</p>
+</section>
+
+<!-- ============ 3 PAGE CHANGE ============ -->
+<section class="sec" id="sec-change">
+  <div class="chips">
+    <span class="chip-label">Speed</span>
+    <div class="chipset" id="speedChips">
+      <button data-v="2800">2.8 s (the painting)</button>
+      <button data-v="3500" class="on">3.5 s</button>
+      <button data-v="4200">4.2 s</button>
+    </div>
+    <span class="chip-label">Shape</span>
+    <div class="chipset" id="shapeChips">
+      <button data-v="radial" class="on">Radial from the centre</button>
+      <button data-v="linear">Linear sweep</button>
+    </div>
+  </div>
+  <div class="stage change-stage" id="changeStage"><canvas id="changeCanvas"></canvas><div class="play-hint" id="playHint">click to play again</div></div>
+  <p class="note">3.5 seconds, opening from the centre of the screen, with the painting's wandering edge and bright line. One thing to know: while a page change runs, the browser shows pictures of the two pages, so nothing can be clicked until it ends. At 3.5 seconds that is noticeable, so the build will let a second click or key press finish the change at once.</p>
+</section>
+
+<!-- ============ 4 SPINES ============ -->
+<section class="sec" id="sec-spines">
+  <div class="shelf-wrap">
+    <div class="shelf" id="shelf"></div>
+    <div class="shelf-line"></div>
+  </div>
+  <p class="note">Fourteen spines drawn as one series, in the manner of Stripe Press: cloth colours, one foil ink per book, a small emblem for what the book is about, the title, the author, and one shared mark at the foot. Widths follow the page counts and heights follow the real books. Hover a spine to lift it. In the build these are painted onto the 3D books, so the lift and the cover turn stay as they are.</p>
+</section>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="grainFilter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0"/></filter>
+  <filter id="cloth" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.35" numOctaves="3" seed="4"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.1 0.78"/></filter>
+</svg>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="../round7-preview/assets/data.js"></script>
+<script src="books.js"></script>
+<script src="map.js"></script>
+<script src="grounds.js"></script>
+<script src="change.js"></script>
+<script src="spines.js"></script>
+<script>
+const tabs = document.getElementById('tabs');
+function openSec(name) {
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.sec === name));
+  document.querySelectorAll('.sec').forEach(s => s.classList.toggle('on', s.id === 'sec-' + name));
+  window.dispatchEvent(new CustomEvent('r7:section', { detail: name }));
+  history.replaceState(null, '', '#' + name);
+}
+tabs.addEventListener('click', e => { const b = e.target.closest('button'); if (b) openSec(b.dataset.sec); });
+const first = location.hash.slice(1);
+openSec(first && document.getElementById('sec-' + first) ? first : 'map');
+</script>
+</body>
+</html>
