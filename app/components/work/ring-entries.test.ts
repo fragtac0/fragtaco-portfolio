@@ -12,7 +12,10 @@ const video = (id: string): WorkVideo => ({
 });
 
 const WORK: Pick<SiteWork, "stack" | "longForm" | "shortForm"> = {
-  stack: [{ id: "pr", mark: "Pr", label: "Premiere Pro" }],
+  stack: [
+    { id: "pr", mark: "Pr", label: "Premiere Pro", icon: "/stack/premiere-pro.svg" },
+    { id: "xx", mark: "Xx", label: "No icon yet" },
+  ],
   longForm: [video("l1"), video("l2")],
   shortForm: [video("s1")],
 };
@@ -20,9 +23,15 @@ const WORK: Pick<SiteWork, "stack" | "longForm" | "shortForm"> = {
 describe("entriesFor", () => {
   it("gives each of the three rings its items in file order, with the right kind", () => {
     const e = entriesFor(WORK);
-    expect(e.stack.map((x) => x.kind)).toEqual(["stack"]);
+    expect(e.stack.map((x) => x.kind)).toEqual(["stack", "stack"]);
     expect(e.long.map((x) => x.item.id)).toEqual(["l1", "l2"]);
     expect(e.short.map((x) => x.item.id)).toEqual(["s1"]);
+  });
+
+  it("passes a stack item's icon through, or none", () => {
+    const [withIcon, without] = entriesFor(WORK).stack;
+    expect(withIcon.kind === "stack" && withIcon.item.icon).toBe("/stack/premiere-pro.svg");
+    expect(without.kind === "stack" && without.item.icon).toBeUndefined();
   });
 
   it("marks only short-form videos as tall", () => {

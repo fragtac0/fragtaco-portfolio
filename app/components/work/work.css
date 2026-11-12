@@ -1,9 +1,11 @@
 /*
  * The work page. A fixed stage (no page scroll): a dark ground with the site's
- * dot screen and grain, the intro in the middle, three rings turning round it. Rotation is CSS only:
+ * dot screen and grain, the intro in the middle, a ring of tool icons and up to four rings of videos
+ * turning round it, bigger than the screen on purpose (the outer rings run off the edges; ring-math.ts
+ * says where they go). Rotation is CSS only:
  * each ring `ul` turns by `work-spin`, each item turns back by `work-unspin` so it stays upright, and
  * nothing here runs per frame in JavaScript. Only transform-type properties and opacity animate.
- * Type, ink and layers come from app/styles/tokens.css. Spec: docs/superpowers/specs/2026-11-11-polish-and-work-page-design.md, 4.
+ * Type, ink and layers come from app/styles/tokens.css. Spec: docs/superpowers/specs/2026-11-11-round6-design.md, 6.2.
  */
 .work-page {
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -48,6 +50,12 @@
 .work-stage {
   position: absolute;
   inset: 0;
+  /* The stack ring's radius and icon, the same rule as stackRadius() in ring-math.ts, so the intro can be
+     sized to sit inside it without waiting for any script. */
+  --stack-icon: 60px;
+  --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 34px));
+  /* what is left inside the stack ring's icons, less a margin */
+  --intro-r: calc(var(--stack-r) - var(--stack-icon) / 2 - 14px);
 }
 .work-intro {
   position: absolute;
@@ -70,7 +78,7 @@
   color: var(--ink-1);
 }
 .work-text {
-  max-width: 32ch;
+  max-width: min(32ch, calc(var(--intro-r) * 1.6));
   margin: 16px 0 0;
   font-family: "IBM Plex Mono", monospace;
   font-size: var(--t-body);
@@ -87,7 +95,7 @@
   inset: 0;
   pointer-events: none;
 }
-/* One ring (and its sub-ring). It scales up and fades in on arrival, each ring 60 ms after the one inside it. */
+/* One ring. It settles from 96% and fades in on arrival over 500 ms, each ring 60 ms after the one inside it. */
 .work-ring-group {
   position: absolute;
   inset: 0;
@@ -118,7 +126,7 @@
   to { rotate: calc(var(--turn) * -1); }
 }
 @keyframes work-ring-in {
-  from { opacity: 0; scale: 0.92; }
+  from { opacity: 0; scale: 0.96; }
   to { opacity: 1; scale: 1; }
 }
 @keyframes work-fade {
@@ -190,21 +198,38 @@
   object-fit: cover;
 }
 .work-cover {
-  border-radius: 10px;
+  border-radius: clamp(8px, calc(var(--h) * 0.1), 16px);
   box-shadow: 0 0 0 1px var(--line), 0 8px 22px rgba(0, 0, 0, 0.4);
 }
-/* a tool: its mark in Doto on a dark square, a cream hairline; not a link */
+/* A tool: the app's own icon inside one common rounded tile, so the eight read as one family. An icon
+   that is already a square tile fills it (the tile's clip rounds Final Cut Pro's square corners); a bare logo
+   (marked data-bare once its shape is known) sits inside with room round it. Not a link: it does nothing. */
 .work-mark {
   display: grid;
   place-items: center;
   border: 1px solid rgba(253, 252, 230, 0.14);
-  border-radius: 14px;
+  border-radius: 22%;
+  background: var(--surface-1);
   font-family: Doto, monospace;
   font-weight: 800;
   font-size: calc(var(--w) * 0.43);
   line-height: 1;
   color: var(--ink-1);
   cursor: default;
+}
+.work-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+.work-mark img[data-bare] {
+  box-sizing: border-box;
+  padding: 14%;
+}
+.work-item[data-kind="stack"]:hover .work-item-face {
+  scale: 1; /* a tool is not a control: it does not grow */
 }
 
 /* the one-line label beside an item, on the side facing the middle (set when the item is reached) */
@@ -242,9 +267,14 @@
 }
 
 /* ---------- phones ---------- */
-/* Item sizes and ring radii on a phone come from ring-math (`fitScale`), so the first two rings fit the
-   screen's width. The intro is the title and one short line, with a dark halo so a passing item never mutes it. */
+/* Item sizes and ring radii come from ring-math at every size (a phone gets two video rings, tablets three).
+   Under 700 px the stack icons are 52 px and the intro is the title and one short line, with a dark halo so
+   a passing item never mutes it. */
 @media (max-width: 699.98px) {
+  .work-stage {
+    --stack-icon: 52px;
+    --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 30px));
+  }
   .work-text {
     max-width: 15ch; /* narrow enough to sit inside the stack ring */
     margin-top: 10px;

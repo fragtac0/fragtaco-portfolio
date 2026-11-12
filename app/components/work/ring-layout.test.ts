@@ -1,76 +1,73 @@
 import { describe, expect, it } from "vitest";
-import { RING_ORDER, introLine, labelSide, layoutRings } from "./ring-layout";
-import { RING, ringCapacity, ringRadius, subRingRadius } from "./ring-math";
+import { introLine, labelSide, layoutRings } from "./ring-layout";
+import { ringCapacity, ringPlan } from "./ring-math";
 
-const WORK = { stack: 8, long: 16, short: 24 };
+const WORK = { stack: 8, long: 35, short: 35 };
 
 describe("layoutRings", () => {
-  it("draws the three rings, inside to outside, for the real content on a laptop", () => {
-    const specs = layoutRings(WORK, 1440, 900);
-    expect(specs.map((s) => `${s.id}:${s.sub}:${s.slots.length}`)).toEqual([
-      "stack:0:8",
-      "long:0:15",
-      "long:1:1",
-      "short:0:22",
-      "short:1:2",
+  it("draws the stack ring and the video rings inside to outside, for the real content on a laptop", () => {
+    const { rings } = layoutRings(WORK, 1440, 900);
+    expect(rings.map((r) => `${r.id}:${r.slots.length}`)).toEqual([
+      "stack:8",
+      "long-1:13",
+      "short-1:14",
+      "long-2:22",
+      "short-2:21",
     ]);
-    expect(specs.map((s) => s.order)).toEqual([0, 1, 1, 2, 2]);
+    expect(rings.map((r) => r.order)).toEqual([0, 1, 2, 3, 4]);
   });
 
-  it("uses the ring's radius, period and direction", () => {
-    const specs = layoutRings(WORK, 1440, 900);
-    const stack = specs[0];
-    expect(stack.radius).toBe(ringRadius("stack", 1440, 900));
-    expect(stack.period).toBe(RING.stack.period);
-    expect(stack.dir).toBe(1);
-    expect(specs.find((s) => s.id === "short")?.dir).toBe(1);
+  it("is the ring plan: radii, sizes, periods and directions come from ringPlan", () => {
+    const layout = layoutRings(WORK, 1440, 900);
+    const plan = ringPlan(1440, 900, WORK);
+    expect(layout.L).toBe(plan.L);
+    expect(layout.hidden).toEqual(plan.hidden);
+    expect(layout.rings.map((r) => [r.id, r.radius, r.periodS, r.dir, r.size])).toEqual(
+      plan.rings.map((r) => [r.id, r.radius, r.periodS, r.dir, r.size]),
+    );
   });
 
-  it("turns a sub-ring the other way and puts it further out", () => {
-    const [inner, outer] = layoutRings(WORK, 1440, 900).filter((s) => s.id === "long");
-    expect(inner.dir).toBe(RING.long.dir);
-    expect(outer.dir).toBe(-RING.long.dir);
-    expect(outer.radius).toBeCloseTo(subRingRadius(inner.radius, 1));
-  });
-
-  it("gives every sub-ring of a ring the same item size, in the ring's shape", () => {
-    const longs = layoutRings(WORK, 1440, 900).filter((s) => s.id === "long");
-    expect(longs[1].width).toBe(longs[0].width);
-    expect(longs[0].width / longs[0].height).toBeCloseTo(16 / 9);
-    const short = layoutRings(WORK, 1440, 900).find((s) => s.id === "short")!;
-    expect(short.width / short.height).toBeCloseTo(9 / 16);
-  });
-
-  it("numbers the slots across sub-rings so each item is drawn once", () => {
-    for (const [vw, vh] of [[1440, 900], [390, 844], [1920, 1080]]) {
-      const specs = layoutRings(WORK, vw, vh);
-      for (const id of RING_ORDER) {
-        const indexes = specs.filter((s) => s.id === id).flatMap((s) => s.slots.map((x) => x.index));
+  it("numbers the slots across a kind's rings in content order so each item is drawn once", () => {
+    for (const [vw, vh] of [[1440, 900], [390, 844], [1920, 1080], [820, 1180]]) {
+      const { rings, hidden } = layoutRings(WORK, vw, vh);
+      for (const kind of ["stack", "long", "short"] as const) {
+        const indexes = rings.filter((r) => r.kind === kind).flatMap((r) => r.slots.map((s) => s.index));
         expect(indexes).toEqual(indexes.map((_, i) => i));
-        expect(indexes.length).toBeLessThanOrEqual(WORK[id]);
+        expect(indexes.length + (kind === "stack" ? 0 : hidden[kind])).toBe(WORK[kind]);
       }
     }
   });
 
-  it("starts the first slot at the top and offsets a sub-ring by half a slot", () => {
-    const [inner, outer] = layoutRings(WORK, 390, 844).filter((s) => s.id === "long");
-    expect(inner.slots[0].angle).toBe(-90);
-    expect(outer.slots[0].angle).toBeCloseTo(-90 + 180 / outer.slots.length);
+  it("leaves out the last videos in content order, never the first", () => {
+    const { rings, hidden } = layoutRings({ stack: 8, long: 120, short: 120 }, 390, 844);
+    expect(hidden.long).toBeGreaterThan(0);
+    const kept = rings.filter((r) => r.kind === "long").flatMap((r) => r.slots.map((s) => s.index));
+    expect(kept[0]).toBe(0);
+    expect(Math.max(...kept)).toBe(kept.length - 1);
   });
 
-  it("leaves out items neither ring holds", () => {
-    const specs = layoutRings({ stack: 0, long: 0, short: 500 }, 1440, 900);
-    const held = specs.reduce((n, s) => n + s.slots.length, 0);
-    const radius = ringRadius("short", 1440, 900);
-    expect(held).toBe(ringCapacity("short", radius) + ringCapacity("short", subRingRadius(radius, 1)));
-    expect(held).toBeLessThan(500);
+  it("starts the first slot at the top and offsets every other ring by half a slot", () => {
+    const { rings } = layoutRings(WORK, 1440, 900);
+    expect(rings[0].slots[0].angle).toBe(-90);
+    expect(rings[1].slots[0].angle).toBeCloseTo(-90 + 180 / rings[1].count);
+    expect(rings[2].slots[0].angle).toBe(-90);
   });
 
-  it("draws nothing for no items, and never assumes a first ring", () => {
-    expect(layoutRings({ stack: 0, long: 0, short: 0 }, 1440, 900)).toEqual([]);
-    const onlyShort = layoutRings({ stack: 0, long: 0, short: 3 }, 1440, 900);
-    expect(onlyShort).toHaveLength(1);
-    expect(onlyShort[0].order).toBe(2);
+  it("never holds more than a ring's capacity", () => {
+    const { rings } = layoutRings({ stack: 8, long: 500, short: 500 }, 1440, 900);
+    for (const r of rings) expect(r.slots.length).toBeLessThanOrEqual(ringCapacity(r.radius, r.size));
+  });
+
+  it("draws nothing for no items, and does not assume a first ring", () => {
+    expect(layoutRings({ stack: 0, long: 0, short: 0 }, 1440, 900).rings).toEqual([]);
+    const only = layoutRings({ stack: 0, long: 0, short: 3 }, 1440, 900);
+    expect(only.rings).toHaveLength(1);
+    expect(only.rings[0].kind).toBe("short");
+  });
+
+  it("can be asked for the paired order", () => {
+    const { rings } = layoutRings(WORK, 1440, 900, "paired");
+    expect(rings.filter((r) => r.kind !== "stack").map((r) => r.kind)).toEqual(["long", "long", "short", "short"]);
   });
 
   it("copes with a screen of no size", () => {
