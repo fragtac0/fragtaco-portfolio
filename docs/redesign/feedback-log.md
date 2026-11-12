@@ -561,3 +561,12 @@ Second preview: `docs/redesign/round7-preview-2/index.html` (same local server, 
 - Another preview.
 
 Third preview: `docs/redesign/round7-preview-3/index.html` (same local server, `/round7-preview-3/`). The flat picture now follows the camera in 3D, so the change into My climb is a single move; the road is a loop of one and a third turns; the height picture covers 64 by 41.6 degrees so the ground runs past the edges; the tour ends on a 154 by 100 degree picture of Mars (Viking mosaic, public domain).
+
+**Feedback on the third preview (2026-11-13)**
+
+- Map: go back to the first trail, with its top and the other milestones a little lower. The loop round the mountain is rejected. The camera glitches.
+- Hide The mountain for now. Two states only: Overview and My climb.
+- Background: slow movement is right, but it needs grain for texture.
+- Shelf: the original single row, on the new shelves.
+
+Fourth preview: `docs/redesign/round7-preview-4/index.html`. The trail is the first one with each point pushed away from the summit (the last by 40%). The very large Mars picture and the mask on the terrain canvas are gone, as the likeliest causes of the glitch. Measured in the Browser pane at 848 px wide, device pixel ratio 2: the move into My climb ran 505 frames in 4.2 s with the longest frame 9 ms, and the camera's height and position never reversed.
