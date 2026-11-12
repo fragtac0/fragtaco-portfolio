@@ -317,7 +317,7 @@ None open. Asked after v3 and answered on 2026-11-02:
 
 - Built: R31 to R39 (polish pass of the home page, the new work page, the timeline page), Tasks 0 to 25 of the plan, each reviewed by Opus, then one whole-branch review and one fix wave (the dock's glass blur, lost since R32, is back).
 - Pull requests, stacked, to merge in order: #7 R30, #8 R31, #9 R32, #10 R33, #11 R34, #12 R35, #13 R36, #14 R37, #15 R38, #16 R39.
-- Preview (Vercel, behind Vercel sign-in): https://fragtaco-portfolio-mnh4409tz-workfragtaco-gmailcoms-projects.vercel.app . The public link https://fragtaco-portfolio.vercel.app still shows the old version; nothing was deployed to production.
+- Preview (Vercel, behind Vercel sign-in): the newest preview deployment of the `fragtaco-portfolio` project in the Vercel dashboard (its address is kept out of this file because it contains the account name). The public link https://fragtaco-portfolio.vercel.app still shows the old version; nothing was deployed to production.
 - Comparison page: `docs/redesign/compare/index.html` (open from disk; rows marked "not stored in the repo" need the local images in `compare/local/`).
 - Measured: see the measured table above (every scenario 0 frames over 20 ms in headless Chrome; LCP 5.0 s on the slow 4G phone profile because the loader reveals the roles line by design).
 - Waiting for Aditya: the device checks in the table above; real videos, covers, clients and the intro line in `content/site/work.json`; the role dates in `content/site/timeline.json`; whether a Mac mouse wheel should zoom the timeline; the variations in spec section 8.
@@ -406,7 +406,7 @@ Round 6 is built and reviewed. This section is the summary for someone who has n
 
 **Where it is**
 
-- Preview (Vercel, behind Vercel sign-in): https://fragtaco-portfolio-1u2qzllc4-workfragtaco-gmailcoms-projects.vercel.app . It is a preview deployment, not production. The public link https://fragtaco-portfolio.vercel.app still shows the old version (checked: `/experience` does not exist there); nothing was deployed to production and nothing was merged.
+- Preview (Vercel, behind Vercel sign-in): the newest preview deployment of the `fragtaco-portfolio` project in the Vercel dashboard (its address is kept out of this file because it contains the account name). It is a preview deployment, not production. The public link https://fragtaco-portfolio.vercel.app still shows the old version (checked: `/experience` does not exist there); nothing was deployed to production and nothing was merged.
 - Pull requests, stacked, to merge in order on top of #16 (round 5): #17 R40 (assets and Mars), #18 R41 (bugs), #19 R42 (mood and glass), #20 R43 (work page), #21 R44 (home: wall and shelf), #22 R45 (My experience). The R46 fixes sit on the top branch, `r6/r45-experience` (pushed); this write-up and the comparison page (R46.2) are committed there but not pushed yet.
 - Comparison page: `docs/redesign/compare/index.html`, the Round 6 row at the bottom (round 5 beside round 6). Rows marked "not stored in the repo" need the local pictures in `compare/local/`.
 - Every task was reviewed by Opus, then one whole-branch review and one fix wave (R46.1). The re-review found no Critical or Important issue left. All audits in `scripts/audit/` pass on the production build.
@@ -521,3 +521,13 @@ Content
 - The preview page is a throwaway for choosing a direction. Nothing in it ships as it is.
 - Reference pictures, YouTube thumbnails, book covers and any spine picture found online stay in the git-ignored local folder until the rights question for spines is settled.
 - Round 6 finishes its last review step first; round 7 is built on top of it.
+
+**Preview page for choosing directions (2026-11-13)**
+
+`docs/redesign/round7-preview/index.html` is a throwaway page, served locally from `docs/redesign` (for example `python3 -m http.server 5190`, then `/round7-preview/`). It holds:
+
+1. The Olympus Mons map in four looks (ember contour, night contour, toned relief, relief with contour lines), each flat or tilted, with a glass interface, a three-way switch (Overview, My climb, The mountain), moments as stops on a road that is solid behind and dashed ahead, and places taught one at a time with a traced outline and a card. The contour lines are drawn in the browser from NASA's MOLA elevation picture; the relief is the Viking colour mosaic. Both are public domain and sit in `round7-preview/assets/`.
+2. An idea that is not Mars: a line map where every craft is a line and the moments are stations.
+3. Moving grounds, two options each for the portfolio page, the long form wall, the short form wall and the home shelves.
+4. The painting's reveal between two page pictures at five speeds (the painting takes 2.8 s; page changes take 0.56 s today).
+5. A row for real spine pictures, filled from the git-ignored local folder.
