@@ -5,7 +5,8 @@ import { activeTab, rowTarget, tabKind, WORK_TABS } from "./work-tabs";
 /* The dock's own tab look (Doto, tracked), a size smaller; the current one wears the dock's accent pill. */
 const TAB =
   "relative shrink-0 rounded-full px-3 py-2 text-center font-doto text-[length:var(--t-micro)] font-black tracking-[0.06em] text-fog outline-none transition-colors duration-150 hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-fog sm:px-4 sm:py-2.5 sm:text-[length:var(--t-meta)] sm:tracking-[0.1em]";
-const IDLE = "opacity-[var(--dock-idle)]";
+// Idle and current links both have a 1px border (transparent when idle), so which one is current never changes the row's width.
+const IDLE = "border border-transparent opacity-[var(--dock-idle)]";
 const ACTIVE = "border border-accent/40 bg-[var(--accent-soft)] opacity-100 shadow-[inset_0_1px_0_rgba(255,236,214,0.18)]";
 
 /** The id of the row, which the rings page's skip link points at. */
@@ -14,7 +15,8 @@ export const ROW_ID = "work-row";
 /**
  * The second row of the dock on the four work addresses: three links, Long form, Short form and My
  * experience (spec 6.1). They are links, not tabs with panels: the one for the current address wears
- * `aria-current="page"` and goes back to the rings (`/work`) when pressed again; the others go to
+ * `aria-current="page"` and goes back to the rings (`/work`) when pressed again (its name says so for a screen
+ * reader); the others go to
  * their address, sweeping sideways between the two walls (`tabKind`) and growing from the link
  * otherwise. On `/work` none is current.
  */
@@ -37,6 +39,7 @@ export default function WorkSwitcher() {
             className={`${TAB} ${here ? ACTIVE : IDLE}`}
           >
             {tab.label}
+            {here ? <span className="sr-only">, back to the rings</span> : null}
           </PageLink>
         );
       })}

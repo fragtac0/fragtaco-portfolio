@@ -10,5 +10,7 @@ export const meta: MetaFunction = () => [
 export default function WorkLongForm() {
   const data = useRouteLoaderData<typeof workLoader>("routes/work");
 
-  return <WallPage kind="long" videos={data?.work.longForm ?? []} />;
+  if (!data) return null;
+
+  return <WallPage kind="long" videos={data.work.longForm} />;
 }

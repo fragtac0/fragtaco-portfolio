@@ -18,9 +18,10 @@ try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}
 window.__arm=()=>{const k=new Set();window.__k=k;const h=document.documentElement;
  new MutationObserver(()=>{if(h.dataset.changeKind)k.add(h.dataset.changeKind)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});return 'armed'};
 window.__state=()=>({path:location.pathname,title:document.title,
- active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.trim().toLowerCase()+'='+e.getAttribute('aria-current')),
+ active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.replace(', back to the rings','').trim().toLowerCase()+'='+e.getAttribute('aria-current')),
  kind:[...(window.__k||[])].join('+')||'none',
- rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row'});
+ rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row',
+ hint:document.querySelector('[data-work-tab][aria-current]')?.textContent.endsWith(', back to the rings')??'no-current-link'});
 window.__move=(act,want)=>{window.__arm();act();return new Promise(res=>setTimeout(()=>{const got=window.__state();
  const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},1900))};
 `.trim();

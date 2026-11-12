@@ -131,15 +131,15 @@
   "shot": "work"
  },
  {
-  "go": "{{BASE}}/timeline",
+  "go": "{{BASE}}/experience",
   "wait": 4000
  },
  {
   "wait": 300,
-  "shot": "timeline-warm"
+  "shot": "experience-warm"
  },
  {
-  "shot": "timeline"
+  "shot": "experience"
  },
  {
   "size": [
@@ -236,13 +236,13 @@
   "shot": "m-work"
  },
  {
-  "go": "{{BASE}}/timeline",
+  "go": "{{BASE}}/experience",
   "wait": 4000
  },
  {
-  "shot": "m-timeline-warm"
+  "shot": "m-experience-warm"
  },
  {
-  "shot": "m-timeline"
+  "shot": "m-experience"
  }
 ]

@@ -10,5 +10,7 @@ export const meta: MetaFunction = () => [
 export default function WorkShortForm() {
   const data = useRouteLoaderData<typeof workLoader>("routes/work");
 
-  return <WallPage kind="short" videos={data?.work.shortForm ?? []} />;
+  if (!data) return null;
+
+  return <WallPage kind="short" videos={data.work.shortForm} />;
 }

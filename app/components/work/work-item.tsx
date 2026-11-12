@@ -1,6 +1,5 @@
 import type { FocusEvent, PointerEvent } from "react";
 import { coverUrl } from "../../content/work-media";
-import { screenBox } from "../../utils/screen-box";
 import { labelSide } from "./ring-layout";
 import type { RingEntry } from "./ring-entries";
 import type { RingId } from "./ring-math";
@@ -22,7 +21,7 @@ interface WorkItemProps {
 // Which side the label opens on is read from where the item is when the pointer or focus arrives.
 // The ring is paused by then, so this runs once per hover, not per frame.
 function pointLabel(e: PointerEvent<HTMLLIElement> | FocusEvent<HTMLLIElement>) {
-  const box = screenBox(e.currentTarget);
+  const box = e.currentTarget.getBoundingClientRect();
   e.currentTarget.dataset.side = labelSide(box.left + box.width / 2, window.innerWidth);
 }
 
