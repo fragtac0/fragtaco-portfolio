@@ -544,3 +544,20 @@ Content
 - One more preview before anything is built.
 
 Second preview: `docs/redesign/round7-preview-2/index.html` (same local server, `/round7-preview-2/`).
+
+**Feedback on the second preview (2026-11-13)**
+
+- The map is far better. Keep this direction.
+- Overview to My climb: the camera lifts and then drops; the move is not smooth.
+- The far edge of the tilted view looks wrong. The ground should run on past the edges and blur out very slowly.
+- The contour rise is very good, but "now" sits too high up the mountain. A gentler climb: the road takes a loop round the mountain and the camera moves round it in 3D, in My climb only.
+- The glass cards are too big: about 75% of their size.
+- The pin feet do not sit on the road line.
+- "21, 22, 23" on the milestones is a poor label: icons or pictures instead.
+- The mountain: the highlight circles are generic and odd; something else. Show a much larger piece of the satellite picture and make it about Mars: start close with two or three things, then pull out to a bird's-eye view.
+- Backgrounds: Eclipse is the one. It should move, with a very subtle noise gradient.
+- Page change: 3.5 seconds, radial from the centre. Settled.
+- Spines: much better. Improve the shelf and the placement, with something that suits the theme or relates to Mars.
+- Another preview.
+
+Third preview: `docs/redesign/round7-preview-3/index.html` (same local server, `/round7-preview-3/`). The flat picture now follows the camera in 3D, so the change into My climb is a single move; the road is a loop of one and a third turns; the height picture covers 64 by 41.6 degrees so the ground runs past the edges; the tour ends on a 154 by 100 degree picture of Mars (Viking mosaic, public domain).

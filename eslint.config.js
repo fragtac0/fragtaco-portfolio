@@ -17,6 +17,7 @@ export default tseslint.config(
       "eslint.config.js",
       "docs/redesign/round7-preview/**",
       "docs/redesign/round7-preview-2/**",
+      "docs/redesign/round7-preview-3/**",
     ],
   },
   js.configs.recommended,
