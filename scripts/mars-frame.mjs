@@ -46,8 +46,7 @@ export function latOf(y) {
 
 /** A frame as degrees: [west, south, east, north] (signed longitudes). */
 export function boundsOf(f) {
-  const latSpan = f.latSpan;
-  return { west: f.west, east: f.west + f.lonSpan, north: f.north, south: f.north - latSpan };
+  return { west: f.west, east: f.west + f.lonSpan, north: f.north, south: f.north - f.latSpan };
 }
 
 /** Pixels per degree of a NASA Trek global equirectangular level: 256 px tiles, 2^(z+1) columns for 360 degrees. */

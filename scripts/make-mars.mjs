@@ -10,7 +10,7 @@
 // (default .cache/mars), so a rerun fetches nothing that is already there. The public/mars/0 to 4 pyramid of
 // round 6 is left alone (Task 19 deletes it).
 // Env: MARS_CACHE, MARS_QUALITY (WebP quality, default 80), MARS_LIMIT_KB (relief size limit, default 700).
-import { mkdir, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -38,7 +38,7 @@ let fetched = 0;
 async function tile(src, row, col) {
   const file = path.join(cacheDir, src.layer, String(src.level), `${row}_${col}.${src.ext}`);
   try {
-    return await sharp(file).toBuffer(); // cached
+    return await readFile(file); // cached, the fetched bytes unchanged
   } catch {
     // not cached yet
   }
@@ -115,7 +115,7 @@ async function relief() {
   const img = () => sharp(rgb, { raw: { width: w, height: h, channels: 3 } });
   // the highest quality (steps of 2) that fits under the size limit
   let out;
-  let q = QUALITY;
+  let q = Math.max(QUALITY, 30);
   for (; q >= 30; q -= 2) {
     out = await img().webp({ quality: q, effort: 6, smartSubsample: true }).toBuffer();
     if (out.length <= LIMIT) break;
@@ -139,6 +139,5 @@ async function heights() {
 }
 
 await mkdir(outDir, { recursive: true });
-await stat(outDir);
 await relief();
 await heights();

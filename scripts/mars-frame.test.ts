@@ -81,5 +81,11 @@ describe("tile ranges", () => {
     expect(r.width / r.height).toBeCloseTo(64 / 41.6, 9);
     expect(r.rows[0]).toBeGreaterThanOrEqual(0);
     expect(r.cols[1]).toBeLessThan(64);
+    expect(r.left).toBeGreaterThanOrEqual(0);
+    expect(r.left).toBeLessThan(256);
+    expect(r.top).toBeGreaterThanOrEqual(0);
+    expect(r.top).toBeLessThan(256);
+    expect(r.left + r.width).toBeLessThanOrEqual((r.cols[1] - r.cols[0] + 1) * 256 + 1e-9);
+    expect(r.top + r.height).toBeLessThanOrEqual((r.rows[1] - r.rows[0] + 1) * 256 + 1e-9);
   });
 });

@@ -10,6 +10,7 @@ import {
   useRouteLoaderData,
 } from "@remix-run/react";
 import { useEffect, useLayoutEffect, type PropsWithChildren } from "react";
+import SpineFonts from "./components/spine-fonts";
 import PageViewTracker from "./components/page-view-tracker";
 import { preloadImage } from "./components/home/hero/painting-cycle";
 import { recallPainting } from "./components/home/hero/painting-memory";
@@ -33,7 +34,7 @@ export const links: LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Doto:wght@400..900&family=IBM+Plex+Mono:wght@400;500;600&family=Lora:wght@500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Tektur:wght@500;600;700;800&family=Unbounded:wght@300..900&family=Young+Serif&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Doto:wght@400..900&family=IBM+Plex+Mono:wght@400;500;600&family=Lora:wght@500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Tektur:wght@500;600;700;800&display=swap",
   },
   { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
   { rel: "icon", type: "image/png", sizes: "64x64", href: "/favicon.png" },
@@ -78,6 +79,7 @@ export function Layout({ children }: PropsWithChildren) {
         <Meta />
         {preload ? <link {...preload} /> : null}
         <Links />
+        <SpineFonts />
       </head>
       <body>
         {children}
