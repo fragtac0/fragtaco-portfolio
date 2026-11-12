@@ -8,83 +8,25 @@ import {
   softRectCanvas,
   topCanvas,
 } from "./shelf-canvases";
-import { FRONT, SHELF_GAP, WALLZ, bookSize, flatFrame } from "./shelf-math";
-import { createSpineFace, resizeSpines, spinePixels, MAX_DPR, type SpineFace } from "./shelf-spines";
+import { addShelfLights } from "./shelf-light";
+import { FRONT, SHELF_GAP, WALLZ, bookSize, flatFrame, headGuess } from "./shelf-math";
+import { newBag, type Book, type ShelfScene } from "./shelf-scene-types";
+import { createSpineFace, resizeSpines, spinePixels, MAX_DPR } from "./shelf-spines";
+
+export { newBag };
+export type { Bag, Book, FlatMesh, ShelfScene } from "./shelf-scene-types";
+
+type Three = typeof THREE;
 
 /**
  * Builds the shelf's three.js scene: renderer, an orthographic camera that looks straight at the
  * spines, one box per book, a soft wall shadow for a lifted book, and the hairline the books
  * stand on. The row is unlit (`MeshBasicMaterial`, no tone mapping), so a spine is exactly the
- * colour it was painted; each book also has a lit material set (`litMats`) that the open book is
- * swapped to by `setLit`, with the scene's two soft lights. Nothing here is drawn or animated; the
+ * colour it was painted; each book also has a lit material set (`litMats`) that a lifted book is
+ * swapped to by `setLit`, lit by `lights` (shelf-light.ts). Nothing here is drawn or animated; the
  * engine owns the frame loop and the state. three.js itself is passed in (the engine loads it
  * with `import("three")`), so this module never imports it as a value.
  */
-
-type Three = typeof THREE;
-export type Bag = { hover: number; hoverV: number; open: number; openV: number };
-export type FlatMesh = THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
-
-export type Book = {
-  d: SiteBook;
-  g: THREE.Group;
-  mesh: THREE.Mesh;
-  /** The row's materials: unlit, so the colours are true. Their opacity fades the book. */
-  mats: THREE.MeshBasicMaterial[];
-  /** The same faces, lit softly; the open book uses these (`setLit`). */
-  litMats: THREE.MeshStandardMaterial[];
-  coverTex: THREE.CanvasTexture;
-  /** The designed spine: its canvas is the spine's size on screen times the pixel ratio (shelf-spines.ts). */
-  spine: SpineFace;
-  wallSh: FlatMesh;
-  H: number;
-  W: number;
-  T: number;
-  base: THREE.Vector3;
-  baseQ: THREE.Quaternion;
-  openPos: THREE.Vector3;
-  /** How much larger the open book is drawn than it stands in the row (1 or more). */
-  openScale: number;
-  /** The numbers the springs animate, kept apart from the three.js objects. */
-  anim: Bag;
-  order: number;
-};
-
-/** The scene record: everything the engine needs to draw, pick and animate. */
-export type ShelfScene = {
-  T: Three;
-  renderer: THREE.WebGLRenderer;
-  scene: THREE.Scene;
-  camera: THREE.OrthographicCamera;
-  books: Book[];
-  /** The hairline the books stand on. */
-  line: FlatMesh;
-  /** The row's width in world units. */
-  span: number;
-  /** CSS pixels per world unit (set by the fit). */
-  scale: number;
-  maxX: number;
-  /** The share (0..1) of the shelf's width on screen at once; 1 when it all fits. */
-  visible: number;
-  ray: THREE.Raycaster;
-  ndc: THREE.Vector2;
-  ndc2: THREE.Vector2;
-  tmpV: THREE.Vector3;
-  tmpQ: THREE.Quaternion;
-  tmpQ2: THREE.Quaternion;
-  yAxis: THREE.Vector3;
-  qOpen: THREE.Quaternion;
-  /** Swaps a book between its unlit row materials and its lit ones. */
-  setLit(b: Book, lit: boolean): void;
-  /**
-   * The fit changed: repaints the spines at the new on-screen size (`scale` CSS pixels per world
-   * unit, times the pixel ratio). Straight away when `immediate`, otherwise once the size has
-   * stopped changing for a moment (a window being dragged); `done` is called when any spine changed.
-   */
-  fitSpines(scale: number, immediate: boolean, done: () => void): void;
-  /** Frees the geometries, materials, textures and the GL context. */
-  dispose(): void;
-};
 
 /** Canvas text needs the faces loaded first. A failure only costs the fallback faces. */
 export async function loadShelfFonts(): Promise<void> {
@@ -145,11 +87,8 @@ export async function buildShelfScene(
     // looks straight down -z; the fit sets the frustum (world units) and the height of the line
     const camera = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 40);
     camera.position.z = 10;
-    // the lit set is for the lifted book only
-    scene.add(new T.HemisphereLight(0xffffff, 0x8a8a86, 1.7));
-    const key = new T.DirectionalLight(0xfff6ea, 1.3);
-    key.position.set(-3, 4, 6);
-    scene.add(key);
+    // the lit set is for a lifted book only: at rest these light a face to exactly its colour
+    const lights = addShelfLights(T, scene);
 
     const toTex = (c: HTMLCanvasElement) => {
       const t = track(new T.CanvasTexture(c));
@@ -180,6 +119,7 @@ export async function buildShelfScene(
     const guess = flatFrame({
       vw: window.innerWidth,
       vh: window.innerHeight,
+      top: headGuess(window.innerWidth),
       span: sizes.reduce((n, b) => n + b.T, 0) + SHELF_GAP * (books.length - 1),
       tallest: Math.max(...sizes.map((b) => b.H)),
     });
@@ -200,7 +140,8 @@ export async function buildShelfScene(
         coverTex,
         toTex(backCanvas(d)),
       ];
-      const rough = [0.92, 0.6, 0.92, 0.92, 0.4, 0.55];
+      // matt: a lifted book is lit softly, and a shine would wash its colours (a hardback's cover keeps a little)
+      const rough = [0.92, 0.85, 0.92, 0.92, 0.6, 0.7];
       const mats = faces.map(unlit);
       const litMats = faces.map((f, k) => lit(f, rough[k]));
       const mesh = new T.Mesh(track(new T.BoxGeometry(W, H, thick)), mats);
@@ -227,7 +168,9 @@ export async function buildShelfScene(
         baseQ: new T.Quaternion(),
         openPos: new T.Vector3(),
         openScale: 1,
-        anim: { hover: 0, hoverV: 0, open: 0, openV: 0 },
+        lift: 0,
+        yMax: Infinity,
+        anim: newBag(),
         order: i,
       });
     };
@@ -274,7 +217,16 @@ export async function buildShelfScene(
 
     // compile and upload now, so opening the shelf does not stall on its first frame, but in
     // small slices: the shader compile on its own, then a few textures at a time
-    await run([() => r.compile(scene, camera)]);
+    // the row's shaders, then (a step of their own, so no frame carries both) the lit ones a lifted book uses
+    await run([
+      () => r.compile(scene, camera),
+      () => {
+        const first = list[0];
+        first.mesh.material = first.litMats;
+        r.compile(scene, camera);
+        first.mesh.material = first.mats;
+      },
+    ]);
     const maps = new Set<THREE.Texture>();
     scene.traverse((o) => {
       if (!(o instanceof T.Mesh)) return;
@@ -312,6 +264,7 @@ export async function buildShelfScene(
       tmpQ2: new T.Quaternion(),
       yAxis,
       qOpen: new T.Quaternion().setFromAxisAngle(yAxis, 0.3),
+      lights,
       setLit(b, on) {
         const set = on ? b.litMats : b.mats;
         if (b.mesh.material === set) return;

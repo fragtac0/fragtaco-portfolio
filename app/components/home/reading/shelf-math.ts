@@ -36,20 +36,38 @@ export function easeOut(k: number): number {
 
 const smooth = (k: number) => k * k * (3 - 2 * k);
 
-/** Where the open spring value `o` hands over from sliding out of the shelf to turning. */
-export const OPEN_SPLIT = 0.38;
+/** How far a book rises when opened, as a share of its height (spec 8). */
+export const LIFT = 0.38;
+/** Seconds an open or a close takes (spec 8). */
+export const OPEN_SECONDS = 0.62;
+/** The open progress at which the rise has finished. */
+export const RISE_END = 0.45;
+/** The open progress at which the turn starts (it overlaps the end of the rise a little). */
+export const TURN_START = 0.4;
 
 /**
- * Splits the single open spring value `o` (0..1) into two eased phases: `pull` slides the book
- * straight out of the shelf over [0, OPEN_SPLIT], then `present` carries it to the reading pose
- * and turns it over [OPEN_SPLIT, 1]. Closing is the same mapping run backwards.
+ * Splits the open progress `o` (0..1) into two eased phases: `rise` lifts the book straight up over
+ * [0, 45%], `turn` carries it round to its cover over [40%, 100%]. Closing is the same mapping
+ * run backwards.
  */
-export function openPhases(o: number): { pull: number; present: number } {
+export function liftPhases(o: number): { rise: number; turn: number } {
   return {
-    pull: smooth(clamp01(o / OPEN_SPLIT)),
-    present: smooth(clamp01((o - OPEN_SPLIT) / (1 - OPEN_SPLIT))),
+    rise: smooth(clamp01(o / RISE_END)),
+    turn: smooth(clamp01((o - TURN_START) / (1 - TURN_START))),
   };
 }
+
+/**
+ * One step of the open progress `o` towards `target` (0 or 1): it moves at a steady rate, so a full
+ * open or close takes `OPEN_SECONDS`, and reverses from wherever it is if the target changes.
+ */
+export function stepOpen(o: number, target: 0 | 1, dt: number): number {
+  const d = dt / OPEN_SECONDS;
+  return target > o ? Math.min(target, o + d) : Math.max(target, o - d);
+}
+
+/** The row's brightness while a book is open, as a share of its full strength (spec 8: 70%). */
+export const ROW_DIM = 0.7;
 
 /** Seconds until the last of `count` books has finished dropping. */
 export function introSeconds(count: number): number {
@@ -97,11 +115,11 @@ export function spring(
   return true;
 }
 
-/** The tallest spine fills at most this share of the layer's height (spec 8). */
+/** The tallest spine fills at most this share of the layer's height (spec 8), and never goes under the header. */
 export const TALL_MAX = 0.78;
 /** The row fills at most this share of the layer's width. */
 export const ROW_MAX = 0.88;
-/** On a narrow screen the tallest spine never goes below this share of the height; the row pans instead. */
+/** On a narrow screen the tallest spine never goes below this share of the height (unless the header's room is less); the row pans instead. */
 export const TALL_MIN = 0.7;
 /** The line the books stand on, as a share of the layer's height from its top. */
 export const BASE_AT = 0.9;
@@ -109,34 +127,65 @@ export const BASE_AT = 0.9;
 export const BOTTOM_PX = 84;
 /** The hairline the books stand on, in CSS pixels. */
 export const LINE_PX = 1;
+/** Clear space kept between the layer's header and the tallest spine's top, in CSS pixels. */
+export const HEAD_GAP = 8;
+/**
+ * The header's height before it has been measured (`headerBottom`), worked out from layer.css: a
+ * 120 px minimum, or its top padding (20 px under 700 px wide, else 4% of the width from 28 to 56),
+ * the title (`--t-title`: 2.4% of the width from 24 to 38 px, line height 0.84), 8 px, the 13 px
+ * meta line (19.5 px) and 22 px under it. It matches the measured header to the pixel at 1440 and
+ * 2560 wide, so the first fit of a mount rarely has to repaint the spines.
+ */
+export function headGuess(vw: number): number {
+  const pad = vw < 700 ? 20 : clamp(0.04 * vw, 28, 56);
+  const title = 0.84 * clamp(0.024 * vw, 24, 38);
+  return Math.max(120, Math.ceil(pad + title + 8 + 19.5 + 22));
+}
 
 /**
  * How large the flat, face-on row is: `scale` is CSS pixels per world unit. The tallest spine fills
- * at most 78% of the height and the row at most 88% of the width; when the width rule would shrink
- * the tallest spine below 70% of the height the height keeps 70% and the row `pans` sideways.
- * `rowWidth` and `tallest` are in world units, `vw` and `vh` in pixels.
+ * at most 78% of the height (and never more than `room`, the pixels between the header and the
+ * line, so it never runs into the header) and the row at most 88% of the width; when the width
+ * rule would shrink the tallest spine below 70% of the height (or below `room`, if that is less)
+ * the height keeps that and the row `pans` sideways. `rowWidth` and `tallest` are in world units,
+ * `vw`, `vh` and `room` in pixels.
  */
-export function flatFit(p: { vw: number; vh: number; rowWidth: number; tallest: number }): {
+export function flatFit(p: {
+  vw: number;
+  vh: number;
+  rowWidth: number;
+  tallest: number;
+  room?: number;
+}): {
   scale: number;
   pans: boolean;
 } {
-  const byHeight = (TALL_MAX * p.vh) / p.tallest;
+  const room = p.room ?? Infinity;
+  const byHeight = Math.min(TALL_MAX * p.vh, room) / p.tallest;
   const byWidth = (ROW_MAX * p.vw) / p.rowWidth;
-  const floor = (TALL_MIN * p.vh) / p.tallest;
+  const floor = Math.min(TALL_MIN * p.vh, room) / p.tallest;
   const scale = Math.min(byHeight, byWidth);
   return scale < floor ? { scale: floor, pans: true } : { scale, pans: false };
 }
 
 /**
  * The whole flat frame for a stage `vw` by `vh` px and a row `span` world units wide whose tallest
- * book is `tallest` high: the scale, whether it pans, the pixel row of the line the books stand on
- * (90% of the height, but never closer than 84 px to the bottom, so a small stage keeps its hint clear),
- * how far the camera may pan (world units each way; the row's ends stop 6% of the width inside the
- * edges), the row's `reach` in world units (the row and that margin both sides: the hairline's
- * width) and the share of the reach that is on screen at once. The 3D shelf and its
- * placeholder both read this, so one replaces the other without a jump.
+ * book is `tallest` high, under a header whose bottom is `top` px from the stage's top: the scale,
+ * whether it pans, the pixel row of the line the books stand on (90% of the height, but never
+ * closer than 84 px to the bottom, so a small stage keeps its hint clear), how far the camera may
+ * pan (world units each way; the row's ends stop 6% of the width inside the edges), the row's
+ * `reach` in world units (the row and that margin both sides: the hairline's width) and the share
+ * of the reach that is on screen at once. The height rule reads the room between the header
+ * (plus `HEAD_GAP`) and the line. The 3D shelf and its placeholder both read this, so one replaces
+ * the other without a jump.
  */
-export function flatFrame(p: { vw: number; vh: number; span: number; tallest: number }): {
+export function flatFrame(p: {
+  vw: number;
+  vh: number;
+  span: number;
+  tallest: number;
+  top: number;
+}): {
   scale: number;
   pans: boolean;
   baseRow: number;
@@ -144,13 +193,21 @@ export function flatFrame(p: { vw: number; vh: number; span: number; tallest: nu
   reach: number;
   visible: number;
 } {
-  const { scale, pans } = flatFit({ vw: p.vw, vh: p.vh, rowWidth: p.span, tallest: p.tallest });
+  const baseRow = Math.round(Math.min(BASE_AT * p.vh, p.vh - BOTTOM_PX));
+  const room = Math.max(1, baseRow - p.top - HEAD_GAP);
+  const { scale, pans } = flatFit({
+    vw: p.vw,
+    vh: p.vh,
+    rowWidth: p.span,
+    tallest: p.tallest,
+    room,
+  });
   const viewW = p.vw / scale;
   const reach = p.span + 2 * 0.06 * viewW;
   return {
     scale,
     pans,
-    baseRow: Math.round(Math.min(BASE_AT * p.vh, p.vh - BOTTOM_PX)),
+    baseRow,
     maxX: pans ? Math.max(0, reach / 2 - viewW / 2) : 0,
     reach,
     visible: Math.min(1, viewW / reach),

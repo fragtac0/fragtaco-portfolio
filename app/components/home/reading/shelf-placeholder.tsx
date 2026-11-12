@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { SiteBook } from "../../../types";
+import { headerBottom } from "./shelf-head";
 import { placeholderLayout, type PlaceholderLayout } from "./shelf-placeholder-layout";
 
 type ShelfPlaceholderProps = {
@@ -23,7 +24,9 @@ export default function ShelfPlaceholder({ books, leaving }: ShelfPlaceholderPro
     const el = ref.current;
     if (!el) return;
     const measure = () =>
-      setLayout(placeholderLayout(books, { w: el.clientWidth, h: el.clientHeight }));
+      setLayout(
+        placeholderLayout(books, { w: el.clientWidth, h: el.clientHeight }, headerBottom(el)),
+      );
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);

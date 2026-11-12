@@ -20,12 +20,14 @@ export type PlaceholderLayout = {
 export function placeholderLayout(
   books: readonly SiteBook[],
   stage: { w: number; h: number },
+  /** Where the layer's header ends, in px from the stage's top (`headerBottom`). */
+  top: number,
 ): PlaceholderLayout | null {
   if (books.length === 0 || stage.w <= 0 || stage.h <= 0) return null;
   const sizes = books.map(bookSize);
   const span = sizes.reduce((sum, s) => sum + s.T, 0) + SHELF_GAP * (books.length - 1);
   const tallest = Math.max(...sizes.map((s) => s.H));
-  const f = flatFrame({ vw: stage.w, vh: stage.h, span, tallest });
+  const f = flatFrame({ vw: stage.w, vh: stage.h, span, tallest, top });
   // the 3D camera's first x (the engine's `initialCamX`): the left end on a narrow stage
   const camX = initialCamX(f.maxX, stage.w < NARROW_PX);
   const centre = stage.w / 2 - camX * f.scale;

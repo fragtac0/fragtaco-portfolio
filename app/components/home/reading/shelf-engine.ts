@@ -8,10 +8,9 @@ import type { ShelfEngine } from "./shelf-engine-types";
 import { createAnimate, poseBooks } from "./shelf-pose";
 import { createMarkerSync, hintText, HINT_NO_GL } from "./shelf-hud";
 import { fitShelf } from "./shelf-fit";
-import { buildShelfScene, loadShelfFonts, type ShelfScene } from "./shelf-scene";
+import { buildShelfScene, loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
 import { loadSpinePhotos, retintSpine, stepSpineFades } from "./shelf-spines";
 import { spineColours } from "./spine-styles";
-import { LINE_ALPHA } from "../../../styles/tokens";
 import { clamp, flick, initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
 
 /**
@@ -29,9 +28,8 @@ import { clamp, flick, initialCamX, introSeconds, NARROW_PX } from "./shelf-math
  * frees everything. A lost graphics context makes `hasFailed()` true and calls `onLost` listeners.
  *
  * Shadows are not a shadow map: a lifted book has a soft shadow on the ground behind it, animated
- * with the book every frame. Opening a book copies the shelf once,
- * blurs that copy in CSS, and fades the live shelf into it, so the open book is the only thing
- * still being drawn.
+ * with the book every frame. Opening a book lifts it straight up and turns it to its cover (620 ms)
+ * while the row stays put and dims to 70%; the note shows beside it (shelf-open.ts, shelf-lift.ts).
  *
  * The per-frame book poses are shelf-pose.ts, the open-book path is shelf-open.ts, the real covers
  * shelf-covers.ts, the scene shelf-scene.ts, the sizing shelf-fit.ts, the hint and position marker
@@ -75,12 +73,20 @@ export function createShelf(
   let onFirstFrame: (() => void) | null = null;
   const slicer = createSlicer();
 
+  // Not running, or past the entrance with no book open and none still opening or closing: a cover is
+  // painted only then, so it never costs a frame of the lift.
+  const calm = () =>
+    !running ||
+    (performance.now() - st.t0 > (intro() + 0.3) * 1000 &&
+      !st.opened &&
+      !gl?.books.some((b) => b.anim.open > 0));
+
   // Real covers: downloaded, decoded, painted and uploaded outside the entrance (shelf-covers.ts).
   const covers = createCoverQueue({
     disposed: () => disposed,
     ready: () => !!gl,
     running: () => running,
-    calm: () => !running || (performance.now() - st.t0 > (intro() + 0.3) * 1000 && !st.opened),
+    calm: () => calm(),
     upload(t, c) {
       if (!gl) return;
       t.image = c;
@@ -110,9 +116,9 @@ export function createShelf(
     flickV: 0,
     fitW: 0,
     fitH: 0,
+    fitTop: 0,
   };
   const cam = { x: 0, xV: 0 };
-  const fadeBag = { fade: 0, fadeV: 0 };
 
   const animate = createAnimate(reduced);
   // the position marker under the line (shelf-hud.ts)
@@ -184,7 +190,7 @@ export function createShelf(
     syncMarker(els?.marker, cam.x, s.maxX, s.visible);
     s.camera.position.x = cam.x; // the fit set the height; the camera looks straight down -z
 
-    if (el > introS && !st.opened && covers.drain()) busy = true; // one late cover per frame
+    if (el > introS && calm() && covers.drain()) busy = true; // one late cover per frame
 
     const prev = st.hoverHit;
     st.hoverHit =
@@ -192,8 +198,6 @@ export function createShelf(
         ? pick(s.books)
         : null;
     if (st.hoverHit !== prev) canvas.style.cursor = st.hoverHit ? "pointer" : "";
-    if (animate(fadeBag, "fade", st.opened ? 1 : 0, 8, dt)) busy = true;
-    const keep = 1 - clamp(fadeBag.fade);
     const focused = st.focusIdx >= 0 ? s.books[st.focusIdx] : null;
 
     if (
@@ -205,14 +209,11 @@ export function createShelf(
         hover: st.hoverHit,
         focused,
         opened: st.opened,
-        keep,
         animate,
       })
     ) {
       busy = true;
     }
-    s.line.visible = keep > 0.004;
-    s.line.material.opacity = LINE_ALPHA * keep;
     if (busy) {
       s.renderer.render(s.scene, s.camera);
       st.dirty = false;
@@ -301,8 +302,7 @@ export function createShelf(
       st.t0 = performance.now() - skipped * 1000;
       cam.x = initialCamX(gl.maxX, canvas.clientWidth < NARROW_PX);
       cam.xV = st.flickV = 0;
-      fadeBag.fade = fadeBag.fadeV = 0;
-      for (const b of gl.books) b.anim = { hover: 0, hoverV: 0, open: 0, openV: 0 };
+      for (const b of gl.books) b.anim = newBag();
       st.opened = st.hoverHit = st.camTarget = st.down = null;
       st.focusIdx = -1;
       st.dirty = true;

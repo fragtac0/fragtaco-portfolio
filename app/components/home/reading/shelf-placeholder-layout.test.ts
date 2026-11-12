@@ -20,14 +20,14 @@ const many = Array.from({ length: 14 }, (_, i) => book(`m${i}`, 150 + i * 30, 8 
 
 describe("placeholderLayout", () => {
   it("is null until the stage has a size or there are no books", () => {
-    expect(placeholderLayout(books, { w: 0, h: 800 })).toBeNull();
-    expect(placeholderLayout(books, { w: 1200, h: 0 })).toBeNull();
-    expect(placeholderLayout([], { w: 1200, h: 800 })).toBeNull();
+    expect(placeholderLayout(books, { w: 0, h: 800 }, 0)).toBeNull();
+    expect(placeholderLayout(books, { w: 1200, h: 0 }, 0)).toBeNull();
+    expect(placeholderLayout([], { w: 1200, h: 800 }, 0)).toBeNull();
   });
 
   it("gives one bar per book, in order, left to right, centred on the stage", () => {
     const stage = { w: 1440, h: 900 };
-    const layout = placeholderLayout(books, stage)!;
+    const layout = placeholderLayout(books, stage, 0)!;
     expect(layout.bars).toHaveLength(books.length);
     for (let i = 1; i < layout.bars.length; i++) {
       const prev = layout.bars[i - 1];
@@ -40,7 +40,7 @@ describe("placeholderLayout", () => {
 
   it("sizes the bars as the 3D row is: thickness and trim height at one scale, the same gaps", () => {
     const stage = { w: 1440, h: 900 };
-    const { bars } = placeholderLayout(books, stage)!;
+    const { bars } = placeholderLayout(books, stage, 0)!;
     const sizes = books.map(bookSize);
     const span = sizes.reduce((sum, s) => sum + s.T, 0) + SHELF_GAP * (books.length - 1);
     const { scale } = flatFit({
@@ -64,7 +64,7 @@ describe("placeholderLayout", () => {
 
   it("makes the tallest bar 78% of the height when the row fits, standing on a hairline at 90%", () => {
     const stage = { w: 1440, h: 900 };
-    const { bars, floor, line } = placeholderLayout(books, stage)!;
+    const { bars, floor, line } = placeholderLayout(books, stage, 0)!;
     expect(Math.max(...bars.map((b) => b.height)) / stage.h).toBeCloseTo(0.78, 8);
     expect(floor).toBe(810);
     // one thin line, level with the feet, running the row and a little past each end
@@ -81,7 +81,7 @@ describe("placeholderLayout", () => {
       { w: 900, h: 900 },
       { w: 390, h: 800 },
     ]) {
-      const layout = placeholderLayout(books, stage)!;
+      const layout = placeholderLayout(books, stage, 0)!;
       const tallest = Math.max(...layout.bars.map((b) => b.height));
       expect(layout.floor - tallest).toBeGreaterThan(0);
       expect(layout.floor).toBeLessThan(stage.h);
@@ -89,15 +89,15 @@ describe("placeholderLayout", () => {
   });
 
   it("scales with the stage: doubling it doubles every length", () => {
-    const small = placeholderLayout(books, { w: 1400, h: 900 })!;
-    const big = placeholderLayout(books, { w: 2800, h: 1800 })!;
+    const small = placeholderLayout(books, { w: 1400, h: 900 }, 0)!;
+    const big = placeholderLayout(books, { w: 2800, h: 1800 }, 0)!;
     expect(big.floor / small.floor).toBeCloseTo(2, 6);
     expect(big.bars[1].height / small.bars[1].height).toBeCloseTo(2, 6);
     expect(big.line.width / small.line.width).toBeCloseTo(2, 6);
   });
 
   it("starts at the left end on a narrow stage, like the 3D shelf's first camera", () => {
-    const layout = placeholderLayout(many, { w: 390, h: 844 })!;
+    const layout = placeholderLayout(many, { w: 390, h: 844 }, 0)!;
     const first = layout.bars[0];
     const last = layout.bars[layout.bars.length - 1];
     // the first book is whole, 6% in from the edge
@@ -107,14 +107,24 @@ describe("placeholderLayout", () => {
   });
 
   it("keeps the tallest bar at 70% of the height on a narrow stage", () => {
-    const layout = placeholderLayout(many, { w: 390, h: 844 })!;
+    const layout = placeholderLayout(many, { w: 390, h: 844 }, 0)!;
     expect(Math.max(...layout.bars.map((b) => b.height)) / 844).toBeCloseTo(0.7, 8);
   });
 
   it("stays centred on a stage of 700px or more", () => {
-    const layout = placeholderLayout(books, { w: 700, h: 450 })!;
+    const layout = placeholderLayout(books, { w: 700, h: 450 }, 0)!;
     const first = layout.bars[0];
     const last = layout.bars[layout.bars.length - 1];
     expect((first.left + last.left + last.width) / 2).toBeCloseTo(350, 5);
+  });
+
+  it("keeps the tallest bar under the header: on a short wide stage the bars give way to it", () => {
+    const stage = { w: 844, h: 390 };
+    const without = placeholderLayout(books, stage, 0)!;
+    const under = placeholderLayout(books, stage, 120)!;
+    const top = (l: typeof under) => l.floor - Math.max(...l.bars.map((b) => b.height));
+    expect(top(without)).toBeLessThan(120); // the old fit ran into the header
+    expect(top(under)).toBeGreaterThanOrEqual(128 - 1e-9); // the header and 8 px
+    expect(under.floor).toBe(without.floor);
   });
 });

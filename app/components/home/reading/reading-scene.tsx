@@ -22,7 +22,7 @@ type ReadingSceneProps = {
 };
 
 /**
- * The reading pane's DOM. The engine draws into the host and drives the blur, dim and note
+ * The reading pane's DOM. The engine draws into the host and drives the note
  * through the elements it is handed; this component only provides them, starts and stops the
  * engine, and registers the hooks Esc uses to close an open book before the layer. Once the layer
  * is active (open and waiting) the engine prepares urgently. If the shelf is not ready when the layer becomes active, a
@@ -32,8 +32,6 @@ type ReadingSceneProps = {
 function ReadingScene({ engine, books, active }: ReadingSceneProps) {
   const { registerSceneHooks } = useLayerControl();
   const hostRef = useRef<HTMLDivElement>(null);
-  const blurRef = useRef<HTMLCanvasElement>(null);
-  const dimRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLParagraphElement>(null);
   const markerRef = useRef<HTMLDivElement>(null);
@@ -72,15 +70,11 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
   useEffect(() => {
     if (fallback) return;
     const host = hostRef.current;
-    const blur = blurRef.current;
-    const dim = dimRef.current;
     const info = infoRef.current;
     const hint = hintRef.current;
-    if (!engine || !host || !blur || !dim || !info || !hint) return;
+    if (!engine || !host || !info || !hint) return;
     engine.mount({
       host,
-      blur,
-      dim,
       info,
       hint,
       marker: markerRef.current ?? undefined,
@@ -128,8 +122,6 @@ function ReadingScene({ engine, books, active }: ReadingSceneProps) {
 
   return (
     <div className="shelf-scene" data-shelf={placeholder === "none" ? "live" : placeholder}>
-      <canvas ref={blurRef} className="shelf-blur" aria-hidden="true" />
-      <div ref={dimRef} className="shelf-dim" />
       <div ref={hostRef} className="shelf-host" />
       {placeholder !== "none" && (
         <ShelfPlaceholder books={books} leaving={placeholder === "leaving"} />

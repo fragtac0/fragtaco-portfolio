@@ -21,7 +21,7 @@
   "label": "canvas"
  },
  {
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit"
  },
  {
@@ -70,7 +70,7 @@
   "dpr": 2,
   "go": "{{BASE}}/?fit=0#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-320x568"
  },
  {
@@ -81,7 +81,7 @@
   "dpr": 2,
   "go": "{{BASE}}/?fit=1#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-390x844"
  },
  {
@@ -100,7 +100,7 @@
   "dpr": 1,
   "go": "{{BASE}}/?fit=2#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-820x1180"
  },
  {
@@ -117,7 +117,7 @@
   "dpr": 1,
   "go": "{{BASE}}/?fit=3#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-1024x768"
  },
  {
@@ -134,7 +134,7 @@
   "dpr": 1,
   "go": "{{BASE}}/?fit=4#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-1440x900"
  },
  {
@@ -153,7 +153,7 @@
   "dpr": 1,
   "go": "{{BASE}}/?fit=5#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-2560x1440"
  },
  {
@@ -174,5 +174,473 @@
   "wait": 300,
   "eval": "new Promise(r=>{const c=document.querySelector('.shelf-host canvas');const t0=performance.now();const q=()=>{const h=+c.dataset.spinePx.split('x')[1];const want=Math.round(+c.dataset.tall*c.clientHeight*Math.min(devicePixelRatio,2));if(Math.abs(h-want)<=1||performance.now()-t0>2500)r({spinePx:c.dataset.spinePx,wantH:want,ms:Math.round(performance.now()-t0),ch:c.clientHeight});else setTimeout(q,50)};q()})",
   "label": "spine-px-after-resize-1000x700"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?open=1440#reading",
+  "wait": 5200
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-click-first"
+ },
+ {
+  "click": [
+   322,
+   660
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-click-first"
+ },
+ {
+  "click": [
+   3,
+   540
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-click-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-click-middle"
+ },
+ {
+  "click": [
+   720,
+   660
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-click-middle"
+ },
+ {
+  "click": [
+   3,
+   540
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-click-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-click-last"
+ },
+ {
+  "click": [
+   1118,
+   660
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-click-last"
+ },
+ {
+  "click": [
+   3,
+   540
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-click-last"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-keys-first"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');;return 'moved'})()",
+  "label": "nav-1440-keys-first"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-keys-first"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-keys-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-keys-middle"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');for(let i=0;i<6;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-1440-keys-middle"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-keys-middle"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-keys-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-keys-last"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-1440-keys-last"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-keys-last"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-keys-last"
+ },
+ {
+  "size": [
+   1024,
+   768
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?open=1024#reading",
+  "wait": 5200
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1024-click-first"
+ },
+ {
+  "click": [
+   182,
+   564
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1024-click-first"
+ },
+ {
+  "click": [
+   3,
+   460
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1024-click-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1024-click-middle"
+ },
+ {
+  "click": [
+   512,
+   564
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1024-click-middle"
+ },
+ {
+  "click": [
+   3,
+   460
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1024-click-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1024-click-last"
+ },
+ {
+  "click": [
+   842,
+   564
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1024-click-last"
+ },
+ {
+  "click": [
+   3,
+   460
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1024-click-last"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1024-keys-last"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-1024-keys-last"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1024-keys-last"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1024-keys-last"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "go": "{{BASE}}/?open=390#reading",
+  "wait": 5200
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-390-click-first"
+ },
+ {
+  "click": [
+   40,
+   610
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-390-click-first"
+ },
+ {
+  "click": [
+   3,
+   500
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-390-click-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-390-keys-first"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');;return 'moved'})()",
+  "label": "nav-390-keys-first"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-390-keys-first"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-390-keys-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-390-keys-middle"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');for(let i=0;i<6;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-390-keys-middle"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-390-keys-middle"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-390-keys-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-390-keys-last"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-390-keys-last"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-390-keys-last"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-390-keys-last"
+ },
+ {
+  "size": [
+   844,
+   390
+  ],
+  "dpr": 2,
+  "go": "{{BASE}}/?open=844#reading",
+  "wait": 5200
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-844-click-first"
+ },
+ {
+  "click": [
+   316,
+   246
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-844-click-first"
+ },
+ {
+  "click": [
+   3,
+   200
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-844-click-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-844-click-middle"
+ },
+ {
+  "click": [
+   422,
+   246
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-844-click-middle"
+ },
+ {
+  "click": [
+   3,
+   200
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-844-click-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-844-click-last"
+ },
+ {
+  "click": [
+   522,
+   246
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-844-click-last"
+ },
+ {
+  "click": [
+   3,
+   200
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-844-click-last"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-844-keys-middle"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');for(let i=0;i<6;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-844-keys-middle"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-844-keys-middle"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-844-keys-middle"
  }
 ]

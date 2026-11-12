@@ -1,15 +1,16 @@
 import { clamp, flatFrame, LINE_PX } from "./shelf-math";
 import { placeMarker } from "./shelf-hud";
+import { headerBottom } from "./shelf-head";
 import type { ShelfCtx } from "./shelf-open";
 
 /**
  * Sizes the renderer and the orthographic camera to the canvas (`flatFrame`: the tallest spine at
- * most 78% of the height, the row at most 88% of the width, the row pans when that would make it
- * smaller than 70%), puts the line the books stand on at its row, and works out how far the camera
+ * most 78% of the height and under the layer's header, the row at most 88% of the width, the row
+ * pans when that would make it smaller than 70%), puts the line the books stand on at its row, and works out how far the camera
  * may pan, how much of the row is on screen, and where the position marker goes (just under the
  * line, where the flat placeholder draws it), and has the spines repainted at their new size on
- * screen (`fitSpines`). Nothing happens when the size is unchanged since the
- * last call. An open book is put back first, because its pose was laid out for the old size.
+ * screen (`fitSpines`). Nothing happens when the size and the header's height are
+ * unchanged since the last call. An open book is put back first, because its pose was laid out for the old size.
  */
 export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): void {
   const gl = ctx.scene();
@@ -19,15 +20,17 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   const w = canvas.clientWidth;
   const h = canvas.clientHeight;
   if (!w || !h) return;
-  if (w === st.fitW && h === st.fitH) return;
+  const top = headerBottom(canvas);
+  if (w === st.fitW && h === st.fitH && top === st.fitTop) return;
   const first = st.fitW === 0; // the first fit of a mount repaints the spines at once, a resize waits for the size to settle
   st.fitW = w;
   st.fitH = h;
+  st.fitTop = top;
   if (st.opened) closeBook(true);
   const { renderer: r, camera, span, line } = gl;
   r.setSize(w, h, false);
   const tallest = Math.max(...gl.books.map((b) => b.H));
-  const f = flatFrame({ vw: w, vh: h, span, tallest });
+  const f = flatFrame({ vw: w, vh: h, span, tallest, top });
   gl.scale = f.scale;
   gl.maxX = f.maxX;
   gl.visible = f.visible;
@@ -47,6 +50,7 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   canvas.dataset.tall = ((f.scale * tallest) / h).toFixed(4);
   canvas.dataset.row = ((f.scale * span) / w).toFixed(4);
   canvas.dataset.baseRow = String(f.baseRow);
+  canvas.dataset.headBottom = String(top);
   canvas.dataset.pans = String(f.pans);
   // the spines are drawn at their size on screen (times the pixel ratio): repaint when the size changed
   const tallBook = gl.books.reduce((a, b) => (b.H > a.H ? b : a));
