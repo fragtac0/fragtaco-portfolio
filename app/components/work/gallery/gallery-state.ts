@@ -19,6 +19,29 @@ const HOVER_RATE = 14; // per second: about 70 ms to settle
 const RING_RATE = 20;
 export const GROWN_SLOTS = 4;
 
+/**
+ * A picture's reveal, 0 to 1. `loadedAt` is stamped with performance.now() at the upload, which can be a little
+ * later than the frame's own `now`, so the raw difference can be slightly negative on that frame: clamped.
+ */
+export function revealOf(loadedAtMs: number, now: number, reduced: boolean): number {
+  if (!(loadedAtMs > 0)) return 0;
+  return reduced ? 1 : Math.min(1, Math.max(0, (now - loadedAtMs) / REVEAL_MS));
+}
+
+/**
+ * The grown tiles for the shader: the [index, amount] pairs with an amount above 0, the strongest few that fit,
+ * smallest first so the strongest is drawn last, and the tile under the pointer (`target`) always in the last
+ * slot, drawn over the ones that are shrinking, and never dropped.
+ */
+export function pickGrown(entries: Array<[number, number]>, target: number | null, slots: number): Array<[number, number]> {
+  const t = target === null ? undefined : entries.find((e) => e[0] === target);
+  const rest = entries.filter((e) => e !== t).sort((a, b) => b[1] - a[1]);
+  rest.length = Math.min(rest.length, slots - (t ? 1 : 0));
+  rest.reverse();
+  if (t) rest.push(t);
+  return rest;
+}
+
 export type TileState = {
   texture: THREE.DataTexture;
   setHover(i: number | null): void;
@@ -63,9 +86,8 @@ export function createTileState(T: typeof THREE, count: number, reduced: boolean
         hover[i] = reduced ? (i === hoverIdx ? 1 : 0) : approach(hover[i], i === hoverIdx ? 1 : 0, dt, HOVER_RATE);
         ring[i] = reduced ? (i === focusIdx ? 1 : 0) : approach(ring[i], i === focusIdx ? 1 : 0, dt, RING_RATE);
         if (hover[i] !== (i === hoverIdx ? 1 : 0) || ring[i] !== (i === focusIdx ? 1 : 0)) busy = true;
-        let reveal = 0;
-        if (loadedAt[i] > 0) reveal = reduced ? 1 : Math.min(1, (now - loadedAt[i]) / REVEAL_MS);
-        if (reveal > 0 && reveal < 1) busy = true;
+        const reveal = revealOf(loadedAt[i], now, reduced);
+        if (loadedAt[i] > 0 && reveal < 1) busy = true; // a picture that has just gone up is still fading in
         const r = Math.round(reveal * 255);
         if (hover[i] > 0) live.push([i, hover[i]]);
         const b = Math.round(ring[i] * 255);
@@ -75,12 +97,10 @@ export function createTileState(T: typeof THREE, count: number, reduced: boolean
           changed = true;
         }
       }
-      live.sort((a, b) => b[1] - a[1]); // strongest first, keep the top few, then smallest first
-      live.length = Math.min(live.length, GROWN_SLOTS);
-      live.reverse();
+      const picked = pickGrown(live, hoverIdx, GROWN_SLOTS);
       for (let k = 0; k < GROWN_SLOTS; k++) {
-        grown[k * 2] = live[k] ? live[k][0] : -1;
-        grown[k * 2 + 1] = live[k] ? live[k][1] : 0;
+        grown[k * 2] = picked[k] ? picked[k][0] : -1;
+        grown[k * 2 + 1] = picked[k] ? picked[k][1] : 0;
       }
       if (changed) texture.needsUpdate = true;
       return busy;

@@ -54,6 +54,8 @@ type Parts = {
   state?: TileState;
   geometry?: THREE.BufferGeometry;
   material?: THREE.Material;
+  /** Set once the gallery object exists: its destroy undoes everything, listeners included. */
+  api?: Gallery;
 };
 
 /** Resolves to null (never rejects) when three, WebGL or the scene cannot start. */
@@ -73,12 +75,16 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
     return assemble(T, renderer, canvas, opts, parts);
   } catch (err) {
     console.warn("The video wall could not start.", err);
-    parts.atlas?.dispose();
-    parts.state?.dispose();
-    parts.geometry?.dispose();
-    parts.material?.dispose();
-    renderer.dispose();
-    renderer.forceContextLoss();
+    if (parts.api) {
+      parts.api.destroy(); // unsubscribes, detaches listeners and observers, frees everything
+    } else {
+      parts.atlas?.dispose();
+      parts.state?.dispose();
+      parts.geometry?.dispose();
+      parts.material?.dispose();
+      renderer.dispose();
+      renderer.forceContextLoss();
+    }
     return null;
   }
 }
@@ -233,6 +239,11 @@ function assemble(
     wake();
   }
 
+  const listeners = new AbortController();
+  let io: IntersectionObserver | null = null;
+  let ro: ResizeObserver | null = null;
+  let unsubLost = () => {};
+
   const api: Gallery = {
     resize,
     setPointer(x, y) {
@@ -283,7 +294,7 @@ function assemble(
   };
 
   // ---- listeners
-  const listeners = new AbortController();
+  parts.api = api;
   attachGalleryInput(
     canvas,
     {
@@ -295,7 +306,7 @@ function assemble(
     (i) => opts.onActivate?.(i),
     listeners.signal,
   );
-  const onVisibility = () => {
+  function onVisibility() {
     hidden = document.hidden;
     if (hidden) {
       cancelAnimationFrame(raf);
@@ -304,9 +315,9 @@ function assemble(
       dirty = true;
       wake();
     }
-  };
+  }
   document.addEventListener("visibilitychange", onVisibility);
-  const io =
+  io =
     typeof IntersectionObserver === "undefined"
       ? null
       : new IntersectionObserver((entries) => {
@@ -320,9 +331,9 @@ function assemble(
           }
         });
   io?.observe(canvas);
-  const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => resize());
+  ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => resize());
   ro?.observe(canvas);
-  const unsubLost = watchContextLost(canvas).subscribe(() => {
+  unsubLost = watchContextLost(canvas).subscribe(() => {
     if (destroyed) return;
     lost = true;
     cancelAnimationFrame(raf);
