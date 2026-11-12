@@ -5,7 +5,7 @@ interface WorkBackgroundProps {
    * The ground of the work addresses: draws the still CSS picture (`.work-wash`, the first frame of the
    * shader ground) and its own ground colour, fixed behind the pages; `children` (the shader canvas, if
    * it runs) go between that picture and the dot screen. Without it: the flat page ground of the
-   * timeline page, which has the map for a ground.
+   * experience page, which has the map for a ground.
    */
   ground?: boolean;
   children?: ReactNode;

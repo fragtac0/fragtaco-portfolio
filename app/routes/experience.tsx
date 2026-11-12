@@ -1,8 +1,8 @@
 import { json, type HeadersFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import TimelinePage from "../components/timeline/timeline-page";
+import ExperiencePlain from "../components/experience/experience-plain";
 import WorkShell from "../components/work/work-shell";
-import { getTimelinePageContent } from "../content/loaders.server";
+import { getExperiencePageContent } from "../content/loaders.server";
 
 export const meta: MetaFunction = () => [
   { title: "My experience - FragTaco" },
@@ -13,31 +13,22 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => ({
   "Cache-Control": loaderHeaders.get("Cache-Control") ?? "private, no-cache",
 });
 
-// The last square is today (the server's UTC date), so the response must not outlive the day for long:
+// "Now" is today (the server's UTC date), so the response must not outlive the day for long:
 // private (no shared cache can hand yesterday's page to a visitor tomorrow) and five minutes at most.
 export async function loader() {
-  const timelinePageContent = await getTimelinePageContent();
+  const content = await getExperiencePageContent();
 
-  return json(
-    {
-      ...timelinePageContent,
-    },
-    {
-      headers: {
-        "Cache-Control": "private, max-age=300",
-      },
-    },
-  );
+  return json(content, { headers: { "Cache-Control": "private, max-age=300" } });
 }
 
-// For now this is the round 5 timeline (Tasks 17 to 19 replace it with the Mars map). The dock and its
-// row come from WorkShell, so My experience is the current link of the row.
+// A plain page for now (the words and the moments as a list); Task 18 replaces it with the Mars map.
+// The dock and its row come from WorkShell, so My experience is the current link of the row.
 export default function Experience() {
-  const { navigationItems, socialLinks, ...page } = useLoaderData<typeof loader>();
+  const { navigationItems, socialLinks, experience } = useLoaderData<typeof loader>();
 
   return (
     <WorkShell navigationItems={navigationItems} socialLinks={socialLinks} ground={false}>
-      <TimelinePage {...page} />
+      <ExperiencePlain experience={experience} />
     </WorkShell>
   );
 }
