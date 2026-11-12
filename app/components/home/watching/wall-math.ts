@@ -2,7 +2,7 @@ import type { SiteVideo } from "~/types";
 
 /**
  * Pure maths for the video wall: tile sizes, the drifting column layout, the
- * thumbnail atlas, hover hit-testing and the focus effect. No DOM, no WebGL.
+ * thumbnail atlas, hover hit-testing and the arrival fade. No DOM, no WebGL.
  * Ported from the `Wall` module of docs/redesign/mockups/home-v4.html.
  */
 
@@ -31,55 +31,12 @@ export function tileSize(vw: number): TileSize {
   return { cw, ch, gap, pitchX: cw + gap, pitchY: ch + gap };
 }
 
-export type Plane = {
-  scale: number;
-  dim: number;
-  speed: number;
-  bias: number;
-  parallax: number;
-};
-
 /**
- * The two depth planes. Alternate (odd) columns sit further back: smaller,
- * dimmer, a touch softer (`bias` is the extra mipmap bias), drifting at 60% of
- * the speed and leaning half as far with the pointer.
+ * Vertical offset of a column. Every column drifts at the same speed, and alternate (odd) columns
+ * the other way, at 72% of it (the speed the wall had before R36's depth planes, commit c0a0b30^).
  */
-export const PLANE = {
-  far: { scale: 0.86, dim: 0.82, speed: 0.6, bias: 0.6, parallax: 0.5 },
-  near: { scale: 1, dim: 1, speed: 1, bias: 0, parallax: 1 },
-} as const satisfies Record<"far" | "near", Plane>;
-
-/** Odd columns are far, even ones near; correct for negative columns. */
-export function planeOf(cx: number): "near" | "far" {
-  return mod(cx, 2) ? "far" : "near";
-}
-
-/** Vertical offset of a column: far columns drift the other way, slower. */
 export function columnOffset(t: number, cx: number): number {
-  const speed = PLANE[planeOf(cx)].speed;
-  return t * SPEED * (mod(cx, 2) ? -0.72 : 1) * speed + cx * 53;
-}
-
-/**
- * How far the wall leans against the pointer, in pixels: up to 14 across and
- * 10 down at the screen edges, scaled by the plane. Zero with no pointer.
- */
-export function parallaxShift(
-  pointer: { x: number; y: number } | null,
-  vw: number,
-  vh: number,
-  plane: Pick<Plane, "parallax">,
-): { x: number; y: number } {
-  if (!pointer || !(vw > 0) || !(vh > 0)) return { x: 0, y: 0 };
-  if (!Number.isFinite(pointer.x) || !Number.isFinite(pointer.y))
-    return { x: 0, y: 0 };
-  // a captured drag can leave the window: the lean stops at the edge
-  const px = clamp(pointer.x / vw, 0, 1);
-  const py = clamp(pointer.y / vh, 0, 1);
-  return {
-    x: (0.5 - px) * 28 * plane.parallax,
-    y: (0.5 - py) * 20 * plane.parallax,
-  };
+  return t * SPEED * (mod(cx, 2) ? -0.72 : 1) + cx * 53;
 }
 
 /**
@@ -182,11 +139,6 @@ export function thumbUrl(
   return `https://i.ytimg.com/vi/${v.id}/${file}.jpg`;
 }
 
-/** Weight of the focus effect at an offset from the focused tile's centre. */
-export function focusWeight(dx: number, dy: number, pitchX: number): number {
-  return Math.exp(-(dx * dx + dy * dy) / (2 * Math.pow(1.3 * pitchX, 2)));
-}
-
 export type LayoutTile = { key: string; idx: number; x: number; y: number };
 
 /** Every tile in view, plus a one-pitch margin for tiles pushed in from the edge. */
@@ -248,27 +200,18 @@ export function hitTile(
 }
 
 /**
- * Scale, displaced centre and corner radius of a tile. `f` is its own hover
- * weight (0 to 1), `weight` the focus weight at its centre, (dx, dy) its
- * offset from the focus centre.
+ * Opacity and scale of a tile's picture. A thumbnail that is not on the atlas yet (`loadedAt` is
+ * 0 or missing) has no arrival: the animated placeholder shows. With reduced motion a loaded
+ * picture just appears.
  */
-export function tileTransform(p: {
-  cx: number;
-  cy: number;
-  dx: number;
-  dy: number;
-  f: number;
-  weight: number;
-  cw: number;
-  ch: number;
-}): { cx: number; cy: number; w: number; h: number; rad: number } {
-  const { cx, cy, dx, dy, f, weight, cw, ch } = p;
-  const s = 1 + 0.13 * f - 0.035 * weight * (1 - f);
-  return {
-    cx: cx + dx * 0.16 * weight,
-    cy: cy + dy * 0.16 * weight,
-    w: cw * s,
-    h: ch * s,
-    rad: (12 * (cw * s)) / cw,
-  };
+export function arrivalOf(p: {
+  loadedAt: number;
+  now: number;
+  distanceFromCentre: number;
+  pitch: number;
+  reduced: boolean;
+}): { loaded: boolean; alpha: number; scale: number } {
+  if (!(p.loadedAt > 0)) return { loaded: false, alpha: 0, scale: 1 };
+  if (p.reduced) return { loaded: true, alpha: 1, scale: 1 };
+  return { loaded: true, ...arrival(p.now - p.loadedAt, p.distanceFromCentre, p.pitch) };
 }

@@ -46,21 +46,16 @@ export type WallEngine = {
 };
 
 export type Tile = LayoutTile & {
-  /** The depth plane of its column. */
-  plane: "near" | "far";
-  /** Its own hover weight, 0 to 1. */
+  /** Its own hover weight, 0 to 1: the tile that is focused (pointer or keyboard). */
   f: number;
   /** How far it is in the focused video's channel echo, 0 to 1. */
   e: number;
-  /** Displaced centre, size and corner radius. */
+  /** Displaced centre, size and corner radius (the pointer's nudge). */
   cx: number;
   cy: number;
   w: number;
   h: number;
   rad: number;
-  /** Brightness and extra mipmap bias, from its plane, the focus and the echo. */
-  dim: number;
-  bias: number;
 };
 
 /** The engine's interaction and view state, shared with the input code. */
@@ -68,13 +63,14 @@ export type WallState = {
   /** The wall's clock, seconds (it stops advancing under reduced motion). */
   t: number;
   size: TileSize;
-  /** Canvas size, and its offset in the viewport. */
+  /** Canvas size, and its offset in the viewport. The tiles live in this flat space; the fish-eye is applied when they are shown. */
   vw: number;
   vh: number;
   ox: number;
   oy: number;
   pan: { x: number; y: number };
   vel: { x: number; y: number };
+  /** The pointer in flat wall coordinates (already through `edgeUnwarp`). */
   mouse: { x: number; y: number; inside: boolean };
   /** The tile the keyboard highlight is on, as its column and row indices. */
   kbd: { cx: number; cy: number } | null;

@@ -1,6 +1,7 @@
 import { isDrag, pressIsStale, startsPress } from "../reading/shelf-drag";
 import { columnOffset } from "./wall-math";
 import type { Tile, WallCtx } from "./wall-types";
+import { edgeUnwarp, edgeWarp } from "./wall-warp";
 
 /**
  * The wall's pointer, wheel and keyboard. Touch: a tap opens the video straight away. Fine
@@ -12,6 +13,10 @@ import type { Tile, WallCtx } from "./wall-types";
  * `attachWallInput` decides which events matter (modifier keys, the stage having focus, the loop
  * running); `createWallInput` holds the handler bodies, which read and write the engine's state
  * through the context. Every listener is removed when `signal` aborts.
+ *
+ * The wall is shown through a fish-eye at its borders (wall-warp.ts), so a pointer position is put
+ * through `edgeUnwarp` before it is used to hit or focus a tile; a tile's rectangle for the detail
+ * view to fly from is where its corners show after `edgeWarp`.
  *
  * A press is the primary pointer's, and for a mouse only button 0 (a right-click never opens a
  * video). It is captured from the press, so its release always lands on the stage, and a mouse that
@@ -107,8 +112,25 @@ export function createWallInput(
     }
     return null;
   };
-  const rectOfTile = (tl: Tile) =>
-    new DOMRect(st.ox + tl.cx - tl.w / 2, st.oy + tl.cy - tl.h / 2, tl.w, tl.h);
+  /** A viewport point, in flat wall coordinates. */
+  const toWall = (clientX: number, clientY: number) =>
+    edgeUnwarp(clientX - st.ox, clientY - st.oy, st.vw, st.vh);
+  /** Where the tile shows in the viewport: the box around its warped corners. */
+  const rectOfTile = (tl: Tile) => {
+    const l = tl.cx - tl.w / 2;
+    const t = tl.cy - tl.h / 2;
+    const pts = [
+      edgeWarp(l, t, st.vw, st.vh),
+      edgeWarp(l + tl.w, t, st.vw, st.vh),
+      edgeWarp(l, t + tl.h, st.vw, st.vh),
+      edgeWarp(l + tl.w, t + tl.h, st.vw, st.vh),
+    ];
+    const xs = pts.map((q) => q[0]);
+    const ys = pts.map((q) => q[1]);
+    const x0 = Math.min(...xs);
+    const y0 = Math.min(...ys);
+    return new DOMRect(st.ox + x0, st.oy + y0, Math.max(...xs) - x0, Math.max(...ys) - y0);
+  };
 
   /** Forgets the press: the pointer is up, cancelled, or never had its release. */
   function endPress() {
@@ -166,8 +188,7 @@ export function createWallInput(
     running: ctx.running,
     locked,
     pointerMove(e) {
-      mouse.x = e.clientX - st.ox;
-      mouse.y = e.clientY - st.oy;
+      [mouse.x, mouse.y] = toWall(e.clientX, e.clientY);
       mouse.inside = e.pointerType === "mouse";
       if (mouse.inside) st.kbd = null; // the pointer takes the focus back
       // a mouse moving with no button held has no press: its release went elsewhere
@@ -214,7 +235,8 @@ export function createWallInput(
       endPress();
       if (wasDrag || locked()) return;
       vel.x = vel.y = 0;
-      const tl = hitAt(e.clientX - st.ox, e.clientY - st.oy);
+      const [wx, wy] = toWall(e.clientX, e.clientY);
+      const tl = hitAt(wx, wy);
       if (tl) pick(tl);
     },
     pointerCancel(e) {

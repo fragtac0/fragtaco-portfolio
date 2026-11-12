@@ -15,6 +15,78 @@
  },
  {
   "move": [
+   1400,
+   850
+  ],
+  "wait": 600,
+  "eval": "new Promise(r=>{const t0=performance.now();const c=document.querySelector('.wall-scene .chip');const i=setInterval(()=>{if(c.classList.contains('on')||performance.now()-t0>3000){clearInterval(i);r([c.classList.contains('on'),c.querySelector('b').textContent.slice(0,50)])}},50)})",
+  "label": "corner-chip"
+ },
+ {
+  "click": [
+   1400,
+   850
+  ],
+  "wait": 300,
+  "eval": "[document.querySelector('.vov h3')?.textContent === document.querySelector('.wall-scene .chip b').textContent]",
+  "label": "corner-click-opens-the-hovered-tile"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{if(getComputedStyle(document.querySelector('.vov')).display==='none'||performance.now()-t0>3000){clearInterval(i);r(getComputedStyle(document.querySelector('.vov')).display)}},50)})",
+  "label": "corner-detail-closed"
+ },
+ {
+  "move": [
+   10,
+   10
+  ],
+  "wait": 300,
+  "eval": "new Promise(r=>{const t0=performance.now();const c=document.querySelector('.wall-scene .chip');const i=setInterval(()=>{if(c.classList.contains('on')||performance.now()-t0>3000){clearInterval(i);r([c.classList.contains('on'),c.querySelector('b').textContent.slice(0,50)])}},50)})",
+  "label": "top-left-corner-chip"
+ },
+ {
+  "click": [
+   10,
+   10
+  ],
+  "wait": 300,
+  "eval": "[document.querySelector('.vov h3')?.textContent === document.querySelector('.wall-scene .chip b').textContent, getComputedStyle(document.querySelector('.vov')).display]",
+  "label": "top-left-click-opens"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{if(getComputedStyle(document.querySelector('.vov')).display==='none'||performance.now()-t0>3000){clearInterval(i);r(getComputedStyle(document.querySelector('.vov')).display)}},50)})",
+  "label": "top-left-detail-closed"
+ },
+ {
+  "move": [
+   720,
+   450
+  ],
+  "wait": 900,
+  "shot": "local-r44-warm"
+ },
+ {
+  "shot": "local-r44-wall-hover-centre"
+ },
+ {
+  "move": [
+   1380,
+   60
+  ],
+  "wait": 900,
+  "shot": "local-r44-warm2"
+ },
+ {
+  "shot": "local-r44-wall-hover-corner"
+ },
+ {
+  "move": [
    720,
    450
   ],
