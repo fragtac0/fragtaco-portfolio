@@ -5,8 +5,11 @@
  */
 export const GROUND = "#0e0e0d";
 export const SURFACE_1 = "#171716";
+/** The accent and the cream of tokens.css (`--accent`, and `--cream` under `.home-page`), for the glass front's pictures. */
+export const ACCENT = "#fc4c00";
+export const CREAM = "#fdfce6";
 
-function channels(hex: string): [number, number, number] {
+export function channels(hex: string): [number, number, number] {
   const n = parseInt(hex.slice(1), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }

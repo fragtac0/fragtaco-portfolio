@@ -16,7 +16,7 @@ import { recallPainting } from "./components/home/hero/painting-memory";
 import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
 import GlassFilter from "./components/page-change/glass-filter";
 import { prepareGlassWhenIdle } from "./components/page-change/glass-run";
-import { changePage, pageCommitted, watchHistory, type ChangeKind, type Point } from "./lib/page-change";
+import { changePage, isPageSettled, pageCommitted, watchHistory, type ChangeKind, type Point } from "./lib/page-change";
 import glassHref from "./components/page-change/glass.css?url";
 import pageTransitionHref from "./components/page-transition.css?url";
 import appStylesHref from "./styles/tailwind.css?url";
@@ -103,9 +103,18 @@ export default function App() {
     } catch {
       return;
     }
-    const w = window as { __ftChange?: (to: string, kind?: ChangeKind, origin?: Point) => Promise<void> };
-    w.__ftChange = (to, kind, origin) => changePage(navigate, to, { kind, origin });
-    return () => void delete w.__ftChange;
+    const w = window as {
+      __ftChange?: (to: string, kind?: ChangeKind, origin?: Point) => Promise<void>;
+      __ftSettled?: () => boolean;
+    };
+    // only this site's own paths
+    w.__ftChange = (to, kind, origin) =>
+      to.startsWith("/") && !to.startsWith("//") ? changePage(navigate, to, { kind, origin }) : Promise.resolve();
+    w.__ftSettled = isPageSettled;
+    return () => {
+      delete w.__ftChange;
+      delete w.__ftSettled;
+    };
   }, [navigate]);
 
   return (

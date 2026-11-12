@@ -13,7 +13,7 @@
  * when the transition finishes, is skipped, or fails.
  */
 import type { NavigateFunction } from "@remix-run/react";
-import { GLASS } from "../components/page-change/glass-math";
+import { GLASS, glassVars } from "../components/page-change/glass-math";
 import { startGlass } from "../components/page-change/glass-run";
 import {
   captureNextTransition,
@@ -105,10 +105,11 @@ function mark(html: HTMLElement, plan: ChangePlan) {
   html.style.setProperty("--change-r", `${plan.radius}px`);
   html.style.setProperty("--change-w", `${plan.width}px`);
   html.style.setProperty("--change-ms", `${plan.ms}ms`);
+  for (const [name, value] of Object.entries(glassVars())) html.style.setProperty(name, value);
 }
 function unmark(html: HTMLElement) {
   delete html.dataset.changeKind;
-  for (const name of ["--change-x", "--change-y", "--change-r", "--change-w", "--change-ms"]) html.style.removeProperty(name);
+  for (const name of ["--change-x", "--change-y", "--change-r", "--change-w", "--change-ms", ...Object.keys(glassVars())]) html.style.removeProperty(name);
 }
 
 /**

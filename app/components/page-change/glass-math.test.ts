@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bendAt, easeGlass, frontAt, GLASS, GLASS_EASING, isChromium } from "./glass-math";
+import { bendAt, easeGlass, frontAt, GLASS, GLASS_EASING, glassVars, isChromium, REACH, WARP } from "./glass-math";
 
 const radial = { kind: "radial", radius: 1000, width: 1440 };
 const linear = { kind: "linear-right", radius: 1100, width: 1440 };
@@ -51,8 +51,8 @@ describe("frontAt", () => {
     expect(start.radius).toBe(0);
     expect(start.bend).toBe(0);
     const end = frontAt(1, radial);
-    // the opaque side of the soft edge (radius times 1 - band) has reached the farthest corner
-    expect((end.radius ?? 0) * (1 - GLASS.band)).toBeCloseTo(radial.radius, 5);
+    // the opaque side of the soft, wandering edge (radius times 1 - band - warp) has reached the farthest corner
+    expect((end.radius ?? 0) * (1 - GLASS.band - WARP)).toBeCloseTo(radial.radius, 5);
     expect(end.bend).toBe(0);
     expect(end.pos).toBeUndefined();
   });
@@ -66,7 +66,7 @@ describe("frontAt", () => {
     }
   });
   it("runs a linear front from just off the near edge to just past the far one", () => {
-    const w = GLASS.band * linear.width;
+    const w = (GLASS.band + WARP) * linear.width;
     expect(frontAt(0, linear).pos).toBeCloseTo(-w);
     expect(frontAt(1, linear).pos).toBeCloseTo(linear.width + w);
     expect(frontAt(0.5, linear).radius).toBeUndefined();
@@ -76,6 +76,25 @@ describe("frontAt", () => {
   it("has the bend at full strength while the front crosses the screen", () => {
     expect(frontAt(0.2, radial).bend).toBe(1);
     expect(frontAt(0.3, linear).bend).toBe(1);
+  });
+});
+
+describe("glassVars", () => {
+  it("gives glass.css every constant, derived from the same ones the front and the pictures use", () => {
+    const v = glassVars();
+    expect(v["--change-band"]).toBe(String(GLASS.band));
+    expect(v["--change-warp"]).toBe(String(WARP));
+    const lead = GLASS.band + WARP;
+    expect(Number(v["--change-lead"])).toBeCloseTo(lead, 6);
+    expect(Number(v["--change-span"])).toBeCloseTo(1 + 2 * lead, 6);
+    expect(Number(v["--change-travel"])).toBeCloseTo(1 / (1 - lead), 6);
+    expect(Number(v["--change-reach"])).toBeCloseTo(1 + REACH * GLASS.band, 6);
+    expect(v["--change-ease"]).toBe(GLASS_EASING);
+  });
+  it("agrees with frontAt: the radius at the end is the farthest corner times the travel; the linear end is the span less the lead", () => {
+    const v = glassVars();
+    expect(frontAt(1, radial).radius).toBeCloseTo(radial.radius * Number(v["--change-travel"]), 1);
+    expect(frontAt(1, linear).pos).toBeCloseTo((Number(v["--change-span"]) - Number(v["--change-lead"])) * linear.width, 1);
   });
 });
 

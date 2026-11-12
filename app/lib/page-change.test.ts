@@ -143,6 +143,9 @@ describe("changePage", () => {
     expect(env.html.dataset.changeKind).toBe("radial");
     expect(env.props.get("--change-x")).toBe("10px");
     expect(env.props.get("--change-y")).toBe("20px");
+    // the glass numbers glass.css reads, from glass-math.ts
+    expect(env.props.get("--change-band")).toBe("0.07");
+    expect(env.props.get("--change-ease")).toBe("cubic-bezier(0.3, 0.7, 0.2, 1)");
     expect(isPageSettled()).toBe(false);
     r.dataArrives();
     await tick();

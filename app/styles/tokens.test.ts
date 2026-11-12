@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { GROUND, SURFACE_1, glslVec3, rgba } from "./tokens";
+import { ACCENT, CREAM, GROUND, SURFACE_1, glslVec3, rgba } from "./tokens";
 
 const css = readFileSync(new URL("./tokens.css", import.meta.url), "utf8");
 const token = (name: string) => new RegExp(`${name}:\\s*(#[0-9a-f]{6});`, "i").exec(css)?.[1];
@@ -9,6 +9,8 @@ describe("tokens.ts", () => {
   it("repeats the grounds of tokens.css exactly", () => {
     expect(token("--ground")).toBe(GROUND);
     expect(token("--surface-1")).toBe(SURFACE_1);
+    expect(token("--accent")).toBe(ACCENT);
+    expect(token("--cream")).toBe(CREAM);
   });
 
   it("writes a hex colour as a canvas colour with an opacity", () => {

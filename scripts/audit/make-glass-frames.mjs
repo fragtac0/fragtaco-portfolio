@@ -12,7 +12,7 @@ import { writeFileSync } from "node:fs";
 const init = `
 try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}
 window.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();
- const iv=setInterval(()=>{const as=document.getAnimations();if(as.length>=3||performance.now()-t0>4000){clearInterval(iv);
+ const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);
   setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});
 window.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}
  const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);

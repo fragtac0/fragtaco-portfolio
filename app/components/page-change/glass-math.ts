@@ -4,8 +4,8 @@
  * front does in `home/hero/paint-shaders.ts`: a soft edge about 7% of the travel wide, and just at the
  * edge the picture bends as though seen through thick glass.
  *
- * glass.css draws the reveal and the thin line from one number, `--glass-p`, which is the eased
- * progress this module computes with the same curve (`GLASS_EASING`), so the two stay together.
+ * glass.css draws the reveal and the line from one number, `--glass-p`, the eased progress, which a CSS
+ * animation with the same curve (`GLASS_EASING`) runs; this module computes the same front for the bend.
  */
 
 export const GLASS = {
@@ -20,9 +20,36 @@ export const GLASS = {
 /** How far the displacement map reaches past the front, in half-bands (a Gaussian of one half-band is 0.01 at three). */
 export const REACH = 3;
 
+/**
+ * How far the front's edge wanders from a perfect circle or line, as a share of the travel (the radius, or the
+ * screen width). The painting wanders 17% of its half-diagonal; the page change keeps it subtle.
+ */
+export const WARP = 0.03;
+
 /** The change's easing, spec 5.1. The same four numbers as `GLASS_EASING` below. */
 const CURVE = [0.3, 0.7, 0.2, 1] as const;
 export const GLASS_EASING = `cubic-bezier(${CURVE.join(", ")})`;
+
+/**
+ * The numbers glass.css needs, as the custom properties page-change.ts puts on <html> while a change runs, so the
+ * mask, the line and the bend map all come from one place (`GLASS`, `WARP`, `REACH`, `GLASS_EASING`):
+ * `lead` is how far past the screen the front's soft edge and wander must go to start and end off it; `span` the
+ * travel of a linear front in widths; `travel` the radial front's final radius in farthest-corner distances;
+ * `reach` how far the pictures reach past the front, in fronts (radial) or one plus widths (linear).
+ */
+export function glassVars(): Record<string, string> {
+  const lead = GLASS.band + WARP;
+  const n = (v: number) => String(+v.toFixed(6));
+  return {
+    "--change-band": n(GLASS.band),
+    "--change-warp": n(WARP),
+    "--change-lead": n(lead),
+    "--change-span": n(1 + 2 * lead),
+    "--change-travel": n(1 / (1 - lead)),
+    "--change-reach": n(1 + REACH * GLASS.band),
+    "--change-ease": GLASS_EASING,
+  };
+}
 
 /** The slice of a change plan the front needs (page-change.ts's `ChangePlan` has these fields). */
 export interface FrontPlan {
@@ -71,15 +98,15 @@ export interface Front {
 
 /**
  * Where the front is, and how strong the bend is, `t` of the way through the change (0..1, time).
- * The radial front ends when its opaque side (radius times 1 minus the band) has passed the farthest
- * corner; the linear one, when its soft edge has left the far side.
+ * The radial front ends when the opaque side of its soft, wandering edge (radius times 1 minus the band and the
+ * wander) has passed the farthest corner; the linear one, when the same has left the far side.
  */
 export function frontAt(t: number, plan: FrontPlan): Front {
   const p = easeGlass(t);
   const bend = bendAt(p);
-  if (plan.kind === "radial") return { radius: (p * plan.radius) / (1 - GLASS.band), bend };
-  const w = GLASS.band * plan.width;
-  return { pos: -w + p * (plan.width + 2 * w), bend };
+  const lead = GLASS.band + WARP;
+  if (plan.kind === "radial") return { radius: (p * plan.radius) / (1 - lead), bend };
+  return { pos: (-lead + p * (1 + 2 * lead)) * plan.width, bend };
 }
 
 /** The bend (an SVG displacement filter on the view transition's pictures) is only used in Chromium browsers; others get the reveal and the line alone. */
