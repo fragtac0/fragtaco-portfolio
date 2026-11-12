@@ -1,5 +1,6 @@
 // Drawing for the timeline canvas: everything that puts pixels down, given the state to draw. No
 // timers, events or DOM reads here (the canvas context is handed in); `timeline-canvas.ts` decides when.
+import { GROUND, rgba } from "../../styles/tokens";
 import { detailLevel, type View } from "./timeline-math";
 import { edgeJitter, fillOf, inkOf, stairPath, type TimelineModel } from "./timeline-model";
 
@@ -173,7 +174,7 @@ function drawRings(ctx: CanvasRenderingContext2D, st: DrawState, only: Set<numbe
     const x = st.view.x + (i % st.cols) * s;
     const y = st.view.y + Math.floor(i / st.cols) * s;
     const o = Math.max(1, s * INSET * 0.5);
-    ctx.strokeStyle = "rgba(5, 4, 3, 0.9)";
+    ctx.strokeStyle = rgba(GROUND, 0.9);
     ctx.lineWidth = 4;
     ctx.strokeRect(x + o, y + o, s - o * 2, s - o * 2);
     ctx.strokeStyle = "#fdfce6";
@@ -222,7 +223,7 @@ function drawEdgeLabel(
   const stuck = side === "left" ? x < 6 : x + w > st.vw - 6;
   if (stuck) {
     x = side === "left" ? 6 : st.vw - 6 - w;
-    ctx.fillStyle = "rgba(5, 4, 3, 0.82)";
+    ctx.fillStyle = rgba(GROUND, 0.82);
     ctx.fillRect(x - 3, y - size * 0.7, w + 6, size * 1.4);
   }
   ctx.textAlign = "left";

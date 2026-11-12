@@ -1,0 +1,172 @@
+/* The liquid-glass page change (spec 5). While a change runs, app/lib/page-change.ts marks <html> with
+ * data-change-kind (radial | linear-left | linear-right | fade), the origin and size (--change-x, --change-y,
+ * --change-r = farthest corner, --change-w = viewport width, --change-ms) and the numbers from glass-math.ts's
+ * glassVars() (--change-band, -warp, -lead, -span, -travel, -reach, -ease), so nothing below repeats a constant.
+ *
+ * The reveal runs on its own, in CSS: a CSS animation drives --glass-p (the eased progress, 0 to 1) on each pseudo-element
+ * that uses it, and everything is a function of that number. The new page is drawn over the old one under a mask whose edge
+ * is soft (band of the travel each side) and, once glass-run.ts has made the pictures (data-glass-edge), wanders a little
+ * (warp), like the painting's front. The line is the same edge, in the group of a named, empty full-screen element
+ * ([data-glass-line]), above the pictures so the bend never smears it. Without the pictures the mask is a plain gradient
+ * and the line a plain gradient.
+ * If glass-run.ts finds the animation not running, or anything throws, it sets data-glass-fallback and the plain UA
+ * crossfade takes over (every rule here is off under it). */
+@property --glass-p {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+@keyframes glass-p {
+  from { --glass-p: 0; }
+  to { --glass-p: 1; }
+}
+
+/* ---- the pictures: new over old, no UA cross-fade; the new one's animation also keeps the transition alive */
+html:is([data-change-kind="radial"], [data-change-kind^="linear"]):not([data-glass-fallback])::view-transition-group(root) {
+  animation-duration: var(--change-ms);
+}
+html:is([data-change-kind="radial"], [data-change-kind^="linear"]):not([data-glass-fallback])::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html:is([data-change-kind="radial"], [data-change-kind^="linear"]):not([data-glass-fallback])::view-transition-new(root),
+html:is([data-change-kind="radial"], [data-change-kind^="linear"]):not([data-glass-fallback])::view-transition-group(glass-line) {
+  animation: glass-p var(--change-ms) var(--change-ease) forwards;
+}
+html:is([data-change-kind="radial"], [data-change-kind^="linear"]):not([data-glass-fallback])::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+/* where the front's middle is: a radius (radial) or a distance from the edge it starts at (linear) */
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root),
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+  --glass-front: calc(var(--glass-p) * var(--change-r) * var(--change-travel));
+}
+html[data-change-kind^="linear"]:not([data-glass-fallback])::view-transition-new(root),
+html[data-change-kind^="linear"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+  --glass-front: calc((var(--glass-p) * var(--change-span) - var(--change-lead)) * var(--change-w));
+  /* how far the pictures reach either side of the front */
+  --glass-wt: calc((var(--change-reach) - 1) * var(--change-w));
+}
+
+/* ---- the reveal, as gradients */
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root) {
+  mask-image: radial-gradient(
+    circle at var(--change-x) var(--change-y),
+    #000 calc(var(--glass-front) * (1 - var(--change-band))),
+    transparent calc(var(--glass-front) * (1 + var(--change-band)))
+  );
+}
+html[data-change-kind="linear-right"]:not([data-glass-fallback])::view-transition-new(root) {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(var(--glass-front) - var(--change-band) * var(--change-w)),
+    transparent calc(var(--glass-front) + var(--change-band) * var(--change-w))
+  );
+}
+html[data-change-kind="linear-left"]:not([data-glass-fallback])::view-transition-new(root) {
+  mask-image: linear-gradient(
+    to left,
+    #000 calc(var(--glass-front) - var(--change-band) * var(--change-w)),
+    transparent calc(var(--glass-front) + var(--change-band) * var(--change-w))
+  );
+}
+
+/* ---- the reveal, with the pictures (glass-run.ts sets data-glass-edge and adds the mask-image and background-image rules) */
+html[data-glass-edge][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root) {
+  --glass-reach: calc(var(--glass-front) * var(--change-reach));
+  mask-repeat: no-repeat;
+  mask-size: calc(2 * var(--glass-reach)) calc(2 * var(--glass-reach));
+  mask-position: calc(var(--change-x) - var(--glass-reach)) calc(var(--change-y) - var(--glass-reach));
+}
+/* a strip across the front, and a plain layer for everything behind it */
+html[data-glass-edge][data-change-kind^="linear"]:not([data-glass-fallback])::view-transition-new(root) {
+  mask-repeat: no-repeat;
+  mask-size: calc(2 * var(--glass-wt)) 100%, max(0px, calc(var(--glass-front) - var(--glass-wt))) 100%;
+}
+html[data-glass-edge][data-change-kind="linear-right"]:not([data-glass-fallback])::view-transition-new(root) {
+  mask-position: calc(var(--glass-front) - var(--glass-wt)) 0, 0 0;
+}
+html[data-glass-edge][data-change-kind="linear-left"]:not([data-glass-fallback])::view-transition-new(root) {
+  mask-position: calc(var(--change-w) - var(--glass-front) - var(--glass-wt)) 0, 100% 0;
+}
+
+/* ---- the bend: the SVG filter on the picture pair (glass-filter.tsx), only when glass-run.ts has switched it on */
+html[data-glass="bend"][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-image-pair(root) {
+  filter: url("#ft-glass-radial");
+}
+html[data-glass="bend"][data-change-kind^="linear"]:not([data-glass-fallback])::view-transition-image-pair(root) {
+  filter: url("#ft-glass-linear");
+}
+
+/* ---- the line: an empty full-screen element with its own name, so its group (a box the size of the screen) can draw it */
+[data-glass-line] {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+html:is([data-change-kind="radial"], [data-change-kind^="linear"]):not([data-glass-fallback]) [data-glass-line] {
+  view-transition-name: glass-line;
+}
+/* it fades in over the first 8% of the progress and out over the last 20%, as the bend does */
+html:is([data-change-kind="radial"], [data-change-kind^="linear"]):not([data-glass-fallback])::view-transition-group(glass-line) {
+  opacity: clamp(0, min(var(--glass-p) / 0.08, (1 - var(--glass-p)) / 0.2), 1);
+  background-repeat: no-repeat;
+  --glass-cream: color-mix(in srgb, var(--ink-1) 70%, transparent);
+  --glass-glow: color-mix(in srgb, var(--ink-1) 10%, transparent);
+  --glass-fringe: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+  background-image: radial-gradient(
+    circle at var(--change-x) var(--change-y),
+    transparent calc(var(--glass-front) - 14px),
+    var(--glass-glow) calc(var(--glass-front) - 4px),
+    var(--glass-cream) calc(var(--glass-front) - 0.8px),
+    var(--glass-cream) calc(var(--glass-front) + 0.8px),
+    var(--glass-fringe) calc(var(--glass-front) + 4px),
+    transparent calc(var(--glass-front) + 10px)
+  );
+}
+html[data-change-kind="linear-right"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+  background-image: linear-gradient(
+    to right,
+    transparent calc(var(--glass-front) - 14px),
+    var(--glass-glow) calc(var(--glass-front) - 4px),
+    var(--glass-cream) calc(var(--glass-front) - 0.8px),
+    var(--glass-cream) calc(var(--glass-front) + 0.8px),
+    var(--glass-fringe) calc(var(--glass-front) + 4px),
+    transparent calc(var(--glass-front) + 10px)
+  );
+}
+html[data-change-kind="linear-left"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+  background-image: linear-gradient(
+    to left,
+    transparent calc(var(--glass-front) - 14px),
+    var(--glass-glow) calc(var(--glass-front) - 4px),
+    var(--glass-cream) calc(var(--glass-front) - 0.8px),
+    var(--glass-cream) calc(var(--glass-front) + 0.8px),
+    var(--glass-fringe) calc(var(--glass-front) + 4px),
+    transparent calc(var(--glass-front) + 10px)
+  );
+}
+html[data-glass-edge][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+  --glass-reach: calc(var(--glass-front) * var(--change-reach));
+  background-size: calc(2 * var(--glass-reach)) calc(2 * var(--glass-reach));
+  background-position: calc(var(--change-x) - var(--glass-reach)) calc(var(--change-y) - var(--glass-reach));
+}
+html[data-glass-edge][data-change-kind^="linear"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+  background-size: calc(2 * var(--glass-wt)) 100%;
+}
+html[data-glass-edge][data-change-kind="linear-right"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+  background-position: calc(var(--glass-front) - var(--glass-wt)) 0;
+}
+html[data-glass-edge][data-change-kind="linear-left"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+  background-position: calc(var(--change-w) - var(--glass-front) - var(--glass-wt)) 0;
+}
+::view-transition-old(glass-line) {
+  display: none;
+}
+::view-transition-new(glass-line) {
+  animation: none;
+  mix-blend-mode: normal;
+}

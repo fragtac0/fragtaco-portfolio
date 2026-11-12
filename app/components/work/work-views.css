@@ -317,7 +317,7 @@
   z-index: var(--z-dock);
   padding: 10px 16px;
   border-radius: 999px;
-  background: #050403;
+  background: var(--ground);
   border: 1px solid rgba(245, 239, 230, 0.4);
   color: var(--ink-1);
   font-size: var(--t-meta);

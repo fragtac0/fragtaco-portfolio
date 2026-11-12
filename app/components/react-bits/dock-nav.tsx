@@ -65,7 +65,7 @@ function DockNavItem({ item, isActive, pathname, onClick }: DockNavItemProps) {
       {isActive ? (
         <motion.span
           layoutId="dock-active-pill"
-          className="absolute inset-0 -z-10 rounded-full border border-accent/40 bg-accent/[0.16] shadow-[inset_0_1px_0_rgba(255,236,214,0.18),0_8px_24px_rgba(252,76,0,0.2)]"
+          className="absolute inset-0 -z-10 rounded-full border border-accent/40 bg-[var(--accent-soft)] shadow-[inset_0_1px_0_rgba(255,236,214,0.18),var(--glow)]"
           transition={{ type: "spring", stiffness: 360, damping: 32, mass: 0.35 }}
         />
       ) : null}

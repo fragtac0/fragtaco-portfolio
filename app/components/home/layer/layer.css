@@ -5,7 +5,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-layer);
-  background: #050403;
+  background: var(--ground);
   color: var(--cream);
   font-family: "IBM Plex Mono", ui-monospace, monospace;
   transition: clip-path 0.66s cubic-bezier(0.7, 0, 0.2, 1);
@@ -30,7 +30,7 @@
   padding: clamp(28px, 4vw, 56px) clamp(24px, 4.5vw, 72px) 22px;
   pointer-events: none;
   /* a dark fade behind the title and Close, so books and videos passing under it stay readable */
-  background: linear-gradient(180deg, rgba(5, 4, 3, 0.92), rgba(5, 4, 3, 0.6) 60%, rgba(5, 4, 3, 0));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ground) 92%, transparent), color-mix(in srgb, var(--ground) 60%, transparent) 60%, var(--ground-clear));
 }
 .home-layer .xp-head > * {
   pointer-events: auto;
@@ -71,7 +71,7 @@
   border-radius: 999px;
   border: 0;
   outline: 1px solid rgba(253, 252, 230, 0.22);
-  background: rgba(5, 4, 3, 0.72);
+  background: color-mix(in srgb, var(--ground) 72%, transparent);
   color: inherit;
   font: inherit;
   cursor: pointer;
@@ -100,10 +100,10 @@
   display: none;
 }
 .home-layer .pane-read {
-  background: radial-gradient(52% 46% at 50% 42%, #53382a 0%, #33221a 40%, #150e0a 74%, #060403 100%);
+  background: radial-gradient(52% 46% at 50% 42%, var(--surface-2) 0%, var(--surface-1) 45%, var(--ground) 100%);
 }
 .home-layer .pane-watch {
-  background: radial-gradient(75% 65% at 50% 46%, #17110c 0%, #0a0705 60%, #050403 100%);
+  background: radial-gradient(75% 65% at 50% 46%, var(--surface-1) 0%, var(--ground) 80%);
 }
 .home-layer .stage {
   position: absolute;
@@ -221,7 +221,7 @@ html.locked body {
   width: 100%;
   object-fit: cover;
   border-radius: 6px;
-  background: #1a1410;
+  background: var(--surface-1);
   box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.7);
 }
 .home-layer .fb-thumb {
@@ -258,5 +258,5 @@ html.locked body {
   color: var(--ink-3);
 }
 .home-layer .fb-item:hover .fb-title {
-  color: var(--accent, #fc4c00);
+  color: var(--accent);
 }

@@ -123,7 +123,7 @@ html.intro .home-hero .name-big span {
     filter: blur(6px);
   }
 }
-/* the second drop-shadow is the glow: warm, wide and faint */
+/* the second drop-shadow is the glow: cream, 22 px and faint */
 .home-hero .logo {
   position: absolute;
   inset: 0;
@@ -131,7 +131,7 @@ html.intro .home-hero .name-big span {
   height: 100%;
   overflow: hidden;
   fill: var(--cream);
-  filter: drop-shadow(0 6px 26px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 22px rgba(255, 190, 140, 0.2));
+  filter: drop-shadow(0 6px 26px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 22px rgba(253, 252, 230, 0.14));
 }
 .home-hero .logo .gw,
 .home-hero .logo .gl {

@@ -1,0 +1,214 @@
+[
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "phone-radial-00 (t=0.03)",
+  "eval": "__hold('/work','radial',0.03,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-00-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-00"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "phone-radial-01 (t=0.06)",
+  "eval": "__hold('/work','radial',0.06,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-01-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-01"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "phone-radial-02 (t=0.1)",
+  "eval": "__hold('/work','radial',0.1,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-02-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-02"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "phone-radial-03 (t=0.14)",
+  "eval": "__hold('/work','radial',0.14,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-03-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-03"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "phone-radial-04 (t=0.19)",
+  "eval": "__hold('/work','radial',0.19,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-04-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-04"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "phone-radial-05 (t=0.25)",
+  "eval": "__hold('/work','radial',0.25,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-05-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-05"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "phone-radial-06 (t=0.33)",
+  "eval": "__hold('/work','radial',0.33,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-06-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-06"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "phone-radial-07 (t=0.45)",
+  "eval": "__hold('/work','radial',0.45,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-07-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-07"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "phone-radial-08 (t=0.65)",
+  "eval": "__hold('/work','radial',0.65,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-08-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-08"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ },
+ {
+  "label": "phone-radial-09 (t=0.9)",
+  "eval": "__hold('/work','radial',0.9,150,790)"
+ },
+ {
+  "wait": 120,
+  "shot": "phone-radial-09-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "phone-radial-09"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "return",
+  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+ }
+]

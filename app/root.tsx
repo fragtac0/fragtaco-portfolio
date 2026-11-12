@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
+  useNavigate,
   useRouteLoaderData,
 } from "@remix-run/react";
 import { useEffect, useLayoutEffect, type PropsWithChildren } from "react";
@@ -13,7 +14,10 @@ import PageViewTracker from "./components/page-view-tracker";
 import { preloadImage } from "./components/home/hero/painting-cycle";
 import { recallPainting } from "./components/home/hero/painting-memory";
 import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
-import { pageCommitted, watchHistory } from "./lib/page-change";
+import GlassFilter from "./components/page-change/glass-filter";
+import { prepareGlassWhenIdle } from "./components/page-change/glass-run";
+import { changePage, isPageSettled, pageCommitted, watchHistory, type ChangeKind, type Point } from "./lib/page-change";
+import glassHref from "./components/page-change/glass.css?url";
 import pageTransitionHref from "./components/page-transition.css?url";
 import appStylesHref from "./styles/tailwind.css?url";
 import tokensHref from "./styles/tokens.css?url";
@@ -37,6 +41,7 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: appStylesHref },
   { rel: "stylesheet", href: tokensHref },
   { rel: "stylesheet", href: pageTransitionHref },
+  { rel: "stylesheet", href: glassHref },
 ];
 
 export const meta: MetaFunction = () => [
@@ -88,9 +93,35 @@ export default function App() {
   useLayoutEffect(() => pageCommitted(pathname), [key, pathname]);
   // Back and Forward get the same change as a click.
   useEffect(() => watchHistory(), []);
+  // The glass front's bend needs two small pictures; make them once the first page is up.
+  useEffect(() => prepareGlassWhenIdle(), []);
+  // A test hook for the audit scripts (set sessionStorage "ft:debug-change" to "1"): runs a page change of any kind.
+  const navigate = useNavigate();
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("ft:debug-change") !== "1") return;
+    } catch {
+      return;
+    }
+    const w = window as {
+      __ftChange?: (to: string, kind?: ChangeKind, origin?: Point) => Promise<void>;
+      __ftSettled?: () => boolean;
+    };
+    // only this site's own paths
+    w.__ftChange = (to, kind, origin) =>
+      to.startsWith("/") && !to.startsWith("//") ? changePage(navigate, to, { kind, origin }) : Promise.resolve();
+    w.__ftSettled = isPageSettled;
+    return () => {
+      delete w.__ftChange;
+      delete w.__ftSettled;
+    };
+  }, [navigate]);
 
   return (
     <>
+      {/* first in the page, so the change's line sits below the dock; see page-change/glass.css */}
+      <div data-glass-line aria-hidden="true" />
+      <GlassFilter />
       <PageViewTracker />
       <Outlet />
     </>

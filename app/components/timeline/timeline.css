@@ -1,5 +1,5 @@
 /*
- * The timeline page. A fixed stage like /work: the dark ground (WorkBackground at half strength) with one
+ * The timeline page. A fixed stage like /work: the dark ground (WorkBackground) with one
  * full-screen canvas on it, the gilt label block at the top left, the roles under it, the zoom buttons at
  * the right and the dock below. The canvas draws everything else (timeline-canvas.ts); nothing here
  * animates. Type, ink and layers come from app/styles/tokens.css. Spec: docs/superpowers/specs/2026-11-11-polish-and-work-page-design.md, 5.
@@ -106,7 +106,7 @@
   margin: 8px 0 0;
   padding: 14px 16px;
   list-style: none;
-  background: rgba(5, 4, 3, 0.9); /* keeps the roles readable when the grid is zoomed under them */
+  background: color-mix(in srgb, var(--ground) 90%, transparent); /* keeps the roles readable when the grid is zoomed under them */
   border: 1px solid rgba(253, 252, 230, 0.16);
 }
 .tl-role {
@@ -147,7 +147,7 @@
   padding: 0;
   border: 1px solid rgba(253, 252, 230, 0.28);
   border-radius: 50%;
-  background: rgba(5, 4, 3, 0.7);
+  background: color-mix(in srgb, var(--ground) 70%, transparent);
   color: var(--ink-1);
   font: 600 var(--t-meta) / 1 "IBM Plex Mono", monospace;
   cursor: pointer;
@@ -167,7 +167,7 @@
   max-width: min(280px, calc(100vw - 16px));
   padding: 8px 12px;
   border: 1px solid rgba(253, 252, 230, 0.28);
-  background: rgba(5, 4, 3, 0.92);
+  background: color-mix(in srgb, var(--ground) 92%, transparent);
   color: var(--ink-1);
   font-size: var(--t-meta);
   line-height: 1.35;

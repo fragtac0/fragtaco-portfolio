@@ -1,0 +1,248 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 8000
+ },
+ {
+  "wait": 300,
+  "shot": "hero-warm"
+ },
+ {
+  "shot": "hero"
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39,
+  "wait": 1800
+ },
+ {
+  "wait": 300,
+  "shot": "card-intro-warm"
+ },
+ {
+  "shot": "card-intro"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37,
+  "wait": 1800
+ },
+ {
+  "wait": 300,
+  "shot": "card-credits-warm"
+ },
+ {
+  "shot": "card-credits"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "eval": "document.getElementById('below').scrollIntoView(); new Promise(r=>setTimeout(()=>r(scrollY),2000))",
+  "label": "scrolled",
+  "wait": 300
+ },
+ {
+  "wait": 300,
+  "shot": "local-blocks-warm"
+ },
+ {
+  "shot": "local-blocks"
+ },
+ {
+  "move": [
+   420,
+   450
+  ],
+  "wait": 900
+ },
+ {
+  "wait": 300,
+  "shot": "local-blocks-hover-warm"
+ },
+ {
+  "shot": "local-blocks-hover"
+ },
+ {
+  "move": [
+   720,
+   20
+  ],
+  "eval": "document.querySelector('[data-xp=reading]').click(); new Promise(r=>setTimeout(()=>r(1),9000))"
+ },
+ {
+  "wait": 300,
+  "shot": "local-shelf-warm"
+ },
+ {
+  "shot": "local-shelf"
+ },
+ {
+  "eval": "document.querySelector('.xp-close')?.click(); new Promise(r=>setTimeout(()=>r(1),2500))"
+ },
+ {
+  "eval": "document.querySelector('[data-xp=watching]').click(); new Promise(r=>setTimeout(()=>r(1),9000))"
+ },
+ {
+  "wait": 300,
+  "shot": "local-wall-warm"
+ },
+ {
+  "shot": "local-wall"
+ },
+ {
+  "move": [
+   700,
+   470
+  ],
+  "eval": "new Promise(r=>setTimeout(()=>r(1),1500))"
+ },
+ {
+  "wait": 300,
+  "shot": "local-wall-hover-warm"
+ },
+ {
+  "shot": "local-wall-hover"
+ },
+ {
+  "go": "{{BASE}}/work",
+  "wait": 5000
+ },
+ {
+  "wait": 300,
+  "shot": "work-warm"
+ },
+ {
+  "shot": "work"
+ },
+ {
+  "go": "{{BASE}}/timeline",
+  "wait": 4000
+ },
+ {
+  "wait": 300,
+  "shot": "timeline-warm"
+ },
+ {
+  "shot": "timeline"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/",
+  "wait": 8000
+ },
+ {
+  "shot": "m-hero-warm"
+ },
+ {
+  "shot": "m-hero"
+ },
+ {
+  "tap": [
+   384,
+   420
+  ],
+  "wait": 1800
+ },
+ {
+  "shot": "m-card-intro-warm"
+ },
+ {
+  "shot": "m-card-intro"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "tap": [
+   6,
+   420
+  ],
+  "wait": 1800
+ },
+ {
+  "shot": "m-card-credits-warm"
+ },
+ {
+  "shot": "m-card-credits"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "eval": "document.getElementById('below').scrollIntoView(); new Promise(r=>setTimeout(()=>r(scrollY),2000))",
+  "label": "scrolled"
+ },
+ {
+  "shot": "local-m-blocks-warm"
+ },
+ {
+  "shot": "local-m-blocks"
+ },
+ {
+  "eval": "document.querySelector('[data-xp=reading]').click(); new Promise(r=>setTimeout(()=>r(1),9000))"
+ },
+ {
+  "shot": "local-m-shelf-warm"
+ },
+ {
+  "shot": "local-m-shelf"
+ },
+ {
+  "eval": "document.querySelector('.xp-close')?.click(); new Promise(r=>setTimeout(()=>r(1),2500))"
+ },
+ {
+  "eval": "document.querySelector('[data-xp=watching]').click(); new Promise(r=>setTimeout(()=>r(1),9000))"
+ },
+ {
+  "shot": "local-m-wall-warm"
+ },
+ {
+  "shot": "local-m-wall"
+ },
+ {
+  "go": "{{BASE}}/work",
+  "wait": 5000
+ },
+ {
+  "shot": "m-work-warm"
+ },
+ {
+  "shot": "m-work"
+ },
+ {
+  "go": "{{BASE}}/timeline",
+  "wait": 4000
+ },
+ {
+  "shot": "m-timeline-warm"
+ },
+ {
+  "shot": "m-timeline"
+ }
+]

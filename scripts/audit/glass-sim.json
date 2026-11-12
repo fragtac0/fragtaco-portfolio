@@ -1,0 +1,66 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__watch=async(to,kind)=>{const h=document.documentElement,rows=[];const t0=performance.now();__ftChange(to,kind,{x:676,y:846});for(let i=0;i<120;i++){await new Promise(r=>setTimeout(r,40));const cs=getComputedStyle(h,'::view-transition-new(root)');rows.push([Math.round(performance.now()-t0),h.dataset.changeKind||'-',cs.getPropertyValue('--glass-p')||'?',h.dataset.glass||'-',h.dataset.glassEdge!==undefined?'edge':'-',h.dataset.glassFallback!==undefined?'FALLBACK':'-',(document.getElementById('ft-glass-ring-push')||{getAttribute(){return '?'}}).getAttribute('scale')]);if(!h.dataset.changeKind&&i>5)break}return rows.filter((r,i)=>i%2===0||!r[1]||r[1]==='-').slice(0,24).map(r=>r.join(' ')).join(' | ')};",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "normal: p rises, bend on, no fallback",
+  "eval": "__watch('/work','radial')"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "Document.getAnimations empty (the animation cannot be seen): the check cannot confirm it and falls back to the crossfade within about 10 frames, no hang",
+  "eval": "(()=>{Element.prototype.animate=function(){throw new Error('off')};Document.prototype.getAnimations=()=>[];return __watch('/','radial')})()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "CSS.registerProperty missing: falls back to the crossfade, change ends",
+  "eval": "(()=>{delete CSS.registerProperty;return __watch('/work','linear-right')})()"
+ },
+ {
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "the CSS animation never runs (killed by a rule): the check sees --glass-p stay 0 and falls back at about 90 ms; the mask is gone",
+  "eval": "(async()=>{await new Promise(r=>setTimeout(r,200));const s=document.createElement('style');s.textContent='html::view-transition-new(root){animation:none!important}';document.head.appendChild(s);const h=document.documentElement;__ftChange('/','radial',{x:676,y:846});const seen=[];const pre=[];for(let i=0;i<30;i++){await new Promise(r=>setTimeout(r,40));seen.push((h.dataset.glassFallback!==undefined?'FB':'-')+':'+getComputedStyle(h,'::view-transition-new(root)').maskImage.slice(0,12))}s.remove();return [...new Set(seen)].join(' | ')})()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "WebKit-like: the pseudo-element's computed style gives no custom-property value; the animation advances, so it still counts as running (no fallback)",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "computed value empty: no fallback",
+  "eval": "(()=>{const g=window.getComputedStyle.bind(window);window.getComputedStyle=(el,ps)=>ps?{getPropertyValue:()=>'',maskImage:''}:g(el,ps);return __watch('/work','radial').then(r=>{window.getComputedStyle=g;return r})})()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "setup: the radial edge step fails (toDataURL throws for the 384 px line picture)",
+  "init": "{const o=HTMLCanvasElement.prototype.toDataURL;HTMLCanvasElement.prototype.toDataURL=function(...a){if(this.width===384)throw new Error('the radial line picture fails');return o.apply(this,a)}}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "the other pictures are made anyway; a radial change uses the gradient reveal and the bend, a linear one the pictures",
+  "eval": "(async()=>{const styles=[...document.querySelectorAll('style[data-glass-pictures]')].map(s=>/radial/.test(s.textContent)?'radial':'linear');const bendHref=!!document.getElementById('ft-glass-ring')?.getAttribute('href')&&!!document.getElementById('ft-glass-strip')?.getAttribute('href');const a=await __watch('/work','radial');await new Promise(r=>setTimeout(r,1200));const b=await __watch('/','linear-right');return JSON.stringify({pictureStyles:styles,bendMapsBoth:bendHref,radial:a.slice(0,200),linear:b.slice(0,200)})})()"
+ }
+]

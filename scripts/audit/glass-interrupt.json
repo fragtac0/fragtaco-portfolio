@@ -1,0 +1,61 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__settle=async()=>{for(let i=0;i<300;i++){await __sleep(30);if(!document.documentElement.dataset.changeKind){await __sleep(300);return true}}return false};\nwindow.__snap=tag=>{const h=document.documentElement,d=n=>h.style.getPropertyValue(n);return {tag,path:location.pathname,kind:h.dataset.changeKind||null,glass:h.dataset.glass||null,pushRadial:document.getElementById('ft-glass-ring-push').getAttribute('scale'),pushLinear:document.getElementById('ft-glass-strip-push').getAttribute('scale'),edge:h.dataset.glassEdge!==undefined,fallback:h.dataset.glassFallback!==undefined,docAnims:document.getAnimations().length,marks:['--change-x','--change-y','--change-r','--change-w','--change-ms'].filter(n=>d(n)).length,errs:__errs.length,settled:__ftSettled()}};",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "cpu": 4,
+  "wait": 1500
+ },
+ {
+  "label": "A: click work, 200 ms later click home",
+  "eval": "(async()=>{__ftChange('/work','radial',{x:676,y:846});await __sleep(200);__ftChange('/','radial',{x:559,y:846});const ok=await __settle();return JSON.stringify({ok,...__snap('A')})})()"
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "label": "B: click work, 200 ms later Back",
+  "eval": "(async()=>{__ftChange('/work','radial',{x:676,y:846});await __sleep(1500);__ftChange('/','radial',{x:559,y:846});await __settle();__ftChange('/work','radial',{x:676,y:846});await __sleep(200);history.back();const ok=await __settle();return JSON.stringify({ok,...__snap('B')})})()"
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "label": "C: linear-right, 100 ms later linear-left back",
+  "eval": "(async()=>{__ftChange('/work','linear-right');await __sleep(100);__ftChange('/','linear-left');const ok=await __settle();return JSON.stringify({ok,...__snap('C')})})()"
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "label": "D: three changes in 150 ms",
+  "eval": "(async()=>{__ftChange('/work','radial',{x:676,y:846});await __sleep(60);__ftChange('/','linear-right');await __sleep(60);__ftChange('/work','linear-left');const ok=await __settle();return JSON.stringify({ok,...__snap('D')})})()"
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "label": "E: Back then Forward at once mid-change",
+  "eval": "(async()=>{__ftChange('/','radial');await __settle();__ftChange('/work','radial');await __sleep(150);history.back();await __sleep(40);history.forward();const ok=await __settle();return JSON.stringify({ok,...__snap('E')})})()"
+ },
+ {
+  "wait": 2500
+ },
+ {
+  "label": "F setup: a page whose WebGL engines fail (context creation blocked)",
+  "init": "{const g=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(t,...a){return /webgl/i.test(t)?null:g.call(this,t,...a)}}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "F: no WebGL, click work then Back, still settles",
+  "eval": "(async()=>{__ftChange('/work','radial',{x:676,y:846});await __sleep(150);__ftChange('/','radial',{x:559,y:846});const ok=await __settle();__ftChange('/work','radial',{x:676,y:846});await __sleep(120);history.back();const ok2=await __settle();return JSON.stringify({ok,ok2,webgl:!!document.createElement('canvas').getContext('webgl'),...__snap('F')})})()"
+ }
+]
