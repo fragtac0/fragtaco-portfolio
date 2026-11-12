@@ -7,8 +7,7 @@ import { markerLeft, markerShown } from "./shelf-math";
  */
 
 const HINT_FINE = "Hover to pull a book out. Click to open it.";
-const HINT_FINE_NARROW =
-  "Drag or scroll sideways to look along the shelf. Click a book to open it.";
+const HINT_FINE_NARROW = "Drag sideways to browse. Click a book to open it.";
 const HINT_TOUCH = "Tap a book to open it. Drag to look along the shelf.";
 export const HINT_NO_GL = "The shelf could not start in this browser.";
 

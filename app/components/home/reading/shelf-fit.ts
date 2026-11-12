@@ -5,7 +5,7 @@ import type { ShelfCtx } from "./shelf-open";
 /**
  * Sizes the renderer and the orthographic camera to the canvas (`flatFrame`: the tallest spine at
  * most 78% of the height, the row at most 88% of the width, the row pans when that would make it
- * smaller than 56%), puts the line the books stand on at its row, and works out how far the camera
+ * smaller than 70%), puts the line the books stand on at its row, and works out how far the camera
  * may pan, how much of the row is on screen, and where the position marker goes (just under the
  * line, where the flat placeholder draws it). Nothing happens when the size is unchanged since the
  * last call. An open book is put back first, because its pose was laid out for the old size.

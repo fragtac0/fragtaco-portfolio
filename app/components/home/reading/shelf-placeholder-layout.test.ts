@@ -89,8 +89,8 @@ describe("placeholderLayout", () => {
   });
 
   it("scales with the stage: doubling it doubles every length", () => {
-    const small = placeholderLayout(books, { w: 700, h: 450 })!;
-    const big = placeholderLayout(books, { w: 1400, h: 900 })!;
+    const small = placeholderLayout(books, { w: 1400, h: 900 })!;
+    const big = placeholderLayout(books, { w: 2800, h: 1800 })!;
     expect(big.floor / small.floor).toBeCloseTo(2, 6);
     expect(big.bars[1].height / small.bars[1].height).toBeCloseTo(2, 6);
     expect(big.line.width / small.line.width).toBeCloseTo(2, 6);
@@ -106,9 +106,9 @@ describe("placeholderLayout", () => {
     expect(layout.line.left).toBeLessThanOrEqual(0 + 1e-9);
   });
 
-  it("keeps the tallest bar at 56% of the height on a narrow stage", () => {
+  it("keeps the tallest bar at 70% of the height on a narrow stage", () => {
     const layout = placeholderLayout(many, { w: 390, h: 844 })!;
-    expect(Math.max(...layout.bars.map((b) => b.height)) / 844).toBeCloseTo(0.56, 8);
+    expect(Math.max(...layout.bars.map((b) => b.height)) / 844).toBeCloseTo(0.7, 8);
   });
 
   it("stays centred on a stage of 700px or more", () => {

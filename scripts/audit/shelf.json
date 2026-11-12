@@ -21,7 +21,7 @@
   "label": "canvas"
  },
  {
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit"
  },
  {
@@ -70,7 +70,7 @@
   "dpr": 2,
   "go": "{{BASE}}/?fit=0#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-320x568"
  },
  {
@@ -81,7 +81,7 @@
   "dpr": 2,
   "go": "{{BASE}}/?fit=1#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-390x844"
  },
  {
@@ -92,7 +92,7 @@
   "dpr": 1,
   "go": "{{BASE}}/?fit=2#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-820x1180"
  },
  {
@@ -109,7 +109,7 @@
   "dpr": 1,
   "go": "{{BASE}}/?fit=3#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-1024x768"
  },
  {
@@ -126,7 +126,7 @@
   "dpr": 1,
   "go": "{{BASE}}/?fit=4#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-1440x900"
  },
  {
@@ -137,7 +137,7 @@
   "dpr": 1,
   "go": "{{BASE}}/?fit=5#reading",
   "wait": 5000,
-  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.5599,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,tallOk:+d.tall<=0.7801&&+d.tall>=0.6999,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.pane-read')).backgroundColor}})()",
   "label": "flat-fit-2560x1440"
  },
  {

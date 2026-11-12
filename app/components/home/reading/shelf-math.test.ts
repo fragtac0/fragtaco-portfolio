@@ -130,9 +130,9 @@ const SIZES: Array<[number, number]> = [
 
 describe("flatFit", () => {
   it("fits the row to 88% of the width when that is smaller than the height rule", () => {
-    // a row 1.5 wide and 1 high on a 1000 by 1000 stage: the width rule gives 586.7, the height rule 780
-    const f = flatFit({ vw: 1000, vh: 1000, rowWidth: 1.5, tallest: 1 });
-    expect(f.scale).toBeCloseTo(880 / 1.5, 10);
+    // a row 1.2 wide and 1 high on a 1000 by 1000 stage: the width rule gives 733, the height rule 780
+    const f = flatFit({ vw: 1000, vh: 1000, rowWidth: 1.2, tallest: 1 });
+    expect(f.scale).toBeCloseTo(880 / 1.2, 10);
     expect(f.pans).toBe(false);
   });
   it("fits the tallest spine to 78% of the height when the row has room", () => {
@@ -140,21 +140,29 @@ describe("flatFit", () => {
     expect(f.scale).toBeCloseTo(624, 10);
     expect(f.pans).toBe(false);
   });
-  it("keeps 56% of the height and pans when the width rule would shrink the tallest below it", () => {
+  it("pans only once the width rule goes below 70% of the height", () => {
+    // width rule 880 / 1.25 = 704 (70.4%): still fits; 880 / 1.3 = 677 (67.7%): pans at 700
+    expect(flatFit({ vw: 1000, vh: 1000, rowWidth: 1.25, tallest: 1 }).pans).toBe(false);
+    expect(flatFit({ vw: 1000, vh: 1000, rowWidth: 1.3, tallest: 1 })).toEqual({
+      scale: 700,
+      pans: true,
+    });
+  });
+  it("keeps 70% of the height and pans when the width rule would shrink the tallest below it", () => {
     const f = flatFit({ vw: 390, vh: 844, rowWidth: 3, tallest: 1 });
     expect(f.pans).toBe(true);
-    expect(f.scale).toBeCloseTo(0.56 * 844, 10);
+    expect(f.scale).toBeCloseTo(0.7 * 844, 10);
   });
 
   describe("with the real 14 books", () => {
     for (const [vw, vh] of SIZES) {
-      it(`${vw} by ${vh}: tallest spine 56% to 78% of the height, the row inside 88% of the width or panning`, () => {
+      it(`${vw} by ${vh}: tallest spine 70% to 78% of the height, the row inside 88% of the width or panning`, () => {
         const { scale, pans } = flatFit({ vw, vh, rowWidth: row.span, tallest: row.tallest });
         const tall = (scale * row.tallest) / vh;
         expect(tall).toBeLessThanOrEqual(0.78 + 1e-9);
-        expect(tall).toBeGreaterThanOrEqual(0.56 - 1e-9);
+        expect(tall).toBeGreaterThanOrEqual(0.7 - 1e-9);
         if (pans) {
-          expect(tall).toBeCloseTo(0.56, 9);
+          expect(tall).toBeCloseTo(0.7, 9);
           expect(scale * row.span).toBeGreaterThan(0.88 * vw);
         } else {
           expect(scale * row.span).toBeLessThanOrEqual(0.88 * vw + 1e-9);
@@ -183,6 +191,13 @@ describe("flatFit", () => {
 describe("flatFrame", () => {
   it("puts the books' feet at 90% of the height", () => {
     expect(flatFrame({ vw: 1440, vh: 900, ...row }).baseRow).toBe(810);
+    expect(flatFrame({ vw: 1024, vh: 768, ...row }).baseRow).toBe(684); // 84 px kept below, not 691
+  });
+  it("keeps 84 px under the line on a small stage, for the marker and the hint", () => {
+    expect(flatFrame({ vw: 320, vh: 568, ...row }).baseRow).toBe(484);
+    for (const [vw, vh] of SIZES) {
+      expect(vh - flatFrame({ vw, vh, ...row }).baseRow).toBeGreaterThanOrEqual(84);
+    }
   });
   for (const [vw, vh] of SIZES) {
     it(`${vw} by ${vh}: the pan range stops the row's ends inside the edges and covers the reach`, () => {

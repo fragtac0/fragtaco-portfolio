@@ -102,16 +102,18 @@ export const TALL_MAX = 0.78;
 /** The row fills at most this share of the layer's width. */
 export const ROW_MAX = 0.88;
 /** On a narrow screen the tallest spine never goes below this share of the height; the row pans instead. */
-export const TALL_MIN = 0.56;
+export const TALL_MIN = 0.7;
 /** The line the books stand on, as a share of the layer's height from its top. */
 export const BASE_AT = 0.9;
+/** Room kept under the line for the marker and a two line hint, in CSS pixels (a small stage lifts the line to leave it). */
+export const BOTTOM_PX = 84;
 /** The hairline the books stand on, in CSS pixels. */
 export const LINE_PX = 1;
 
 /**
  * How large the flat, face-on row is: `scale` is CSS pixels per world unit. The tallest spine fills
  * at most 78% of the height and the row at most 88% of the width; when the width rule would shrink
- * the tallest spine below 56% of the height the height keeps 56% and the row `pans` sideways.
+ * the tallest spine below 70% of the height the height keeps 70% and the row `pans` sideways.
  * `rowWidth` and `tallest` are in world units, `vw` and `vh` in pixels.
  */
 export function flatFit(p: { vw: number; vh: number; rowWidth: number; tallest: number }): {
@@ -127,7 +129,8 @@ export function flatFit(p: { vw: number; vh: number; rowWidth: number; tallest: 
 
 /**
  * The whole flat frame for a stage `vw` by `vh` px and a row `span` world units wide whose tallest
- * book is `tallest` high: the scale, whether it pans, the pixel row of the line the books stand on,
+ * book is `tallest` high: the scale, whether it pans, the pixel row of the line the books stand on
+ * (90% of the height, but never closer than 84 px to the bottom, so a small stage keeps its hint clear),
  * how far the camera may pan (world units each way; the row's ends stop 6% of the width inside the
  * edges), the row's `reach` in world units (the row and that margin both sides: the hairline's
  * width) and the share of the reach that is on screen at once. The 3D shelf and its
@@ -147,7 +150,7 @@ export function flatFrame(p: { vw: number; vh: number; span: number; tallest: nu
   return {
     scale,
     pans,
-    baseRow: Math.round(BASE_AT * p.vh),
+    baseRow: Math.round(Math.min(BASE_AT * p.vh, p.vh - BOTTOM_PX)),
     maxX: pans ? Math.max(0, reach / 2 - viewW / 2) : 0,
     reach,
     visible: Math.min(1, viewW / reach),
