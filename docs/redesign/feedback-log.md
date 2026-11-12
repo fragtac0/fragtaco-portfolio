@@ -531,3 +531,16 @@ Content
 3. Moving grounds, two options each for the portfolio page, the long form wall, the short form wall and the home shelves.
 4. The painting's reveal between two page pictures at five speeds (the painting takes 2.8 s; page changes take 0.56 s today).
 5. A row for real spine pictures, filled from the git-ignored local folder.
+
+**Feedback on the first preview (2026-11-13)**
+
+- Map, overview: the look of A (ember) but as a real picture, orange and toned down, with no contour lines. The road stays but thinner. The milestone marks are too flat.
+- Map, My climb: a real transition from the flat top-down picture to a tilted night contour. Lines crisp. The contour lines are raised by height, as in the reference of a mountain built from stacked lines, to give the mountain's scale. Depth blur and a closer zoom. No "1 / 9" stepper: the milestones themselves are clickable.
+- Map, The mountain: the orange toned picture, flat, no tilt. A Next button, not "1 / 6". Better information on each place, with the expeditions that have studied the mountain.
+- The line map idea is rejected.
+- Backgrounds: none liked. A second set in the manner of the reference: near-black with a soft orange glow and heavy film grain.
+- Page change: 3.5 seconds, radial from the centre of the screen, not from the dock tab.
+- Spines: finding real ones online failed (1 of 14). Draw them, designed in the manner of Stripe Press, and show them.
+- One more preview before anything is built.
+
+Second preview: `docs/redesign/round7-preview-2/index.html` (same local server, `/round7-preview-2/`).
