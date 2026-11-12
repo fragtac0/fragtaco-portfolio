@@ -27,7 +27,7 @@ const make=(url)=>{const m=/picsum\\.photos\\/seed\\/([^/]+)\\/(\\d+)\\/(\\d+)/.
  const id=m[1],W=Math.round(+m[2]/2),H=Math.round(+m[3]/2);const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
  const hh=hue(id)%360;const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'hsl('+hh+',45%,38%)');g.addColorStop(1,'hsl('+((hh+60)%360)+',55%,22%)');x.fillStyle=g;x.fillRect(0,0,W,H);
  x.fillStyle='rgba(255,255,255,.88)';x.font='bold '+Math.round(Math.min(W,H)*.34)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';
- x.fillText(id.replace(/\\D+/g,'')||id.slice(0,3),W/2,H/2);x.fillRect(0,0,W*.12,H*.06);
+ x.fillText(id.replace(/\\D+/g,'')||id.slice(0,3),W/2,H/2);
  return c.toDataURL('image/jpeg',.7)};
 const d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');
 Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:true,get(){return d.get.call(this)},set(v){d.set.call(this,make(String(v))||v)}});
@@ -81,9 +81,11 @@ window.__hits=async()=>{const g=__grid(),R=(i)=>__rect(g,i),n=g.count,last=n-1,f
  const bad=[];for(const p of L){p.expected=__expect(p.x,p.y);p.got=await __clickAt(p.x,p.y);if(p.expected!==p.intended||p.got!==p.expected)bad.push({kind:p.kind,x:Math.round(p.x),y:Math.round(p.y),intended:p.intended,expected:p.expected,got:p.got})}
  const all=[];for(let i=0;i<n;i++){const[x,y]=c(i);const[sx,sy]=__warp(x,y,g.vw,g.vh);const got=await __clickAt(sx,sy);if(got!==i)all.push({i,got})}
  return JSON.stringify({points:L.length,pointsWrong:bad,centres:n,centresWrong:all,ok:bad.length===0&&all.length===0})};
+// ---- long animation frames (what script made a long frame), kept from the start of the page
+window.__loaf=[];try{new PerformanceObserver(l=>{for(const e of l.getEntries())window.__loaf.push({t:Math.round(e.startTime),d:Math.round(e.duration),s:(e.scripts||[]).map(x=>(x.sourceURL.split('/').pop()||'-')+':'+x.invoker.slice(0,40)+':'+Math.round(x.duration)).join(';')})}).observe({type:'long-animation-frame',buffered:true})}catch(e){}
 // ---- frame gaps
-window.__frames=(ms,fn)=>new Promise(r=>{const g=[];let l=performance.now();const t0=l;if(fn)fn(ms);function f(n){g.push(n-l);l=n;if(n-t0<ms)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);
- r(JSON.stringify({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length}))}}requestAnimationFrame(f)});
+window.__frames=(ms,fn)=>new Promise(r=>{const g=[];let l=performance.now();const t0=l;const fa=[];if(fn)fn(ms);function f(n){g.push(n-l);if(n-l>20)fa.push(Math.round(n));l=n;if(n-t0<ms)requestAnimationFrame(f);else{g.shift();const w=window.__loaf.filter(e=>e.t+e.d>=t0&&e.t<=l).slice(0,4);g.sort((a,b)=>a-b);
+ r(JSON.stringify({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length,...(fa.length?{slowAt:fa,longAnimationFrames:w}:{})}))}}requestAnimationFrame(f)});
 window.__hoverSweep=async(ms)=>{const g=__grid();const t0=performance.now();let k=0;while(performance.now()-t0<ms){const i=k%g.count;const q=__rect(g,i);const[x,y]=__warp(q.x+q.w/2,q.y+q.h/2,g.vw,g.vh);__send('pointermove',x,y);k+=3;await new Promise(r=>setTimeout(r,30))}
  document.querySelector('.wall-canvas').dispatchEvent(new PointerEvent('pointerleave',{bubbles:true,pointerType:'mouse'}))};
 window.__caption=()=>{const c=document.querySelector('.wall-caption');return JSON.stringify({on:c.classList.contains('on'),title:c.querySelector('.t').textContent,year:c.querySelector('.a').textContent})};
