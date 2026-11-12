@@ -1,8 +1,17 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { coverCrop, drawSpine, layoutTitle, splitLines, type Measure } from "./spine-draw";
-import { spineColours, spineStyle, type SpineStyle } from "./spine-styles";
+import {
+  AUTHOR_HEAVY_BELOW_CSS_PX,
+  AUTHOR_MIN_CSS_PX,
+  authorLayout,
+  coverCrop,
+  drawSpine,
+  layoutTitle,
+  splitLines,
+  type Measure,
+} from "./spine-draw";
+import { EDGE_COLOUR, spineColours, spineStyle, type SpineStyle } from "./spine-styles";
 
 /** Every letter is 0.6 of the font size wide. */
 const measure: Measure = (t, s) => [...t].length * 0.6 * s;
@@ -70,6 +79,41 @@ describe("layoutTitle", () => {
   });
 });
 
+describe("authorLayout", () => {
+  const A = { length: 100, full: 14, floor: 10 };
+
+  it("uses the whole name at the full size when it fits", () => {
+    expect(authorLayout("Don Norman", measure, { ...A, length: 200 })).toEqual({ text: "Don Norman", size: 14 });
+  });
+
+  it("steps the whole name down, but only to 72% of full and never under the floor", () => {
+    const r = authorLayout("Don Norman", measure, { ...A, length: 70 }); // 10 letters at 0.6 em: size 11.67 or less
+    expect(r.text).toBe("Don Norman");
+    expect(r.size).toBeGreaterThanOrEqual(10);
+    expect(measure(r.text, r.size)).toBeLessThanOrEqual(70);
+  });
+
+  it("falls back to the surname before going under the floor", () => {
+    const r = authorLayout("Josef Muller-Brockmann", measure, A);
+    expect(r.text).toBe("Muller-Brockmann");
+    expect(r.size).toBeGreaterThanOrEqual(A.floor);
+  });
+
+  it("never goes under the floor, even for a surname that cannot fit", () => {
+    const r = authorLayout("Aaa Pneumonoultramicroscopic", measure, { ...A, length: 30 });
+    expect(r.text).toBe("Pneumonoultramicroscopic");
+    expect(r.size).toBe(10);
+  });
+
+  it("raises a full size that is under the floor to the floor", () => {
+    expect(authorLayout("Ab", measure, { length: 100, full: 6, floor: 10 })).toEqual({ text: "Ab", size: 10 });
+  });
+
+  it("a single name is only ever the whole name", () => {
+    expect(authorLayout("Plato", measure, { ...A, length: 20 })).toEqual({ text: "Plato", size: 10 });
+  });
+});
+
 describe("coverCrop", () => {
   it("crops the overflow evenly and covers the canvas", () => {
     expect(coverCrop(200, 100, 50, 100)).toEqual({ sx: 75, sy: 0, cw: 50, ch: 100 });
@@ -127,6 +171,51 @@ describe("drawSpine", () => {
       // the author's letters are all there (capitals in the capital styles)
       expect(letters.toLowerCase().replace(/ /g, "")).toContain("donnorman");
     }
+  });
+
+  it("never sets an author under 10 CSS pixels, at dpr 1 and 2, for any real book, size or style", () => {
+    const books = (
+      JSON.parse(
+        readFileSync(path.join(process.cwd(), "content", "site", "books.json"), "utf8"),
+      ) as { items: { id: string; title: string; author: string; color: string }[] }
+    ).items;
+    for (const dpr of [1, 2]) {
+      for (const [w, h] of [[34, 330], [45, 702], [60, 520], [98, 800], [140, 1100]]) {
+        for (const b of books) {
+          for (const style of [0, 1, 2, 3, 4] as SpineStyle[]) {
+            const { ctx } = fakeCtx();
+            const c = spineColours({ dominant: b.color, secondary: b.color });
+            const r = drawSpine(ctx, { w: w * dpr, h: h * dpr }, b, style, c, dpr);
+            expect(r.authorSize, `${b.id} s${style} ${w}x${h}@${dpr}`).toBeGreaterThanOrEqual(AUTHOR_MIN_CSS_PX * dpr - 1e-6);
+          }
+        }
+      }
+    }
+  });
+
+  it("sets the author in a heavier weight under 11 CSS pixels", () => {
+    // a tight length: the author lands on the 10 px floor
+    const { ctx, log } = fakeCtx();
+    const r = drawSpine(ctx, { w: 40, h: 300 }, { title: "Story", author: "Josef Muller-Brockmann" }, 4, colours, 1);
+    expect(r.authorSize).toBeLessThan(AUTHOR_HEAVY_BELOW_CSS_PX);
+    expect(r.authorWeight).toBeGreaterThanOrEqual(600);
+    const authorText = log.filter((l) => l.fn === "fillText").at(-1);
+    expect(authorText?.font).toMatch(/^600 |^700 |^800 |^900 /);
+    // large enough: the style's own light weight
+    const big = fakeCtx();
+    const r2 = drawSpine(big.ctx, { w: 120, h: 900 }, { title: "Story", author: "Don Norman" }, 4, colours, 1);
+    expect(r2.authorSize).toBeGreaterThanOrEqual(AUTHOR_HEAVY_BELOW_CSS_PX);
+    expect(r2.authorWeight).toBe(300);
+  });
+
+  it("draws a 1 CSS pixel light edge down both sides of a near black spine and none on a lighter one", () => {
+    const dark = fakeCtx();
+    drawSpine(dark.ctx, { w: 90, h: 600 }, book, 1, spineColours({ dominant: "#151312", secondary: "#151312" }), 2);
+    const edges = dark.log.filter((l) => l.fn === "fillRect" && l.fill === EDGE_COLOUR);
+    expect(edges.map((e) => e.args)).toEqual([[0, 0, 2, 600], [88, 0, 2, 600]]);
+    const light = fakeCtx();
+    drawSpine(light.ctx, { w: 90, h: 600 }, book, 1, spineColours({ dominant: "#a8352a", secondary: "#a8352a" }), 2);
+    expect(light.log.some((l) => l.fill === EDGE_COLOUR)).toBe(false);
   });
 
   it("is the same for the same inputs", () => {

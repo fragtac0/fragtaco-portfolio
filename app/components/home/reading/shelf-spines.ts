@@ -18,6 +18,10 @@ export type SpineFace = {
   tex: THREE.CanvasTexture;
   style: SpineStyle;
   colours: SpineColours;
+  /** The pixel ratio (at most 2) the canvas is drawn for; the author's minimum size and the edge follow it. */
+  dpr: number;
+  /** The author's font size on the canvas in pixels, as last set (0 under a picture); the audit reads it. */
+  authorPx: number;
   /** The real picture of the spine, once it has loaded (a book with `spine` set). */
   photo: HTMLImageElement | null;
   /**
@@ -45,7 +49,7 @@ const MIN_PX = 8;
 
 /** The spine canvas size in pixels: world size times CSS pixels per world unit times the pixel ratio (capped at 2). */
 export function spinePixels(T: number, H: number, scale: number, dpr: number): SpineSize {
-  const k = scale * Math.min(Math.max(dpr, 1), MAX_DPR);
+  const k = scale * cappedDpr(dpr);
   return { w: Math.max(MIN_PX, Math.round(T * k)), h: Math.max(MIN_PX, Math.round(H * k)) };
 }
 
@@ -59,6 +63,8 @@ const ctxOf = (c: HTMLCanvasElement): CanvasRenderingContext2D => {
   return x;
 };
 
+const cappedDpr = (dpr: number): number => Math.min(Math.max(dpr, 1), MAX_DPR);
+
 const blank = (w: number, h: number): HTMLCanvasElement => {
   const c = document.createElement("canvas");
   c.width = w;
@@ -70,12 +76,24 @@ const blank = (w: number, h: number): HTMLCanvasElement => {
 function paintLook(
   c: HTMLCanvasElement,
   d: SiteBook,
-  face: Pick<SpineFace, "style" | "colours" | "photo">,
+  face: Pick<SpineFace, "style" | "colours" | "photo" | "dpr" | "authorPx">,
 ): void {
   const x = ctxOf(c);
   const size = { w: c.width, h: c.height };
-  if (face.photo) drawSpinePhoto(x, size, face.photo);
-  else drawSpine(x, size, d, face.style, face.colours);
+  if (face.photo) {
+    drawSpinePhoto(x, size, face.photo);
+    face.authorPx = 0;
+  } else {
+    face.authorPx = drawSpine(x, size, d, face.style, face.colours, face.dpr).authorSize;
+  }
+}
+
+/** Lets a crossfade's helper canvases go (a finished one and a discarded one alike). */
+function dropFade(face: SpineFace): void {
+  const f = face.fade;
+  if (!f) return;
+  f.from.width = f.from.height = f.to.width = f.to.height = 0;
+  face.fade = null;
 }
 
 /** Makes the spine face of a book at `size`; `toTex` turns its canvas into the texture. */
@@ -83,9 +101,16 @@ export function createSpineFace(
   d: SiteBook,
   size: SpineSize,
   toTex: (c: HTMLCanvasElement) => THREE.CanvasTexture,
+  dpr = 1,
 ): SpineFace {
   const canvas = blank(size.w, size.h);
-  const first = { style: spineStyle(d.id), colours: firstColours(d.color), photo: null };
+  const first = {
+    style: spineStyle(d.id),
+    colours: firstColours(d.color),
+    photo: null,
+    dpr: cappedDpr(dpr),
+    authorPx: 0,
+  };
   paintLook(canvas, d, first);
   return { canvas, tex: toTex(canvas), ...first, fade: null };
 }
@@ -96,11 +121,12 @@ function look(b: SpineBook, change: () => void, animate: boolean): void {
   const { width: w, height: h } = face.canvas;
   if (!animate) {
     change();
-    face.fade = null;
+    dropFade(face);
     paintLook(face.canvas, b.d, face);
     face.tex.needsUpdate = true;
     return;
   }
+  dropFade(face); // an earlier fade that never started or never finished is replaced
   const from = blank(w, h);
   ctxOf(from).drawImage(face.canvas, 0, 0);
   change();
@@ -149,8 +175,7 @@ export function stepSpineFades(books: SpineBook[], dt: number): boolean {
     face.tex.needsUpdate = true;
     if (f.t >= 1) {
       // that last frame is exactly the new look; the helper canvases are let go
-      f.from.width = f.from.height = f.to.width = f.to.height = 0;
-      face.fade = null;
+      dropFade(face);
       live--;
     } else {
       busy = true;
@@ -172,7 +197,8 @@ export function resizeSpines(books: SpineBook[], scale: number, dpr: number): bo
     const face = b.spine;
     const size = spinePixels(b.T, b.H, scale, dpr);
     if (size.w === face.canvas.width && size.h === face.canvas.height) continue;
-    face.fade = null;
+    dropFade(face);
+    face.dpr = cappedDpr(dpr);
     face.canvas.width = size.w;
     face.canvas.height = size.h;
     paintLook(face.canvas, b.d, face);

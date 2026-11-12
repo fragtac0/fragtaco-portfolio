@@ -90,7 +90,7 @@ export type ShelfScene = {
 export async function loadShelfFonts(): Promise<void> {
   if (!document.fonts) return;
   await Promise.all(
-    ['500 40px Lora', '700 40px Tektur', '500 20px "IBM Plex Mono"'].map((f) =>
+    ['500 40px Lora', '500 20px "IBM Plex Mono"'].map((f) =>
       document.fonts.load(f),
     ),
   ).catch((err: unknown) => {
@@ -190,7 +190,7 @@ export async function buildShelfScene(
       const d = books[i];
       const { H, W, T: thick } = bookSize(d);
       const coverTex = toTex(coverCanvas(d, null));
-      const spine = createSpineFace(d, spinePixels(thick, H, guess.scale, dpr()), toTex);
+      const spine = createSpineFace(d, spinePixels(thick, H, guess.scale, dpr()), toTex, dpr());
       const topTex = toTex(topCanvas(d));
       const faces = [
         toTex(foreCanvas(d)),

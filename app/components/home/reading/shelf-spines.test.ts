@@ -180,10 +180,25 @@ describe("resizeSpines", () => {
     expect(b.disposed).toBe(1);
   });
 
-  it("drops a crossfade in progress", () => {
+  it("drops a crossfade in progress and zeroes its helper canvases", () => {
     const b = spineBook(book(), spinePixels(0.26, 1.6, 375, 1));
     retintSpine(b, { ground: "#a8352a", ink: "#f6f0e2", accent: "#f6f0e2" }, true);
+    const { from, to } = b.spine.fade!;
     resizeSpines([b], 200, 1);
     expect(b.spine.fade).toBeNull();
+    expect([from.width, from.height, to.width, to.height]).toEqual([0, 0, 0, 0]);
+  });
+
+  it("zeroes a pending crossfade's canvases when the look changes without animation, and when it is replaced", () => {
+    const b = spineBook();
+    retintSpine(b, { ground: "#a8352a", ink: "#f6f0e2", accent: "#f6f0e2" }, true);
+    const first = b.spine.fade!;
+    showSpinePhoto(b, { naturalWidth: 90, naturalHeight: 600 } as HTMLImageElement, true);
+    expect([first.from.width, first.to.width]).toEqual([0, 0]); // replaced
+    const second = b.spine.fade!;
+    expect(second).not.toBe(first);
+    showSpinePhoto(b, { naturalWidth: 90, naturalHeight: 600 } as HTMLImageElement, false);
+    expect(b.spine.fade).toBeNull();
+    expect([second.from.width, second.from.height, second.to.width, second.to.height]).toEqual([0, 0, 0, 0]);
   });
 });

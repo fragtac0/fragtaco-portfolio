@@ -53,6 +53,8 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   const readSpine = () => {
     // read by scripts/audit/shelf.json: the tallest book's spine canvas, in pixels
     canvas.dataset.spinePx = `${tallBook.spine.canvas.width}x${tallBook.spine.canvas.height}`;
+    // and every author's font size in CSS pixels, in book order (never under 10)
+    canvas.dataset.authorPx = gl.books.map((b) => (b.spine.authorPx / b.spine.dpr).toFixed(1)).join(",");
   };
   gl.fitSpines(f.scale, first, () => {
     readSpine();

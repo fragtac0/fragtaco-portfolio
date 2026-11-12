@@ -2,11 +2,13 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  EDGE_BELOW_CONTRAST,
   MIN_ACCENT_CONTRAST,
   MIN_INK_CONTRAST,
   contrast,
   luminance,
   mix,
+  needsEdge,
   parseHex,
   spineColours,
   spineStyle,
@@ -19,15 +21,36 @@ const books = (
   ) as { items: { id: string; color: string }[] }
 ).items;
 
+/** The style of every book, pinned: a change to the hash or its seed shows here, so no book changes its look by accident. */
+const PINNED: Record<string, number> = {
+  "in-the-blink-of-an-eye": 3,
+  "sculpting-in-time": 0,
+  "making-movies": 3,
+  "on-film-editing": 2,
+  story: 1,
+  "save-the-cat": 1,
+  "the-creative-act": 3,
+  "steal-like-an-artist": 2,
+  "show-your-work": 4,
+  "ways-of-seeing": 4,
+  "understanding-comics": 1,
+  "thinking-with-type": 0,
+  "grid-systems-in-graphic-design": 1,
+  "the-design-of-everyday-things": 4,
+};
+
 describe("spineStyle", () => {
+  it("is the pinned style for each of the 14 books", () => {
+    expect(books.map((b) => b.id).sort()).toEqual(Object.keys(PINNED).sort());
+    for (const b of books) expect(spineStyle(b.id), b.id).toBe(PINNED[b.id]);
+  });
+
   it("is stable for an id and always 0 to 4", () => {
     for (const b of books) {
       const s = spineStyle(b.id);
       expect(spineStyle(b.id)).toBe(s);
       expect([0, 1, 2, 3, 4]).toContain(s);
     }
-    // the value is fixed (a book never changes its look between releases)
-    expect(spineStyle("story")).toBe(spineStyle("story"));
     expect(spineStyle("")).toBeGreaterThanOrEqual(0);
   });
 
@@ -110,5 +133,37 @@ describe("spineColours", () => {
       }
     }
     expect(n).toBe(17 * 17 * 17 * accents.length);
+  });
+});
+
+describe("needsEdge", () => {
+  const tokens = readFileSync(path.join(process.cwd(), "app", "styles", "tokens.css"), "utf8");
+  const pageGround = /--ground:\s*(#[0-9a-f]{6})/i.exec(tokens)?.[1] ?? "";
+
+  it("compares against the --ground of tokens.css", () => {
+    expect(pageGround).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(needsEdge(pageGround)).toBe(true);
+  });
+
+  it("is on for near black spines and off for any that read against the ground", () => {
+    for (const hex of ["#000000", "#050505", "#0e0e0d", "#151312", "#1c1b19", "#201f1d"]) {
+      expect(contrast(hex, pageGround), hex).toBeLessThan(EDGE_BELOW_CONTRAST);
+      expect(needsEdge(hex), hex).toBe(true);
+    }
+    for (const hex of ["#2c3b43", "#3a3a38", "#a8352a", "#1f4b73", "#ece6d6", "#3a4a5a"]) {
+      expect(contrast(hex, pageGround), hex).toBeGreaterThanOrEqual(EDGE_BELOW_CONTRAST);
+      expect(needsEdge(hex), hex).toBe(false);
+    }
+  });
+
+  it("sits where the ratio crosses 1.5", () => {
+    // a grey just under and just over the threshold
+    const grey = (v: number) => toHex([v, v, v]);
+    const under = [...Array(120).keys()].map((v) => grey(v)).filter((g) => contrast(g, pageGround) < EDGE_BELOW_CONTRAST);
+    const over = [...Array(120).keys()].map((v) => grey(v)).filter((g) => contrast(g, pageGround) >= EDGE_BELOW_CONTRAST);
+    expect(under.length).toBeGreaterThan(10);
+    expect(over.length).toBeGreaterThan(10);
+    for (const g of under) expect(needsEdge(g)).toBe(true);
+    for (const g of over) expect(needsEdge(g)).toBe(false);
   });
 });

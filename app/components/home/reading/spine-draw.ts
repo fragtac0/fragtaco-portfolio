@@ -1,5 +1,5 @@
 import type { SiteBook } from "~/types";
-import type { SpineColours, SpineStyle } from "./spine-styles";
+import { EDGE_COLOUR, needsEdge, type SpineColours, type SpineStyle } from "./spine-styles";
 
 /**
  * Paints a designed spine: the book's real title and author, set along the spine reading top to
@@ -117,9 +117,9 @@ const fontOf = (f: Face, weight: number, size: number): string =>
   `${f.italic ? "italic " : ""}${weight} ${size.toFixed(2)}px ${f.family}`;
 
 /** A text measurer for a face on this context; letter spacing and squeeze count in the length. */
-function measurer(x: CanvasRenderingContext2D, f: Face, weight: number): Measure {
+function measurer(x: CanvasRenderingContext2D, f: Face, weight: number | ((size: number) => number)): Measure {
   return (text, size) => {
-    x.font = fontOf(f, weight, size);
+    x.font = fontOf(f, typeof weight === "number" ? weight : weight(size), size);
     const n = [...text].length;
     return (x.measureText(text).width + f.track * size * Math.max(0, n - 1)) * f.squash;
   };
@@ -157,28 +157,47 @@ function setLine(
   x.restore();
 }
 
-/** The author's name as large as will fit `length` (the whole name, else the surname), never under the minimum. */
-function authorLayout(
+/** The author is never set smaller than this, in CSS pixels (times the pixel ratio on the canvas). */
+export const AUTHOR_MIN_CSS_PX = 10;
+/** Below this size, in CSS pixels, the author's name is set in a heavier weight so it stays legible. */
+export const AUTHOR_HEAVY_BELOW_CSS_PX = 11;
+/** The heavier weight: at least semibold (bold on a face with no semibold). */
+const HEAVY = 600;
+
+/**
+ * The author's name as large as will fit `length`, between `full` and `floor` (`floor` wins over a
+ * smaller `full`): the whole name down to 72% of `full` (never under `floor`), else the surname
+ * down to `floor`, and at `floor` whatever the surname's length. The name is never set under `floor`.
+ */
+export function authorLayout(
   name: string,
   measure: Measure,
   p: { length: number; full: number; floor: number },
 ): { text: string; size: number } {
   const surname = name.trim().split(/\s+/).pop() ?? name;
+  const full = Math.max(p.full, p.floor);
   for (const text of name === surname ? [name] : [name, surname]) {
-    let s = p.full;
-    const lowest = text === name ? p.full * 0.72 : p.floor;
-    while (s >= lowest - 1e-6) {
-      if (measure(text, s) <= p.length) return { text, size: s };
-      s -= p.full * STEP;
+    const lowest = text === name ? Math.max(full * 0.72, p.floor) : p.floor;
+    for (let s = full; s >= lowest - 1e-6; s -= full * STEP) {
+      const size = Math.max(s, p.floor);
+      if (measure(text, size) <= p.length) return { text, size };
     }
   }
   return { text: surname, size: p.floor };
 }
 
+/** What `drawSpine` set: the title's and author's font sizes in canvas pixels, and the author's text and weight. */
+export type SpineLayout = { titleSize: number; authorSize: number; authorText: string; authorWeight: number };
+
 /**
  * Paints the spine of `book` in `style` and `colours` onto `ctx`, a context of a canvas `size.w` by
- * `size.h` pixels (the spine's own size on screen times the device pixel ratio). The whole canvas
- * is covered.
+ * `size.h` pixels (the spine's own size on screen times `dpr`, the device pixel ratio, default 1).
+ * The whole canvas is covered. The title is as large as the style's full size allows; if it does
+ * not fit on one line it steps down to 60% of that full size and then wraps to two lines. The
+ * author is never under 10 CSS pixels (`AUTHOR_MIN_CSS_PX`, times `dpr`): the surname is used
+ * before the name would go smaller, and under 11 CSS pixels it is set heavier. A ground close to
+ * the page ground gets a 1 CSS pixel light edge along both long sides (`needsEdge`). Returns what
+ * it set.
  */
 export function drawSpine(
   ctx: CanvasRenderingContext2D,
@@ -186,7 +205,8 @@ export function drawSpine(
   book: DrawBook,
   style: SpineStyle,
   colours: SpineColours,
-): void {
+  dpr = 1,
+): SpineLayout {
   const { w, h } = size;
   const f = FACES[style];
   const hair = Math.max(1, Math.round(w / 36));
@@ -221,13 +241,22 @@ export function drawSpine(
     ctx.fillRect(Math.round(w * 0.5 - w * 0.06), Math.round(h * 0.035), Math.round(w * 0.12), Math.round(w * 0.12));
   }
 
+  if (needsEdge(colours.ground)) {
+    const e = Math.max(1, Math.round(dpr));
+    ctx.fillStyle = EDGE_COLOUR;
+    ctx.fillRect(0, 0, e, h);
+    ctx.fillRect(w - e, 0, e, h);
+  }
+
   ctx.translate(w / 2, 0);
   ctx.rotate(Math.PI / 2);
   ctx.fillStyle = colours.ink;
   const caps = (s: string) => (f.caps ? s.toLocaleUpperCase() : s);
   const title = caps(book.title);
   const measureTitle = measurer(ctx, f, f.weight[0]);
-  const measureAuthor = measurer(ctx, f, f.weight[1]);
+  const authorWeight = (size: number) =>
+    size < AUTHOR_HEAVY_BELOW_CSS_PX * dpr ? Math.max(f.weight[1], HEAVY) : f.weight[1];
+  const measureAuthor = measurer(ctx, f, authorWeight);
   const lay = layoutTitle(title, measureTitle, {
     w,
     length: run * TITLE_SHARE,
@@ -244,10 +273,11 @@ export function drawSpine(
   const au = authorLayout(caps(book.author), measureAuthor, {
     length: run * AUTHOR_SHARE,
     full: Math.min(w * 0.3, lay.size * 0.62),
-    floor: MIN_SIZE * w * 0.7,
+    floor: AUTHOR_MIN_CSS_PX * dpr,
   });
   const auLen = measureAuthor(au.text, au.size);
-  setLine(ctx, f, f.weight[1], au.text, au.size, end, 0, "right", auLen);
+  const auWeight = authorWeight(au.size);
+  setLine(ctx, f, auWeight, au.text, au.size, end, 0, "right", auLen);
 
   // what sets the style apart, drawn in the turned frame
   if (style === 2) {
@@ -263,6 +293,7 @@ export function drawSpine(
     ctx.strokeRect(top - pad, -across, longest + 2 * pad, 2 * across);
   }
   ctx.restore();
+  return { titleSize: lay.size, authorSize: au.size, authorText: au.text, authorWeight: auWeight };
 }
 
 /** The source rectangle that fills a `dw` by `dh` canvas from an `sw` by `sh` picture, cropping the overflow evenly. */

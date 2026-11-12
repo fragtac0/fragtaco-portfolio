@@ -1,3 +1,5 @@
+import { CREAM, GROUND, rgba } from "../../../styles/tokens";
+
 /**
  * Which of the five spine designs a book wears, and the colours its spine is drawn in. Pure: no
  * canvas, no DOM (the painting is spine-draw.ts). Spec 8, "Designed spines".
@@ -98,3 +100,15 @@ export function spineColours(cover: { dominant: string; secondary: string }): Sp
   }
   return { ground, ink, accent };
 }
+
+/**
+ * A spine whose ground is this close to the page ground (contrast ratio under it) would vanish
+ * against it, so it gets a light edge along both long sides (spine-draw.ts). Colours stay true:
+ * only the edge is added.
+ */
+export const EDGE_BELOW_CONTRAST = 1.5;
+/** The edge: the cream of tokens.css at low strength. */
+export const EDGE_COLOUR = rgba(CREAM, 0.28);
+
+/** True when a spine of this ground colour is too close to `--ground` to read against it. */
+export const needsEdge = (ground: string): boolean => contrast(ground, GROUND) < EDGE_BELOW_CONTRAST;

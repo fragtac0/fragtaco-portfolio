@@ -89,6 +89,10 @@
   "label": "spine-px-390x844-dpr2"
  },
  {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const a=c.dataset.authorPx.split(',').map(Number);return {dpr:devicePixelRatio,authorCssPx:c.dataset.authorPx,min:Math.min(...a),floorOk:Math.min(...a)>=9.95,n:a.length}})()",
+  "label": "authors-390x844-dpr2"
+ },
+ {
   "size": [
    820,
    1180
@@ -136,6 +140,10 @@
  {
   "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const [w,h]=c.dataset.spinePx.split('x').map(Number);const dpr=Math.min(devicePixelRatio,2);const want=Math.round(+c.dataset.tall*c.clientHeight*dpr);return {spinePx:c.dataset.spinePx,dpr,wantH:want,tallOk:Math.abs(h-want)<=1,thinnest:w>=8}})()",
   "label": "spine-px-1440x900-dpr1"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const a=c.dataset.authorPx.split(',').map(Number);return {dpr:devicePixelRatio,authorCssPx:c.dataset.authorPx,min:Math.min(...a),floorOk:Math.min(...a)>=9.95,n:a.length}})()",
+  "label": "authors-1440x900-dpr1"
  },
  {
   "size": [

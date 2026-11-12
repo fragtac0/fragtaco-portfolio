@@ -4,8 +4,8 @@ import type { SiteBook } from "~/types";
  * The shelf's painters: every texture is drawn on a 2D canvas, so the books need no image files.
  * Ported from the `Shelf` module of docs/redesign/mockups/home-v4.html (coverCanvas, backCanvas,
  * topCanvas, foreCanvas, softRectCanvas). The spine is no longer painted here: see spine-draw.ts.
- * Client only: every function creates a canvas. Fonts Lora 500, Tektur 700 and IBM Plex Mono 500
- * must be loaded first (the engine waits for them).
+ * Client only: every function creates a canvas. Only the generated cover (no Open Library image)
+ * writes text, in Lora 500 and IBM Plex Mono 500, which the engine waits for (`loadShelfFonts`).
  */
 
 const mk = (w: number, h: number): HTMLCanvasElement => {
