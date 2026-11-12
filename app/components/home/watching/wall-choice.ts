@@ -1,4 +1,4 @@
-import { chosenRect, overlaps, textZone, type Rect } from "./wall-spread";
+import { chosenRect, crosses, overlaps, textZone, type Rect } from "./wall-spread";
 import type { PoseChoice } from "./wall-pose";
 import type { Tile, WallState } from "./wall-types";
 
@@ -45,4 +45,33 @@ export function countUnderText(list: readonly Tile[], choice: PoseChoice): numbe
     if (overlaps({ x: tl.cx - tl.w / 2, y: tl.cy - tl.h / 2, w: tl.w, h: tl.h }, choice.zone)) n++;
   }
   return n;
+}
+
+/** How many pairs of visible tiles (the chosen one left out) overlap; the audit reads it, and it must be 0 once open. */
+export function countOverlaps(list: readonly Tile[], choice: PoseChoice): number {
+  const box = (t: Tile) => ({ x: t.cx - t.w / 2, y: t.cy - t.h / 2, w: t.w, h: t.h });
+  const shown = list.filter((t) => t.key !== choice.key && t.fade >= 0.02);
+  let n = 0;
+  for (let i = 0; i < shown.length; i++) {
+    for (let j = i + 1; j < shown.length; j++) if (crosses(box(shown[i]), box(shown[j]))) n++;
+  }
+  return n;
+}
+
+/**
+ * True when every picture is on the atlas and its arrival fade (and the placeholder's shimmer
+ * before it) is over, so a still wall needs no new frames. False for no pictures at all.
+ */
+export function picturesSettled(
+  loadedAt: ArrayLike<number> | undefined,
+  now: number,
+  settleMs = 1200,
+): boolean {
+  if (!loadedAt || loadedAt.length === 0) return false;
+  let latest = 0;
+  for (let i = 0; i < loadedAt.length; i++) {
+    if (!(loadedAt[i] > 0)) return false;
+    if (loadedAt[i] > latest) latest = loadedAt[i];
+  }
+  return now - latest > settleMs;
 }

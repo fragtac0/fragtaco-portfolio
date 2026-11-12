@@ -137,8 +137,9 @@ export function createWarpPass(g: WebGLRenderingContext, main: WebGLProgram): Wa
       }
       if (pw !== tw || ph !== th) {
         const ok = allocate(pw, ph);
-        tw = pw;
-        th = ph;
+        // a target that failed is not kept: the next frame allocates it again
+        tw = ok ? pw : 0;
+        th = ok ? ph : 0;
         if (!ok) return null;
       }
       g.bindFramebuffer(g.FRAMEBUFFER, fbo);

@@ -57,11 +57,12 @@ export function createChip(videos: readonly SiteVideo[], st: WallState): Chip {
 /**
  * `data-echo`: how many other videos the focused channel has on the wall. `data-chosen`: the key of
  * the chosen video (empty when none). `data-under`: how many visible tiles stand in the chosen
- * video's text block (it must be 0 once the wall is open).
+ * video's text block, and `data-overlaps` how many pairs of visible tiles overlap (both must be 0
+ * once the wall is open).
  */
 export function createProbe(canvas: HTMLElement) {
   const last: Record<string, string> = {};
-  return (name: "echo" | "chosen" | "under", value: string) => {
+  return (name: "echo" | "chosen" | "under" | "overlaps", value: string) => {
     if (last[name] === value) return;
     last[name] = value;
     canvas.dataset[name] = value;

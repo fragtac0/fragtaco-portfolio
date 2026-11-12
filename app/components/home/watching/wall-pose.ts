@@ -5,8 +5,7 @@ import {
   easeInOut,
   FADE_MS,
   OPEN_MS,
-  coveredShare,
-  overlaps,
+  hiddenTiles,
   spread,
   SPREAD_DIM,
   SPREAD_SCALE,
@@ -25,7 +24,8 @@ import type { Tile } from "./wall-types";
  * While a video is chosen (`choice`, spec 7 "Click") the wall opens: the chosen tile travels to
  * `choice.rect` and grows to fit it, and the others move away from its middle, shrink and dim
  * (`spread`), the ones from the focused channel staying bright. A tile that would stand in the text
- * block's way (or behind the chosen video's middle) fades out instead of piling up. With reduced
+ * block's way, mostly behind the chosen video or on top of another tile fades out (`hiddenTiles`),
+ * so no two visible tiles overlap. With reduced
  * motion nothing travels: the chosen video fades in at its place while its tile fades out, the
  * others only dim, and the ones in the way fade.
  */
@@ -43,12 +43,6 @@ export type PoseChoice = {
 
 /** The chosen video's corner radius, px (a tile's is 12). */
 const RAD_BIG = 20;
-
-/** A tile with more than this share of it behind the chosen video fades out. */
-const BEHIND_SHARE = 0.4;
-
-/** Air kept round the text block, px (covers the fish-eye bending a tile there by a few px). */
-const ZONE_AIR = 12;
 
 export type PoseInput = {
   dt: number;
@@ -74,6 +68,11 @@ export type Pose = {
   /** The other videos from the focused video's channel, by index (cached per focused video). */
   echoFor(focusIdx: number | null): ReadonlySet<number>;
   /**
+   * False when the last `apply` left the wall still: a video is open, nothing travels, nothing is
+   * easing, so the frame would be the one already on the screen.
+   */
+  moving(): boolean;
+  /**
    * Poses every tile in place and sorts the list for drawing. Returns the tiles that only fade
    * out where they were (reduced motion's stand-in for a travelling tile), to be drawn first.
    */
@@ -92,6 +91,28 @@ export function sortForDraw<T extends { f: number; c?: number }>(tiles: T[]): T[
   return tiles.sort((a, b) => drawRank(a.f, a.c) - drawRank(b.f, b.c));
 }
 
+/** The tiles that fade out around a chosen video, judged from where they will rest once the wall is open. */
+function hiddenFor(list: readonly Tile[], choice: PoseChoice, size: TileSize, reduced: boolean) {
+  const { cw, ch } = size;
+  const k = reduced ? 1 : SPREAD_SCALE;
+  const mx = choice.rect.x + choice.rect.w / 2;
+  const my = choice.rect.y + choice.rect.h / 2;
+  const boxes: Array<Rect & { key: string }> = [];
+  for (const tl of list) {
+    if (tl.key === choice.key) continue;
+    const end = spread({
+      x: tl.x + cw / 2,
+      y: tl.y + ch / 2,
+      cx: mx,
+      cy: my,
+      halfDiag: choice.halfDiag,
+      open: reduced ? 0 : 1,
+    });
+    boxes.push({ key: tl.key, x: end.x - (cw * k) / 2, y: end.y - (ch * k) / 2, w: cw * k, h: ch * k });
+  }
+  return hiddenTiles(boxes, choice.rect, choice.zone);
+}
+
 export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
   const fstate = new Map<string, number>();
   const estate = new Map<string, number>();
@@ -105,11 +126,15 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
   // here and eased where they are used
   let open = 0;
   const travelled = new Map<string, number>();
+  // set while anything is still easing during an `apply`
+  let easing = false;
+  let still = false;
 
   /** Eases `map[key]` toward `target`; drops it near zero so the map holds only live tiles. */
   const ease = (map: Map<string, number>, key: string, target: number, k: number): number => {
     let v = map.get(key) || 0;
     v += (target - v) * k;
+    if (Math.abs(target - v) > 0.002) easing = true;
     if (v > 0.002) {
       map.set(key, v);
       seen.add(key);
@@ -128,28 +153,25 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
   };
 
 
-  /** Poses a tile while the wall is open: spread, dim, clear of the text, or on its way to the chosen place. */
+  /** Poses a tile while the wall is open: spread, dim, hidden, or on its way to the chosen place. */
   function openTile(
     tl: Tile,
-    at0: { cx: number; cy: number; cw: number; th: number },
-    choice: PoseChoice,
-    rc: { x: number; y: number },
-    eo: number,
-    p: PoseInput,
-    ghosts: Tile[],
-    kept: Set<string>,
-    secs: number,
+    o: {
+      base: { cx: number; cy: number; cw: number; th: number };
+      choice: PoseChoice;
+      rc: { x: number; y: number };
+      eo: number;
+      reduced: boolean;
+      dt: number;
+      secs: number;
+      hidden: ReadonlySet<string>;
+      ghosts: Tile[];
+      kept: Set<string>;
+    },
   ) {
-    const { cx, cy, cw, th } = at0;
-    const reduced = p.reduced;
-    const s = { cx: rc.x, cy: rc.y, halfDiag: choice.halfDiag };
-    const sp = spread({ x: cx, y: cy, ...s, open: reduced ? 0 : eo });
-    const end = spread({ x: cx, y: cy, ...s, open: reduced ? 0 : 1 });
-    const fin = reduced ? 1 : SPREAD_SCALE;
-    const endBox = { x: end.x - (cw * fin) / 2, y: end.y - (th * fin) / 2, w: cw * fin, h: th * fin };
-    // in the text's way, or mostly behind the chosen video: it fades out instead of piling up
-    const inTheWay =
-      overlaps(endBox, choice.zone, ZONE_AIR) || coveredShare(endBox, choice.rect) > BEHIND_SHARE;
+    const { cx, cy, cw, th } = o.base;
+    const { choice, rc, eo, reduced } = o;
+    const sp = spread({ x: cx, y: cy, cx: rc.x, cy: rc.y, halfDiag: choice.halfDiag, open: reduced ? 0 : eo });
     const dim = 1 - (1 - SPREAD_DIM) * eo;
     tl.cx = sp.x;
     tl.cy = sp.y;
@@ -157,16 +179,18 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
     tl.h = th * sp.scale;
     tl.rad = 12 * sp.scale;
     tl.dim = dim + (1 - dim) * tl.e; // the channel's other videos stay bright
-    tl.fade = inTheWay ? 1 - eo : 1;
-    const v = stepToward(travelled.get(tl.key) || 0, choice.live && tl.key === choice.key ? 1 : 0, p.dt, secs);
+    tl.fade = o.hidden.has(tl.key) ? 1 - eo : 1;
+    const was = travelled.get(tl.key) || 0;
+    const v = stepToward(was, choice.live && tl.key === choice.key ? 1 : 0, o.dt, o.secs);
+    if (v !== was) easing = true;
     if (v <= 0) return;
     travelled.set(tl.key, v);
-    kept.add(tl.key);
+    o.kept.add(tl.key);
     const c = easeInOut(v);
     tl.c = c;
     tl.dim += (1 - tl.dim) * c;
     if (reduced) {
-      if (c < 0.999) ghosts.push({ ...tl, f: 0, c: 0, fade: 1 - c });
+      if (c < 0.999) o.ghosts.push({ ...tl, f: 0, c: 0, fade: 1 - c });
       tl.fade = c;
       tl.cx = rc.x;
       tl.cy = rc.y;
@@ -184,7 +208,9 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
 
   return {
     echoFor,
+    moving: () => !still,
     apply(list, p) {
+      easing = false;
       const { cw, ch: th } = p.size;
       const echoNow = echoFor(p.focusIdx);
       seen.clear();
@@ -213,6 +239,7 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
         : null;
       const ghosts: Tile[] = [];
       const kept = new Set<string>();
+      const hidden = choice ? hiddenFor(list, choice, p.size, p.reduced) : null;
       for (const tl of list) {
         const f = ease(fstate, tl.key, tl.key === p.hoverKey ? 1 : 0, kf);
         const wantEcho = echoNow.has(tl.idx) ? 1 : 0;
@@ -232,11 +259,23 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
         tl.h = th * s;
         tl.rad = 12 * s;
         if (!choice || !rc || (open <= 0 && !travelled.has(tl.key) && tl.key !== choice.key)) continue;
-        openTile(tl, { cx, cy, cw, th }, choice, rc, eo, p, ghosts, kept, secs);
+        openTile(tl, {
+          base: { cx, cy, cw, th },
+          choice,
+          rc,
+          eo,
+          reduced: p.reduced,
+          dt: p.dt,
+          secs,
+          hidden: hidden ?? new Set(),
+          ghosts,
+          kept,
+        });
       }
       for (const k of travelled.keys()) if (!kept.has(k)) travelled.delete(k);
       for (const m of [fstate, estate]) for (const k of m.keys()) if (!seen.has(k)) m.delete(k);
       sortForDraw(list);
+      still = !!choice && choice.live && open >= 1 && !easing && near === 0;
       return ghosts;
     },
     reset() {
@@ -245,6 +284,7 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
       travelled.clear();
       near = 0;
       open = 0;
+      still = false;
     },
   };
 }

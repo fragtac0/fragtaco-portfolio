@@ -3,13 +3,16 @@ import { tileSize } from "./wall-math";
 import {
   chosenRect,
   coveredShare,
+  crosses,
   easeInOut,
+  hiddenTiles,
   nearestInDirection,
   overlaps,
   spread,
   stepToward,
   textZone,
   PUSH_MAX,
+  PUSH_SLOPE,
   SPREAD_DIM,
   SPREAD_SCALE,
 } from "./wall-spread";
@@ -42,7 +45,7 @@ describe("spread", () => {
       expect(s.x).toBeGreaterThanOrEqual(base.cx + d - 1e-9); // away, never toward
       expect(s.y).toBeCloseTo(base.cy, 9);
     }
-    expect(Math.hypot(at(24).x - (base.cx + 24), 0)).toBeCloseTo(PUSH_MAX * (1 - smoothAt(24)), 6);
+    expect(at(24).x - (base.cx + 24)).toBeCloseTo(PUSH_SLOPE * (0.6 * 848 - 24), 6);
   });
 
   it("pushes nothing beyond 60% of the half-diagonal", () => {
@@ -58,6 +61,15 @@ describe("spread", () => {
       const push = at(d).x - (base.cx + d);
       expect(push).toBeLessThanOrEqual(last + 1e-9);
       last = push;
+    }
+  });
+
+  it("never closes two neighbours by more than 12% of the distance between them", () => {
+    // push is radial and falls by PUSH_SLOPE px per px, so the gap between two tiles on a ray shrinks by at most that
+    for (let d = 24; d < 700; d += 3) {
+      const a = at(d).x - (base.cx + d);
+      const b = at(d + 100).x - (base.cx + d + 100);
+      expect(a - b).toBeLessThanOrEqual(PUSH_SLOPE * 100 + 1e-9);
     }
   });
 
@@ -88,12 +100,6 @@ describe("spread", () => {
     expect(Number.isFinite(spread({ x: 1, y: 1, cx: 1, cy: 1, halfDiag: 0, open: 1 }).x)).toBe(true);
   });
 });
-
-/** The same smoothstep falloff as the module, for one expectation. */
-function smoothAt(d: number): number {
-  const u = Math.min(1, d / (0.6 * 848));
-  return u * u * (3 - 2 * u);
-}
 
 describe("chosenRect and textZone", () => {
   it.each(SIZES)("sits inside a %i by %i screen with at least 150 px under it", (vw, vh) => {
@@ -220,5 +226,31 @@ describe("easing helpers", () => {
     expect(stepToward(1, 0, 1, 0.32)).toBe(0);
     expect(stepToward(0.5, 0.5, 0.1, 0.4)).toBe(0.5);
     expect(stepToward(0, 1, 0.1, 0)).toBe(1);
+  });
+});
+
+describe("hiddenTiles", () => {
+  const rect = { x: 400, y: 200, w: 400, h: 225 };
+  const zone = { x: 400, y: 439, w: 400, h: 150 };
+  const box = (key: string, x: number, y: number) => ({ key, x, y, w: 200, h: 112 });
+  it("hides a tile in the text's way or more than 5% behind the video", () => {
+    const h = hiddenTiles(
+      [box("zone", 450, 500), box("behind", 250, 250), box("graze", 190, 250), box("away", 1000, 700)],
+      rect,
+      zone,
+    );
+    expect([...h].sort()).toEqual(["behind", "zone"]);
+  });
+  it("hides the nearer of two visible tiles that overlap, and keeps the rest", () => {
+    const h = hiddenTiles([box("far", 1000, 300), box("near", 880, 300), box("alone", 1000, 600)], rect, zone);
+    expect([...h]).toEqual(["near"]);
+  });
+  it("leaves tiles that only touch", () => {
+    expect(hiddenTiles([box("a", 1000, 300), box("b", 1200, 300), box("c", 1000, 412)], rect, zone).size).toBe(0);
+  });
+  it("crosses needs more than half a pixel both ways", () => {
+    const a = { x: 0, y: 0, w: 10, h: 10 };
+    expect(crosses(a, { x: 9.8, y: 0, w: 10, h: 10 })).toBe(false);
+    expect(crosses(a, { x: 9, y: 9, w: 10, h: 10 })).toBe(true);
   });
 });

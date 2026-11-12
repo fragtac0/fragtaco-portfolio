@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { tileSize } from "./wall-math";
+import { layoutTiles, tileSize } from "./wall-math";
+import { choiceLayout, countOverlaps, picturesSettled } from "./wall-choice";
 import { createPose, type PoseChoice, type PoseInput } from "./wall-pose";
-import { chosenRect, SPREAD_DIM, SPREAD_SCALE, textZone } from "./wall-spread";
+import { chosenRect, crosses, SPREAD_DIM, SPREAD_SCALE, textZone } from "./wall-spread";
 import type { Tile } from "./wall-types";
 
 /** The pose while a video is chosen (spec 7, "Click"): the wall opens around it. */
@@ -104,6 +105,23 @@ describe("createPose with a chosen video", () => {
     expect(far.fade).toBe(1);
   });
 
+  it("is still once open, and moving while it opens, closes or the choice changes", () => {
+    const pose = createPose(videos);
+    const list = wall();
+    run(pose, list, choice(), 0.2);
+    expect(pose.moving()).toBe(true);
+    run(pose, list, choice(), 1.2);
+    expect(pose.moving()).toBe(false);
+    run(pose, list, choice({ key: "3,2" }), 0.05);
+    expect(pose.moving()).toBe(true);
+    run(pose, list, choice({ key: "3,2" }), 1.2);
+    expect(pose.moving()).toBe(false);
+    run(pose, list, choice({ key: "3,2", live: false }), 0.05);
+    expect(pose.moving()).toBe(true);
+    run(pose, list, null, 0.016);
+    expect(pose.moving()).toBe(true);
+  });
+
   it("keeps the channel's other videos bright, and dims the rest to 55%", () => {
     const pose = createPose(videos);
     const list = wall();
@@ -198,5 +216,63 @@ describe("createPose with a chosen video", () => {
       expect(t.c).toBe(0);
       expect(t.w).toBe(size.cw);
     }
+  });
+});
+
+describe("no two visible tiles overlap once the wall is open", () => {
+  const SIZES: Array<[number, number]> = [
+    [320, 568],
+    [390, 844],
+    [820, 1180],
+    [1024, 768],
+    [1440, 900],
+    [2560, 1440],
+  ];
+  const vids = Array.from({ length: 51 }, (_, i) => ({ channel: `c${i % 9}` }));
+  it.each(SIZES)("at %i by %i, whichever tile is chosen and however the wall has drifted", (vw, vh) => {
+    const sz = tileSize(vw);
+    const { rect, zone } = choiceLayout(vw, vh);
+    for (const [pan, t] of [
+      [0, 0],
+      [137, 31],
+      [511, 90],
+    ]) {
+      const base = layoutTiles({ panX: pan, panY: pan / 3, vw, vh, pitchX: sz.pitchX, pitchY: sz.pitchY, t, count: vids.length });
+      const near = [...base].sort(
+        (a, b) =>
+          Math.hypot(a.x - vw / 2, a.y - vh / 2) - Math.hypot(b.x - vw / 2, b.y - vh / 2),
+      );
+      // the tile nearest the middle, one at the far corner and one in between
+      for (const pick of [near[0], near[Math.floor(near.length / 2)], near[near.length - 1]]) {
+        const pose = createPose(vids);
+        const list = layoutTiles({ panX: pan, panY: pan / 3, vw, vh, pitchX: sz.pitchX, pitchY: sz.pitchY, t, count: vids.length }).map(
+          (l): Tile => ({ ...l, f: 0, e: 0, c: 0, dim: 1, fade: 1, cx: 0, cy: 0, w: 0, h: 0, rad: 0 }),
+        );
+        const c: PoseChoice = { key: pick.key, live: true, rect, zone, halfDiag: Math.hypot(vw / 2, vh / 2) };
+        for (let i = 0; i < 90; i++) {
+          pose.apply(list, { dt: 0.016, size: sz, hoverKey: c.key, point: null, focusIdx: pick.idx, reduced: false, choice: c });
+        }
+        const others = list.filter((l) => l.key !== pick.key && l.fade >= 0.02);
+        expect(others.length).toBeGreaterThan(0);
+        const box = (l: Tile) => ({ x: l.cx - l.w / 2, y: l.cy - l.h / 2, w: l.w, h: l.h });
+        for (let i = 0; i < others.length; i++) {
+          for (let j = i + 1; j < others.length; j++) {
+            expect(crosses(box(others[i]), box(others[j]))).toBe(false);
+          }
+          expect(crosses(box(others[i]), zone)).toBe(false);
+        }
+        expect(countOverlaps(list, c)).toBe(0);
+      }
+    }
+  });
+});
+
+describe("picturesSettled", () => {
+  it("needs every picture up and its fade over", () => {
+    expect(picturesSettled(undefined, 5000)).toBe(false);
+    expect(picturesSettled(new Float64Array(0), 5000)).toBe(false);
+    expect(picturesSettled(Float64Array.from([100, 0, 200]), 5000)).toBe(false);
+    expect(picturesSettled(Float64Array.from([100, 300, 200]), 1000)).toBe(false);
+    expect(picturesSettled(Float64Array.from([100, 300, 200]), 1600)).toBe(true);
   });
 });

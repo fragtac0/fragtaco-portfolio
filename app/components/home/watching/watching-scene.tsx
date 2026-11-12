@@ -6,6 +6,7 @@ import "./watching.css";
 import VideoDetail, { type VideoDetailHandle } from "./video-detail";
 import type { PickChannel, WallPick } from "./pick-channel";
 import type { WallEngine } from "./wall-types";
+import { echoSet } from "./wall-math";
 import WallPlaceholder from "./wall-placeholder";
 import WatchingFallback, { gridWall } from "./watching-fallback";
 
@@ -144,7 +145,7 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
   }, [open, fallback, setHeaderHidden]);
 
   const video = pick ? (videos[pick.index] ?? null) : null;
-  const more = video ? videos.filter((v) => v.channel === video.channel).length - 1 : 0;
+  const more = pick ? echoSet(videos, pick.index).size : 0;
 
   return (
     <div

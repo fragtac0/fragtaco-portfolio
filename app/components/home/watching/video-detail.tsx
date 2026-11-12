@@ -40,7 +40,7 @@ type VideoDetailProps = {
   /** The tile's key, to ask the grid where to fly back to. */
   tileKey: string | null;
   wall: WallControl;
-  /** How many other videos from the chosen video's channel are on the wall. */
+  /** How many other videos from the chosen video's channel there are (the count the chip shows, `echoSet`). */
   more: number;
   /** Fired when the close has finished and the wall has thawed. */
   onClose: () => void;
@@ -237,8 +237,15 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
       <div
         className="bg"
         role="presentation"
-        onClick={() => {
-          if (performance.now() - st.current.openedAt > TAP_ECHO_MS) close();
+        onClick={(e) => {
+          if (performance.now() - st.current.openedAt <= TAP_ECHO_MS) return;
+          // the picture lets pointers through to here (the wall's tile is under it): a click on
+          // the chosen video itself does nothing, the Watch link is the action
+          const r = shotRef.current?.getBoundingClientRect();
+          if (r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
+            return;
+          }
+          close();
         }}
       />
       <div ref={shotRef} className="shot">

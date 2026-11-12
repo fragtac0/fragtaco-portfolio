@@ -3,7 +3,7 @@ import { createSlicer } from "../../../utils/idle";
 import { watchContextLost } from "../context-lost";
 import { drawTiles } from "./wall-draw";
 import { createWallGl, type WallGl } from "./wall-gl";
-import { countUnderText, createChoiceLayout } from "./wall-choice";
+import { countOverlaps, countUnderText, createChoiceLayout, picturesSettled } from "./wall-choice";
 import { createChip, createProbe } from "./wall-hud";
 import { attachWallInput, createWallInput } from "./wall-input";
 import { atlasLayout, cellUv, hitTile, layoutTiles, tileSize, type Atlas } from "./wall-math";
@@ -82,6 +82,8 @@ export function createWall(
   let runToken = 0;
   let onFirstFrame: (() => void) | null = null;
   const slicer = createSlicer();
+  /** The still frame on the screen (see `frame`), or "" when the next frame must be drawn. */
+  let drawnStill = "";
 
   // interaction and view state, shared with the input code through the context
   const st = createWallState();
@@ -203,15 +205,22 @@ export function createWall(
     });
     thumbs?.pumpFrame();
 
-    const draw = ghosts.length ? [...ghosts, ...list] : list;
-    if (!drawTiles(wgl, draw, { now, vw, vh, pitchX, reduced: REDUCE, uvs, loadedAt: thumbs?.loadedAt })) {
-      // the GPU cannot render to the wall's target: the plain grid takes over, as for a lost context
-      failed = true;
-      stop();
-      canvas.dispatchEvent(new Event("webglcontextlost"));
-      return;
+    // a still wall (a video open, nothing travelling, every picture up and settled) keeps the frame
+    // that is already on the screen until something changes
+    const calm = choice && !pose.moving() && picturesSettled(thumbs?.loadedAt, now);
+    const calmSig = calm ? `${choice.key}|${vw}x${vh}` : "";
+    if (!calm || calmSig !== drawnStill) {
+      const draw = ghosts.length ? [...ghosts, ...list] : list;
+      if (!drawTiles(wgl, draw, { now, vw, vh, pitchX, reduced: REDUCE, uvs, loadedAt: thumbs?.loadedAt })) {
+        // the GPU cannot render to the wall's target: the plain grid takes over, as for a lost context
+        failed = true;
+        stop();
+        canvas.dispatchEvent(new Event("webglcontextlost"));
+        return;
+      }
+      wgl.endFrame(vw, vh);
+      drawnStill = calmSig;
     }
-    wgl.endFrame(vw, vh);
     st.tiles = list;
     if (onFirstFrame) {
       const cb = onFirstFrame;
@@ -224,6 +233,7 @@ export function createWall(
     probe("echo", String(echo.size));
     probe("chosen", st.choice?.key ?? "");
     probe("under", choice ? String(countUnderText(list, choice)) : "0");
+    probe("overlaps", choice ? String(countOverlaps(list, choice)) : "0");
     const cur = st.dragging ? "grabbing" : st.hoverKey ? "pointer" : "grab";
     if (cur !== cursor) canvas.style.cursor = cursor = cur;
   }
@@ -239,6 +249,7 @@ export function createWall(
     cursor = "";
     mouse.inside = false;
     st.choice = null;
+    drawnStill = "";
     st.dragging = false;
     st.down = null;
     st.kbd = null;
@@ -280,6 +291,7 @@ export function createWall(
       point = null;
       pose.reset();
       st.choice = null;
+      drawnStill = "";
       sizes();
       running = true;
       last = performance.now();

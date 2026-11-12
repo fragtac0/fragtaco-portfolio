@@ -133,11 +133,12 @@
    300
   ],
   "wait": 100,
-  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=1000)r((()=>{const c=document.querySelector('.wall-host canvas').dataset;const z=document.querySelector('.vtext').getBoundingClientRect();const s=document.querySelector('.shot').getBoundingClientRect();const h=document.querySelector('.vov h3');const w=document.querySelector('.vov .watch');return {chosen:c.chosen,under:c.under,echo:c.echo,display:getComputedStyle(document.querySelector('.vov')).display,shot:[s.x,s.y,s.width,s.height].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),textInsideScreen:z.bottom<=innerHeight&&z.right<=innerWidth&&z.left>=0,textUnderShot:z.top>=s.bottom,shotLanded:document.querySelector('.shot').classList.contains('landed'),title:h.textContent.length>0,meta:document.querySelector('.vmeta').textContent,watch:[w.textContent,w.getAttribute('href').startsWith('https://www.youtube.com/watch?v='),w.rel],hintHidden:+getComputedStyle(document.querySelector('.wall-scene .xp-hint')).opacity}})());else requestAnimationFrame(f)})()})",
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=1000)r((()=>{const c=document.querySelector('.wall-host canvas').dataset;const z=document.querySelector('.vtext').getBoundingClientRect();const s=document.querySelector('.shot').getBoundingClientRect();const h=document.querySelector('.vov h3');const w=document.querySelector('.vov .watch');return {chosen:c.chosen,under:c.under,overlaps:c.overlaps,echo:c.echo,display:getComputedStyle(document.querySelector('.vov')).display,shot:[s.x,s.y,s.width,s.height].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),textInsideScreen:z.bottom<=innerHeight&&z.right<=innerWidth&&z.left>=0,textUnderShot:z.top>=s.bottom,shotLanded:document.querySelector('.shot').classList.contains('landed'),title:h.textContent.length>0,meta:document.querySelector('.vmeta').textContent,watch:[w.textContent,w.getAttribute('href').startsWith('https://www.youtube.com/watch?v='),w.rel],hintHidden:+getComputedStyle(document.querySelector('.wall-scene .xp-hint')).opacity}})());else requestAnimationFrame(f)})()})",
   "label": "open-state"
  },
  {
-  "shot": "local-r44-open-warm"
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush-frames"
  },
  {
   "shot": "local-r44-open"
@@ -146,32 +147,32 @@
   "key": "ArrowRight",
   "vk": 39,
   "wait": 100,
-  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under}})());else requestAnimationFrame(f)})()})",
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under,overlaps:d.overlaps}})());else requestAnimationFrame(f)})()})",
   "label": "arrow-right"
  },
  {
   "key": "ArrowDown",
   "vk": 40,
   "wait": 100,
-  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under}})());else requestAnimationFrame(f)})()})",
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under,overlaps:d.overlaps}})());else requestAnimationFrame(f)})()})",
   "label": "arrow-down"
  },
  {
   "key": "ArrowLeft",
   "vk": 37,
   "wait": 100,
-  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under}})());else requestAnimationFrame(f)})()})",
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under,overlaps:d.overlaps}})());else requestAnimationFrame(f)})()})",
   "label": "arrow-left"
  },
  {
   "key": "ArrowUp",
   "vk": 38,
   "wait": 100,
-  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under}})());else requestAnimationFrame(f)})()})",
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const d=document.querySelector('.wall-host canvas').dataset;return {chosen:d.chosen,under:d.under,overlaps:d.overlaps}})());else requestAnimationFrame(f)})()})",
   "label": "arrow-up"
  },
  {
-  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas').dataset;const seen=[c.chosen];for(let i=0;i<14;i++){window.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));await new Promise(q=>{const t=performance.now();(function f(){performance.now()-t>=60?q():requestAnimationFrame(f)})()});seen.push(c.chosen)}await new Promise(q=>{const t=performance.now();(function f(){performance.now()-t>=700?q():requestAnimationFrame(f)})()});return {moves:new Set(seen).size,last:c.chosen,under:c.under,keptStillAtTheEdge:seen.slice(-3).every(k=>k===seen[seen.length-1])}})()",
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas').dataset;const seen=[c.chosen];for(let i=0;i<14;i++){window.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));await new Promise(q=>{const t=performance.now();(function f(){performance.now()-t>=60?q():requestAnimationFrame(f)})()});seen.push(c.chosen)}await new Promise(q=>{const t=performance.now();(function f(){performance.now()-t>=700?q():requestAnimationFrame(f)})()});return {moves:new Set(seen).size,last:c.chosen,under:c.under,overlaps:c.overlaps,keptStillAtTheEdge:seen.slice(-3).every(k=>k===seen[seen.length-1])}})()",
   "label": "arrows-to-the-edge-then-stay"
  },
  {
@@ -258,8 +259,7 @@
    720,
    400
   ],
-  "wait": 300,
-  "eval": "[document.querySelector('.wall-host canvas').dataset.chosen!=='',getComputedStyle(document.querySelector('.vov')).display]",
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=800)r([document.querySelector('.wall-host canvas').dataset.chosen!=='',getComputedStyle(document.querySelector('.vov')).display==='block']);else requestAnimationFrame(f)})()})",
   "label": "click-on-the-video-keeps-it-open"
  },
  {
@@ -298,7 +298,7 @@
    300
   ],
   "wait": 100,
-  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const c=document.querySelector('.wall-host canvas').dataset;const z=document.querySelector('.vtext').getBoundingClientRect();const s=document.querySelector('.shot').getBoundingClientRect();const h=document.querySelector('.vov h3');const w=document.querySelector('.vov .watch');return {chosen:c.chosen,under:c.under,echo:c.echo,display:getComputedStyle(document.querySelector('.vov')).display,shot:[s.x,s.y,s.width,s.height].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),textInsideScreen:z.bottom<=innerHeight&&z.right<=innerWidth&&z.left>=0,textUnderShot:z.top>=s.bottom,shotLanded:document.querySelector('.shot').classList.contains('landed'),title:h.textContent.length>0,meta:document.querySelector('.vmeta').textContent,watch:[w.textContent,w.getAttribute('href').startsWith('https://www.youtube.com/watch?v='),w.rel],hintHidden:+getComputedStyle(document.querySelector('.wall-scene .xp-hint')).opacity}})());else requestAnimationFrame(f)})()})",
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=900)r((()=>{const c=document.querySelector('.wall-host canvas').dataset;const z=document.querySelector('.vtext').getBoundingClientRect();const s=document.querySelector('.shot').getBoundingClientRect();const h=document.querySelector('.vov h3');const w=document.querySelector('.vov .watch');return {chosen:c.chosen,under:c.under,overlaps:c.overlaps,echo:c.echo,display:getComputedStyle(document.querySelector('.vov')).display,shot:[s.x,s.y,s.width,s.height].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),textInsideScreen:z.bottom<=innerHeight&&z.right<=innerWidth&&z.left>=0,textUnderShot:z.top>=s.bottom,shotLanded:document.querySelector('.shot').classList.contains('landed'),title:h.textContent.length>0,meta:document.querySelector('.vmeta').textContent,watch:[w.textContent,w.getAttribute('href').startsWith('https://www.youtube.com/watch?v='),w.rel],hintHidden:+getComputedStyle(document.querySelector('.wall-scene .xp-hint')).opacity}})());else requestAnimationFrame(f)})()})",
   "label": "reduced-open-state"
  },
  {
@@ -330,11 +330,12 @@
    330
   ],
   "wait": 100,
-  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=1000)r((()=>{const c=document.querySelector('.wall-host canvas').dataset;const z=document.querySelector('.vtext').getBoundingClientRect();const s=document.querySelector('.shot').getBoundingClientRect();const h=document.querySelector('.vov h3');const w=document.querySelector('.vov .watch');return {chosen:c.chosen,under:c.under,echo:c.echo,display:getComputedStyle(document.querySelector('.vov')).display,shot:[s.x,s.y,s.width,s.height].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),textInsideScreen:z.bottom<=innerHeight&&z.right<=innerWidth&&z.left>=0,textUnderShot:z.top>=s.bottom,shotLanded:document.querySelector('.shot').classList.contains('landed'),title:h.textContent.length>0,meta:document.querySelector('.vmeta').textContent,watch:[w.textContent,w.getAttribute('href').startsWith('https://www.youtube.com/watch?v='),w.rel],hintHidden:+getComputedStyle(document.querySelector('.wall-scene .xp-hint')).opacity}})());else requestAnimationFrame(f)})()})",
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){if(performance.now()-t0>=1000)r((()=>{const c=document.querySelector('.wall-host canvas').dataset;const z=document.querySelector('.vtext').getBoundingClientRect();const s=document.querySelector('.shot').getBoundingClientRect();const h=document.querySelector('.vov h3');const w=document.querySelector('.vov .watch');return {chosen:c.chosen,under:c.under,overlaps:c.overlaps,echo:c.echo,display:getComputedStyle(document.querySelector('.vov')).display,shot:[s.x,s.y,s.width,s.height].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),textInsideScreen:z.bottom<=innerHeight&&z.right<=innerWidth&&z.left>=0,textUnderShot:z.top>=s.bottom,shotLanded:document.querySelector('.shot').classList.contains('landed'),title:h.textContent.length>0,meta:document.querySelector('.vmeta').textContent,watch:[w.textContent,w.getAttribute('href').startsWith('https://www.youtube.com/watch?v='),w.rel],hintHidden:+getComputedStyle(document.querySelector('.wall-scene .xp-hint')).opacity}})());else requestAnimationFrame(f)})()})",
   "label": "phone-open-state"
  },
  {
-  "shot": "local-r44-open-phone-warm"
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush-frames"
  },
  {
   "shot": "local-r44-open-phone"
