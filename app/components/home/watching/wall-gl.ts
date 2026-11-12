@@ -1,10 +1,15 @@
 /**
  * The wall's GL context, shaders and quad draw. One program draws every tile as a quad; a tile is
  * a rounded rectangle sampling its cell of the thumbnail atlas (`kind` 0, at `alpha`), and the same
- * program draws the soft shadow and the orange glow under the focused tile (`kind` 2 and 1) and the
+ * program draws the soft shadow and the orange glow (28 px, 18% at most: the site glow, tokens.css --glow) under the focused tile (`kind` 2 and 1) and the
  * hairline cream edge of a tile in the focused channel's echo (`kind` 3). The atlas texture is
  * wall-thumbs.ts's; it stays bound to unit 0.
  */
+
+import { SURFACE_1, glslVec3 } from "../../../styles/tokens";
+
+/** A tile before its picture loads: tokens.css --surface-1. */
+const SURFACE_VEC3 = glslVec3(SURFACE_1);
 
 const VS = `attribute vec2 p;uniform vec4 uRect;uniform vec2 uRes;uniform float uPad;varying vec2 vL;
   void main(){vec2 sz=uRect.zw+2.*uPad;vec2 pos=uRect.xy-uPad+p*sz;vL=pos-(uRect.xy+uRect.zw*.5);vec2 c=pos/uRes*2.-1.;gl_Position=vec4(c.x,-c.y,0.,1.);}`;
@@ -15,10 +20,10 @@ const FS = `precision highp float;varying vec2 vL;
     float sd=sdBox(vL,uRect.zw*.5,uRad);
     if(uKind>2.5){float o=1.-smoothstep(-.8,.8,sd);float n=1.-smoothstep(-.8,.8,sd+1.);float a=max(o-n,0.)*uAlpha;gl_FragColor=vec4(vec3(.992,.988,.902)*a,a);return;}
     if(uKind>1.5){float a=(1.-smoothstep(-26.,54.,sd))*uAlpha;gl_FragColor=vec4(0.,0.,0.,a);return;}
-    if(uKind>.5){float a=1.-smoothstep(-8.,60.,sd);a=a*a*uAlpha;gl_FragColor=vec4(vec3(.988,.298,0.)*a,a);return;}
+    if(uKind>.5){float a=1.-smoothstep(-8.,28.,sd);a=a*a*uAlpha;gl_FragColor=vec4(vec3(.988,.298,0.)*a,a);return;}
     float a=(1.-smoothstep(-.8,.8,sd))*uAlpha;
     vec2 st=clamp(vL/uRect.zw+.5,0.,1.);
-    vec3 col=uLoaded>.5?texture2D(uAtlas,uCell.xy+st*uCell.zw,uBias).rgb:vec3(.075,.06,.05)+.022*sin(vL.x*.02-uTime*2.4);
+    vec3 col=uLoaded>.5?texture2D(uAtlas,uCell.xy+st*uCell.zw,uBias).rgb:${SURFACE_VEC3}+.022*sin(vL.x*.02-uTime*2.4);
     gl_FragColor=vec4(col*uDim*a,a);
   }`;
 

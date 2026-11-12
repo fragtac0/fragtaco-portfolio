@@ -64,7 +64,7 @@
 }
 .home-layer .sp-plank {
   position: absolute;
-  background: linear-gradient(#3b271a, #160e09);
+  background: linear-gradient(var(--surface-2), var(--surface-1));
 }
 .home-layer .sp-bar {
   position: absolute;
@@ -88,7 +88,7 @@
 .home-layer .shelf-dim {
   position: absolute;
   inset: 0;
-  background: rgba(5, 4, 3, 0.5);
+  background: color-mix(in srgb, var(--ground) 50%, transparent);
   opacity: 0;
   transition: opacity 0.55s ease;
   pointer-events: none;
@@ -110,8 +110,8 @@
     transform 0.7s var(--ease);
   padding: 24px 24px 22px;
   border-radius: 22px;
-  background: rgba(14, 10, 8, 0.72);
-  outline: 1px solid rgba(253, 252, 230, 0.12);
+  background: color-mix(in srgb, var(--surface-1) 72%, transparent);
+  outline: 1px solid var(--line);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
 .home-layer .book-info.on {
@@ -167,7 +167,7 @@
     width: auto;
     transform: translate3d(0, 12px, 0);
     padding: 18px;
-    background: rgba(14, 10, 8, 0.86);
+    background: color-mix(in srgb, var(--surface-1) 86%, transparent);
   }
   .home-layer .book-info.on {
     transform: none;
@@ -186,15 +186,15 @@
 .home-layer .fb-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(5, 4, 3, 0.78);
+  background: color-mix(in srgb, var(--ground) 78%, transparent);
 }
 .home-layer .fb-note {
   position: relative;
   width: min(380px, 100%);
   padding: 24px 24px 22px;
   border-radius: 22px;
-  background: rgba(14, 10, 8, 0.92);
-  outline: 1px solid rgba(253, 252, 230, 0.12);
+  background: color-mix(in srgb, var(--surface-1) 92%, transparent);
+  outline: 1px solid var(--line);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
 .home-layer .fb-note h3 {

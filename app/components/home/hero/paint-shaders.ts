@@ -3,6 +3,11 @@
  * engine stays short; they are plain strings with no logic.
  */
 
+import { GROUND, glslVec3 } from "../../../styles/tokens";
+
+/** The page ground (tokens.css --ground): what shows before a painting has loaded. */
+const GROUND_VEC3 = glslVec3(GROUND);
+
 export const VERTEX_SRC =
   "attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}";
 
@@ -27,11 +32,11 @@ export const FRAGMENT_SRC = `precision highp float;varying vec2 v;
     vec2 uv=vec2(v.x,1.-v.y);
     vec2 ub=cover(uv,uAspB,uFocB,uZoomB);
     if(uP>=1.){gl_FragColor=vec4(finish(uBlur>.002?soft(uB,ub):texture2D(uB,ub).rgb),1.);return;}
-    if(uP<=0.&&uHasA<.5){gl_FragColor=vec4(finish(vec3(.02,.016,.012)),1.);return;}
+    if(uP<=0.&&uHasA<.5){gl_FragColor=vec4(finish(${GROUND_VEC3}),1.);return;}
     if(uMode>1.5){
       vec3 Bc=uBlur>.002?soft(uB,ub):texture2D(uB,ub).rgb;
       vec2 uc=cover(uv,uAspA,uFocA,uZoomA);
-      vec3 Ac=uHasA<.5?vec3(.02,.016,.012):(uBlur>.002?soft(uA,uc):texture2D(uA,uc).rgb);
+      vec3 Ac=uHasA<.5?${GROUND_VEC3}:(uBlur>.002?soft(uA,uc):texture2D(uA,uc).rgb);
       gl_FragColor=vec4(finish(mix(Ac,Bc,uP)),1.);return;
     }
     float ca=uRes.x/uRes.y;vec2 pa=(uv-.5)*vec2(ca,1.);
@@ -48,7 +53,7 @@ export const FRAGMENT_SRC = `precision highp float;varying vec2 v;
     vec2 off=nrm*.05*s;float k=1.+.4*s;
     vec2 ua=cover(uv,uAspA,uFocA,uZoomA);
     vec3 A=vec3(texture2D(uA,ua+off*k).r,texture2D(uA,ua+off).g,texture2D(uA,ua+off/k).b);
-    if(uHasA<.5)A=vec3(.02,.016,.012);
+    if(uHasA<.5)A=${GROUND_VEC3};
     vec3 B=vec3(texture2D(uB,ub-off*k).r,texture2D(uB,ub-off).g,texture2D(uB,ub-off/k).b);
     vec3 col=mix(A,B,mB);
     vec3 N=normalize(vec3(-nrm*s*1.3,1.));

@@ -191,7 +191,7 @@ export default function SiteNav({
         onPointerEnter={reachDock}
         onPointerDown={reachDock}
         onFocus={reachDock}
-        className={`pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden ${shape} border border-fog/14 bg-[rgba(17,12,8,0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5`}>
+        className={`pointer-events-auto relative max-w-[calc(100vw-1rem)] overflow-hidden ${shape} border border-fog/14 bg-[rgb(var(--glass-rgb)/0.46)] p-1 shadow-nav-glass backdrop-blur-2xl sm:max-w-full sm:p-1.5`}>
         <span
           aria-hidden="true"
           className={`pointer-events-none absolute inset-0 ${shape} bg-[linear-gradient(180deg,rgba(255,236,214,0.16),rgba(255,236,214,0.04)_42%,rgba(0,0,0,0.14))]`}

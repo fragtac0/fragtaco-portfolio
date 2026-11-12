@@ -5,14 +5,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#050403",
+        ink: "var(--ground)", // tokens.css
         fog: "#F5EFE6",
-        panel: "#0d0a07",
-        accent: "#FC4C00",
+        panel: "var(--surface-1)",
+        accent: "var(--accent)",
         gilt: "#D9A441",
         verdigris: "#2E6F64",
         muted: "#d8d0c4",
-        glass: "rgba(28,20,12,0.2)",
+        glass: "rgb(var(--glass-rgb) / 0.2)",
         label: {
           verdigris: "#3E8A7C",
           gilt: "#D9A441",

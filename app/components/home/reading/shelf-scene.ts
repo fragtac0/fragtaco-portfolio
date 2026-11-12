@@ -126,7 +126,7 @@ export async function buildShelfScene(
     r.toneMappingExposure = 1.12;
     const scene = new T.Scene();
     const camera = new T.PerspectiveCamera(FOV_DEG, 1, 0.1, 80);
-    scene.add(new T.HemisphereLight(0xfff2df, 0x140b05, 0.75));
+    scene.add(new T.HemisphereLight(0xfff2df, 0x121211, 0.75));
     const key = new T.DirectionalLight(0xfff3e4, 2.6);
     key.position.set(-2.4, 4.4, 4.6);
     scene.add(key);

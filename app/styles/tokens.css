@@ -19,9 +19,17 @@
   --ink-2: rgba(253, 252, 230, 0.72); /* secondary text */
   --ink-3: rgba(253, 252, 230, 0.62); /* quiet text, the lowest allowed */
 
-  /* the dark ground of /work and its clear twin, for fades */
-  --ground: #050403;
-  --ground-clear: rgba(5, 4, 3, 0);
+  /* the dark grounds: warm charcoal, neutral (R42, spec 4). Cream carries the light; orange is only an accent.
+     The paint shader and the wall shader repeat these as colours (app/styles/tokens.ts); a test keeps them equal. */
+  --ground: #0e0e0d; /* page grounds: work, experience, layers, the hero's fallback */
+  --ground-clear: color-mix(in srgb, var(--ground) 0%, transparent); /* the ground faded out, for fades */
+  --surface-1: #171716; /* panels, placeholders, tiles before their picture loads */
+  --surface-2: #21201f; /* raised panels, chips */
+  --line: rgba(253, 252, 230, 0.1); /* hairlines and borders */
+  --accent: #fc4c00;
+  --accent-soft: rgba(252, 76, 0, 0.14); /* the active pill's fill */
+  --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the only orange glow allowed */
+  --glass-rgb: 16 16 15; /* the dock glass: this colour at 46% */
 
   /* the dock's idle labels (the active one is 100%) */
   --dock-idle: 0.85;

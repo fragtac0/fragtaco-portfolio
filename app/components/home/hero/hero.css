@@ -41,7 +41,7 @@
   height: 100dvh;
   min-height: 560px;
   overflow: hidden;
-  background: #050403;
+  background: var(--ground);
   touch-action: pan-y;
 }
 .home-hero .hero-layer {
@@ -93,8 +93,8 @@
   opacity: 0;
   transition: opacity 1.6s;
   background:
-    radial-gradient(ellipse 58% 46% at 50% 50%, rgba(5, 4, 3, 0.6), rgba(5, 4, 3, 0) 72%),
-    linear-gradient(180deg, rgba(5, 4, 3, 0.5), rgba(5, 4, 3, 0) 26%, rgba(5, 4, 3, 0) 64%, rgba(5, 4, 3, 0.78));
+    radial-gradient(ellipse 58% 46% at 50% 50%, color-mix(in srgb, var(--ground) 60%, transparent), var(--ground-clear) 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--ground) 50%, transparent), var(--ground-clear) 26%, var(--ground-clear) 64%, color-mix(in srgb, var(--ground) 78%, transparent));
 }
 .home-hero .vignette.on {
   opacity: 1;
@@ -190,7 +190,7 @@
   position: absolute;
   top: 50%;
   z-index: 17;
-  width: min(220px, 32vw);
+  width: 28px; /* the glow rule: nothing wider than 28 px (tokens.css --glow) */
   height: 46vh;
   transform: translateY(-50%);
   pointer-events: none;
@@ -199,11 +199,11 @@
 }
 .home-hero .edge-glow.r {
   right: 0;
-  background: radial-gradient(64% 50% at 100% 50%, rgba(252, 76, 0, 0.38), rgba(252, 76, 0, 0) 100%);
+  background: linear-gradient(to left, var(--accent-soft), transparent);
 }
 .home-hero .edge-glow.l {
   left: 0;
-  background: radial-gradient(64% 50% at 0% 50%, rgba(252, 76, 0, 0.38), rgba(252, 76, 0, 0) 100%);
+  background: linear-gradient(to right, var(--accent-soft), transparent);
 }
 .home-hero[data-peeks]:not([data-softened]) .edge-glow {
   opacity: 1;

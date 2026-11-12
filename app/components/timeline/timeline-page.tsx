@@ -92,7 +92,7 @@ export default function TimelinePage({ timeline, today, navigationItems, socialL
 
   return (
     <main className="timeline-page">
-      <WorkBackground strength="half" />
+      <WorkBackground />
       {/* `application` is right here: the canvas is a custom widget that takes its own arrow, plus, minus and 0 keys. */}
       <canvas
         ref={canvasRef}

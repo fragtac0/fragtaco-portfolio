@@ -21,6 +21,10 @@ export type DrawInput = {
   loadedAt: ArrayLike<number> | undefined;
 };
 
+/** The orange glow under the focused tile is tokens.css --glow: no wider than 28 px, no stronger than 18%. */
+const GLOW_REACH = 28;
+const GLOW_ALPHA = 0.18;
+
 /** The echo edge: cream, at 35%. */
 const ECHO_EDGE = 0.35;
 
@@ -36,7 +40,7 @@ export function drawTiles(wgl: WallGl, list: readonly Tile[], d: DrawInput): voi
     const T = tl.cy - tl.h / 2;
     if (tl.f > 0.01) {
       wgl.quad(L, T + 18 * tl.f, tl.w, tl.h, 2, 0.5 * tl.f, 70, tl.rad); // a soft shadow lifts it off the wall
-      wgl.quad(L, T, tl.w, tl.h, 1, 0.5 * tl.f, 70, tl.rad); // and a faint orange glow
+      wgl.quad(L, T, tl.w, tl.h, 1, GLOW_ALPHA * tl.f, GLOW_REACH, tl.rad); // and the site glow: 28 px, 18%
     }
     const uv = d.uvs[tl.idx];
     g.uniform4f(U.uCell, uv[0], uv[1], uv[2], uv[3]);
