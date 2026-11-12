@@ -13,8 +13,11 @@
  * not arrived (or never will) is flat `--surface-1`; no vignette fade; transparent between tiles so the
  * ground shows through.
  *
- * A per-tile state texture (count by 1, RGBA8) carries what changes per tile, so no uniform array is
- * needed: R the picture's reveal (0 flat surface, 1 the picture), G the hover amount, B the ring.
+ * A per-tile state texture (count by 1, RGBA8) carries what changes per tile: R the picture's reveal
+ * (0 flat surface, 1 the picture), B the ring. Hover growth is a plain 4% scale of the whole tile that
+ * may cover the gap and the neighbours, so it is not part of the cell lookup: the pixel's own tile is
+ * drawn at its size, then the few grown tiles (`uGrown`, up to 4: tile index or -1, amount; strongest
+ * last) are drawn over it.
  */
 
 import { CREAM, SURFACE_1, glslVec3 } from "../../../styles/tokens";
@@ -38,6 +41,7 @@ uniform float uLastOff;     // the short last row's shift
 uniform float uK;           // warp strength
 uniform float uRadius;      // corner radius, px
 uniform float uGrow;        // hover growth, 0.04
+uniform vec2 uGrown[4];     // grown tiles: index (-1 none), amount 0 to 1
 uniform vec4 uAtlas;        // atlas cols, cell width, cell height, unused
 uniform vec2 uAtlasSize;    // atlas texture size, px
 uniform sampler2D uPics;
@@ -61,30 +65,19 @@ vec2 unwarp(vec2 p){
   return ((s * (r / sg)) + 1.0) * 0.5 * uRes;
 }
 
-void main(){
-  vec2 p = vec2(vUv.x, 1.0 - vUv.y) * uRes;
-  vec2 c = unwarp(p) - uOffset - uTile.zw;
-  float gap = uGrid.w;
-  vec2 pitch = uTile.xy + gap;
-  float row = floor((c.y + gap * 0.5) / pitch.y);
+// tile idx at hover amount amt, premultiplied; c is the layout point relative to the grid origin
+vec4 tile(float idx, float amt, vec2 c){
+  vec2 pitch = uTile.xy + uGrid.w;
+  float row = floor(idx / uGrid.x);
+  float col = idx - row * uGrid.x;
   float off = row > uGrid.y - 1.5 ? uLastOff : 0.0;
-  float col = floor((c.x - off + gap * 0.5) / pitch.x);
-  float idx = row * uGrid.x + col;
-  if (row < 0.0 || row >= uGrid.y || col < 0.0 || col >= uGrid.x || idx >= uGrid.z) {
-    gl_FragColor = vec4(0.0);
-    return;
-  }
   vec2 d = c - (vec2(col * pitch.x + off, row * pitch.y) + uTile.xy * 0.5);
-  vec4 st = texture2D(uState, vec2((idx + 0.5) / uGrid.z, 0.5));
-  // growth stays inside the tile's own cell (half a gap), so no neighbour has to look at it
-  vec2 ext = min(uGrow * st.g * uTile.xy * 0.5, vec2(gap * 0.4));
-  vec2 hs = uTile.xy * 0.5 + ext;
+  float s = 1.0 + uGrow * amt;
+  vec2 hs = uTile.xy * 0.5 * s;
   float sd = sdBox(d, hs, uRadius);
   float a = 1.0 - smoothstep(-0.5, 0.5, sd);
-  if (a <= 0.0) {
-    gl_FragColor = vec4(0.0);
-    return;
-  }
+  if (a <= 0.0) return vec4(0.0);
+  vec4 st = texture2D(uState, vec2((idx + 0.5) / uGrid.z, 0.5));
   vec2 uv = d / (hs * 2.0) + 0.5;
   vec2 cell = vec2(mod(idx, uAtlas.x), floor(idx / uAtlas.x));
   vec2 cellPx = uAtlas.yz;
@@ -93,5 +86,27 @@ void main(){
   vec3 col3 = mix(SURFACE, texture2D(uPics, px / uAtlasSize).rgb, st.r);
   float ring = st.b * smoothstep(-2.6, -2.0, sd) * (1.0 - smoothstep(-0.6, 0.0, sd));
   col3 = mix(col3, RING, ring);
-  gl_FragColor = vec4(col3 * a, a);
+  return vec4(col3 * a, a);
+}
+
+void main(){
+  vec2 p = vec2(vUv.x, 1.0 - vUv.y) * uRes;
+  vec2 c = unwarp(p) - uOffset - uTile.zw;
+  float gap = uGrid.w;
+  vec2 pitch = uTile.xy + gap;
+  vec4 outc = vec4(0.0);
+  // the tile whose cell holds this pixel, at its own size
+  float row = floor((c.y + gap * 0.5) / pitch.y);
+  float off = row > uGrid.y - 1.5 ? uLastOff : 0.0;
+  float col = floor((c.x - off + gap * 0.5) / pitch.x);
+  float idx = row * uGrid.x + col;
+  if (row >= 0.0 && row < uGrid.y && col >= 0.0 && col < uGrid.x && idx < uGrid.z) outc = tile(idx, 0.0, c);
+  // grown tiles over it, the strongest last
+  for (int i = 0; i < 4; i++) {
+    if (uGrown[i].x >= 0.0) {
+      vec4 t = tile(uGrown[i].x, uGrown[i].y, c);
+      outc = t + outc * (1.0 - t.a);
+    }
+  }
+  gl_FragColor = outc;
 }`;

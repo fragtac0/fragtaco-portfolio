@@ -128,9 +128,29 @@ export function unwarp(x: number, y: number, vw: number, vh: number, k = WARP_K)
   return [((u * g + 1) * vw) / 2, ((v * g + 1) * vh) / 2];
 }
 
-/** The tile under a screen point, or null in a gap, a margin or an empty slot. `drift` is drift plus nudge. */
-export function tileAt(x: number, y: number, g: Grid, drift: Pt, vw: number, vh: number): number | null {
+/**
+ * The tile under a screen point, or null in a gap, a margin or an empty slot. `drift` is drift plus nudge.
+ * `grown` is the hovered tile and how far it has grown (0.04 at full): its grown box, which covers part of
+ * the gap, is tested first, so the visible fringe of a grown tile still hits it.
+ */
+export function tileAt(
+  x: number,
+  y: number,
+  g: Grid,
+  drift: Pt,
+  vw: number,
+  vh: number,
+  grown?: { i: number; grow: number } | null,
+): number | null {
   const [cx, cy] = unwarp(x, y, vw, vh);
+  if (grown && grown.i >= 0 && grown.i < g.count && grown.grow > 0) {
+    const r = tileRect(g, grown.i);
+    const hw = (r.w * (1 + grown.grow)) / 2;
+    const hh = (r.h * (1 + grown.grow)) / 2;
+    if (Math.abs(cx - drift.x - (r.x + r.w / 2)) <= hw && Math.abs(cy - drift.y - (r.y + r.h / 2)) <= hh) {
+      return grown.i;
+    }
+  }
   const ly = cy - drift.y - g.originY;
   const pitchY = g.tileH + g.gap;
   const row = Math.floor(ly / pitchY);

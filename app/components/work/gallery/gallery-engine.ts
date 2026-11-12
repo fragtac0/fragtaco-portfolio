@@ -20,7 +20,7 @@
 
 import type * as THREE from "three";
 import { watchContextLost } from "../../home/context-lost";
-import { createAtlas } from "./gallery-atlas";
+import { createAtlas, type Atlas } from "./gallery-atlas";
 import { attachGalleryInput } from "./gallery-input";
 import {
   GAP_PX,
@@ -40,37 +40,25 @@ import {
   type Safe,
 } from "./gallery-math";
 import { FRAGMENT, VERTEX } from "./gallery-shaders";
-import { createTileState } from "./gallery-state";
+import type { Gallery, GalleryOptions } from "./gallery-types";
+import { GROWN_SLOTS, createTileState, type TileState } from "./gallery-state";
 
-export type GalleryOptions = {
-  items: { src: string }[];
-  /** Tile width over height: 16/9 for long form, 9/16 for short form. */
-  aspect: number;
-  reduced: boolean;
-  onHover(i: number | null): void;
-  /** The safe area (heading band, dock band, margin); a function is asked again at every `resize()`. Default: the 4% margin. */
-  safe?: Safe | (() => Safe);
-  /** A tap or click that did not drag landed on tile `i`. */
-  onActivate?(i: number): void;
-  /** The browser took the GL context away: the engine has stopped; show the plain grid. */
-  onLost?(): void;
-};
-
-export type Gallery = {
-  resize(): void;
-  setPointer(x: number, y: number): void;
-  clearPointer(): void;
-  nudge(dx: number, dy: number): void;
-  focus(i: number | null): void;
-  destroy(): void;
-};
+export type { Gallery, GalleryOptions } from "./gallery-types";
 
 const IDLE_FRAME_MS = 66;
 const MAX_DPR = 2;
 
+/** Everything `assemble` makes that needs freeing if it throws half way. */
+type Parts = {
+  atlas?: Atlas;
+  state?: TileState;
+  geometry?: THREE.BufferGeometry;
+  material?: THREE.Material;
+};
+
+/** Resolves to null (never rejects) when three, WebGL or the scene cannot start. */
 export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOptions): Promise<Gallery | null> {
-  const count = opts.items.length;
-  if (count === 0) return null;
+  if (opts.items.length === 0) return null;
   let T: typeof THREE;
   let renderer: THREE.WebGLRenderer;
   try {
@@ -80,6 +68,29 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
     console.warn("The video wall could not start WebGL.", err);
     return null;
   }
+  const parts: Parts = {};
+  try {
+    return assemble(T, renderer, canvas, opts, parts);
+  } catch (err) {
+    console.warn("The video wall could not start.", err);
+    parts.atlas?.dispose();
+    parts.state?.dispose();
+    parts.geometry?.dispose();
+    parts.material?.dispose();
+    renderer.dispose();
+    renderer.forceContextLoss();
+    return null;
+  }
+}
+
+function assemble(
+  T: typeof THREE,
+  renderer: THREE.WebGLRenderer,
+  canvas: HTMLCanvasElement,
+  opts: GalleryOptions,
+  parts: Parts,
+): Gallery {
+  const count = opts.items.length;
   renderer.setClearColor(0x000000, 0);
   const reduced = opts.reduced;
 
@@ -93,9 +104,16 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
 
   // ---- the scene
   const cellLong = Math.min(512, Math.max(96, Math.ceil(Math.max(grid.tileW, grid.tileH) * dpr())));
-  const state = createTileState(T, count, reduced);
+  const state = (parts.state = createTileState(T, count, reduced));
   let wake = () => {};
-  const atlas = createAtlas(T, renderer, opts.items.map((it) => it.src), opts.aspect, cellLong, () => wake());
+  const atlas = (parts.atlas = createAtlas(
+    T,
+    renderer,
+    opts.items.map((it) => it.src),
+    opts.aspect,
+    cellLong,
+    () => wake(),
+  ));
   const L = atlas.layout;
   const uniforms = {
     uRes: { value: new T.Vector2(vw, vh) },
@@ -106,20 +124,21 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
     uK: { value: WARP_K },
     uRadius: { value: RADIUS_PX },
     uGrow: { value: HOVER_GROW },
+    uGrown: { value: Array.from({ length: GROWN_SLOTS }, () => new T.Vector2(-1, 0)) },
     uAtlas: { value: new T.Vector4(L.cols, L.cellW, L.cellH, 0) },
     uAtlasSize: { value: new T.Vector2(L.width, L.height) },
     uPics: { value: atlas.texture },
     uState: { value: state.texture },
   };
-  const geometry = new T.PlaneGeometry(2, 2);
-  const material = new T.ShaderMaterial({
+  const geometry = (parts.geometry = new T.PlaneGeometry(2, 2));
+  const material = (parts.material = new T.ShaderMaterial({
     vertexShader: VERTEX,
     fragmentShader: FRAGMENT,
     uniforms,
     transparent: true,
     depthTest: false,
     depthWrite: false,
-  });
+  }));
   material.premultipliedAlpha = true;
   const mesh = new T.Mesh(geometry, material);
   mesh.frustumCulled = false;
@@ -148,6 +167,7 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
   let hover: number | null = null;
   let pull: Pt = { x: 0, y: 0 };
   let lastNudge = 0;
+  let stepBusy = true;
 
   const active = () => !destroyed && !lost && !hidden && onScreen;
   const offsetAt = (now: number): Pt => {
@@ -157,9 +177,11 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
   };
 
   function updateHover(off: Pt) {
-    const i = pointer ? tileAt(pointer.x, pointer.y, grid, off, vw, vh) : null;
+    const grown = hover === null ? null : { i: hover, grow: HOVER_GROW * state.amount(hover) };
+    const i = pointer ? tileAt(pointer.x, pointer.y, grid, off, vw, vh, grown) : null;
     if (i === hover) return;
     hover = i;
+    dirty = true;
     state.setHover(i);
     canvas.style.cursor = i === null ? "" : "pointer";
     opts.onHover(i);
@@ -172,12 +194,16 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
     last = now;
     if ((pull.x !== 0 || pull.y !== 0) && now - lastNudge > NUDGE_HOLD_MS) pull = settleNudge(pull, dt);
     const off = offsetAt(now);
-    atlas.pump();
+    const uploaded = atlas.pump();
     if (pointer) updateHover(off);
-    const eased = state.step(dt, now, atlas.loadedAt);
-    const busy = eased || atlas.waiting() || pull.x !== 0 || pull.y !== 0;
+    // the easing only runs while something eases, was asked for or arrived
+    if (uploaded > 0 || dirty || stepBusy) stepBusy = state.step(dt, now, atlas.loadedAt);
+    const busy = stepBusy || atlas.waiting() || pull.x !== 0 || pull.y !== 0;
     if (dirty || busy || now - lastDraw >= IDLE_FRAME_MS) {
       uniforms.uOffset.value.set(off.x, off.y);
+      for (let k = 0; k < GROWN_SLOTS; k++) {
+        uniforms.uGrown.value[k].set(state.grown[k * 2], state.grown[k * 2 + 1]);
+      }
       renderer.render(scene, camera);
       lastDraw = now;
       dirty = false;
@@ -233,6 +259,7 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
     focus(i) {
       if (destroyed || lost) return;
       state.setFocus(i === null || i < 0 || i >= count ? null : i);
+      dirty = true;
       wake();
     },
     destroy() {
@@ -244,6 +271,7 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
       io?.disconnect();
       ro?.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
+      unsubLost(); // our own context loss below is not a GPU loss
       canvas.style.cursor = "";
       atlas.dispose();
       state.dispose();
@@ -262,7 +290,7 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
       setPointer: (x, y) => api.setPointer(x, y),
       clearPointer: () => api.clearPointer(),
       nudge: (dx, dy) => api.nudge(dx, dy),
-      pick: (x, y) => tileAt(x, y, grid, offsetAt(performance.now()), vw, vh),
+      pick: (x, y) => tileAt(x, y, grid, offsetAt(performance.now()), vw, vh, hover === null ? null : { i: hover, grow: HOVER_GROW * state.amount(hover) }),
     },
     (i) => opts.onActivate?.(i),
     listeners.signal,
@@ -294,7 +322,8 @@ export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOpti
   io?.observe(canvas);
   const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => resize());
   ro?.observe(canvas);
-  watchContextLost(canvas).subscribe(() => {
+  const unsubLost = watchContextLost(canvas).subscribe(() => {
+    if (destroyed) return;
     lost = true;
     cancelAnimationFrame(raf);
     raf = 0;

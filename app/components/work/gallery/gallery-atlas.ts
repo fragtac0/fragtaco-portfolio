@@ -5,9 +5,9 @@
  * `createTextureAtlas`), Copyright (c) 2026 ObsidianUI, MIT License (vendor/obsidianui/LICENSE).
  * Changed: the original waits for every picture, then draws one 512 px square per picture on a 2D
  * canvas and uploads the whole canvas once, text atlas too. Here the atlas texture exists at once and
- * each picture is copied into its own cell with `copyTextureToTexture` as it arrives, at most 2 a frame
- * (the wall's rule; each picture is drawn to a 2D canvas cell and sent with `texSubImage2D`), loaded with CORS in view order (index order is row by row) with a few requests in
- * flight and no more than a handful decoded and waiting. Cells have the tile's aspect and are drawn
+ * each picture is drawn into a 2D canvas cell and sent to its place with `texSubImage2D` as it arrives, at most
+ * 2 a frame (the wall's rule), loaded with CORS in view order (index order is row by row) with a few requests in
+ * flight and no more than a handful loading, decoding or waiting. Cells have the tile's aspect and are drawn
  * object-fit cover. A picture that fails (no network, no CORS) is simply never uploaded: its tile stays
  * `--surface-1` and nothing else is affected. There is no retry.
  */
@@ -68,12 +68,19 @@ export function createAtlas(
   // sets UNPACK_ROW_LENGTH, which Chrome rejects. The plain call is made on the renderer's own context after the
   // texture exists (`initTexture`), and `resetState` makes three forget what it thought was bound.
   renderer.initTexture(texture);
-  const glTexture = (renderer.properties.get(texture) as { __webglTexture: WebGLTexture }).__webglTexture;
+  // `__webglTexture` is three's internal name; if a three upgrade renames it, or the upload errors, no tile is marked
+  // loaded (all stay `--surface-1`) instead of fading in as black
+  const found = (renderer.properties.get(texture) as { __webglTexture?: unknown }).__webglTexture;
+  const glTexture = found instanceof WebGLTexture ? found : null;
+  let broken = glTexture === null;
+  let checked = false;
+  if (broken) console.warn("The video wall cannot reach its picture texture; the tiles stay flat.");
   const loadedAt = new Float64Array(count);
   const ready: Array<{ i: number; img: HTMLImageElement }> = [];
   const images = new Set<HTMLImageElement>();
   let next = 0;
   let inFlight = 0;
+  let decoding = 0;
   let disposed = false;
 
   const settle = (img: HTMLImageElement) => {
@@ -85,7 +92,7 @@ export function createAtlas(
 
   /** Starts loads in index order while there is room. */
   function fill() {
-    while (!disposed && next < count && inFlight < MAX_IN_FLIGHT && ready.length + inFlight < MAX_WAITING) {
+    while (!disposed && next < count && inFlight < MAX_IN_FLIGHT && ready.length + inFlight + decoding < MAX_WAITING) {
       const i = next++;
       const img = new Image();
       img.crossOrigin = "anonymous";
@@ -94,13 +101,22 @@ export function createAtlas(
       img.onload = () => {
         settle(img);
         const done = () => {
+          decoding--;
           if (disposed) return;
           ready.push({ i, img });
           onWork();
         };
         // decode off the main thread when it can; a picture that will not decode is dropped
-        if (typeof img.decode === "function") img.decode().then(done, () => (img.naturalWidth ? done() : fill()));
-        else done();
+        decoding++;
+        if (typeof img.decode === "function") {
+          img.decode().then(done, () => {
+            if (img.naturalWidth) done();
+            else {
+              decoding--;
+              fill();
+            }
+          });
+        } else done();
         fill();
       };
       img.onerror = () => {
@@ -118,7 +134,7 @@ export function createAtlas(
     layout,
     loadedAt,
     pump() {
-      if (disposed || !ctx) return 0;
+      if (disposed || !ctx || broken || !glTexture) return 0;
       let up = 0;
       while (up < UPLOADS_PER_FRAME && ready.length) {
         const { i, img } = ready.shift() as { i: number; img: HTMLImageElement };
@@ -126,6 +142,7 @@ export function createAtlas(
           const r = coverRect(img.naturalWidth, img.naturalHeight, layout.cellW, layout.cellH);
           ctx.clearRect(0, 0, layout.cellW, layout.cellH);
           ctx.drawImage(img, r.sx, r.sy, r.sw, r.sh, 0, 0, layout.cellW, layout.cellH);
+          if (!checked) gl.getError(); // flush an old error so the check below is about this upload
           gl.activeTexture(gl.TEXTURE0);
           gl.bindTexture(gl.TEXTURE_2D, glTexture);
           gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -142,6 +159,15 @@ export function createAtlas(
             cell,
           );
           renderer.resetState();
+          if (!checked) {
+            checked = true;
+            if (gl.getError() !== gl.NO_ERROR) {
+              broken = true;
+              ready.length = 0;
+              console.warn("The video wall's picture upload failed; the tiles stay flat.");
+              break;
+            }
+          }
           loadedAt[i] = performance.now();
           up++;
         } catch {
@@ -151,7 +177,7 @@ export function createAtlas(
       fill();
       return up;
     },
-    waiting: () => ready.length > 0,
+    waiting: () => !broken && ready.length > 0,
     dispose() {
       disposed = true;
       for (const img of images) {
