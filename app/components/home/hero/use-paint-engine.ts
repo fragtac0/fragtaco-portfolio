@@ -9,6 +9,8 @@ type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "parkedRef"> & {
   hostRef: RefObject<HTMLDivElement>;
   /** The blur to apply as soon as the engine exists (a card may be open already). */
   blurRef: MutableRefObject<0 | 1>;
+  /** False while a page change is running: the engine starts when it is over (see usePageArrived). */
+  settled: boolean;
 };
 
 /**
@@ -17,13 +19,15 @@ type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "parkedRef"> & {
  * blur is the tint. The loop draws only when something moves (see paint-gate). Returns the page
  * visibility the painting cycle reads.
  */
-export function usePaintEngine({ rootRef, hostRef, engineRef, parkedRef, blurRef }: Options) {
+export function usePaintEngine({ rootRef, hostRef, engineRef, parkedRef, blurRef, settled }: Options) {
   const viewRef = useRef<HeroView>({ pageVisible: true, heroOn: true });
 
   useEffect(() => {
     const root = rootRef.current;
     const host = hostRef.current;
-    if (!root || !host) return;
+    // Starting WebGL (context, shaders) is the heavy part of arriving on this page: it waits for the page
+    // change to be over. Meanwhile the remembered painting's still frame (hero.tsx) is what shows.
+    if (!settled || !root || !host) return;
     const reduced = prefersReducedMotion();
 
     const canvas = document.createElement("canvas");
@@ -37,6 +41,7 @@ export function usePaintEngine({ rootRef, hostRef, engineRef, parkedRef, blurRef
       root.dataset.gl = "off";
       engine = createImageFallback(host, { reducedMotion: reduced });
     }
+    const still = host.querySelector<HTMLElement>(".paint-still");
     const paint: PaintEngine = engine;
     engineRef.current = paint;
     if (blurRef.current) paint.setBlur(blurRef.current);
@@ -73,6 +78,8 @@ export function usePaintEngine({ rootRef, hostRef, engineRef, parkedRef, blurRef
       if (step === "wait") return;
       lastDraw = now;
       paint.draw(now);
+      // the first frame is on the canvas: the still frame it replaces can go (hidden, not removed: React owns it)
+      if (still && !still.hidden) requestAnimationFrame(() => (still.hidden = true));
     });
 
     return () => {
@@ -83,7 +90,7 @@ export function usePaintEngine({ rootRef, hostRef, engineRef, parkedRef, blurRef
       canvas.remove();
       engineRef.current = null;
     };
-  }, [rootRef, hostRef, engineRef, parkedRef, blurRef]);
+  }, [rootRef, hostRef, engineRef, parkedRef, blurRef, settled]);
 
   return viewRef;
 }

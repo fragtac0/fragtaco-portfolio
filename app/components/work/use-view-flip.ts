@@ -134,12 +134,12 @@ async function changeView(root: HTMLElement, to: ViewId, stillWanted: () => bool
  * was loaded with (set by the caller), which does no travel, so `/work?view=clients` opens laid out.
  * A newer request finishes the animations still running, then goes on from there.
  */
-export function useViewFlip(rootRef: RefObject<HTMLElement | null>, view: ViewId) {
+export function useViewFlip(rootRef: RefObject<HTMLElement | null>, view: ViewId, arrived = true) {
   // The arrival animation of the rings runs once; after it, CSS no longer applies it, so it does not
-  // start over each time the rings come back.
+  // start over each time the rings come back. It starts when the page has arrived (the page change is over).
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
+    if (!root || !arrived) return;
     if (root.dataset.view !== "all") {
       root.dataset.arrived = "";
       return;
@@ -148,7 +148,7 @@ export function useViewFlip(rootRef: RefObject<HTMLElement | null>, view: ViewId
       root.dataset.arrived = "";
     }, ARRIVAL_MS);
     return () => window.clearTimeout(timer);
-  }, [rootRef]);
+  }, [rootRef, arrived]);
 
   useEffect(() => {
     const root = rootRef.current;

@@ -1,9 +1,9 @@
-import { Link } from "@remix-run/react";
 import { motion } from "motion/react";
 import type { MouseEvent } from "react";
 import { FaClapperboard, FaHouse } from "react-icons/fa6";
 import type { SiteNavigationItem } from "../../types";
 import { tabCurrent } from "../../utils/nav";
+import PageLink from "../page-link";
 
 interface DockNavItemProps {
   item: SiteNavigationItem;
@@ -22,9 +22,9 @@ interface DockNavProps {
   ) => void;
 }
 
-/** The tabs are client-side links: the page change gets the view transition and the other page's
- * code and data load when the pointer, focus or a finger reaches a tab. */
-const MotionLink = motion.create(Link);
+/** The tabs are page links: the page change goes through `changePage` (the view transition) and the
+ * other page's code and data load when the pointer, focus or a finger reaches a tab. */
+const MotionLink = motion.create(PageLink);
 
 function DockItemIcon({ itemKey }: { itemKey: SiteNavigationItem["key"] }) {
   if (itemKey === "home") {
@@ -55,8 +55,6 @@ function DockNavItem({ item, isActive, pathname, onClick }: DockNavItemProps) {
   return (
     <MotionLink
       to={item.href}
-      viewTransition
-      prefetch="intent"
       aria-current={tabCurrent(item.href, pathname, isActive)}
       onClick={onClick}
       whileHover={{ scale: 1.07, y: -2 }}

@@ -5,11 +5,14 @@ import { layoutRings, RING_ORDER, type SubRingSpec } from "./ring-layout";
 import type { RingId } from "./ring-math";
 import { useStageSize } from "./use-stage-size";
 import { pickedLayout, stackRow, type ViewId } from "./view-layout";
+import Staged from "../staged";
 import WorkItem from "./work-item";
 
 interface RingsProps {
   work: SiteWork;
   onPickView: (view: ViewId) => void;
+  /** False while the page change that brought this page is running: the rings mount after it, one by one. */
+  arrived: boolean;
 }
 
 const LABEL: Record<RingId, string> = {
@@ -28,7 +31,7 @@ const LABEL: Record<RingId, string> = {
  * ones) wait in a `<ul>` of their own that only a picked view shows. Which layout applies is the
  * page's `data-view` (work-views.css); this component does not know which view is picked.
  */
-export default function Rings({ work, onPickView }: RingsProps) {
+export default function Rings({ work, onPickView, arrived }: RingsProps) {
   const size = useStageSize();
   if (!size) return null;
 
@@ -52,7 +55,7 @@ export default function Rings({ work, onPickView }: RingsProps) {
 
   return (
     <div className="work-rings">
-      {RING_ORDER.filter((id) => counts[id] > 0).map((id) => {
+      {RING_ORDER.filter((id) => counts[id] > 0).map((id, turn) => {
         const subs = groups.get(id) ?? [];
         const layout = id === "stack" ? null : layouts[id];
         const slotted = subs.reduce((n, s) => n + s.slots.length, 0);
@@ -70,41 +73,42 @@ export default function Rings({ work, onPickView }: RingsProps) {
         );
 
         return (
-          <div
-            key={id}
-            className="work-ring-group"
-            data-ring={id}
-            style={{ "--g": RING_ORDER.indexOf(id) } as CSSProperties}
-          >
-            {subs.map((spec) => (
-              <ul
-                // Keyed by layout: when a resize moves items between this ring and its sub-ring, the ring
-                // is made afresh so it and its items start their turn together and items stay upright.
-                key={`${spec.sub}-${spec.slots.length}`}
-                className="work-ring"
-                data-ring={id}
-                data-sub={spec.sub}
-                aria-label={subs.length > 1 && spec.sub > 0 ? `${LABEL[id]}, more` : LABEL[id]}
-                style={
-                  {
-                    "--r": `${spec.radius.toFixed(2)}px`,
-                    "--dur": `${spec.period}s`,
-                    "--turn": `${spec.dir * 360}deg`,
-                  } as CSSProperties
-                }
-              >
-                {spec.slots.map((slot) => item(slot.index, spec, slot.angle))}
-              </ul>
-            ))}
-            {slotted < counts[id] ? (
-              <ul className="work-ring" data-ring={id} data-extra="" aria-label={`${LABEL[id]}, more`}>
-                {entries[id].slice(slotted).map((_, i) => item(slotted + i))}
-              </ul>
-            ) : null}
-            {layout ? (
-              <div className="work-view-end" aria-hidden="true" style={{ "--vy": `${layout.height}px` } as CSSProperties} />
-            ) : null}
-          </div>
+          <Staged key={id} arrived={arrived} order={turn}>
+            <div
+              className="work-ring-group"
+              data-ring={id}
+              style={{ "--g": RING_ORDER.indexOf(id) } as CSSProperties}
+            >
+              {subs.map((spec) => (
+                <ul
+                  // Keyed by layout: when a resize moves items between this ring and its sub-ring, the ring
+                  // is made afresh so it and its items start their turn together and items stay upright.
+                  key={`${spec.sub}-${spec.slots.length}`}
+                  className="work-ring"
+                  data-ring={id}
+                  data-sub={spec.sub}
+                  aria-label={subs.length > 1 && spec.sub > 0 ? `${LABEL[id]}, more` : LABEL[id]}
+                  style={
+                    {
+                      "--r": `${spec.radius.toFixed(2)}px`,
+                      "--dur": `${spec.period}s`,
+                      "--turn": `${spec.dir * 360}deg`,
+                    } as CSSProperties
+                  }
+                >
+                  {spec.slots.map((slot) => item(slot.index, spec, slot.angle))}
+                </ul>
+              ))}
+              {slotted < counts[id] ? (
+                <ul className="work-ring" data-ring={id} data-extra="" aria-label={`${LABEL[id]}, more`}>
+                  {entries[id].slice(slotted).map((_, i) => item(slotted + i))}
+                </ul>
+              ) : null}
+              {layout ? (
+                <div className="work-view-end" aria-hidden="true" style={{ "--vy": `${layout.height}px` } as CSSProperties} />
+              ) : null}
+            </div>
+          </Staged>
         );
       })}
     </div>

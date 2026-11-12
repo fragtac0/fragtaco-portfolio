@@ -1,5 +1,5 @@
-import { Link } from "@remix-run/react";
 import { useId, useState } from "react";
+import PageLink from "../page-link";
 import { countLabel } from "../../utils/count-label";
 import { formatMonthYear, type RoleSummary } from "./timeline-model";
 
@@ -27,9 +27,9 @@ export default function TimelineLegend({ start, total, roles }: TimelineLegendPr
           <span>{countLabel(total, "day", "days")}</span>
         </p>
         <div className="tl-actions">
-          <Link to="/work" viewTransition prefetch="intent" className="tl-back" aria-label="Back to work">
+          <PageLink to="/work" className="tl-back" aria-label="Back to work">
             <span aria-hidden="true">&larr;</span> work
-          </Link>
+          </PageLink>
           <button
             type="button"
             className="tl-roles-toggle"

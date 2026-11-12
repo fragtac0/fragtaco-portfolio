@@ -1,6 +1,6 @@
-import { Link } from "@remix-run/react";
 import type { SiteHomeContent } from "../../../types";
 import { inertProps } from "../../../utils/inert";
+import PageLink from "../../page-link";
 import { cardClass, twoLines, type CardShellProps } from "./card-shell";
 
 const PORTRAIT = "/portraits/aditya.jpg";
@@ -68,9 +68,9 @@ export default function IntroCard({ about, portrait, cardRef, mode, hot }: Intro
             ))}
           </div>
           <div className="card-foot">
-            <Link className="pill" to="/work">
+            <PageLink className="pill" to="/work">
               See the work
-            </Link>
+            </PageLink>
             <span className="kbd-hint">Esc or ← to close</span>
           </div>
         </div>

@@ -8,11 +8,12 @@ import {
   useLocation,
   useRouteLoaderData,
 } from "@remix-run/react";
-import type { PropsWithChildren } from "react";
+import { useEffect, useLayoutEffect, type PropsWithChildren } from "react";
 import PageViewTracker from "./components/page-view-tracker";
 import { preloadImage } from "./components/home/hero/painting-cycle";
 import { recallPainting } from "./components/home/hero/painting-memory";
 import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
+import { pageCommitted, watchHistory } from "./lib/page-change";
 import pageTransitionHref from "./components/page-transition.css?url";
 import appStylesHref from "./styles/tailwind.css?url";
 import tokensHref from "./styles/tokens.css?url";
@@ -82,6 +83,12 @@ export function Layout({ children }: PropsWithChildren) {
 }
 
 export default function App() {
+  // The page change (app/lib/page-change.ts) waits for the new page to be in the DOM: tell it when it is.
+  const { key, pathname } = useLocation();
+  useLayoutEffect(() => pageCommitted(pathname), [key, pathname]);
+  // Back and Forward get the same change as a click.
+  useEffect(() => watchHistory(), []);
+
   return (
     <>
       <PageViewTracker />

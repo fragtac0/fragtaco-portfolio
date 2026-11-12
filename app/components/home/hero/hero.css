@@ -59,6 +59,20 @@
   height: 100%;
   display: block;
 }
+/* The painting remembered from the last visit, as a plain image, for the page's first picture while the
+   engine waits for the page change to be over. use-paint-engine hides it once the canvas has drawn. */
+.home-hero .paint-host .paint-still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  transition: none;
+}
+.home-hero .paint-host .paint-still[hidden] {
+  display: none;
+}
 /* no WebGL: the painting is a plain image and changes by a CSS crossfade */
 .home-hero .paint-host img {
   position: absolute;

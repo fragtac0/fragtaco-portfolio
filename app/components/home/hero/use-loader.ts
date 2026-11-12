@@ -9,6 +9,8 @@ type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "dataRef"> & {
   cycleRef: MutableRefObject<PaintingCycle | null>;
   /** Fires once, when the loader finishes (or at once when it is skipped). */
   onReadyRef: MutableRefObject<() => void>;
+  /** False while a page change is running (see usePageArrived): the engine does not exist yet. */
+  settled: boolean;
 };
 
 // counts effect runs, so a cleanup can tell an unmount from StrictMode's immediate re-run
@@ -28,7 +30,7 @@ let effectRuns = 0;
  * The lock never outlasts INTRO_LOCK_MS on the head clock (the head script's failsafe); a bundle
  * that joins after that takes the skipped form (see joinLoader).
  */
-export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }: Options) {
+export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef, settled }: Options) {
   // StrictMode runs the effect twice: ready fires once per component lifetime.
   const readyFiredRef = useRef(false);
 
@@ -36,12 +38,12 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
     const root = rootRef.current;
     const paint = engineRef.current;
     const cycle = cycleRef.current;
-    if (!root || !paint || !cycle) return;
+    // No engine while the page is arriving during a page change (its start waits for the change to be
+    // over): then only the quiet part below runs now, the rest when the engine is up and this runs again.
+    if (!root || (settled && (!paint || !cycle))) return;
     const run = ++effectRuns;
-    // from here the script drives the hero: the pre-script look in loader.css (see intro-timeout) ends
-    root.dataset.js = "";
     const { name: heroName } = dataRef.current;
-    const n = cycle.count;
+    const n = cycle?.count ?? 0;
     const html = document.documentElement;
 
     const logo = must<SVGElement>(root, ".logo");
@@ -110,6 +112,8 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
     };
 
     if (joined === "skip" || joined === "late") {
+      // from here the script drives the hero: the pre-script look in loader.css (see intro-timeout) ends
+      root.dataset.js = "";
       html.classList.remove("intro", "intro-timeout");
       showFinal();
       if (joined === "late") {
@@ -120,11 +124,17 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
         }
       }
       fireReady();
+      // the final look and the dock are in place for the page change's picture; the painting follows with the engine
+      if (!paint || !cycle) return;
       const recalled = cycle.recalled();
       if (recalled) {
-        // coming back from another page: the last painting, in the first effect, before any network
-        cycle.present(recalled, 0);
-        if (n > 1) cycle.scheduleNext();
+        // coming back from another page: the last painting, with no network (its still frame is on screen
+        // meanwhile; the upload waits for the bitmap, which is made off the main thread)
+        void cycle.prepare(recalled.img).then(() => {
+          if (timers.isDisposed()) return;
+          cycle.present(recalled, 0);
+          if (n > 1) cycle.scheduleNext();
+        });
       } else {
         // nothing remembered: the blurred placeholder, then the sharp painting fades in over it
         void cycle.presentFirst().then((shown) => {
@@ -132,6 +142,9 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
         });
       }
     } else {
+      // the loader starts when the engine is up, which is when the page change is over
+      if (!paint || !cycle) return;
+      root.dataset.js = "";
       if (joined === "client") {
         // client navigation to "/": the head script never ran, so this hero locks the page itself
         // (which also starts the name's CSS now) and owns the failsafe, cleared on unmount and
@@ -247,5 +260,5 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef }:
         delete window.__introT0;
       }, 0);
     };
-  }, [rootRef, engineRef, dataRef, cycleRef, onReadyRef]);
+  }, [rootRef, engineRef, dataRef, cycleRef, onReadyRef, settled]);
 }

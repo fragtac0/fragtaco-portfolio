@@ -1,5 +1,5 @@
-import { Link } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
+import PageLink from "../page-link";
 import type { ViewId } from "./view-layout";
 
 const TABS: { view: ViewId; label: string }[] = [
@@ -68,14 +68,9 @@ export default function WorkSwitcher({ view, onSelect }: WorkSwitcherProps) {
         })}
       </div>
       <span aria-hidden="true" className="h-5 w-px shrink-0 bg-white/10" />
-      <Link
-        to="/timeline"
-        viewTransition
-        prefetch="intent"
-        className={`${TAB} ${IDLE}`}
-      >
+      <PageLink to="/timeline" className={`${TAB} ${IDLE}`}>
         Timeline
-      </Link>
+      </PageLink>
     </div>
   );
 }

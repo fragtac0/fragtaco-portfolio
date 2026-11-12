@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "@remix-run/react";
 import { useRef, useState, type MouseEvent } from "react";
+import { usePageArrived } from "../../lib/use-page-settled";
 import type { SiteNavigationItem, SiteSocialLink, SiteWork } from "../../types";
 import SiteNav from "../site-nav";
 import { introLine } from "./ring-layout";
@@ -34,7 +35,10 @@ export default function WorkPage({ work, navigationItems, socialLinks }: WorkPag
   const [lastPicked, setLastPicked] = useState<PickedView>(view === "all" ? "long" : view);
   if (view !== "all" && view !== lastPicked) setLastPicked(view);
 
-  useViewFlip(rootRef, view);
+  // Arriving during a page change: the rings (their pictures and their turning) mount once it is over, see Rings.
+  const arrived = usePageArrived();
+
+  useViewFlip(rootRef, view, arrived);
 
   const pickView = (next: ViewId) => {
     if (next === view) return;
@@ -61,7 +65,7 @@ export default function WorkPage({ work, navigationItems, socialLinks }: WorkPag
             <span className="work-text-short">{introLine(work.intro.text)}</span>
           </p>
         </div>
-        <Rings work={work} onPickView={pickView} />
+        <Rings work={work} onPickView={pickView} arrived={arrived} />
         <div className="work-fade work-fade-top" aria-hidden="true" />
         <div className="work-fade work-fade-bottom" aria-hidden="true" />
         <div className="work-view-title">

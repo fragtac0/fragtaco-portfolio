@@ -3,6 +3,8 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ComponentType, ReactNode } from "react";
 import type { SiteNavigationItem, SiteSocialLink } from "../types";
 import DockNav from "./react-bits/dock-nav";
+import { useDockRow } from "./use-dock-row";
+import "./dock-row.css";
 import { inertProps } from "../utils/inert";
 import { externalLinkProps } from "../utils/link";
 import { activeNavKey, isHomeSectionId } from "../utils/nav";
@@ -63,9 +65,12 @@ export default function SiteNav({
   // preload at once (a <Link prefetch="intent"> alone waits 100 ms, and a tap does not last that long).
   const [dockReached, setDockReached] = useState(false);
   const reachDock = () => setDockReached(true);
+  // The second row opens after a page change is over and closes when the next one starts (use-dock-row.ts).
+  const { open: rowOpen, glassRef, rowRef, navRef } = useDockRow(Boolean(upperRow));
   const isHomePage = location.pathname === "/";
   // One row is a pill; two rows are a rounded panel, or the pill's ends would cut into the upper row.
-  const shape = upperRow ? "rounded-[1.75rem]" : "rounded-full";
+  // The closed second row counts as one row, so the closed dock is the home pill exactly.
+  const shape = upperRow && rowOpen ? "rounded-[1.75rem]" : "rounded-full";
   const visibleItems = items.filter(
     (item): item is SiteNavigationItem => item.key === "home" || item.key === "work",
   );
@@ -93,7 +98,10 @@ export default function SiteNav({
     }
 
     const updateNavHeight = () => {
-      const height = nav.getBoundingClientRect().height;
+      // The dock's full height: the second row counts as open even while it is closed or opening, so
+      // what is sized from this (the work page's fades) does not change when the row arrives.
+      const clip = nav.querySelector<HTMLElement>(".dock-row-clip");
+      const height = nav.getBoundingClientRect().height + (clip ? clip.scrollHeight - clip.offsetHeight : 0);
       document.documentElement.style.setProperty("--site-nav-height", `${height}px`);
     };
 
@@ -177,6 +185,9 @@ export default function SiteNav({
     >
       <div
         data-dock-glass
+        ref={glassRef}
+        data-has-row={upperRow ? "" : undefined}
+        data-row-open={upperRow ? rowOpen : undefined}
         onPointerEnter={reachDock}
         onPointerDown={reachDock}
         onFocus={reachDock}
@@ -191,14 +202,19 @@ export default function SiteNav({
         />
 
         {upperRow ? (
-          <div className="relative mb-1 flex max-w-full items-center justify-start overflow-x-auto border-b border-white/10 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-1.5 sm:justify-center sm:overflow-visible sm:pb-1.5 [&::-webkit-scrollbar]:hidden">
-            {upperRow}
+          <div className="dock-row" ref={rowRef} data-open={rowOpen} {...inertProps(!rowOpen)}>
+            <div className="dock-row-clip">
+              <div className="relative mb-1 flex max-w-full items-center justify-start overflow-x-auto border-b border-white/10 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-1.5 sm:justify-center sm:overflow-visible sm:pb-1.5 [&::-webkit-scrollbar]:hidden">
+                {upperRow}
+              </div>
+            </div>
           </div>
         ) : null}
 
         <nav
+          ref={navRef}
           aria-label="Primary"
-          className="relative flex max-w-full items-center justify-start gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] sm:justify-center sm:gap-1.5 sm:overflow-visible [&::-webkit-scrollbar]:hidden"
+          className="relative flex max-w-full items-center justify-start gap-1 overflow-x-auto max-sm:[justify-content:safe_center] [-ms-overflow-style:none] [scrollbar-width:none] sm:justify-center sm:gap-1.5 sm:overflow-visible [&::-webkit-scrollbar]:hidden"
         >
           <DockNav
             items={visibleItems}
