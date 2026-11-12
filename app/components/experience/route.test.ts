@@ -143,14 +143,93 @@ describe("momentPositions", () => {
     const same = momentPositions([{ date: "2017" }, { date: "2021-02" }, { date: today }], today);
     expect(same[2]).toBeCloseTo(1, 12);
 
+    // a moment dated before the one ahead of it sits exactly on that one
     const stray = momentPositions([{ date: "2017" }, { date: "2022-01" }, { date: "2021-06" }], today);
-    expect(stray[2]).toBeGreaterThanOrEqual(stray[1]);
+    expect(stray[2]).toBe(stray[1]);
+  });
+
+  describe("today and the end of the route", () => {
+    const first = [{ date: "2017" }, { date: "2021-02" }];
+
+    it("keeps the last dated moment before today strictly short of 1", () => {
+      const p = momentPositions([...first, { date: "2026-11-11" }], today);
+
+      expect(p[2]).toBeLessThan(1);
+      expect(p[2]).toBeGreaterThan(p[1]);
+    });
+
+    it("puts today's ping (now) at 1 after a moment dated before today", () => {
+      const p = momentPositions([...first, { date: "2026-11-11" }, { date: "now" }], today);
+
+      expect(p[3]).toBe(1);
+      expect(p[2]).toBeLessThan(1);
+    });
+
+    it("holds a moment dated after today at 1 or less, never decreasing", () => {
+      const p = momentPositions([...first, { date: "2026-12-25" }, { date: "2027-03" }], today);
+
+      for (const v of p) expect(v).toBeLessThanOrEqual(1);
+      for (let i = 1; i < p.length; i++) expect(p[i]).toBeGreaterThanOrEqual(p[i - 1]);
+    });
+
+    it("keeps equal dates at today, then now, 0.012 apart with the last at 1", () => {
+      const p = momentPositions([...first, { date: today }, { date: "now" }], today);
+
+      expect(p[3]).toBe(1);
+      expect(p[3] - p[2]).toBeCloseTo(SAME_DATE_GAP, 12);
+      expect(p[2]).toBeGreaterThan(p[1]);
+
+      const q = momentPositions([...first, { date: today }, { date: today }, { date: "now" }], today);
+
+      expect(q[4]).toBe(1);
+      expect(q[4] - q[3]).toBeCloseTo(SAME_DATE_GAP, 12);
+      expect(q[3] - q[2]).toBeCloseTo(SAME_DATE_GAP, 12);
+    });
+  });
+
+  describe("the anchor is February 2021 itself", () => {
+    it("holds when the first two moments share a date", () => {
+      const p = momentPositions([{ date: "2017" }, { date: "2017" }, { date: "2021-02" }, { date: "now" }], today);
+
+      expect(p[0]).toBe(0);
+      expect(p[1]).toBeCloseTo(SAME_DATE_GAP, 12);
+      expect(p[2]).toBeCloseTo(0.14, 12);
+      expect(p[3]).toBe(1);
+    });
+
+    it("spreads a moment dated between 2017 and February 2021 over the approach", () => {
+      const p = momentPositions([{ date: "2017" }, { date: "2019-01" }, { date: "2021-02" }, { date: "now" }], today);
+
+      expect(p[1]).toBeGreaterThan(0);
+      expect(p[1]).toBeLessThan(0.14);
+      expect(p[2]).toBeCloseTo(0.14, 12);
+    });
+
+    it("puts February 2021 at the approach end even when no moment is dated that month", () => {
+      const a = momentPositions([{ date: "2017" }, { date: "2021-06" }, { date: "now" }], today);
+      const day = (d: string) => Date.parse(d) / 86_400_000;
+
+      expect(a[1]).toBeCloseTo(0.14 + 0.86 * ((day("2021-06-01") - day("2021-02-01")) / (day(today) - day("2021-02-01"))), 9);
+    });
+  });
+
+  it("keeps a gap after a run of equal dates before a moment only slightly later", () => {
+    const p = momentPositions(
+      [{ date: "2017" }, { date: "2021-02" }, { date: "2021-02" }, { date: "2021-02" }, { date: "2021-02-02" }],
+      today,
+    );
+
+    expect(p[2] - p[1]).toBeCloseTo(SAME_DATE_GAP, 12);
+    expect(p[3] - p[2]).toBeCloseTo(SAME_DATE_GAP, 12);
+    expect(p[4] - p[3]).toBeGreaterThanOrEqual(SAME_DATE_GAP - 1e-12);
   });
 
   it("accepts a full ISO day", () => {
     const p = momentPositions([{ date: "2017" }, { date: "2021-02-15" }, { date: "now" }], "2026-02-15");
+    const day = (d: string) => Date.parse(d) / 86_400_000;
 
-    expect(p[1]).toBeCloseTo(0.14, 12);
+    // fourteen days after the first of February 2021, the anchor
+    expect(p[1]).toBeCloseTo(0.14 + 0.86 * (14 / (day("2026-02-15") - day("2021-02-01"))), 9);
     expect(p[2]).toBeCloseTo(1, 12);
   });
 });

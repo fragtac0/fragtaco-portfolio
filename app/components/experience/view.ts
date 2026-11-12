@@ -14,7 +14,7 @@ export const FIT_RING_SHARE = 0.78;
 /**
  * The cliff ring's width as a share of the picture. It is the mean radius of the ring in
  * `content/site/experience.json` (the Gazetteer's trace of Olympus Rupes) doubled, in fractions of the
- * frame; `view.test.ts` checks it against the file.
+ * frame; `app/content/schemas-experience.test.ts` checks it against the file.
  */
 export const CLIFF_SPAN = 0.67;
 /** Explore starts at this many times the fit scale; zooming out past it goes back to the overview. */

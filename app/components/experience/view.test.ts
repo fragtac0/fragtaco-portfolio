@@ -35,7 +35,7 @@ describe("clampView", () => {
     bottom: v.cy + vh / (2 * v.scale),
   });
 
-  it("never shows anything outside the frame, at any scale, for any wild centre", () => {
+  it("keeps the screen inside the picture where the picture is bigger, and centres the picture where it is smaller, for any wild centre", () => {
     for (const [vw, vh] of SCREENS) {
       const fit = fitScale(vw, vh, m);
 

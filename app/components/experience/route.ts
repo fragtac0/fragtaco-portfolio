@@ -115,35 +115,55 @@ function dayOf(date: string, today: string): number {
   return Date.UTC(Number(y), Number(mo) - 1, Number(d)) / DAY;
 }
 
+/** February 2021, where the approach across the plain ends and the climb up the mountain begins. */
+const APPROACH_END_DAY = dayOf("2021-02", "2021-02");
+
 /**
- * Where each moment sits along the route, from 0 to 1 (`s` of `routeCurve().at`). The first moment is at 0
- * and the second at `approachEnd` (2017 to 2021 is the short approach across the plain); the rest follow
- * time from the second moment to `today`, which is 1. Moments with the same date are `SAME_DATE_GAP`
- * apart. The result never decreases and stays within 0 to 1.
+ * Where each moment sits along the route, from 0 to 1 (`s` of `routeCurve().at`). The first moment is at 0;
+ * February 2021 is at `approachEnd` (2017 to 2021 is the short approach across the plain, so a moment dated
+ * in between is spread by time over that stretch); from February 2021 to `today` (1) the rest follow time.
+ * The anchor is the date itself, not "the second moment", so it holds if moments are added or share a date.
+ *
+ * Moments with the same date are `SAME_DATE_GAP` apart, and the first moment after such a run is also at
+ * least that far on. A run that would pass 1 (several moments dated today, or today's "now" after a moment
+ * dated today) is placed backwards from 1, its earlier members moved back. The result never decreases and
+ * stays within 0 to 1. A moment dated before the one ahead of it sits on the same spot as that one.
  */
 export function momentPositions(moments: readonly { date: string }[], today: string, approachEnd = 0.14): number[] {
-  if (moments.length === 0) return [];
+  const n = moments.length;
+
+  if (n === 0) return [];
 
   const days = moments.map((mo) => dayOf(mo.date, today));
-  const t0 = days.length > 1 ? days[1] : days[0];
-  const span = Math.max(1, dayOf(today, today) - t0);
-  const out: number[] = [];
+  const todayDay = dayOf(today, today);
+  const approachSpan = Math.max(1, APPROACH_END_DAY - days[0]);
+  const climbSpan = Math.max(1, todayDay - APPROACH_END_DAY);
+  const raw = (day: number) =>
+    day < APPROACH_END_DAY
+      ? (approachEnd * (day - days[0])) / approachSpan
+      : approachEnd + (1 - approachEnd) * ((day - APPROACH_END_DAY) / climbSpan);
 
-  days.forEach((day, i) => {
-    let pos: number;
+  // The gap that must follow moment i: after an equal date, and after the end of a run of equal dates.
+  const gapAfter = (i: number) => {
+    if (i >= n - 1) return 0;
+    if (days[i + 1] === days[i]) return SAME_DATE_GAP;
 
-    if (i === 0) pos = 0;
-    else pos = approachEnd + (1 - approachEnd) * ((day - t0) / span);
+    return i > 0 && days[i] === days[i - 1] && days[i + 1] > days[i] ? SAME_DATE_GAP : 0;
+  };
 
-    if (i > 0) {
-      const prev = out[i - 1];
+  const out: number[] = [0];
 
-      if (day === days[i - 1]) pos = prev + SAME_DATE_GAP;
-      else pos = Math.max(pos, prev);
-    }
+  for (let i = 1; i < n; i++) {
+    const prev = out[i - 1];
+    const gap = gapAfter(i - 1);
 
-    out.push(Math.min(1, Math.max(0, pos)));
-  });
+    out.push(days[i] < days[i - 1] ? prev : Math.max(raw(days[i]), prev + gap));
+  }
 
-  return out;
+  // Nothing passes 1: walk back from the end and move earlier members of a run back, keeping the gaps.
+  out[n - 1] = Math.min(1, out[n - 1]);
+
+  for (let i = n - 2; i >= 0; i--) out[i] = Math.min(out[i], out[i + 1] - gapAfter(i));
+
+  return out.map((p) => Math.max(0, p));
 }
