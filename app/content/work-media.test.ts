@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { WorkVideo } from "../types";
+import { placeholderArt } from "./placeholder-art";
 import { coverUrl, youtubeId } from "./work-media";
 
 const video = (over: Partial<WorkVideo>): WorkVideo => ({
@@ -45,14 +46,16 @@ describe("coverUrl", () => {
     expect(coverUrl(v, true)).toBe("https://i.ytimg.com/vi/GrtKxfATyTw/oar2.jpg");
   });
 
-  it("falls back to a seeded picsum picture for other sources", () => {
-    expect(coverUrl(video({ id: "ft-x" }), false)).toBe("https://picsum.photos/seed/ft-x/640/360");
-    expect(coverUrl(video({ id: "ft-x" }), true)).toBe("https://picsum.photos/seed/ft-x/360/640");
+  it("falls back to local placeholder art for other sources, upright when tall", () => {
+    expect(coverUrl(video({ id: "ft-x" }), false)).toBe(placeholderArt("ft-x", false));
+    expect(coverUrl(video({ id: "ft-x" }), true)).toBe(placeholderArt("ft-x", true));
   });
 
-  it("falls back to picsum for a YouTube item whose url has no id", () => {
-    expect(coverUrl(video({ source: "youtube", id: "ft-y" }), false)).toBe(
-      "https://picsum.photos/seed/ft-y/640/360",
-    );
+  it("falls back to placeholder art for a YouTube item whose url has no id", () => {
+    expect(coverUrl(video({ source: "youtube", id: "ft-y" }), false)).toBe(placeholderArt("ft-y", false));
+  });
+
+  it("never asks another site for a placeholder", () => {
+    expect(coverUrl(video({ id: "ft-x" }), false)).toMatch(/^data:image\/svg\+xml,/);
   });
 });

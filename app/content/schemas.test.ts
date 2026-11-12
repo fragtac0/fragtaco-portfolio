@@ -12,6 +12,7 @@ import {
   WorkStackItemSchema,
   WorkVideoSchema,
 } from "./schemas";
+import { youtubeId } from "./work-media";
 
 const readSiteJson = (fileName: string): unknown =>
   JSON.parse(
@@ -220,7 +221,7 @@ const validWorkVideo = {
   for: "Placeholder",
   year: 2026,
   url: "https://www.youtube.com/@fragtaco",
-  cover: "https://picsum.photos/seed/ft-long-01/640/360",
+  cover: "/work/placeholder-cover.jpg",
   source: "other",
 };
 
@@ -228,7 +229,7 @@ const validWorkClient = {
   id: "ft-client-01",
   name: "Placeholder client 01",
   handle: "@placeholder",
-  avatar: "https://picsum.photos/seed/ft-client-01/160/160",
+  avatar: "/work/placeholder-avatar.svg",
   url: "https://www.youtube.com/@fragtaco",
   socials: [{ type: "youtube", url: "https://www.youtube.com/@fragtaco" }],
 };
@@ -236,18 +237,35 @@ const validWorkClient = {
 describe("work.json", () => {
   const work = WorkSchema.parse(readSiteJson("work.json"));
 
-  it("parses and holds the placeholder content", () => {
+  it("parses and holds the real long form list and the placeholders", () => {
     expect(work.stack).toHaveLength(8);
-    expect(work.longForm).toHaveLength(35);
+    expect(work.longForm).toHaveLength(21);
     expect(work.shortForm).toHaveLength(35);
     expect(work.clients).toHaveLength(10);
   });
 
-  it("numbers the placeholders long-01..long-35 and short-01..short-35", () => {
-    const ids = (n: number, kind: string) => Array.from({ length: n }, (_, i) => `${kind}-${String(i + 1).padStart(2, "0")}`);
+  it("numbers the short form placeholders short-01..short-35", () => {
+    const ids = Array.from({ length: 35 }, (_, i) => `short-${String(i + 1).padStart(2, "0")}`);
 
-    expect(work.longForm.map((v) => v.id)).toEqual(ids(35, "long"));
-    expect(work.shortForm.map((v) => v.id)).toEqual(ids(35, "short"));
+    expect(work.shortForm.map((v) => v.id)).toEqual(ids);
+  });
+
+  it("makes every long form item a YouTube video with its own 11-character id, none twice", () => {
+    for (const v of work.longForm) {
+      expect(v.source).toBe("youtube");
+      expect(youtubeId(v.url)).not.toBeNull();
+      expect(v.id).toBe(`yt-${youtubeId(v.url)}`);
+    }
+    expect(new Set(work.longForm.map((v) => v.url)).size).toBe(work.longForm.length);
+  });
+
+  it("starts the long form list with the twelve listed videos, in order", () => {
+    const first = [
+      "9hkHhSmcA9s", "FKc_IY2oQK4", "yTF_aczKJzg", "o321t-rfScA", "-_ovL8w1TMM", "pjMlXwicWMw",
+      "dU1E51HJ688", "JIkttg_SUg8", "5_d7HivYULE", "ZDk9QKOLoLA", "67tM7Vb_-HU", "wit1TTy0UWY",
+    ];
+
+    expect(work.longForm.slice(0, 12).map((v) => youtubeId(v.url))).toEqual(first);
   });
 
   it("points every stack icon at a file that exists under public/stack", () => {
@@ -255,6 +273,13 @@ describe("work.json", () => {
       if (item.icon === undefined) continue;
 
       expect(existsSync(path.join(process.cwd(), "public", item.icon))).toBe(true);
+    }
+  });
+
+  it("points every client avatar at a file that exists under public", () => {
+    for (const client of work.clients) {
+      expect(client.avatar.startsWith("/")).toBe(true);
+      expect(existsSync(path.join(process.cwd(), "public", client.avatar))).toBe(true);
     }
   });
 

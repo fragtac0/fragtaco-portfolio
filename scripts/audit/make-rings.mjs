@@ -7,8 +7,8 @@
 //    its period, paused) and reads the gap between every pair of item boxes (`.work-item-turn`, upright): the
 //    smallest gap over all pairs and phases, and how many pairs touch or overlap (both must be 12 or more / 0),
 //  - checks the intro (title and its lines of text) sits inside the stack ring's icons.
-// Pictures (1440 by 900, 1920 by 1080, 820 by 1180, 390 by 844) at three ring phases each. The pictures come from picsum at run time;
-// where it cannot be reached the audit paints neutral, generated gradients on the tiles (a number and a corner
+// Pictures (1440 by 900, 1920 by 1080, 820 by 1180, 390 by 844) at three ring phases each. The long form pictures are YouTube thumbnails loaded at run time;
+// where they cannot be reached (or must not be kept) the audit paints neutral, generated gradients on the tiles (a number and a corner
 // mark show they are upright) so the geometry can still be seen: nothing from a third party is drawn.
 // The two order modes are photographed from two builds (RING_ORDER_MODE is a constant), see the task report.
 import { writeFileSync } from "node:fs";

@@ -13,8 +13,9 @@
 //  - with WebGL refused (`getContext` returns null for webgl) the links are all there, visible, in place.
 // Moves: Long form to Short form (and back) through the dock row's links: the kind of change (`linear-right`, `linear-left`),
 // that no canvas exists while a change runs and that the old canvas is gone after it.
-// Pictures: picsum is not reachable from every machine, and nothing from a third party is drawn here: the audit patches
-// `Image.src` (and `setAttribute`) so picsum addresses give generated, numbered gradients; the wall's links and the
+// Pictures: nothing from a third party is drawn here (and none may reach a tracked picture): the audit patches
+// `Image.src` (and `setAttribute`) so YouTube thumbnail addresses give generated, numbered gradients; the placeholder
+// art of the short form is local already and is left as it is. The wall's links and the
 // engine's atlas both load through those. Links are not followed: a capture listener records which tile a click or Enter
 // opened (`__opened`) and cancels it.
 import { writeFileSync } from "node:fs";
@@ -23,8 +24,8 @@ const init = `
 try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}
 (()=>{
 const hue=(s)=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h};
-const make=(url)=>{const m=/picsum\\.photos\\/seed\\/([^/]+)\\/(\\d+)\\/(\\d+)/.exec(url);if(!m)return null;
- const id=m[1],W=Math.round(+m[2]/2),H=Math.round(+m[3]/2);const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+const make=(url)=>{const m=/i\\.ytimg\\.com\\/vi\\/([^/]+)\\/(hqdefault|oar2)\\.jpg/.exec(url);if(!m)return null;
+ const id=m[1],W=m[2]==='oar2'?180:320,H=m[2]==='oar2'?320:180;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
  const hh=hue(id)%360;const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'hsl('+hh+',45%,38%)');g.addColorStop(1,'hsl('+((hh+60)%360)+',55%,22%)');x.fillStyle=g;x.fillRect(0,0,W,H);
  x.fillStyle='rgba(255,255,255,.88)';x.font='bold '+Math.round(Math.min(W,H)*.34)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';
  x.fillText(id.replace(/\\D+/g,'')||id.slice(0,3),W/2,H/2);
@@ -32,7 +33,7 @@ const make=(url)=>{const m=/picsum\\.photos\\/seed\\/([^/]+)\\/(\\d+)\\/(\\d+)/.
 const d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');
 Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:true,get(){return d.get.call(this)},set(v){d.set.call(this,make(String(v))||v)}});
 const sa=Element.prototype.setAttribute;Element.prototype.setAttribute=function(n,v){if(this instanceof HTMLImageElement&&n==='src'){v=make(String(v))||v}return sa.call(this,n,v)};
-new MutationObserver((ms)=>{for(const m of ms)for(const n of m.addedNodes){const imgs=n.nodeType===1?(n.tagName==='IMG'?[n]:[...n.querySelectorAll('img')]):[];for(const i of imgs){const s=i.getAttribute('src');if(s&&s.includes('picsum.photos'))i.src=s}}}).observe(document,{childList:true,subtree:true});
+new MutationObserver((ms)=>{for(const m of ms)for(const n of m.addedNodes){const imgs=n.nodeType===1?(n.tagName==='IMG'?[n]:[...n.querySelectorAll('img')]):[];for(const i of imgs){const s=i.getAttribute('src');if(s&&s.includes('i.ytimg.com'))i.src=s}}}).observe(document,{childList:true,subtree:true});
 // WebGL refused for the "no WebGL" runs (a flag in sessionStorage, set and cleared by the steps)
 const gc=HTMLCanvasElement.prototype.getContext;
 HTMLCanvasElement.prototype.getContext=function(t,...a){if(sessionStorage.getItem('nogl')==='1'&&/webgl/.test(t))return null;return gc.call(this,t,...a)};

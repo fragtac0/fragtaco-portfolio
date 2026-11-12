@@ -20,9 +20,9 @@ This portfolio uses git-backed content files so routine updates do not require R
 - `stack`: tools, each `{ id, mark, label, icon? }`; `mark` is 1 to 3 characters. `icon` is a file under `public/stack/` (`/stack/name.svg` or `.png`); with none, the mark is shown.
 - `longForm` and `shortForm`: videos, each `{ id, title, for, year, url, cover?, source }`. `source` is `youtube`, `instagram`, `vimeo` or `other`. `url` is https.
 - `clients`: each `{ id, name, handle, avatar, url, socials: [{ type, url }] }`. A social `type` is `youtube`, `instagram`, `x` or `website`.
-- `cover` and `avatar` are a path under `public/` (starting with `/`) or an https URL. A YouTube item may leave `cover` out: its link must then hold the 11-character video id, and the thumbnail is taken from it at runtime. Items of other sources with no cover get a seeded placeholder from picsum.photos.
+- `cover` and `avatar` are a path under `public/` (starting with `/`) or an https URL. A YouTube item may leave `cover` out: its link must then hold the 11-character video id, and the thumbnail is taken from it at runtime. Items of other sources with no cover get a placeholder picture drawn locally from the item's id (`app/content/placeholder-art.ts`), so no outside site is asked.
 - Ids must be unique within each list.
-- The current entries are placeholders: 35 long form (`long-01` to `long-35`) and 35 short form (`short-01` to `short-35`), with made-up titles and years, and `for` set to "Placeholder". Their pictures come from picsum.photos at run time and are never stored.
+- The long form list is real: 21 YouTube videos written by `yarn sync:work` from `scripts/work-sources.txt` (video ids and channel handles, in the order shown; every long form upload of a listed channel, never Shorts; duplicates removed). Do not edit those 21 by hand. Their `id` is `yt-<video id>`, `for` is the channel's name and `year` the upload year. The short form list is 35 placeholders (`short-01` to `short-35`) with made-up titles and years, and `for` set to "Placeholder"; their pictures are drawn locally.
 
 ## My experience page (`experience.json`)
 

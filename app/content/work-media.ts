@@ -1,4 +1,5 @@
 import type { WorkVideo } from "../types";
+import { placeholderArt } from "./placeholder-art";
 
 const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
 
@@ -28,7 +29,8 @@ export function youtubeId(url: string): string | null {
 
 /**
  * The picture for a work item: the file's own cover, else the YouTube thumbnail (`tall` for the
- * portrait cut), else a seeded placeholder from picsum.photos. Pictures are loaded at runtime, never stored.
+ * portrait cut), else local placeholder art made from the item's id (9 by 16 when `tall`). No picture is stored,
+ * and the placeholder needs no network.
  */
 export function coverUrl(video: WorkVideo, tall: boolean): string {
   if (video.cover) return video.cover;
@@ -36,5 +38,5 @@ export function coverUrl(video: WorkVideo, tall: boolean): string {
   const id = video.source === "youtube" ? youtubeId(video.url) : null;
   if (id) return `https://i.ytimg.com/vi/${id}/${tall ? "oar2" : "hqdefault"}.jpg`;
 
-  return `https://picsum.photos/seed/${video.id}/${tall ? "360/640" : "640/360"}`;
+  return placeholderArt(video.id, tall);
 }
