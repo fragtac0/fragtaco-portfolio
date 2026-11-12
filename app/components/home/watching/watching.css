@@ -244,7 +244,7 @@
     gap: 6px;
   }
   .home-layer .vtext h3 {
-    font-size: 16px;
+    font-size: var(--t-lead);
   }
   .home-layer .vmeta {
     font-size: var(--t-micro);

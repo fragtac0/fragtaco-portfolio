@@ -13,7 +13,7 @@
 
 import { kenBurnsZoom } from "./ken-burns";
 import { takeBitmap } from "./paint-bitmaps";
-import { FRAGMENT_SRC, VERTEX_SRC } from "./paint-shaders";
+import { openPaintGl } from "./paint-gl";
 
 export interface PaintMeta {
   /** Focus point of the cover fit, each axis 0..1. */
@@ -52,26 +52,6 @@ interface TexMeta {
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 
-const UNIFORMS = [
-  "uA",
-  "uB",
-  "uRes",
-  "uFocA",
-  "uFocB",
-  "uDir",
-  "uAspA",
-  "uAspB",
-  "uZoomA",
-  "uZoomB",
-  "uP",
-  "uT",
-  "uMode",
-  "uHasA",
-  "uBlur",
-  "uDpr",
-] as const;
-type UniformName = (typeof UNIFORMS)[number];
-
 /** Reduced motion: the first reveal is a plain fade of this length, and a change a plain crossfade. */
 export const REDUCED_REVEAL_MS = 400;
 export const REDUCED_SWAP_MS = 800;
@@ -82,118 +62,9 @@ export function createPaint(
   opts: { reducedMotion: boolean },
 ): PaintEngine | null {
   const reduce = opts.reducedMotion;
-  const ctxOpts: WebGLContextAttributes = {
-    antialias: false,
-    alpha: false,
-    depth: false,
-    stencil: false,
-    premultipliedAlpha: false,
-  };
-  // WebGL2 first; the two contexts share every call used here, so one type covers both.
-  let glOrNull = canvas.getContext("webgl2", ctxOpts) as WebGLRenderingContext | null;
-  const gl2 = !!glOrNull;
-  if (!glOrNull) glOrNull = canvas.getContext("webgl", ctxOpts);
-  if (!glOrNull) return null;
-  const gl: WebGLRenderingContext = glOrNull;
-  if (gl.isContextLost()) {
-    console.error("paint: WebGL context already lost");
-    return null;
-  }
-
-  const compile = (type: number, src: string): WebGLShader | null => {
-    const s = gl.createShader(type);
-    if (!s) return null;
-    gl.shaderSource(s, src);
-    gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-      console.error(gl.getShaderInfoLog(s));
-      gl.deleteShader(s);
-      return null;
-    }
-    return s;
-  };
-
-  // Every failure after getContext gives the context back, so a canvas that failed to start does
-  // not keep a live one (the caller drops the canvas and shows the image fallback).
-  const fail = (): null => {
-    gl.getExtension("WEBGL_lose_context")?.loseContext();
-    return null;
-  };
-
-  const vsh = compile(gl.VERTEX_SHADER, VERTEX_SRC);
-  const fsh = compile(gl.FRAGMENT_SHADER, FRAGMENT_SRC);
-  const prog = gl.createProgram();
-  if (!vsh || !fsh || !prog) {
-    if (vsh) gl.deleteShader(vsh);
-    if (fsh) gl.deleteShader(fsh);
-    if (prog) gl.deleteProgram(prog);
-    return fail();
-  }
-  gl.attachShader(prog, vsh);
-  gl.attachShader(prog, fsh);
-  gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-    console.error(gl.getProgramInfoLog(prog));
-    gl.deleteProgram(prog);
-    gl.deleteShader(vsh);
-    gl.deleteShader(fsh);
-    return fail();
-  }
-  gl.useProgram(prog);
-
-  // createBuffer and createTexture return null only when the context was lost during setup
-  const buffer = gl.createBuffer();
-  if (!buffer) {
-    gl.deleteProgram(prog);
-    gl.deleteShader(vsh);
-    gl.deleteShader(fsh);
-    return fail();
-  }
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-  const loc = gl.getAttribLocation(prog, "p");
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-
-  const U = {} as Record<UniformName, WebGLUniformLocation | null>;
-  UNIFORMS.forEach((k) => {
-    U[k] = gl.getUniformLocation(prog, k);
-  });
-  gl.uniform1i(U.uA, 0);
-  gl.uniform1i(U.uB, 1);
-
-  const tex = [0, 1].map(() => {
-    const t = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, t);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(
-      gl.TEXTURE_2D,
-      gl.TEXTURE_MIN_FILTER,
-      gl2 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR,
-    );
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGB,
-      1,
-      1,
-      0,
-      gl.RGB,
-      gl.UNSIGNED_BYTE,
-      new Uint8Array([5, 4, 3]),
-    );
-    return t;
-  });
-  if (tex.some((t) => !t)) {
-    for (const t of tex) if (t) gl.deleteTexture(t);
-    gl.deleteBuffer(buffer);
-    gl.deleteProgram(prog);
-    gl.deleteShader(vsh);
-    gl.deleteShader(fsh);
-    return fail();
-  }
+  const setup = openPaintGl(canvas);
+  if (!setup) return null;
+  const { gl, gl2, U, tex } = setup;
 
   const meta: TexMeta[] = [
     { asp: 1.5, foc: [0.5, 0.5], zoom: 1, born: 0 },
@@ -352,12 +223,7 @@ export function createPaint(
       if (disposed) return;
       disposed = true;
       done = undefined;
-      tex.forEach((t) => gl.deleteTexture(t));
-      gl.deleteBuffer(buffer);
-      gl.deleteProgram(prog);
-      gl.deleteShader(vsh);
-      gl.deleteShader(fsh);
-      if (!gl.isContextLost()) gl.getExtension("WEBGL_lose_context")?.loseContext();
+      setup.dispose();
     },
   };
 }

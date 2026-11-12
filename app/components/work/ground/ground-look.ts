@@ -1,6 +1,6 @@
 /**
  * The numbers of the work ground (spec 6.4), shared by the shader scene (ground-scene.tsx) and the CSS
- * picture that stands in for it (`.work-wash` in work.css, which repeats FALLOFF, the centres, the
+ * picture that stands in for it (`.work-wash` in ground.css, which repeats FALLOFF, the centres, the
  * sizes and the drift by hand: change both together). Pure, so it is tested (ground-look.test.ts) and WorkGround does
  * not pull the `shaders` package in to read it.
  *
@@ -31,7 +31,7 @@ export const GROUND_LOOK = {
    * The drift. The picture is drawn once and does not move inside the package (a driver makes the package redraw
    * at 60 frames a second for ever, for a change nobody can see). Instead the whole canvas breathes: a CSS
    * animation (`work-ground-breathe`, transform only, on the compositor) scales it from 1 to `scale` and back
-   * about the pool, a full cycle every `seconds` (spec: 40 s or more). work.css repeats both numbers.
+   * about the pool, a full cycle every `seconds` (spec: 40 s or more). ground.css repeats both numbers.
    */
   drift: { scale: 1.06, seconds: 80, originX: 0.34, originY: 0.4 },
 } as const;
@@ -91,7 +91,7 @@ export function emberStops(): GroundStop[] {
 /**
  * Radii are shares of the screen's height, which on a tall narrow screen would let the pool and the ember
  * swallow the whole width (an orange corner over 13% of a phone). So the size is taken from
- * `min(height, 1.25 * width)`, as `min(100dvh, 125dvw)` in work.css. This is the factor to multiply a
+ * `min(height, 1.25 * width)`, as `min(100dvh, 125dvw)` in ground.css. This is the factor to multiply a
  * radius by to get that: 1 on any screen that is wider than 4:5 portrait.
  */
 export function reachFactor(width: number, height: number): number {

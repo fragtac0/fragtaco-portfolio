@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import "./ground/ground.css";
 
 interface WorkBackgroundProps {
   /**
