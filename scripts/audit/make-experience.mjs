@@ -200,12 +200,15 @@ const r453 = [
 // debug hook (`__hold`, as make-glass-frames.mjs does) and the arriving page is read: the page is the map's, engine "pending", and
 // there is no `.map-fallback-list`; after the change the engine is "on" and there still is none.
 const HOLD_INIT = `try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}
-window.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();
+window.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();
  const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);
   setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});
 window.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}
  const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);
- setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});`;
+ setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});
+window.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}
+ __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);
+ setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});`;
 const arriving = (label) => ({
   eval: `(()=>{const p=document.querySelector('.map-page');return JSON.stringify({path:location.pathname,mapPage:!!p,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,srList:document.querySelectorAll('.sr-only li').length,ok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0})})()`,
   label,
@@ -214,16 +217,16 @@ const settledAfter = (label) => ({
   eval: `new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))`,
   label,
 });
-const heldIntoMap = (size, dpr, mobile, origin, tag) => [
+const heldIntoMap = (size, dpr, mobile, tag) => [
   { size, dpr, mobile, touch: mobile, init: HOLD_INIT, go: "{{BASE}}/work", wait: 3000 },
   ...[0.1, 0.3, 0.6].flatMap((t) => [
-    { eval: `__hold('/experience','radial',${t},${origin[0]},${origin[1]})`, label: `hold the change into /experience at t=${t} (${tag})` },
+    { eval: `__hold('/experience',${t})`, label: `hold the change into /experience at t=${t} (${tag})` },
     arriving(`${tag}, t=${t}: the arriving map page shows no fallback list (engine pending)`),
     { wait: 120, shot: `r46-held-${tag}-${t}-warm` },
     { wait: 60, shot: `r46-held-${tag}-${t}` },
     { eval: "__release()", label: "release" },
     settledAfter(`${tag}, t=${t}: after the change the engine is on and there is still no fallback list`),
-    { eval: "__ftChange('/work','fade').then(()=>__release())", label: "back to /work" },
+    { eval: "__jump('/work')", label: "back to /work" },
   ]),
 ];
 
@@ -330,11 +333,11 @@ const desktop = [
     { shot: `r45-map-${w}x${h}` },
   ]),
   ...r453,
-  ...heldIntoMap([1440, 900], 1, false, [676, 846], "desktop"),
-  ...heldIntoMap([390, 844], 2, true, [200, 800], "phone"),
+  ...heldIntoMap([1440, 900], 1, false, "desktop"),
+  ...heldIntoMap([390, 844], 2, true, "phone"),
   // M1 (R46.1): no square box round the dock during a change: held at t=0.25 from home into /experience (over the bright map)
   { size: [1440, 900], dpr: 1, mobile: false, touch: false, init: HOLD_INIT, go: "{{BASE}}/", wait: 3500 },
-  { eval: `__hold('/experience','radial',0.25,676,846)`, label: "hold the change home to /experience at t=0.25" },
+  { eval: `__hold('/experience',0.25)`, label: "hold the change home to /experience at t=0.25" },
   { eval: `JSON.stringify({clip:getComputedStyle(document.documentElement,'::view-transition-group(site-dock)').clipPath,ok:/round/.test(getComputedStyle(document.documentElement,'::view-transition-group(site-dock)').clipPath)})`, label: "the dock's view-transition group is clipped to a pill" },
   { wait: 120, shot: "r46-held-dock-home-exp-0.25-warm" },
   { wait: 60, shot: "r46-held-dock-home-exp-0.25" },

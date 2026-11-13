@@ -12,19 +12,17 @@
  */
 import type { ChangePlan } from "../../lib/page-change";
 import { GLASS_IDS } from "./glass-filter";
-import { ringLinePixels, ringMaskPixels, stripLinePixels, stripMaskPixels } from "./glass-edge";
+import { ringLinePixels, ringMaskPixels } from "./glass-edge";
 import { frontAt, GLASS, isChromium, judgeGlass, REACH } from "./glass-math";
-import { ringPixels, stripPixels } from "./glass-texture";
+import { ringPixels } from "./glass-texture";
 
 const BEND_RING_PX = 256;
-const BEND_STRIP_PX: [number, number] = [256, 96];
 const MASK_RING_PX = 256;
 const LINE_RING_PX = 384;
-const STRIP_PX: [number, number] = [256, 96];
 
 let started = false;
 /** Which pictures exist. Each is made by its own step, so one failing leaves the others usable. */
-const ready = { edgeRadial: false, edgeLinear: false, bendRadial: false, bendLinear: false };
+const ready = { edge: false, bend: false };
 
 function toUrl(pixels: Uint8ClampedArray<ArrayBuffer>, w: number, h: number): string {
   const canvas = document.createElement("canvas");
@@ -44,7 +42,7 @@ const warm = (url: string) => {
 
 /**
  * Makes the pictures, one at a time with a gap between (each is a few milliseconds, at most about 25; together they must not
- * be one long task): the edge's masks and lines for every kind (all browsers), then the bend's two maps (Chromium only).
+ * be one long task): the edge's mask and line (all browsers), then the bend's map (Chromium only).
  * A change that starts before they are ready, or after a step failed, uses the plain gradient reveal and no bend.
  */
 export function prepareGlass(): void {
@@ -72,28 +70,13 @@ export function prepareGlass(): void {
       inject(radialRules(ringMask, ringLine));
       warm(ringMask);
       warm(ringLine);
-      ready.edgeRadial = true;
-    },
-    () => {
-      const strips: Record<string, string> = {};
-      for (const mirror of [false, true]) {
-        const side = mirror ? "L" : "R";
-        strips[`mask${side}`] = toUrl(stripMaskPixels(...STRIP_PX, mirror), ...STRIP_PX);
-        strips[`line${side}`] = toUrl(stripLinePixels(...STRIP_PX, mirror), ...STRIP_PX);
-      }
-      inject(linearRules(strips));
-      Object.values(strips).forEach(warm);
-      ready.edgeLinear = true;
+      ready.edge = true;
     },
     ...(chromium
       ? [
           () => {
-            bend(GLASS_IDS.radial.image, () => [ringPixels(BEND_RING_PX), BEND_RING_PX, BEND_RING_PX]);
-            ready.bendRadial = true;
-          },
-          () => {
-            bend(GLASS_IDS.linear.image, () => [stripPixels(...BEND_STRIP_PX), ...BEND_STRIP_PX]);
-            ready.bendLinear = true;
+            bend(GLASS_IDS.image, () => [ringPixels(BEND_RING_PX), BEND_RING_PX, BEND_RING_PX]);
+            ready.bend = true;
           },
         ]
       : []),
@@ -113,27 +96,14 @@ export function prepareGlass(): void {
 }
 
 const ON = "html[data-glass-edge]:not([data-glass-fallback])";
-const kindRule = (kind: string, pseudo: string, declaration: string) => `${ON}[data-change-kind="${kind}"]::${pseudo}{${declaration}}`;
+const rule = (pseudo: string, declaration: string) => `${ON}[data-change-kind="radial"]::${pseudo}{${declaration}}`;
 
-/** The rules that give the radial reveal and its line their pictures (the rest of their styling is in glass.css). */
+/** The rules that give the reveal and its line their pictures (the rest of their styling is in glass.css). */
 function radialRules(mask: string, line: string): string {
   return [
-    kindRule("radial", "view-transition-new(root)", `mask-image:url("${mask}")`),
-    kindRule("radial", "view-transition-group(glass-line)", `background-image:url("${line}")`),
+    rule("view-transition-new(root)", `mask-image:url("${mask}")`),
+    rule("view-transition-group(glass-line)", `background-image:url("${line}")`),
   ].join("\n");
-}
-
-/** The same for the two linear kinds, from the strips `maskR`, `lineR`, `maskL` and `lineL`. */
-function linearRules(p: Record<string, string>): string {
-  return (["R", "L"] as const)
-    .flatMap((side) => {
-      const kind = side === "R" ? "linear-right" : "linear-left";
-      return [
-        kindRule(kind, "view-transition-new(root)", `mask-image:url("${p[`mask${side}`]}"),linear-gradient(#000,#000)`),
-        kindRule(kind, "view-transition-group(glass-line)", `background-image:url("${p[`line${side}`]}")`),
-      ];
-    })
-    .join("\n");
 }
 
 /** Runs the callback after the first page is up and the browser has nothing better to do. Returns the cancel. */
@@ -165,7 +135,7 @@ function findGlassAnimation(): Animation | undefined {
  * over, however it ends): it takes every mark off <html> and sets the bend to 0.
  */
 export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () => void {
-  if (plan.kind !== "radial" && plan.kind !== "linear-left" && plan.kind !== "linear-right") return () => undefined;
+  if (plan.kind !== "radial") return () => undefined;
   const html = document.documentElement;
   let stopped = false;
   let frame = 0;
@@ -228,15 +198,12 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
     else if (verdict === "wait") watch = requestAnimationFrame(look);
   };
 
-  const bend = (kind: ChangePlan["kind"]) => {
-    const ids = kind === "radial" ? GLASS_IDS.radial : GLASS_IDS.linear;
-    const image = document.getElementById(ids.image);
-    push = document.getElementById(ids.push);
-    if (!(kind === "radial" ? ready.bendRadial : ready.bendLinear) || !image || !push) return;
+  const bend = () => {
+    const image = document.getElementById(GLASS_IDS.image);
+    push = document.getElementById(GLASS_IDS.push);
+    if (!ready.bend || !image || !push) return;
     const strength = push;
     html.dataset.glass = "bend";
-    const wide = window.innerWidth;
-    const tall = window.innerHeight;
     const t0 = performance.now();
     let clock: Animation | undefined;
     const tick = () => {
@@ -244,14 +211,8 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
       clock ??= findGlassAnimation();
       const now = typeof clock?.currentTime === "number" ? clock.currentTime : performance.now() - t0;
       const f = frontAt(Math.min(1, now / plan.ms), plan);
-      if (f.radius !== undefined) {
-        const reach = f.radius * (1 + REACH * GLASS.band);
-        setAttrs(image, { x: plan.origin.x - reach, y: plan.origin.y - reach, width: 2 * reach, height: 2 * reach });
-      } else if (f.pos !== undefined) {
-        const reach = REACH * GLASS.band * wide;
-        const at = kind === "linear-right" ? f.pos : wide - f.pos;
-        setAttrs(image, { x: at - reach, y: 0, width: 2 * reach, height: tall });
-      }
+      const reach = f.radius * (1 + REACH * GLASS.band);
+      setAttrs(image, { x: plan.origin.x - reach, y: plan.origin.y - reach, width: 2 * reach, height: 2 * reach });
       strength.setAttribute("scale", (2 * GLASS.bendPx * f.bend).toFixed(2));
       frame = requestAnimationFrame(tick);
     };
@@ -262,9 +223,9 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
     if (stopped) return;
     try {
       if (typeof CSS === "undefined" || !("registerProperty" in CSS)) return fallback();
-      if (plan.kind === "radial" ? ready.edgeRadial : ready.edgeLinear) html.dataset.glassEdge = "";
+      if (ready.edge) html.dataset.glassEdge = "";
       watch = requestAnimationFrame(look);
-      bend(plan.kind);
+      bend();
     } catch {
       fallback();
     }

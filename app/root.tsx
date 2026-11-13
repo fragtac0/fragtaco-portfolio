@@ -17,8 +17,9 @@ import { recallPainting } from "./components/home/hero/painting-memory";
 import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
 import GlassFilter from "./components/page-change/glass-filter";
 import { prepareGlassWhenIdle } from "./components/page-change/glass-run";
+import { watchPresses } from "./lib/change-finish";
 import { watchHistory } from "./lib/history-change";
-import { changePage, isPageSettled, pageCommitted, type ChangeKind, type Point } from "./lib/page-change";
+import { changePage, finishChange, isPageSettled, pageCommitted } from "./lib/page-change";
 import glassHref from "./components/page-change/glass.css?url";
 import pageTransitionHref from "./components/page-transition.css?url";
 import appStylesHref from "./styles/tailwind.css?url";
@@ -96,9 +97,11 @@ export default function App() {
   useLayoutEffect(() => pageCommitted(pathname), [key, pathname]);
   // Back and Forward get the same change as a click.
   useEffect(() => watchHistory(), []);
+  // The first press or key press during a change finishes it (change-finish.ts).
+  useEffect(() => watchPresses(), []);
   // The glass front's bend needs two small pictures; make them once the first page is up.
   useEffect(() => prepareGlassWhenIdle(), []);
-  // A test hook for the audit scripts (set sessionStorage "ft:debug-change" to "1"): runs a page change of any kind.
+  // A test hook for the audit scripts (set sessionStorage "ft:debug-change" to "1"): runs a page change.
   const navigate = useNavigate();
   useEffect(() => {
     try {
@@ -107,16 +110,18 @@ export default function App() {
       return;
     }
     const w = window as {
-      __ftChange?: (to: string, kind?: ChangeKind, origin?: Point) => Promise<void>;
+      __ftChange?: (to: string) => Promise<void>;
       __ftSettled?: () => boolean;
+      __ftFinish?: () => void;
     };
     // only this site's own paths
-    w.__ftChange = (to, kind, origin) =>
-      to.startsWith("/") && !to.startsWith("//") ? changePage(navigate, to, { kind, origin }) : Promise.resolve();
+    w.__ftChange = (to) => (to.startsWith("/") && !to.startsWith("//") ? changePage(navigate, to) : Promise.resolve());
     w.__ftSettled = isPageSettled;
+    w.__ftFinish = finishChange;
     return () => {
       delete w.__ftChange;
       delete w.__ftSettled;
+      delete w.__ftFinish;
     };
   }, [navigate]);
 

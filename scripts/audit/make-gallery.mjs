@@ -11,7 +11,7 @@
 //  - real input: a real mouse move shows the caption of the tile under it, a real click (a real tap on the phone)
 //    opens it, the arrow keys move the focus (the engine's ring) and Enter opens that one,
 //  - with WebGL refused (`getContext` returns null for webgl) the links are all there, visible, in place.
-// Moves: Long form to Short form (and back) through the dock row's links: the kind of change (`linear-right`, `linear-left`),
+// Moves: Long form to Short form (and back) through the dock row's links: the kind of change (the one `radial` reveal since round 7),
 // that no canvas exists while a change runs and that the old canvas is gone after it.
 // Pictures: nothing from a third party is drawn here (and none may reach a tracked picture): the audit patches
 // `Image.src` (and `setAttribute`) so YouTube thumbnail addresses give generated, numbered gradients; the placeholder

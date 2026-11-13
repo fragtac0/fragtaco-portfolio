@@ -10,7 +10,13 @@ const file = new URL("./nav.json", import.meta.url);
 const all = JSON.parse(readFileSync(file, "utf8"));
 const firstTour = all.findIndex((s) => s.init?.includes("__arm"));
 // A click whose change finishes while the page is idle is not advanced by headless Chrome: wait for it inside the page.
-const settle = (s) => (s.eval?.endsWith(".click(); 1") ? { ...s, eval: s.eval.replace(/\.click\(\); 1$/, ".click(); new Promise(r=>setTimeout(r,2500)).then(()=>1)"), wait: undefined } : s);
+// The change is 3.5 s (round 7): the wait after a click is long enough for it, however the file was written before.
+const CHANGE_WAIT = 4800;
+const settle = (s) => {
+  if (s.eval?.endsWith(".click(); 1")) return { ...s, eval: s.eval.replace(/\.click\(\); 1$/, `.click(); new Promise(r=>setTimeout(r,${CHANGE_WAIT})).then(()=>1)`), wait: undefined };
+  if (s.eval?.includes(".click(); new Promise(r=>setTimeout(r,")) return { ...s, eval: s.eval.replace(/\.click\(\); new Promise\(r=>setTimeout\(r,\d+\)\)/, `.click(); new Promise(r=>setTimeout(r,${CHANGE_WAIT}))`) };
+  return s;
+};
 const keep = (firstTour < 0 ? all : all.slice(0, firstTour)).map(settle);
 
 const init = `
@@ -21,8 +27,10 @@ window.__state=()=>({path:location.pathname,title:document.title,
  active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.trim().toLowerCase()+'='+e.getAttribute('aria-current')),
  kind:[...(window.__k||[])].join('+')||'none',
  rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row'});
-window.__move=(act,want)=>{window.__arm();act();return new Promise(res=>setTimeout(()=>{const got=window.__state();
- const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},1900))};
+// The change is 3.5 s (round 7): read once it is over (the kind was seen and the mark is gone), or after 0.9 s when no change was started.
+window.__move=(act,want)=>{window.__arm();act();return new Promise(res=>{const t0=performance.now(),h=document.documentElement;const iv=setInterval(()=>{const el=performance.now()-t0;
+ if((window.__k.size&&!h.dataset.changeKind&&el>150)||(!window.__k.size&&el>900)||el>9000){clearInterval(iv);setTimeout(()=>{const got=window.__state();
+ const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},300)}},40)})};
 `.trim();
 
 const ROW = (to) => `document.querySelector('header[data-site-nav] [data-work-tab="${to}"]').click()`;
@@ -42,7 +50,7 @@ const k = (w, kind) => ({ ...w, kind });
 
 // R46.1 (M2): a change started from the keyboard inside the dock leaves focus inside the dock, on the new page's current tab
 // (not on <body>): focus a link, press Enter, wait for the change to end, read document.activeElement.
-const KEYED = (to) => `new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='${to}'&&!document.documentElement.dataset.changeKind||performance.now()-t0>5000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='${to}'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})`;
+const KEYED = (to) => `new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='${to}'&&!document.documentElement.dataset.changeKind||performance.now()-t0>9000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='${to}'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})`;
 const keyed = (label, focus, to) => [
   { tour: true, label: `focus: ${label}`, eval: `document.querySelector('${focus}').focus(); 1` },
   { tour: true, key: "Enter", vk: 13 },
@@ -53,8 +61,8 @@ const move = (label, act, want) => ({ tour: true, label, eval: `__move(()=>{${ac
 const tour = [
   { tour: true, size: [1440, 900], init, go: "{{BASE}}/work", wait: 2500, label: "tour: hard load /work", eval: "JSON.stringify(__state())" },
   move("work -> long form (row, radial)", ROW("/work/long-form"), LONG),
-  move("long -> short (row, linear-right)", ROW("/work/short-form"), k(SHORT, "linear-right")),
-  move("short -> long (row, linear-left)", ROW("/work/long-form"), k(LONG, "linear-left")),
+  move("long -> short (row, radial: the two walls use the same reveal)", ROW("/work/short-form"), SHORT),
+  move("short -> long (row, radial)", ROW("/work/long-form"), LONG),
   move("long -> experience (row, radial)", ROW("/experience"), EXP),
   move("experience -> short (row, radial)", ROW("/work/short-form"), SHORT),
   move("short -> experience (row, radial)", ROW("/experience"), EXP),
@@ -68,7 +76,7 @@ const tour = [
   move("long -> long again = nothing (row, no change)", ROW("/work/long-form"), k(LONG, "none")),
   { tour: true, label: "arm for Esc", eval: "__arm()" },
   { tour: true, key: "Escape", vk: 27 },
-  { tour: true, label: "long -> rings (Esc, radial)", wait: 1900, eval: "JSON.stringify((()=>{const got=__state();const want=" + JSON.stringify(WORK) + ";return{ok:got.path===want.path&&got.title===want.title&&got.kind===want.kind&&got.active.join()===want.active.join(),got,want}})())" },
+  { tour: true, label: "long -> rings (Esc, radial)", wait: 4800, eval: "JSON.stringify((()=>{const got=__state();const want=" + JSON.stringify(WORK) + ";return{ok:got.path===want.path&&got.title===want.title&&got.kind===want.kind&&got.active.join()===want.active.join(),got,want}})())" },
   move("work -> short (row, radial)", ROW("/work/short-form"), SHORT),
   move("short -> rings (dock work tab, radial)", DOCK("/work"), WORK),
   move("work -> experience (row, radial)", ROW("/experience"), EXP),
@@ -88,7 +96,7 @@ const tour = [
   move("forward: work -> experience (radial)", FWD, EXP),
   // the sweep between the walls, then Back and Forward over it (Back and Forward are always radial)
   move("experience -> long (row, radial)", ROW("/work/long-form"), LONG),
-  move("long -> short (row, linear-right)", ROW("/work/short-form"), k(SHORT, "linear-right")),
+  move("long -> short (row, radial: the two walls use the same reveal)", ROW("/work/short-form"), SHORT),
   move("back: short -> long (radial)", BACK, LONG),
   move("forward: long -> short (radial)", FWD, SHORT),
   ...keyed("dock Work tab (short form -> rings)", "header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]", "/work"),

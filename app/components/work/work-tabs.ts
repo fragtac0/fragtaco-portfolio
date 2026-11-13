@@ -1,5 +1,4 @@
 // The three tabs of the dock's second row and what a click on one does. Pure: no DOM, safe on the server.
-import type { ChangeKind } from "../../lib/page-change";
 import { bare, isOpenAddress } from "../../utils/nav";
 
 export const WORK_TABS = [
@@ -9,15 +8,6 @@ export const WORK_TABS = [
 ] as const;
 
 export type WorkTabTo = (typeof WORK_TABS)[number]["to"];
-
-/** How the page changes for a tab: a sweep between the two walls in the direction of the tab, radial for every other move. */
-export function tabKind(from: string, to: string): ChangeKind {
-  const a = bare(from);
-  const b = bare(to);
-  if (a === "/work/long-form" && b === "/work/short-form") return "linear-right";
-  if (a === "/work/short-form" && b === "/work/long-form") return "linear-left";
-  return "radial";
-}
 
 /** The row's tab for the current address, or null (on `/work` none is active). */
 export function activeTab(pathname: string): WorkTabTo | null {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GLASS, REACH } from "./glass-math";
-import { fbm, ringPixels, stripPixels } from "./glass-texture";
+import { fbm, ringPixels } from "./glass-texture";
 
 const NEUTRAL = 128;
 const at = (px: Uint8ClampedArray, n: number, x: number, y: number) => {
@@ -43,30 +43,5 @@ describe("ringPixels", () => {
       strongest = Math.max(strongest, Math.hypot(push(p.r), push(p.g)));
     }
     expect(strongest).toBeGreaterThan(0.2);
-  });
-});
-
-describe("stripPixels", () => {
-  const w = 64;
-  const h = 24;
-  const px = stripPixels(w, h);
-  it("pushes nothing at either side and something in the middle, and is the same along the front's length in kind", () => {
-    for (let y = 0; y < h; y++) {
-      expect([at(px, w, 0, y).r, at(px, w, 0, y).g]).toEqual([NEUTRAL, NEUTRAL]);
-      expect([at(px, w, w - 1, y).r, at(px, w, w - 1, y).g]).toEqual([NEUTRAL, NEUTRAL]);
-    }
-    let strongest = 0;
-    for (let y = 0; y < h; y++) for (let x = w / 2 - 4; x < w / 2 + 4; x++) strongest = Math.max(strongest, Math.hypot(push(at(px, w, x, y).r), push(at(px, w, x, y).g)));
-    expect(strongest).toBeGreaterThan(0.2);
-  });
-  it("pushes oppositely on the two sides of the front (the rim magnifies)", () => {
-    // the noise differs, but the normal part has opposite signs; check the average over the length
-    let sumBefore = 0;
-    let sumAfter = 0;
-    for (let yy = 0; yy < h; yy++) {
-      sumBefore += push(at(px, w, Math.floor(w / 2) - 6, yy).r);
-      sumAfter += push(at(px, w, Math.floor(w / 2) + 6, yy).r);
-    }
-    expect(sumBefore * sumAfter).toBeLessThan(0);
   });
 });

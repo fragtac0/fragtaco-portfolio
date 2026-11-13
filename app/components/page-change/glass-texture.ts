@@ -92,26 +92,3 @@ export function ringPixels(n: number, band: number = GLASS.band): Uint8ClampedAr
   }
   return out;
 }
-
-/**
- * The strip map for a linear front: `w` pixels across (the direction of travel) by `h` along the front,
- * covering `REACH` half-bands either side of the front's middle. It is the same for a front travelling right
- * or left (the normal push changes sign across the band, and mirroring that is the same picture). It is
- * stretched to a fixed number of CSS px across, so the band is the same width in px whatever the screen.
- */
-export function stripPixels(w: number, h: number, band: number = GLASS.band): Uint8ClampedArray<ArrayBuffer> {
-  const out = new Uint8ClampedArray(w * h * 4);
-  const sigma = 1 / REACH;
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const u = ((x + 0.5) / w) * 2 - 1;
-      const z = u / sigma;
-      const gate = gateAt(z);
-      // noise over the strip in px-like units: across and along are scaled alike
-      const [sx, sy] = slope((x / w) * (w / h) * 0.6, (y / h) * 1.5, 3.1 * (band / 0.07));
-      const normal = z * gate * NORMAL;
-      pack(out, (y * w + x) * 4, sx * gate + normal, sy * gate);
-    }
-  }
-  return out;
-}

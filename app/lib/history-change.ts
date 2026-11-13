@@ -47,8 +47,8 @@ function skipRouterTransition() {
  * destination's data (a state with no navigation pending, at the new address) it either starts the
  * view transition itself, which it does on a POP when the same pair of pages was changed with a
  * transition before (`viewTransitionOpts`; then this takes that transition, the same as for a click),
- * or it does not, and then this starts one whose update step holds only the commit. Radial from the
- * centre of the screen. A move inside one page (the work view, a hash) gets no change, and a
+ * or it does not, and then this starts one whose update step holds only the commit. The same
+ * reveal as a click. A move inside one page (the work view, a hash) gets no change, and a
  * transition the router would start for it is skipped. A second popstate that lands back on the
  * committed page ends a change still waiting for data. Returns the function that stops watching.
  */
@@ -84,7 +84,7 @@ export function watchHistory(): () => void {
       if (router && "startViewTransition" in document) skipRouterTransition();
       return;
     }
-    const plan = planNow("radial");
+    const plan = planNow(committedPathname() ?? "", path);
     if (plan.kind === "none") return;
     const c = open(plan);
     popChange = c;

@@ -17,7 +17,7 @@ interface WallPageProps {
  * One video wall (`/work/long-form`, `/work/short-form`): the heading (kind and count) at the top
  * left, the return mark at the top right and the wall itself (`VideoWall`: the shader gallery over the
  * links, which stay as the list and as the picture where there is no WebGL). Esc goes back to the rings
- * with the radial change, as the return mark does.
+ * with the page change, as the return mark does.
  */
 export default function WallPage({ kind, videos }: WallPageProps) {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function WallPage({ kind, videos }: WallPageProps) {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented) return;
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      void changePage(navigate, "/work", { kind: "radial" });
+      void changePage(navigate, "/work");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

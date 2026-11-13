@@ -1,6 +1,6 @@
 import { useLocation } from "@remix-run/react";
 import PageLink from "../page-link";
-import { rowTarget, tabKind, WORK_TABS } from "./work-tabs";
+import { rowTarget, WORK_TABS } from "./work-tabs";
 
 /* The dock's own tab look (Doto, tracked), a size smaller; the current one wears the dock's accent pill. */
 const TAB =
@@ -16,8 +16,7 @@ export const ROW_ID = "work-row";
  * The second row of the dock on the four work addresses: three links, Long form, Short form and My
  * experience (spec 6.1). They are links, not tabs with panels: the one for the current address wears
  * `aria-current="page"` and does nothing when pressed (no navigation, no page change, focus stays; the way
- * back to the rings is the wall's own button); the others go to their address, sweeping sideways between
- * the two walls (`tabKind`) and growing from the link otherwise. On `/work` none is current.
+ * back to the rings is the wall's own button); the others go to their address with the page change. On `/work` none is current.
  */
 export default function WorkSwitcher() {
   const { pathname } = useLocation();
@@ -32,7 +31,6 @@ export default function WorkSwitcher() {
           <PageLink
             key={tab.to}
             to={tab.to}
-            kind={tabKind(pathname, tab.to)}
             aria-current={here ? "page" : undefined}
             data-work-tab={tab.to}
             className={`${TAB} ${here ? ACTIVE : IDLE}`}

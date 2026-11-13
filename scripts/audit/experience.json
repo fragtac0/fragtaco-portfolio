@@ -908,12 +908,12 @@
   "dpr": 1,
   "mobile": false,
   "touch": false,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
   "go": "{{BASE}}/work",
   "wait": 3000
  },
  {
-  "eval": "__hold('/experience','radial',0.1,676,846)",
+  "eval": "__hold('/experience',0.1)",
   "label": "hold the change into /experience at t=0.1 (desktop)"
  },
  {
@@ -937,11 +937,11 @@
   "label": "desktop, t=0.1: after the change the engine is on and there is still no fallback list"
  },
  {
-  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "eval": "__jump('/work')",
   "label": "back to /work"
  },
  {
-  "eval": "__hold('/experience','radial',0.3,676,846)",
+  "eval": "__hold('/experience',0.3)",
   "label": "hold the change into /experience at t=0.3 (desktop)"
  },
  {
@@ -965,11 +965,11 @@
   "label": "desktop, t=0.3: after the change the engine is on and there is still no fallback list"
  },
  {
-  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "eval": "__jump('/work')",
   "label": "back to /work"
  },
  {
-  "eval": "__hold('/experience','radial',0.6,676,846)",
+  "eval": "__hold('/experience',0.6)",
   "label": "hold the change into /experience at t=0.6 (desktop)"
  },
  {
@@ -993,7 +993,7 @@
   "label": "desktop, t=0.6: after the change the engine is on and there is still no fallback list"
  },
  {
-  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "eval": "__jump('/work')",
   "label": "back to /work"
  },
  {
@@ -1004,12 +1004,12 @@
   "dpr": 2,
   "mobile": true,
   "touch": true,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
   "go": "{{BASE}}/work",
   "wait": 3000
  },
  {
-  "eval": "__hold('/experience','radial',0.1,200,800)",
+  "eval": "__hold('/experience',0.1)",
   "label": "hold the change into /experience at t=0.1 (phone)"
  },
  {
@@ -1033,11 +1033,11 @@
   "label": "phone, t=0.1: after the change the engine is on and there is still no fallback list"
  },
  {
-  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "eval": "__jump('/work')",
   "label": "back to /work"
  },
  {
-  "eval": "__hold('/experience','radial',0.3,200,800)",
+  "eval": "__hold('/experience',0.3)",
   "label": "hold the change into /experience at t=0.3 (phone)"
  },
  {
@@ -1061,11 +1061,11 @@
   "label": "phone, t=0.3: after the change the engine is on and there is still no fallback list"
  },
  {
-  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "eval": "__jump('/work')",
   "label": "back to /work"
  },
  {
-  "eval": "__hold('/experience','radial',0.6,200,800)",
+  "eval": "__hold('/experience',0.6)",
   "label": "hold the change into /experience at t=0.6 (phone)"
  },
  {
@@ -1089,7 +1089,7 @@
   "label": "phone, t=0.6: after the change the engine is on and there is still no fallback list"
  },
  {
-  "eval": "__ftChange('/work','fade').then(()=>__release())",
+  "eval": "__jump('/work')",
   "label": "back to /work"
  },
  {
@@ -1100,12 +1100,12 @@
   "dpr": 1,
   "mobile": false,
   "touch": false,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
   "go": "{{BASE}}/",
   "wait": 3500
  },
  {
-  "eval": "__hold('/experience','radial',0.25,676,846)",
+  "eval": "__hold('/experience',0.25)",
   "label": "hold the change home to /experience at t=0.25"
  },
  {

@@ -1,49 +1,45 @@
 import type { NavigateFunction } from "@remix-run/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { watchHistory, type RouterLike } from "./history-change";
-import { afterSettled, changePage, isPageSettled, pageCommitted, planChange, subscribeSettled } from "./page-change";
+import { afterSettled, changePage, finishChange, isChangeShowing, isPageSettled, pageCommitted, planChange, subscribeSettled } from "./page-change";
 
 const screen = { vw: 1440, vh: 900 };
+const scr = { supported: true, reduced: false, ...screen };
+const PAGES = ["/", "/work", "/work/long-form", "/work/short-form", "/experience"];
 
 describe("planChange", () => {
   it("gives none without View Transitions support", () => {
-    const plan = planChange({ supported: false, reduced: false, ...screen });
+    const plan = planChange("/", "/work", { ...scr, supported: false });
     expect(plan.kind).toBe("none");
     expect(plan.ms).toBe(0);
   });
 
-  it("gives a 120 ms fade under reduced motion, whatever kind was asked", () => {
-    expect(planChange({ supported: true, reduced: true, kind: "radial", ...screen })).toMatchObject({ kind: "fade", ms: 120 });
-    expect(planChange({ supported: true, reduced: true, kind: "linear-left", ...screen })).toMatchObject({ kind: "fade", ms: 120 });
+  it("is the same radial 3500 ms reveal from the centre for every pair of pages, the two walls included", () => {
+    for (const from of PAGES) {
+      for (const to of PAGES) {
+        expect(planChange(from, to, scr)).toEqual({
+          kind: "radial",
+          ms: 3500,
+          origin: { x: 720, y: 450 },
+          radius: Math.hypot(720, 450),
+        });
+      }
+    }
   });
 
-  it("puts the origin at the centre of the screen by default", () => {
-    expect(planChange({ supported: true, reduced: false, ...screen }).origin).toEqual({ x: 720, y: 450 });
-    expect(planChange({ supported: true, reduced: true, ...screen }).origin).toEqual({ x: 720, y: 450 });
+  it("gives the 120 ms fade under reduced motion, for every pair", () => {
+    for (const from of PAGES) {
+      for (const to of PAGES) expect(planChange(from, to, { ...scr, reduced: true })).toMatchObject({ kind: "fade", ms: 120, origin: { x: 720, y: 450 } });
+    }
   });
 
-  it("carries the viewport width, the travel of a linear sweep", () => {
-    expect(planChange({ supported: true, reduced: false, kind: "linear-right", ...screen }).width).toBe(1440);
-    expect(planChange({ supported: true, reduced: true, ...screen }).width).toBe(1440);
+  it("puts the origin at the centre of whatever screen it is, and the radius at the farthest corner from it", () => {
+    expect(planChange("/", "/work", { ...scr, vw: 390, vh: 844 })).toMatchObject({ origin: { x: 195, y: 422 }, radius: Math.hypot(195, 422) });
+    expect(planChange("/", "/work", { ...scr, vw: 1920, vh: 1080 }).origin).toEqual({ x: 960, y: 540 });
   });
 
-  it("keeps a given origin", () => {
-    const origin = { x: 100, y: 800 };
-    expect(planChange({ supported: true, reduced: false, origin, ...screen }).origin).toEqual(origin);
-  });
-
-  it("makes the radius the distance to the farthest corner", () => {
-    expect(planChange({ supported: true, reduced: false, ...screen }).radius).toBeCloseTo(Math.hypot(720, 450));
-    // bottom left: the farthest corner is the top right
-    expect(planChange({ supported: true, reduced: false, origin: { x: 0, y: 900 }, ...screen }).radius).toBeCloseTo(Math.hypot(1440, 900));
-    // near the top right: the farthest corner is the bottom left
-    expect(planChange({ supported: true, reduced: false, origin: { x: 1400, y: 40 }, ...screen }).radius).toBeCloseTo(Math.hypot(1400, 860));
-  });
-
-  it("defaults to the radial reveal and takes the spec's times", () => {
-    expect(planChange({ supported: true, reduced: false, ...screen })).toMatchObject({ kind: "radial", ms: 560 });
-    expect(planChange({ supported: true, reduced: false, kind: "linear-right", ...screen })).toMatchObject({ kind: "linear-right", ms: 480 });
-    expect(planChange({ supported: true, reduced: false, kind: "fade", ...screen })).toMatchObject({ kind: "fade", ms: 120 });
+  it("has no linear kinds", () => {
+    expect(Object.keys(planChange("/work/long-form", "/work/short-form", scr)).sort()).toEqual(["kind", "ms", "origin", "radius"]);
   });
 });
 
@@ -141,13 +137,16 @@ describe("changePage", () => {
     const r = env.router("/work");
     const seen: boolean[] = [];
     const off = subscribeSettled(() => seen.push(isPageSettled()));
-    const done = changePage(r.navigate, "/work", { origin: { x: 10, y: 20 } });
+    const done = changePage(r.navigate, "/work");
     expect(env.html.dataset.changeKind).toBe("radial");
-    expect(env.props.get("--change-x")).toBe("10px");
-    expect(env.props.get("--change-y")).toBe("20px");
+    // the centre of the screen, whatever was clicked
+    expect(env.props.get("--change-x")).toBe("720px");
+    expect(env.props.get("--change-y")).toBe("450px");
+    expect(env.props.get("--change-ms")).toBe("3500ms");
+    expect(env.props.has("--change-w")).toBe(false);
     // the glass numbers glass.css reads, from glass-math.ts
     expect(env.props.get("--change-band")).toBe("0.07");
-    expect(env.props.get("--change-ease")).toBe("cubic-bezier(0.3, 0.7, 0.2, 1)");
+    expect(env.props.get("--change-ease")).toBe("cubic-bezier(0.65, 0, 0.35, 1)");
     expect(isPageSettled()).toBe(false);
     r.dataArrives();
     await tick();
@@ -189,11 +188,11 @@ describe("changePage", () => {
     r1.dataArrives();
     await tick();
     const r2 = env.router("/timeline");
-    const second = changePage(r2.navigate, "/timeline", { kind: "linear-left" });
+    const second = changePage(r2.navigate, "/timeline");
     expect(env.transitions[0].skipped).toBe(true);
     await first;
     // the second change still holds the marks and the busy state
-    expect(env.html.dataset.changeKind).toBe("linear-left");
+    expect(env.html.dataset.changeKind).toBe("radial");
     expect(isPageSettled()).toBe(false);
     r2.dataArrives();
     await tick();
@@ -232,6 +231,66 @@ describe("changePage", () => {
     await changePage(navigate, "/work");
     expect(navigate).toHaveBeenCalledWith("/work", { viewTransition: false });
     expect(env.html.dataset.changeKind).toBeUndefined();
+    expect(isPageSettled()).toBe(true);
+  });
+});
+
+describe("finishChange", () => {
+  beforeEach(() => {
+    vi.useRealTimers();
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("does nothing when no change is running", () => {
+    fakeEnvironment();
+    expect(isChangeShowing()).toBe(false);
+    expect(() => finishChange()).not.toThrow();
+    expect(isPageSettled()).toBe(true);
+  });
+
+  it("does nothing while the data loads (the old page is live, no pictures yet)", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    expect(isChangeShowing()).toBe(false);
+    finishChange();
+    expect(isPageSettled()).toBe(false);
+    expect(env.html.dataset.changeKind).toBe("radial");
+    r.dataArrives();
+    await tick();
+    env.transitions[0].finish();
+    await done;
+  });
+
+  it("skips the transition to its end, and leaves the state settled and the marks off", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    r.dataArrives();
+    await tick();
+    expect(isChangeShowing()).toBe(true);
+    expect(isPageSettled()).toBe(false);
+    finishChange();
+    expect(env.transitions[0].skipped).toBe(true);
+    await done;
+    expect(isChangeShowing()).toBe(false);
+    expect(isPageSettled()).toBe(true);
+    expect(env.html.dataset.changeKind).toBeUndefined();
+    expect(env.props.size).toBe(0);
+  });
+
+  it("is harmless when called twice", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    r.dataArrives();
+    await tick();
+    finishChange();
+    finishChange();
+    await done;
+    finishChange();
     expect(isPageSettled()).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
 // Writes scripts/audit/page-change.json: home to work and back at 1440x900, dpr 2, CPU 4x, with a
 // rAF frame-gap recorder started in the page before each click and read by polling after (the
 // headless page does not advance timers while idle, so the read is a setInterval inside an eval).
-// Also writes page-change-kinds.json: the same measurement for the linear kinds (the debug hook starts the change).
+// The change is the one radial reveal, 3.5 s (round 7); it is the glass gate of round 6 (ruling R33) measured again at that length.
 // A frame counts as animating once the transition's `ready` has fired; the first frame after it is the commit frame (R31: not counted).
 // usage: node scripts/audit/make-page-change.mjs [cpu=4]   then   BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/page-change.json <outdir>
 import { writeFileSync } from "node:fs";
@@ -54,16 +54,3 @@ const steps = [
   { label: "Forward, home to work", eval: "__stop()" },
 ];
 writeFileSync(new URL("./page-change.json", import.meta.url), JSON.stringify(steps, null, 1) + "\n");
-
-const hook = (to, kind) => `__ftChange('${to}','${kind}')`;
-const kinds = [
-  { size: [1440, 900], dpr: 2, init, go: "{{BASE}}/", wait: 6000 },
-  { cpu: Number(process.argv[2] ?? 4), wait: 4000 },
-];
-for (const kind of ["linear-right", "linear-left", "radial"]) {
-  for (const [from, to] of [["/", "/work"], ["/work", "/"]]) {
-    kinds.push({ label: `arm ${kind} ${from} to ${to}`, eval: "__rec(true)" }, { eval: hook(to, kind) });
-    kinds.push({ label: `${kind}, ${from} to ${to}`, eval: "__stop()" }, wait(4000));
-  }
-}
-writeFileSync(new URL("./page-change-kinds.json", import.meta.url), JSON.stringify(kinds, null, 1) + "\n");

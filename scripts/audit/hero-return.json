@@ -7,21 +7,21 @@
   "dpr": 1,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/",
   "wait": 7000
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3500
  },
  {
   "film": {
-   "ms": 3560,
+   "ms": 6500,
    "rect": "#hero",
-   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "eval": "(window.__wl.length=0,__ftChange('/'))",
    "keep": "return-darkest",
-   "at": 740
+   "at": 3680
   },
   "label": "return, dock, 1x: no bare frame"
  },
@@ -41,12 +41,12 @@
   "dpr": 1,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/",
   "wait": 7000
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3500
  },
  {
@@ -55,11 +55,11 @@
  },
  {
   "film": {
-   "ms": 3560,
+   "ms": 6500,
    "rect": "#hero",
-   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "eval": "(window.__wl.length=0,__ftChange('/'))",
    "keep": "return-slow-darkest",
-   "at": 1050
+   "at": 3990
   },
   "label": "return, dock, CPU 6x: no bare frame"
  },
@@ -71,17 +71,17 @@
   "dpr": 1,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/work",
   "wait": 7000
  },
  {
   "film": {
-   "ms": 3560,
+   "ms": 6500,
    "rect": "#hero",
-   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "eval": "(window.__wl.length=0,__ftChange('/'))",
    "keep": "first-darkest",
-   "at": 740
+   "at": 3680
   },
   "label": "first visit (landed on /work), dock, 1x: no bare frame"
  },
@@ -101,7 +101,7 @@
   "dpr": 1,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/work",
   "wait": 7000
  },
@@ -111,11 +111,11 @@
  },
  {
   "film": {
-   "ms": 3560,
+   "ms": 6500,
    "rect": "#hero",
-   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "eval": "(window.__wl.length=0,__ftChange('/'))",
    "keep": "first-slow-darkest",
-   "at": 1050
+   "at": 3990
   },
   "label": "first visit, dock, CPU 6x: no bare frame"
  },
@@ -127,21 +127,21 @@
   "dpr": 1,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/",
   "wait": 7000
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3500
  },
  {
   "film": {
-   "ms": 3560,
+   "ms": 6500,
    "rect": "#hero",
-   "eval": "history.back()",
+   "eval": "(window.__wl.length=0,history.back())",
    "keep": "back-darkest",
-   "at": 740
+   "at": 3680
   },
   "label": "return by Back: no bare frame"
  },
@@ -153,19 +153,19 @@
   "dpr": 1,
   "reduce": true,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/",
   "wait": 7000
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3500
  },
  {
   "film": {
    "ms": 3120,
    "rect": "#hero",
-   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "eval": "(window.__wl.length=0,__ftChange('/'))",
    "keep": "return-reduced-darkest",
    "at": 400
   },
@@ -179,7 +179,7 @@
   "dpr": 1,
   "reduce": true,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/work",
   "wait": 7000
  },
@@ -187,7 +187,7 @@
   "film": {
    "ms": 3120,
    "rect": "#hero",
-   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "eval": "(window.__wl.length=0,__ftChange('/'))",
    "keep": "first-reduced-darkest",
    "at": 400
   },
@@ -201,19 +201,19 @@
   "dpr": 2,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/",
   "wait": 7000
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3500
  },
  {
   "film": {
-   "ms": 3560,
+   "ms": 6500,
    "rect": "#hero",
-   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "eval": "(window.__wl.length=0,__ftChange('/'))",
    "keep": "return-dpr2-darkest"
   },
   "label": "return, dpr 2: no bare frame"
@@ -226,16 +226,16 @@
   "dpr": 1,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/",
   "wait": 7000
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3500
  },
  {
-  "eval": "__hold('/','radial',0.3,559,846)",
+  "eval": "__hold('/',0.3)",
   "label": "return held at 0.3"
  },
  {
@@ -263,11 +263,11 @@
   "label": "release"
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3000
  },
  {
-  "eval": "__hold('/','radial',0.7,559,846)",
+  "eval": "__hold('/',0.7)",
   "label": "return held at 0.7"
  },
  {
@@ -295,7 +295,7 @@
   "label": "release"
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3000
  },
  {
@@ -306,12 +306,12 @@
   "dpr": 1,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/work",
   "wait": 7000
  },
  {
-  "eval": "__hold('/','radial',0.3,559,846)",
+  "eval": "__hold('/',0.3)",
   "label": "first held at 0.3"
  },
  {
@@ -339,11 +339,11 @@
   "label": "release"
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3000
  },
  {
-  "eval": "__hold('/','radial',0.7,559,846)",
+  "eval": "__hold('/',0.7)",
   "label": "first held at 0.7"
  },
  {
@@ -371,7 +371,7 @@
   "label": "release"
  },
  {
-  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "eval": "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))",
   "wait": 3000
  },
  {
@@ -381,7 +381,7 @@
   ],
   "dpr": 1,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>3560){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6060)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;\n window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);\nwindow.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};\n const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};\n const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));\n const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];\n return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>6500){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/",
   "wait": 6000
  },

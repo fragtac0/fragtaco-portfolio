@@ -7,15 +7,19 @@
  * (`usePageSettled`). Heavy work on the arriving page (starting WebGL, decoding the ring pictures,
  * starting the ring motion) waits for that, so it never lands inside the transition.
  *
+ * Every change is the same reveal (round 7 spec 4): radial from the centre of the screen, 3.5 s, whatever the two pages
+ * are and whatever was clicked. While it runs the browser shows pictures of the two pages and nothing under them can be
+ * used, so the first press or key press during one finishes it (`finishChange`, wired by change-finish.ts).
+ *
  * While a change runs, <html> carries `data-change-kind` and the origin as CSS variables
- * (`--change-x`, `--change-y`, `--change-r`, `--change-w`, `--change-ms`) for glass.css and
+ * (`--change-x`, `--change-y`, `--change-r`, `--change-ms`) for glass.css and
  * page-transition.css; components/page-change/glass-run.ts draws the glass front on the transition. They are cleared
  * when the transition finishes, is skipped, or fails. Back and Forward (`watchHistory`) live in history-change.ts.
  */
 import type { NavigateFunction } from "@remix-run/react";
 import { GLASS, glassVars } from "../components/page-change/glass-math";
 import { startGlass } from "../components/page-change/glass-run";
-import { focusInDock, restoreDockFocus } from "./dock-focus";
+import { focusAfterFinish, focusInDock, restoreDockFocus } from "./dock-focus";
 import {
   captureNextTransition,
   commitCount,
@@ -29,7 +33,7 @@ import {
 
 export { isPageSettled, pageCommitted, subscribeSettled } from "./change-state";
 
-export type ChangeKind = "radial" | "linear-left" | "linear-right" | "fade";
+export type ChangeKind = "radial" | "fade";
 export interface Point {
   x: number;
   y: number;
@@ -39,30 +43,33 @@ export interface ChangePlan {
   origin: Point;
   /** Distance from the origin to the farthest corner of the screen. */
   radius: number;
-  /** The viewport's width: the travel of a linear sweep. */
-  width: number;
   ms: number;
 }
 
-/** Spec 5.1: the radial reveal 560 ms, the linear sweep 480 ms, the reduced-motion fade 120 ms. */
-const MS: Record<ChangeKind, number> = { radial: GLASS.radialMs, "linear-left": GLASS.linearMs, "linear-right": GLASS.linearMs, fade: 120 };
+/** The two lengths: the radial reveal (spec 4, 3500 ms) and the reduced-motion fade (120 ms). */
+const MS: Record<ChangeKind, number> = { radial: GLASS.ms, fade: 120 };
 
-/** Pure: what a change looks like on this screen. No View Transitions support gives `none` (the page just changes). */
-export function planChange(p: {
+/** What the screen is like: whether the browser can run View Transitions, reduced motion, and the viewport. */
+export interface ChangeEnv {
   supported: boolean;
   reduced: boolean;
-  kind?: ChangeKind;
-  origin?: Point;
   vw: number;
   vh: number;
-}): ChangePlan {
-  const origin = p.origin ?? { x: p.vw / 2, y: p.vh / 2 };
-  const radius = Math.hypot(Math.max(origin.x, p.vw - origin.x), Math.max(origin.y, p.vh - origin.y));
-  const width = p.vw;
-  if (!p.supported) return { kind: "none", origin, radius, width, ms: 0 };
-  if (p.reduced) return { kind: "fade", origin, radius, width, ms: MS.fade };
-  const kind = p.kind ?? "radial";
-  return { kind, origin, radius, width, ms: MS[kind] };
+}
+
+/**
+ * Pure: what a change looks like on this screen. The same for every pair of pages (`from` and `to` are the addresses; they
+ * are named so a call says what it is for, and the reveal does not depend on them): radial from the centre of the screen,
+ * 3500 ms, or the 120 ms fade under reduced motion. No View Transitions support gives `none` (the page just changes).
+ */
+export function planChange(from: string, to: string, env: ChangeEnv): ChangePlan {
+  void from;
+  void to;
+  const origin = { x: env.vw / 2, y: env.vh / 2 };
+  const radius = Math.hypot(origin.x, origin.y);
+  if (!env.supported) return { kind: "none", origin, radius, ms: 0 };
+  const kind: ChangeKind = env.reduced ? "fade" : "radial";
+  return { kind, origin, radius, ms: MS[kind] };
 }
 
 /**
@@ -95,6 +102,12 @@ export const FAILSAFE_MS = 30000;
 interface Running {
   /** Skips the transition and frees what it waits for; its promise then resolves. */
   stop(): void;
+  /** Skips the transition to its end (the new page is live); the change ends the usual way, when the transition has finished. */
+  finish(): void;
+  /** True once the browser is showing the two pictures (the transition exists): from then on nothing can be clicked. */
+  showing(): boolean;
+  /** Resolves when the change is over. */
+  done: Promise<void>;
 }
 let current: Running | null = null;
 
@@ -106,13 +119,12 @@ function mark(html: HTMLElement, plan: ChangePlan) {
   html.style.setProperty("--change-x", `${plan.origin.x}px`);
   html.style.setProperty("--change-y", `${plan.origin.y}px`);
   html.style.setProperty("--change-r", `${plan.radius}px`);
-  html.style.setProperty("--change-w", `${plan.width}px`);
   html.style.setProperty("--change-ms", `${plan.ms}ms`);
   for (const [name, value] of Object.entries(glassVars())) html.style.setProperty(name, value);
 }
 function unmark(html: HTMLElement) {
   delete html.dataset.changeKind;
-  for (const name of ["--change-x", "--change-y", "--change-r", "--change-w", "--change-ms", ...Object.keys(glassVars())]) html.style.removeProperty(name);
+  for (const name of ["--change-x", "--change-y", "--change-r", "--change-ms", ...Object.keys(glassVars())]) html.style.removeProperty(name);
 }
 
 /**
@@ -130,20 +142,6 @@ export function open(plan: ChangePlan) {
   const cleanup = () => cleanups.splice(0).forEach((fn) => fn());
   let failsafe = 0;
   let over = () => {};
-  const entry: Running = {
-    stop() {
-      cleanup();
-      try {
-        transition?.skipTransition();
-      } catch {
-        /* already over */
-      }
-      over(); // a newer change owns the marks by now (see `current`): this only resolves the promise
-    },
-  };
-  current = entry;
-  mark(html, plan);
-  setBusy(true);
   const done = new Promise<void>((resolve) => {
     let ended = false;
     over = () => {
@@ -159,6 +157,29 @@ export function open(plan: ChangePlan) {
       resolve();
     };
   });
+  const entry: Running = {
+    done,
+    finish() {
+      try {
+        transition?.skipTransition();
+      } catch {
+        /* already over */
+      }
+    },
+    showing: () => transition !== null,
+    stop() {
+      cleanup();
+      try {
+        transition?.skipTransition();
+      } catch {
+        /* already over */
+      }
+      over(); // a newer change owns the marks by now (see `current`): this only resolves the promise
+    },
+  };
+  current = entry;
+  mark(html, plan);
+  setBusy(true);
   failsafe = window.setTimeout(over, FAILSAFE_MS);
   return {
     done,
@@ -211,15 +232,31 @@ export function startOwnTransition(c: Change) {
 }
 
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-export const planNow = (kind?: ChangeKind, origin?: Point) =>
-  planChange({
+export const planNow = (from: string, to: string) =>
+  planChange(from, to, {
     supported: "startViewTransition" in document,
     reduced: reduced(),
-    kind,
-    origin,
     vw: window.innerWidth,
     vh: window.innerHeight,
   });
+
+/** True while the browser is showing the two pictures of a change (nothing under them can be used, so a press finishes it). */
+export const isChangeShowing = () => current?.showing() ?? false;
+
+/**
+ * Finishes the running change at once: its view transition is skipped to the end, so the new page is live and the
+ * change ends the usual way (marks off, page settled). Does nothing when no change is showing its pictures yet (the old
+ * page is still live while the data loads). Once the change is over, focus is put somewhere sensible on the new page
+ * (`focusAfterFinish`) unless the new page has put it somewhere on purpose.
+ */
+export function finishChange(): void {
+  const c = current;
+  if (!c?.showing()) return;
+  c.finish();
+  void c.done.then(() => {
+    if (current === null) focusAfterFinish();
+  });
+}
 
 /**
  * Goes to `to` with the page change. The navigation is the router's own, with `viewTransition`: it
@@ -227,17 +264,13 @@ export const planNow = (kind?: ChangeKind, origin?: Point) =>
  * transition, so rendering is never held for a network round trip. Resolves when the change is over,
  * whatever happened.
  */
-export function changePage(
-  navigate: NavigateFunction,
-  to: string,
-  opts: { origin?: Point; kind?: ChangeKind } = {},
-): Promise<void> {
+export function changePage(navigate: NavigateFunction, to: string): Promise<void> {
   const go = (viewTransition: boolean) => Promise.resolve(navigate(to, { viewTransition }));
   if (typeof document === "undefined") {
     void go(false).catch(() => undefined);
     return Promise.resolve();
   }
-  const plan = planNow(opts.kind, opts.origin);
+  const plan = planNow(window.location.pathname, to);
   if (plan.kind === "none") {
     current?.stop();
     void go(false).catch(() => undefined);

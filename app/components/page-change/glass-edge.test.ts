@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ringLinePixels, ringMaskPixels, stripLinePixels, stripMaskPixels } from "./glass-edge";
+import { ringLinePixels, ringMaskPixels } from "./glass-edge";
 import { GLASS, REACH, WARP } from "./glass-math";
 
 const K = 1 + REACH * GLASS.band;
@@ -54,40 +54,5 @@ describe("ringLinePixels", () => {
     for (let i = 0; i < n * n; i++) if (px[i * 4 + 3] > best) [best, at] = [px[i * 4 + 3], i];
     expect(px[at * 4]).toBeGreaterThan(240);
     expect(px[at * 4 + 2]).toBeGreaterThan(180);
-  });
-});
-
-describe("strips", () => {
-  const w = 128;
-  const h = 48;
-  it("have the revealed side opaque and the far side clear, and swap sides when mirrored", () => {
-    const right = stripMaskPixels(w, h, false);
-    const left = stripMaskPixels(w, h, true);
-    for (let y = 0; y < h; y++) {
-      expect(alpha(right, w, 0, y)).toBe(255);
-      expect(alpha(right, w, w - 1, y)).toBe(0);
-      expect(alpha(left, w, 0, y)).toBe(0);
-      expect(alpha(left, w, w - 1, y)).toBe(255);
-    }
-  });
-  it("wander along the front", () => {
-    const right = stripMaskPixels(w, h, false);
-    const edges = new Set<number>();
-    for (let y = 0; y < h; y++) {
-      let x = 0;
-      while (x < w && alpha(right, w, x, y) > 127) x++;
-      edges.add(x);
-    }
-    expect(edges.size).toBeGreaterThan(2);
-  });
-  it("carry a line near the middle that is brightest at the front, and the same line mirrored", () => {
-    const right = stripLinePixels(w, h, false);
-    const left = stripLinePixels(w, h, true);
-    let strongest = 0;
-    for (let x = 0; x < w; x++) strongest = Math.max(strongest, alpha(right, w, x, 20));
-    expect(strongest).toBeGreaterThan(40);
-    for (let x = 0; x < w; x++) expect(alpha(left, w, x, 20)).toBe(alpha(right, w, w - 1 - x, 20));
-    expect(alpha(right, w, 0, 20)).toBe(0);
-    expect(alpha(right, w, w - 1, 20)).toBe(0);
   });
 });

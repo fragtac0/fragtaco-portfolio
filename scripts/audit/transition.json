@@ -5,412 +5,728 @@
    900
   ],
   "dpr": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>5000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
   "go": "{{BASE}}/",
   "wait": 6000
  },
  {
-  "label": "to-work-00 (t=0.03)",
-  "eval": "__hold('/work','radial',0.03,676,846)"
+  "label": "local-home-to-work-00 (t=0.1): to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-home-to-work-00 (t=0.1)",
+  "eval": "__hold('/work',0.1)"
  },
  {
   "wait": 120,
-  "shot": "to-work-00-warm"
+  "shot": "local-home-to-work-00-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-00"
+  "shot": "local-home-to-work-00"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-home-to-work-01 (t=0.2): to the start page",
+  "eval": "__jump('/')"
  },
  {
-  "label": "to-work-01 (t=0.06)",
-  "eval": "__hold('/work','radial',0.06,676,846)"
+  "label": "local-home-to-work-01 (t=0.2)",
+  "eval": "__hold('/work',0.2)"
  },
  {
   "wait": 120,
-  "shot": "to-work-01-warm"
+  "shot": "local-home-to-work-01-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-01"
+  "shot": "local-home-to-work-01"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-home-to-work-02 (t=0.3): to the start page",
+  "eval": "__jump('/')"
  },
  {
-  "label": "to-work-02 (t=0.1)",
-  "eval": "__hold('/work','radial',0.1,676,846)"
+  "label": "local-home-to-work-02 (t=0.3)",
+  "eval": "__hold('/work',0.3)"
  },
  {
   "wait": 120,
-  "shot": "to-work-02-warm"
+  "shot": "local-home-to-work-02-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-02"
+  "shot": "local-home-to-work-02"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-home-to-work-03 (t=0.4): to the start page",
+  "eval": "__jump('/')"
  },
  {
-  "label": "to-work-03 (t=0.14)",
-  "eval": "__hold('/work','radial',0.14,676,846)"
+  "label": "local-home-to-work-03 (t=0.4)",
+  "eval": "__hold('/work',0.4)"
  },
  {
   "wait": 120,
-  "shot": "to-work-03-warm"
+  "shot": "local-home-to-work-03-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-03"
+  "shot": "local-home-to-work-03"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-home-to-work-04 (t=0.5): to the start page",
+  "eval": "__jump('/')"
  },
  {
-  "label": "to-work-04 (t=0.19)",
-  "eval": "__hold('/work','radial',0.19,676,846)"
+  "label": "local-home-to-work-04 (t=0.5)",
+  "eval": "__hold('/work',0.5)"
  },
  {
   "wait": 120,
-  "shot": "to-work-04-warm"
+  "shot": "local-home-to-work-04-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-04"
+  "shot": "local-home-to-work-04"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-home-to-work-05 (t=0.6): to the start page",
+  "eval": "__jump('/')"
  },
  {
-  "label": "to-work-05 (t=0.25)",
-  "eval": "__hold('/work','radial',0.25,676,846)"
+  "label": "local-home-to-work-05 (t=0.6)",
+  "eval": "__hold('/work',0.6)"
  },
  {
   "wait": 120,
-  "shot": "to-work-05-warm"
+  "shot": "local-home-to-work-05-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-05"
+  "shot": "local-home-to-work-05"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-home-to-work-06 (t=0.7): to the start page",
+  "eval": "__jump('/')"
  },
  {
-  "label": "to-work-06 (t=0.33)",
-  "eval": "__hold('/work','radial',0.33,676,846)"
+  "label": "local-home-to-work-06 (t=0.7)",
+  "eval": "__hold('/work',0.7)"
  },
  {
   "wait": 120,
-  "shot": "to-work-06-warm"
+  "shot": "local-home-to-work-06-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-06"
+  "shot": "local-home-to-work-06"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-home-to-work-07 (t=0.8): to the start page",
+  "eval": "__jump('/')"
  },
  {
-  "label": "to-work-07 (t=0.45)",
-  "eval": "__hold('/work','radial',0.45,676,846)"
+  "label": "local-home-to-work-07 (t=0.8)",
+  "eval": "__hold('/work',0.8)"
  },
  {
   "wait": 120,
-  "shot": "to-work-07-warm"
+  "shot": "local-home-to-work-07-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-07"
+  "shot": "local-home-to-work-07"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-home-to-work-08 (t=0.92): to the start page",
+  "eval": "__jump('/')"
  },
  {
-  "label": "to-work-08 (t=0.65)",
-  "eval": "__hold('/work','radial',0.65,676,846)"
+  "label": "local-home-to-work-08 (t=0.92)",
+  "eval": "__hold('/work',0.92)"
  },
  {
   "wait": 120,
-  "shot": "to-work-08-warm"
+  "shot": "local-home-to-work-08-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-08"
+  "shot": "local-home-to-work-08"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-work-to-long-form-00 (t=0.1): to the start page",
+  "eval": "__jump('/work')"
  },
  {
-  "label": "to-work-09 (t=0.9)",
-  "eval": "__hold('/work','radial',0.9,676,846)"
+  "label": "local-work-to-long-form-00 (t=0.1)",
+  "eval": "__hold('/work/long-form',0.1)"
  },
  {
   "wait": 120,
-  "shot": "to-work-09-warm"
+  "shot": "local-work-to-long-form-00-warm"
  },
  {
   "wait": 60,
-  "shot": "to-work-09"
+  "shot": "local-work-to-long-form-00"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/','fade');return __release()})()"
+  "label": "local-work-to-long-form-01 (t=0.2): to the start page",
+  "eval": "__jump('/work')"
  },
  {
-  "eval": "__ftChange('/work','fade').then(()=>__release())",
-  "label": "to work"
- },
- {
-  "label": "to-home-00 (t=0.03)",
-  "eval": "__hold('/','radial',0.03,559,846)"
+  "label": "local-work-to-long-form-01 (t=0.2)",
+  "eval": "__hold('/work/long-form',0.2)"
  },
  {
   "wait": 120,
-  "shot": "to-home-00-warm"
+  "shot": "local-work-to-long-form-01-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-00"
+  "shot": "local-work-to-long-form-01"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-work-to-long-form-02 (t=0.3): to the start page",
+  "eval": "__jump('/work')"
  },
  {
-  "label": "to-home-01 (t=0.06)",
-  "eval": "__hold('/','radial',0.06,559,846)"
+  "label": "local-work-to-long-form-02 (t=0.3)",
+  "eval": "__hold('/work/long-form',0.3)"
  },
  {
   "wait": 120,
-  "shot": "to-home-01-warm"
+  "shot": "local-work-to-long-form-02-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-01"
+  "shot": "local-work-to-long-form-02"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-work-to-long-form-03 (t=0.4): to the start page",
+  "eval": "__jump('/work')"
  },
  {
-  "label": "to-home-02 (t=0.1)",
-  "eval": "__hold('/','radial',0.1,559,846)"
+  "label": "local-work-to-long-form-03 (t=0.4)",
+  "eval": "__hold('/work/long-form',0.4)"
  },
  {
   "wait": 120,
-  "shot": "to-home-02-warm"
+  "shot": "local-work-to-long-form-03-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-02"
+  "shot": "local-work-to-long-form-03"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-work-to-long-form-04 (t=0.5): to the start page",
+  "eval": "__jump('/work')"
  },
  {
-  "label": "to-home-03 (t=0.14)",
-  "eval": "__hold('/','radial',0.14,559,846)"
+  "label": "local-work-to-long-form-04 (t=0.5)",
+  "eval": "__hold('/work/long-form',0.5)"
  },
  {
   "wait": 120,
-  "shot": "to-home-03-warm"
+  "shot": "local-work-to-long-form-04-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-03"
+  "shot": "local-work-to-long-form-04"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-work-to-long-form-05 (t=0.6): to the start page",
+  "eval": "__jump('/work')"
  },
  {
-  "label": "to-home-04 (t=0.19)",
-  "eval": "__hold('/','radial',0.19,559,846)"
+  "label": "local-work-to-long-form-05 (t=0.6)",
+  "eval": "__hold('/work/long-form',0.6)"
  },
  {
   "wait": 120,
-  "shot": "to-home-04-warm"
+  "shot": "local-work-to-long-form-05-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-04"
+  "shot": "local-work-to-long-form-05"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-work-to-long-form-06 (t=0.7): to the start page",
+  "eval": "__jump('/work')"
  },
  {
-  "label": "to-home-05 (t=0.25)",
-  "eval": "__hold('/','radial',0.25,559,846)"
+  "label": "local-work-to-long-form-06 (t=0.7)",
+  "eval": "__hold('/work/long-form',0.7)"
  },
  {
   "wait": 120,
-  "shot": "to-home-05-warm"
+  "shot": "local-work-to-long-form-06-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-05"
+  "shot": "local-work-to-long-form-06"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-work-to-long-form-07 (t=0.8): to the start page",
+  "eval": "__jump('/work')"
  },
  {
-  "label": "to-home-06 (t=0.33)",
-  "eval": "__hold('/','radial',0.33,559,846)"
+  "label": "local-work-to-long-form-07 (t=0.8)",
+  "eval": "__hold('/work/long-form',0.8)"
  },
  {
   "wait": 120,
-  "shot": "to-home-06-warm"
+  "shot": "local-work-to-long-form-07-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-06"
+  "shot": "local-work-to-long-form-07"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-work-to-long-form-08 (t=0.92): to the start page",
+  "eval": "__jump('/work')"
  },
  {
-  "label": "to-home-07 (t=0.45)",
-  "eval": "__hold('/','radial',0.45,559,846)"
+  "label": "local-work-to-long-form-08 (t=0.92)",
+  "eval": "__hold('/work/long-form',0.92)"
  },
  {
   "wait": 120,
-  "shot": "to-home-07-warm"
+  "shot": "local-work-to-long-form-08-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-07"
+  "shot": "local-work-to-long-form-08"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-long-form-to-short-form-00 (t=0.1): to the start page",
+  "eval": "__jump('/work/long-form')"
  },
  {
-  "label": "to-home-08 (t=0.65)",
-  "eval": "__hold('/','radial',0.65,559,846)"
+  "label": "local-long-form-to-short-form-00 (t=0.1)",
+  "eval": "__hold('/work/short-form',0.1)"
  },
  {
   "wait": 120,
-  "shot": "to-home-08-warm"
+  "shot": "local-long-form-to-short-form-00-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-08"
+  "shot": "local-long-form-to-short-form-00"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-long-form-to-short-form-01 (t=0.2): to the start page",
+  "eval": "__jump('/work/long-form')"
  },
  {
-  "label": "to-home-09 (t=0.9)",
-  "eval": "__hold('/','radial',0.9,559,846)"
+  "label": "local-long-form-to-short-form-01 (t=0.2)",
+  "eval": "__hold('/work/short-form',0.2)"
  },
  {
   "wait": 120,
-  "shot": "to-home-09-warm"
+  "shot": "local-long-form-to-short-form-01-warm"
  },
  {
   "wait": 60,
-  "shot": "to-home-09"
+  "shot": "local-long-form-to-short-form-01"
  },
  {
   "label": "release",
   "eval": "__release()"
  },
  {
-  "label": "return",
-  "eval": "(async()=>{await __ftChange('/work','fade');return __release()})()"
+  "label": "local-long-form-to-short-form-02 (t=0.3): to the start page",
+  "eval": "__jump('/work/long-form')"
+ },
+ {
+  "label": "local-long-form-to-short-form-02 (t=0.3)",
+  "eval": "__hold('/work/short-form',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-long-form-to-short-form-02-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-long-form-to-short-form-02"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-long-form-to-short-form-03 (t=0.4): to the start page",
+  "eval": "__jump('/work/long-form')"
+ },
+ {
+  "label": "local-long-form-to-short-form-03 (t=0.4)",
+  "eval": "__hold('/work/short-form',0.4)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-long-form-to-short-form-03-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-long-form-to-short-form-03"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-long-form-to-short-form-04 (t=0.5): to the start page",
+  "eval": "__jump('/work/long-form')"
+ },
+ {
+  "label": "local-long-form-to-short-form-04 (t=0.5)",
+  "eval": "__hold('/work/short-form',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-long-form-to-short-form-04-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-long-form-to-short-form-04"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-long-form-to-short-form-05 (t=0.6): to the start page",
+  "eval": "__jump('/work/long-form')"
+ },
+ {
+  "label": "local-long-form-to-short-form-05 (t=0.6)",
+  "eval": "__hold('/work/short-form',0.6)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-long-form-to-short-form-05-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-long-form-to-short-form-05"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-long-form-to-short-form-06 (t=0.7): to the start page",
+  "eval": "__jump('/work/long-form')"
+ },
+ {
+  "label": "local-long-form-to-short-form-06 (t=0.7)",
+  "eval": "__hold('/work/short-form',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-long-form-to-short-form-06-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-long-form-to-short-form-06"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-long-form-to-short-form-07 (t=0.8): to the start page",
+  "eval": "__jump('/work/long-form')"
+ },
+ {
+  "label": "local-long-form-to-short-form-07 (t=0.8)",
+  "eval": "__hold('/work/short-form',0.8)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-long-form-to-short-form-07-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-long-form-to-short-form-07"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-long-form-to-short-form-08 (t=0.92): to the start page",
+  "eval": "__jump('/work/long-form')"
+ },
+ {
+  "label": "local-long-form-to-short-form-08 (t=0.92)",
+  "eval": "__hold('/work/short-form',0.92)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-long-form-to-short-form-08-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-long-form-to-short-form-08"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "experience-to-home-00 (t=0.1): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "experience-to-home-00 (t=0.1)",
+  "eval": "__hold('/',0.1)"
+ },
+ {
+  "wait": 120,
+  "shot": "experience-to-home-00-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "experience-to-home-00"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "experience-to-home-01 (t=0.2): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "experience-to-home-01 (t=0.2)",
+  "eval": "__hold('/',0.2)"
+ },
+ {
+  "wait": 120,
+  "shot": "experience-to-home-01-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "experience-to-home-01"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "experience-to-home-02 (t=0.3): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "experience-to-home-02 (t=0.3)",
+  "eval": "__hold('/',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "experience-to-home-02-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "experience-to-home-02"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "experience-to-home-03 (t=0.4): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "experience-to-home-03 (t=0.4)",
+  "eval": "__hold('/',0.4)"
+ },
+ {
+  "wait": 120,
+  "shot": "experience-to-home-03-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "experience-to-home-03"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "experience-to-home-04 (t=0.5): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "experience-to-home-04 (t=0.5)",
+  "eval": "__hold('/',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "experience-to-home-04-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "experience-to-home-04"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "experience-to-home-05 (t=0.6): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "experience-to-home-05 (t=0.6)",
+  "eval": "__hold('/',0.6)"
+ },
+ {
+  "wait": 120,
+  "shot": "experience-to-home-05-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "experience-to-home-05"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "experience-to-home-06 (t=0.7): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "experience-to-home-06 (t=0.7)",
+  "eval": "__hold('/',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "experience-to-home-06-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "experience-to-home-06"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "experience-to-home-07 (t=0.8): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "experience-to-home-07 (t=0.8)",
+  "eval": "__hold('/',0.8)"
+ },
+ {
+  "wait": 120,
+  "shot": "experience-to-home-07-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "experience-to-home-07"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "experience-to-home-08 (t=0.92): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "experience-to-home-08 (t=0.92)",
+  "eval": "__hold('/',0.92)"
+ },
+ {
+  "wait": 120,
+  "shot": "experience-to-home-08-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "experience-to-home-08"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
  }
 ]
