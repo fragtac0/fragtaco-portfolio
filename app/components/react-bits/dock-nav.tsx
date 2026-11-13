@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useLayoutEffect, useRef, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, type CSSProperties, type MouseEvent } from "react";
 import { FaClapperboard, FaHouse } from "react-icons/fa6";
 import type { SiteNavigationItem } from "../../types";
 import { tabCurrent } from "../../utils/nav";
@@ -83,13 +83,16 @@ function DockNavItem({ item, isActive, pathname, onClick }: DockNavItemProps) {
  * work pages each render their own), so a tab change across pages has no pill to slide from unless it is remembered here. */
 let lastLit: number | null = null;
 
+/** A layout effect in the browser, a plain effect on the server (React warns about a layout effect there and it does nothing). */
+const useIsomorphicLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
+
 /** The pill that marks the active tab. It sits behind the tabs, the width of one column of the tabs' grid, and its place is
  * the tab's index (`--dock-lit`), moved by a transform on one ease (dock-nav.css): it slides, never overshoots, and is
  * measured against the dock itself, not the screen, so the dock rising or sinking under it does not disturb it (the shared
  * layout animation it replaces measured in screen coordinates and sprang up and down while the home dock rose). */
 function DockPill({ lit }: { lit: number }) {
   const ref = useRef<HTMLSpanElement>(null);
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const pill = ref.current;
     const from = lastLit;
     lastLit = lit;
@@ -106,7 +109,7 @@ export default function DockNav({ items, activeKey, pathname, onItemClick }: Doc
   const lit = items.findIndex((item) => item.key === activeKey);
   return (
     <div
-      className="dock-tabs relative grid shrink-0 grid-flow-col auto-cols-fr items-center justify-center gap-0.5 sm:gap-1"
+      className="dock-tabs relative grid shrink-0 grid-flow-col auto-cols-fr items-center justify-center"
       style={{ "--dock-count": items.length } as CSSProperties}
     >
       {lit >= 0 ? <DockPill lit={lit} /> : null}

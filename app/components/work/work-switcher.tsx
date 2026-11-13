@@ -1,6 +1,6 @@
 import { useLocation } from "@remix-run/react";
 import PageLink from "../page-link";
-import { activeTab, rowTarget, tabKind, WORK_TABS } from "./work-tabs";
+import { rowTarget, tabKind, WORK_TABS } from "./work-tabs";
 
 /* The dock's own tab look (Doto, tracked), a size smaller; the current one wears the dock's accent pill. */
 const TAB =
@@ -21,19 +21,18 @@ export const ROW_ID = "work-row";
  */
 export default function WorkSwitcher() {
   const { pathname } = useLocation();
-  const current = activeTab(pathname);
 
   return (
     <div id={ROW_ID} data-work-row className="flex shrink-0 items-center gap-1 sm:gap-1.5">
       {WORK_TABS.map((tab) => {
-        const here = tab.to === current;
-        // null for the open tab: the link keeps its own address (a new tab opens there) and a plain click is swallowed
-        const to = rowTarget(tab.to, pathname) ?? tab.to;
+        // No destination means this is the open tab: it is marked current, and PageLink (same rule, isOpenAddress)
+        // swallows a plain click. The link keeps its own address, so a new tab opens there.
+        const here = rowTarget(tab.to, pathname) === null;
         return (
           <PageLink
             key={tab.to}
-            to={to}
-            kind={tabKind(pathname, to)}
+            to={tab.to}
+            kind={tabKind(pathname, tab.to)}
             aria-current={here ? "page" : undefined}
             data-work-tab={tab.to}
             className={`${TAB} ${here ? ACTIVE : IDLE}`}

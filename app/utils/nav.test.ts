@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeNavKey, isHomeSectionId, isOpenAddress, legacyViewTarget, tabCurrent } from "./nav";
+import { activeNavKey, bare, isHomeSectionId, isOpenAddress, legacyViewTarget, tabCurrent } from "./nav";
 
 describe("activeNavKey", () => {
   it("reads the home page as home", () => {
@@ -64,6 +64,15 @@ describe("legacyViewTarget", () => {
     expect(legacyViewTarget("?view=all")).toBeNull();
     expect(legacyViewTarget("?view=other")).toBeNull();
     expect(legacyViewTarget("?x=1")).toBeNull();
+  });
+});
+
+describe("bare", () => {
+  it("drops trailing slashes and keeps the root", () => {
+    expect(bare("/work/")).toBe("/work");
+    expect(bare("/work//")).toBe("/work");
+    expect(bare("/")).toBe("/");
+    expect(bare("/work/long-form")).toBe("/work/long-form");
   });
 });
 

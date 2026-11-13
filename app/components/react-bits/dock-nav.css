@@ -4,11 +4,12 @@
  * so the dock rising or sinking under it (the home dock rises after a page change) does not move it. Reduced motion:
  * the pill is simply on the new tab. */
 .dock-tabs {
-  --dock-gap: 0.125rem; /* the grid's gap (gap-0.5) */
+  --dock-gap: 0.125rem; /* the one gap: the grid uses it and the pill is placed by it */
+  gap: var(--dock-gap);
 }
 @media (min-width: 640px) {
   .dock-tabs {
-    --dock-gap: 0.25rem; /* sm:gap-1 */
+    --dock-gap: 0.25rem;
   }
 }
 .dock-pill {
