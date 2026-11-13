@@ -22,6 +22,7 @@ export function createImageFallback(
   }
   let cur = 0;
   let busy = false;
+  let shown = false;
   let timer = 0;
   let disposed = false;
 
@@ -35,7 +36,8 @@ export function createImageFallback(
     done?: () => void,
   ) => {
     if (disposed) return;
-    const ms = opts.reducedMotion ? reducedMs : rawMs;
+    // 0 ms is "at once" (the remembered painting over its still), reduced motion or not
+    const ms = opts.reducedMotion && rawMs > 0 ? reducedMs : rawMs;
     const prev = imgs[cur];
     const next = imgs[1 - cur];
     window.clearTimeout(timer);
@@ -52,6 +54,7 @@ export function createImageFallback(
     next.classList.add("on");
     cur = 1 - cur;
     busy = true;
+    shown = true;
     timer = window.setTimeout(() => {
       busy = false;
       fade(prev, 0);
@@ -67,6 +70,7 @@ export function createImageFallback(
     swap: (img, meta, ms, done) => show(img, meta, ms, REDUCED_SWAP_MS, done),
     setBlur() {},
     busy: () => busy,
+    hasPicture: () => shown && !busy,
     moving: () => false,
     pause() {},
     resume() {},

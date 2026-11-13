@@ -107,7 +107,8 @@
   z-index: 5;
   text-align: right;
   opacity: 0;
-  transition: opacity 0.9s;
+  /* the cycle sets --caption-ms: 400 ms out before a painting change, 0.9 s in once the swap is done */
+  transition: opacity var(--caption-ms, 0.9s);
   font-family: "Space Mono", monospace;
 }
 .home-hero .caption.on {

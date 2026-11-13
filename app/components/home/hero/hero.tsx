@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { SiteHeroPainting } from "../../../types";
+import { isPageSettled } from "../../../lib/page-change";
 import { usePageArrived } from "../../../lib/use-page-settled";
 import "./hero.css";
 import { prefersReducedMotion } from "./hero-runtime";
@@ -83,10 +84,17 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
   // creating the context and compiling the shaders, and the upload, are different tasks.
   const engineGo = usePageArrived(1);
   const paintGo = usePageArrived(3);
+  // The page's first picture, as a plain image: the painting remembered from the last visit, or, arriving
+  // during a page change with nothing remembered, the first painting's blurred placeholder (a data URI, so
+  // it is decoded in the same commit). Never the bare ground. A first load (server HTML) has neither.
   const [still] = useState(() => {
-    const recalled = typeof window === "undefined" ? null : recallPainting();
+    if (typeof window === "undefined") return null;
+    const recalled = recallPainting();
     const p = recalled ? paintings.find((q) => q.id === recalled.id) : undefined;
-    return recalled && p ? { src: recalled.img.currentSrc || recalled.img.src, focal: p.focal, zoom: p.zoom ?? 1 } : null;
+    if (recalled && p) return { src: recalled.img.currentSrc || recalled.img.src, focal: p.focal, zoom: p.zoom ?? 1 };
+    const first = paintings.find((q) => q.id === firstPaintingId);
+    if (!isPageSettled() && first?.blur) return { src: first.blur, focal: first.focal, zoom: first.zoom ?? 1 };
+    return null;
   });
 
   const runtime = { rootRef, engineRef, parkedRef, dataRef };

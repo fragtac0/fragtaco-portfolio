@@ -1,0 +1,371 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3500
+ },
+ {
+  "film": {
+   "ms": 4000,
+   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "keep": "return-darkest",
+   "at": 740
+  },
+  "label": "return, dock, 1x: no bare frame"
+ },
+ {
+  "label": "return state",
+  "eval": "JSON.stringify({path:location.pathname,still:(()=>{const s=document.querySelector('.paint-still');return s?(s.hidden?'hidden':'shown'):'none'})(),canvas:!!document.querySelector('.paint-host canvas'),intro:document.documentElement.classList.contains('intro'),words:document.querySelector('#hero')?.dataset.words||''})"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3500
+ },
+ {
+  "cpu": 6,
+  "wait": 500
+ },
+ {
+  "film": {
+   "ms": 4000,
+   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "keep": "return-slow-darkest",
+   "at": 1050
+  },
+  "label": "return, dock, CPU 6x: no bare frame"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/work",
+  "wait": 7000
+ },
+ {
+  "film": {
+   "ms": 4000,
+   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "keep": "first-darkest",
+   "at": 740
+  },
+  "label": "first visit (landed on /work), dock, 1x: no bare frame"
+ },
+ {
+  "label": "first visit state",
+  "eval": "JSON.stringify({path:location.pathname,still:(()=>{const s=document.querySelector('.paint-still');return s?(s.hidden?'hidden':'shown'):'none'})(),canvas:!!document.querySelector('.paint-host canvas'),intro:document.documentElement.classList.contains('intro'),words:document.querySelector('#hero')?.dataset.words||''})"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/work",
+  "wait": 7000
+ },
+ {
+  "cpu": 6,
+  "wait": 500
+ },
+ {
+  "film": {
+   "ms": 4000,
+   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "keep": "first-slow-darkest",
+   "at": 1050
+  },
+  "label": "first visit, dock, CPU 6x: no bare frame"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3500
+ },
+ {
+  "film": {
+   "ms": 4000,
+   "eval": "history.back()",
+   "keep": "back-darkest"
+  },
+  "label": "return by Back: no bare frame"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": true,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3500
+ },
+ {
+  "film": {
+   "ms": 4000,
+   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "keep": "return-reduced-darkest",
+   "at": 400
+  },
+  "label": "return, reduced motion: no bare frame"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": true,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/work",
+  "wait": 7000
+ },
+ {
+  "film": {
+   "ms": 4000,
+   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "keep": "first-reduced-darkest",
+   "at": 400
+  },
+  "label": "first visit, reduced motion: no bare frame"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3500
+ },
+ {
+  "film": {
+   "ms": 4000,
+   "eval": "__ftChange('/','radial',{x:559,y:846})",
+   "keep": "return-dpr2-darkest"
+  },
+  "label": "return, dpr 2: no bare frame"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3500
+ },
+ {
+  "eval": "__hold('/','radial',0.3,559,846)",
+  "label": "return held at 0.3"
+ },
+ {
+  "wait": 120
+ },
+ {
+  "shot": "return-held-0.3-warm"
+ },
+ {
+  "wait": 60
+ },
+ {
+  "shot": "return-held-0.3"
+ },
+ {
+  "film": {
+   "ms": 400,
+   "keep": "return-held-0.3-darkest"
+  },
+  "label": "return held at 0.3: no bare frame"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3000
+ },
+ {
+  "eval": "__hold('/','radial',0.7,559,846)",
+  "label": "return held at 0.7"
+ },
+ {
+  "wait": 120
+ },
+ {
+  "shot": "return-held-0.7-warm"
+ },
+ {
+  "wait": 60
+ },
+ {
+  "shot": "return-held-0.7"
+ },
+ {
+  "film": {
+   "ms": 400,
+   "keep": "return-held-0.7-darkest"
+  },
+  "label": "return held at 0.7: no bare frame"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3000
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/work",
+  "wait": 7000
+ },
+ {
+  "eval": "__hold('/','radial',0.3,559,846)",
+  "label": "first held at 0.3"
+ },
+ {
+  "wait": 120
+ },
+ {
+  "shot": "first-held-0.3-warm"
+ },
+ {
+  "wait": 60
+ },
+ {
+  "shot": "first-held-0.3"
+ },
+ {
+  "film": {
+   "ms": 400,
+   "keep": "first-held-0.3-darkest"
+  },
+  "label": "first held at 0.3: no bare frame"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3000
+ },
+ {
+  "eval": "__hold('/','radial',0.7,559,846)",
+  "label": "first held at 0.7"
+ },
+ {
+  "wait": 120
+ },
+ {
+  "shot": "first-held-0.7-warm"
+ },
+ {
+  "wait": 60
+ },
+ {
+  "shot": "first-held-0.7"
+ },
+ {
+  "film": {
+   "ms": 400,
+   "keep": "first-held-0.7-darkest"
+  },
+  "label": "first held at 0.7: no bare frame"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))",
+  "wait": 3000
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},6000)});",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "caption order through one painting change",
+  "eval": "new Promise(res=>{const root=document.querySelector('#hero'),cap=root.querySelector('.caption'),t=cap.querySelector('.t');\n const t0=performance.now(),log=[],op=[];let last=root.dataset.words||'',txt=t.textContent,txtAt={},swappedAt=0;\n const iv=setInterval(()=>{const w=root.dataset.words||'',now=Math.round(performance.now()-t0),o=+getComputedStyle(cap).opacity;\n  op.push([now,w,+o.toFixed(2)]);\n  if(w!==last){log.push([now,w,+o.toFixed(2),t.textContent!==txt]);last=w}\n  if(w==='swapping'&&t.textContent!==txt)txtAt.swapping=now;\n  if(w==='swapped'&&!swappedAt)swappedAt=now;\n  if(swappedAt&&now-swappedAt>1300){clearInterval(iv);clearTimeout(to);\n   const at=n=>(log.find(l=>l[1]===n)||[])[0];const out=at('caption-out'),sw=at('swapping'),done=at('swapped');\n   const hiddenDuring=op.filter(r=>r[1]==='swapping').every(r=>r[2]<=0.05);\n   const firstVisibleAfterDone=op.find(r=>r[2]>0.1&&r[0]>=sw);\n   res(JSON.stringify({phases:log,outMs:sw-out,swapMs:done-sw,hiddenDuringSwap:hiddenDuring,textChangedWhileHidden:txtAt.swapping!=null&&txtAt.swapping<done,textNow:t.textContent,firstVisibleAt:firstVisibleAfterDone&&firstVisibleAfterDone[0],doneAt:done,\n    ok:out!=null&&sw!=null&&done!=null&&sw-out>=380&&sw-out<=480&&hiddenDuring&&done-sw>=2000&&firstVisibleAfterDone&&firstVisibleAfterDone[0]>=done-60}))}},40);\n const to=setTimeout(()=>{clearInterval(iv);res(JSON.stringify({error:'no painting change within 30 s',phases:log}))},30000)})"
+ }
+]

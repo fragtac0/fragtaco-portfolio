@@ -98,3 +98,40 @@ export const REVEAL_TRIES = 2;
 export function nextRevealTry(tried: number, count: number, max: number = REVEAL_TRIES): number | null {
   return tried < Math.min(max, count) ? tried : null;
 }
+
+/**
+ * The words under a painting change. Order (Round 7, Home): the caption fades out, the painting
+ * changes, and the new caption fades in only once the swap reports done.
+ * - resting: the caption is up.
+ * - caption-out: it is fading out (the painting has not started to change).
+ * - swapping: it is gone and the painting changes (the new words are set meanwhile, unseen).
+ * - swapped: the swap reported done; the new caption fades in, then it rests.
+ */
+export type CyclePhase = "resting" | "caption-out" | "swapping" | "swapped";
+export type CycleEvent = "start" | "faded" | "done";
+
+/** The caption fades out in about 400 ms and in over 0.9 s (the existing fade in). */
+export const CAPTION_OUT_MS = 400;
+export const CAPTION_IN_MS = 900;
+
+/** The phase after an event; an event that does not belong to the phase changes nothing. */
+export function nextPhase(phase: CyclePhase, event: CycleEvent): CyclePhase {
+  if (event === "start") return phase === "resting" || phase === "swapped" ? "caption-out" : phase;
+  if (event === "faded") return phase === "caption-out" ? "swapping" : phase;
+  return phase === "swapping" ? "swapped" : phase;
+}
+
+/** What the caption does in a phase: shown or not, and how long its fade into that state takes. */
+export function captionState(phase: CyclePhase): { visible: boolean; fadeMs: number } {
+  switch (phase) {
+    case "caption-out":
+      return { visible: false, fadeMs: CAPTION_OUT_MS };
+    case "swapping":
+      return { visible: false, fadeMs: CAPTION_OUT_MS };
+    default:
+      return { visible: true, fadeMs: CAPTION_IN_MS };
+  }
+}
+
+/** The painting may start to change only once the old caption has gone. */
+export const mayStartSwap = (phase: CyclePhase): boolean => phase === "swapping";

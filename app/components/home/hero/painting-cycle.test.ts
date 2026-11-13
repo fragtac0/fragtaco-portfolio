@@ -11,6 +11,12 @@ import {
   pickNext,
   firstPaintingSrc,
   preloadImage,
+  CAPTION_IN_MS,
+  CAPTION_OUT_MS,
+  captionState,
+  mayStartSwap,
+  nextPhase,
+  type CyclePhase,
 } from "./painting-cycle";
 
 describe("parseFocal", () => {
@@ -162,5 +168,45 @@ describe("the head preload and the first painting's request", () => {
     // a 412 px phone at 3.5x: the preload resolves to 2560, the later paintings stay on 1600
     expect(firstPaintingSrc("a.jpg", 412, 3.5, true)).toBe("/paintings/2560/a.webp");
     expect(paintingSrc("a.jpg", 412, 3.5, true)).toBe("/paintings/1600/a.webp");
+  });
+});
+
+describe("the words under a painting change", () => {
+  it("fades out, then the painting changes, then fades in only after the swap is done", () => {
+    let phase: CyclePhase = "resting";
+    const seen: Array<{ phase: CyclePhase; visible: boolean; swap: boolean }> = [];
+    const note = () => seen.push({ phase, visible: captionState(phase).visible, swap: mayStartSwap(phase) });
+    note();
+    for (const e of ["start", "faded", "done"] as const) {
+      phase = nextPhase(phase, e);
+      note();
+    }
+    expect(seen).toEqual([
+      { phase: "resting", visible: true, swap: false },
+      { phase: "caption-out", visible: false, swap: false },
+      { phase: "swapping", visible: false, swap: true },
+      { phase: "swapped", visible: true, swap: false },
+    ]);
+  });
+  it("keeps the words hidden from the start of the fade-out until the swap is done", () => {
+    for (const phase of ["caption-out", "swapping"] as const) expect(captionState(phase).visible).toBe(false);
+    for (const phase of ["resting", "swapped"] as const) expect(captionState(phase).visible).toBe(true);
+  });
+  it("fades out in about 400 ms and in over the existing 0.9 s", () => {
+    expect(captionState("caption-out").fadeMs).toBe(CAPTION_OUT_MS);
+    expect(CAPTION_OUT_MS).toBe(400);
+    expect(captionState("swapped").fadeMs).toBe(CAPTION_IN_MS);
+  });
+  it("does not show the words again if the swap is not done, whatever else arrives", () => {
+    expect(nextPhase("caption-out", "done")).toBe("caption-out");
+    expect(nextPhase("caption-out", "start")).toBe("caption-out");
+    expect(nextPhase("swapping", "faded")).toBe("swapping");
+    expect(nextPhase("swapping", "start")).toBe("swapping");
+    expect(nextPhase("resting", "done")).toBe("resting");
+    expect(nextPhase("resting", "faded")).toBe("resting");
+  });
+  it("starts the next change from a rest or from a finished swap", () => {
+    expect(nextPhase("resting", "start")).toBe("caption-out");
+    expect(nextPhase("swapped", "start")).toBe("caption-out");
   });
 });

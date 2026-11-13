@@ -61,9 +61,10 @@ export const INTRO_HEAD_SCRIPT = [
  * How the hero's script meets the loader. `t0` is the head script's start time (undefined when it
  * never ran), `now` the same clock, `locked` whether html.intro is still present.
  * - skip: the intro is skipped (seen, reduced motion, deep link).
- * - client: a client navigation to "/": the head script never ran, so the hero locks the page itself.
- * - late: the lock bound has passed or the failsafe already removed the class: take the skipped
- *   form (final state, painting, mark seen) and never lock again.
+ * - late: the intro cannot play from its start: the head script never ran (a client navigation to
+ *   "/", which is a page change that reveals the painting, not a loader that rises from black: R49.1),
+ *   the lock bound has passed, or the failsafe already removed the class. Take the skipped form
+ *   (final state, painting, mark seen) and never lock again.
  * - join: the head script ran and the page is still locked: pick the timeline up where it is.
  */
 export function joinLoader(s: {
@@ -71,9 +72,9 @@ export function joinLoader(s: {
   t0: number | undefined;
   now: number;
   locked: boolean;
-}): "skip" | "client" | "late" | "join" {
+}): "skip" | "late" | "join" {
   if (s.mode === "skip") return "skip";
-  if (s.t0 === undefined) return "client";
+  if (s.t0 === undefined) return "late";
   if (!s.locked || s.now - s.t0 >= INTRO_LOCK_MS) return "late";
   return "join";
 }

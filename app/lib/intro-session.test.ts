@@ -172,9 +172,9 @@ describe("joinLoader", () => {
     expect(joinLoader({ ...base, mode: "skip" })).toBe("skip");
     expect(joinLoader({ ...base, mode: "skip", t0: undefined, locked: false })).toBe("skip");
   });
-  it("is a client navigation when the head script never ran (no start time)", () => {
-    expect(joinLoader({ ...base, t0: undefined, locked: false })).toBe("client");
-    expect(joinLoader({ ...base, t0: undefined })).toBe("client");
+  it("is late for a client navigation (the head script never ran): the painting shows, the loader never rises from black", () => {
+    expect(joinLoader({ ...base, t0: undefined, locked: false })).toBe("late");
+    expect(joinLoader({ ...base, t0: undefined })).toBe("late");
   });
   it("is late once the lock bound has passed: the final state, never a locked replay", () => {
     expect(joinLoader({ ...base, now: 100 + INTRO_LOCK_MS })).toBe("late");
