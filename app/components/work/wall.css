@@ -7,7 +7,7 @@
   inset: 0;
   overflow: hidden;
   overflow: clip;
-  color: var(--ink-1); /* the ground shows through: WorkGround, in the layout */
+  color: var(--ink-1); /* the ground shows through: EclipseGround, in the layout */
 }
 .wall-heading {
   position: absolute;

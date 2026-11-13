@@ -1,6 +1,5 @@
 /*
- * The work page. A fixed stage (no page scroll): a dark ground with the site's
- * dot screen and grain, the intro in the middle, a ring of tool icons and up to four rings of videos
+ * The work page. A fixed stage (no page scroll): the Eclipse ground (in the layout), the intro in the middle, a ring of tool icons and up to four rings of videos
  * turning round it, bigger than the screen on purpose (the outer rings run off the edges; ring-math.ts
  * says where they go). Rotation is CSS only:
  * each ring `ul` turns by `work-spin`, each item turns back by `work-unspin` so it stays upright, and
@@ -13,7 +12,7 @@
   inset: 0;
   overflow: hidden; /* old browsers; `clip` below cannot be scrolled to by focus, `hidden` can */
   overflow: clip;
-  color: var(--ink-1); /* no background of its own: the ground (WorkGround, in the layout) shows through */
+  color: var(--ink-1); /* no background of its own: the ground (EclipseGround, in the layout) shows through */
 }
 
 /* ---------- stage and intro ---------- */

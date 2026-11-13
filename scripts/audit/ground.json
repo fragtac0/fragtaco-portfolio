@@ -7,99 +7,27 @@
   "dpr": 1,
   "mobile": false,
   "touch": false,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__submits=0;\nif(window.GPUQueue){const s=GPUQueue.prototype.submit;GPUQueue.prototype.submit=function(){window.__submits++;return s.apply(this,arguments)}}\nwindow.__t0=performance.now();\nwindow.__canvas=()=>document.querySelector('canvas.work-ground-still');window.__shaderCanvas=()=>document.querySelector('canvas[data-renderer=shaders]');\nwindow.__waitGround=async(ms)=>{const t=performance.now();while(performance.now()-t<(ms||12000)&&!document.querySelector('.work-ground-fade[data-shown=true]'))await new Promise(r=>setTimeout(r,25));await new Promise(r=>setTimeout(r,200));return window.__canvas()};\nwindow.__ground=()=>{const c=window.__canvas(),f=document.querySelector('.work-ground-fade'),b=document.querySelector('.work-ground-box');const r=b&&b.getBoundingClientRect();const sr=c&&c.getBoundingClientRect();return{stillCss:sr&&[Math.round(sr.width),Math.round(sr.height)],framesDrawn:f&&f.dataset.groundFrames,still:!!c,shaderRunning:!!window.__shaderCanvas(),backing:c&&[c.width,c.height],boxCss:r&&[Math.round(r.width),Math.round(r.height)],shown:f&&f.dataset.shown,k:f&&f.style.getPropertyValue('--ground-k'),dpr:devicePixelRatio,screenCss:[innerWidth,innerHeight],pixelsPerScreenCssPx:c&&+(c.width/innerWidth).toFixed(3),pixelsPerStillCssPx:c&&+(c.width/c.clientWidth).toFixed(3)}};\nwindow.__frames=(ms)=>new Promise(res=>{let last=0,max=0,over20=0,n=0;const t0=performance.now();const tick=t=>{if(last){const d=t-last;n++;if(d>max)max=d;if(d>20)over20++}last=t;if(t-t0<ms)requestAnimationFrame(tick);else res(JSON.stringify({frames:n,maxGap:Math.round(max*10)/10,over20}))};requestAnimationFrame(tick)});\nwindow.__submitsOver=(ms)=>new Promise(res=>{const a=window.__submits;setTimeout(()=>res(window.__submits-a),ms)});\nwindow.__bare=(on)=>{for(const s of ['.work-stage','[data-row-open]','.wall-page']){document.querySelectorAll(s).forEach(e=>e.style.visibility=on?'hidden':'')}};\nwindow.__fakeHidden=(h)=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>h});Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>h?'hidden':'visible'});document.dispatchEvent(new Event('visibilitychange'))};\n",
   "reduce": false,
-  "nocache": true
- },
- {
+  "nocache": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\n// draws of the ground's own canvas\nwindow.__draws=0;{const d=WebGLRenderingContext.prototype.drawArrays;WebGLRenderingContext.prototype.drawArrays=function(){if(this.canvas&&this.canvas.classList&&this.canvas.classList.contains('eclipse-canvas'))window.__draws++;return d.apply(this,arguments)}}\nwindow.__t0=performance.now();\nwindow.__ground=()=>{const h=document.querySelector('.eclipse'),c=h&&h.querySelector('canvas');const on=h&&h.querySelector('.eclipse-still[data-on=true] img');\n return JSON.stringify({host:!!h,scope:h&&h.dataset.scope,live:h&&h.dataset.live,canvas:!!c,backing:c&&[c.width,c.height],css:c&&[c.clientWidth,c.clientHeight],screen:[innerWidth,innerHeight],dpr:devicePixelRatio,\n  stills:h?h.querySelectorAll('.eclipse-still').length:0,stillSrc:on&&on.currentSrc.replace(/^https?:\\/\\/[^/]+/,''),stillLoaded:on&&on.complete&&on.naturalWidth>0})};\nwindow.__waitGround=async(ms)=>{const t=performance.now();while(performance.now()-t<(ms||12000)&&!document.querySelector('.eclipse[data-live=true]'))await __sleep(25);await __sleep(150);return Math.round(performance.now()-window.__t0)};\nwindow.__drawsOver=(ms)=>new Promise(res=>{const a=window.__draws;setTimeout(()=>res(JSON.stringify({ms,draws:window.__draws-a})),ms)});\nwindow.__frames=(ms)=>new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<ms)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);\n r(JSON.stringify({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length}))}}requestAnimationFrame(f)});\nwindow.__fakeHidden=(h)=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>h});Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>h?'hidden':'visible'});document.dispatchEvent(new Event('visibilitychange'));return h};\nwindow.__bare=(on)=>{for(const s of ['.work-stage','[data-row-open]','.wall-page','.below','header','.hero-lockup','.home-hero > *:not(.tex)']){document.querySelectorAll(s).forEach(e=>e.style.visibility=on?'hidden':'')}return on};\nwindow.__fake=()=>{let i=0;for(const img of document.querySelectorAll('.work-cover img')){i++;const tall=img.closest('.work-item').dataset.ring==='short';\n const W=tall?360:640,H=tall?640:360,hue=(i*47)%360;\n const svg='<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 '+W+' '+H+'\"><rect width=\"'+W+'\" height=\"'+H+'\" fill=\"hsl('+hue+',40%,30%)\"/></svg>';\n img.src='data:image/svg+xml;utf8,'+encodeURIComponent(svg)}return i};\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\n// a change to a page, counting the ground's draws while it runs (data-change-kind is on <html>) and for 1.5 s after\nwindow.__changeDraws=(to)=>new Promise(res=>{const a=window.__draws;let during=0,started=false,over=false;const t0=performance.now();\n const before=window.__draws;__ftChange(to);\n const iv=setInterval(()=>{const k=document.documentElement.dataset.changeKind;if(k){started=true}\n  if(started&&!k&&!over){over=true;during=window.__draws-before;const mark=window.__draws;setTimeout(()=>{clearInterval(iv);res(JSON.stringify({to,path:location.pathname,drawsDuringChange:during,drawsAfter1500ms:window.__draws-mark,changeMs:Math.round(performance.now()-t0)}))},1500)}\n  if(performance.now()-t0>9000){clearInterval(iv);res('timeout '+location.pathname)}},20)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>5000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(window.__draws)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});",
   "go": "{{BASE}}/work",
-  "wait": 400
+  "wait": 600
  },
  {
-  "eval": "(async()=>{const c=await window.__waitGround(15000);return JSON.stringify({mountedAtMs:Math.round(performance.now()-window.__t0),chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('ground-scene')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/1024),decodedKB:Math.round(e.decodedBodySize/1024)})),state:window.__ground()})})()",
-  "label": "1-run-1440x900"
+  "label": "1-mount on /work at 1440x900 dpr 1 (the chunk, the time the fade began)",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
  },
  {
-  "wait": 1500
+  "label": "1-state: one canvas pixel per CSS pixel, three stills in the layer",
+  "eval": "__ground()"
  },
  {
-  "requests": {
-   "match": "ground-scene"
-  },
-  "label": "1-requests (every host touched while loading /work and starting the ground)"
+  "label": "1-draws over 3 s while running (about 30 a second)",
+  "eval": "__drawsOver(3000)"
  },
  {
-  "eval": "window.__ground()",
-  "label": "1-ground-after-fade"
- },
- {
-  "shot": "r43-ground-warm"
- },
- {
-  "shot": "r43-ground-1440-rings"
- },
- {
-  "sample": {
-   "grid": [
-    8,
-    5
-   ]
-  },
-  "label": "1-sample-with-rings (1440x900, dpr 1)"
- },
- {
-  "eval": "window.__bare(true);1",
-  "label": "1-hide-rings-and-dock"
- },
- {
-  "wait": 300
- },
- {
-  "shot": "r43-ground-warm2"
- },
- {
-  "shot": "r43-ground-1440-bare"
- },
- {
-  "sample": {
-   "grid": [
-    12,
-    6
-   ]
-  },
-  "label": "1-sample-ground-only (1440x900, dpr 1)"
- },
- {
-  "eval": "window.__bare(false);1",
-  "label": "1-show-rings-again"
- },
- {
-  "wait": 500
- },
- {
-  "eval": "window.__frames(6000)",
-  "label": "1-frames-ground-running (6 s, 1440x900, CPU 1x, rings turning)"
- },
- {
-  "eval": "(async()=>{const a=await window.__submitsOver(2000);return JSON.stringify({submitsIn2s:a,perSecond:a/2})})()",
-  "label": "1-gpu-submits-per-second (idle after the first frames; was 60 with the drivers)"
- },
- {
-  "eval": "(async()=>{const before=!!window.__canvas();window.__fakeHidden(true);await new Promise(r=>setTimeout(r,300));const hiddenStill=!!window.__canvas();const s=await window.__submitsOver(1000);window.__fakeHidden(false);await new Promise(r=>setTimeout(r,500));return JSON.stringify({stillBefore:before,stillWhileHidden:hiddenStill,shaderRunningWhileHidden:!!window.__shaderCanvas(),gpuSubmitsInOneSecondWhileHidden:s,stillAfterReturn:!!window.__canvas(),shaderRunningAfterReturn:!!window.__shaderCanvas()})})()",
-  "label": "1-hidden-tab (a still is on screen, no shader exists, nothing is submitted)"
- },
- {
-  "wait": 800
- },
- {
-  "eval": "(async()=>{window.__keep=window.__canvas();const go=async(href)=>{const a=[...document.querySelectorAll('a')].find(x=>x.getAttribute('href')===href);if(!a)return 'no link '+href;a.click();const t=performance.now();while(performance.now()-t<6000&&location.pathname!==href)await new Promise(r=>setTimeout(r,50));await new Promise(r=>setTimeout(r,2500));return location.pathname+' same canvas: '+(window.__canvas()===window.__keep)};const a=await go('/work/long-form');const b=await go('/work/short-form');return JSON.stringify([a,b])})()",
-  "label": "1-persists-across-work-addresses"
- },
- {
-  "shot": "r43-ground-warm3"
- },
- {
-  "shot": "r43-ground-short-form"
+  "label": "1-placement pictures present",
+  "eval": "JSON.stringify([...document.querySelectorAll('.eclipse-still img')].map(i=>({src:i.currentSrc.replace(/^https?:\\/\\/[^/]+/,''),loaded:i.complete&&i.naturalWidth>0,on:i.parentElement.dataset.on})))"
  },
  {
   "size": [
@@ -109,123 +37,89 @@
   "dpr": 2,
   "mobile": false,
   "touch": false,
+  "reduce": false,
+  "nocache": true,
   "go": "{{BASE}}/work",
-  "wait": 400
+  "wait": 600
  },
  {
-  "eval": "(async()=>{await window.__waitGround(15000);await new Promise(r=>setTimeout(r,800));return JSON.stringify(window.__ground())})()",
-  "label": "2-dpr2-1440x900"
+  "label": "1-mount at dpr 2",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
  },
  {
-  "sample": {
-   "grid": [
-    8,
-    5
-   ]
-  },
-  "label": "2-sample (1440x900, dpr 2)"
+  "label": "1-state at dpr 2 (backing must equal CSS size, not CSS size times 2)",
+  "eval": "__ground()"
  },
  {
   "size": [
-   390,
-   844
+   1440,
+   900
   ],
   "dpr": 3,
-  "mobile": true,
-  "touch": true,
-  "go": "{{BASE}}/work",
-  "wait": 400
- },
- {
-  "eval": "(async()=>{await window.__waitGround(15000);await new Promise(r=>setTimeout(r,800));return JSON.stringify(window.__ground())})()",
-  "label": "3-phone-390x844-dpr3"
- },
- {
-  "eval": "(async()=>{await new Promise(r=>setTimeout(r,1500));const a=await window.__submitsOver(2000);return JSON.stringify({submitsIn2s:a,perSecond:a/2})})()",
-  "label": "3-gpu-submits-per-second-phone"
- },
- {
-  "shot": "r43-ground-warm4"
- },
- {
-  "shot": "r43-ground-390-rings"
- },
- {
-  "sample": {
-   "grid": [
-    8,
-    5
-   ]
-  },
-  "label": "3-sample-with-rings (390x844, dpr 3)"
- },
- {
-  "eval": "window.__bare(true);1",
-  "label": "3-hide-rings-and-dock"
- },
- {
-  "wait": 300
- },
- {
-  "shot": "r43-ground-warm5"
- },
- {
-  "shot": "r43-ground-390-bare"
- },
- {
-  "sample": {
-   "grid": [
-    8,
-    5
-   ]
-  },
-  "label": "3-sample-ground-only (390x844, dpr 3)"
- },
- {
-  "size": [
-   1920,
-   1080
-  ],
-  "dpr": 1,
   "mobile": false,
   "touch": false,
+  "reduce": false,
+  "nocache": true,
   "go": "{{BASE}}/work",
-  "wait": 400
+  "wait": 600
  },
  {
-  "eval": "(async()=>{await window.__waitGround(15000);await new Promise(r=>setTimeout(r,800));window.__bare(true);return JSON.stringify(window.__ground())})()",
-  "label": "4-1920x1080"
+  "label": "1-mount at dpr 3",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
  },
  {
-  "wait": 300
- },
- {
-  "sample": {
-   "grid": [
-    8,
-    5
-   ]
-  },
-  "label": "4-sample-ground-only (1920x1080, dpr 1)"
+  "label": "1-state at dpr 3 (backing must equal CSS size, not CSS size times 3)",
+  "eval": "__ground()"
  },
  {
   "size": [
-   900,
-   1000
+   1440,
+   900
   ],
-  "dpr": 1,
+  "dpr": 2,
   "mobile": false,
-  "touch": false
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 600
  },
  {
-  "eval": "(async()=>{const t=performance.now();while(performance.now()-t<6000&&(document.querySelector('.work-ground-fade').dataset.groundFrames!=='2'||document.querySelector('.work-ground-fade').dataset.groundLive!=='false'))await new Promise(r=>setTimeout(r,50));await new Promise(r=>setTimeout(r,300));const s=await window.__submitsOver(1000);return JSON.stringify({state:window.__ground(),submitsInOneSecondAfter:s})})()",
-  "label": "4-resize-1920x1080-to-900x1000 (framesDrawn goes 1 to 2: a new frame is taken, then idle again)"
+  "label": "2-mount at dpr 2",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
  },
  {
-  "requests": {
-   "match": "ground-scene"
-  },
-  "label": "reset"
+  "label": "2-neutral pictures on the ring tiles",
+  "eval": "__fake()",
+  "wait": 700
+ },
+ {
+  "cpu": 4
+ },
+ {
+  "label": "2-frames over 5 s, CPU 4x, rings turning and the ground running",
+  "eval": "__frames(5000)"
+ },
+ {
+  "label": "2-draws over the same kind of 3 s",
+  "eval": "__drawsOver(3000)"
+ },
+ {
+  "label": "2-stop the loop (faked hidden tab)",
+  "eval": "__fakeHidden(true)",
+  "wait": 300
+ },
+ {
+  "label": "2-frames over 5 s, CPU 4x, rings turning, loop stopped (the baseline)",
+  "eval": "__frames(5000)"
+ },
+ {
+  "label": "2-resume",
+  "eval": "__fakeHidden(false)",
+  "wait": 300
+ },
+ {
+  "cpu": 1
  },
  {
   "size": [
@@ -235,97 +129,559 @@
   "dpr": 1,
   "mobile": false,
   "touch": false,
-  "go": "{{BASE}}/experience",
-  "wait": 3500
- },
- {
-  "eval": "JSON.stringify({still:!!window.__canvas(),shaderRunning:!!window.__shaderCanvas(),wash:!!document.querySelector('.work-wash'),groundNode:!!document.querySelector('.work-bg-ground')})",
-  "label": "5-experience-has-no-ground"
- },
- {
-  "requests": {
-   "match": "ground-scene"
-  },
-  "label": "5-experience-requests"
- },
- {
-  "requests": {
-   "match": "ground-scene"
-  },
-  "label": "reset"
- },
- {
-  "reduce": true,
+  "reduce": false,
+  "nocache": true,
   "go": "{{BASE}}/work",
-  "wait": 3500
+  "wait": 600
  },
  {
-  "eval": "JSON.stringify({still:!!window.__canvas(),shaderRunning:!!window.__shaderCanvas(),wash:!!document.querySelector('.work-wash')})",
-  "label": "6-reduced-motion-state"
+  "label": "3-mount",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
  },
  {
-  "requests": {
-   "match": "ground-scene"
-  },
-  "label": "6-reduced-motion-requests"
+  "label": "3-running: draws over 1 s",
+  "eval": "__drawsOver(1000)"
  },
  {
-  "shot": "r43-ground-warm6"
+  "label": "3-hide the tab",
+  "eval": "__fakeHidden(true)",
+  "wait": 200
  },
  {
-  "shot": "r43-ground-css-fallback"
+  "label": "3-hidden: draws over 1.5 s (0)",
+  "eval": "__drawsOver(1500)"
  },
  {
-  "eval": "window.__bare(true);1",
-  "label": "6-hide-rings-and-dock"
+  "label": "3-show the tab",
+  "eval": "__fakeHidden(false)",
+  "wait": 200
  },
  {
-  "wait": 300
+  "label": "3-back: draws over 1 s",
+  "eval": "__drawsOver(1000)"
  },
  {
-  "shot": "r43-ground-warm7"
+  "label": "3-page change /work to /work/long-form: draws while it runs and after (a placement change draws once)",
+  "eval": "__changeDraws('/work/long-form')"
  },
  {
-  "shot": "r43-ground-1440-bare-fallback"
+  "label": "3-on the long form wall: the layer is still one, placement 1 on",
+  "eval": "JSON.stringify({ground:JSON.parse(__ground()),on:[...document.querySelectorAll('.eclipse-still')].map(s=>s.dataset.on)})"
+ },
+ {
+  "label": "3-back running after the change: draws over 1 s",
+  "eval": "__drawsOver(1000)"
+ },
+ {
+  "label": "3-page change /work/long-form to /work/short-form",
+  "eval": "__changeDraws('/work/short-form')"
+ },
+ {
+  "label": "3-page change /work/short-form to /experience (the ground goes)",
+  "eval": "__changeDraws('/experience')"
+ },
+ {
+  "label": "3-no ground on /experience",
+  "eval": "JSON.stringify({host:!!document.querySelector('.eclipse'),path:location.pathname})"
+ },
+ {
+  "label": "3-page change /experience to / (the home ground is built when its section nears)",
+  "eval": "__changeDraws('/')"
+ },
+ {
+  "label": "3-home at the top: the section is off screen, nothing runs",
+  "eval": "JSON.stringify({ground:JSON.parse(__ground()),draws:window.__draws})"
+ },
+ {
+  "label": "3-home at the top: draws over 1.5 s (0)",
+  "eval": "__drawsOver(1500)"
+ },
+ {
+  "label": "3-scroll the blocks section into view",
+  "eval": "(()=>{const b=document.getElementById('below');window.scrollTo({top:b.offsetTop,behavior:'instant'});return scrollY})()",
+  "wait": 500
+ },
+ {
+  "label": "3-home section mounted",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
+ },
+ {
+  "label": "3-home section state (scope section)",
+  "eval": "__ground()"
+ },
+ {
+  "label": "3-home section: draws over 2 s (about 30 a second)",
+  "eval": "__drawsOver(2000)"
+ },
+ {
+  "label": "3-open the reading layer (covers the page)",
+  "eval": "document.querySelector('[data-xp=reading]').click()",
+  "wait": 2500
+ },
+ {
+  "label": "3-layer open: draws over 1.5 s (0)",
+  "eval": "__drawsOver(1500)"
+ },
+ {
+  "label": "3-close the layer",
+  "eval": "(()=>{document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return 1})()",
+  "wait": 2500
+ },
+ {
+  "label": "3-layer closed: draws over 1.5 s (running again)",
+  "eval": "__drawsOver(1500)"
+ },
+ {
+  "label": "3-scroll back to the hero",
+  "eval": "(()=>{window.scrollTo({top:0,behavior:'instant'});return scrollY})()",
+  "wait": 900
+ },
+ {
+  "label": "3-hero: draws over 1.5 s (0, the section is off screen)",
+  "eval": "__drawsOver(1500)"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 600
+ },
+ {
+  "label": "4-go to /work",
+  "eval": "__jump('/work')",
+  "wait": 1200
+ },
+ {
+  "label": "4-ground live on /work",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
+ },
+ {
+  "label": "4-hide the page's own content",
+  "eval": "__bare(true)",
+  "wait": 700
+ },
+ {
+  "shot": "r50-ground-0-work-warm"
+ },
+ {
+  "shot": "r50-ground-0-work"
+ },
+ {
+  "label": "4-show the page's content again",
+  "eval": "__bare(false)"
+ },
+ {
+  "label": "4-go to /work/long-form",
+  "eval": "__jump('/work/long-form')",
+  "wait": 1200
+ },
+ {
+  "label": "4-ground live on /work/long-form",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
+ },
+ {
+  "label": "4-hide the page's own content",
+  "eval": "__bare(true)",
+  "wait": 700
+ },
+ {
+  "shot": "r50-ground-1-long-form-warm"
+ },
+ {
+  "shot": "r50-ground-1-long-form"
+ },
+ {
+  "label": "4-show the page's content again",
+  "eval": "__bare(false)"
+ },
+ {
+  "label": "4-go to /work/short-form",
+  "eval": "__jump('/work/short-form')",
+  "wait": 1200
+ },
+ {
+  "label": "4-ground live on /work/short-form",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
+ },
+ {
+  "label": "4-hide the page's own content",
+  "eval": "__bare(true)",
+  "wait": 700
+ },
+ {
+  "shot": "r50-ground-3-short-form-warm"
+ },
+ {
+  "shot": "r50-ground-3-short-form"
+ },
+ {
+  "label": "4-show the page's content again",
+  "eval": "__bare(false)"
+ },
+ {
+  "label": "4-go to /",
+  "eval": "__jump('/')",
+  "wait": 1200
+ },
+ {
+  "label": "4-scroll to the section",
+  "eval": "(()=>{const b=document.getElementById('below');window.scrollTo({top:b.offsetTop,behavior:'instant'});return scrollY})()",
+  "wait": 600
+ },
+ {
+  "label": "4-ground live on /",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
+ },
+ {
+  "label": "4-hide the page's own content",
+  "eval": "__bare(true)",
+  "wait": 700
+ },
+ {
+  "shot": "r50-ground-2-home-section-warm"
+ },
+ {
+  "shot": "r50-ground-2-home-section"
+ },
+ {
+  "label": "4-show the page's content again",
+  "eval": "__bare(false)"
  },
  {
   "sample": {
    "grid": [
-    12,
-    6
+    8,
+    5
    ]
   },
-  "label": "6-sample-fallback-ground-only (1440x900)"
+  "label": "4-sample of the home section ground with the content hidden"
  },
  {
-  "reduce": false
+  "label": "4-go to /work",
+  "eval": "__jump('/work')",
+  "wait": 1500
  },
  {
+  "label": "4-neutral pictures on the ring tiles",
+  "eval": "__fake()",
+  "wait": 900
+ },
+ {
+  "shot": "r50-ground-0-work-with-rings-warm"
+ },
+ {
+  "shot": "r50-ground-0-work-with-rings"
+ },
+ {
+  "label": "4-go to the home section",
+  "eval": "__jump('/')",
+  "wait": 1200
+ },
+ {
+  "label": "4-scroll to the section",
+  "eval": "(()=>{const b=document.getElementById('below');window.scrollTo({top:b.offsetTop,behavior:'instant'});return scrollY})()",
+  "wait": 900
+ },
+ {
+  "shot": "local-r50-ground-2-home-section-with-blocks-warm"
+ },
+ {
+  "shot": "local-r50-ground-2-home-section-with-blocks"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 600
+ },
+ {
+  "label": "4-phone /work",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
+ },
+ {
+  "label": "4-phone state (backing 390 by 844 CSS pixels: one canvas pixel per CSS pixel; the tall still)",
+  "eval": "__ground()"
+ },
+ {
+  "label": "4-hide the page's own content",
+  "eval": "__bare(true)",
+  "wait": 700
+ },
+ {
+  "shot": "r50-ground-0-work-phone-warm"
+ },
+ {
+  "shot": "r50-ground-0-work-phone"
+ },
+ {
+  "label": "4-go home, scroll to the section",
+  "eval": "(async()=>{await __jump('/');const b=document.getElementById('below');window.scrollTo({top:b.offsetTop,behavior:'instant'});await __sleep(900);__bare(true);return scrollY})()",
+  "wait": 700
+ },
+ {
+  "shot": "r50-ground-2-home-section-phone-warm"
+ },
+ {
+  "shot": "r50-ground-2-home-section-phone"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 600
+ },
+ {
+  "label": "5-mount",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
+ },
+ {
+  "label": "5-hide the page's own content",
+  "eval": "__bare(true)",
+  "wait": 500
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "5-grid sample, running"
+ },
+ {
+  "label": "5-pause (faked hidden)",
+  "eval": "__fakeHidden(true)",
+  "wait": 400
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "5-grid sample, paused (the canvas keeps its last frame: not black, same picture)"
+ },
+ {
+  "label": "5-resume",
+  "eval": "__fakeHidden(false)",
+  "wait": 400
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "5-grid sample, resumed"
+ },
+ {
+  "shot": "5-resumed-warm"
+ },
+ {
+  "shot": "5-resumed"
+ },
+ {
+  "label": "5-lose the context",
+  "eval": "(()=>{const c=document.querySelector('.eclipse canvas');c.getContext('webgl').getExtension('WEBGL_lose_context').loseContext();return 1})()",
+  "wait": 600
+ },
+ {
+  "label": "5-after the loss: no canvas, the still stays",
+  "eval": "__ground()"
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "5-grid sample after the loss (the still, not black)"
+ },
+ {
+  "shot": "5-lost-warm"
+ },
+ {
+  "shot": "5-lost"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 600
+ },
+ {
+  "label": "5-mount again",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
+ },
+ {
+  "size": [
+   1000,
+   700
+  ],
+  "dpr": 1
+ },
+ {
+  "label": "5-after a resize to 1000 by 700 (a resized canvas is cleared: it must be drawn again at once)",
+  "eval": "(async()=>{await __sleep(500);return __ground()})()"
+ },
+ {
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "5-grid sample after the resize (not black)"
+ },
+ {
+  "requests": {
+   "match": "eclipse-engine"
+  },
+  "label": "6-flush the request list"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": true,
+  "nocache": true,
+  "go": "{{BASE}}/work",
   "wait": 2500
  },
  {
   "requests": {
-   "match": "ground-scene"
+   "match": "eclipse-engine"
   },
-  "label": "reset"
+  "label": "6-reduced motion: requests (no eclipse-engine chunk)"
  },
  {
-  "init": "try{delete Navigator.prototype.gpu}catch(e){}",
-  "go": "{{BASE}}/work",
-  "wait": 3500
+  "label": "6-reduced motion state (no canvas; the still)",
+  "eval": "__ground()"
  },
  {
-  "eval": "JSON.stringify({gpu:!!navigator.gpu,still:!!window.__canvas(),shaderRunning:!!window.__shaderCanvas(),wash:!!document.querySelector('.work-wash')})",
-  "label": "7-no-webgpu-state"
+  "sample": {
+   "grid": [
+    8,
+    5
+   ]
+  },
+  "label": "6-reduced motion grid sample (the still is the ground)"
  },
  {
   "requests": {
-   "match": "ground-scene"
+   "match": "eclipse-engine"
   },
-  "label": "7-no-webgpu-requests"
+  "label": "6-flush the request list"
  },
  {
-  "eval": "window.__frames(4000)",
-  "label": "7-frames-without-ground (the same page, 4 s, for comparison)"
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/work?nogl=1",
+  "wait": 2500
+ },
+ {
+  "requests": {
+   "match": "eclipse-engine"
+  },
+  "label": "6-no WebGL (?nogl=1): requests"
+ },
+ {
+  "label": "6-no WebGL state (no canvas; the still)",
+  "eval": "__ground()"
+ },
+ {
+  "shot": "6-nogl-warm"
+ },
+ {
+  "shot": "6-nogl"
+ },
+ {
+  "requests": {
+   "match": "eclipse-engine"
+  },
+  "label": "6-flush the request list"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "init": "try{Object.defineProperty(navigator,'connection',{configurable:true,get:()=>({saveData:true})})}catch(e){}",
+  "go": "{{BASE}}/work",
+  "wait": 2500
+ },
+ {
+  "requests": {
+   "match": "eclipse-engine"
+  },
+  "label": "6-save-data: requests"
+ },
+ {
+  "label": "6-save-data state (no canvas; the still)",
+  "eval": "__ground()"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/experience",
+  "wait": 1500
+ },
+ {
+  "label": "6-/experience has no ground",
+  "eval": "JSON.stringify({host:!!document.querySelector('.eclipse')})"
  }
 ]

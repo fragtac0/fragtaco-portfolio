@@ -2,6 +2,7 @@ import { memo, useMemo, useRef, type CSSProperties } from "react";
 import { inertProps } from "../../../utils/inert";
 import { countLabel } from "../../../utils/count-label";
 import type { SiteBook, SiteVideo } from "../../../types";
+import EclipseGround from "../../ground/eclipse-ground";
 import type { LayerKind } from "../layer/layer-state";
 import "./blocks.css";
 import { miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
@@ -23,9 +24,11 @@ type InterestBlocksProps = {
   onNear: (kind: LayerKind) => void;
   /** A hero card is open over the page: the blocks are out of the tab order until it closes. */
   blocked?: boolean;
+  /** An open layer covers the page: the ground behind the blocks stops moving. */
+  covered?: boolean;
 };
 
-function InterestBlocks({ books, videos, onOpen, onNear, blocked = false }: InterestBlocksProps) {
+function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covered = false }: InterestBlocksProps) {
   const readRef = useRef<HTMLElement>(null);
   const watchRef = useRef<HTMLElement>(null);
   const blocks = useMemo(
@@ -48,7 +51,7 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false }: Inte
       aria-label="Reading and watching"
       {...inertProps(blocked)}
     >
-      <div className="tex" />
+      <EclipseGround placement={2} scope="section" covered={covered} />
       <div className="below">
         <div className="blocks">
           <article ref={readRef} className="block idle" id={BLOCK_ID.reading}>
