@@ -653,5 +653,277 @@
  {
   "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
   "label": "close-844-keys-middle"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "wait": 3500,
+  "label": "1440x900: scroll to the block"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkRead",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-1440x900-open",
+   "ats": [
+    0,
+    100,
+    250,
+    400,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2 shelf open, 1440x900: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityWhenDrawn:i<0?null:a[i][2],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0})})()",
+  "label": "shelf open, 1440x900: the picture stays until the scene has drawn (stage hidden before, poster opaque before, dissolving after)"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-1440x900-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, 1440x900: no frame is the plain ground"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 6,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "wait": 3500,
+  "label": "1440x900, cpu x6 (a cold scene): scroll to the block"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkRead",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-1440x900, cpu x6 (a cold scene)-open",
+   "ats": [
+    0,
+    100,
+    250,
+    400,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2 shelf open, 1440x900, cpu x6 (a cold scene): no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityWhenDrawn:i<0?null:a[i][2],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0})})()",
+  "label": "shelf open, 1440x900, cpu x6 (a cold scene): the picture stays until the scene has drawn (stage hidden before, poster opaque before, dissolving after)"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-1440x900, cpu x6 (a cold scene)-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, 1440x900, cpu x6 (a cold scene): no frame is the plain ground"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "wait": 3500,
+  "label": "390x844 phone: scroll to the block"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkRead",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-390x844 phone-open",
+   "ats": [
+    0,
+    100,
+    250,
+    400,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2 shelf open, 390x844 phone: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityWhenDrawn:i<0?null:a[i][2],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0})})()",
+  "label": "shelf open, 390x844 phone: the picture stays until the scene has drawn (stage hidden before, poster opaque before, dissolving after)"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-390x844 phone-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, 390x844 phone: no frame is the plain ground"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": true,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "wait": 3500,
+  "label": "1440x900 reduced motion: scroll to the block"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkRead",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-1440x900 reduced motion-open",
+   "ats": [
+    0,
+    100,
+    250,
+    400,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2 shelf open, 1440x900 reduced motion: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityWhenDrawn:i<0?null:a[i][2],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0})})()",
+  "label": "shelf open, 1440x900 reduced motion: the picture stays until the scene has drawn (stage hidden before, poster opaque before, dissolving after)"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-1440x900 reduced motion-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, 1440x900 reduced motion: no frame is the plain ground"
  }
 ]

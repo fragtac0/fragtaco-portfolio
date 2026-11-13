@@ -18,9 +18,7 @@ export type LayerAction =
 
 /** The clip-path transition, in ms (the mockup's .66s). */
 export const GROW_MS = 660;
-/** Closing: the stage fades out over this long (layer.css `.stage`), then the layer shrinks. */
-export const FADE_MS = 120;
-/** The scene starts, and the shrink is considered done, this long after the layer moves. */
+/** The scene starts, and the shrink is considered done, this long after the layer moves (the clip's transition plus a margin). */
 export const SCENE_DELAY_MS = 680;
 
 /** Out-of-order actions return the same state object, so React skips the render. */

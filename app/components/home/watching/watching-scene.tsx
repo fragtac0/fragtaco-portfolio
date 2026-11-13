@@ -7,14 +7,7 @@ import VideoDetail, { type VideoDetailHandle } from "./video-detail";
 import type { PickChannel, WallPick } from "./pick-channel";
 import type { WallEngine } from "./wall-types";
 import { echoSet } from "./wall-math";
-import WallPlaceholder from "./wall-placeholder";
 import WatchingFallback, { gridWall } from "./watching-fallback";
-
-/** How long the placeholder takes to fade out (watching.css `.wall-placeholder`). */
-const PLACEHOLDER_FADE_MS = 300;
-
-/** What stands in for the wall: nothing, the flat placeholder, or the placeholder fading out. */
-type Placeholder = "none" | "shown" | "leaving";
 
 type WatchingSceneProps = {
   /** Null on the server and until HomePage has created it on the client. */
@@ -23,26 +16,27 @@ type WatchingSceneProps = {
   picks: PickChannel;
   /** True from the end of the layer's grow to the start of its shrink. */
   active: boolean;
+  /** Called once the wall's first frame is on the screen: the layer swaps the block's picture for the scene. */
+  onDrawn: () => void;
 };
 
 /**
- * The watching pane's DOM. The engine draws into the host and drives the chip and the hint
+ * The watching pane's DOM. The engine draws into the host and drives the chip
  * through the elements it is handed; this component only provides them, starts and stops the
  * engine, shows the detail view for a picked tile (the arrow keys move the pick to another tile
  * while it is open), and registers the hooks Esc uses to close an open video before the layer.
  * While a video is open the wall behind it stays drawn (spread and dimmed) but is `inert`, and the
  * layer's own header is hidden (through the layer context). Once the layer is active the engine
- * prepares urgently; if the wall is not ready by then, a flat placeholder shows until its first
- * frame (`data-wall` on the scene says which: `shown`, `leaving` or `live`). A lost graphics
- * context switches to the plain grid.
+ * prepares urgently. The layer shows the block's own picture until `onDrawn` is called, which is
+ * when the wall's first frame has been drawn (or the plain grid is up). A lost graphics context
+ * switches to the plain grid.
  */
-function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
+function WatchingScene({ engine, videos, picks, active, onDrawn }: WatchingSceneProps) {
   const { registerSceneHooks, setHeaderHidden } = useLayerControl();
   const sceneRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const chipRef = useRef<HTMLDivElement>(null);
-  const hintRef = useRef<HTMLParagraphElement>(null);
   const detailRef = useRef<VideoDetailHandle>(null);
   /** Set from the pick until the detail view has finished closing. */
   const [pick, setPick] = useState<WallPick | null>(null);
@@ -52,24 +46,11 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
   const [fallback, setFallback] = useState(() => !hasWebGL() || !!engine?.hasFailed());
   const lastKey = useRef<string | null>(null);
 
-  const [placeholder, setPlaceholder] = useState<Placeholder>("none");
-  // Decided in the render where the layer becomes active, so the placeholder is in the first frame
-  // the layer shows. Only on becoming active: closing keeps what stood in for the wall while the
-  // stage fades out.
-  const [wasActive, setWasActive] = useState(false);
-  if (active !== wasActive) {
-    setWasActive(active);
-    if (active) setPlaceholder(engine && !fallback && !engine.ready() ? "shown" : "none");
-  }
-  const placeholderRef = useRef(placeholder);
+  // read at fire time, so a new callback does not restart the wall
+  const drawn = useRef(onDrawn);
   useEffect(() => {
-    placeholderRef.current = placeholder;
+    drawn.current = onDrawn;
   });
-  useEffect(() => {
-    if (placeholder !== "leaving") return;
-    const timer = window.setTimeout(() => setPlaceholder("none"), PLACEHOLDER_FADE_MS);
-    return () => window.clearTimeout(timer);
-  }, [placeholder]);
 
   // The layer is open and waiting: do not yield to idle time while the wall is prepared. Not while
   // it grows: the clip-path grow runs on the main thread and back-to-back slices would cut into it.
@@ -82,13 +63,12 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
   useEffect(() => {
     const host = hostRef.current;
     const chip = chipRef.current;
-    const hint = hintRef.current;
     const unregister = registerSceneHooks({
       isVideoOpen: () => detailRef.current?.isOpen() ?? false,
       closeVideo: () => detailRef.current?.close(),
     });
-    if (fallback || !engine || !host || !chip || !hint) return unregister;
-    engine.mount({ host, chip, hint });
+    if (fallback || !engine || !host || !chip) return unregister;
+    engine.mount({ host, chip });
     const unsubscribe = picks.subscribe((p) => setPick(p));
     const unlost = engine.onLost(() => setFallback(true));
     return () => {
@@ -102,12 +82,11 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
   useEffect(() => {
     if (fallback || !engine || !active) return;
     let live = true;
-    const waited = placeholderRef.current === "shown";
     // the wall could not start (no context, a failed shader): show the grid instead
     void engine
       .start({
         onFirstFrame: () => {
-          if (live && waited) setPlaceholder("leaving");
+          if (live) drawn.current();
         },
       })
       .then(() => {
@@ -122,6 +101,11 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
       engine.stop();
     };
   }, [engine, active, fallback]);
+
+  // no WebGL wall: the grid is the scene, and there is no frame to wait for
+  useEffect(() => {
+    if (fallback && active) drawn.current();
+  }, [fallback, active]);
 
   // While a video is open the wall is inert and the layer's header is hidden (and inert), so Tab
   // stays on the detail view; when it has closed they wake up and focus goes back to the wall stage.
@@ -151,7 +135,6 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
     <div
       ref={sceneRef}
       className="wall-scene"
-      data-wall={fallback || placeholder === "none" ? "live" : placeholder}
       data-open={open ? "true" : undefined}
     >
       <div ref={mainRef} className="wall-main">
@@ -166,15 +149,11 @@ function WatchingScene({ engine, videos, picks, active }: WatchingSceneProps) {
         ) : (
           <>
             <div ref={hostRef} className="wall-host" />
-            {placeholder !== "none" && (
-              <WallPlaceholder count={videos.length} leaving={placeholder === "leaving"} />
-            )}
             <div className="wall-vig" />
             <div ref={chipRef} className="chip" aria-live="polite">
               <b />
               <span />
             </div>
-            <p ref={hintRef} className="xp-hint" />
             <ul className="sr-only" aria-label="Videos on the wall">
               {videos.map((v) => (
                 <li key={v.id}>

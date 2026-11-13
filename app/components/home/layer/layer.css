@@ -106,32 +106,34 @@
 .home-layer .pane-watch {
   background: radial-gradient(75% 65% at 50% 46%, var(--surface-1) 0%, var(--ground) 80%);
 }
+/* The stage is shown, at once, when the scene has drawn its first real frame (`ready`): the poster above it
+   dissolves, so the box goes from the block's picture to the scene with no bare ground between. It stays
+   shown while the layer shrinks back, so the scene's last frame is what shrinks. */
 .home-layer .stage {
   position: absolute;
   inset: 0;
   opacity: 0;
-  /* closing: the stage fades out in 120 ms, then the layer shrinks (interest-layer.tsx) */
-  transition: opacity 0.12s ease;
 }
 .home-layer.ready .stage {
   opacity: 1;
-  transition: opacity 0.6s ease;
 }
-
-.home-layer .xp-hint {
+/* the block's own picture, grown with the clip until the scene is on the screen (layer-poster.ts); the
+   timing is set in interest-layer.tsx, with the same length and curve as the clip */
+.home-layer .layer-poster {
   position: absolute;
-  left: 50%;
-  bottom: 22px;
-  transform: translateX(-50%);
-  z-index: 4;
+  z-index: 2;
   margin: 0;
-  font-size: var(--t-meta);
-  color: var(--ink-3);
-  white-space: nowrap;
+  overflow: hidden;
+  transform-origin: 50% 50%;
   pointer-events: none;
-  transition: opacity 0.4s;
+  will-change: transform, opacity;
+  transition: none;
 }
-.home-layer .xp-hint.off {
+.home-layer .layer-poster .blk-text {
+  transition: opacity 0.25s ease;
+}
+/* the layer has its own title: the block's words are gone as it grows */
+.home-layer .layer-poster.go .blk-text {
   opacity: 0;
 }
 
@@ -149,11 +151,6 @@ html.locked body {
 }
 
 @media (max-width: 699.98px) {
-  .home-layer .xp-hint {
-    white-space: normal;
-    width: 88vw;
-    text-align: center;
-  }
   .home-layer .xp-head {
     padding: 20px 20px 22px;
   }

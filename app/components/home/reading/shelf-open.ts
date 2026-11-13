@@ -14,7 +14,6 @@ export type ShelfEls = {
   host: HTMLElement;
   /** The note card: `h3`, `.by`, `.note` and a `button`. */
   info: HTMLElement;
-  hint: HTMLElement;
   /** The position marker under the line: a track with one thumb child (`.shelf-marker`). */
   marker?: HTMLElement;
   /** Optional polite live region for screen readers. */
@@ -144,9 +143,8 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
   const setNote = (on: boolean) => {
     const els = ctx.els();
     if (!els) return;
-    const { info, hint, marker } = els;
+    const { info, marker } = els;
     info.classList.toggle("on", on);
-    hint.classList.toggle("off", on);
     marker?.classList.toggle("off", on);
     // a hidden note is out of the tab order and the reading order
     info.inert = !on;

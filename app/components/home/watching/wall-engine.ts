@@ -30,8 +30,8 @@ import {
  *
  * The engine owns its canvas. `prepare()` creates the GL context, program and atlas texture in
  * steps (idle time, or short slices once `setUrgent(true)`) and starts loading thumbnails, so the
- * wall is warm when the layer opens; if it is not, WatchingScene shows a flat placeholder until
- * the first frame. `mount()` puts the canvas into the layer and wires the pointer, wheel and
+ * wall is warm when the layer opens; if it is not, the layer keeps showing the block's picture
+ * until the first frame. `mount()` puts the canvas into the layer and wires the pointer, wheel and
  * keyboard, `unmount()` takes it out again but keeps the GL objects for an instant re-open, and
  * `dispose()` (when the home page goes away) frees everything and loses the context.
  *
@@ -41,10 +41,6 @@ import {
  * and the maths wall-math.ts.
  */
 
-const HINT_FINE = "Drag or scroll to look around. Hover a video to look closer, click to open it.";
-const HINT_KEYS = " Arrow keys and Enter work too.";
-const HINT_TOUCH = "Drag to look around. Tap a video to open it.";
-const HINT_NO_GL = "The wall could not start in this browser.";
 const STAGE_LABEL = "Video wall. Use the arrow keys to move, Enter to open.";
 
 /** Client only: creates a canvas. The GL context is made later, by `prepare()`. */
@@ -271,7 +267,6 @@ export function createWall(
       if (els) unmount();
       els = next;
       next.host.appendChild(canvas);
-      next.hint.textContent = FINE ? HINT_FINE + HINT_KEYS : HINT_TOUCH;
       chip.reset();
       listeners = new AbortController();
       attachWallInput(canvas, input.handlers, listeners.signal);
@@ -282,10 +277,7 @@ export function createWall(
       onFirstFrame = opts?.onFirstFrame ?? null;
       await prepare();
       if (my !== runToken || !els) return;
-      if (!wgl || failed || lost.lost()) {
-        els.hint.textContent = HINT_NO_GL;
-        return;
-      }
+      if (!wgl || failed || lost.lost()) return; // the scene switches to its plain grid
       st.hoverKey = null;
       st.kbd = null;
       point = null;

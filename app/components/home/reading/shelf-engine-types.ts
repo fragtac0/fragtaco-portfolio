@@ -5,8 +5,8 @@ export type ShelfEngine = {
   prepare(): Promise<void>;
   mount(els: ShelfEls): void;
   /**
-   * Starts the loop once the scene is built. `skipIntro` places the books without the drop-in (a
-   * placeholder already showed them); `onFirstFrame` is called once, right after the first frame
+   * Starts the loop once the scene is built. `skipIntro` places the books without the drop-in (the
+   * layer's picture of the block already showed them); `onFirstFrame` is called once, right after the first frame
    * has been drawn.
    */
   start(opts?: { skipIntro?: boolean; onFirstFrame?: () => void }): Promise<void>;

@@ -7,7 +7,6 @@ export type WallEls = {
   host: HTMLElement;
   /** The chip under the focused tile: a `b` (title) and a `span` (channel). */
   chip: HTMLElement;
-  hint: HTMLElement;
 };
 
 /**
