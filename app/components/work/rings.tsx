@@ -56,11 +56,11 @@ export default function Rings({ work, batches = null, arrived = true }: RingsPro
   const [count, setCount] = useState(batches ? 0 : Infinity);
   const shown = arrived ? Infinity : count;
   useEffect(() => {
-    if (!batches || count >= total) return;
+    if (!batches || arrived || count >= total) return; // once the change is over everything is mounted: the timer stops
     const { items, ms } = batches;
     const timer = window.setTimeout(() => setCount((n) => n + items), count === 0 ? 0 : ms);
     return () => window.clearTimeout(timer);
-  }, [count, total, batches]);
+  }, [count, total, batches, arrived]);
   if (!layout) return null;
 
   const seen: Record<RingKind, number> = { stack: 0, long: 0, short: 0 };
@@ -97,6 +97,7 @@ export default function Rings({ work, batches = null, arrived = true }: RingsPro
                   entry={entries[ring.kind][slot.index]}
                   ring={ring.kind}
                   place={{ angle: slot.angle, width: ring.size.w, height: ring.size.h }}
+                  lazy={!batches}
                 />
               ))}
             </ul>

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { WorkVideo } from "../types";
 import { placeholderArt } from "./placeholder-art";
-import { coverUrl, youtubeId } from "./work-media";
+import { coverUrl, isMissingCover, youtubeId } from "./work-media";
 
 const video = (over: Partial<WorkVideo>): WorkVideo => ({
   id: "ft-long-01",
@@ -57,5 +57,27 @@ describe("coverUrl", () => {
 
   it("never asks another site for a placeholder", () => {
     expect(coverUrl(video({ id: "ft-x" }), false)).toMatch(/^data:image\/svg\+xml,/);
+  });
+});
+
+describe("isMissingCover", () => {
+  const real = "https://i.ytimg.com/vi/abcdefghijk/hqdefault.jpg";
+  it("takes YouTube's small grey picture for a removed video as a missing cover", () => {
+    expect(isMissingCover(real, 120)).toBe(true);
+    expect(isMissingCover(real, 90)).toBe(true);
+  });
+  it("keeps a real thumbnail (480 wide, or the portrait cut)", () => {
+    expect(isMissingCover(real, 480)).toBe(false);
+    expect(isMissingCover("https://i.ytimg.com/vi/abcdefghijk/oar2.jpg", 360)).toBe(false);
+    expect(isMissingCover(real, 121)).toBe(false);
+  });
+  it("takes a picture with no size as missing, from any host", () => {
+    expect(isMissingCover(real, 0)).toBe(true);
+    expect(isMissingCover("https://example.com/cover.jpg", 0)).toBe(true);
+  });
+  it("does not judge a small picture from another host or a local one", () => {
+    expect(isMissingCover("https://example.com/cover.jpg", 100)).toBe(false);
+    expect(isMissingCover("data:image/svg+xml;utf8,%3Csvg%3E", 100)).toBe(false);
+    expect(isMissingCover("not a url", 100)).toBe(false);
   });
 });

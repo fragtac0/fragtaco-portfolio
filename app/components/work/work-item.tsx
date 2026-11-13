@@ -1,5 +1,5 @@
 import type { FocusEvent, PointerEvent } from "react";
-import { coverUrl } from "../../content/work-media";
+import { coverUrl, isMissingCover } from "../../content/work-media";
 import { placeholderArt } from "../../content/placeholder-art";
 import { labelSide } from "./ring-layout";
 import type { RingEntry } from "./ring-entries";
@@ -17,6 +17,12 @@ interface WorkItemProps {
   entry: RingEntry;
   ring: RingKind;
   place: RingSlotPlace;
+  /**
+   * Load a video's picture only when it nears the screen. For a first load: the outer rings' pictures are mostly off screen
+   * and should not compete with the page's own requests. Off for a page made during the reveal, which is not painted until
+   * it ends, so a lazy picture would not start until then.
+   */
+  lazy?: boolean;
 }
 
 // Which side the label opens on is read from where the item is when the pointer or focus arrives.
@@ -34,13 +40,13 @@ function shapeIcon(img: HTMLImageElement | null) {
   else delete img.dataset.bare;
 }
 
-// A video's picture (loaded at once, not lazily: during a page change the new page is not painted, and a lazy picture would
-// not start until the reveal had ended): it fades in once it has loaded (the tile shows its dark body until then, never a hole), and a
-// picture that cannot be loaded (a removed video, no network) is swapped for the local placeholder art, once.
+// A video's picture: it fades in once it has loaded (the tile shows its dark body until then, never a hole), and a
+// picture that cannot be used (no network, or a removed video, which YouTube answers with a small grey picture that does
+// load: `isMissingCover`) is swapped for the local placeholder art, once.
 // Read from the picture's own state, since it may have settled before the page was hydrated.
 function shapeCover(img: HTMLImageElement | null, id: string, tall: boolean) {
   if (!img || !img.complete) return;
-  if (img.naturalWidth > 0) {
+  if (!isMissingCover(img.currentSrc || img.src, img.naturalWidth)) {
     img.dataset.ready = "";
   } else if (!("fallback" in img.dataset)) {
     img.dataset.fallback = "";
@@ -55,7 +61,7 @@ function shapeCover(img: HTMLImageElement | null, id: string, tall: boolean) {
  * (the app's name is its accessible name; it is not a link and not a tab stop), or its two-letter mark
  * where it has no icon. A video is a link to its public page.
  */
-export default function WorkItem({ entry, ring, place }: WorkItemProps) {
+export default function WorkItem({ entry, ring, place, lazy = false }: WorkItemProps) {
   const width = Math.round(place.width);
   const height = Math.round(place.height);
 
@@ -107,6 +113,7 @@ export default function WorkItem({ entry, ring, place }: WorkItemProps) {
           height={height}
           alt=""
           decoding="async"
+          loading={lazy ? "lazy" : undefined}
           onLoad={(e) => shapeCover(e.currentTarget, v.id, entry.tall)}
           onError={(e) => shapeCover(e.currentTarget, v.id, entry.tall)}
         />

@@ -243,6 +243,11 @@ export const planNow = (from: string, to: string) =>
   });
 
 /** True while the browser is showing the two pictures of a change (nothing under them can be used, so a press finishes it). */
+/**
+ * True while the radial reveal is the change that is running (the mark on <html>), false for the reduced-motion fade, no
+ * transition at all, and when nothing is changing. For work that is only worth its cost under the 3.5 s reveal.
+ */
+export const isRadialChange = () => typeof document !== "undefined" && document.documentElement.dataset.changeKind === "radial";
 export const isChangeShowing = () => current?.showing() ?? false;
 
 /** True while a change runs, whether it is showing its pictures or still waiting for the data (the old page is live then). */

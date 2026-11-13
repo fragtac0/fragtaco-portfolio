@@ -1,7 +1,7 @@
 // Drive a headless Chrome over the DevTools protocol: run a list of steps
 // (navigate, wait, eval, key, click, shot) and print each eval result.
 // usage: BASE=http://localhost:5178 node scripts/audit/cdp.mjs <steps.json> <outdir>
-// Step keys: size, dpr, mobile, touch, reduce, net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk, +mod: modifiers, 1 Alt, 2 Ctrl, 4 Meta, 8 Shift), mdrag [x0,y0,x1,y1,n] (mouse; may be an expression), wheel [x,y,dx,dy,n],
+// Step keys: size, dpr, mobile, touch, reduce, intercept [{match, fail | status, type, body}], net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk, +mod: modifiers, 1 Alt, 2 Ctrl, 4 Meta, 8 Shift), mdrag [x0,y0,x1,y1,n] (mouse; may be an expression), wheel [x,y,dx,dy,n],
 // click, move, sweep, tap, drag (click, move and tap also take a string: an expression the page answers with [x, y]), eval (+label), shot, requests ({match} + label: the hosts requested since the last such step), sample ({grid:[cols,rows]} + label: photographs the page and prints the share of pixels
 // darker than #2a2826, the share of orange-hued pixels and the average colour on a grid; see PIXEL_SAMPLER below),
 // film ({ms, dark?, share?, rect?, keep?, at?} + label: the page runs `eval` first when given, then every frame the compositor produces for `ms` is photographed (a screencast); each is
@@ -37,8 +37,17 @@ await new Promise(r => ws.addEventListener("open", r, { once: true }));
 let id = 0; const pending = new Map();
 const requested = []; // every request the page made since the last `requests` step
 const castFrames = []; // screencast frames of the `film` step: every frame the compositor produced, not one in a while
-ws.addEventListener("message", e => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } else if (m.method === "Network.requestWillBeSent") requested.push(m.params.request.url); else if (m.method === "Page.screencastFrame") { castFrames.push({ t: performance.now(), data: m.params.data }); ws.send(JSON.stringify({ id: ++id, method: "Page.screencastFrameAck", params: { sessionId: m.params.sessionId } })); } });
+ws.addEventListener("message", e => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } else if (m.method === "Network.requestWillBeSent") requested.push(m.params.request.url); else if (m.method === "Fetch.requestPaused") answerPaused(m.params); else if (m.method === "Page.screencastFrame") { castFrames.push({ t: performance.now(), data: m.params.data }); ws.send(JSON.stringify({ id: ++id, method: "Page.screencastFrameAck", params: { sessionId: m.params.sessionId } })); } });
 const send = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
+// `intercept` step: [{ match, fail?: "NameNotResolved", status?, type?, body? (base64) }]; a request whose url contains `match` is failed or answered with that response, the rest go on; [] switches it off
+let rules = [];
+function answerPaused(p) {
+  const rule = rules.find(x => p.request.url.includes(x.match));
+  const call = (method, params) => ws.send(JSON.stringify({ id: ++id, method, params }));
+  if (!rule) call("Fetch.continueRequest", { requestId: p.requestId });
+  else if (rule.fail) call("Fetch.failRequest", { requestId: p.requestId, errorReason: rule.fail });
+  else call("Fetch.fulfillRequest", { requestId: p.requestId, responseCode: rule.status ?? 200, responseHeaders: [{ name: "Content-Type", value: rule.type ?? "image/png" }, { name: "Access-Control-Allow-Origin", value: "*" }], body: rule.body ?? "" });
+}
 
 await send("Page.enable"); await send("Runtime.enable"); await send("Network.enable");
 // Runs inside the page on a PNG screenshot: darker = luma under that of #2a2826; orange = hue 5 to 45 degrees,
@@ -95,6 +104,7 @@ for (const s of steps) {
   if (s.size) await send("Emulation.setDeviceMetricsOverride", { width: s.size[0], height: s.size[1], deviceScaleFactor: s.dpr ?? 1, mobile: !!s.mobile });
   if (s.touch !== undefined) await send("Emulation.setTouchEmulationEnabled", { enabled: s.touch, maxTouchPoints: 5 });
   if (s.reduce !== undefined) await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: s.reduce ? "reduce" : "no-preference" }] });
+  if (s.intercept) { rules = s.intercept; await send(rules.length ? "Fetch.enable" : "Fetch.disable", rules.length ? { patterns: [{ urlPattern: "*" }] } : {}); }
   if (s.init) await send("Page.addScriptToEvaluateOnNewDocument", { source: s.init });
   if (s.net) await send("Network.emulateNetworkConditions", { offline: false, latency: s.net.latency ?? 0, downloadThroughput: (s.net.kbps ?? 0) * 125, uploadThroughput: (s.net.kbps ?? 0) * 125 });
   if (s.nocache !== undefined) await send("Network.setCacheDisabled", { cacheDisabled: s.nocache });

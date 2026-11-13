@@ -1,7 +1,7 @@
 import type { NavigateFunction } from "@remix-run/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { watchHistory, type RouterLike } from "./history-change";
-import { afterSettled, changePage, endChange, finishChange, isChangeRunning, isChangeShowing, isPageSettled, pageCommitted, planChange, subscribeSettled } from "./page-change";
+import { afterSettled, changePage, endChange, finishChange, isChangeRunning, isChangeShowing, isPageSettled, isRadialChange, pageCommitted, planChange, subscribeSettled } from "./page-change";
 
 const screen = { vw: 1440, vh: 900 };
 const scr = { supported: true, reduced: false, ...screen };
@@ -139,6 +139,7 @@ describe("changePage", () => {
     const off = subscribeSettled(() => seen.push(isPageSettled()));
     const done = changePage(r.navigate, "/work");
     expect(env.html.dataset.changeKind).toBe("radial");
+    expect(isRadialChange()).toBe(true);
     // the centre of the screen, whatever was clicked
     expect(env.props.get("--change-x")).toBe("720px");
     expect(env.props.get("--change-y")).toBe("450px");
@@ -154,9 +155,24 @@ describe("changePage", () => {
     await done;
     off();
     expect(env.html.dataset.changeKind).toBeUndefined();
+    expect(isRadialChange()).toBe(false);
     expect(env.props.size).toBe(0);
     expect(isPageSettled()).toBe(true);
     expect(seen).toEqual([false, true]);
+  });
+
+  it("is not a radial change under reduced motion (the 120 ms fade), and not when nothing is changing", async () => {
+    const env = fakeEnvironment();
+    vi.stubGlobal("window", { ...(globalThis as { window: object }).window, matchMedia: () => ({ matches: true }) });
+    expect(isRadialChange()).toBe(false);
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    expect(env.html.dataset.changeKind).toBe("fade");
+    expect(isRadialChange()).toBe(false);
+    r.dataArrives();
+    await tick();
+    env.transitions[0].finish();
+    await done;
   });
 
   it("still resolves, and settles, when the transition is rejected", async () => {

@@ -1,5 +1,5 @@
 import { useState, type MouseEvent } from "react";
-import { isPageSettled } from "../../lib/page-change";
+import { isRadialChange } from "../../lib/page-change";
 import { usePageArrived } from "../../lib/use-page-settled";
 import type { SiteWork } from "../../types";
 import { introLine } from "./ring-layout";
@@ -21,10 +21,11 @@ interface WorkPageProps {
  * change, the reveal shows them (`data-arrival="change"` leaves out their own fade-in, the reveal is the arrival).
  */
 export default function WorkPage({ work }: WorkPageProps) {
-  // Read once, when the page is made: a page made while a change runs comes in through its reveal. On the server and
-  // while hydrating nothing is changing, so it is false (the same markup both times).
-  const [byChange] = useState(() => typeof document !== "undefined" && !isPageSettled());
-  // False until that change is over: the rings stand still for the reveal and begin to turn together when it ends (work.css).
+  // Read once, when the page is made: a page made while the radial reveal runs comes in through it. On the server and
+  // while hydrating nothing is changing, so it is false (the same markup both times). The reduced-motion fade (120 ms)
+  // is not this: the page keeps its own arrival, the rings fading in as on a first load, with no batches.
+  const [byChange] = useState(isRadialChange);
+  // False until that change is over: the rings of a page that came in by the reveal stand still and begin to turn together when it ends (work.css).
   const arrived = usePageArrived();
 
   // Twenty or so tab stops sit in the rings before the dock: this link goes straight to the dock's row.
@@ -34,7 +35,7 @@ export default function WorkPage({ work }: WorkPageProps) {
   };
 
   return (
-    <main className="work-page" data-arrival={byChange ? "change" : undefined} data-still={arrived ? undefined : ""}>
+    <main className="work-page" data-arrival={byChange ? "change" : undefined} data-still={byChange && !arrived ? "" : undefined}>
       <a className="work-skip" href={`#${ROW_ID}`} onClick={skipToRow}>
         Skip to the work links
       </a>

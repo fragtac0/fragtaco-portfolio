@@ -27,6 +27,23 @@ export function youtubeId(url: string): string | null {
   return candidate !== null && YOUTUBE_ID.test(candidate) ? candidate : null;
 }
 
+/** The width of the grey "no thumbnail" picture that i.ytimg.com answers a removed or private video with (HTTP 404 and an image body). */
+const YOUTUBE_MISSING_WIDTH = 120;
+
+/**
+ * True when a picture that loaded is not a usable cover: YouTube's grey placeholder for a missing video (its thumbnail
+ * host, a natural width of 120 or less; every real thumbnail is wider), or a picture with no size at all. The page then
+ * swaps it for the local art.
+ */
+export function isMissingCover(src: string, naturalWidth: number): boolean {
+  if (naturalWidth <= 0) return true;
+  try {
+    return new URL(src).hostname === "i.ytimg.com" && naturalWidth <= YOUTUBE_MISSING_WIDTH;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * The picture for a work item: the file's own cover, else the YouTube thumbnail (`tall` for the
  * portrait cut), else local placeholder art made from the item's id (9 by 16 when `tall`). No picture is stored,
