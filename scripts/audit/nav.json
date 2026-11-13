@@ -64,7 +64,7 @@
    1440,
    900
   ],
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__arm=()=>{const k=new Set();window.__k=k;const h=document.documentElement;\n new MutationObserver(()=>{if(h.dataset.changeKind)k.add(h.dataset.changeKind)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});return 'armed'};\nwindow.__state=()=>({path:location.pathname,title:document.title,\n active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.replace(', back to the rings','').trim().toLowerCase()+'='+e.getAttribute('aria-current')),\n kind:[...(window.__k||[])].join('+')||'none',\n rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row',\n hint:document.querySelector('[data-work-tab][aria-current]')?.textContent.endsWith(', back to the rings')??'no-current-link'});\nwindow.__move=(act,want)=>{window.__arm();act();return new Promise(res=>setTimeout(()=>{const got=window.__state();\n const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},1900))};",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__arm=()=>{const k=new Set();window.__k=k;const h=document.documentElement;\n new MutationObserver(()=>{if(h.dataset.changeKind)k.add(h.dataset.changeKind)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});return 'armed'};\nwindow.__state=()=>({path:location.pathname,title:document.title,\n active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.trim().toLowerCase()+'='+e.getAttribute('aria-current')),\n kind:[...(window.__k||[])].join('+')||'none',\n rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row'});\nwindow.__move=(act,want)=>{window.__arm();act();return new Promise(res=>setTimeout(()=>{const got=window.__state();\n const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},1900))};",
   "go": "{{BASE}}/work",
   "wait": 2500,
   "label": "tour: hard load /work",
@@ -95,20 +95,32 @@
   "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
  },
  {
-  "label": "experience -> experience again = rings (row, radial)",
-  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+  "label": "experience -> experience again = nothing (row, no change)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"none\"})"
  },
  {
-  "label": "work -> short (row, radial)",
+  "label": "experience -> short (row, radial)",
   "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "short -> short again = nothing (row, no change)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"none\"})"
  },
  {
   "label": "short -> rings (return mark, radial)",
   "eval": "__move(()=>{document.querySelector('.return-mark').click()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
  },
  {
+  "label": "rings -> rings again = nothing (dock work tab, no change)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},{\"path\":\"/work\",\"title\":\"Work - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"none\"})"
+ },
+ {
   "label": "work -> long (row, radial)",
   "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "long -> long again = nothing (row, no change)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"none\"})"
  },
  {
   "label": "arm for Esc",

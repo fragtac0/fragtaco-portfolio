@@ -18,10 +18,9 @@ try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}
 window.__arm=()=>{const k=new Set();window.__k=k;const h=document.documentElement;
  new MutationObserver(()=>{if(h.dataset.changeKind)k.add(h.dataset.changeKind)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});return 'armed'};
 window.__state=()=>({path:location.pathname,title:document.title,
- active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.replace(', back to the rings','').trim().toLowerCase()+'='+e.getAttribute('aria-current')),
+ active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.trim().toLowerCase()+'='+e.getAttribute('aria-current')),
  kind:[...(window.__k||[])].join('+')||'none',
- rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row',
- hint:document.querySelector('[data-work-tab][aria-current]')?.textContent.endsWith(', back to the rings')??'no-current-link'});
+ rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row'});
 window.__move=(act,want)=>{window.__arm();act();return new Promise(res=>setTimeout(()=>{const got=window.__state();
  const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},1900))};
 `.trim();
@@ -59,10 +58,14 @@ const tour = [
   move("long -> experience (row, radial)", ROW("/experience"), EXP),
   move("experience -> short (row, radial)", ROW("/work/short-form"), SHORT),
   move("short -> experience (row, radial)", ROW("/experience"), EXP),
-  move("experience -> experience again = rings (row, radial)", ROW("/experience"), WORK),
-  move("work -> short (row, radial)", ROW("/work/short-form"), SHORT),
+  // R49.3 (spec 7): the row tab of the open page does nothing (no change, same address, same title, same marks)
+  move("experience -> experience again = nothing (row, no change)", ROW("/experience"), k(EXP, "none")),
+  move("experience -> short (row, radial)", ROW("/work/short-form"), SHORT),
+  move("short -> short again = nothing (row, no change)", ROW("/work/short-form"), k(SHORT, "none")),
   move("short -> rings (return mark, radial)", MARK, WORK),
+  move("rings -> rings again = nothing (dock work tab, no change)", DOCK("/work"), k(WORK, "none")),
   move("work -> long (row, radial)", ROW("/work/long-form"), LONG),
+  move("long -> long again = nothing (row, no change)", ROW("/work/long-form"), k(LONG, "none")),
   { tour: true, label: "arm for Esc", eval: "__arm()" },
   { tour: true, key: "Escape", vk: 27 },
   { tour: true, label: "long -> rings (Esc, radial)", wait: 1900, eval: "JSON.stringify((()=>{const got=__state();const want=" + JSON.stringify(WORK) + ";return{ok:got.path===want.path&&got.title===want.title&&got.kind===want.kind&&got.active.join()===want.active.join(),got,want}})())" },

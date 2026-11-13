@@ -26,7 +26,7 @@ export function activeTab(pathname: string): WorkTabTo | null {
   return WORK_TABS.find((tab) => tab.to === here)?.to ?? null;
 }
 
-/** Where a click on a tab goes: its own address, or back to the rings when it is the tab already showing. */
-export function rowTarget(tabTo: string, pathname: string): string {
-  return bare(pathname) === bare(tabTo) ? "/work" : tabTo;
+/** Where a click on a tab goes: its own address, or null when it is the tab already open (the click does nothing). */
+export function rowTarget(tabTo: string, pathname: string): string | null {
+  return bare(pathname) === bare(tabTo) ? null : tabTo;
 }

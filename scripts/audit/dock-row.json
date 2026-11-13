@@ -486,5 +486,311 @@
  },
  {
   "wait": 1500
+ },
+ {
+  "group": "dock-pill",
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false
+ },
+ {
+  "group": "dock-pill",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__pill=(act,ms,expectMove)=>new Promise(res=>{\n const S=[];const t0=performance.now();let clicked=false;\n const f=()=>{const n=performance.now()-t0;\n  if(n>200&&!clicked){clicked=true;act()}\n  const tabs=document.querySelector('header[data-site-nav] .dock-tabs'),p=document.querySelector('header[data-site-nav] .dock-pill');\n  if(tabs&&p){const a=tabs.getBoundingClientRect(),b=p.getBoundingClientRect();S.push([Math.round(n),+(b.left-a.left).toFixed(2),+(b.top-a.top).toFixed(2),location.pathname])}\n  if(n<ms)requestAnimationFrame(f);else{\n   const xs=S.map(s=>s[1]),ys=S.map(s=>s[2]);\n   const d=xs.slice(1).map((x,i)=>x-xs[i]).filter(v=>Math.abs(v)>0.01);\n   const up=d.filter(v=>v>0).length,down=d.filter(v=>v<0).length;\n   const lo=Math.min(xs[0],xs.at(-1)),hi=Math.max(xs[0],xs.at(-1));\n   const cur=document.querySelector('header[data-site-nav] .dock-tabs a[aria-current]');const tabs2=document.querySelector('header[data-site-nav] .dock-tabs');\n   const want=cur?cur.getBoundingClientRect().left-tabs2.getBoundingClientRect().left:null;\n   const moved=Math.abs(xs.at(-1)-xs[0]);\n   const r={monotonic:up===0||down===0,noOvershoot:Math.min(...xs)>=lo-0.5&&Math.max(...xs)<=hi+0.5,level:Math.max(...ys)-Math.min(...ys)<=0.5,\n    endsUnderCurrent:want!=null&&Math.abs(xs.at(-1)-want)<=0.5,moved:expectMove?moved>20:moved<=0.5};\n   r.ok=Object.values(r).every(Boolean);\n   res(JSON.stringify({ok:r.ok,checks:r,from:+xs[0].toFixed(1),to:+xs.at(-1).toFixed(1),frames:S.length,levelRange:+(Math.max(...ys)-Math.min(...ys)).toFixed(2),path:location.pathname,steps:d.length}))}};\n requestAnimationFrame(f)});\nwindow.__snap=()=>{const h=document.documentElement;window.__k=new Set();new MutationObserver(()=>{if(h.dataset.changeKind)window.__k.add(h.dataset.changeKind)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});\n window.__s={href:location.href,hist:history.length,main:document.querySelector('main'),focus:document.activeElement};return 'snap'};\nwindow.__same=(sel,wantFocus)=>new Promise(res=>setTimeout(()=>{const s=window.__s,a=document.activeElement;\n const r={address:location.href===s.href,history:history.length===s.hist,mainKept:document.querySelector('main')===s.main,noChange:window.__k.size===0&&!document.documentElement.dataset.changeKind,\n  focusKept:wantFocus?a===document.querySelector(sel):(a===s.focus||a===document.querySelector(sel))};r.ok=Object.values(r).every(Boolean);res(JSON.stringify({ok:r.ok,checks:r,at:location.pathname,kinds:[...window.__k]}))},1500));",
+  "go": "{{BASE}}/",
+  "wait": 4500
+ },
+ {
+  "group": "dock-pill",
+  "label": "pill: 1440: home -> work (dock Work tab)",
+  "eval": "__pill(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},1800,true)"
+ },
+ {
+  "group": "dock-pill",
+  "wait": 1500
+ },
+ {
+  "group": "dock-pill",
+  "label": "pill: 1440: work -> home (dock Home tab)",
+  "eval": "__pill(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]').click()},1800,true)"
+ },
+ {
+  "group": "dock-pill",
+  "wait": 1500
+ },
+ {
+  "group": "dock-pill",
+  "label": "pill: 1440: home -> work again",
+  "eval": "__pill(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},1800,true)"
+ },
+ {
+  "group": "dock-pill",
+  "wait": 1500
+ },
+ {
+  "group": "dock-pill",
+  "label": "pill: 1440: work -> long form (row: the pill stays on Work)",
+  "eval": "__pill(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},1800,false)"
+ },
+ {
+  "group": "dock-pill",
+  "wait": 1500
+ },
+ {
+  "group": "dock-pill",
+  "label": "pill: 1440: long form -> home",
+  "eval": "__pill(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]').click()},1800,true)"
+ },
+ {
+  "group": "dock-pill",
+  "wait": 1500
+ },
+ {
+  "group": "dock-pill",
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true
+ },
+ {
+  "group": "dock-pill",
+  "go": "{{BASE}}/",
+  "wait": 4500
+ },
+ {
+  "group": "dock-pill",
+  "label": "pill: 390: home -> work",
+  "eval": "__pill(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},1800,true)"
+ },
+ {
+  "group": "dock-pill",
+  "wait": 1500
+ },
+ {
+  "group": "dock-pill",
+  "label": "pill: 390: work -> home",
+  "eval": "__pill(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]').click()},1800,true)"
+ },
+ {
+  "group": "dock-pill",
+  "wait": 1500
+ },
+ {
+  "group": "dock-pill",
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false
+ },
+ {
+  "group": "dock-pill",
+  "reduce": true
+ },
+ {
+  "group": "dock-pill",
+  "go": "{{BASE}}/",
+  "wait": 4500
+ },
+ {
+  "group": "dock-pill",
+  "label": "pill: reduced motion: home -> work (on the new tab at once)",
+  "eval": "__pill(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},1800,true)"
+ },
+ {
+  "group": "dock-pill",
+  "wait": 1000
+ },
+ {
+  "group": "dock-pill",
+  "reduce": false
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: dock Work on /work: hard load",
+  "go": "{{BASE}}/work",
+  "wait": 2800,
+  "eval": "__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "click": "(()=>{const r=document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: dock Work on /work: mouse click does nothing",
+  "eval": "__same('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]',false)"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: dock Work on /work: focus it",
+  "eval": "document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').focus();__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: dock Work on /work: Enter does nothing, focus stays",
+  "eval": "__same('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]',true)"
+ },
+ {
+  "group": "dock-pill",
+  "eval": "__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "key": " ",
+  "vk": 32
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: dock Work on /work: Space does nothing, focus stays",
+  "eval": "__same('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]',true)"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Long form on /work/long-form: hard load",
+  "go": "{{BASE}}/work/long-form",
+  "wait": 2800,
+  "eval": "__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "click": "(()=>{const r=document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Long form on /work/long-form: mouse click does nothing",
+  "eval": "__same('header[data-site-nav] [data-work-tab=\"/work/long-form\"]',false)"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Long form on /work/long-form: focus it",
+  "eval": "document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').focus();__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Long form on /work/long-form: Enter does nothing, focus stays",
+  "eval": "__same('header[data-site-nav] [data-work-tab=\"/work/long-form\"]',true)"
+ },
+ {
+  "group": "dock-pill",
+  "eval": "__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "key": " ",
+  "vk": 32
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Long form on /work/long-form: Space does nothing, focus stays",
+  "eval": "__same('header[data-site-nav] [data-work-tab=\"/work/long-form\"]',true)"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Short form on /work/short-form: hard load",
+  "go": "{{BASE}}/work/short-form",
+  "wait": 2800,
+  "eval": "__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "click": "(()=>{const r=document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Short form on /work/short-form: mouse click does nothing",
+  "eval": "__same('header[data-site-nav] [data-work-tab=\"/work/short-form\"]',false)"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Short form on /work/short-form: focus it",
+  "eval": "document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').focus();__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Short form on /work/short-form: Enter does nothing, focus stays",
+  "eval": "__same('header[data-site-nav] [data-work-tab=\"/work/short-form\"]',true)"
+ },
+ {
+  "group": "dock-pill",
+  "eval": "__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "key": " ",
+  "vk": 32
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row Short form on /work/short-form: Space does nothing, focus stays",
+  "eval": "__same('header[data-site-nav] [data-work-tab=\"/work/short-form\"]',true)"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row My experience on /experience: hard load",
+  "go": "{{BASE}}/experience",
+  "wait": 2800,
+  "eval": "__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "click": "(()=>{const r=document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row My experience on /experience: mouse click does nothing",
+  "eval": "__same('header[data-site-nav] [data-work-tab=\"/experience\"]',false)"
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row My experience on /experience: focus it",
+  "eval": "document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').focus();__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row My experience on /experience: Enter does nothing, focus stays",
+  "eval": "__same('header[data-site-nav] [data-work-tab=\"/experience\"]',true)"
+ },
+ {
+  "group": "dock-pill",
+  "eval": "__snap()"
+ },
+ {
+  "group": "dock-pill",
+  "key": " ",
+  "vk": 32
+ },
+ {
+  "group": "dock-pill",
+  "label": "open tab: row My experience on /experience: Space does nothing, focus stays",
+  "eval": "__same('header[data-site-nav] [data-work-tab=\"/experience\"]',true)"
  }
 ]

@@ -15,10 +15,9 @@ export const ROW_ID = "work-row";
 /**
  * The second row of the dock on the four work addresses: three links, Long form, Short form and My
  * experience (spec 6.1). They are links, not tabs with panels: the one for the current address wears
- * `aria-current="page"` and goes back to the rings (`/work`) when pressed again (its name says so for a screen
- * reader); the others go to
- * their address, sweeping sideways between the two walls (`tabKind`) and growing from the link
- * otherwise. On `/work` none is current.
+ * `aria-current="page"` and does nothing when pressed (no navigation, no page change, focus stays; the way
+ * back to the rings is the wall's own button); the others go to their address, sweeping sideways between
+ * the two walls (`tabKind`) and growing from the link otherwise. On `/work` none is current.
  */
 export default function WorkSwitcher() {
   const { pathname } = useLocation();
@@ -28,7 +27,8 @@ export default function WorkSwitcher() {
     <div id={ROW_ID} data-work-row className="flex shrink-0 items-center gap-1 sm:gap-1.5">
       {WORK_TABS.map((tab) => {
         const here = tab.to === current;
-        const to = rowTarget(tab.to, pathname);
+        // null for the open tab: the link keeps its own address (a new tab opens there) and a plain click is swallowed
+        const to = rowTarget(tab.to, pathname) ?? tab.to;
         return (
           <PageLink
             key={tab.to}
@@ -39,7 +39,6 @@ export default function WorkSwitcher() {
             className={`${TAB} ${here ? ACTIVE : IDLE}`}
           >
             {tab.label}
-            {here ? <span className="sr-only">, back to the rings</span> : null}
           </PageLink>
         );
       })}
