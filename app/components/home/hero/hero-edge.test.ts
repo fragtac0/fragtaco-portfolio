@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { GROUND, channels } from "../../../styles/tokens";
+import { FRAGMENT_SRC } from "../../ground/eclipse-shader";
 
 const read = (rel: string) => readFileSync(new URL(rel, import.meta.url), "utf8");
 const css = read("./hero.css");
@@ -24,14 +24,13 @@ describe("the painting's lower edge (spec 6)", () => {
     for (const { a, at } of stops) expect(Math.abs(a - at * at * (3 - 2 * at))).toBeLessThan(0.002);
   });
 
-  it("ends on the colour the home section's Eclipse ground starts with: dark and within 6 levels of --ground", () => {
+  it("ends on the colour the home section's Eclipse ground starts with: the shader's base colour, within 1 level", () => {
     const seam = /--hero-seam-rgb:\s*(\d+) (\d+) (\d+);/.exec(tokens)?.slice(1).map(Number) ?? [];
     expect(seam).toHaveLength(3);
-    const ground = channels(GROUND);
-    seam.forEach((c, i) => {
-      expect(c).toBeLessThanOrEqual(ground[i] ?? 0);
-      expect((ground[i] ?? 0) - c).toBeLessThanOrEqual(6);
-    });
+    // `vec3 col=vec3(r,g,b);` is the colour of the ground with no light on it, which is all of the top row at placement 2
+    const base = /vec3 col=vec3\(([\d.]+),([\d.]+),([\d.]+)\);/.exec(FRAGMENT_SRC)?.slice(1).map(Number) ?? [];
+    expect(base).toHaveLength(3);
+    seam.forEach((c, i) => expect(Math.abs(c - (base[i] ?? 0) * 255)).toBeLessThanOrEqual(1));
   });
 
   it("is a layer of the hero's own, under the lockup, caption and cue", () => {

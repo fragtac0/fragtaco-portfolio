@@ -29,16 +29,17 @@
   --line: rgba(253, 252, 230, 0.1); /* hairlines and borders */
   --accent: #fc4c00;
   --accent-soft: rgba(252, 76, 0, 0.14); /* the active pill's fill */
-  --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the only orange glow allowed */
+  --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the page's orange glow (the open card, the dock); only the About and Credits tabs have their own, below (R69) */
   --glass-rgb: 16 16 15; /* the dock glass: this colour at 46% */
 
   /* the About and Credits tabs (round 7, spec 6): an orange gradient with white text, the glow and a drop shadow.
      White on --accent itself is only 3.4 to 1, so the lightest point of the tab is --accent-tab, the accent stepped down
-     until 13 px white text clears 4.5 to 1 (4.6); --accent-deep is the deeper end. tokens.test.ts and contrast.test.ts
-     keep the numbers. The glow stays inside the 28 px rule. */
+     until 13 px white text clears 4.5 to 1 (4.63); --accent-deep is the deeper end. contrast.test.ts keeps the numbers.
+     The tabs' two glows (--tab-glow, --tab-glow-hot) are stronger than --glow, and stay inside the 28 px rule. */
   --accent-tab: #d44000;
   --accent-deep: #a02900;
   --tab-ink: #ffffff;
+  --tab-edge: rgba(255, 255, 255, 0.18); /* the light line between a tab and its card's body */
   --tab-gradient: linear-gradient(180deg, var(--accent-tab), var(--accent-deep));
   --tab-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.7);
   --tab-glow: 0 0 26px -6px rgba(252, 76, 0, 0.55);
@@ -97,6 +98,12 @@
 /* shared by the hero, the cards and the layer: a plain fade in for reduced motion */
 @keyframes home-fade {
   from {
+    opacity: 0;
+  }
+}
+/* a card closing under reduced motion: fades out where it stands, comes back as the tab (cards.css) */
+@keyframes home-fade-out {
+  50% {
     opacity: 0;
   }
 }

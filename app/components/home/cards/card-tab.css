@@ -1,0 +1,85 @@
+/* the About and Credits tabs: the rail of each card (spec 6). The hover nudge's strip, the label that undoes the card's
+   scale, and the reduced-motion close; imported after cards.css and before cards-responsive.css. */
+.home-hero .rail {
+  position: relative;
+  flex: 0 0 var(--rail);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  background: var(--tab-gradient);
+  border-right: 1px solid var(--tab-edge);
+}
+.home-hero .rail::before {
+  /* the hover nudge pulls the card 14 px further in, which would show a strip of its dark body beside the tab: the tab's
+     gradient carries on over that strip while the card is at rest (32 px is more than 14 / 0.5). It goes the moment the card opens
+     and comes back only when the slide closing it is over, so it is never a wider tab on a moving card. */
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: 32px;
+  background: var(--tab-gradient);
+  pointer-events: none;
+  transition: opacity 0s var(--panel-ms);
+}
+.home-hero .card.left .rail::before {
+  left: auto;
+  right: 100%;
+}
+.home-hero .card.open .rail::before,
+.home-hero .card[data-dragging] .rail::before {
+  /* also gone while a finger drags the card, so no band pops beside the tab on a drag open; if the drag is let go and the
+     card springs back home, the band returns after the slide's delay above */
+  opacity: 0;
+  transition: none;
+}
+.home-hero .card.left .rail {
+  border-right: 0;
+  border-left: 1px solid var(--tab-edge);
+}
+.home-hero .rail:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: -4px; /* inset, so the card's overflow does not clip it */
+}
+/* (the pills and links keep their 1 px outline: it is their border) */
+.home-hero .rail:focus:not(:focus-visible) {
+  outline: none;
+}
+/* the label undoes the card's scale, so it reads 13 px at rest (0.56 on desktop, 0.5 on phones) and
+   at 1 when the card is open */
+.home-hero .rail span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg) scale(calc(1 / var(--card-scale)));
+  transition: transform 0.72s var(--ease);
+  font-size: var(--t-meta);
+  letter-spacing: 0.3em;
+  color: var(--tab-ink);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+}
+.home-hero .card.left .rail span {
+  transform: scale(calc(1 / var(--card-scale)));
+}
+.home-hero .card[data-slide] .rail span {
+  transition: transform var(--panel-ms) var(--ease-panel);
+}
+.home-hero .card[data-dragging] .rail span {
+  transition: none;
+}
+
+/* reduced motion: a card closes by fading where it stands (cards.css), so the strip has no slide to wait for */
+@media (prefers-reduced-motion: reduce) {
+  /* no delay on the strip: nothing slides, so it need not wait for a slide to end (it stays hidden while the card is held) */
+  .home-hero .rail::before {
+    transition-delay: 0s;
+  }
+  .home-hero .card[data-slide]:not(.open) .rail::before {
+    opacity: 0;
+  }
+}

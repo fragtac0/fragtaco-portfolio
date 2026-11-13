@@ -1,6 +1,17 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { PANEL_MS, SETTLE_AT, cardMargin, cardPose, dragProgress, restScale, settlesOnTarget } from "./card-pose";
+import {
+  PANEL_MS,
+  REDUCED_FOCUS_MS,
+  SETTLE_AT,
+  cardMargin,
+  cardPose,
+  dragProgress,
+  focusDelay,
+  restScale,
+  settlesOnTarget,
+  slidesBetween,
+} from "./card-pose";
 
 const desktop = { vw: 1440, width: 778, rail: 100, hot: false };
 const phone = { vw: 375, width: 315, rail: 80, hot: false };
@@ -109,9 +120,27 @@ describe("PANEL_MS", () => {
     expect(x1).toBeGreaterThan(0.3);
     expect(x2).toBeLessThan(0.7);
   });
-  it("is what the cards' CSS uses, not a literal", () => {
+  it("is what the panel's CSS uses, not a literal; the nudge and the settle keep the quick ease (R71)", () => {
     const cards = readFileSync(new URL("./cards.css", import.meta.url), "utf8");
-    expect(cards).toContain("transform var(--panel-ms) var(--ease-panel)");
-    expect(cards).not.toMatch(/0\.72s/);
+    const tab = readFileSync(new URL("./card-tab.css", import.meta.url), "utf8");
+    // the slide takes the tokens, on the card and on its rail label
+    expect(/\.card\[data-slide\] \{\s*transition:\s*transform var\(--panel-ms\) var\(--ease-panel\)/.test(cards)).toBe(true);
+    expect(/\.card\[data-slide\] \.rail span \{\s*transition: transform var\(--panel-ms\) var\(--ease-panel\)/.test(tab)).toBe(true);
+    // the plain card does not: the hover nudge is the old 0.72 s ease
+    expect(/\.home-hero \.card \{[^}]*transition:\s*transform 0\.72s var\(--ease\)/.test(cards)).toBe(true);
+  });
+  it("marks only the moves into or out of open as slides", () => {
+    expect(slidesBetween("rest", "open")).toBe(true);
+    expect(slidesBetween("open", "rest")).toBe(true);
+    expect(slidesBetween("open", "hidden")).toBe(true);
+    expect(slidesBetween("rest", "rest")).toBe(false); // the hover nudge
+    expect(slidesBetween("open", "open")).toBe(false);
+    expect(slidesBetween("hidden", "rest")).toBe(false); // the cards arriving
+    expect(slidesBetween(undefined, "rest")).toBe(false);
+  });
+  it("waits the slide before focus, or the short fade under reduced motion (R71)", () => {
+    expect(focusDelay(false)).toBe(PANEL_MS);
+    expect(focusDelay(true)).toBe(REDUCED_FOCUS_MS);
+    expect(REDUCED_FOCUS_MS).toBeLessThanOrEqual(300);
   });
 });

@@ -27,7 +27,7 @@ describe("the About and Credits tabs (spec 6)", () => {
   });
 
   it("keeps the white text at 4.5 to 1 or more on the lightest point (and so on every point of the gradient)", () => {
-    // measured: white on #d44000 is 4.64; on #a02900 it is 7.47
+    // measured: white on #d44000 is 4.63; on #a02900 it is 7.47
     const onLightest = contrast(ink, lightest);
     const onDeepest = contrast(ink, deepest);
     expect(ink).toBe("#ffffff");

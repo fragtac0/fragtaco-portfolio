@@ -161,7 +161,7 @@ export function useCardInput({ hero, leftRef, rightRef, scrimRef, setHot, ctx, l
       const next = how === "settle" && settlesOnTarget(d.p) ? d.target : d.origin;
       if (how === "settle") go(next);
       // going back to where it started changes no state, so put the cards back by hand
-      placeAll(els, how === "settle" ? next : navRef.current, how === "settle" ? NO_HOT : hotRef.current);
+      placeAll(els, how === "settle" ? next : navRef.current, how === "settle" ? NO_HOT : hotRef.current, false);
     };
     const onPointerDown = (e: PointerEvent) => {
       if (!e.isPrimary) return; // a second finger or a palm never takes over a drag

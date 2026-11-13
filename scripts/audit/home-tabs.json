@@ -4,7 +4,48 @@
    1440,
    900
   ],
-  "dpr": 2,
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-tabs-rest-1440"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 1.5,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-tabs-rest-390"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
   "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
   "go": "{{BASE}}/",
   "wait": 7000
@@ -16,18 +57,20 @@
    10,
    450,
    12
-  ],
+  ]
+ },
+ {
+  "eval": "(()=>({cards:[...document.querySelectorAll('.card')].map(c=>c.className+(c.dataset.slide!==undefined?' [slide]':'')),transitions:document.getAnimations().filter(a=>a.transitionProperty==='transform').map(a=>[a.effect.target.className||a.effect.target.tagName,a.effect.getTiming().duration+' '+a.effect.getTiming().easing])}))()",
+  "label": "hover-credits: the nudge keeps the quick ease (720 ms), no [slide]"
+ },
+ {
   "wait": 900
  },
  {
-  "eval": "[...document.querySelectorAll('.card')].map(c=>c.className)",
-  "label": "cls-credits"
+  "shot": "warm"
  },
  {
-  "shot": "warm2"
- },
- {
-  "shot": "r7-tab-credits-hover"
+  "shot": "r7-tabs-hover-credits"
  },
  {
   "sweep": [
@@ -36,18 +79,20 @@
    1432,
    450,
    12
-  ],
+  ]
+ },
+ {
+  "eval": "(()=>({cards:[...document.querySelectorAll('.card')].map(c=>c.className+(c.dataset.slide!==undefined?' [slide]':'')),transitions:document.getAnimations().filter(a=>a.transitionProperty==='transform').map(a=>[a.effect.target.className||a.effect.target.tagName,a.effect.getTiming().duration+' '+a.effect.getTiming().easing])}))()",
+  "label": "hover-about"
+ },
+ {
   "wait": 900
  },
  {
-  "eval": "[...document.querySelectorAll('.card')].map(c=>c.className)",
-  "label": "cls-about"
+  "shot": "warm"
  },
  {
-  "shot": "warm3"
- },
- {
-  "shot": "r7-tab-about-hover"
+  "shot": "r7-tabs-hover-about"
  },
  {
   "size": [
@@ -55,13 +100,16 @@
    900
   ],
   "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
   "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
   "go": "{{BASE}}/",
   "wait": 7000
  },
  {
-  "eval": "(async()=>{document.querySelector('.card.right .rail').click();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const as=document.getAnimations().filter(a=>a.transitionProperty==='transform');as.forEach(a=>{a.pause();a.currentTime=0.45*a.effect.getTiming().duration});return as.length})()",
-  "label": "about-mid",
+  "eval": "(async()=>{document.querySelector('.card.right .rail').click();return await (async()=>{await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const as=document.getAnimations().filter(a=>a instanceof CSSTransition&&isFinite(a.effect.getComputedTiming().endTime));as.forEach(a=>{a.pause();a.currentTime=0.45*a.effect.getComputedTiming().endTime});return as.map(a=>a.transitionProperty).sort().join(' ')})()})()",
+  "label": "about-mid: frozen transitions",
   "wait": 300
  },
  {
@@ -71,11 +119,20 @@
   "shot": "r7-panel-about-mid"
  },
  {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
   "go": "{{BASE}}/",
   "wait": 7000
  },
  {
-  "eval": "(async()=>{document.querySelector('.card.left .rail').click();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const as=document.getAnimations().filter(a=>a.transitionProperty==='transform');as.forEach(a=>{a.pause();a.currentTime=0.45*a.effect.getTiming().duration});return as.length})()",
+  "eval": "(async()=>{document.querySelector('.card.left .rail').click();return await (async()=>{await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const as=document.getAnimations().filter(a=>a instanceof CSSTransition&&isFinite(a.effect.getComputedTiming().endTime));as.forEach(a=>{a.pause();a.currentTime=0.45*a.effect.getComputedTiming().endTime});return as.map(a=>a.transitionProperty).sort().join(' ')})()})()",
   "label": "credits-mid",
   "wait": 300
  },
@@ -86,11 +143,20 @@
   "shot": "r7-panel-credits-mid"
  },
  {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
   "go": "{{BASE}}/",
   "wait": 7000
  },
  {
-  "eval": "new Promise(async res=>{const c=document.querySelector('.card.right');c.querySelector('.rail').click();await new Promise(r=>setTimeout(r,1500));c.querySelector('.rail').click();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const as=document.getAnimations().filter(a=>a.transitionProperty==='transform');as.forEach(a=>{a.pause();a.currentTime=0.45*a.effect.getTiming().duration});res([c.className,as.length])})",
+  "eval": "new Promise(async res=>{const c=document.querySelector('.card.right .rail').closest('.card');c.querySelector('.rail').click();await new Promise(r=>setTimeout(r,1500));c.querySelector('.rail').click();res([c.className,await (async()=>{await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const as=document.getAnimations().filter(a=>a instanceof CSSTransition&&isFinite(a.effect.getComputedTiming().endTime));as.forEach(a=>{a.pause();a.currentTime=0.45*a.effect.getComputedTiming().endTime});return as.map(a=>a.transitionProperty).sort().join(' ')})()])})",
   "label": "about-closing-mid",
   "wait": 300
  },
@@ -99,5 +165,157 @@
  },
  {
   "shot": "r7-panel-about-closing-mid"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "new Promise(res=>{const c=document.querySelector('.card.right');c.querySelector('.rail').click();setTimeout(async()=>{const r=[c.className,c.dataset.slide,document.getAnimations().filter(a=>a.transitionProperty==='transform').map(a=>(a.effect.target.className||a.effect.target.tagName)+': '+a.effect.getTiming().duration+' '+a.effect.getTiming().easing)];await Promise.all(document.getAnimations().filter(a=>a instanceof CSSTransition).map(a=>a.finished.catch(()=>0)));res(r)},60)})",
+  "label": "about opens: [slide], 700 cubic-bezier(0.65, 0, 0.35, 1); the picture is taken once every transition has finished",
+  "wait": 300
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-panel-about-open"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "window.__bl=[];(function f(){window.__bl.push({t:performance.now(),c:[...document.querySelectorAll('.card')].map(c=>{const r=c.querySelector('.rail');return [c.hasAttribute('data-dragging')?1:0,c.classList.contains('open')?1:0,+(+getComputedStyle(r,'::before').opacity).toFixed(2),c.dataset.slide!==undefined?1:0]})});requestAnimationFrame(f)})();1",
+  "label": "sampler on"
+ },
+ {
+  "drag": [
+   380,
+   422,
+   90,
+   422,
+   30
+  ]
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "(()=>{const l=window.__bl;let tEnd=null,dragFrames=0,bandDrag=0,bandOpen=0,slideAfter=0,back=null,openF=0,k=-1;for(const o of l){const i=o.c.findIndex(x=>x[0]);if(i>=0){k=i;dragFrames++;tEnd=o.t;if(o.c[i][2]>0.01)bandDrag++}}for(const o of l){if(o.c.some(x=>x[1]&&x[2]>0.01))bandOpen++;if(tEnd&&o.t>tEnd){if(o.c[k][3])slideAfter++;if(back===null&&o.c[k][2]>0.5)back=Math.round(o.t-tEnd)}if(o.c.some(x=>x[1]))openF++}return {frames:l.length,dragFrames,bandFramesDuringDrag:bandDrag,bandFramesWhileOpen:bandOpen,slideMarkAfterRelease:slideAfter,openFrames:openF,bandBackMsAfterRelease:back}})()",
+  "label": "drag open on touch: bandFramesDuringDrag 0, bandFramesWhileOpen 0, slideMarkAfterRelease 0"
+ },
+ {
+  "eval": "(()=>({cards:[...document.querySelectorAll('.card')].map(c=>c.className+(c.dataset.slide!==undefined?' [slide]':'')),transitions:document.getAnimations().filter(a=>a.transitionProperty==='transform').map(a=>[a.effect.target.className||a.effect.target.tagName,a.effect.getTiming().duration+' '+a.effect.getTiming().easing])}))()",
+  "label": "after the drag open"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "window.__bl=[];(function f(){window.__bl.push({t:performance.now(),c:[...document.querySelectorAll('.card')].map(c=>{const r=c.querySelector('.rail');return [c.hasAttribute('data-dragging')?1:0,c.classList.contains('open')?1:0,+(+getComputedStyle(r,'::before').opacity).toFixed(2),c.dataset.slide!==undefined?1:0]})});requestAnimationFrame(f)})();1",
+  "label": "sampler on"
+ },
+ {
+  "drag": [
+   380,
+   422,
+   320,
+   422,
+   10
+  ]
+ },
+ {
+  "wait": 1800
+ },
+ {
+  "eval": "(()=>{const l=window.__bl;let tEnd=null,dragFrames=0,bandDrag=0,bandOpen=0,slideAfter=0,back=null,openF=0,k=-1;for(const o of l){const i=o.c.findIndex(x=>x[0]);if(i>=0){k=i;dragFrames++;tEnd=o.t;if(o.c[i][2]>0.01)bandDrag++}}for(const o of l){if(o.c.some(x=>x[1]&&x[2]>0.01))bandOpen++;if(tEnd&&o.t>tEnd){if(o.c[k][3])slideAfter++;if(back===null&&o.c[k][2]>0.5)back=Math.round(o.t-tEnd)}if(o.c.some(x=>x[1]))openF++}return {frames:l.length,dragFrames,bandFramesDuringDrag:bandDrag,bandFramesWhileOpen:bandOpen,slideMarkAfterRelease:slideAfter,openFrames:openF,bandBackMsAfterRelease:back}})()",
+  "label": "aborted drag (a short pull let go): the band is hidden while the finger pulls and comes back after about 700 ms; bandBackMsAfterRelease ~700"
+ },
+ {
+  "eval": "[...document.querySelectorAll('.card')].map(c=>c.className)",
+  "label": "still at rest"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#hero",
+   "eval": "(async()=>{const sl=ms=>new Promise(r=>setTimeout(r,ms));const root=document.querySelector('#hero');const fire=(type,x,y)=>root.dispatchEvent(new PointerEvent(type,{pointerId:7,pointerType:'touch',isPrimary:true,clientX:x,clientY:y,bubbles:true,cancelable:true,buttons:type==='pointerup'?0:1}));await sl(300);fire('pointerdown',380,422);for(let i=1;i<=30;i++){fire('pointermove',380-i*10,422);await sl(20)}await sl(150);fire('pointerup',90,422)})()",
+   "keep": "r7-drag-open",
+   "ats": [
+    200,
+    500,
+    800,
+    1100,
+    1300,
+    1600
+   ],
+   "flat": 3,
+   "series": false
+  },
+  "label": "drag-open film (touch profile 390 by 844)"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "new Promise(async res=>{const sl=ms=>new Promise(r=>setTimeout(r,ms));const c=document.querySelector('.card.right');c.querySelector('.rail').click();await sl(900);const log=[];const t0=performance.now();c.querySelector('.rail').click();const iv=setInterval(()=>{const m=new DOMMatrixReadOnly(getComputedStyle(c).transform);log.push([Math.round(performance.now()-t0),+(+getComputedStyle(c).opacity).toFixed(2),Math.round(m.m41),+(+getComputedStyle(c.querySelector('.rail'),'::before').opacity).toFixed(2)])},50);await sl(900);clearInterval(iv);res(log.filter((r,i)=>i%2===0))})",
+  "label": "reduced motion close: [ms, card opacity, card x, strip opacity]: opacity 1 to 0 by ~300 ms with x unchanged, x jumps home, opacity back to 1 by ~600 ms, strip 0 until the card is back (then at rest it shows)"
+ },
+ {
+  "eval": "new Promise(async res=>{const sl=ms=>new Promise(r=>setTimeout(r,ms));const c=document.querySelector('.card.right');c.querySelector('.rail').click();const t0=performance.now();let f=null;const iv=setInterval(()=>{if(document.activeElement&&document.activeElement.classList.contains('card-scroll')&&f===null)f=Math.round(performance.now()-t0)},20);await sl(1500);clearInterval(iv);res({focusIntoCardAfterMs:f})})",
+  "label": "reduced motion open: focus goes in after about 300 ms (not 700)",
+  "wait": 300
  }
 ]

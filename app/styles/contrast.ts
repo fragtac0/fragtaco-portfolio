@@ -1,6 +1,6 @@
 /**
  * WCAG contrast of two `#rrggbb` colours (relative luminance of sRGB, the ratio (L1 + 0.05) / (L2 + 0.05)). Pure, so
- * tokens.test.ts can keep the tab's white text above 4.5 to 1 on the lightest point of its gradient.
+ * contrast.test.ts can keep the tab's white text above 4.5 to 1 on the lightest point of its gradient.
  */
 import { channels } from "./tokens";
 

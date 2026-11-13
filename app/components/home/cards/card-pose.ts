@@ -1,6 +1,12 @@
 /** How long a card takes to slide in or out, in ms: `--panel-ms` in app/styles/tokens.css (card-pose.test.ts keeps them equal). */
 export const PANEL_MS = 700;
 
+/** Under reduced motion nothing slides: a card fades in over this long, and focus goes in once it has (cards.css). */
+export const REDUCED_FOCUS_MS = 300;
+
+/** How long after a card opens focus goes into it: the slide, or the short fade under reduced motion. */
+export const focusDelay = (reduced: boolean): number => (reduced ? REDUCED_FOCUS_MS : PANEL_MS);
+
 export type Side = "left" | "right";
 export type Mode = "hidden" | "rest" | "open";
 
@@ -16,6 +22,13 @@ export type CardPoseInput = {
   /** Pointer is hovering the card at rest. */
   hot: boolean;
 };
+
+/**
+ * Whether a card changing from mode `was` to `mode` is sliding open or shut, which takes the panel's 700 ms in and out
+ * (`data-slide`, cards.css). Everything else, the hover nudge, a drag let go, the cards arriving, keeps the quick ease.
+ */
+export const slidesBetween = (was: Mode | undefined, mode: Mode): boolean =>
+  was !== mode && (was === "open" || mode === "open");
 
 /** A drag settles on its target when progress is greater than this. */
 export const SETTLE_AT = 0.3;

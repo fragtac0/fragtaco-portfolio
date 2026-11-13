@@ -24,7 +24,7 @@ html.cards-open {
   background: color-mix(in srgb, var(--ground) 26%, transparent);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--panel-ms) var(--ease-panel);
+  transition: opacity var(--panel-ms) var(--ease-panel); /* the scrim goes with the panel */
 }
 .home-hero[data-softened] .scrim {
   opacity: 1;
@@ -49,8 +49,10 @@ html.cards-open {
     var(--tab-shadow),
     var(--tab-glow);
   transform: translate3d(130vw, -50%, 0) scale(0.56);
+  /* the hover nudge and a released drag settling keep the old ease; only a card sliding open or shut (data-slide, set by
+     placeAll in use-card-poses.ts) takes the panel's 700 ms in and out */
   transition:
-    transform var(--panel-ms) var(--ease-panel),
+    transform 0.72s var(--ease),
     box-shadow 0.5s;
   will-change: transform;
   cursor: pointer;
@@ -66,6 +68,11 @@ html.cards-open {
   transform-origin: 100% 50%;
   flex-direction: row-reverse;
   transform: translate3d(-130vw, -50%, 0) scale(0.56); /* off screen on its own side until positioned */
+}
+.home-hero .card[data-slide] {
+  transition:
+    transform var(--panel-ms) var(--ease-panel),
+    box-shadow 0.5s;
 }
 .home-hero .card[data-dragging] {
   transition: none;
@@ -85,72 +92,6 @@ html.cards-open {
 }
 .home-hero .card a {
   color: inherit;
-}
-.home-hero .rail {
-  position: relative;
-  flex: 0 0 var(--rail);
-  border: 0;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font: inherit;
-  color: inherit;
-  background: var(--tab-gradient);
-  border-right: 1px solid rgba(255, 255, 255, 0.18);
-}
-.home-hero .rail::before {
-  /* the hover nudge pulls the card 14 px further in, which would show a strip of its dark body beside the tab: the tab's
-     gradient carries on over that strip while the card is at rest (32 px is more than 14 / 0.5). It goes the moment the card opens
-     and comes back only when the slide closing it is over, so it is never a wider tab on a moving card. */
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 100%;
-  width: 32px;
-  background: var(--tab-gradient);
-  pointer-events: none;
-  transition: opacity 0s var(--panel-ms);
-}
-.home-hero .card.left .rail::before {
-  left: auto;
-  right: 100%;
-}
-.home-hero .card.open .rail::before {
-  opacity: 0;
-  transition: none;
-}
-.home-hero .card.left .rail {
-  border-right: 0;
-  border-left: 1px solid rgba(255, 255, 255, 0.18);
-}
-.home-hero .rail:focus-visible {
-  outline: 2px solid var(--cream);
-  outline-offset: -4px; /* inset, so the card's overflow does not clip it */
-}
-/* (the pills and links keep their 1 px outline: it is their border) */
-.home-hero .rail:focus:not(:focus-visible) {
-  outline: none;
-}
-/* the label undoes the card's scale, so it reads 13 px at rest (0.56 on desktop, 0.5 on phones) and
-   at 1 when the card is open */
-.home-hero .rail span {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg) scale(calc(1 / var(--card-scale)));
-  transition: transform var(--panel-ms) var(--ease-panel);
-  font-size: var(--t-meta);
-  letter-spacing: 0.3em;
-  color: var(--tab-ink);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
-}
-.home-hero .card.left .rail span {
-  transform: scale(calc(1 / var(--card-scale)));
-}
-.home-hero .card[data-dragging] .rail span {
-  transition: none;
 }
 .home-hero .card-body {
   flex: 1;
@@ -331,10 +272,16 @@ html.cards-open {
   background: rgba(253, 252, 230, 0.06);
 }
 
-/* reduced motion: a card opens in place with a fade (home-fade in tokens.css), a plain tint fades in behind it */
+/* reduced motion: a card opens in place with a fade (home-fade in tokens.css) and closes with one: it holds its open pose
+   while it fades out (300 ms), jumps home and fades back in as the tab (home-fade-out in tokens.css). A plain tint fades
+   in and out behind it. */
 @media (prefers-reduced-motion: reduce) {
   .home-hero .card.open {
     animation: home-fade 0.3s ease backwards;
+  }
+  .home-hero .card[data-slide]:not(.open) {
+    animation: home-fade-out 0.6s ease;
+    transition-delay: 0.3s, 0s;
   }
   .home-hero .scrim {
     transition-duration: 0.3s !important;
