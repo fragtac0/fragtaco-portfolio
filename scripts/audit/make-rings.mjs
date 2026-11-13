@@ -6,7 +6,8 @@
 //  - freezes the rings at 40 sampled phases (each ring and its items' turn-back set to the same random share of
 //    its period, paused) and reads the gap between every pair of item boxes (`.work-item-turn`, upright): the
 //    smallest gap over all pairs and phases, and how many pairs touch or overlap (both must be 12 or more / 0),
-//  - checks the intro (title and its lines of text) sits inside the stack ring's icons.
+//  - checks the intro (title and its lines of text) sits inside the stack ring's icons,
+//  - the arrival through a page change (R60): the rings are in the page for the reveal, standing still, then turn together.
 // Pictures (1440 by 900, 1920 by 1080, 820 by 1180, 390 by 844) at three ring phases each. The long form pictures are YouTube thumbnails loaded at run time;
 // where they cannot be reached (or must not be kept) the audit paints neutral, generated gradients on the tiles (a number and a corner
 // mark show they are upright) so the geometry can still be seen: nothing from a third party is drawn.
@@ -14,7 +15,7 @@
 import { writeFileSync } from "node:fs";
 
 const init = `
-try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}
+try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}
 // every ring and its items' turn-back to one random share of the ring's period, paused
 window.__phase=(seed)=>{let s=seed>>>0;const rnd=()=>((s=(Math.imul(s,1664525)+1013904223)>>>0)/4294967296);
  document.getAnimations().filter(a=>a.animationName==='work-ring-in').forEach(a=>a.finish());
@@ -55,6 +56,22 @@ window.__intro=()=>{const cx=innerWidth/2,cy=innerHeight/2;const ul=document.que
   if(getComputedStyle(el).display==='none')continue;const r=document.createRange();r.selectNodeContents(el);rects.push(...r.getClientRects())}
  for(const r of rects)for(const x of [r.left,r.right])for(const y of [r.top,r.bottom])far=Math.max(far,Math.hypot(x-cx,y-cy));
  return{stackRadius:+R.toFixed(1),icon,textReach:+far.toFixed(1),roomToIcons:+(R-icon/2-far).toFixed(1)}};
+// the rings arriving through a page change (R60): from the start of a change to /work (the debug hook), polls every frame for when the
+// first item and the last item are in the page, whether the rings are standing still (data-still) while the reveal runs, how many
+// pictures have loaded (and none is lazy) when the reveal is a second old, then waits for the change to end and reads that the rings
+// are all turning together (a spin on every ring and a turn-back on every item, each started at the same moment)
+window.__viaChange=()=>new Promise(res=>{const t0=performance.now();const out={firstItemMs:null,allItemsMs:null,stillDuringReveal:null,lazy:null,readyAt1s:null,coversAt1s:null,
+ turningAfter:null,startsEqual:null,rings:0,items:0,changeEndedMs:null};__ftChange('/work');
+ const iv=setInterval(()=>{const t=performance.now()-t0;const n=document.querySelectorAll('.work-item').length;
+  if(out.firstItemMs===null&&n>0)out.firstItemMs=Math.round(t);
+  const want=window.__want||0;if(out.allItemsMs===null&&n>0&&n>=want&&t>0){out.allItemsMs=Math.round(t)}
+  if(out.stillDuringReveal===null&&n>0&&t>700){const m=document.querySelector('.work-page');out.stillDuringReveal=!!m&&m.hasAttribute('data-still')&&document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin').length===0;
+   out.lazy=document.querySelectorAll('.work-cover img[loading=lazy]').length;out.coversAt1s=document.querySelectorAll('.work-cover img').length;out.readyAt1s=document.querySelectorAll('.work-cover img[data-ready]').length;out.items=n;out.rings=document.querySelectorAll('.work-ring').length}
+  if(t>1500&&!document.documentElement.dataset.changeKind){clearInterval(iv);out.changeEndedMs=Math.round(t);
+   setTimeout(()=>{const sp=document.getAnimations().filter(a=>a.animationName==='work-spin');const un=document.getAnimations().filter(a=>a.animationName==='work-unspin');
+    out.turningAfter={spin:sp.length,unspin:un.length,stillAttr:document.querySelector('.work-page').hasAttribute('data-still')};
+    out.startsEqual=new Set([...sp,...un].map(a=>Math.round(a.startTime))).size<=2;res(JSON.stringify(out))},400)}
+  if(t>9000){clearInterval(iv);res(JSON.stringify({timeout:true,out}))}},16)});
 // neutral generated pictures (no third party) when the real ones cannot be loaded
 window.__fake=()=>{let i=0;for(const img of document.querySelectorAll('.work-cover img')){i++;const tall=img.closest('.work-item').dataset.ring==='short';
  const W=tall?360:640,H=tall?640:360,hue=(i*47)%360;
@@ -142,6 +159,11 @@ for (const f of FRAME_RUNS) {
   steps.push({ label: `frames ${f.name}: a ring is paused (hover took)`, eval: `JSON.stringify(document.querySelectorAll('.work-item:hover').length)` });
   steps.push({ move: [5, 5], cpu: 1 });
 }
+
+// the rings arriving through a page change from home (R60): present for the reveal (all 64 items in within about half a second, standing
+// still, pictures loading at once, none lazy), turning together when the change ends
+steps.push({ size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/", wait: 3000, eval: "window.__want=64;'ready'", label: "via a change: from home" });
+steps.push({ label: "via a change: the rings during the reveal and when it ends", eval: "window.__viaChange()" });
 
 steps.push({ reduce: true, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(5)", label: "reduced motion: ready" });
 steps.push({

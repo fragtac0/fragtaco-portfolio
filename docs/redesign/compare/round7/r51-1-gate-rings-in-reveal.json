@@ -1,0 +1,249 @@
+{
+ "what": "R51.1 (R60): the R33 glass gate with the rings in the arriving /work page, present and standing still for the 3.5 s reveal: no animating frame over 34 ms",
+ "file": "scripts/audit/page-change.json (written by make-page-change.mjs)",
+ "setup": "production build served on :5180, headless Chrome, 1440 by 900, device pixel ratio 2, CPU slowed 4 times, fresh profile",
+ "rule": "animOver34 must be 0 (commit frames and frames before the transition's ready are not counted, R31)",
+ "build": "R51.1: rings mounted in batches of 8 items every 50 ms from the first commit (all 64 within about 0.45 s), standing still (no spin, no turn-back) until the change ends, pictures not lazy",
+ "changes": [
+  {
+   "change": "home to work",
+   "from": "/",
+   "to": "/work",
+   "readyAfterMs": 193,
+   "animMs": 3551,
+   "animFrames": 213,
+   "animMax": 16.8,
+   "animOver34": 0,
+   "animOver20": 0,
+   "commitFrame": 83.4,
+   "animTop": [
+    [
+     991,
+     16.8
+    ],
+    [
+     1541,
+     16.8
+    ],
+    [
+     258,
+     16.8
+    ],
+    [
+     758,
+     16.8
+    ],
+    [
+     958,
+     16.8
+    ]
+   ]
+  },
+  {
+   "change": "work to home",
+   "from": "/work",
+   "to": "/",
+   "readyAfterMs": 193,
+   "animMs": 3548,
+   "animFrames": 212,
+   "animMax": 33.3,
+   "animOver34": 0,
+   "animOver20": 1,
+   "commitFrame": 133.4,
+   "animTop": [
+    [
+     270,
+     33.3
+    ],
+    [
+     370,
+     16.8
+    ],
+    [
+     1003,
+     16.8
+    ],
+    [
+     1320,
+     16.8
+    ],
+    [
+     1453,
+     16.8
+    ]
+   ]
+  },
+  {
+   "change": "home to work (2nd)",
+   "from": "/",
+   "to": "/work",
+   "readyAfterMs": 102,
+   "animMs": 3545,
+   "animFrames": 213,
+   "animMax": 16.8,
+   "animOver34": 0,
+   "animOver20": 0,
+   "commitFrame": 66.7,
+   "animTop": [
+    [
+     3576,
+     16.8
+    ],
+    [
+     643,
+     16.8
+    ],
+    [
+     793,
+     16.8
+    ],
+    [
+     876,
+     16.8
+    ],
+    [
+     1976,
+     16.8
+    ]
+   ]
+  },
+  {
+   "change": "Back, work to home",
+   "from": "/work",
+   "to": "/",
+   "readyAfterMs": 185,
+   "animMs": 3542,
+   "animFrames": 212,
+   "animMax": 33.3,
+   "animOver34": 0,
+   "animOver20": 1,
+   "commitFrame": 100.1,
+   "animTop": [
+    [
+     256,
+     33.3
+    ],
+    [
+     640,
+     16.8
+    ],
+    [
+     1906,
+     16.8
+    ],
+    [
+     2256,
+     16.8
+    ],
+    [
+     2306,
+     16.8
+    ]
+   ]
+  },
+  {
+   "change": "Forward, home to work",
+   "from": "/",
+   "to": "/work",
+   "readyAfterMs": 91,
+   "animMs": 3549,
+   "animFrames": 214,
+   "animMax": 16.8,
+   "animOver34": 0,
+   "animOver20": 0,
+   "commitFrame": 66.6,
+   "animTop": [
+    [
+     803,
+     16.8
+    ],
+    [
+     2469,
+     16.8
+    ],
+    [
+     3069,
+     16.8
+    ],
+    [
+     3553,
+     16.8
+    ],
+    [
+     3653,
+     16.8
+    ]
+   ]
+  }
+ ],
+ "coldHomeToWorkRuns": {
+  "note": "first home to work on a fresh profile (cold: pictures fetched, code loaded), page-change.json steps 0 to 6 run four times each; animMax per run (ms)",
+  "rings_in_reveal_final": [
+   16.8,
+   16.8,
+   16.8,
+   33.3
+  ],
+  "baseline_before_this_task_rings_after_the_change": [
+   16.8,
+   33.4,
+   66.7,
+   16.8
+  ],
+  "all_mounted_in_the_commit_or_one_ring_per_step_while_developing": "one ring per 100 ms: 33.4, 33.3, 33.3, 33.4 and one run with two frames of 50 ms; everything in the commit: 66.6, 50, 33.3, 50 and one 350 ms frame, which is why the items are built in small batches",
+  "note2": "the baseline row shows the gate is noisy at about one cold run in four even with no rings in the reveal; the full gate above (the six changes) has no frame over 34 ms"
+ },
+ "afterTheChange": {
+  "note": "frames from 100 ms before the change's end to 2 s after it, home to work, three runs: one 33.3 to 33.4 ms frame at the end (the rings start to turn together), none over 34",
+  "max": [
+   33.3,
+   33.4,
+   33.3
+  ]
+ },
+ "finalBuildRun": {
+  "note": "the whole file again on the final build (after the landscape-phone CSS)",
+  "changes": [
+   {
+    "change": "home to work",
+    "animMs": 3564,
+    "commitFrame": 83.2,
+    "animMax": 33.4,
+    "animOver34": 0,
+    "animOver20": 2
+   },
+   {
+    "change": "work to home",
+    "animMs": 3537,
+    "commitFrame": 16.7,
+    "animMax": 16.8,
+    "animOver34": 0,
+    "animOver20": 0
+   },
+   {
+    "change": "home to work (2nd)",
+    "animMs": 3548,
+    "commitFrame": 66.7,
+    "animMax": 16.8,
+    "animOver34": 0,
+    "animOver20": 0
+   },
+   {
+    "change": "Back, work to home",
+    "animMs": 3549,
+    "commitFrame": 100,
+    "animMax": 16.8,
+    "animOver34": 0,
+    "animOver20": 0
+   },
+   {
+    "change": "Forward, home to work",
+    "animMs": 3560,
+    "commitFrame": 66.6,
+    "animMax": 33.4,
+    "animOver34": 0,
+    "animOver20": 1
+   }
+  ]
+ }
+}

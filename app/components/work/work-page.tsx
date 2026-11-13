@@ -1,10 +1,14 @@
-import type { MouseEvent } from "react";
+import { useState, type MouseEvent } from "react";
+import { isPageSettled } from "../../lib/page-change";
 import { usePageArrived } from "../../lib/use-page-settled";
 import type { SiteWork } from "../../types";
 import { introLine } from "./ring-layout";
 import Rings from "./rings";
 import { ROW_ID } from "./work-switcher";
 import "./work.css";
+
+/** A page that comes in through a change builds its rings 8 items every 50 ms: the 64 are in within 0.4 s, long before the reveal's edge reaches the first ring. */
+const RING_BATCHES = { items: 8, ms: 50 };
 
 interface WorkPageProps {
   work: SiteWork;
@@ -13,9 +17,14 @@ interface WorkPageProps {
 /**
  * The rings (`/work`): a fixed stage (the page does not scroll) with the moving ground, the intro in the
  * middle and the three rings round it. The dock and its row belong to the layout (`routes/work.tsx`).
+ * The rings and the intro are in the page from its first commit (R60): when the page comes in through a page
+ * change, the reveal shows them (`data-arrival="change"` leaves out their own fade-in, the reveal is the arrival).
  */
 export default function WorkPage({ work }: WorkPageProps) {
-  // Arriving during a page change: the rings (their pictures and their turning) mount once it is over, see Rings.
+  // Read once, when the page is made: a page made while a change runs comes in through its reveal. On the server and
+  // while hydrating nothing is changing, so it is false (the same markup both times).
+  const [byChange] = useState(() => typeof document !== "undefined" && !isPageSettled());
+  // False until that change is over: the rings stand still for the reveal and begin to turn together when it ends (work.css).
   const arrived = usePageArrived();
 
   // Twenty or so tab stops sit in the rings before the dock: this link goes straight to the dock's row.
@@ -25,7 +34,7 @@ export default function WorkPage({ work }: WorkPageProps) {
   };
 
   return (
-    <main className="work-page">
+    <main className="work-page" data-arrival={byChange ? "change" : undefined} data-still={arrived ? undefined : ""}>
       <a className="work-skip" href={`#${ROW_ID}`} onClick={skipToRow}>
         Skip to the work links
       </a>
@@ -37,7 +46,7 @@ export default function WorkPage({ work }: WorkPageProps) {
             <span className="work-text-short">{introLine(work.intro.text)}</span>
           </p>
         </div>
-        <Rings work={work} arrived={arrived} />
+        <Rings work={work} batches={byChange ? RING_BATCHES : null} arrived={arrived} />
       </div>
     </main>
   );

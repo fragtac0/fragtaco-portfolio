@@ -5,7 +5,7 @@ import { legacyViewTarget } from "../utils/nav";
 import type { loader as workLoader } from "./work";
 
 export const meta: MetaFunction = () => [
-  { title: "Work - FragTaco" },
+  { title: "My portfolio - FragTaco" },
 ];
 
 // Round 5 linked the in-page views as `/work?view=long`, `short` and `clients`: they go to the new addresses.

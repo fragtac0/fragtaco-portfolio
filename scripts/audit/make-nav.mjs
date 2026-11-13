@@ -39,7 +39,7 @@ const MARK = `document.querySelector('.return-mark').click()`;
 const BACK = `history.back()`;
 const FWD = `history.forward()`;
 
-const T = { work: "Work - FragTaco", long: "Long form - FragTaco", short: "Short form - FragTaco", exp: "My experience - FragTaco", home: "FragTaco - Aditya Bhoir" };
+const T = { work: "My portfolio - FragTaco", long: "Long form - FragTaco", short: "Short form - FragTaco", exp: "My experience - FragTaco", home: "FragTaco - Aditya Bhoir" };
 const at = (path, title, active, kind) => ({ path, title, active, kind });
 const WORK = at("/work", T.work, ["work=page"], "radial");
 const LONG = at("/work/long-form", T.long, ["long form=page", "work=true"], "radial");

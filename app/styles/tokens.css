@@ -45,6 +45,13 @@
   --tab-glow: 0 0 26px -6px rgba(252, 76, 0, 0.55);
   --tab-glow-hot: 0 0 28px -3px rgba(252, 76, 0, 0.8);
 
+  /* the glass tile under each app icon on /work (round 7, spec 7): an opaque dark warm body, a lit top edge, a soft inner glow, a real shadow */
+  --tile-body: linear-gradient(160deg, #38332e 0%, #231f1c 52%, #171513 100%);
+  --tile-glow: radial-gradient(110% 80% at 50% 0%, rgba(255, 226, 196, 0.2), rgba(255, 226, 196, 0) 62%);
+  --tile-edge: inset 0 1px 0 rgba(255, 240, 222, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.55);
+  --tile-inner: inset 0 0 14px rgba(255, 214, 170, 0.12);
+  --tile-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 12px 22px -6px rgba(0, 0, 0, 0.75), 0 3px 6px rgba(0, 0, 0, 0.5);
+
   /* a card (About, Credits) sliding in or out: about 700 ms on the painting's ease in and out (R58); app/components/home/cards/card-pose.ts PANEL_MS is the same number */
   --panel-ms: 700ms;
   --ease-panel: cubic-bezier(0.65, 0, 0.35, 1);

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SiteWork, WorkVideo } from "../../types";
+import { coverUrl } from "../../content/work-media";
 import { entriesFor } from "./ring-entries";
 
 const video = (id: string): WorkVideo => ({
@@ -38,6 +39,19 @@ describe("entriesFor", () => {
     const e = entriesFor(WORK);
     expect(e.long.every((x) => x.kind === "video" && !x.tall)).toBe(true);
     expect(e.short.every((x) => x.kind === "video" && x.tall)).toBe(true);
+  });
+
+  it("gives long form its YouTube picture and short form local art, so no ring needs an image service of its own", () => {
+    const work = {
+      ...WORK,
+      longForm: [{ ...video("l1"), source: "youtube" as const, url: "https://www.youtube.com/watch?v=9hkHhSmcA9s" }],
+    };
+    const e = entriesFor(work);
+    const [long] = e.long;
+    const [short] = e.short;
+    if (long.kind !== "video" || short.kind !== "video") throw new Error("not videos");
+    expect(coverUrl(long.item, long.tall)).toBe("https://i.ytimg.com/vi/9hkHhSmcA9s/hqdefault.jpg");
+    expect(coverUrl(short.item, short.tall)).toMatch(/^data:image\/svg\+xml,/);
   });
 
   it("copes with empty lists", () => {

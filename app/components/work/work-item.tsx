@@ -1,5 +1,6 @@
 import type { FocusEvent, PointerEvent } from "react";
 import { coverUrl } from "../../content/work-media";
+import { placeholderArt } from "../../content/placeholder-art";
 import { labelSide } from "./ring-layout";
 import type { RingEntry } from "./ring-entries";
 import type { RingKind } from "./ring-math";
@@ -31,6 +32,20 @@ function shapeIcon(img: HTMLImageElement | null) {
   if (!img || !img.complete || img.naturalWidth === 0) return;
   if (Math.abs(img.naturalWidth / img.naturalHeight - 1) > 0.05) img.dataset.bare = "";
   else delete img.dataset.bare;
+}
+
+// A video's picture (loaded at once, not lazily: during a page change the new page is not painted, and a lazy picture would
+// not start until the reveal had ended): it fades in once it has loaded (the tile shows its dark body until then, never a hole), and a
+// picture that cannot be loaded (a removed video, no network) is swapped for the local placeholder art, once.
+// Read from the picture's own state, since it may have settled before the page was hydrated.
+function shapeCover(img: HTMLImageElement | null, id: string, tall: boolean) {
+  if (!img || !img.complete) return;
+  if (img.naturalWidth > 0) {
+    img.dataset.ready = "";
+  } else if (!("fallback" in img.dataset)) {
+    img.dataset.fallback = "";
+    img.src = placeholderArt(id, tall);
+  }
 }
 
 /**
@@ -85,7 +100,16 @@ export default function WorkItem({ entry, ring, place }: WorkItemProps) {
         rel="noreferrer"
         aria-label={`${v.title}, for ${v.for}, ${v.year}`}
       >
-        <img src={coverUrl(v, entry.tall)} width={width} height={height} alt="" loading="lazy" decoding="async" />
+        <img
+          ref={(img) => shapeCover(img, v.id, entry.tall)}
+          src={coverUrl(v, entry.tall)}
+          width={width}
+          height={height}
+          alt=""
+          decoding="async"
+          onLoad={(e) => shapeCover(e.currentTarget, v.id, entry.tall)}
+          onError={(e) => shapeCover(e.currentTarget, v.id, entry.tall)}
+        />
       </a>
     );
   }
