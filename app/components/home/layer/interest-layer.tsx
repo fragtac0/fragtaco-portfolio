@@ -31,8 +31,11 @@ function insetFrom(el: HTMLElement | null): string {
 
 /** The poster dissolves over this long once the scene has drawn (layer.css `.layer-poster`). */
 const POSTER_FADE_MS = 350;
-/** A scene that never says it has drawn does not keep the poster up for ever. */
-const DRAWN_GIVE_UP_MS = 3000;
+/**
+ * A scene that has not drawn its first frame this long after the layer opened gives up on 3D: it
+ * switches to its plain grid (`gaveUp`), so a slow or hung scene never ends in a bare stage.
+ */
+const SCENE_GIVE_UP_MS = 1500;
 
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -52,8 +55,15 @@ type InterestLayerProps = {
    * The scene for the open kind. `active` is true from the end of the grow to the start of the
    * shrink. The scene calls `onDrawn` once its first real frame is on the screen (or at once if it
    * has no frame to wait for, like the plain grids): until then the layer shows the block's picture.
+   * `gaveUp` turns true if that has not happened by SCENE_GIVE_UP_MS after the layer opened: the
+   * scene then switches to its plain grid (which calls `onDrawn` at once) and stays on it.
    */
-  children: (scene: { kind: LayerKind; active: boolean; onDrawn: () => void }) => ReactNode;
+  children: (scene: {
+    kind: LayerKind;
+    active: boolean;
+    onDrawn: () => void;
+    gaveUp: boolean;
+  }) => ReactNode;
 };
 
 export default function InterestLayer({
@@ -70,6 +80,7 @@ export default function InterestLayer({
   const rootRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const posterRef = useRef<HTMLDivElement>(null);
+  const posterRect = useRef<{ left: number; top: number; width: number; height: number } | null>(null);
   const { kind, phase } = state;
   const live = phase === "growing" || phase === "open";
 
@@ -79,11 +90,29 @@ export default function InterestLayer({
   const [drawn, setDrawn] = useState(false);
   // (a scene only calls this once it is active, which is from the end of the grow)
   const onDrawn = useCallback(() => setDrawn(true), []);
+  // Past SCENE_GIVE_UP_MS with nothing drawn the scene is told to use its plain grid; the grid draws at
+  // once, so the poster never gives way to the bare stage.
+  const [gaveUp, setGaveUp] = useState(false);
   useEffect(() => {
     if (phase !== "open" || drawn) return;
-    const t = window.setTimeout(() => setDrawn(true), DRAWN_GIVE_UP_MS);
+    const t = window.setTimeout(() => setGaveUp(true), SCENE_GIVE_UP_MS);
     return () => window.clearTimeout(t);
   }, [phase, drawn]);
+
+  // The screen changed size (a window resize, a phone turned) while the poster still stands in for
+  // the scene: it covers the new screen. The clip is relative to the viewport, so it follows by itself.
+  useEffect(() => {
+    if (!live || drawn) return;
+    const onResize = () => {
+      const poster = posterRef.current;
+      const rect = posterRect.current;
+      if (!poster || !rect || !poster.classList.contains("go")) return;
+      poster.style.transition = "none";
+      poster.style.transform = posterTransform(posterPose(rect, window.innerWidth, window.innerHeight));
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [live, drawn]);
 
   // Callbacks and the origin block are read at fire time, so the effects below only
   // restart on a phase change.
@@ -106,6 +135,7 @@ export default function InterestLayer({
     if (poster && block) {
       const r = block.getBoundingClientRect();
       const rect = { left: r.left, top: r.top, width: r.width, height: r.height };
+      posterRect.current = rect;
       poster.replaceChildren(cloneBlock(block, rect));
       Object.assign(poster.style, {
         left: `${rect.left}px`,
@@ -253,7 +283,7 @@ export default function InterestLayer({
         <div key={k} className={`xp-pane ${PANE_CLASS[k]}${k === kind ? " on" : ""}`}>
           <div className="tex" />
           <div className="stage">
-            {k === kind ? children({ kind: k, active: phase === "open", onDrawn }) : null}
+            {k === kind ? children({ kind: k, active: phase === "open", onDrawn, gaveUp }) : null}
           </div>
         </div>
       ))}

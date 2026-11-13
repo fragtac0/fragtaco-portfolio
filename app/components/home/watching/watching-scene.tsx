@@ -18,6 +18,8 @@ type WatchingSceneProps = {
   active: boolean;
   /** Called once the wall's first frame is on the screen: the layer swaps the block's picture for the scene. */
   onDrawn: () => void;
+  /** The layer waited too long for the first frame: switch to the plain grid and stay on it. */
+  gaveUp: boolean;
 };
 
 /**
@@ -28,10 +30,10 @@ type WatchingSceneProps = {
  * While a video is open the wall behind it stays drawn (spread and dimmed) but is `inert`, and the
  * layer's own header is hidden (through the layer context). Once the layer is active the engine
  * prepares urgently. The layer shows the block's own picture until `onDrawn` is called, which is
- * when the wall's first frame has been drawn (or the plain grid is up). A lost graphics context
- * switches to the plain grid.
+ * when the wall's first frame has been drawn (or the plain grid is up). A lost graphics context, or
+ * the layer giving up on a first frame that is too late (`gaveUp`), switches to the plain grid for good.
  */
-function WatchingScene({ engine, videos, picks, active, onDrawn }: WatchingSceneProps) {
+function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: WatchingSceneProps) {
   const { registerSceneHooks, setHeaderHidden } = useLayerControl();
   const sceneRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -51,6 +53,13 @@ function WatchingScene({ engine, videos, picks, active, onDrawn }: WatchingScene
   useEffect(() => {
     drawn.current = onDrawn;
   });
+  // The first frame has been drawn: a late `gaveUp` is then ignored, and a first frame that comes
+  // after the grid has taken over is ignored too (`live` in the start effect), so the view never
+  // flips back from the grid to the 3D scene.
+  const drew = useRef(false);
+  useEffect(() => {
+    if (gaveUp && !drew.current) setFallback(true);
+  }, [gaveUp]);
 
   // The layer is open and waiting: do not yield to idle time while the wall is prepared. Not while
   // it grows: the clip-path grow runs on the main thread and back-to-back slices would cut into it.
@@ -86,7 +95,9 @@ function WatchingScene({ engine, videos, picks, active, onDrawn }: WatchingScene
     void engine
       .start({
         onFirstFrame: () => {
-          if (live) drawn.current();
+          if (!live) return;
+          drew.current = true;
+          drawn.current();
         },
       })
       .then(() => {

@@ -14,6 +14,8 @@ type ReadingSceneProps = {
   active: boolean;
   /** Called once the shelf's first frame is on the screen: the layer swaps the block's picture for the scene. */
   onDrawn: () => void;
+  /** The layer waited too long for the first frame: switch to the plain grid and stay on it. */
+  gaveUp: boolean;
 };
 
 /**
@@ -23,9 +25,9 @@ type ReadingSceneProps = {
  * is active (open and waiting) the engine prepares urgently. The layer shows the block's own
  * picture until `onDrawn` is called, which is when the shelf's first frame has been drawn (the
  * books stand in place at once, as the picture showed them; with no 3D shelf, as soon as the plain
- * grid is up).
+ * grid is up). If the first frame is too late (`gaveUp`) the plain grid takes over for good.
  */
-function ReadingScene({ engine, books, active, onDrawn }: ReadingSceneProps) {
+function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingSceneProps) {
   const { registerSceneHooks } = useLayerControl();
   const hostRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
@@ -39,6 +41,13 @@ function ReadingScene({ engine, books, active, onDrawn }: ReadingSceneProps) {
   useEffect(() => {
     drawn.current = onDrawn;
   });
+  // The first frame has been drawn: a late `gaveUp` is then ignored, and a first frame that comes
+  // after the grid has taken over is ignored too (`live` in the start effect), so the view never
+  // flips back from the grid to the 3D scene.
+  const drew = useRef(false);
+  useEffect(() => {
+    if (gaveUp && !drew.current) setFallback(true);
+  }, [gaveUp]);
 
   // The layer is open and waiting: do not yield to idle time while the shelf is prepared. Not while
   // it grows: the clip-path grow runs on the main thread and back-to-back slices would cut into it.
@@ -77,10 +86,10 @@ function ReadingScene({ engine, books, active, onDrawn }: ReadingSceneProps) {
     let live = true;
     void engine
       .start({
-        // the picture the layer showed already had the books standing: no drop-in over it
-        skipIntro: true,
         onFirstFrame: () => {
-          if (live) drawn.current();
+          if (!live) return;
+          drew.current = true;
+          drawn.current();
         },
       })
       .then(() => {

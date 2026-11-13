@@ -67,7 +67,6 @@ export function createWall(
   let uvs: Array<[number, number, number, number]> = [];
 
   let building: Promise<void> | null = null;
-  let built = false;
   let failed = false;
   let disposed = false;
   let els: WallEls | null = null;
@@ -118,7 +117,6 @@ export function createWall(
           const d = Math.min(window.devicePixelRatio || 1, 2);
           canvas.width = Math.round(window.innerWidth * d);
           canvas.height = Math.round(window.innerHeight * d);
-          built = true;
         },
       ])
       .catch((err: unknown) => {
@@ -296,7 +294,6 @@ export function createWall(
     unmount,
 
     hasFailed: () => failed || lost.lost(),
-    ready: () => built,
     setUrgent: (on) => slicer.setUrgent(on),
     onLost: lost.subscribe,
 

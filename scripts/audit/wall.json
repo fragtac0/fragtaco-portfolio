@@ -638,5 +638,289 @@
    ]
   },
   "label": "R49.2 wall close, 1440x900 reduced motion: no frame is the plain ground"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');}catch(e){}",
+  "go": "{{BASE}}/?nogl=1",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkWatch');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "wait": 3500,
+  "label": "?nogl=1 wall: scroll to the block"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkWatch",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=watching]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-watching-nogl-open",
+   "ats": [
+    0,
+    250,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2b wall open with ?nogl=1 (poster, then the plain grid at open): no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0,grid:!!(l&&l.querySelector('.fb-grid')),canvas:!!(l&&l.querySelector('canvas')),ready:!!(l&&l.classList.contains('ready')),posterEmpty:!(document.querySelector('.layer-poster')||{}).firstChild})})()",
+  "label": "R49.2b wall open with ?nogl=1 (poster, then the plain grid at open): no frame is the plain ground (read)"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkWatch",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-watching-nogl-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2b wall close with ?nogl=1 (the grid shrinks): no frame is the plain ground"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-stall','hang')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkWatch');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "wait": 3500,
+  "label": "R49.2b wall stalled for ever (prepare never finishes): poster, then the plain grid, no bare frame: scroll to the block"
+ },
+ {
+  "film": {
+   "ms": 4500,
+   "rect": "#blkWatch",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=watching]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-watching-stall-hang-open",
+   "ats": [
+    0,
+    400,
+    900,
+    1500,
+    2000,
+    2300,
+    2600,
+    3000,
+    3500,
+    4000
+   ]
+  },
+  "label": "R49.2b wall stalled for ever (prepare never finishes): poster, then the plain grid, no bare frame"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0,grid:!!(l&&l.querySelector('.fb-grid')),canvas:!!(l&&l.querySelector('canvas')),ready:!!(l&&l.classList.contains('ready')),posterEmpty:!(document.querySelector('.layer-poster')||{}).firstChild})})()",
+  "label": "R49.2b wall stalled for ever (prepare never finishes): poster, then the plain grid, no bare frame (read: grid shown, no 3D canvas, drawnAtMs about 680 + 1500)"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkWatch",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-watching-stall-hang-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2b wall stalled for ever (prepare never finishes): poster, then the plain grid, no bare frame close: no frame is the plain ground"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-stall','12500')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkWatch');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "wait": 3500,
+  "label": "R49.2b wall stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame: scroll to the block"
+ },
+ {
+  "film": {
+   "ms": 4500,
+   "rect": "#blkWatch",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=watching]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-watching-stall-late-open",
+   "ats": [
+    0,
+    400,
+    900,
+    1500,
+    2000,
+    2300,
+    2600,
+    3000,
+    3500,
+    4000
+   ]
+  },
+  "label": "R49.2b wall stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0,grid:!!(l&&l.querySelector('.fb-grid')),canvas:!!(l&&l.querySelector('canvas')),ready:!!(l&&l.classList.contains('ready')),posterEmpty:!(document.querySelector('.layer-poster')||{}).firstChild})})()",
+  "label": "R49.2b wall stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame (read: grid shown, no 3D canvas, drawnAtMs about 680 + 1500)"
+ },
+ {
+  "wait": 3000
+ },
+ {
+  "eval": "JSON.stringify({sincePageStartMs:Math.round(performance.now()),gridStill:!!document.querySelector('.home-layer .fb-grid'),canvas:!!document.querySelector('.home-layer canvas')})",
+  "label": "R49.2b wall stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame: the late first frame came and the view did not flip back (grid still, no canvas)"
+ },
+ {
+  "wait": 5000
+ },
+ {
+  "eval": "JSON.stringify({sincePageStartMs:Math.round(performance.now()),gridStill:!!document.querySelector('.home-layer .fb-grid'),canvas:!!document.querySelector('.home-layer canvas')})",
+  "label": "R49.2b wall stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame: the late first frame came and the view did not flip back (grid still, no canvas) (again, 5 s later, past 12.5 s plus the time the preparation was asked for)"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkWatch",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-watching-stall-late-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2b wall stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame close: no frame is the plain ground"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-stall','hang')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkWatch');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "wait": 3500,
+  "label": "R49.2b wall resize while the picture stands in: scroll to the block"
+ },
+ {
+  "eval": "(()=>{document.querySelector('[data-xp=watching]').click();return new Promise(r=>{const t=performance.now();const f=()=>performance.now()-t>800?r(1):requestAnimationFrame(f);f()})})()",
+  "label": "open (stalled), 0.8 s in"
+ },
+ {
+  "eval": "(()=>{const r=document.querySelector('.layer-poster').getBoundingClientRect();return JSON.stringify({vw:innerWidth,vh:innerHeight,left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom),covers:r.left<=0.5&&r.top<=0.5&&r.right>=innerWidth-0.5&&r.bottom>=innerHeight-0.5,hasPicture:!!document.querySelector('.layer-poster').firstChild})})()",
+  "label": "R49.2b wall resize while the picture stands in: at 1440 by 900 the picture covers the screen"
+ },
+ {
+  "size": [
+   900,
+   700
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false
+ },
+ {
+  "eval": "new Promise(r=>{const t=performance.now();const f=()=>performance.now()-t>300?r(1):requestAnimationFrame(f);f()}).then(()=>(()=>{const r=document.querySelector('.layer-poster').getBoundingClientRect();return JSON.stringify({vw:innerWidth,vh:innerHeight,left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom),covers:r.left<=0.5&&r.top<=0.5&&r.right>=innerWidth-0.5&&r.bottom>=innerHeight-0.5,hasPicture:!!document.querySelector('.layer-poster').firstChild})})())",
+  "label": "R49.2b wall resize while the picture stands in: after resizing to 900 by 700 it covers the screen"
+ },
+ {
+  "size": [
+   420,
+   860
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false
+ },
+ {
+  "eval": "new Promise(r=>{const t=performance.now();const f=()=>performance.now()-t>300?r(1):requestAnimationFrame(f);f()}).then(()=>(()=>{const r=document.querySelector('.layer-poster').getBoundingClientRect();return JSON.stringify({vw:innerWidth,vh:innerHeight,left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom),covers:r.left<=0.5&&r.top<=0.5&&r.right>=innerWidth-0.5&&r.bottom>=innerHeight-0.5,hasPicture:!!document.querySelector('.layer-poster').firstChild})})())",
+  "label": "R49.2b wall resize while the picture stands in: after resizing to 420 by 860 it covers the screen"
+ },
+ {
+  "size": [
+   2200,
+   1300
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false
+ },
+ {
+  "eval": "new Promise(r=>{const t=performance.now();const f=()=>performance.now()-t>300?r(1):requestAnimationFrame(f);f()}).then(()=>(()=>{const r=document.querySelector('.layer-poster').getBoundingClientRect();return JSON.stringify({vw:innerWidth,vh:innerHeight,left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom),covers:r.left<=0.5&&r.top<=0.5&&r.right>=innerWidth-0.5&&r.bottom>=innerHeight-0.5,hasPicture:!!document.querySelector('.layer-poster').firstChild})})())",
+  "label": "R49.2b wall resize while the picture stands in: after resizing to 2200 by 1300 (larger than the screen it opened on, where a stale pose would leave bare strips) it covers the screen"
  }
 ]

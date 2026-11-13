@@ -26,6 +26,25 @@ const RELAXED_TIMEOUT_MS = 1200;
 /** The most work an urgent run does in one animation frame (it stops once this much has passed). */
 const URGENT_FRAME_BUDGET_MS = 8;
 
+/**
+ * An audit hook (sessionStorage "ft:debug-stall"): "hang" makes every sliced run (the scenes'
+ * preparation) never finish, a number of milliseconds delays its start by that long. Anything else
+ * (or nothing) is no stall, 0.
+ */
+export function parseStall(value: string | null): number {
+  if (value === "hang") return Infinity;
+  const ms = Number(value);
+  return value !== null && value.trim() !== "" && Number.isFinite(ms) && ms > 0 ? ms : 0;
+}
+
+function debugStall(): number {
+  try {
+    return parseStall(window.sessionStorage.getItem("ft:debug-stall"));
+  } catch {
+    return 0;
+  }
+}
+
 export type Slicer = {
   /** Runs the steps in order, never more than one per idle callback (relaxed) or ~8 ms per frame (urgent). Rejects with a step's error. */
   run(steps: Array<() => void>): Promise<void>;
@@ -41,6 +60,21 @@ export type Slicer = {
  * next step boundary when urgency ends.
  */
 export function createSlicer(): Slicer {
+  const slicer = createSteppedSlicer();
+  return {
+    run(steps) {
+      const stall = debugStall();
+      if (stall === Infinity) return new Promise<void>(() => {});
+      if (stall > 0) {
+        return new Promise<void>((go) => window.setTimeout(go, stall)).then(() => slicer.run(steps));
+      }
+      return slicer.run(steps);
+    },
+    setUrgent: (on) => slicer.setUrgent(on),
+  };
+}
+
+function createSteppedSlicer(): Slicer {
   let urgent = false;
   const rewaits = new Set<() => void>();
 

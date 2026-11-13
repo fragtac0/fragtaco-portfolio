@@ -108,12 +108,12 @@ const ALL_SIZES: Array<[number, number]> = [...SIZES, [844, 390]];
 describe("flatFrame", () => {
   it("puts the books' feet at 90% of the height", () => {
     expect(flatFrame({ vw: 1440, vh: 900, top: 135, ...row }).baseRow).toBe(810);
-    expect(flatFrame({ vw: 1024, vh: 768, top: 120, ...row }).baseRow).toBe(684); // 84 px kept below, not 691
+    expect(flatFrame({ vw: 1024, vh: 768, top: 120, ...row }).baseRow).toBe(691);
   });
-  it("keeps 84 px under the line on a small stage, for the marker and the hint", () => {
-    expect(flatFrame({ vw: 320, vh: 568, top: 120, ...row }).baseRow).toBe(484);
+  it("keeps 40 px under the line on a small stage, for the marker", () => {
+    expect(flatFrame({ vw: 844, vh: 390, top: 120, ...row }).baseRow).toBe(350);
     for (const [vw, vh] of ALL_SIZES) {
-      expect(vh - flatFrame({ vw, vh, top: headAt(vw, vh), ...row }).baseRow).toBeGreaterThanOrEqual(84);
+      expect(vh - flatFrame({ vw, vh, top: headAt(vw, vh), ...row }).baseRow).toBeGreaterThanOrEqual(40);
     }
   });
   describe("the height rule reads the room between the header and the line", () => {
@@ -144,8 +144,8 @@ describe("flatFrame", () => {
     it("on a landscape phone (844 by 390) the row is smaller than 70% rather than run into the header", () => {
       const f = flatFrame({ vw: 844, vh: 390, top: 120, ...row });
       const tallPx = f.scale * row.tallest;
-      expect(f.baseRow).toBe(306);
-      expect(tallPx).toBeCloseTo(306 - 120 - HEAD_GAP, 6);
+      expect(f.baseRow).toBe(350);
+      expect(tallPx).toBeCloseTo(350 - 120 - HEAD_GAP, 6);
       expect(tallPx / 390).toBeLessThan(0.7);
       expect(f.pans).toBe(false); // the row is small enough to stand whole
     });

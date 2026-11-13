@@ -126,6 +126,7 @@
   overflow: hidden;
   transform-origin: 50% 50%;
   pointer-events: none;
+  /* kept: looked at with and without it (R49.2b), the grown copy is just as sharp once the grow ends (Chrome draws it again at the new size) and it grows on its own layer */
   will-change: transform, opacity;
   transition: none;
 }

@@ -168,9 +168,15 @@ export default function HomePage({
             onGrown={() => dispatchLayer({ type: "grown" })}
             onShrunk={() => dispatchLayer({ type: "shrunk" })}
           >
-            {({ kind, active, onDrawn }) =>
+            {({ kind, active, onDrawn, gaveUp }) =>
               kind === "reading" ? (
-                <ReadingScene engine={shelf} books={books} active={active} onDrawn={onDrawn} />
+                <ReadingScene
+                  engine={shelf}
+                  books={books}
+                  active={active}
+                  onDrawn={onDrawn}
+                  gaveUp={gaveUp}
+                />
               ) : (
                 <WatchingScene
                   engine={wall}
@@ -178,6 +184,7 @@ export default function HomePage({
                   picks={wallPicks}
                   active={active}
                   onDrawn={onDrawn}
+                  gaveUp={gaveUp}
                 />
               )
             }

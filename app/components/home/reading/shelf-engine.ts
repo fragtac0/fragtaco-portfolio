@@ -305,9 +305,8 @@ export function createShelf(
       if (!gl || lost.lost()) return; // the scene switches to its plain grid
 
       fit();
-      // a skipped drop-in starts past its end
-      const skipped = opts?.skipIntro ? intro() + 0.4 : 0;
-      st.t0 = performance.now() - skipped * 1000;
+      // the books stand in place: start past the end of the drop-in
+      st.t0 = performance.now() - (intro() + 0.4) * 1000;
       cam.x = initialCamX(gl.maxX, canvas.clientWidth < NARROW_PX);
       cam.xV = st.flickV = 0;
       for (const b of gl.books) b.anim = newBag();
@@ -328,7 +327,6 @@ export function createShelf(
     hasOpen: () => !!st.opened,
     hasFailed: () => failed || lost.lost(),
     onLost: lost.subscribe,
-    ready: () => !!gl,
     setUrgent: (on) => slicer.setUrgent(on),
     closeBook: () => closeBook(true),
     focusNext,
