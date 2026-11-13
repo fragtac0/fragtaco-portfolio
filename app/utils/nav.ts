@@ -30,3 +30,13 @@ export function legacyViewTarget(search: string): string | null {
   if (view === "clients") return "/work";
   return null;
 }
+
+/** A path without its trailing slashes (the root stays `/`). */
+export const bare = (path: string) => (path.length > 1 ? path.replace(/\/+$/, "") : path);
+
+/** Whether a link points at the page that is open: pressing it does nothing (no navigation, no page change). A link with a
+ * query or a hash points somewhere else on the page, so it is not this. */
+export function isOpenAddress(to: string, pathname: string): boolean {
+  if (/[?#]/.test(to)) return false;
+  return bare(to) === bare(pathname);
+}

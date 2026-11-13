@@ -1,7 +1,7 @@
 import { useEffect, useRef, type MutableRefObject } from "react";
 import { INTRO_KEY, introMode, joinLoader } from "../../../lib/intro-session";
 import { createTimers, must, prefersReducedMotion, type HeroRuntime } from "./hero-runtime";
-import { INTRO_LOCK_MS, LOADER, loaderSchedule, revealPlan, type LoaderStep, type RevealPlan } from "./loader-timeline";
+import { LOADER, loaderSchedule, revealPlan, type LoaderStep, type RevealPlan } from "./loader-timeline";
 import { REVEAL_TRIES } from "./painting-cycle";
 import type { PaintingCycle } from "./use-painting-cycle";
 
@@ -70,7 +70,7 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef, s
     // The head script's clock (undefined when it never ran: a client navigation). A bundle that
     // joins after the lock bound, or after the failsafe unlocked the page, takes the skipped form
     // and never locks the page again (see joinLoader).
-    let t0 = window.__introT0;
+    const t0 = window.__introT0;
     const joined = joinLoader({
       mode,
       t0,
@@ -126,6 +126,7 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef, s
       fireReady();
       // the final look and the dock are in place for the page change's picture; the painting follows with the engine
       if (!paint || !cycle) return;
+      cycle.holdWords();
       const recalled = cycle.recalled();
       if (recalled) {
         // coming back from another page: the last painting, with no network (its still frame is on screen
@@ -145,16 +146,7 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef, s
       // the loader starts when the engine is up, which is when the page change is over
       if (!paint || !cycle) return;
       root.dataset.js = "";
-      if (joined === "client") {
-        // client navigation to "/": the head script never ran, so this hero locks the page itself
-        // (which also starts the name's CSS now) and owns the failsafe, cleared on unmount and
-        // harmless once `done` has unlocked
-        html.classList.add("intro");
-        t0 = performance.now();
-        window.__introT0 = t0;
-        later(INTRO_LOCK_MS, () => html.classList.remove("intro"));
-      }
-      // time zero of the loader: when the name's CSS started (the head script's clock)
+      // time zero of the loader: when the name's CSS started (the head script's clock; a join has one)
       const start = t0 ?? performance.now();
       const clock = () => performance.now() - start;
       window.scrollTo(0, 0);

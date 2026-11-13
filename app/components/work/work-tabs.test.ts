@@ -42,10 +42,16 @@ describe("activeTab", () => {
 });
 
 describe("rowTarget", () => {
-  it("goes to the tab's address, and back to the rings from the active tab", () => {
+  it("goes to the tab's address, and nowhere from the tab that is already open", () => {
     expect(rowTarget("/work/long-form", "/work")).toBe("/work/long-form");
     expect(rowTarget("/work/long-form", "/work/short-form")).toBe("/work/long-form");
-    expect(rowTarget("/work/long-form", "/work/long-form")).toBe("/work");
-    expect(rowTarget("/experience", "/experience")).toBe("/work");
+    expect(rowTarget("/work/long-form", "/")).toBe("/work/long-form");
+    expect(rowTarget("/work/long-form", "/work/long-form")).toBeNull();
+    expect(rowTarget("/experience", "/experience")).toBeNull();
+  });
+
+  it("reads a trailing slash as the same address", () => {
+    expect(rowTarget("/work/short-form", "/work/short-form/")).toBeNull();
+    expect(rowTarget("/work/short-form/", "/work/short-form")).toBeNull();
   });
 });

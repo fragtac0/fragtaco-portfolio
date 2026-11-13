@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeNavKey, isHomeSectionId, legacyViewTarget, tabCurrent } from "./nav";
+import { activeNavKey, bare, isHomeSectionId, isOpenAddress, legacyViewTarget, tabCurrent } from "./nav";
 
 describe("activeNavKey", () => {
   it("reads the home page as home", () => {
@@ -64,5 +64,30 @@ describe("legacyViewTarget", () => {
     expect(legacyViewTarget("?view=all")).toBeNull();
     expect(legacyViewTarget("?view=other")).toBeNull();
     expect(legacyViewTarget("?x=1")).toBeNull();
+  });
+});
+
+describe("bare", () => {
+  it("drops trailing slashes and keeps the root", () => {
+    expect(bare("/work/")).toBe("/work");
+    expect(bare("/work//")).toBe("/work");
+    expect(bare("/")).toBe("/");
+    expect(bare("/work/long-form")).toBe("/work/long-form");
+  });
+});
+
+describe("isOpenAddress", () => {
+  it("is true when a link points at the page that is open, with or without a trailing slash", () => {
+    expect(isOpenAddress("/work", "/work")).toBe(true);
+    expect(isOpenAddress("/work/", "/work")).toBe(true);
+    expect(isOpenAddress("/work", "/work/")).toBe(true);
+    expect(isOpenAddress("/", "/")).toBe(true);
+  });
+
+  it("is false for another page, and for a link with a query or a hash (a different place on the page)", () => {
+    expect(isOpenAddress("/work", "/")).toBe(false);
+    expect(isOpenAddress("/work/long-form", "/work")).toBe(false);
+    expect(isOpenAddress("/work?view=long", "/work")).toBe(false);
+    expect(isOpenAddress("/#about", "/")).toBe(false);
   });
 });

@@ -9,7 +9,7 @@ import type { Book } from "./shelf-scene-types";
  * most 78% of the height and under the layer's header, the row at most 88% of the width, the row
  * pans when that would make it smaller than 70%), puts the line the books stand on at its row, and works out how far the camera
  * may pan, how much of the row is on screen, and where the position marker goes (just under the
- * line, where the flat placeholder draws it), and has the spines repainted at their new size on
+ * line), and has the spines repainted at their new size on
  * screen (`fitSpines`). Nothing happens when the size and the header's height are
  * unchanged since the last call. An open book is put back first, because its pose was laid out for the old size.
  */

@@ -5,11 +5,11 @@ export type ShelfEngine = {
   prepare(): Promise<void>;
   mount(els: ShelfEls): void;
   /**
-   * Starts the loop once the scene is built. `skipIntro` places the books without the drop-in (a
-   * placeholder already showed them); `onFirstFrame` is called once, right after the first frame
-   * has been drawn.
+   * Starts the loop once the scene is built. The books stand in place (the layer's picture of the
+   * block already showed them, so there is no drop-in); `onFirstFrame` is called once, right after
+   * the first frame has been drawn.
    */
-  start(opts?: { skipIntro?: boolean; onFirstFrame?: () => void }): Promise<void>;
+  start(opts?: { onFirstFrame?: () => void }): Promise<void>;
   stop(): void;
   unmount(): void;
   hasOpen(): boolean;
@@ -17,8 +17,6 @@ export type ShelfEngine = {
   hasFailed(): boolean;
   /** Called once when the graphics context is lost (the scene switches to its plain grid). */
   onLost(cb: () => void): () => void;
-  /** The scene is built, so `start()` shows it on the next frame. */
-  ready(): boolean;
   /** Urgent: preparation stops yielding to idle time and runs in short slices every frame. */
   setUrgent(on: boolean): void;
   closeBook(): void;

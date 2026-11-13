@@ -6,7 +6,7 @@ import { attachShelfInput, createShelfInput } from "./shelf-input";
 import { createOpenPath, type ShelfCtx, type ShelfEls, type ShelfState } from "./shelf-open";
 import type { ShelfEngine } from "./shelf-engine-types";
 import { createAnimate, poseBooks } from "./shelf-pose";
-import { createMarkerSync, hintText, HINT_NO_GL } from "./shelf-hud";
+import { createMarkerSync } from "./shelf-hud";
 import { fitShelf, readCovers } from "./shelf-fit";
 import { buildShelfScene, loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
 import { loadSpinePhotos, retintSpine, stepSpineFades } from "./shelf-spines";
@@ -22,7 +22,7 @@ import { clamp, flick, initialCamX, introSeconds, NARROW_PX } from "./shelf-math
  * three.js is only ever loaded with `import("three")`, inside `prepare()`, so it is its own chunk.
  * The engine owns its canvas: `prepare()` builds the whole scene in idle time while no layer is
  * mounted, so the layer opens onto a warm scene; once the layer is open and waiting, `setUrgent()`
- * makes the same steps run back to back (about 8 ms a frame) while a flat placeholder stands in.
+ * makes the same steps run back to back (about 8 ms a frame) while the layer shows the block's picture.
  * `mount()` puts the canvas into the layer and wires the overlays, `unmount()` takes it out again
  * but keeps the GL scene for an instant re-open, and `dispose()` (when the home page goes away)
  * frees everything. A lost graphics context makes `hasFailed()` true and calls `onLost` listeners.
@@ -32,7 +32,7 @@ import { clamp, flick, initialCamX, introSeconds, NARROW_PX } from "./shelf-math
  * while the row stays put and dims to 70%; the note shows beside it (shelf-open.ts, shelf-lift.ts).
  *
  * The per-frame book poses are shelf-pose.ts, the open-book path is shelf-open.ts, the real covers
- * shelf-covers.ts, the scene shelf-scene.ts, the sizing shelf-fit.ts, the hint and position marker
+ * shelf-covers.ts, the scene shelf-scene.ts, the sizing shelf-fit.ts, the position marker
  * shelf-hud.ts and the listeners (keyboard, drag, wheel) shelf-input.ts; this file keeps the state,
  * the frame (including the flick after a drag) and the lifecycle.
  */
@@ -47,7 +47,7 @@ const STAGE_LABEL = "Bookshelf. Use left and right arrows to browse, Enter to op
 /** Client only: creates a canvas. The scene is built later, by `prepare()`. */
 export function createShelf(
   books: SiteBook[],
-  opts: { fine: boolean; reducedMotion: boolean },
+  opts: { reducedMotion: boolean },
 ): ShelfEngine {
   const reduced = opts.reducedMotion;
   const canvas = document.createElement("canvas");
@@ -289,7 +289,6 @@ export function createShelf(
       els = next;
       next.host.appendChild(canvas);
       st.fitW = 0; // a new mount refits: the marker and camera limits are for this stage
-      next.hint.textContent = hintText(opts.fine, canvas.clientWidth < NARROW_PX);
       setNote(false);
       const ac = (listeners = new AbortController());
       attachShelfInput(canvas, handlers, ac.signal);
@@ -303,14 +302,11 @@ export function createShelf(
       onFirstFrame = opts?.onFirstFrame ?? null;
       await prepare();
       if (my !== runToken || !els) return;
-      if (!gl || lost.lost()) {
-        els.hint.textContent = HINT_NO_GL;
-        return;
-      }
+      if (!gl || lost.lost()) return; // the scene switches to its plain grid
+
       fit();
-      // a skipped drop-in starts past its end
-      const skipped = opts?.skipIntro ? intro() + 0.4 : 0;
-      st.t0 = performance.now() - skipped * 1000;
+      // the books stand in place: start past the end of the drop-in
+      st.t0 = performance.now() - (intro() + 0.4) * 1000;
       cam.x = initialCamX(gl.maxX, canvas.clientWidth < NARROW_PX);
       cam.xV = st.flickV = 0;
       for (const b of gl.books) b.anim = newBag();
@@ -331,7 +327,6 @@ export function createShelf(
     hasOpen: () => !!st.opened,
     hasFailed: () => failed || lost.lost(),
     onLost: lost.subscribe,
-    ready: () => !!gl,
     setUrgent: (on) => slicer.setUrgent(on),
     closeBook: () => closeBook(true),
     focusNext,

@@ -14,6 +14,9 @@
 import { kenBurnsZoom } from "./ken-burns";
 import { takeBitmap } from "./paint-bitmaps";
 import { openPaintGl } from "./paint-gl";
+import { REDUCED_REVEAL_MS, revealDuration, runProgress } from "./paint-progress";
+
+export { REDUCED_REVEAL_MS };
 
 export interface PaintMeta {
   /** Focus point of the cover fit, each axis 0..1. */
@@ -33,6 +36,8 @@ export interface PaintEngine {
   swap(img: HTMLImageElement, meta: PaintMeta, ms: number, done?: () => void, opts?: SwapOptions): void;
   setBlur(v: 0 | 1): void;
   busy(): boolean;
+  /** True once a painting has been handed over (`reveal` or `swap`): from then a drawn frame shows it, not the bare black. */
+  hasPicture(): boolean;
   moving(): boolean;
   pause(now: number): void;
   resume(now: number): void;
@@ -50,10 +55,7 @@ interface TexMeta {
   born: number;
 }
 
-const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 
-/** Reduced motion: the first reveal is a plain fade of this length, and a change a plain crossfade. */
-export const REDUCED_REVEAL_MS = 400;
 export const REDUCED_SWAP_MS = 800;
 
 /** Returns null without WebGL, or when the shaders fail to compile or link. */
@@ -110,7 +112,7 @@ export function createPaint(
       put(cur, img, m);
       mode = "reveal";
       t0 = performance.now();
-      dur = reduce ? REDUCED_REVEAL_MS : ms;
+      dur = revealDuration(ms, reduce);
       done = cb;
     },
     swap(img, m, ms, cb, opts) {
@@ -125,6 +127,7 @@ export function createPaint(
       dir = [Math.cos(a), Math.sin(a)];
     },
     busy: () => !disposed && (mode === "reveal" || mode === "sweep"),
+    hasPicture: () => !disposed && mode !== "black",
     setBlur(v) {
       if (disposed) return;
       blurTo = v;
@@ -171,7 +174,7 @@ export function createPaint(
         md = 0;
         hasA = 0;
       } else if (mode === "reveal") {
-        const k = clamp((now - t0) / dur);
+        const k = runProgress(now, t0, dur);
         pr = reduce ? k : 1 - Math.pow(1 - k, 2.2);
         md = reduce ? 2 : 0; // 2: plain crossfade
         hasA = 0;
@@ -181,7 +184,7 @@ export function createPaint(
           done?.();
         }
       } else if (mode === "sweep") {
-        const k = clamp((now - t0) / dur);
+        const k = runProgress(now, t0, dur);
         pr = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
         if (reduce || plain) {
           pr = k * k * (3 - 2 * k);

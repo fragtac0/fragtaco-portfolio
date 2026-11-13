@@ -1,0 +1,33 @@
+/* The dock's tabs share equal columns and the pill that marks the active one is a single element behind them, one column
+ * wide, moved to the active tab's column by a transform (dock-nav.tsx sets --dock-lit to the tab's index). One ease, no
+ * spring, so the highlight slides between tabs and never overshoots. The pill is placed against the dock, not the screen,
+ * so the dock rising or sinking under it (the home dock rises after a page change) does not move it. Reduced motion:
+ * the pill is simply on the new tab. */
+.dock-tabs {
+  --dock-gap: 0.125rem; /* the one gap: the grid uses it and the pill is placed by it */
+  gap: var(--dock-gap);
+}
+@media (min-width: 640px) {
+  .dock-tabs {
+    --dock-gap: 0.25rem;
+  }
+}
+.dock-pill {
+  --dock-pill-ms: 360ms;
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: calc((100% - (var(--dock-count) - 1) * var(--dock-gap)) / var(--dock-count));
+  transform: translateX(calc(var(--dock-lit) * (100% + var(--dock-gap))));
+  transition: transform var(--dock-pill-ms) var(--dock-row-ease);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 9999px;
+  background: var(--accent-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 236, 214, 0.18), var(--glow);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dock-pill {
+    transition: none;
+  }
+}

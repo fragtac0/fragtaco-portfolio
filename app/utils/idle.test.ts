@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createSlicer, idleSlice, whenIdle } from "./idle";
+import { createSlicer, idleSlice, parseStall, whenIdle } from "./idle";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -206,5 +206,17 @@ describe("createSlicer", () => {
   it("resolves at once with no steps", async () => {
     fakeBrowser();
     await createSlicer().run([]);
+  });
+});
+
+describe("parseStall (the audit's stall hook)", () => {
+  it("reads hang as for ever, a number as milliseconds, anything else as none", () => {
+    expect(parseStall("hang")).toBe(Infinity);
+    expect(parseStall("2500")).toBe(2500);
+    expect(parseStall(null)).toBe(0);
+    expect(parseStall("")).toBe(0);
+    expect(parseStall("0")).toBe(0);
+    expect(parseStall("-5")).toBe(0);
+    expect(parseStall("soon")).toBe(0);
   });
 });

@@ -35,4 +35,11 @@ describe("paintStep", () => {
   it("draws every frame while active", () => {
     expect(paintStep({ ...idle, active: true, sinceLastDraw: 5 })).toBe("draw");
   });
+  it("skips the frame while a still is up and the engine has no picture: never the bare ground over it", () => {
+    expect(paintStep({ ...idle, holdForPicture: true, active: true, sinceLastDraw: 100 })).toBe("wait");
+    expect(paintStep({ ...idle, holdForPicture: false, active: true })).toBe("draw");
+  });
+  it("still parks (not just waits) when the page is hidden, even holding for a picture", () => {
+    expect(paintStep({ ...idle, holdForPicture: true, pageVisible: false })).toBe("park");
+  });
 });

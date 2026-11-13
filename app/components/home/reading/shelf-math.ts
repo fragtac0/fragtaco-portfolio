@@ -123,8 +123,8 @@ export const ROW_MAX = 0.88;
 export const TALL_MIN = 0.7;
 /** The line the books stand on, as a share of the layer's height from its top. */
 export const BASE_AT = 0.9;
-/** Room kept under the line for the marker and a two line hint, in CSS pixels (a small stage lifts the line to leave it). */
-export const BOTTOM_PX = 84;
+/** Room kept under the line for the position marker (it sits 15 px under the line and is 2 px tall), in CSS pixels (a small stage lifts the line to leave it). */
+export const BOTTOM_PX = 40;
 /** The hairline the books stand on, in CSS pixels. */
 export const LINE_PX = 1;
 /** The painted cover's widest and narrowest width in pixels (`coverPixels`). */
@@ -193,12 +193,11 @@ export function flatFit(p: {
  * The whole flat frame for a stage `vw` by `vh` px and a row `span` world units wide whose tallest
  * book is `tallest` high, under a header whose bottom is `top` px from the stage's top: the scale,
  * whether it pans, the pixel row of the line the books stand on (90% of the height, but never
- * closer than 84 px to the bottom, so a small stage keeps its hint clear), how far the camera may
+ * closer than 40 px to the bottom, so a small stage keeps its marker clear), how far the camera may
  * pan (world units each way; the row's ends stop 6% of the width inside the edges), the row's
  * `reach` in world units (the row and that margin both sides: the hairline's width) and the share
  * of the reach that is on screen at once. The height rule reads the room between the header
- * (plus `HEAD_GAP`) and the line. The 3D shelf and its placeholder both read this, so one replaces
- * the other without a jump.
+ * (plus `HEAD_GAP`) and the line. The 3D shelf reads this.
  */
 export function flatFrame(p: {
   vw: number;

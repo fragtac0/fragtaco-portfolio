@@ -24,7 +24,6 @@ export function useSceneEngines(books: SiteBook[], videos: SiteVideo[]) {
     typeof window === "undefined"
       ? null
       : createShelf(books, {
-          fine: window.matchMedia("(hover: hover) and (pointer: fine)").matches,
           reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
         }),
   );

@@ -4,18 +4,25 @@ import { createTimers, must, type HeroRuntime, type HeroView } from "./hero-runt
 import { loadImage, supportsWebp, whenWebpKnown } from "../../../utils/load-image";
 import type { PaintMeta } from "./paint-engine";
 import {
+  CAPTION_OUT_MS,
+  captionState,
   firstPaintingSrc,
   makeOrder,
+  mayStartSwap,
   nextDelayMs,
+  nextPhase,
   nextRevealTry,
   paintingSrc,
   parseFocal,
   pickNext,
   RECENT_KEY,
   RECENT_LIMIT,
+  type CycleEvent,
+  type CyclePhase,
 } from "./painting-cycle";
 import { prepareBitmap } from "./paint-bitmaps";
 import { recallPainting, rememberPainting } from "./painting-memory";
+import type { FoundPainting, OpenPlaceholder, PaintingCycle } from "./painting-cycle-type";
 
 /** The plain crossfade from the blurred placeholder to the sharp painting. */
 const PLACEHOLDER_FADE_MS = 400;
@@ -45,61 +52,7 @@ const metaOf = (p: SiteHeroPainting): PaintMeta => ({ focal: parseFocal(p.focal)
 
 type Remembered = NonNullable<ReturnType<typeof recallPainting>>;
 
-export type FoundPainting = { img: HTMLImageElement; k: number };
-
-/** The hero is showing the blurred placeholder; `arrived` is a sharp painting waiting for its reveal to end. */
-type OpenPlaceholder = { over: boolean; arrived: FoundPainting | null };
-
-/** What the loader drives: the first painting, and the cycle that carries on from it. */
-export type PaintingCycle = {
-  /** How many paintings there are. */
-  count: number;
-  /** The painting remembered from the last visit to the home route (position 0), or null. */
-  recalled: () => FoundPainting | null;
-  /** Prepares a painting for a cheap upload (the remembered one, which comes back without a load). */
-  prepare: (img: HTMLImageElement) => Promise<void>;
-  /**
-   * The first painting in the order: the one the head preload fetched (same URL, when the browser
-   * can show WebP), or the remembered image. Resolves null when there is none or it fails.
-   */
-  firstLoad: () => Promise<HTMLImageElement | null>;
-  /**
-   * The first painting that loads, trying the next in the order when one fails or is too slow,
-   * and giving up after `maxTries` (see nextRevealTry).
-   */
-  firstLoaded: (
-    firstLoad: Promise<HTMLImageElement | null>,
-    maxWait: number,
-    maxTries?: number,
-  ) => Promise<FoundPainting | null>;
-  /** Reveals a loaded painting, sets its caption, remembers it and preloads the next. */
-  present: (found: FoundPainting, ms: number) => void;
-  /**
-   * The skipped loader's first painting when nothing is remembered: the blurred placeholder
-   * (when the response carries one) as soon as it decodes, then a 400 ms crossfade to the sharp
-   * painting when it arrives. Resolves true once something is on screen.
-   */
-  presentFirst: () => Promise<boolean>;
-  /**
-   * The loader's reveal when the sharp painting is late: the liquid-glass reveal (`ms`) opens on
-   * the first painting's blurred placeholder instead. Resolves true once it is on screen, false
-   * when there is no placeholder or it fails to load. Does not preload the next painting: the
-   * network is busy with the sharp one.
-   */
-  revealPlaceholder: (ms: number) => Promise<boolean>;
-  /**
-   * After `revealPlaceholder`: when the sharp painting arrives (and the reveal has finished) it
-   * crossfades in over 400 ms. Ignored once the cycle has moved on to another painting.
-   */
-  upgradeWhenLoaded: (pending: Promise<FoundPainting | null>) => void;
-  /**
-   * The reveal for a painting that arrives late with no placeholder to open on: reveals it when it
-   * arrives, unless the cycle has already moved on to another painting by then.
-   */
-  presentLate: (pending: Promise<FoundPainting | null>, ms: number) => void;
-  /** Starts the timer for the next swap (ten seconds unless `ms` is given). */
-  scheduleNext: (ms?: number) => void;
-};
+export type { FoundPainting, PaintingCycle } from "./painting-cycle-type";
 
 type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "parkedRef" | "dataRef"> & {
   viewRef: MutableRefObject<HeroView>;
@@ -167,15 +120,39 @@ export function usePaintingCycle({
     // The first painting asks for what the preload in <head> fetched (see firstPaintingSrc).
     const firstSrc = (webp: boolean) => firstPaintingSrc(items[order[0]].file, window.innerWidth, dpr(), webp);
 
-    const setCaption = (p: SiteHeroPainting, animate = false) => {
-      const fill = () => {
-        must(root, ".caption .t").textContent = p.title;
-        must(root, ".caption .a").textContent = `${p.artist}, ${p.year}`;
-        cap.classList.remove("swap");
-      };
-      if (!animate) return fill();
-      cap.classList.add("swap");
-      later(600, fill);
+    // The words (painting-cycle.ts, captionState): set at once for the first painting, and on a change they
+    // fade out, the painting changes, and the new words fade in only when the swap reports done.
+    let phase: CyclePhase = "resting";
+    const fillCaption = (p: SiteHeroPainting) => {
+      must(root, ".caption .t").textContent = p.title;
+      must(root, ".caption .a").textContent = `${p.artist}, ${p.year}`;
+    };
+    const setCaption = (p: SiteHeroPainting) => fillCaption(p);
+    const stepWords = (event: CycleEvent) => {
+      phase = nextPhase(phase, event);
+      const { visible, fadeMs } = captionState(phase);
+      root.dataset.words = phase; // the phase, read by the audit (scripts/audit/hero-return.json); no CSS reads it
+      cap.style.setProperty("--caption-ms", `${fadeMs}ms`);
+      cap.classList.toggle("swap", !visible);
+    };
+    /** Words out, then `change` runs (the painting changes; the new words are set unseen), words in on its `done`. */
+    const changeWithWords = (p: SiteHeroPainting, change: (done: () => void) => void) => {
+      if (nextPhase(phase, "start") === phase) {
+        // the words are mid-change already (not expected: one change at a time): change the picture, leave the words
+        change(() => undefined);
+        return;
+      }
+      stepWords("start");
+      later(CAPTION_OUT_MS, () => {
+        stepWords("faded");
+        if (!mayStartSwap(phase)) return;
+        fillCaption(p);
+        change(() => stepWords("done"));
+      });
+    };
+    /** The first painting is up: if its words were held back, they fade in now. */
+    const wordsIn = () => {
+      if (phase === "awaiting") stepWords("done");
     };
     const shown = (p: SiteHeroPainting, img: HTMLImageElement) => {
       remember(p.id);
@@ -212,8 +189,12 @@ export function usePaintingCycle({
       const p = items[order[oi]];
       // the next change is ten seconds after this one starts, not after it ends
       scheduleNext();
-      paint.swap(img, metaOf(p), SWAP_MS, preloadNext);
-      setCaption(p, true);
+      changeWithWords(p, (done) =>
+        paint.swap(img, metaOf(p), SWAP_MS, () => {
+          done();
+          preloadNext();
+        }),
+      );
       shown(p, img);
     };
     const firstLoad = async () => {
@@ -236,7 +217,7 @@ export function usePaintingCycle({
     const present: PaintingCycle["present"] = (found, ms) => {
       oi = found.k;
       const p = items[order[oi]];
-      paint.reveal(found.img, metaOf(p), ms);
+      paint.reveal(found.img, metaOf(p), ms, wordsIn);
       setCaption(p);
       shown(p, found.img);
       preloadNext();
@@ -247,8 +228,20 @@ export function usePaintingCycle({
     const crossfadeTo = (found: FoundPainting) => {
       oi = found.k;
       const p = items[order[oi]];
-      paint.swap(found.img, metaOf(p), PLACEHOLDER_FADE_MS, preloadNext, { plain: true });
-      if (found.k !== 0) setCaption(p, true);
+      const fade = (done: () => void) =>
+        paint.swap(
+          found.img,
+          metaOf(p),
+          PLACEHOLDER_FADE_MS,
+          () => {
+            done();
+            preloadNext();
+          },
+          { plain: true },
+        );
+      // the placeholder carried the first painting's words already; another painting brings its own
+      if (found.k !== 0) changeWithWords(p, fade);
+      else fade(wordsIn);
       shown(p, found.img);
     };
 
@@ -256,6 +249,7 @@ export function usePaintingCycle({
       count: n,
       recalled: () => (memory ? { img: memory.img, k: 0 } : null),
       prepare: (img) => prepareBitmap(img),
+      holdWords: () => stepWords("hold"),
       firstLoad,
       firstLoaded,
       present,
@@ -276,7 +270,10 @@ export function usePaintingCycle({
         }
         const found = await sharp;
         settled = true;
-        if (!found) return placeholder;
+        if (!found) {
+          wordsIn(); // no sharp painting is coming: the placeholder's words must not stay hidden
+          return placeholder;
+        }
         if (!placeholder) {
           present(found, 0);
           return true;

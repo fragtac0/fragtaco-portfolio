@@ -49,31 +49,6 @@
   outline: 2px solid var(--cream);
   outline-offset: -6px;
 }
-/* the flat stand-in for the shelf until its first frame is drawn (shelf-placeholder.tsx) */
-.home-layer .shelf-placeholder {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.3s ease; /* PLACEHOLDER_FADE_MS in reading-scene.tsx */
-}
-.home-layer .shelf-placeholder.leaving {
-  opacity: 0;
-}
-/* the books stand on one hairline, the same strength as the 3D row's (LINE_ALPHA in tokens.ts) */
-.home-layer .sp-line {
-  position: absolute;
-  background: var(--line);
-}
-.home-layer .sp-bar {
-  position: absolute;
-}
-@media (prefers-reduced-motion: reduce) {
-  .home-layer .shelf-placeholder {
-    transition: none;
-  }
-}
 .home-layer .book-info {
   position: absolute;
   left: 0;

@@ -7,7 +7,6 @@ export type WallEls = {
   host: HTMLElement;
   /** The chip under the focused tile: a `b` (title) and a `span` (channel). */
   chip: HTMLElement;
-  hint: HTMLElement;
 };
 
 /**
@@ -27,8 +26,6 @@ export type WallEngine = {
   prepare(): Promise<void>;
   /** True once `prepare()` has run and the wall could not start (no WebGL, a failed shader, a lost context). */
   hasFailed(): boolean;
-  /** The GL setup is done, so `start()` draws on the next frame. */
-  ready(): boolean;
   /** Urgent: preparation stops yielding to idle time and runs in short slices every frame. */
   setUrgent(on: boolean): void;
   /** Called once when the graphics context is lost (the scene switches to its plain grid). */
