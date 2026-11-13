@@ -131,7 +131,7 @@ export function usePaintingCycle({
     const stepWords = (event: CycleEvent) => {
       phase = nextPhase(phase, event);
       const { visible, fadeMs } = captionState(phase);
-      root.dataset.words = phase; // for the audit (scripts/audit/hero-return.json) and the CSS
+      root.dataset.words = phase; // the phase, read by the audit (scripts/audit/hero-return.json); no CSS reads it
       cap.style.setProperty("--caption-ms", `${fadeMs}ms`);
       cap.classList.toggle("swap", !visible);
     };
@@ -149,6 +149,10 @@ export function usePaintingCycle({
         fillCaption(p);
         change(() => stepWords("done"));
       });
+    };
+    /** The first painting is up: if its words were held back, they fade in now. */
+    const wordsIn = () => {
+      if (phase === "awaiting") stepWords("done");
     };
     const shown = (p: SiteHeroPainting, img: HTMLImageElement) => {
       remember(p.id);
@@ -213,7 +217,7 @@ export function usePaintingCycle({
     const present: PaintingCycle["present"] = (found, ms) => {
       oi = found.k;
       const p = items[order[oi]];
-      paint.reveal(found.img, metaOf(p), ms);
+      paint.reveal(found.img, metaOf(p), ms, wordsIn);
       setCaption(p);
       shown(p, found.img);
       preloadNext();
@@ -237,7 +241,7 @@ export function usePaintingCycle({
         );
       // the placeholder carried the first painting's words already; another painting brings its own
       if (found.k !== 0) changeWithWords(p, fade);
-      else fade(() => undefined);
+      else fade(wordsIn);
       shown(p, found.img);
     };
 
@@ -245,6 +249,7 @@ export function usePaintingCycle({
       count: n,
       recalled: () => (memory ? { img: memory.img, k: 0 } : null),
       prepare: (img) => prepareBitmap(img),
+      holdWords: () => stepWords("hold"),
       firstLoad,
       firstLoaded,
       present,
@@ -265,7 +270,10 @@ export function usePaintingCycle({
         }
         const found = await sharp;
         settled = true;
-        if (!found) return placeholder;
+        if (!found) {
+          wordsIn(); // no sharp painting is coming: the placeholder's words must not stay hidden
+          return placeholder;
+        }
         if (!placeholder) {
           present(found, 0);
           return true;

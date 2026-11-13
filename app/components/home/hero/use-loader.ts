@@ -126,6 +126,7 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef, s
       fireReady();
       // the final look and the dock are in place for the page change's picture; the painting follows with the engine
       if (!paint || !cycle) return;
+      cycle.holdWords();
       const recalled = cycle.recalled();
       if (recalled) {
         // coming back from another page: the last painting, with no network (its still frame is on screen

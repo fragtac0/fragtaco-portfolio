@@ -27,6 +27,12 @@ export type PaintingCycle = {
     maxWait: number,
     maxTries?: number,
   ) => Promise<FoundPainting | null>;
+  /**
+   * The words wait (hidden) for the first painting to be up, then fade in: after `present`'s reveal, or
+   * after the placeholder's crossfade to the sharp painting. Called by the skipped loader (a return or a
+   * first visit by the dock) before it presents; the intro leaves the words to its own timeline.
+   */
+  holdWords: () => void;
   /** Reveals a loaded painting, sets its caption, remembers it and preloads the next. */
   present: (found: FoundPainting, ms: number) => void;
   /**

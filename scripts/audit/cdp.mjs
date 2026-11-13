@@ -4,8 +4,8 @@
 // Step keys: size, dpr, mobile, touch, reduce, net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk), mdrag [x0,y0,x1,y1,n] (mouse; may be an expression), wheel [x,y,dx,dy,n],
 // click, move, sweep, tap, drag (click, move and tap also take a string: an expression the page answers with [x, y]), eval (+label), shot, requests ({match} + label: the hosts requested since the last such step), sample ({grid:[cols,rows]} + label: photographs the page and prints the share of pixels
 // darker than #2a2826, the share of orange-hued pixels and the average colour on a grid; see PIXEL_SAMPLER below),
-// film ({ms, dark?, share?, keep?, at?} + label: the page runs `eval` first when given, then every frame the compositor produces for `ms` is photographed (a screencast); each is
-// reduced to 48 by 30 cells and a frame counts as bare when `share` (0.75) or more of its cells are darker than luma `dark` (20); prints the frame count, the longest gap between frames, the
+// film ({ms, dark?, share?, rect?, keep?, at?} + label: the page runs `eval` first when given, then every frame the compositor produces for `ms` is photographed (a screencast); each is
+// reduced to 48 by 30 cells (over the `rect` selector's box, read once the film is over, e.g. "#hero"; the whole frame without it) and a frame counts as bare when `share` (0.75) or more of its cells are darker than luma `dark` (20); prints the frame count, the longest gap between frames, `darkShareMax` (the largest share of dark cells in any frame), the box measured, the
 // bare frames and `ok`; `keep` saves the darkest frame as <keep>.jpg and, with `at` (ms after the start), the frame nearest that time as <keep>-at.jpg; see FILM_LUMA below). "{{BASE}}" in a steps file is replaced by $BASE.
 import { spawn } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -64,7 +64,9 @@ const PIXEL_SAMPLER = (b64, cols, rows) => `(async()=>{
     grid: acc.map(a => a.slice(0, 3).map(v => Math.round(v / a[3])).join(",")) });
 })()`;
 // Runs inside the page on a JPEG frame: the share of 48 by 30 cells whose luma is under `dark`, and the mean luma.
-const FILM_LUMA = (b64, dark) => `(async()=>{const b=await createImageBitmap(await (await fetch("data:image/jpeg;base64,${b64}")).blob());const c=new OffscreenCanvas(48,30),x=c.getContext("2d");x.drawImage(b,0,0,48,30);
+// `box` is {x, y, w, h} in CSS pixels (or null: the whole frame); the frame's scale to CSS pixels is read from the frame itself.
+const FILM_LUMA = (b64, dark, box) => `(async()=>{const b=await createImageBitmap(await (await fetch("data:image/jpeg;base64,${b64}")).blob());const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
+  const bx=${JSON.stringify(box ?? null)},k=b.width/innerWidth;if(bx)x.drawImage(b,bx.x*k,bx.y*k,bx.w*k,bx.h*k,0,0,48,30);else x.drawImage(b,0,0,48,30);
   const d=x.getImageData(0,0,48,30).data;let under=0,sum=0;for(let i=0;i<d.length;i+=4){const l=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2];sum+=l;if(l<${dark})under++}return [under/1440,sum/1440]})()`;
 async function runFilm(f, label) {
   const dark = f.dark ?? 20, share = f.share ?? 0.75;
@@ -76,12 +78,17 @@ async function runFilm(f, label) {
   await send("Page.stopScreencast");
   const frames = castFrames.splice(0);
   const rows = [];
-  for (const fr of frames) { const v = (await send("Runtime.evaluate", { expression: FILM_LUMA(fr.data, dark), awaitPromise: true, returnByValue: true })).result?.result?.value ?? [1, 0]; rows.push({ at: Math.round(fr.t - t0), share: +v[0].toFixed(2), mean: +v[1].toFixed(1), data: fr.data }); }
+  let box = null;
+  if (f.rect) {
+    const r = await send("Runtime.evaluate", { expression: `(()=>{const e=document.querySelector(${JSON.stringify(f.rect)});if(!e)return null;const r=e.getBoundingClientRect();const x=Math.max(0,r.left),y=Math.max(0,r.top),w=Math.min(innerWidth,r.right)-x,h=Math.min(innerHeight,r.bottom)-y;return w>0&&h>0?{x,y,w,h}:null})()`, returnByValue: true });
+    box = r.result?.result?.value ?? null;
+  }
+  for (const fr of frames) { const v = (await send("Runtime.evaluate", { expression: FILM_LUMA(fr.data, dark, box), awaitPromise: true, returnByValue: true })).result?.result?.value ?? [1, 0]; rows.push({ at: Math.round(fr.t - t0), share: +v[0].toFixed(2), mean: +v[1].toFixed(1), data: fr.data }); }
   const bare = rows.filter(r => r.share >= share);
   let gap = 0; for (let i = 1; i < rows.length; i++) gap = Math.max(gap, rows[i].at - rows[i - 1].at);
   if (f.keep && rows.length) { const worst = rows.reduce((a, b) => (b.share > a.share ? b : a)); writeFileSync(`${outDir}/${f.keep}.jpg`, Buffer.from(worst.data, "base64")); }
   if (f.keep && f.at != null && rows.length) { const near = rows.reduce((a, b) => (Math.abs(b.at - f.at) < Math.abs(a.at - f.at) ? b : a)); writeFileSync(`${outDir}/${f.keep}-at.jpg`, Buffer.from(near.data, "base64")); }
-  console.log(JSON.stringify({ step: label ?? "film", frames: rows.length, longestGapMs: gap, firstMs: rows[0]?.at, lastMs: rows.at(-1)?.at, darkShareMax: rows.length ? Math.max(...rows.map(r => r.share)) : null, bareFrames: bare.map(r => [r.at, r.share, r.mean]), ok: rows.length > 5 && bare.length === 0 }));
+  console.log(JSON.stringify({ step: label ?? "film", frames: rows.length, longestGapMs: gap, firstMs: rows[0]?.at, lastMs: rows.at(-1)?.at, darkShareMax: rows.length ? Math.max(...rows.map(r => r.share)) : null, box: box ? [Math.round(box.x), Math.round(box.y), Math.round(box.w), Math.round(box.h)] : (f.rect ? "not found: whole frame" : "whole frame"), bareFrames: bare.map(r => [r.at, r.share, r.mean]), ok: rows.length > 5 && bare.length === 0 }));
 }
 for (const s of steps) {
   if (s.size) await send("Emulation.setDeviceMetricsOverride", { width: s.size[0], height: s.size[1], deviceScaleFactor: s.dpr ?? 1, mobile: !!s.mobile });

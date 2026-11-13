@@ -201,12 +201,47 @@ describe("the words under a painting change", () => {
     expect(nextPhase("caption-out", "done")).toBe("caption-out");
     expect(nextPhase("caption-out", "start")).toBe("caption-out");
     expect(nextPhase("swapping", "faded")).toBe("swapping");
-    expect(nextPhase("swapping", "start")).toBe("swapping");
+    expect(nextPhase("awaiting", "faded")).toBe("awaiting");
     expect(nextPhase("resting", "done")).toBe("resting");
     expect(nextPhase("resting", "faded")).toBe("resting");
   });
   it("starts the next change from a rest or from a finished swap", () => {
     expect(nextPhase("resting", "start")).toBe("caption-out");
     expect(nextPhase("swapped", "start")).toBe("caption-out");
+  });
+  it("resets when a change starts while a swap's done never came, instead of keeping the words hidden for good", () => {
+    let phase: CyclePhase = "swapping";
+    phase = nextPhase(phase, "start");
+    expect(phase).toBe("caption-out");
+    expect(mayStartSwap(phase)).toBe(false);
+    // the new change then runs its normal order and the words return on its done
+    phase = nextPhase(nextPhase(phase, "faded"), "done");
+    expect(phase).toBe("swapped");
+    expect(captionState(phase).visible).toBe(true);
+  });
+});
+
+describe("the first painting's words (Ruling R54)", () => {
+  it("stay hidden while the first painting is not up, then fade in over 0.9 s on its done", () => {
+    let phase: CyclePhase = nextPhase("resting", "hold");
+    expect(phase).toBe("awaiting");
+    expect(captionState(phase)).toEqual({ visible: false, fadeMs: 0 });
+    // the placeholder's reveal does not bring them (the loader never sends faded or start for it)
+    expect(nextPhase(phase, "faded")).toBe("awaiting");
+    expect(nextPhase(phase, "hold")).toBe("awaiting");
+    phase = nextPhase(phase, "done");
+    expect(phase).toBe("swapped");
+    expect(captionState(phase)).toEqual({ visible: true, fadeMs: CAPTION_IN_MS });
+  });
+  it("hold only applies from rest", () => {
+    for (const phase of ["caption-out", "swapping", "swapped"] as const) expect(nextPhase(phase, "hold")).toBe(phase);
+  });
+  it("a change that starts before the first painting is up takes the normal order and the words come on its done", () => {
+    let phase: CyclePhase = "awaiting";
+    phase = nextPhase(phase, "start");
+    expect(phase).toBe("caption-out");
+    expect(captionState(phase).visible).toBe(false);
+    phase = nextPhase(nextPhase(phase, "faded"), "done");
+    expect(captionState(phase).visible).toBe(true);
   });
 });

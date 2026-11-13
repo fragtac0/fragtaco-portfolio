@@ -34,6 +34,16 @@ describe("getHomePageContent", () => {
     expect(withBlur[0].blur.startsWith("data:image/")).toBe(true);
   });
 
+  it("sends a blurred placeholder whichever painting is picked first (a page change needs it for its still frame)", async () => {
+    const count = (await getHomePageContent(() => 0)).heroPaintings.length;
+    expect(count).toBeGreaterThan(1);
+    for (let i = 0; i < count; i++) {
+      const content = await getHomePageContent(() => (i + 0.5) / count);
+      const first = content.heroPaintings.find((p) => p.id === content.firstPaintingId);
+      expect(first?.blur.startsWith("data:image/"), content.firstPaintingId).toBe(true);
+    }
+  });
+
   it("does not return the facts section", async () => {
     const content = await getHomePageContent();
 
