@@ -1,6 +1,7 @@
 /**
- * What changes tile by tile. A count by 1 RGBA8 texture the shader reads: R the picture's reveal
- * (a flat `--surface-1` until the picture is in, then a 350 ms fade), B the focus ring. The hover growth
+ * What changes tile by tile. A count by 1 RGBA8 texture the shader reads: R the picture's reveal (the tile's local
+ * art until the picture is in, then a 350 ms fade over it), G the tile's arrival opacity, B the focus ring, A the
+ * arrival scale (0 is `ARRIVAL.scaleFrom`, 255 is full size). The hover growth
  * is not in the texture: a grown tile overlaps its neighbours, so the shader draws the few tiles that
  * are grown on top, from `grown` (up to 4 pairs of tile index and amount, the smallest amount first so
  * the strongest is drawn last; index -1 is an empty slot). The values ease on the CPU (exponential,
@@ -13,6 +14,7 @@
 
 import type * as THREE from "three";
 import { approach } from "./gallery-math";
+import { ARRIVAL, arrival } from "./wall-arrival";
 
 const REVEAL_MS = 350;
 const HOVER_RATE = 14; // per second: about 70 ms to settle
@@ -44,20 +46,23 @@ export function pickGrown(entries: Array<[number, number]>, target: number | nul
 
 export type TileState = {
   texture: THREE.DataTexture;
+  /** The grid the tiles arrive in: columns, rows and how many columns a short last row is shifted to the middle. Asked again after a resize. */
+  setLayout(cols: number, rows: number, lastShift: number): void;
+  /** The first frame is drawn at `now`: the arrival runs from here, and pictures already in show whole. */
+  start(now: number): void;
   setHover(i: number | null): void;
   setFocus(i: number | null): void;
   /** The eased hover amount of tile `i`, 0 to 1. */
   amount(i: number): number;
   /** Flat [index, amount] x GROWN_SLOTS for the shader, see the header. */
   grown: Float32Array;
-  /** Moves the values on by `dt` and re-sends the texture if a byte changed. True while anything is still easing. */
+  /** Moves the values on by `dt` and re-sends the texture if a byte changed. True while anything is still easing or arriving. */
   step(dt: number, now: number, loadedAt: Float64Array): boolean;
   dispose(): void;
 };
 
 export function createTileState(T: typeof THREE, count: number, reduced: boolean): TileState {
-  const data = new Uint8Array(count * 4);
-  for (let i = 3; i < data.length; i += 4) data[i] = 255;
+  const data = new Uint8Array(count * 4); // all zero: nothing has arrived, nothing is revealed
   const texture = new T.DataTexture(data, count, 1);
   texture.magFilter = T.NearestFilter;
   texture.minFilter = T.NearestFilter;
@@ -68,6 +73,10 @@ export function createTileState(T: typeof THREE, count: number, reduced: boolean
   const ring = new Float32Array(count);
   let hoverIdx: number | null = null;
   let focusIdx: number | null = null;
+  let cols = 1;
+  let rows = count;
+  let lastShift = 0;
+  let startedAt = -1;
 
   const grown = new Float32Array(GROWN_SLOTS * 2);
   const live: Array<[number, number]> = [];
@@ -75,25 +84,45 @@ export function createTileState(T: typeof THREE, count: number, reduced: boolean
   return {
     texture,
     grown,
+    setLayout(c, r, shift) {
+      cols = c;
+      rows = r;
+      lastShift = shift;
+    },
+    start(now) {
+      startedAt = now;
+    },
     amount: (i) => hover[i] ?? 0,
     setHover: (i) => (hoverIdx = i),
     setFocus: (i) => (focusIdx = i),
     step(dt, now, loadedAt) {
       let busy = false;
       let changed = false;
+      const started = startedAt >= 0;
+      const t = now - startedAt;
       live.length = 0;
       for (let i = 0; i < count; i++) {
         hover[i] = reduced ? (i === hoverIdx ? 1 : 0) : approach(hover[i], i === hoverIdx ? 1 : 0, dt, HOVER_RATE);
         ring[i] = reduced ? (i === focusIdx ? 1 : 0) : approach(ring[i], i === focusIdx ? 1 : 0, dt, RING_RATE);
         if (hover[i] !== (i === hoverIdx ? 1 : 0) || ring[i] !== (i === focusIdx ? 1 : 0)) busy = true;
-        const reveal = revealOf(loadedAt[i], now, reduced);
+        // a picture that was in before the first frame is there whole; a later one fades in over the tile's art
+        const reveal = loadedAt[i] > 0 && loadedAt[i] <= startedAt ? 1 : revealOf(loadedAt[i], now, reduced);
         if (loadedAt[i] > 0 && reveal < 1) busy = true; // a picture that has just gone up is still fading in
         const r = Math.round(reveal * 255);
         if (hover[i] > 0) live.push([i, hover[i]]);
         const b = Math.round(ring[i] * 255);
-        if (data[i * 4] !== r || data[i * 4 + 2] !== b) {
+        const row = Math.floor(i / cols);
+        const pose = started
+          ? arrival(Math.min(i % cols, cols - 1) + (row === rows - 1 ? lastShift : 0), row, cols, rows, t, reduced)
+          : { scale: ARRIVAL.scaleFrom, alpha: 0 };
+        if (started && pose.alpha < 1) busy = true;
+        const g = Math.round(pose.alpha * 255);
+        const a = Math.round(((pose.scale - ARRIVAL.scaleFrom) / (1 - ARRIVAL.scaleFrom)) * 255);
+        if (data[i * 4] !== r || data[i * 4 + 1] !== g || data[i * 4 + 2] !== b || data[i * 4 + 3] !== a) {
           data[i * 4] = r;
+          data[i * 4 + 1] = g;
           data[i * 4 + 2] = b;
+          data[i * 4 + 3] = a;
           changed = true;
         }
       }

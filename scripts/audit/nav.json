@@ -107,8 +107,8 @@
   "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"none\"})"
  },
  {
-  "label": "short -> rings (return mark, radial)",
-  "eval": "__move(()=>{document.querySelector('.return-mark').click()},{\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+  "label": "short -> rings (back button, radial)",
+  "eval": "__move(()=>{document.querySelector('.wall-head a.xp-close').click()},{\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
  },
  {
   "label": "rings -> rings again = nothing (dock work tab, no change)",

@@ -37,7 +37,7 @@ const LABEL: Record<RingKind, string> = {
  * so they stay upright. Radii and item sizes are CSS variables, set when the page is live and again on
  * resize. Videos that fit in no ring are left out (they are all on the walls). The rings are in the page from
  * its first commit, so a page change's reveal shows them, pictures included (R60): all of them within the first
- * half second of it (`stagger`), well before the reveal's edge reaches the stack ring, and nothing runs per frame.
+ * half second of it (built in batches, `batches`), well before the reveal's edge reaches the stack ring, and nothing runs per frame.
  */
 export default function Rings({ work, batches = null, arrived = true }: RingsProps) {
   const size = useStageSize();

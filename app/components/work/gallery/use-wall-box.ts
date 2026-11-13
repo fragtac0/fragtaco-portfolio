@@ -8,7 +8,7 @@ export type WallBox = { vw: number; vh: number; headingBottom: number; dockBand:
 // Layout effects warn on the server; the server never measures, so there it is a plain effect.
 const useIsoLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
 
-/** The wall's size and bands, read from the page (null if the stage has no size yet). Elements marked `data-wall-top` are the heading and the return mark. */
+/** The wall's size and bands, read from the page (null if the stage has no size yet). The element marked `data-wall-top` is the header: the heading and the back button. */
 export function readWallBox(stage: HTMLElement): WallBox | null {
   const vw = stage.clientWidth;
   const vh = stage.clientHeight;

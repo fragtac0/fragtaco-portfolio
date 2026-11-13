@@ -2,8 +2,8 @@ import { useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
 import { changePage } from "../../lib/page-change";
 import type { WorkVideo } from "../../types";
+import BackButton from "./back-button";
 import VideoWall from "./gallery/video-wall";
-import ReturnMark from "./return-mark";
 import WallHeading from "./wall-heading";
 import "./work.css";
 import "./wall.css";
@@ -15,9 +15,9 @@ interface WallPageProps {
 
 /**
  * One video wall (`/work/long-form`, `/work/short-form`): the heading (kind and count) at the top
- * left, the return mark at the top right and the wall itself (`VideoWall`: the shader gallery over the
- * links, which stay as the list and as the picture where there is no WebGL). Esc goes back to the rings
- * with the page change, as the return mark does.
+ * left, the back button at the top right (the shelves' close button: the same component and place) and the
+ * wall itself (`VideoWall`: the shader gallery over the links, which stay as the list and as the picture
+ * where there is no WebGL). Esc goes back to the rings with the page change, as the back button does.
  */
 export default function WallPage({ kind, videos }: WallPageProps) {
   const navigate = useNavigate();
@@ -35,8 +35,10 @@ export default function WallPage({ kind, videos }: WallPageProps) {
   return (
     <main className="wall-page" data-wall={kind}>
       <VideoWall kind={kind} items={videos} />
-      <WallHeading kind={kind} count={videos.length} />
-      <ReturnMark />
+      <div className="wall-head" data-wall-top="">
+        <WallHeading kind={kind} count={videos.length} />
+        <BackButton />
+      </div>
     </main>
   );
 }

@@ -1,6 +1,6 @@
 /*
  * The two video walls (/work/long-form, /work/short-form): a fixed page with the work ground, the heading
- * top left, the return mark top right and the wall (gallery/gallery.css). Colours, sizes and layers come from tokens.css.
+ * top left, the back button top right and the wall (gallery/gallery.css). Colours, sizes and layers come from tokens.css.
  */
 .wall-page {
   position: fixed;
@@ -9,12 +9,22 @@
   overflow: clip;
   color: var(--ink-1); /* the ground shows through: EclipseGround, in the layout */
 }
-.wall-heading {
+/* the header: the heading at the left, the back button at the right end, in the place of the shelves' header */
+.wall-head {
   position: absolute;
-  left: 48px;
-  top: 28px;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: var(--z-hero);
-  pointer-events: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: var(--head-pad-top) var(--head-pad-x) 0;
+  pointer-events: none; /* only the button takes the pointer, so the wall under the heading still does */
+}
+.wall-head .xp-close {
+  margin-left: auto;
+  pointer-events: auto;
 }
 .wall-name {
   margin: 0;
@@ -32,49 +42,8 @@
   color: var(--ink-2);
 }
 
-/* the return mark: three small arcs that turn slowly, and the word "rings" */
-.return-mark {
-  position: absolute;
-  right: 48px;
-  top: 28px;
-  z-index: var(--z-hero);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  color: var(--ink-2);
-  font-family: Doto, monospace;
-  font-weight: 800;
-  font-size: var(--t-meta);
-  letter-spacing: 0.08em;
-  text-decoration: none;
-  transition: color 150ms ease-out;
-}
-.return-mark:hover {
-  color: var(--ink-1);
-}
-.return-mark:focus-visible {
-  outline: 2px solid var(--ink-1);
-  outline-offset: 2px;
-}
-.return-mark-arcs {
-  animation: return-mark-turn 14s linear infinite;
-}
-@keyframes return-mark-turn {
-  to { rotate: 360deg; }
-}
-
 @media (max-width: 699.98px) {
-  .wall-heading {
-    left: 16px;
-  }
-  .return-mark {
-    right: 8px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .return-mark-arcs {
-    animation: none;
+  .wall-head {
+    padding: 20px 20px 0;
   }
 }

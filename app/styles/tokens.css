@@ -60,6 +60,10 @@
      first rows, a little under --ground), so the hero's lower edge fades into it with no line (hero.css .hero-edge) */
   --hero-seam-rgb: 11 11 10;
 
+  /* the header of a full page layer (a shelf, a video wall): the title at the left, the close or back pill at the right */
+  --head-pad-top: clamp(28px, 4vw, 56px);
+  --head-pad-x: clamp(24px, 4.5vw, 72px);
+
   /* the dock's idle labels (the active one is 100%) */
   --dock-idle: 0.85;
 

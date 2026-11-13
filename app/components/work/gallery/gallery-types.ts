@@ -3,7 +3,8 @@
 import type { Safe } from "./gallery-math";
 
 export type GalleryOptions = {
-  items: { src: string }[];
+  /** `src` is the tile's picture; `art` its local stand-in (a data address) that shows until the picture is in and for good if it never comes. */
+  items: { src: string; art: string }[];
   /** Tile width over height: 16/9 for long form, 9/16 for short form. */
   aspect: number;
   reduced: boolean;

@@ -178,7 +178,7 @@
   height: 100%;
   object-fit: cover;
 }
-/* a video's picture fades in when it has loaded (work-item.tsx marks it ready); until then the tile shows its dark body */
+/* a video's picture fades in when it has loaded (cover-image.ts marks it ready); until then the tile shows its dark body */
 .work-cover img {
   opacity: 0;
   transition: opacity 300ms ease-out;

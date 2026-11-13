@@ -1,6 +1,6 @@
 import type { FocusEvent, PointerEvent } from "react";
-import { coverUrl, isMissingCover } from "../../content/work-media";
-import { placeholderArt } from "../../content/placeholder-art";
+import { coverUrl } from "../../content/work-media";
+import { shapeCover } from "./cover-image";
 import { labelSide } from "./ring-layout";
 import type { RingEntry } from "./ring-entries";
 import type { RingKind } from "./ring-math";
@@ -18,9 +18,10 @@ interface WorkItemProps {
   ring: RingKind;
   place: RingSlotPlace;
   /**
-   * Load a video's picture only when it nears the screen. For a first load: the outer rings' pictures are mostly off screen
-   * and should not compete with the page's own requests. Off for a page made during the reveal, which is not painted until
-   * it ends, so a lazy picture would not start until then.
+   * Load a video's picture only when it nears the screen. On for a page made without the radial reveal (a first load, or
+   * the reduced-motion fade): the outer rings' pictures are mostly off screen and should not compete with the page's own
+   * requests. Off for a page made during the radial reveal, which is not painted until it ends, so a lazy picture would
+   * not start until then.
    */
   lazy?: boolean;
 }
@@ -38,20 +39,6 @@ function shapeIcon(img: HTMLImageElement | null) {
   if (!img || !img.complete || img.naturalWidth === 0) return;
   if (Math.abs(img.naturalWidth / img.naturalHeight - 1) > 0.05) img.dataset.bare = "";
   else delete img.dataset.bare;
-}
-
-// A video's picture: it fades in once it has loaded (the tile shows its dark body until then, never a hole), and a
-// picture that cannot be used (no network, or a removed video, which YouTube answers with a small grey picture that does
-// load: `isMissingCover`) is swapped for the local placeholder art, once.
-// Read from the picture's own state, since it may have settled before the page was hydrated.
-function shapeCover(img: HTMLImageElement | null, id: string, tall: boolean) {
-  if (!img || !img.complete) return;
-  if (!isMissingCover(img.currentSrc || img.src, img.naturalWidth)) {
-    img.dataset.ready = "";
-  } else if (!("fallback" in img.dataset)) {
-    img.dataset.fallback = "";
-    img.src = placeholderArt(id, tall);
-  }
 }
 
 /**

@@ -18,7 +18,7 @@ describe("createGallery without WebGL", () => {
   it("resolves to null instead of throwing, so the page keeps its plain grid", async () => {
     const error = vi.spyOn(console, "warn").mockImplementation(() => {});
     const out = await createGallery(noGlCanvas(), {
-      items: [{ src: "data:," }, { src: "data:," }],
+      items: [{ src: "data:,", art: "data:," }, { src: "data:,", art: "data:," }],
       aspect: 16 / 9,
       reduced: false,
       onHover: () => {},
@@ -45,6 +45,66 @@ describe("the tile state", () => {
     expect(state.step(1 / 60, 1400, loadedAt)).toBe(false); // done
     expect(data[2 * 4]).toBe(255);
     expect(data[0]).toBe(0); // the tiles that never loaded stay flat
+  });
+});
+
+describe("the tile state's arrival", () => {
+  const G = (data: Uint8Array, i: number) => data[i * 4 + 1];
+  const A = (data: Uint8Array, i: number) => data[i * 4 + 3];
+
+  it("shows nothing before the first frame, then brings the tiles in from the middle outward and stops asking for frames", async () => {
+    const T = await import("three");
+    const { createTileState } = await import("./gallery-state");
+    const state = createTileState(T, 7, false);
+    state.setLayout(7, 1, 0); // one row of seven: tile 3 is the middle
+    const data = state.texture.image.data as Uint8Array;
+    const loadedAt = new Float64Array(7);
+    expect(state.step(1 / 60, 500, loadedAt)).toBe(false); // not started: nothing arrives, nothing to ask a frame for
+    for (let i = 0; i < 7; i++) expect(G(data, i)).toBe(0);
+    state.start(1000);
+    expect(state.step(1 / 60, 1100, loadedAt)).toBe(true);
+    const mid = G(data, 3);
+    expect(mid).toBeGreaterThan(0);
+    expect(G(data, 2)).toBeLessThan(mid); // a ring out, 45 ms behind
+    expect(G(data, 0)).toBe(0); // three rings out: not yet started (135 ms)
+    expect(A(data, 3)).toBeGreaterThan(0); // growing from 0.86
+    expect(state.step(1 / 60, 1100 + 600, loadedAt)).toBe(false); // 600 ms in: the whole row is done (555 at most)
+    for (let i = 0; i < 7; i++) {
+      expect(G(data, i)).toBe(255);
+      expect(A(data, i)).toBe(255);
+    }
+  });
+
+  it("with reduced motion fades all together at full size", async () => {
+    const T = await import("three");
+    const { createTileState } = await import("./gallery-state");
+    const state = createTileState(T, 4, true);
+    state.setLayout(2, 2, 0);
+    const data = state.texture.image.data as Uint8Array;
+    state.start(0);
+    state.step(1 / 60, 80, new Float64Array(4));
+    for (let i = 0; i < 4; i++) {
+      expect(G(data, i)).toBe(128);
+      expect(A(data, i)).toBe(255); // full size
+    }
+  });
+
+  it("shows a picture that was in before the first frame whole, and fades in one that comes after", async () => {
+    const T = await import("three");
+    const { createTileState } = await import("./gallery-state");
+    const state = createTileState(T, 2, false);
+    state.setLayout(2, 1, 0);
+    const data = state.texture.image.data as Uint8Array;
+    const loadedAt = new Float64Array(2);
+    loadedAt[0] = 900; // up before the first frame at 1000
+    state.start(1000);
+    loadedAt[1] = 1200; // up during the arrival
+    state.step(1 / 60, 1210, loadedAt);
+    expect(data[0]).toBe(255);
+    expect(data[4]).toBeGreaterThan(0);
+    expect(data[4]).toBeLessThan(255);
+    state.step(1 / 60, 1700, loadedAt);
+    expect(data[4]).toBe(255);
   });
 });
 

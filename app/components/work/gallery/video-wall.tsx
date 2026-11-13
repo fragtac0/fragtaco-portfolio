@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
+import { placeholderArt } from "../../../content/placeholder-art";
 import { coverUrl } from "../../../content/work-media";
 import { usePageArrived } from "../../../lib/use-page-settled";
 import type { WorkVideo } from "../../../types";
 import { fitGrid } from "./gallery-math";
+import { shapeCover } from "../cover-image";
 import { arrowTarget, fallbackBox } from "./wall-layout";
 import { safeOf, useWallBox } from "./use-wall-box";
 import { useReducedMotion } from "./use-reduced-motion";
@@ -18,11 +20,12 @@ interface VideoWallProps {
 const ARROWS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"]);
 
 /**
- * One wall of videos (spec 6.5): every video of its kind, once, in a fitted grid drawn by the gallery
- * engine on one canvas. The links are always in the page, laid out from the same `fitGrid` so they sit
- * where the pictures are: they are the visible wall until the engine is running (the page change is over, three.js
- * loaded) and for good when there is no WebGL or the context is lost; once the engine runs they fade out
- * and stay as the accessible list (they take focus, Enter opens them, arrow keys move the engine's ring).
+ * One wall of videos (spec 6.5, round 7 spec 7): every video of its kind, once, in the largest grid that fits, drawn by
+ * the gallery engine on one canvas. The links are always in the page, laid out from the same `fitGrid` so they sit
+ * where the pictures are. They are out of sight (still the accessible list: they take focus, Enter opens them, arrow
+ * keys move the engine's ring) while the engine starts and arrives, so the wall's arrival is the first thing seen, and
+ * they are the visible wall for good when there is no WebGL or the context is lost (a picture that does not load shows
+ * the tile's local art).
  * A click or tap on the canvas opens the tile's link in a new tab through that link, so `rel="noreferrer"`
  * and the browser's own new-tab handling apply. Hovering a tile shows its title and year at the lower left.
  */
@@ -41,11 +44,13 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
   const arrived = usePageArrived(2);
   const reduced = useReducedMotion();
   const srcs = useMemo(() => items.map((video) => coverUrl(video, tall)), [items, tall]);
-  const { live, api } = useWallEngine({
+  const arts = useMemo(() => items.map((video) => placeholderArt(video.id, tall)), [items, tall]);
+  const { live, failed, api } = useWallEngine({
     host: canvasHost,
     arrived,
     measured: box !== null,
     srcs,
+    arts,
     aspect,
     reduced,
     safe: () => safeOf(null, stage.current),
@@ -124,6 +129,7 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
       className="wall-stage"
       data-fit={grid ? "" : undefined}
       data-live={live ? "" : undefined}
+      data-plain={failed ? "" : undefined}
       data-grid={grid ? JSON.stringify({ ...grid, vw: box?.vw, vh: box?.vh }) : undefined}
     >
       <div ref={canvasHost} className="wall-canvas-host" />
@@ -133,7 +139,7 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
         ref={listRef}
       >
         {items.map((video, i) => {
-          const b = grid && box ? fallbackBox(grid, i, box.vw, box.vh) : null;
+          const b = grid ? fallbackBox(grid, i) : null;
           return (
             <li
               key={video.id}
@@ -144,6 +150,7 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
                   links.current[i] = el;
                 }}
                 className="wall-tile"
+                style={srcs[i] === arts[i] ? undefined : { backgroundImage: `url("${arts[i]}")` }}
                 href={video.url}
                 target="_blank"
                 rel="noreferrer"
@@ -158,7 +165,16 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
                   if (!live) setHover(null);
                 }}
               >
-                <img src={srcs[i]} alt="" loading="lazy" decoding="async" />
+                <img
+                  ref={(img) => shapeCover(img, video.id, tall)}
+                  src={srcs[i]}
+                  crossOrigin="anonymous"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  onLoad={(e) => shapeCover(e.currentTarget, video.id, tall)}
+                  onError={(e) => shapeCover(e.currentTarget, video.id, tall)}
+                />
               </a>
             </li>
           );
