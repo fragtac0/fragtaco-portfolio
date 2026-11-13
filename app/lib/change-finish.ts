@@ -3,16 +3,20 @@
  * can be used, and it lasts 3.5 s, so the first pointer press or key press during one finishes it at once
  * (`finishChange`: the transition skips to its end and the new page is live). The press that finishes a change is
  * swallowed: it does not also activate what is under it (a click that follows the press, a key's own action, the key's
- * repeats and its release). Browser shortcuts (a key with Ctrl, Cmd or Alt) and a bare modifier key are not presses.
+ * repeats and its release, and no other listener sees it). Browser shortcuts (a key with Ctrl, Cmd or Alt), a bare modifier key,
+ * the function keys (F5 reload, F6 address bar, F11 full screen) and the media and browser keys (BrowserBack, AudioVolumeUp,
+ * MediaPlayPause, LaunchMail) are not presses: they are the browser's or the system's, and they are not prevented.
  * Only a change that is showing its pictures counts: while the data loads the old page is live, and a press works as usual.
  */
 import { finishChange, isChangeShowing } from "./page-change";
 
 const MODIFIER_KEYS = new Set(["Shift", "Control", "Alt", "Meta", "AltGraph", "CapsLock", "OS"]);
+/** F1 to F24, and the hardware keys the browser or the system handles: Browser*, Audio*, Media*, Launch*. */
+const SYSTEM_KEY = /^(F\d{1,2}|(Browser|Audio|Media|Launch)\w*)$/;
 
 /** Pure: does this key press count as a press that finishes a change? */
 export function isFinishingKey(e: Pick<KeyboardEvent, "key" | "ctrlKey" | "metaKey" | "altKey">): boolean {
-  return !(e.ctrlKey || e.metaKey || e.altKey) && !MODIFIER_KEYS.has(e.key);
+  return !(e.ctrlKey || e.metaKey || e.altKey) && !MODIFIER_KEYS.has(e.key) && !SYSTEM_KEY.test(e.key);
 }
 
 interface Api {
@@ -30,6 +34,7 @@ export function watchPresses(
   const stop = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
+    e.stopImmediatePropagation(); // no other listener on the window sees a swallowed press either
   };
 
   const onPointerDown = (e: Event) => {

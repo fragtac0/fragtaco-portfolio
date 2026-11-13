@@ -1,7 +1,7 @@
 // Drive a headless Chrome over the DevTools protocol: run a list of steps
 // (navigate, wait, eval, key, click, shot) and print each eval result.
 // usage: BASE=http://localhost:5178 node scripts/audit/cdp.mjs <steps.json> <outdir>
-// Step keys: size, dpr, mobile, touch, reduce, net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk), mdrag [x0,y0,x1,y1,n] (mouse; may be an expression), wheel [x,y,dx,dy,n],
+// Step keys: size, dpr, mobile, touch, reduce, net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk, +mod: modifiers, 1 Alt, 2 Ctrl, 4 Meta, 8 Shift), mdrag [x0,y0,x1,y1,n] (mouse; may be an expression), wheel [x,y,dx,dy,n],
 // click, move, sweep, tap, drag (click, move and tap also take a string: an expression the page answers with [x, y]), eval (+label), shot, requests ({match} + label: the hosts requested since the last such step), sample ({grid:[cols,rows]} + label: photographs the page and prints the share of pixels
 // darker than #2a2826, the share of orange-hued pixels and the average colour on a grid; see PIXEL_SAMPLER below),
 // film ({ms, dark?, share?, rect?, keep?, at?} + label: the page runs `eval` first when given, then every frame the compositor produces for `ms` is photographed (a screencast); each is
@@ -106,7 +106,7 @@ for (const s of steps) {
   if (s.key) for (const type of ["keyDown", "keyUp"]) {
     // Enter and Space need their text on the keyDown, or a focused button never activates
     const text = type === "keyDown" ? (s.key === "Enter" ? "\r" : s.key === " " ? " " : undefined) : undefined;
-    await send("Input.dispatchKeyEvent", { type, key: s.key, code: s.key, windowsVirtualKeyCode: s.vk ?? 0, ...(text ? { text } : {}) });
+    await send("Input.dispatchKeyEvent", { type, key: s.key, code: s.key, windowsVirtualKeyCode: s.vk ?? 0, ...(s.mod ? { modifiers: s.mod } : {}), ...(text ? { text } : {}) });
   }
   if (s.click) for (const type of ["mouseMoved", "mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: s.click[0], y: s.click[1], button: "left", clickCount: 1 });
   if (s.move) await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: s.move[0], y: s.move[1] });

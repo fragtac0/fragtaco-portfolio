@@ -14,9 +14,13 @@ function setup(showing = true) {
   const finish = vi.fn(() => void (state.showing = false));
   const stop = watchPresses(target, { showing: () => state.showing, finish });
   const send = (name: string, props: Record<string, unknown> = {}) => {
-    const e = { preventDefault: vi.fn(), stopPropagation: vi.fn(), ...props } as unknown as Event;
+    const e = { preventDefault: vi.fn(), stopPropagation: vi.fn(), stopImmediatePropagation: vi.fn(), ...props } as unknown as Event;
     handlers.get(name)?.(e);
-    return e as unknown as { preventDefault: ReturnType<typeof vi.fn>; stopPropagation: ReturnType<typeof vi.fn> };
+    return e as unknown as {
+      preventDefault: ReturnType<typeof vi.fn>;
+      stopPropagation: ReturnType<typeof vi.fn>;
+      stopImmediatePropagation: ReturnType<typeof vi.fn>;
+    };
   };
   const swallowed = (e: { preventDefault: ReturnType<typeof vi.fn> }) => e.preventDefault.mock.calls.length > 0;
   return { handlers, state, finish, stop, send, swallowed };
@@ -34,6 +38,12 @@ describe("isFinishingKey", () => {
     expect(key("l", { ctrlKey: true })).toBe(false);
     expect(key("ArrowLeft", { altKey: true })).toBe(false);
   });
+  it("does not count the function keys or the browser, audio, media and launch keys (the browser's and the system's own)", () => {
+    for (const k of ["F1", "F5", "F6", "F7", "F11", "F12", "F24", "BrowserBack", "BrowserForward", "BrowserRefresh", "BrowserHome"]) expect(key(k)).toBe(false);
+    for (const k of ["AudioVolumeUp", "AudioVolumeMute", "MediaPlayPause", "MediaTrackNext", "LaunchMail", "LaunchApplication1"]) expect(key(k)).toBe(false);
+    // keys that only look like them are presses
+    for (const k of ["f", "F", "Fn", "Backspace", "Home", "Dead"]) expect(key(k)).toBe(true);
+  });
 });
 
 describe("watchPresses", () => {
@@ -50,6 +60,7 @@ describe("watchPresses", () => {
     expect(s.finish).toHaveBeenCalledTimes(1);
     expect(s.swallowed(down)).toBe(true);
     expect(down.stopPropagation).toHaveBeenCalled();
+    expect(down.stopImmediatePropagation).toHaveBeenCalled(); // no other window listener sees it
     const click = s.send("click", { detail: 1 });
     expect(s.swallowed(click)).toBe(true);
     expect(click.stopPropagation).toHaveBeenCalled();
@@ -84,6 +95,16 @@ describe("watchPresses", () => {
     const s = setup();
     expect(s.swallowed(s.send("keydown", { key: "Shift", code: "ShiftLeft", ctrlKey: false, metaKey: false, altKey: false }))).toBe(false);
     expect(s.swallowed(s.send("keydown", { key: "r", code: "KeyR", ctrlKey: false, metaKey: true, altKey: false }))).toBe(false);
+    expect(s.finish).not.toHaveBeenCalled();
+  });
+
+  it("lets F5 and the browser and media keys through untouched: not prevented, nothing finished", () => {
+    const s = setup();
+    for (const key of ["F5", "F11", "BrowserBack", "AudioVolumeUp", "MediaPlayPause", "LaunchMail"]) {
+      const e = s.send("keydown", { key, code: key, ctrlKey: false, metaKey: false, altKey: false });
+      expect(s.swallowed(e)).toBe(false);
+      expect(e.stopPropagation).not.toHaveBeenCalled();
+    }
     expect(s.finish).not.toHaveBeenCalled();
   });
 

@@ -1,7 +1,7 @@
 import type { NavigateFunction } from "@remix-run/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { watchHistory, type RouterLike } from "./history-change";
-import { afterSettled, changePage, finishChange, isChangeShowing, isPageSettled, pageCommitted, planChange, subscribeSettled } from "./page-change";
+import { afterSettled, changePage, endChange, finishChange, isChangeRunning, isChangeShowing, isPageSettled, pageCommitted, planChange, subscribeSettled } from "./page-change";
 
 const screen = { vw: 1440, vh: 900 };
 const scr = { supported: true, reduced: false, ...screen };
@@ -293,6 +293,64 @@ describe("finishChange", () => {
     finishChange();
     expect(isPageSettled()).toBe(true);
   });
+
+  it("finishes once, structurally: after the first call the change no longer counts as showing, so a second press cannot finish it again", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    r.dataArrives();
+    await tick();
+    expect(isChangeShowing()).toBe(true);
+    finishChange();
+    // the transition has been skipped but has not reported `finished` yet: the window a second press could land in
+    expect(isChangeShowing()).toBe(false);
+    env.transitions[0].skipped = false;
+    finishChange();
+    expect(env.transitions[0].skipped).toBe(false); // not skipped a second time
+    await done;
+  });
+});
+
+describe("endChange", () => {
+  beforeEach(() => {
+    vi.useRealTimers();
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("does nothing, and says so, when no change is running", () => {
+    fakeEnvironment();
+    expect(isChangeRunning()).toBe(false);
+    expect(endChange()).toBe(false);
+  });
+
+  it("ends a change that is still loading its data: marks off, settled", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    expect(isChangeRunning()).toBe(true);
+    expect(endChange()).toBe(true);
+    await done;
+    expect(isChangeRunning()).toBe(false);
+    expect(isPageSettled()).toBe(true);
+    expect(env.html.dataset.changeKind).toBeUndefined();
+    expect(env.props.size).toBe(0);
+  });
+
+  it("ends a change that is showing its pictures: the transition is skipped, marks off, settled", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    r.dataArrives();
+    await tick();
+    expect(endChange()).toBe(true);
+    expect(env.transitions[0].skipped).toBe(true);
+    await done;
+    expect(isPageSettled()).toBe(true);
+    expect(env.html.dataset.changeKind).toBeUndefined();
+    expect(env.props.size).toBe(0);
+  });
 });
 
 describe("watchHistory", () => {
@@ -403,6 +461,54 @@ describe("watchHistory", () => {
     w.pop("/work"); // Forward again, before the router has the data for "/"
     expect(isPageSettled()).toBe(true);
     expect(w.html.dataset.changeKind).toBeUndefined();
+    w.stop();
+  });
+
+  it("R59: a Back while a change shows its pictures ends it at once and runs no second reveal", async () => {
+    const w = setup();
+    w.pop("/"); // Back to home: the change opens
+    w.dataArrives("/", { currentLocation: {}, nextLocation: {} });
+    w.routerStartsTransition();
+    await tick();
+    expect(w.transitions).toHaveLength(1);
+    expect(w.html.dataset.changeKind).toBe("radial");
+    w.pop("/experience"); // another Back, while the pictures show
+    expect(w.transitions[0].skipped).toBe(true);
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    expect(isPageSettled()).toBe(true);
+    // the router starts its own transition for this move: it is skipped, never adopted, no marks come back
+    w.dataArrives("/experience", { currentLocation: {}, nextLocation: {} });
+    w.routerStartsTransition();
+    expect(w.transitions).toHaveLength(2);
+    expect(w.transitions[1].skipped).toBe(true);
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    expect(isPageSettled()).toBe(true);
+    w.stop();
+  });
+
+  it("R59: a Forward while a click's change is still loading its data ends that change with no second reveal", async () => {
+    const w = setup();
+    const r = w.router("/timeline");
+    void changePage(r.navigate, "/timeline"); // the data has not arrived
+    expect(w.html.dataset.changeKind).toBe("radial");
+    w.pop("/experience");
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    expect(isPageSettled()).toBe(true);
+    // the router has its data for the history target, with a transition of its own: skipped
+    w.dataArrives("/experience", { currentLocation: {}, nextLocation: {} });
+    w.routerStartsTransition();
+    expect(w.transitions.at(-1)?.skipped).toBe(true);
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    await tick();
+    expect(isPageSettled()).toBe(true);
+    w.stop();
+  });
+
+  it("a popstate with no change running keeps the radial change", () => {
+    const w = setup();
+    w.pop("/");
+    expect(w.html.dataset.changeKind).toBe("radial");
+    expect(isPageSettled()).toBe(false);
     w.stop();
   });
 

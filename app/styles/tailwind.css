@@ -26,6 +26,12 @@
     outline: none;
   }
 
+  /* <main> takes focus after a press finished a page change (app/lib/dock-focus.ts, focusAfterFinish): a place to carry on
+     from, never a control, so never a ring even when the focus came after a key press */
+  main[tabindex="-1"]:focus {
+    outline: none;
+  }
+
   ::selection {
     background: theme(colors.accent);
     color: #000000;

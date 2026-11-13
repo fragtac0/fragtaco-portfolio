@@ -37,8 +37,8 @@ export function restoreDockFocus(doc: FocusDoc = document): boolean {
 
 /**
  * After a press finished a page change: focus has fallen to <body> when the old page's element went away, so put it on
- * the new page's <main> (made focusable, no outline: it is a place to carry on from, not a control) and Tab goes to the
- * first thing on the page. Nothing happens if focus is already somewhere on purpose. Returns whether it did.
+ * the new page's <main> (made focusable; the CSS rule `main[tabindex="-1"]:focus { outline: none }` in tailwind.css keeps
+ * it from showing a ring: it is a place to carry on from, not a control) and Tab goes to the first thing on the page. Nothing happens if focus is already somewhere on purpose. Returns whether it did.
  */
 export function focusAfterFinish(doc: FocusDoc = document): boolean {
   const at = doc.activeElement;
@@ -48,7 +48,6 @@ export function focusAfterFinish(doc: FocusDoc = document): boolean {
 
   if (!main || !(main instanceof HTMLElement)) return false;
   if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
-  main.style.outline = "none";
   main.focus({ preventScroll: true });
   return doc.activeElement === main;
 }

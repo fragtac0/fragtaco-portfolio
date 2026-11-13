@@ -7,7 +7,7 @@
  * fronts from the middle, so the nominal front is at `1 / K` of the half-size, exactly where the bend map (glass-texture.ts)
  * has it. The edge of the revealed region is the nominal front moved by `WARP` times a noise that depends on the angle,
  * and its soft edge is `band` of the travel each side, so the new page is fully visible once the front has passed the
- * farthest corner by `band + WARP`.
+ * farthest corner by about `band + WARP` (`TRAVEL` in glass-math.ts scales the front's path so that is at 0.95 of the time).
  *
  * The line is a thin, soft highlight on that edge with a faint warm fringe outside and a cream glow inside; its brightness
  * varies along the front, like a glint on glass, so it never reads as a ruled ring. Its width is a share of the front's

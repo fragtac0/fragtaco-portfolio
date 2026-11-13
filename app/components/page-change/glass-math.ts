@@ -21,8 +21,8 @@ export const GLASS = {
 export const REACH = 3;
 
 /**
- * How far the front's edge wanders from a perfect circle or line, as a share of the travel (the radius, or the
- * screen width). The painting wanders 17% of its half-diagonal; the page change keeps it subtle.
+ * How far the front's edge wanders from a perfect circle, as a share of the front's radius. The painting wanders 17% of
+ * its half-diagonal; the page change keeps it subtle.
  */
 export const WARP = 0.03;
 
@@ -36,8 +36,9 @@ export const GLASS_EASING = `cubic-bezier(${CURVE.join(", ")})`;
 /**
  * The numbers glass.css needs, as the custom properties page-change.ts puts on <html> while a change runs, so the
  * mask, the line and the bend map all come from one place (`GLASS`, `WARP`, `REACH`, `GLASS_EASING`):
- * `lead` is how far past the screen the front's soft edge and wander must go to start and end off it; `travel` the
- * radial front's final radius in farthest-corner distances; `reach` how far the pictures reach past the front, in fronts.
+ * `lead` is the soft edge and the wander together; `travel` the radial front's final radius in farthest-corner distances
+ * (`TRAVEL`: the screen is fully uncovered at `UNCOVERED_AT` of the change's time); `reach` how far the pictures reach
+ * past the front, in fronts.
  */
 export function glassVars(): Record<string, string> {
   const lead = GLASS.band + WARP;
@@ -46,7 +47,7 @@ export function glassVars(): Record<string, string> {
     "--change-band": n(GLASS.band),
     "--change-warp": n(WARP),
     "--change-lead": n(lead),
-    "--change-travel": n(1 / (1 - lead)),
+    "--change-travel": n(TRAVEL),
     "--change-reach": n(1 + REACH * GLASS.band),
     "--change-ease": GLASS_EASING,
   };
@@ -77,6 +78,20 @@ export function easeGlass(t: number): number {
   return bezier((lo + hi) / 2, CURVE[1], CURVE[3]);
 }
 
+/**
+ * R62: the share of the change's time at which the screen is fully uncovered (the old page is nowhere on it any more, to
+ * the last 2% at the farthest corner, with the edge's wander at its worst). With the in-out ease the front spends the last
+ * fifth of the time almost still, so a travel sized for "the front has gone the whole way" had the corners clear by about
+ * 0.85 while the page stayed frozen for another half second: the travel is scaled down so that happens at this share.
+ */
+export const UNCOVERED_AT = 0.95;
+/** Where the soft edge's smoothstep (3x^2 - 2x^3) has fallen to 2%: the new page is 98% visible from here inward. */
+const CLEAR_AT = 0.0855;
+/** The share of the front's radius inside which the new page is at least 98% visible, with the wander at its worst. */
+export const OPAQUE = 1 - WARP - GLASS.band * (1 - 2 * CLEAR_AT);
+/** The front's final radius in farthest-corner distances: the one that has uncovered the corner at `UNCOVERED_AT`. */
+export const TRAVEL = 1 / (OPAQUE * easeGlass(UNCOVERED_AT));
+
 const smooth = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
@@ -94,14 +109,13 @@ export interface Front {
 
 /**
  * Where the front is, and how strong the bend is, `t` of the way through the change (0..1, time).
- * The front ends when the opaque side of its soft, wandering edge (radius times 1 minus the band and the
- * wander) has passed the farthest corner.
+ * The front ends at `TRAVEL` farthest-corner distances; its soft, wandering edge has uncovered the farthest corner
+ * (`OPAQUE` of the radius) by `UNCOVERED_AT` of the time.
  */
 export function frontAt(t: number, plan: FrontPlan): Front {
   const p = easeGlass(t);
   const bend = bendAt(p);
-  const lead = GLASS.band + WARP;
-  return { radius: (p * plan.radius) / (1 - lead), bend };
+  return { radius: p * plan.radius * TRAVEL, bend };
 }
 
 /** The bend (an SVG displacement filter on the view transition's pictures) is only used in Chromium browsers; others get the reveal and the line alone. */

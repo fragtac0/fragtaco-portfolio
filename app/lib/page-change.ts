@@ -104,7 +104,7 @@ interface Running {
   stop(): void;
   /** Skips the transition to its end (the new page is live); the change ends the usual way, when the transition has finished. */
   finish(): void;
-  /** True once the browser is showing the two pictures (the transition exists): from then on nothing can be clicked. */
+  /** True once the browser is showing the two pictures (the transition exists): from then on nothing can be clicked. False again once `finish` has run, so a finish happens once. */
   showing(): boolean;
   /** Resolves when the change is over. */
   done: Promise<void>;
@@ -138,6 +138,7 @@ export function open(plan: ChangePlan) {
   prev?.stop();
   const html = document.documentElement;
   let transition: ViewTransitionLike | null = null;
+  let finishing = false;
   const cleanups: Array<() => void> = [];
   const cleanup = () => cleanups.splice(0).forEach((fn) => fn());
   let failsafe = 0;
@@ -160,13 +161,14 @@ export function open(plan: ChangePlan) {
   const entry: Running = {
     done,
     finish() {
+      finishing = true;
       try {
         transition?.skipTransition();
       } catch {
         /* already over */
       }
     },
-    showing: () => transition !== null,
+    showing: () => transition !== null && !finishing,
     stop() {
       cleanup();
       try {
@@ -242,6 +244,20 @@ export const planNow = (from: string, to: string) =>
 
 /** True while the browser is showing the two pictures of a change (nothing under them can be used, so a press finishes it). */
 export const isChangeShowing = () => current?.showing() ?? false;
+
+/** True while a change runs, whether it is showing its pictures or still waiting for the data (the old page is live then). */
+export const isChangeRunning = () => current !== null;
+
+/**
+ * Ends the running change at once, with nothing left behind (marks off, busy off, the transition skipped to its end),
+ * and returns whether there was one. Back and Forward use it (R59): they land on the history target with no second reveal.
+ */
+export function endChange(): boolean {
+  const c = current;
+  if (!c) return false;
+  c.stop();
+  return true;
+}
 
 /**
  * Finishes the running change at once: its view transition is skipped to the end, so the new page is live and the

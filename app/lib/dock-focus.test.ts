@@ -98,7 +98,7 @@ describe("dock focus", () => {
     expect(focusAfterFinish(asDoc(doc))).toBe(true);
     expect(doc.activeElement).toBe(main);
     expect(main.attrs.tabindex).toBe("-1");
-    expect(main.style.outline).toBe("none");
+    expect(main.style.outline).toBe(""); // the outline is a CSS rule (tailwind.css), not an inline style
   });
 
   it("after a press finished a change, leaves focus where the page put it, and copes with no main", () => {

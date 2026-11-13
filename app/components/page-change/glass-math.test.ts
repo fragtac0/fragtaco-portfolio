@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { bendAt, easeGlass, frontAt, GLASS, GLASS_EASING, glassVars, isChromium, judgeGlass, REACH, SIGHT_FRAMES, WARP } from "./glass-math";
+import {
+  bendAt,
+  easeGlass,
+  frontAt,
+  GLASS,
+  GLASS_EASING,
+  glassVars,
+  isChromium,
+  judgeGlass,
+  OPAQUE,
+  REACH,
+  SIGHT_FRAMES,
+  TRAVEL,
+  UNCOVERED_AT,
+  WARP,
+} from "./glass-math";
 
 const radial = { radius: 1000 };
 
@@ -53,9 +68,22 @@ describe("frontAt", () => {
     expect(start.radius).toBe(0);
     expect(start.bend).toBe(0);
     const end = frontAt(1, radial);
-    // the opaque side of the soft, wandering edge (radius times 1 - band - warp) has reached the farthest corner
-    expect(end.radius * (1 - GLASS.band - WARP)).toBeCloseTo(radial.radius, 5);
+    // the soft, wandering edge has uncovered the farthest corner by the end, with room to spare
+    expect(end.radius * OPAQUE).toBeGreaterThan(radial.radius);
     expect(end.bend).toBe(0);
+  });
+  it("uncovers the farthest corner at about 0.95 of the time, not at 0.7 (R62)", () => {
+    // the first moment the new page is at least 98% visible at the farthest corner, with the wander at its worst
+    const uncoveredAtT = () => {
+      for (let t = 0; t <= 1; t += 0.001) if (frontAt(t, radial).radius * OPAQUE >= radial.radius) return t;
+      return 1;
+    };
+    expect(uncoveredAtT()).toBeGreaterThan(UNCOVERED_AT - 0.01);
+    expect(uncoveredAtT()).toBeLessThan(UNCOVERED_AT + 0.01);
+    // the same on every screen: the front scales with the radius
+    expect(frontAt(UNCOVERED_AT, { radius: 400 }).radius * OPAQUE).toBeCloseTo(400, 0);
+    // and the screen is still not clear at 0.8 (the old page would have shown through a corner)
+    expect(frontAt(0.8, radial).radius * OPAQUE).toBeLessThan(radial.radius);
   });
   it("grows the radius and never shrinks it", () => {
     let last = -1;
@@ -79,13 +107,16 @@ describe("glassVars", () => {
     const lead = GLASS.band + WARP;
     expect(Number(v["--change-lead"])).toBeCloseTo(lead, 6);
     expect(v["--change-span"]).toBeUndefined();
-    expect(Number(v["--change-travel"])).toBeCloseTo(1 / (1 - lead), 6);
+    expect(Number(v["--change-travel"])).toBeCloseTo(TRAVEL, 6);
     expect(Number(v["--change-reach"])).toBeCloseTo(1 + REACH * GLASS.band, 6);
     expect(v["--change-ease"]).toBe(GLASS_EASING);
   });
   it("agrees with frontAt: the radius at the end is the farthest corner times the travel", () => {
     const v = glassVars();
     expect(frontAt(1, radial).radius).toBeCloseTo(radial.radius * Number(v["--change-travel"]), 1);
+    // the front's middle goes only a little past the corner (the travel is about 1.03 farthest-corner distances)
+    expect(TRAVEL).toBeGreaterThan(1);
+    expect(TRAVEL).toBeLessThan(1.1);
   });
 });
 

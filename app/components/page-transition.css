@@ -1,7 +1,7 @@
 /* The page change's shared rules. app/lib/page-change.ts owns every change: the router starts the view
  * transition itself once the destination's data is loaded (`viewTransition` on the navigation; on Back
  * and Forward too, or this module starts one), and the module puts `data-change-kind` and the origin on
- * <html> while the change runs (--change-x, --change-y, --change-r, --change-w, --change-ms).
+ * <html> while the change runs (--change-x, --change-y, --change-r, --change-ms).
  * The liquid-glass reveal (the one radial kind, 3.5 s) is in page-change/glass.css. Here: the plain fade
  * (reduced motion, 120 ms) and what any change not marked (a transition the router starts on its own)
  * falls back to, a 200 ms crossfade with no blur. Browsers without the API change pages instantly.
