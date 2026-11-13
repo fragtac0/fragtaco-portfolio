@@ -140,6 +140,7 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
         </div>
         <div className="tex" aria-hidden="true" />
         <div className="vignette" aria-hidden="true" />
+        <div className="hero-edge" aria-hidden="true" />
         <Lockup name={name} roles={roles} />
         <div className="caption">
           <span className="t" />

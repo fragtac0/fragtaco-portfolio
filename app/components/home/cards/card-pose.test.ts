@@ -1,5 +1,6 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { SETTLE_AT, cardMargin, cardPose, dragProgress, restScale, settlesOnTarget } from "./card-pose";
+import { PANEL_MS, SETTLE_AT, cardMargin, cardPose, dragProgress, restScale, settlesOnTarget } from "./card-pose";
 
 const desktop = { vw: 1440, width: 778, rail: 100, hot: false };
 const phone = { vw: 375, width: 315, rail: 80, hot: false };
@@ -88,5 +89,29 @@ describe("settlesOnTarget", () => {
     expect(settlesOnTarget(SETTLE_AT)).toBe(false);
     expect(settlesOnTarget(SETTLE_AT + 0.001)).toBe(true);
     expect(settlesOnTarget(1)).toBe(true);
+  });
+});
+
+describe("PANEL_MS", () => {
+  const css = readFileSync(new URL("../../../styles/tokens.css", import.meta.url), "utf8");
+  it("is the --panel-ms of tokens.css, about 700 ms (spec 6)", () => {
+    expect(/--panel-ms:\s*(\d+)ms;/.exec(css)?.[1]).toBe(String(PANEL_MS));
+    expect(PANEL_MS).toBeGreaterThanOrEqual(650);
+    expect(PANEL_MS).toBeLessThanOrEqual(750);
+  });
+  it("eases in and out: the first control point starts slow and the second ends slow", () => {
+    const m = /--ease-panel:\s*cubic-bezier\(([\d.]+),\s*([\d.-]+),\s*([\d.]+),\s*([\d.-]+)\);/.exec(css);
+    expect(m).not.toBeNull();
+    const [x1, y1, x2, y2] = (m ?? []).slice(1).map(Number) as [number, number, number, number];
+    // the curve leaves (0,0) along y = 0 (no initial speed) and arrives at (1,1) along y = 1 (no final speed)
+    expect(y1).toBe(0);
+    expect(y2).toBe(1);
+    expect(x1).toBeGreaterThan(0.3);
+    expect(x2).toBeLessThan(0.7);
+  });
+  it("is what the cards' CSS uses, not a literal", () => {
+    const cards = readFileSync(new URL("./cards.css", import.meta.url), "utf8");
+    expect(cards).toContain("transform var(--panel-ms) var(--ease-panel)");
+    expect(cards).not.toMatch(/0\.72s/);
   });
 });

@@ -1,3 +1,6 @@
+/** How long a card takes to slide in or out, in ms: `--panel-ms` in app/styles/tokens.css (card-pose.test.ts keeps them equal). */
+export const PANEL_MS = 700;
+
 export type Side = "left" | "right";
 export type Mode = "hidden" | "rest" | "open";
 

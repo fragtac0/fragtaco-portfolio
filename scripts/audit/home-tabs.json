@@ -1,0 +1,103 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "sweep": [
+   600,
+   300,
+   10,
+   450,
+   12
+  ],
+  "wait": 900
+ },
+ {
+  "eval": "[...document.querySelectorAll('.card')].map(c=>c.className)",
+  "label": "cls-credits"
+ },
+ {
+  "shot": "warm2"
+ },
+ {
+  "shot": "r7-tab-credits-hover"
+ },
+ {
+  "sweep": [
+   600,
+   300,
+   1432,
+   450,
+   12
+  ],
+  "wait": 900
+ },
+ {
+  "eval": "[...document.querySelectorAll('.card')].map(c=>c.className)",
+  "label": "cls-about"
+ },
+ {
+  "shot": "warm3"
+ },
+ {
+  "shot": "r7-tab-about-hover"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "(async()=>{document.querySelector('.card.right .rail').click();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const as=document.getAnimations().filter(a=>a.transitionProperty==='transform');as.forEach(a=>{a.pause();a.currentTime=0.45*a.effect.getTiming().duration});return as.length})()",
+  "label": "about-mid",
+  "wait": 300
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-panel-about-mid"
+ },
+ {
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "(async()=>{document.querySelector('.card.left .rail').click();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const as=document.getAnimations().filter(a=>a.transitionProperty==='transform');as.forEach(a=>{a.pause();a.currentTime=0.45*a.effect.getTiming().duration});return as.length})()",
+  "label": "credits-mid",
+  "wait": 300
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-panel-credits-mid"
+ },
+ {
+  "go": "{{BASE}}/",
+  "wait": 7000
+ },
+ {
+  "eval": "new Promise(async res=>{const c=document.querySelector('.card.right');c.querySelector('.rail').click();await new Promise(r=>setTimeout(r,1500));c.querySelector('.rail').click();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const as=document.getAnimations().filter(a=>a.transitionProperty==='transform');as.forEach(a=>{a.pause();a.currentTime=0.45*a.effect.getTiming().duration});res([c.className,as.length])})",
+  "label": "about-closing-mid",
+  "wait": 300
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-panel-about-closing-mid"
+ }
+]

@@ -6,7 +6,7 @@ import {
   type RefObject,
   type SetStateAction,
 } from "react";
-import { cardPose, type Mode, type Side } from "./card-pose";
+import { PANEL_MS, cardPose, type Mode, type Side } from "./card-pose";
 import { modeOf } from "./card-shell";
 import type { NavInput, NavState } from "./hero-nav";
 
@@ -17,7 +17,8 @@ export type Pose = { x: number; s: number };
 export type Els = Record<Side, HTMLElement>;
 
 export const SIDES: Side[] = ["left", "right"];
-const FOCUS_DELAY_MS = 500;
+/** Focus goes into the open card once its slide is over. */
+const FOCUS_DELAY_MS = PANEL_MS;
 
 /**
  * The latest values the input listeners read. The listeners are added once, so they go through

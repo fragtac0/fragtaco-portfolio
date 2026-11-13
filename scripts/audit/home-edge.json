@@ -1,0 +1,140 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7500
+ },
+ {
+  "eval": "new Promise(res=>{const hh=document.querySelector('#hero').offsetHeight;let n=0;const iv=setInterval(()=>{window.scrollTo(0,hh-innerHeight/2);n++;if(Math.abs(scrollY-(hh-innerHeight/2))<2||n>200){clearInterval(iv);setTimeout(()=>res([hh,scrollY,document.querySelector('#hero').getBoundingClientRect().bottom,document.documentElement.className,n]),600)}},50)})",
+  "label": "seam-1440-live",
+  "wait": 1200
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-edge-1440-live"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "reduce": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7500
+ },
+ {
+  "eval": "new Promise(res=>{const hh=document.querySelector('#hero').offsetHeight;let n=0;const iv=setInterval(()=>{window.scrollTo(0,hh-innerHeight/2);n++;if(Math.abs(scrollY-(hh-innerHeight/2))<2||n>200){clearInterval(iv);setTimeout(()=>res([hh,scrollY,document.querySelector('#hero').getBoundingClientRect().bottom,document.documentElement.className,n]),600)}},50)})",
+  "label": "seam-1440-still",
+  "wait": 1200
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-edge-1440-still"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/?nogl=1",
+  "wait": 7500
+ },
+ {
+  "eval": "new Promise(res=>{const hh=document.querySelector('#hero').offsetHeight;let n=0;const iv=setInterval(()=>{window.scrollTo(0,hh-innerHeight/2);n++;if(Math.abs(scrollY-(hh-innerHeight/2))<2||n>200){clearInterval(iv);setTimeout(()=>res([hh,scrollY,document.querySelector('#hero').getBoundingClientRect().bottom,document.documentElement.className,n]),600)}},50)})",
+  "label": "seam-1440-nogl",
+  "wait": 1200
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-edge-1440-nogl"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7500,
+  "mobile": true,
+  "touch": true
+ },
+ {
+  "eval": "new Promise(res=>{const hh=document.querySelector('#hero').offsetHeight;let n=0;const iv=setInterval(()=>{window.scrollTo(0,hh-innerHeight/2);n++;if(Math.abs(scrollY-(hh-innerHeight/2))<2||n>200){clearInterval(iv);setTimeout(()=>res([hh,scrollY,document.querySelector('#hero').getBoundingClientRect().bottom,document.documentElement.className,n]),600)}},50)})",
+  "label": "seam-390-live",
+  "wait": 1200
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-edge-390-live"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "reduce": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 7500,
+  "mobile": true,
+  "touch": true
+ },
+ {
+  "eval": "new Promise(res=>{const hh=document.querySelector('#hero').offsetHeight;let n=0;const iv=setInterval(()=>{window.scrollTo(0,hh-innerHeight/2);n++;if(Math.abs(scrollY-(hh-innerHeight/2))<2||n>200){clearInterval(iv);setTimeout(()=>res([hh,scrollY,document.querySelector('#hero').getBoundingClientRect().bottom,document.documentElement.className,n]),600)}},50)})",
+  "label": "seam-390-still",
+  "wait": 1200
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-edge-390-still"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/?nogl=1",
+  "wait": 7500,
+  "mobile": true,
+  "touch": true
+ },
+ {
+  "eval": "new Promise(res=>{const hh=document.querySelector('#hero').offsetHeight;let n=0;const iv=setInterval(()=>{window.scrollTo(0,hh-innerHeight/2);n++;if(Math.abs(scrollY-(hh-innerHeight/2))<2||n>200){clearInterval(iv);setTimeout(()=>res([hh,scrollY,document.querySelector('#hero').getBoundingClientRect().bottom,document.documentElement.className,n]),600)}},50)})",
+  "label": "seam-390-nogl",
+  "wait": 1200
+ },
+ {
+  "shot": "warm"
+ },
+ {
+  "shot": "r7-edge-390-nogl"
+ }
+]

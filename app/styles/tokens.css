@@ -32,6 +32,26 @@
   --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the only orange glow allowed */
   --glass-rgb: 16 16 15; /* the dock glass: this colour at 46% */
 
+  /* the About and Credits tabs (round 7, spec 6): an orange gradient with white text, the glow and a drop shadow.
+     White on --accent itself is only 3.4 to 1, so the lightest point of the tab is --accent-tab, the accent stepped down
+     until 13 px white text clears 4.5 to 1 (4.6); --accent-deep is the deeper end. tokens.test.ts and contrast.test.ts
+     keep the numbers. The glow stays inside the 28 px rule. */
+  --accent-tab: #d44000;
+  --accent-deep: #a02900;
+  --tab-ink: #ffffff;
+  --tab-gradient: linear-gradient(180deg, var(--accent-tab), var(--accent-deep));
+  --tab-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.7);
+  --tab-glow: 0 0 26px -6px rgba(252, 76, 0, 0.55);
+  --tab-glow-hot: 0 0 28px -3px rgba(252, 76, 0, 0.8);
+
+  /* a card (About, Credits) sliding in or out: about 700 ms on the painting's ease in and out (R58); app/components/home/cards/card-pose.ts PANEL_MS is the same number */
+  --panel-ms: 700ms;
+  --ease-panel: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* where the painting ends: the top of the home section's Eclipse ground (placement 2, about rgb(11, 11, 10) across its
+     first rows, a little under --ground), so the hero's lower edge fades into it with no line (hero.css .hero-edge) */
+  --hero-seam-rgb: 11 11 10;
+
   /* the dock's idle labels (the active one is 100%) */
   --dock-idle: 0.85;
 
