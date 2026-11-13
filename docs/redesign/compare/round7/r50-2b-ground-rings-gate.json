@@ -1,0 +1,104 @@
+{
+  "what": "R50.2b: no frame over 20 ms with the Eclipse ground running under the rings (R50.2 gate, round 7 Task 7)",
+  "how": "scripts/audit/ground.json steps '2-frames over 5 s ...' (production build on :5180, headless Chrome, 1440x900, dpr 2, CPU 4x slower, rings turning with neutral tile pictures); 'ground_running' is the ground drawing about 30 frames a second, 'loop_stopped' is the same page with the loop stopped (a faked hidden tab) as the baseline. Stills are the 1280x800 landscape ones.",
+  "build": "after R50.2b (stills at 1280x800, fade-out on engine off)",
+  "runs": [
+    {
+      "source": "ground.json, whole file, 1st run after the build",
+      "ground_running": {
+        "frames": 299,
+        "avg": 16.78,
+        "p95": 16.7,
+        "max": 33.4,
+        "over20": 2
+      },
+      "loop_stopped": {
+        "frames": 300,
+        "avg": 16.67,
+        "p95": 16.8,
+        "max": 16.8,
+        "over20": 0
+      }
+    },
+    {
+      "source": "ground.json, whole file, 2nd run",
+      "ground_running": {
+        "frames": 300,
+        "avg": 16.67,
+        "p95": 16.7,
+        "max": 16.8,
+        "over20": 0
+      },
+      "loop_stopped": {
+        "frames": 301,
+        "avg": 16.67,
+        "p95": 16.8,
+        "max": 16.8,
+        "over20": 0
+      }
+    },
+    {
+      "source": "ground.json, whole file, 3rd run",
+      "ground_running": {
+        "frames": 301,
+        "avg": 16.67,
+        "p95": 16.7,
+        "max": 16.8,
+        "over20": 0
+      },
+      "loop_stopped": {
+        "frames": 300,
+        "avg": 16.67,
+        "p95": 16.8,
+        "max": 16.8,
+        "over20": 0
+      }
+    },
+    {
+      "source": "the same steps alone, 1st run",
+      "ground_running": {
+        "frames": 301,
+        "avg": 16.67,
+        "max": 16.8,
+        "over20": 0
+      },
+      "loop_stopped": {
+        "frames": 300,
+        "avg": 16.67,
+        "max": 16.8,
+        "over20": 0
+      }
+    },
+    {
+      "source": "the same steps alone, 2nd run",
+      "ground_running": {
+        "frames": 301,
+        "avg": 16.67,
+        "max": 16.8,
+        "over20": 0
+      },
+      "loop_stopped": {
+        "frames": 301,
+        "avg": 16.67,
+        "max": 16.8,
+        "over20": 0
+      }
+    },
+    {
+      "source": "the same steps alone, 3rd run",
+      "ground_running": {
+        "frames": 301,
+        "avg": 16.67,
+        "max": 16.8,
+        "over20": 0
+      },
+      "loop_stopped": {
+        "frames": 300,
+        "avg": 16.67,
+        "max": 16.8,
+        "over20": 0
+      }
+    }
+  ],
+  "summary": "6 of 6 runs: loop stopped 0 frames over 20 ms; ground running 0 over 20 ms in 5 runs, 2 over 20 ms (max 33.4 ms) in the first run after the build, not seen again in the 5 runs after it. Headless Chrome paces frames at 16.7 ms; real GPU cost is not measured here."
+}

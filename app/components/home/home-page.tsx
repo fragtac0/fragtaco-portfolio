@@ -147,6 +147,7 @@ export default function HomePage({
           onOpen={openLayer}
           onNear={onBlockNear}
           blocked={open}
+          covered={layerActive}
         />
         <SiteNav
           items={navigationItems}

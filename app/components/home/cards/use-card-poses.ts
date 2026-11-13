@@ -6,9 +6,10 @@ import {
   type RefObject,
   type SetStateAction,
 } from "react";
-import { cardPose, type Mode, type Side } from "./card-pose";
+import { cardPose, focusDelay, slidesBetween, type Mode, type Side } from "./card-pose";
 import { modeOf } from "./card-shell";
 import type { NavInput, NavState } from "./hero-nav";
+import { prefersReducedMotion } from "../hero/hero-runtime";
 
 export type HotState = Record<Side, boolean>;
 export const NO_HOT: HotState = { left: false, right: false };
@@ -17,7 +18,6 @@ export type Pose = { x: number; s: number };
 export type Els = Record<Side, HTMLElement>;
 
 export const SIDES: Side[] = ["left", "right"];
-const FOCUS_DELAY_MS = 500;
 
 /**
  * The latest values the input listeners read. The listeners are added once, so they go through
@@ -49,9 +49,19 @@ export function place(el: HTMLElement, { x, s }: Pose) {
   el.style.setProperty("--card-scale", String(s)); // the rail label divides by it to stay at 13 px
 }
 
-export function placeAll(els: Els, nav: NavState, hot: HotState) {
+/**
+ * Writes both cards' poses. A card moving into or out of `open` is marked `data-slide` so it takes the panel's 700 ms
+ * (cards.css); every other write clears the mark, so the hover nudge keeps the quick ease. `slide = false` is for a
+ * drag that ends: the card carries on from the finger's place on the quick ease.
+ */
+export function placeAll(els: Els, nav: NavState, hot: HotState, slide = true) {
   for (const side of SIDES) {
-    place(els[side], measure(els[side], side, modeOf(nav, side), hot[side] && nav === "hero"));
+    const el = els[side];
+    const mode = modeOf(nav, side);
+    if (slide && slidesBetween(el.dataset.pose as Mode | undefined, mode)) el.dataset.slide = "";
+    else delete el.dataset.slide;
+    el.dataset.pose = mode;
+    place(el, measure(el, side, mode, hot[side] && nav === "hero"));
   }
 }
 
@@ -107,7 +117,7 @@ export function useCardPoses({
       const card = (nav === "right" ? rightRef : leftRef).current;
       const id = window.setTimeout(() => {
         card?.querySelector<HTMLElement>(".card-scroll")?.focus({ preventScroll: true });
-      }, FOCUS_DELAY_MS);
+      }, focusDelay(prefersReducedMotion()));
       return () => window.clearTimeout(id);
     }
     if (prev === "left" || prev === "right") {

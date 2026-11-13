@@ -1,0 +1,184 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>5000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
+  "go": "{{BASE}}/",
+  "wait": 6000,
+  "cpu": 4
+ },
+ {
+  "label": "setup: a probe button counts the clicks it gets and holds focus",
+  "eval": "(()=>{window.__clicks=0;const b=document.createElement('button');b.id='probe';b.textContent='probe';b.style.cssText='position:fixed;left:8px;top:8px;z-index:99999';b.addEventListener('click',()=>{window.__clicks++});document.body.appendChild(b);b.focus();return document.activeElement.id})()"
+ },
+ {
+  "label": "A: a change home to work, 1 s in",
+  "eval": "(async()=>{__ftChange('/work');const t0=performance.now();while(performance.now()-t0<1000)await __sleep(20);const a=document.getAnimations().find(a=>a.animationName==='glass-p');return JSON.stringify({showing:!!document.documentElement.dataset.changeKind,glassMs:a?Math.round(a.currentTime):null})})()"
+ },
+ {
+  "label": "A: before the press",
+  "shot": "local-finish-key-before-warm"
+ },
+ {
+  "shot": "local-finish-key-before"
+ },
+ {
+  "key": "Enter"
+ },
+ {
+  "wait": 400,
+  "label": "A: after Enter at 1 s: the change is over on /work, the probe's Enter click did not happen (clicks 0, in ok)",
+  "eval": "((tag,want,focusIn)=>{const h=document.documentElement,a=document.activeElement;const o={tag,path:location.pathname,kind:h.dataset.changeKind||null,glass:h.dataset.glass||null,settled:__ftSettled(),\n marks:['--change-x','--change-y','--change-r','--change-ms'].filter(n=>h.style.getPropertyValue(n)).length,docAnims:document.getAnimations().length,\n focus:a?(a.tagName+(a.getAttribute('data-work-tab')?'['+a.getAttribute('data-work-tab')+']':'')+(a.getAttribute('aria-current')?'[current]':'')):null,inDock:!!(a&&a.closest&&a.closest('header[data-site-nav]')),errs:__errs.length,clicks:window.__clicks??null};\n o.ok=o.path===want&&o.kind===null&&o.glass===null&&o.settled&&o.marks===0&&o.errs===0&&(window.__clicks??0)===0&&(focusIn==='dock'?o.inDock&&/current/.test(o.focus||''):focusIn==='main'?o.focus==='MAIN':true);return JSON.stringify(o)})('A','/work')"
+ },
+ {
+  "shot": "local-finish-key-after-warm"
+ },
+ {
+  "shot": "local-finish-key-after"
+ },
+ {
+  "label": "A: no second finish: a later key press does nothing to the page",
+  "eval": "(async()=>{await __sleep(300);return JSON.stringify({clicks:__clicks,path:location.pathname,ok:__clicks===0&&location.pathname==='/work'})})()"
+ },
+ {
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "B: focus a dock tab (Work), start the change from the keyboard, press a key at 1 s: it ends on /work and focus is back on the dock",
+  "eval": "(()=>{const l=[...document.querySelectorAll('header[data-site-nav] a')].find(a=>a.getAttribute('href')==='/work');l.focus();return document.activeElement.getAttribute('href')})()"
+ },
+ {
+  "key": "Enter"
+ },
+ {
+  "label": "B: 1 s into the change",
+  "eval": "(async()=>{const t0=performance.now();while(performance.now()-t0<1000)await __sleep(20);const a=document.getAnimations().find(a=>a.animationName==='glass-p');return JSON.stringify({showing:!!document.documentElement.dataset.changeKind,glassMs:a?Math.round(a.currentTime):null,path:location.pathname})})()"
+ },
+ {
+  "key": "ArrowDown"
+ },
+ {
+  "wait": 600,
+  "label": "B: after the key",
+  "eval": "((tag,want,focusIn)=>{const h=document.documentElement,a=document.activeElement;const o={tag,path:location.pathname,kind:h.dataset.changeKind||null,glass:h.dataset.glass||null,settled:__ftSettled(),\n marks:['--change-x','--change-y','--change-r','--change-ms'].filter(n=>h.style.getPropertyValue(n)).length,docAnims:document.getAnimations().length,\n focus:a?(a.tagName+(a.getAttribute('data-work-tab')?'['+a.getAttribute('data-work-tab')+']':'')+(a.getAttribute('aria-current')?'[current]':'')):null,inDock:!!(a&&a.closest&&a.closest('header[data-site-nav]')),errs:__errs.length,clicks:window.__clicks??null};\n o.ok=o.path===want&&o.kind===null&&o.glass===null&&o.settled&&o.marks===0&&o.errs===0&&(window.__clicks??0)===0&&(focusIn==='dock'?o.inDock&&/current/.test(o.focus||''):focusIn==='main'?o.focus==='MAIN':true);return JSON.stringify(o)})('B','/work','dock')"
+ },
+ {
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "C setup: count the clicks that reach the page",
+  "eval": "(()=>{window.__clicks=0;document.addEventListener('click',()=>{window.__clicks++},true);return 'counting clicks'})()"
+ },
+ {
+  "label": "C: a pointer press at 1 s finishes the change and does not activate what is under it (the dock's Home link sits where the press lands)",
+  "eval": "(async()=>{__ftChange('/work');const t0=performance.now();while(performance.now()-t0<1000)await __sleep(20);const a=document.getAnimations().find(a=>a.animationName==='glass-p');return JSON.stringify({showing:!!document.documentElement.dataset.changeKind,glassMs:a?Math.round(a.currentTime):null})})()"
+ },
+ {
+  "click": [
+   559,
+   846
+  ]
+ },
+ {
+  "wait": 800,
+  "label": "C: after the press (still on /work: no second change started, no click reached the page, focus on main)",
+  "eval": "((tag,want,focusIn)=>{const h=document.documentElement,a=document.activeElement;const o={tag,path:location.pathname,kind:h.dataset.changeKind||null,glass:h.dataset.glass||null,settled:__ftSettled(),\n marks:['--change-x','--change-y','--change-r','--change-ms'].filter(n=>h.style.getPropertyValue(n)).length,docAnims:document.getAnimations().length,\n focus:a?(a.tagName+(a.getAttribute('data-work-tab')?'['+a.getAttribute('data-work-tab')+']':'')+(a.getAttribute('aria-current')?'[current]':'')):null,inDock:!!(a&&a.closest&&a.closest('header[data-site-nav]')),errs:__errs.length,clicks:window.__clicks??null};\n o.ok=o.path===want&&o.kind===null&&o.glass===null&&o.settled&&o.marks===0&&o.errs===0&&(window.__clicks??0)===0&&(focusIn==='dock'?o.inDock&&/current/.test(o.focus||''):focusIn==='main'?o.focus==='MAIN':true);return JSON.stringify(o)})('C','/work','main')"
+ },
+ {
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "D setup: main's class on the home page",
+  "eval": "((document.querySelector('main')||{}).className||'').split(' ')[0]"
+ },
+ {
+  "label": "D: 1 s into a change to /work, press Back",
+  "eval": "(async()=>{__ftChange('/work');const t0=performance.now();while(performance.now()-t0<1000)await __sleep(20);const a=document.getAnimations().find(a=>a.animationName==='glass-p');return JSON.stringify({showing:!!document.documentElement.dataset.changeKind,glassMs:a?Math.round(a.currentTime):null})})()"
+ },
+ {
+  "label": "D: after Back (R59: no second reveal; the page before is live and settled within a few hundred ms; no radial change, no glass animation)",
+  "eval": "(async()=>{const h=document.documentElement;window.__kinds=[];let glass=0,seen=0;\n new MutationObserver(()=>{const k=h.dataset.changeKind;if(k)__kinds.push(k)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});\n const t0=performance.now();let settledMs=null;history.back();\n while(performance.now()-t0<2500){await __sleep(16);if(document.getAnimations().some(a=>a.animationName==='glass-p'))glass++;\n  if(settledMs===null&&location.pathname==='/'&&__ftSettled()&&!h.dataset.changeKind&&(document.querySelector('main')||{}).className.split(' ')[0]==='home-page')settledMs=Math.round(performance.now()-t0)}\n const m=((document.querySelector('main')||{}).className||'').split(' ')[0];\n return JSON.stringify({path:location.pathname,main:m,settledMs,kindsSeen:__kinds,glassAnimFrames:glass,kind:h.dataset.changeKind||null,settled:__ftSettled(),errs:__errs.length,\n  ok:location.pathname==='/'&&m==='home-page'&&settledMs!==null&&settledMs<=600&&__kinds.length===0&&glass===0&&!h.dataset.changeKind&&__ftSettled()&&__errs.length===0})})()"
+ },
+ {
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "E: a bare modifier and a Ctrl/Cmd shortcut finish nothing",
+  "eval": "(async()=>{__ftChange('/work');const t0=performance.now();while(performance.now()-t0<600)await __sleep(20);const a=document.getAnimations().find(a=>a.animationName==='glass-p');return JSON.stringify({showing:!!document.documentElement.dataset.changeKind,glassMs:a?Math.round(a.currentTime):null})})()"
+ },
+ {
+  "key": "Shift"
+ },
+ {
+  "label": "E: after Shift: still running",
+  "eval": "JSON.stringify({kind:document.documentElement.dataset.changeKind||null,path:location.pathname,ok:document.documentElement.dataset.changeKind==='radial'})"
+ },
+ {
+  "key": "r",
+  "mod": 4
+ },
+ {
+  "key": "l",
+  "mod": 2
+ },
+ {
+  "label": "E: after Cmd+R and Ctrl+L (real key events with the modifier): still running, nothing prevented",
+  "eval": "JSON.stringify({kind:document.documentElement.dataset.changeKind||null,path:location.pathname,ok:document.documentElement.dataset.changeKind==='radial'&&location.pathname==='/work'})"
+ },
+ {
+  "eval": "__ftFinish()"
+ },
+ {
+  "wait": 400,
+  "label": "E: after the hook's finish",
+  "eval": "((tag,want,focusIn)=>{const h=document.documentElement,a=document.activeElement;const o={tag,path:location.pathname,kind:h.dataset.changeKind||null,glass:h.dataset.glass||null,settled:__ftSettled(),\n marks:['--change-x','--change-y','--change-r','--change-ms'].filter(n=>h.style.getPropertyValue(n)).length,docAnims:document.getAnimations().length,\n focus:a?(a.tagName+(a.getAttribute('data-work-tab')?'['+a.getAttribute('data-work-tab')+']':'')+(a.getAttribute('aria-current')?'[current]':'')):null,inDock:!!(a&&a.closest&&a.closest('header[data-site-nav]')),errs:__errs.length,clicks:window.__clicks??null};\n o.ok=o.path===want&&o.kind===null&&o.glass===null&&o.settled&&o.marks===0&&o.errs===0&&(window.__clicks??0)===0&&(focusIn==='dock'?o.inDock&&/current/.test(o.focus||''):focusIn==='main'?o.focus==='MAIN':true);return JSON.stringify(o)})('E','/work')"
+ },
+ {
+  "label": "reduced motion: a press is not needed (120 ms fade), nothing odd",
+  "reduce": true,
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "F: reduced motion change ends by itself",
+  "eval": "(async()=>{await __ftChange('/work');await __sleep(300);return JSON.stringify({path:location.pathname,kind:document.documentElement.dataset.changeKind||null,settled:__ftSettled(),ok:location.pathname==='/work'&&!document.documentElement.dataset.changeKind&&__ftSettled()})})()"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>5000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
+  "go": "{{BASE}}/",
+  "wait": 6000,
+  "reduce": false,
+  "cpu": 4,
+  "label": "H setup: the touch profile (390 by 844, dpr 2, touch)"
+ },
+ {
+  "label": "H: count the clicks that reach the page",
+  "eval": "(()=>{window.__clicks=0;document.addEventListener('click',()=>{window.__clicks++},true);return 'counting clicks'})()"
+ },
+ {
+  "label": "H: a change to /work, 1 s in",
+  "eval": "(async()=>{__ftChange('/work');const t0=performance.now();while(performance.now()-t0<1000)await __sleep(20);const a=document.getAnimations().find(a=>a.animationName==='glass-p');return JSON.stringify({showing:!!document.documentElement.dataset.changeKind,glassMs:a?Math.round(a.currentTime):null})})()"
+ },
+ {
+  "tap": "(()=>{const r=[...document.querySelectorAll('header[data-site-nav] a')].find(a=>a.getAttribute('href')==='/').getBoundingClientRect();return [Math.round(r.x+r.width/2),Math.round(r.y+r.height/2)]})()"
+ },
+ {
+  "wait": 800,
+  "label": "H: after the tap on the dock's Home link: the change is finished, the page stays /work (the tap's click did not activate Home), no click reached the page, settled",
+  "eval": "((tag,want,focusIn)=>{const h=document.documentElement,a=document.activeElement;const o={tag,path:location.pathname,kind:h.dataset.changeKind||null,glass:h.dataset.glass||null,settled:__ftSettled(),\n marks:['--change-x','--change-y','--change-r','--change-ms'].filter(n=>h.style.getPropertyValue(n)).length,docAnims:document.getAnimations().length,\n focus:a?(a.tagName+(a.getAttribute('data-work-tab')?'['+a.getAttribute('data-work-tab')+']':'')+(a.getAttribute('aria-current')?'[current]':'')):null,inDock:!!(a&&a.closest&&a.closest('header[data-site-nav]')),errs:__errs.length,clicks:window.__clicks??null};\n o.ok=o.path===want&&o.kind===null&&o.glass===null&&o.settled&&o.marks===0&&o.errs===0&&(window.__clicks??0)===0&&(focusIn==='dock'?o.inDock&&/current/.test(o.focus||''):focusIn==='main'?o.focus==='MAIN':true);return JSON.stringify(o)})('H','/work')"
+ }
+]

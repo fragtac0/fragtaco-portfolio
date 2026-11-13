@@ -1,7 +1,7 @@
 // Writes scripts/audit/hero-return.json: the home page's picture through a page change (R49.1), on the production build.
 // usage: node scripts/audit/make-hero-return.mjs   then   BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/hero-return.json <outdir>
 // Every `film` step photographs every frame the compositor produces (a screencast) from the moment the change to home starts
-// until AFTER_MS past the change's end (the change's real length is read from the source: GLASS.radialMs in glass-math.ts, the
+// until AFTER_MS past the change's end (the change's real length is read from the source: GLASS.ms in glass-math.ts, the
 // reduced-motion fade in page-change.ts, so a longer change lengthens the film and moves the frames, never the other way round);
 // a frame is bare when 75% of the cells of the hero's box (48 by 30 of them) are darker than luma 20 (a painting, even a dark one,
 // stays under 55%; the bare ground and the black canvas are 98%+). `ok` must be true: no bare frame while the hero is visible.
@@ -19,7 +19,7 @@ function constant(file, re, what) {
   if (!m) throw new Error(`make-hero-return: cannot read ${what} from ${file}`);
   return Number(m[1]);
 }
-const CHANGE_MS = constant("../../app/components/page-change/glass-math.ts", /radialMs:\s*(\d+)/, "GLASS.radialMs");
+const CHANGE_MS = constant("../../app/components/page-change/glass-math.ts", /\bms:\s*(\d+)/, "GLASS.ms");
 const REDUCED_CHANGE_MS = constant("../../app/lib/page-change.ts", /\bfade:\s*(\d+)\s*\}/, "the reduced-motion change length (MS.fade)");
 /** How long the film runs past the change's end (the brief: at least 1.5 s; the bare frames came 0.4 s after the end on a slow CPU). */
 const AFTER_MS = 3000;
@@ -28,7 +28,7 @@ const filmMs = (changeMs) => changeMs + AFTER_MS;
 const atAfter = (changeMs, after) => changeMs + after;
 const base = (seen) => `try{${seen ? "sessionStorage.setItem('ft:intro-seen','1');" : ""}sessionStorage.setItem('ft:debug-change','1')}catch(e){}
 ${wordsRecorder}
-window.__hold=(to,kind,t,ox,oy)=>new Promise(res=>{__ftChange(to,kind,ox!=null?{x:ox,y:oy}:undefined);const t0=performance.now();
+window.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();
  const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>${filmMs(CHANGE_MS)}){clearInterval(iv);
   setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});
 window.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}
@@ -43,8 +43,9 @@ window.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i
  const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));
  const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];
  return{awaitingMs:l[i1][0]-l[i0][0],hiddenWhileAwaiting:hidden,inBetweenSamples:mid,largestStep:+step.toFixed(2),endOpacity:end,ok:hidden&&mid>=5&&step<0.4&&end>=0.95}};`;
-const toWork = "__ftChange('/work','radial',{x:676,y:846}).then(()=>new Promise(r=>setTimeout(r,1500)))";
-const toHome = "__ftChange('/','radial',{x:559,y:846})";
+const toWork = "__ftChange('/work').then(()=>new Promise(r=>setTimeout(r,1500)))";
+// the words log is cleared just before the change, so `__wsum` reads this change's own fade (not the hard load's)
+const toHome = "(window.__wl.length=0,__ftChange('/'))";
 const steps = [];
 const wait = (ms) => ({ wait: ms });
 
@@ -64,7 +65,7 @@ arrive("return"); film("return, dock, 1x: no bare frame", "return-darkest", atAf
 arrive("return", { cpu: 6 }); film("return, dock, CPU 6x: no bare frame", "return-slow-darkest", atAfter(CHANGE_MS, 490));
 arrive("first"); film("first visit (landed on /work), dock, 1x: no bare frame", "first-darkest", atAfter(CHANGE_MS, 180)); state("first visit state"); words("first visit: words wait for the sharp painting (not the placeholder), then fade in");
 arrive("first", { cpu: 6 }); film("first visit, dock, CPU 6x: no bare frame", "first-slow-darkest", atAfter(CHANGE_MS, 490));
-arrive("return"); film("return by Back: no bare frame", "back-darkest", atAfter(CHANGE_MS, 180), "history.back()");
+arrive("return"); film("return by Back: no bare frame", "back-darkest", atAfter(CHANGE_MS, 180), "(window.__wl.length=0,history.back())");
 arrive("return", { reduce: true }); film("return, reduced motion: no bare frame", "return-reduced-darkest", atAfter(REDUCED_CHANGE_MS, 280), toHome, REDUCED_CHANGE_MS);
 arrive("first", { reduce: true }); film("first visit, reduced motion: no bare frame", "first-reduced-darkest", atAfter(REDUCED_CHANGE_MS, 280), toHome, REDUCED_CHANGE_MS);
 arrive("return", { dpr: 2 }); film("return, dpr 2: no bare frame", "return-dpr2-darkest");
@@ -73,7 +74,7 @@ arrive("return", { dpr: 2 }); film("return, dpr 2: no bare frame", "return-dpr2-
 for (const kind of ["return", "first"]) {
   arrive(kind);
   for (const t of [0.3, 0.7]) {
-    steps.push({ eval: `__hold('/','radial',${t},559,846)`, label: `${kind} held at ${t}` });
+    steps.push({ eval: `__hold('/',${t})`, label: `${kind} held at ${t}` });
     steps.push(wait(120), { shot: `${kind}-held-${t}-warm` }, wait(60), { shot: `${kind}-held-${t}` });
     steps.push({ film: { ms: 400, rect: "#hero", keep: `${kind}-held-${t}-darkest` }, label: `${kind} held at ${t}: no bare frame` });
     steps.push({ eval: "__release()", label: "release" }, { eval: toWork, wait: 3000 });

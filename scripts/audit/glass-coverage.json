@@ -1,0 +1,156 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>5000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "the old page alone",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "wait": 400,
+  "shot": "cover-old-warm"
+ },
+ {
+  "wait": 100,
+  "shot": "cover-old"
+ },
+ {
+  "label": "the new page alone",
+  "eval": "__jump('/')"
+ },
+ {
+  "wait": 400,
+  "shot": "cover-new-warm"
+ },
+ {
+  "wait": 100,
+  "shot": "cover-new"
+ },
+ {
+  "label": "cover-00 (t=0.6): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "cover-00 (t=0.6)",
+  "eval": "__hold('/',0.6)"
+ },
+ {
+  "wait": 120,
+  "shot": "cover-00-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "cover-00"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "cover-01 (t=0.7): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "cover-01 (t=0.7)",
+  "eval": "__hold('/',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "cover-01-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "cover-01"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "cover-02 (t=0.8): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "cover-02 (t=0.8)",
+  "eval": "__hold('/',0.8)"
+ },
+ {
+  "wait": 120,
+  "shot": "cover-02-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "cover-02"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "cover-03 (t=0.9): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "cover-03 (t=0.9)",
+  "eval": "__hold('/',0.9)"
+ },
+ {
+  "wait": 120,
+  "shot": "cover-03-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "cover-03"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "cover-04 (t=0.95): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "cover-04 (t=0.95)",
+  "eval": "__hold('/',0.95)"
+ },
+ {
+  "wait": 120,
+  "shot": "cover-04-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "cover-04"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "cover-05 (t=1): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "cover-05 (t=1)",
+  "eval": "__hold('/',1)"
+ },
+ {
+  "wait": 120,
+  "shot": "cover-05-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "cover-05"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ }
+]

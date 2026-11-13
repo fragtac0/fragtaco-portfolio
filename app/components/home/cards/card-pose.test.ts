@@ -1,5 +1,17 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { SETTLE_AT, cardMargin, cardPose, dragProgress, restScale, settlesOnTarget } from "./card-pose";
+import {
+  PANEL_MS,
+  REDUCED_FOCUS_MS,
+  SETTLE_AT,
+  cardMargin,
+  cardPose,
+  dragProgress,
+  focusDelay,
+  restScale,
+  settlesOnTarget,
+  slidesBetween,
+} from "./card-pose";
 
 const desktop = { vw: 1440, width: 778, rail: 100, hot: false };
 const phone = { vw: 375, width: 315, rail: 80, hot: false };
@@ -88,5 +100,47 @@ describe("settlesOnTarget", () => {
     expect(settlesOnTarget(SETTLE_AT)).toBe(false);
     expect(settlesOnTarget(SETTLE_AT + 0.001)).toBe(true);
     expect(settlesOnTarget(1)).toBe(true);
+  });
+});
+
+describe("PANEL_MS", () => {
+  const css = readFileSync(new URL("../../../styles/tokens.css", import.meta.url), "utf8");
+  it("is the --panel-ms of tokens.css, about 700 ms (spec 6)", () => {
+    expect(/--panel-ms:\s*(\d+)ms;/.exec(css)?.[1]).toBe(String(PANEL_MS));
+    expect(PANEL_MS).toBeGreaterThanOrEqual(650);
+    expect(PANEL_MS).toBeLessThanOrEqual(750);
+  });
+  it("eases in and out: the first control point starts slow and the second ends slow", () => {
+    const m = /--ease-panel:\s*cubic-bezier\(([\d.]+),\s*([\d.-]+),\s*([\d.]+),\s*([\d.-]+)\);/.exec(css);
+    expect(m).not.toBeNull();
+    const [x1, y1, x2, y2] = (m ?? []).slice(1).map(Number) as [number, number, number, number];
+    // the curve leaves (0,0) along y = 0 (no initial speed) and arrives at (1,1) along y = 1 (no final speed)
+    expect(y1).toBe(0);
+    expect(y2).toBe(1);
+    expect(x1).toBeGreaterThan(0.3);
+    expect(x2).toBeLessThan(0.7);
+  });
+  it("is what the panel's CSS uses, not a literal; the nudge and the settle keep the quick ease (R71)", () => {
+    const cards = readFileSync(new URL("./cards.css", import.meta.url), "utf8");
+    const tab = readFileSync(new URL("./card-tab.css", import.meta.url), "utf8");
+    // the slide takes the tokens, on the card and on its rail label
+    expect(/\.card\[data-slide\] \{\s*transition:\s*transform var\(--panel-ms\) var\(--ease-panel\)/.test(cards)).toBe(true);
+    expect(/\.card\[data-slide\] \.rail span \{\s*transition: transform var\(--panel-ms\) var\(--ease-panel\)/.test(tab)).toBe(true);
+    // the plain card does not: the hover nudge is the old 0.72 s ease
+    expect(/\.home-hero \.card \{[^}]*transition:\s*transform 0\.72s var\(--ease\)/.test(cards)).toBe(true);
+  });
+  it("marks only the moves into or out of open as slides", () => {
+    expect(slidesBetween("rest", "open")).toBe(true);
+    expect(slidesBetween("open", "rest")).toBe(true);
+    expect(slidesBetween("open", "hidden")).toBe(true);
+    expect(slidesBetween("rest", "rest")).toBe(false); // the hover nudge
+    expect(slidesBetween("open", "open")).toBe(false);
+    expect(slidesBetween("hidden", "rest")).toBe(false); // the cards arriving
+    expect(slidesBetween(undefined, "rest")).toBe(false);
+  });
+  it("waits the slide before focus, or the short fade under reduced motion (R71)", () => {
+    expect(focusDelay(false)).toBe(PANEL_MS);
+    expect(focusDelay(true)).toBe(REDUCED_FOCUS_MS);
+    expect(REDUCED_FOCUS_MS).toBeLessThanOrEqual(300);
   });
 });

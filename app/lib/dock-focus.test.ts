@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { focusInDock, restoreDockFocus } from "./dock-focus";
+import { focusAfterFinish, focusInDock, restoreDockFocus } from "./dock-focus";
 
 class FakeEl {
   focusable = true;
@@ -17,13 +17,23 @@ class FakeEl {
   querySelectorAll(sel: string) {
     return this.doc.matches[sel] ?? [];
   }
+  attrs: Record<string, string> = {};
+  style = { outline: "" };
+  hasAttribute(k: string) {
+    return k in this.attrs;
+  }
+  setAttribute(k: string, v: string) {
+    this.attrs[k] = v;
+  }
 }
 class FakeDoc {
   activeElement: Element | null = null;
   body = {} as HTMLElement;
   dock: FakeEl | null = null;
+  main: FakeEl | null = null;
   matches: Record<string, FakeEl[]> = {};
   querySelector(sel: string) {
+    if (sel === "main") return this.main;
     return sel === "header[data-site-nav]" ? this.dock : null;
   }
 }
@@ -79,5 +89,27 @@ describe("dock focus", () => {
     const { doc } = setup();
     doc.dock = null;
     expect(restoreDockFocus(asDoc(doc))).toBe(false);
+  });
+
+  it("after a press finished a change, focuses the new page's main (focusable, no outline) when focus fell to the body", () => {
+    const { doc } = setup();
+    const main = new FakeEl(doc, "main");
+    doc.main = main;
+    expect(focusAfterFinish(asDoc(doc))).toBe(true);
+    expect(doc.activeElement).toBe(main);
+    expect(main.attrs.tabindex).toBe("-1");
+    expect(main.style.outline).toBe(""); // the outline is a CSS rule (tailwind.css), not an inline style
+  });
+
+  it("after a press finished a change, leaves focus where the page put it, and copes with no main", () => {
+    const { doc } = setup();
+    doc.main = new FakeEl(doc, "main");
+    const other = new FakeEl(doc, "layer") as unknown as Element;
+    doc.activeElement = other;
+    expect(focusAfterFinish(asDoc(doc))).toBe(false);
+    expect(doc.activeElement).toBe(other);
+    doc.activeElement = doc.body;
+    doc.main = null;
+    expect(focusAfterFinish(asDoc(doc))).toBe(false);
   });
 });

@@ -51,6 +51,9 @@
 .home-hero .paint-host {
   position: absolute;
   inset: 0;
+  /* its own stacking context: the no-WebGL images carry z-index 1 and 2 (set by the engine), which must not climb over the
+     texture, the vignette and the lower-edge fade that come after it */
+  isolation: isolate;
 }
 .home-hero .paint-host canvas {
   position: absolute;
@@ -98,6 +101,34 @@
 }
 .home-hero .vignette.on {
   opacity: 1;
+}
+
+/* The painting's lower edge (spec 6): over the last 18% of the hero it fades to the colour the next section's Eclipse ground
+   starts with (--hero-seam-rgb, tokens.css), so there is no line where the painting ends. The ramp is a smoothstep (eleven
+   stops) so the eye finds no start or finish to it. It sits over the painting and under the lockup, caption and cue, in the
+   hero's own layer, so it is there for the WebGL painting, the still and the no-WebGL image alike. One pixel is added below so
+   a fractional hero height never leaves a row of painting at the seam. */
+.home-hero .hero-edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: calc(18% + 1px);
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--hero-seam-rgb) / 0) 0%,
+    rgb(var(--hero-seam-rgb) / 0.028) 10%,
+    rgb(var(--hero-seam-rgb) / 0.104) 20%,
+    rgb(var(--hero-seam-rgb) / 0.216) 30%,
+    rgb(var(--hero-seam-rgb) / 0.352) 40%,
+    rgb(var(--hero-seam-rgb) / 0.5) 50%,
+    rgb(var(--hero-seam-rgb) / 0.648) 60%,
+    rgb(var(--hero-seam-rgb) / 0.784) 70%,
+    rgb(var(--hero-seam-rgb) / 0.896) 80%,
+    rgb(var(--hero-seam-rgb) / 0.972) 90%,
+    rgb(var(--hero-seam-rgb)) 100%
+  );
 }
 
 .home-hero .caption {

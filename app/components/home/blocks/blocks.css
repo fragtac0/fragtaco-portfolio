@@ -1,6 +1,6 @@
 /* =====================================================================
    MY INTERESTS: two blocks that grow into the layer (mockup: .below-wrap, .block)
-   The section sits on the same static texture as the hero (the .tex rules in hero.css).
+   The section sits on the Eclipse ground, placement 2 (app/components/ground/eclipse-ground.tsx).
    ===================================================================== */
 .home-blocks {
   --gilt: #d9a441;

@@ -1,13 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { bendAt, easeGlass, frontAt, GLASS, GLASS_EASING, glassVars, isChromium, judgeGlass, REACH, SIGHT_FRAMES, WARP } from "./glass-math";
+import {
+  bendAt,
+  easeGlass,
+  frontAt,
+  GLASS,
+  GLASS_EASING,
+  glassVars,
+  isChromium,
+  judgeGlass,
+  OPAQUE,
+  REACH,
+  SIGHT_FRAMES,
+  TRAVEL,
+  UNCOVERED_AT,
+  WARP,
+} from "./glass-math";
 
-const radial = { kind: "radial", radius: 1000, width: 1440 };
-const linear = { kind: "linear-right", radius: 1100, width: 1440 };
+const radial = { radius: 1000 };
 
 describe("GLASS", () => {
   it("holds the spec's numbers", () => {
-    expect(GLASS).toEqual({ radialMs: 560, linearMs: 480, band: 0.07, bendPx: 22 });
-    expect(GLASS_EASING).toBe("cubic-bezier(0.3, 0.7, 0.2, 1)");
+    expect(GLASS).toEqual({ ms: 3500, band: 0.07, bendPx: 22 });
+    expect(GLASS_EASING).toBe("cubic-bezier(0.65, 0, 0.35, 1)");
   });
 });
 
@@ -22,12 +36,15 @@ describe("easeGlass", () => {
       last = p;
     }
   });
-  it("is fast at the start and slow at the end (cubic-bezier(0.3, 0.7, 0.2, 1))", () => {
-    expect(easeGlass(0.1)).toBeGreaterThan(0.25);
-    expect(easeGlass(0.5)).toBeGreaterThan(0.9);
-    // values of the browser's own curve, at 0.12 and 0.3 of the time
-    expect(easeGlass(0.12)).toBeCloseTo(0.31, 2);
-    expect(easeGlass(0.3)).toBeCloseTo(0.744, 2);
+  it("eases in and out like the painting's sweep (cubic-bezier(0.65, 0, 0.35, 1)): slow at both ends, fastest in the middle", () => {
+    expect(easeGlass(0.1)).toBeLessThan(0.02);
+    expect(easeGlass(0.5)).toBeCloseTo(0.5, 5);
+    expect(easeGlass(0.9)).toBeGreaterThan(0.98);
+    // symmetric about the middle
+    for (const t of [0.1, 0.25, 0.4]) expect(easeGlass(t) + easeGlass(1 - t)).toBeCloseTo(1, 4);
+    // close to the painting's own curve (4t^3 then 1 - (-2t + 2)^3 / 2), as the CSS curve cannot be it exactly
+    const own = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    for (let t = 0; t <= 1; t += 0.05) expect(Math.abs(easeGlass(t) - own(t))).toBeLessThan(0.03);
   });
 });
 
@@ -46,36 +63,39 @@ describe("bendAt", () => {
 });
 
 describe("frontAt", () => {
-  it("starts a radial front at the origin and ends it past the farthest corner, with the bend 0 at both ends", () => {
+  it("starts the front at the origin and ends it past the farthest corner, with the bend 0 at both ends", () => {
     const start = frontAt(0, radial);
     expect(start.radius).toBe(0);
     expect(start.bend).toBe(0);
     const end = frontAt(1, radial);
-    // the opaque side of the soft, wandering edge (radius times 1 - band - warp) has reached the farthest corner
-    expect((end.radius ?? 0) * (1 - GLASS.band - WARP)).toBeCloseTo(radial.radius, 5);
+    // the soft, wandering edge has uncovered the farthest corner by the end, with room to spare
+    expect(end.radius * OPAQUE).toBeGreaterThan(radial.radius);
     expect(end.bend).toBe(0);
-    expect(end.pos).toBeUndefined();
   });
-  it("grows the radius and only the radius for radial kinds", () => {
+  it("uncovers the farthest corner at about 0.95 of the time, not at 0.7 (R62)", () => {
+    // the first moment the new page is at least 98% visible at the farthest corner, with the wander at its worst
+    const uncoveredAtT = () => {
+      for (let t = 0; t <= 1; t += 0.001) if (frontAt(t, radial).radius * OPAQUE >= radial.radius) return t;
+      return 1;
+    };
+    expect(uncoveredAtT()).toBeGreaterThan(UNCOVERED_AT - 0.01);
+    expect(uncoveredAtT()).toBeLessThan(UNCOVERED_AT + 0.01);
+    // the same on every screen: the front scales with the radius
+    expect(frontAt(UNCOVERED_AT, { radius: 400 }).radius * OPAQUE).toBeCloseTo(400, 0);
+    // and the screen is still not clear at 0.8 (the old page would have shown through a corner)
+    expect(frontAt(0.8, radial).radius * OPAQUE).toBeLessThan(radial.radius);
+  });
+  it("grows the radius and never shrinks it", () => {
     let last = -1;
     for (let t = 0; t <= 1; t += 0.05) {
       const f = frontAt(t, radial);
       expect(f.radius).toBeGreaterThanOrEqual(last);
-      last = f.radius ?? 0;
-      expect(f.pos).toBeUndefined();
+      last = f.radius;
     }
   });
-  it("runs a linear front from just off the near edge to just past the far one", () => {
-    const w = (GLASS.band + WARP) * linear.width;
-    expect(frontAt(0, linear).pos).toBeCloseTo(-w);
-    expect(frontAt(1, linear).pos).toBeCloseTo(linear.width + w);
-    expect(frontAt(0.5, linear).radius).toBeUndefined();
-    // the same for the other direction: the position is the distance travelled from the start edge
-    expect(frontAt(1, { ...linear, kind: "linear-left" }).pos).toBeCloseTo(linear.width + w);
-  });
   it("has the bend at full strength while the front crosses the screen", () => {
-    expect(frontAt(0.2, radial).bend).toBe(1);
-    expect(frontAt(0.3, linear).bend).toBe(1);
+    expect(frontAt(0.5, radial).bend).toBe(1);
+    expect(frontAt(0.4, radial).bend).toBe(1);
   });
 });
 
@@ -86,15 +106,17 @@ describe("glassVars", () => {
     expect(v["--change-warp"]).toBe(String(WARP));
     const lead = GLASS.band + WARP;
     expect(Number(v["--change-lead"])).toBeCloseTo(lead, 6);
-    expect(Number(v["--change-span"])).toBeCloseTo(1 + 2 * lead, 6);
-    expect(Number(v["--change-travel"])).toBeCloseTo(1 / (1 - lead), 6);
+    expect(v["--change-span"]).toBeUndefined();
+    expect(Number(v["--change-travel"])).toBeCloseTo(TRAVEL, 6);
     expect(Number(v["--change-reach"])).toBeCloseTo(1 + REACH * GLASS.band, 6);
     expect(v["--change-ease"]).toBe(GLASS_EASING);
   });
-  it("agrees with frontAt: the radius at the end is the farthest corner times the travel; the linear end is the span less the lead", () => {
+  it("agrees with frontAt: the radius at the end is the farthest corner times the travel", () => {
     const v = glassVars();
     expect(frontAt(1, radial).radius).toBeCloseTo(radial.radius * Number(v["--change-travel"]), 1);
-    expect(frontAt(1, linear).pos).toBeCloseTo((Number(v["--change-span"]) - Number(v["--change-lead"])) * linear.width, 1);
+    // the front's middle goes only a little past the corner (the travel is about 1.03 farthest-corner distances)
+    expect(TRAVEL).toBeGreaterThan(1);
+    expect(TRAVEL).toBeLessThan(1.1);
   });
 });
 

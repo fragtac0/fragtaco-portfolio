@@ -3,7 +3,7 @@
  * transition captures, `planNow`) and the commit state from change-state.ts.
  */
 import { committedPathname, captureNextTransition, onCommit } from "./change-state";
-import { FAILSAFE_MS, captureRouterTransition, open, planNow, skipHold, startOwnTransition, type Change } from "./page-change";
+import { FAILSAFE_MS, captureRouterTransition, endChange, open, planNow, skipHold, startOwnTransition } from "./page-change";
 
 /** The slice of Remix's router (`window.__remixRouter`) that Back and Forward use. */
 export interface RouterLike {
@@ -47,15 +47,16 @@ function skipRouterTransition() {
  * destination's data (a state with no navigation pending, at the new address) it either starts the
  * view transition itself, which it does on a POP when the same pair of pages was changed with a
  * transition before (`viewTransitionOpts`; then this takes that transition, the same as for a click),
- * or it does not, and then this starts one whose update step holds only the commit. Radial from the
- * centre of the screen. A move inside one page (the work view, a hash) gets no change, and a
- * transition the router would start for it is skipped. A second popstate that lands back on the
- * committed page ends a change still waiting for data. Returns the function that stops watching.
+ * or it does not, and then this starts one whose update step holds only the commit. The same
+ * reveal as a click. A move inside one page (the work view, a hash) gets no change, and a
+ * transition the router would start for it is skipped. A Back or Forward while a change is running
+ * (showing its pictures, or still waiting for data) ends that change at once and lands on the history
+ * target with no second reveal (R59): the router's own transition for it is skipped, like an in-page move.
+ * Returns the function that stops watching.
  */
 export function watchHistory(): () => void {
   if (typeof window === "undefined") return () => undefined;
   let stopWaiting = () => {};
-  let popChange: Change | null = null;
   /** Calls `ready` with the router's info once it has the data for `path` (idle, at that address). */
   const whenRouterHasData = (router: RouterLike, path: string, ready: (info?: { viewTransitionOpts?: unknown }) => void) => {
     const off = router.subscribe((state, info) => {
@@ -74,20 +75,19 @@ export function watchHistory(): () => void {
     stopWaiting();
     const path = window.location.pathname;
     const router = (window as { __remixRouter?: RouterLike }).__remixRouter;
-    if (path === committedPathname()) {
-      // back on the page that is shown (an in-page move, or a Back that undoes a Back still loading):
-      // a change still waiting for data is over, and the router's own transition, if any, is skipped
-      if (popChange && !popChange.hasTransition()) popChange.over();
-      popChange = null;
+    // A change is running: it is over now, with no second reveal (R59). Or the Back lands on the page that is shown (an
+    // in-page move, or a Back that undoes a Back still loading): no change either. Either way the router's own
+    // transition for this move, if it makes one, is skipped.
+    const ended = endChange();
+    if (ended || path === committedPathname()) {
       // The router's own popstate listener has run before this point (it has the new state already, so
       // there is nothing to wait for), and it starts its transition a few effects later: be ready for it.
       if (router && "startViewTransition" in document) skipRouterTransition();
       return;
     }
-    const plan = planNow("radial");
+    const plan = planNow(committedPathname() ?? "", path);
     if (plan.kind === "none") return;
     const c = open(plan);
-    popChange = c;
     if (!router) {
       startOwnTransition(c);
       return;
