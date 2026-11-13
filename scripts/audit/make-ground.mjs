@@ -157,6 +157,12 @@ steps.push(waitGround("5-mount again"));
 steps.push({ size: [1000, 700], dpr: 1 });
 steps.push(ev("5-after a resize to 1000 by 700 (a resized canvas is cleared: it must be drawn again at once)", "(async()=>{await __sleep(500);return __ground()})()"));
 steps.push(sample("5-grid sample after the resize (not black)"));
+// reduced motion switched on while the ground is live: the canvas stops on its last frame, fades out to the still, then is freed (a lost context is the one case that cuts: the canvas has no picture left)
+steps.push({ ...base([1440, 900]), go: "{{BASE}}/work", wait: 600 });
+steps.push(waitGround("5-mount for the reduced motion switch"));
+steps.push({ reduce: true });
+steps.push(ev("5-reduced motion switched on while live: data-live drops, the canvas's opacity falls, then it is removed", "(async()=>{const h=document.querySelector('.eclipse');const t0=performance.now();const line=[];let gone=null;while(performance.now()-t0<2500){const c=h.querySelector('canvas');if(!c){gone=Math.round(performance.now()-t0);break}line.push([Math.round(performance.now()-t0),+getComputedStyle(c).opacity,h.dataset.live||'-']);await __sleep(60)}return JSON.stringify({removedAtMs:gone,liveAtEnd:h.dataset.live||null,canvasAtEnd:!!h.querySelector('canvas'),stillOn:h.querySelector('.eclipse-still[data-on=true] img').complete,first:line[0],mid:line[Math.floor(line.length/2)],last:line[line.length-1],samples:line.length})})()"));
+steps.push({ reduce: false });
 // ---- 6 reduced motion, no WebGL, save-data
 steps.push({ requests: { match: "eclipse-engine" }, label: "6-flush the request list" });
 steps.push({ ...base([1440, 900], 1, { reduce: true }), go: "{{BASE}}/work", wait: 2500 });

@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   ECLIPSE,
@@ -109,11 +110,26 @@ describe("engineAllowed", () => {
 });
 
 describe("the shader", () => {
-  it("keeps the preview's four placements, colour stops and grain", () => {
-    const preview = readFileSync(new URL("../../../docs/redesign/round7-preview-7/grounds.js", import.meta.url), "utf8");
-    const original = /const FRAG = `([\s\S]*?)`;/.exec(preview)?.[1];
-    expect(original).toBeTruthy();
-    expect(FRAGMENT_SRC).toBe(original);
+  // The port of preview 7's fragment shader is exact: the hash is that of the preview's text (2276 characters), taken when
+  // the port was made. The literals below say where to look if the hash ever fails; change the shader on purpose
+  // only together with `node scripts/audit/make-eclipse-stills.mjs` (the stills are drawn from it) and a new hash.
+  const SHA256 = "5292e589f7192a00c860d30bfe4d50d69e3a37fffaf57b36917c3e2ccc4cc5cf";
+  it("is the preview's fragment shader, byte for byte", () => {
+    expect(FRAGMENT_SRC).toHaveLength(2276);
+    expect(createHash("sha256").update(FRAGMENT_SRC).digest("hex")).toBe(SHA256);
+  });
+  it("keeps the four placements, the three colour stops and the grain", () => {
+    // the light and the shoulder of each placement
+    expect(FRAGMENT_SRC).toContain("if(uPlace<.5){ c1=vec2(asp*.62,.08); c2=vec2(-asp*.18,-.95); }");
+    expect(FRAGMENT_SRC).toContain("else if(uPlace<1.5){ c1=vec2(-asp*.6,.1); c2=vec2(asp*.2,-.95); }");
+    expect(FRAGMENT_SRC).toContain("else if(uPlace<2.5){ c1=vec2(0.,-.8); c2=vec2(0.,.62); sIn=.6; sOut=1.2; reach=1.7; }");
+    expect(FRAGMENT_SRC).toContain("else { c1=vec2(asp*.45,.8); c2=vec2(-asp*.12,-.62); }");
+    // the colour stops
+    expect(FRAGMENT_SRC).toContain("col=mix(col,vec3(.20,.068,.022),smoothstep(0.,.34,L));");
+    expect(FRAGMENT_SRC).toContain("col=mix(col,vec3(.80,.33,.075),smoothstep(.22,.82,L));");
+    expect(FRAGMENT_SRC).toContain("col=mix(col,vec3(.97,.50,.14),smoothstep(.78,1.,L)*.55);");
+    // the still coarse grain
+    expect(FRAGMENT_SRC).toContain("col+=vec3(1.,.82,.6)*gr*uGrain*(.13+.6*lum);");
   });
 });
 

@@ -6,6 +6,9 @@ import type { EclipseEngine } from "./eclipse-engine";
 import { WORK_PLACEMENTS, engineAllowed, runWanted, stillUrl, type Placement, type RunGate } from "./eclipse-look";
 import "./eclipse.css";
 
+// how long the canvas takes to fade (eclipse.css): it is removed once it has faded out
+const FADE_MS = 500;
+
 // React warns about a layout effect on the server: there it is a plain effect (which never runs there either).
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
@@ -113,7 +116,8 @@ export default function EclipseGround({ placement, scope = "page", covered = fal
         const created = createEclipseEngine(made, {
           placement: placementNow.current,
           onLost: () => {
-            // a lost context is final: the canvas goes, the still stays
+            // a lost context is final: the canvas goes at once and the still stays. It is not faded: a lost canvas has
+            // no picture left (the browser paints it blank and pale), so a fade would flash that over the still.
             delete el.dataset.live;
             engine.current = null;
             made.remove();
@@ -131,6 +135,8 @@ export default function EclipseGround({ placement, scope = "page", covered = fal
         frame = requestAnimationFrame(() => {
           el.dataset.live = "true"; // fades in over the still, which shows the same picture
         });
+      }).catch(() => {
+        // the engine chunk did not load (offline, a stale chunk after a deploy): the still stays
       });
     };
     const idle = "requestIdleCallback" in window;
@@ -141,10 +147,16 @@ export default function EclipseGround({ placement, scope = "page", covered = fal
       else window.clearTimeout(handle);
       cancelAnimationFrame(frame);
       observer?.disconnect();
-      engine.current?.destroy();
+      // the engine goes out the way it came in: it stops on its last frame, the canvas fades to the still, then it is freed
+      const leaving = engine.current;
+      const leavingCanvas = canvas;
       engine.current = null;
-      canvas?.remove();
+      leaving?.setRunning(false);
       delete el.dataset.live;
+      window.setTimeout(() => {
+        leaving?.destroy();
+        leavingCanvas?.remove();
+      }, FADE_MS + 50);
     };
   }, [allowed]);
 
@@ -160,7 +172,7 @@ export default function EclipseGround({ placement, scope = "page", covered = fal
       {placements.map((p) => (
         <picture key={p} className="eclipse-still" data-on={p === placement ? "true" : "false"}>
           <source media="(orientation: portrait)" srcSet={stillUrl(p, true)} type="image/webp" />
-          <img src={stillUrl(p, false)} alt="" width={640} height={400} decoding="async" draggable={false} />
+          <img src={stillUrl(p, false)} alt="" width={1280} height={800} decoding="async" draggable={false} />
         </picture>
       ))}
     </div>

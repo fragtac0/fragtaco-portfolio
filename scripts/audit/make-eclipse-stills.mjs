@@ -5,7 +5,7 @@
 //   node scripts/audit/make-eclipse-stills.mjs
 //
 // Reads FRAGMENT_SRC and VERTEX_SRC from app/components/ground/eclipse-shader.ts and the settings from eclipse-look.ts, draws each
-// placement in headless Chrome (WebGL 1) at 640 by 400 (landscape) and 360 by 640 (portrait) and writes
+// placement in headless Chrome (WebGL 1) at 1280 by 800 (landscape) and 360 by 640 (portrait) and writes
 // public/grounds/eclipse-<placement>.webp and eclipse-<placement>-tall.webp with sharp. The shader's own grain is in the
 // picture; it is dithered a little more by the encoder, which is what keeps the dark gradient from banding.
 // Env: ECLIPSE_QUALITY (WebP quality, default 92). Writes nothing outside public/grounds/.
@@ -20,7 +20,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const outDir = path.join(root, "public/grounds");
 const QUALITY = Number(process.env.ECLIPSE_QUALITY ?? 92);
 const SIZES = [
-  { suffix: "", w: 640, h: 400 },
+  { suffix: "", w: 1280, h: 800 },
   { suffix: "-tall", w: 360, h: 640 },
 ];
 const PLACEMENTS = [0, 1, 2, 3];

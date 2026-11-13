@@ -565,6 +565,33 @@
   "label": "5-grid sample after the resize (not black)"
  },
  {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 600
+ },
+ {
+  "label": "5-mount for the reduced motion switch",
+  "eval": "(async()=>{const t=await __waitGround(15000);return JSON.stringify({mountedAtMs:t,errors:__errs,chunks:performance.getEntriesByType('resource').filter(e=>e.name.includes('eclipse-engine')).map(e=>({file:e.name.replace(/^.*assets\\//,''),transferKB:Math.round(e.transferSize/102.4)/10}))})})()"
+ },
+ {
+  "reduce": true
+ },
+ {
+  "label": "5-reduced motion switched on while live: data-live drops, the canvas's opacity falls, then it is removed",
+  "eval": "(async()=>{const h=document.querySelector('.eclipse');const t0=performance.now();const line=[];let gone=null;while(performance.now()-t0<2500){const c=h.querySelector('canvas');if(!c){gone=Math.round(performance.now()-t0);break}line.push([Math.round(performance.now()-t0),+getComputedStyle(c).opacity,h.dataset.live||'-']);await __sleep(60)}return JSON.stringify({removedAtMs:gone,liveAtEnd:h.dataset.live||null,canvasAtEnd:!!h.querySelector('canvas'),stillOn:h.querySelector('.eclipse-still[data-on=true] img').complete,first:line[0],mid:line[Math.floor(line.length/2)],last:line[line.length-1],samples:line.length})})()"
+ },
+ {
+  "reduce": false
+ },
+ {
   "requests": {
    "match": "eclipse-engine"
   },

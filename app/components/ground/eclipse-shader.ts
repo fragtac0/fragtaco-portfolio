@@ -1,7 +1,8 @@
 /**
- * The Eclipse ground's shaders (spec 5.1), ported from the fragment shader of `docs/redesign/round7-preview-7/grounds.js`
- * (round 7, preview 7: "Eclipse"): the shapes, the colour stops and the still coarse grain are the specification and are
- * kept as they were written; only the comments and the layout of this file are new. WebGL 1. The four placements
+ * The Eclipse ground's shaders (spec 5.1), ported from the fragment shader of round 7's preview 7 ("Eclipse"):
+ * the shapes, the colour stops and the still coarse grain are the specification and are kept as they were written;
+ * only the comments and the layout of this file are new. `eclipse-look.test.ts` holds the SHA-256 of the exact text
+ * and its load-bearing lines, so the port cannot drift (and the test reads nothing from `docs/`). WebGL 1. The four placements
  * are chosen by the `uPlace` uniform (0 light on the right with the shoulder from the lower left, 1 the same mirrored,
  * 2 light from below behind a dark disc, 3 light from the upper right). `scripts/audit/make-eclipse-stills.mjs`
  * reads FRAGMENT_SRC from this file to draw the stills in `public/grounds/`, so keep it a single template literal.
