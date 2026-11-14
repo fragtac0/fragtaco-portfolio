@@ -116,28 +116,27 @@ describe("bendAt", () => {
 });
 
 describe("frontAt", () => {
-  it("starts with the front's outer soft edge at the origin and none of the new page on the screen", () => {
+  it("starts a band behind the origin (R109), so the outer soft edge is just at it: none of the new page on the screen at t = 0, and no lead-in beyond that", () => {
     const start = frontAt(0, radial);
-    // the middle is behind the origin by the band and the wander, so the first pixel of the soft edge is at the origin
-    expect(start.radius).toBeCloseTo(-(GLASS.band + WARP) * radial.radius, 9);
-    expect(start.radius + (GLASS.band + WARP) * radial.radius).toBeCloseTo(0, 9);
+    expect(start.radius).toBeCloseTo(-GLASS.band * radial.radius, 9);
     expect(start.opening).toBeCloseTo(0, 9);
     expect(start.bend).toBe(0);
-    expect(FRONT_START).toBeCloseTo(-(GLASS.band + WARP), 9);
+    expect(FRONT_START).toBe(-GLASS.band);
   });
-  it("has opened at least 2% of the farthest-corner distance by 20% of the time (no dead time at the start)", () => {
+  it("has opened at least 2% of the farthest-corner distance by 20% of the time (the drawn share is tested in glass-field.test.ts)", () => {
     expect(frontAt(0.2, radial).opening).toBeGreaterThanOrEqual(0.02 * radial.radius);
     expect(frontAt(0.1, radial).opening).toBeGreaterThan(0);
   });
   it("has the screen clear at 0.95 of the time, to the wander's worst, and not before (R62)", () => {
-    // the farthest corner is fully the new page once the front's middle is a band and a wander past it
-    const clear = (1 + GLASS.band + WARP) * radial.radius;
-    expect(FRONT_CLEAR).toBeCloseTo(1 + GLASS.band + WARP, 9);
+    // the farthest corner is fully the new page once the front's middle is a band past it and its wander (12% of the front's radius) is at its worst
+    const clear = ((1 + GLASS.band) / (1 - WARP)) * radial.radius;
+    expect(FRONT_CLEAR).toBeCloseTo((1 + GLASS.band) / (1 - WARP), 9);
+    expect(FRONT_CLEAR - WARP * FRONT_CLEAR - GLASS.band).toBeCloseTo(1, 9);
     expect(frontAt(UNCOVERED_AT, radial).radius).toBeCloseTo(clear, 6);
     expect(frontAt(UNCOVERED_AT - 0.02, radial).radius).toBeLessThan(clear);
     expect(frontAt(0.8, radial).radius).toBeLessThan(clear);
     // the same on every screen: the front scales with the radius
-    expect(frontAt(UNCOVERED_AT, { radius: 400 }).radius).toBeCloseTo(1.27 * 400, 6);
+    expect(frontAt(UNCOVERED_AT, { radius: 400 }).radius).toBeCloseTo(FRONT_CLEAR * 400, 6);
     // it keeps going to the end of the change, a little past
     expect(frontAt(1, radial).radius).toBeGreaterThanOrEqual(clear);
     expect(frontAt(1, radial).bend).toBe(0);

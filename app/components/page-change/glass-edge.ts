@@ -4,9 +4,9 @@
  * background, scaled and moved to follow the front.
  *
  * A mask tile is the new page's share (`newShare`, the preview's `1 - smoothstep(-1, 1, x)`) at each point of the field cut at the
- * tile's front radius. A line tile is what the preview adds on top of the pages there: the cream glow at the front (`glowAt`), a
- * fainter one at the outer rim, and the glass a touch darker than the pages (`shadeAt`), as one picture with its own alpha. There
- * is no thin line any more.
+ * tile's front radius. What the preview adds on top of the pages there is two pictures: the cream glow at the front (`glowAt`, and a
+ * fainter one at the outer rim), which is added to the pages, and the glass a touch darker than the pages (`shadeAt`), which
+ * multiplies them (and the glow). There is no thin line any more.
  */
 import { CREAM, channels } from "../../styles/tokens";
 import { eachTilePixel, newShare } from "./glass-field";
@@ -24,44 +24,69 @@ export function maskTilePixels(n: number, front: number): Uint8ClampedArray<Arra
 const cream = channels(CREAM);
 
 /**
- * What the glow and the shade add at `x` half-bands from the front, as one colour and alpha: `[r, g, b, a]` with the colour from 0
- * to 255 and `a` from 0 to 1 (the shade is black under the glow, so a pixel with both is cream over black).
+ * The glow at `x` half-bands from the front as one colour and alpha: `[r, g, b, a]` with the colour from 0 to 255 and `a` from 0 to
+ * 1 (`glowAt`). It is added to the pages (a layer that blends with `plus-lighter`, so on a bright page it still brightens, as in
+ * the preview's `page + cream * glow`).
  */
-export function lineColorAt(x: number): [number, number, number, number] {
-  const glow = glowAt(x);
-  const shade = shadeAt(x);
-  const a = glow + shade * (1 - glow);
-  if (a < 1e-4) return [0, 0, 0, 0];
-  const k = glow / a;
-  return [cream[0] * k, cream[1] * k, cream[2] * k, a];
+export function glowColorAt(x: number): [number, number, number, number] {
+  const a = glowAt(x);
+  return a < 1e-4 ? [0, 0, 0, 0] : [cream[0], cream[1], cream[2], a];
 }
 
-/** The line tile for a front of radius `front`: the glow and the shade, as alpha over their colour. `n` pixels square. */
-export function lineTilePixels(n: number, front: number): Uint8ClampedArray<ArrayBuffer> {
+/** The glow tile for a front of radius `front`: cream, with the glow's strength as alpha. `n` pixels square. */
+export function glowTilePixels(n: number, front: number): Uint8ClampedArray<ArrayBuffer> {
   const out = new Uint8ClampedArray(n * n * 4);
-  eachTilePixel(n, front, (i, x) => {
-    if (x < -3 || x > 3) return;
-    const [r, g, b, a] = lineColorAt(x);
-    if (a < 0.002) return;
-    out[i] = r;
-    out[i + 1] = g;
-    out[i + 2] = b;
-    out[i + 3] = Math.round(a * 255);
-  }, 3);
+  eachTilePixel(
+    n,
+    front,
+    (i, x) => {
+      const [r, g, b, a] = glowColorAt(x);
+      if (a < 0.002) return;
+      out[i] = r;
+      out[i + 1] = g;
+      out[i + 2] = b;
+      out[i + 3] = Math.round(a * 255);
+    },
+    3,
+  );
   return out;
 }
 
-/** Where along the front's normal (in half-bands) the plain gradient that draws the glow while the front is small has its stops. */
-const LINE_STOPS = [-2.4, -1.6, -1.1, -0.75, -0.5, -0.32, -0.2, -0.1, 0, 0.1, 0.2, 0.32, 0.5, 0.7, 0.85, 0.95, 1.1, 1.4, 1.9];
+/**
+ * The shade tile for a front of radius `front`: black with `shadeAt` as alpha, the glass a touch darker than the pages. It is drawn
+ * over the glow with the normal blend, which multiplies both by `1 - shade`, as the preview's `(page + cream * glow) * (1 - shade)`.
+ */
+export function shadeTilePixels(n: number, front: number): Uint8ClampedArray<ArrayBuffer> {
+  const out = new Uint8ClampedArray(n * n * 4);
+  eachTilePixel(
+    n,
+    front,
+    (i, x) => {
+      out[i + 3] = Math.round(255 * shadeAt(x));
+    },
+    3,
+  );
+  return out;
+}
+
+/** Where along the front's normal (in half-bands) the plain gradients that draw the glow and the shade while the front is small have their stops. */
+const STOPS = [-2.4, -1.6, -1.1, -0.75, -0.5, -0.32, -0.2, -0.1, 0, 0.1, 0.2, 0.32, 0.5, 0.7, 0.85, 0.95, 1.1, 1.4, 1.9];
+
+const gradient = (origin: string, front: string, band: string, color: (x: number) => string) =>
+  `radial-gradient(circle at ${origin}, ${STOPS.map((x) => `${color(x)} calc(${front} + ${x} * ${band})`).join(", ")})`;
 
 /**
- * The CSS `radial-gradient(...)` that draws the same glow and shade as a line tile round a circle at the front (for fronts smaller
- * than glass-field.ts's `HAND_OVER`, and until the tiles are ready). `front` and `band` are CSS lengths (a custom property each).
+ * The CSS `radial-gradient(...)` that draws the glow round a circle at the front (for fronts smaller than glass-field.ts's
+ * `HAND_OVER`, and until the tiles are ready). `front` and `band` are CSS lengths (a custom property each).
  */
-export function lineGradient(origin: string, front: string, band: string): string {
-  const stops = LINE_STOPS.map((x) => {
-    const [r, g, b, a] = lineColorAt(x);
-    return `rgb(${Math.round(r)} ${Math.round(g)} ${Math.round(b)} / ${+a.toFixed(4)}) calc(${front} + ${x} * ${band})`;
+export function glowGradient(origin: string, front: string, band: string): string {
+  return gradient(origin, front, band, (x) => {
+    const [r, g, b, a] = glowColorAt(x);
+    return `rgb(${Math.round(r)} ${Math.round(g)} ${Math.round(b)} / ${+a.toFixed(4)})`;
   });
-  return `radial-gradient(circle at ${origin}, ${stops.join(", ")})`;
+}
+
+/** The same for the shade: black with `shadeAt` as alpha. */
+export function shadeGradient(origin: string, front: string, band: string): string {
+  return gradient(origin, front, band, (x) => `rgb(0 0 0 / ${+shadeAt(x).toFixed(4)})`);
 }

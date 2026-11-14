@@ -15,7 +15,7 @@
  *
  * Every length is in farthest-corner distances, so a tile fits every screen: it covers `HALF` of them each side of the middle.
  */
-import { FRONT_START, GLASS, SPAN, WARP } from "./glass-math";
+import { FRONT_CLEAR, FRONT_START, GLASS, SPAN, WARP } from "./glass-math";
 
 /** The front's radius from which the tiles are used; below it glass.css's gradients draw the front. */
 export const HAND_OVER = 0.2;
@@ -41,8 +41,16 @@ export const TILES: readonly number[] = build();
 
 /** The eased progress at which the front's middle is at `radius` (the inverse of `frontAt`'s radius). */
 export const progressFor = (radius: number) => Math.min(1, Math.max(0, (radius - FRONT_START) / SPAN));
-/** How far the lobes have turned when the front's middle is at `radius`. */
-export const turnFor = (radius: number) => TURN * progressFor(radius);
+/**
+ * How far the lobes have turned when the front's middle is at `radius`: nothing at `HAND_OVER`, `TURN` once the front has
+ * cleared the screen, most of it early. The wander's size in pixels grows with the front (12% of its radius), so a turn spread
+ * evenly would show as a step of 10 px or more each time the front moves on to the next tile near the end; with the turn in
+ * proportion to 1/radius the step is a few px at every size, and the shape still changes.
+ */
+export const turnFor = (radius: number) => {
+  const top = 1 / HAND_OVER - 1 / FRONT_CLEAR;
+  return TURN * Math.min(1, Math.max(0, (1 / HAND_OVER - 1 / Math.max(radius, 1e-6)) / top));
+};
 
 /**
  * The bend's ladder of front radii. Every other tile of `TILES` serves it from `HAND_OVER` up (its pictures are smoother, so a ladder
@@ -85,21 +93,30 @@ const smooth = (a: number, b: number, x: number) => {
 };
 
 /**
- * The wander at angle `theta` and distance `rho` from the middle, from -1 to 1: a five-lobed and a six-lobed wave that beat
- * against each other (so the front has five or six lobes, never a regular flower), each twisting a little with the distance so
- * the shape differs from one front radius to the next; `turn` (radians) is how far the whole pattern has turned.
+ * The wander at angle `theta`, from -1 to 1: a five-lobed and a six-lobed wave turning at their own rates and beating against
+ * each other (so the front has five or six lobes, never a regular flower); `turn` (radians) is how far the whole pattern has turned.
  */
-export function wander(theta: number, rho: number, turn: number): number {
-  return 0.56 * Math.cos(5 * (theta - turn) + 0.7 + 3.2 * rho) + 0.44 * Math.cos(6 * (theta + 0.7 * turn) + 2.1 - 2.6 * rho);
+export function wander(theta: number, turn: number): number {
+  return 0.56 * Math.cos(5 * (theta - turn) + 0.7) + 0.44 * Math.cos(6 * (theta + 0.7 * turn) + 2.1);
 }
 
+/** Near the middle the wander grows from nothing, so the field has no cone point and a small blob is round. */
+const taper = (rho: number) => smooth(0.1, 0.6, rho);
+
 /**
- * The distance field at (`u`, `v`) (farthest-corner distances from the middle, v down): the distance, moved by up to `WARP`
- * by the wander, which grows from nothing near the middle (a small blob is round) to its full size past half a corner distance.
+ * How far the edge wanders from a circle at its largest, when the front is at `front`, in farthest-corner distances (R111): `WARP`
+ * (12%) of the front's own radius, tapered while the front is small (a small blob is round, and it meets the gradients that draw
+ * fronts under `HAND_OVER`).
  */
-export function fieldAt(u: number, v: number, turn: number): number {
+export const wanderAmp = (front: number) => WARP * Math.max(0, front) * taper(front);
+
+/**
+ * The distance field at (`u`, `v`) (farthest-corner distances from the middle, v down) for a front at `front`: the distance,
+ * moved by up to 12% of the front's radius by the wander (tapered near the middle).
+ */
+export function fieldAt(u: number, v: number, turn: number, front: number): number {
   const rho = Math.hypot(u, v);
-  return rho + WARP * smooth(0.12, 0.7, rho) * wander(Math.atan2(v, u), rho, turn);
+  return rho + WARP * Math.max(0, front) * taper(rho) * wander(Math.atan2(v, u), turn);
 }
 
 /** The new page's share at `x` half-bands behind the front (the preview's `1 - smoothstep(-1, 1, x)`): 1 well inside, 0 well outside. */
@@ -109,7 +126,7 @@ export function newShare(x: number): number {
 }
 
 /** `x` for a point: how many half-bands it is outside a front of radius `front` (negative inside), `turn` of the way turned. */
-export const halfBands = (u: number, v: number, front: number, turn: number) => (fieldAt(u, v, turn) - front) / GLASS.band;
+export const halfBands = (u: number, v: number, front: number, turn: number) => (fieldAt(u, v, turn, front) - front) / GLASS.band;
 
 /** A sheet of `count` tiles in `cols` columns: its size in tiles. */
 export function sheetLayout(count: number, cols: number): { cols: number; rows: number } {
@@ -130,7 +147,7 @@ export function eachTilePixel(
   within = Infinity,
 ): void {
   const turn = turnFor(front);
-  const reach = within * GLASS.band + WARP;
+  const reach = within * GLASS.band + WARP * Math.max(0, front);
   for (let py = 0; py < n; py++) {
     const v = (((py + 0.5) / n) * 2 - 1) * HALF;
     for (let px = 0; px < n; px++) {

@@ -17,7 +17,8 @@
 // with the same finish a press uses (`__ftFinish`).
 // Shots of pages that show YouTube thumbnails (the work pages) are named `local-...`: save them under docs/redesign/compare/local/.
 // usage: node scripts/audit/make-glass-frames.mjs   then   BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/transition.json <outdir>
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
+import { glassMs } from "./glass-constants.mjs";
 
 const init = `
 try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}
@@ -82,8 +83,7 @@ writeFileSync(
   new URL("./change-beside-build.json", import.meta.url),
   JSON.stringify([start(desktop, 1), ...frames("beside-build", "/experience", "/", BESIDE)], null, 1) + "\n",
 );
-const changeMs = Number(/\bms:\s*(\d+)/.exec(readFileSync(new URL("../../app/components/page-change/glass-math.ts", import.meta.url), "utf8"))?.[1]);
-if (!Number.isFinite(changeMs)) throw new Error("make-glass-frames: cannot read GLASS.ms from glass-math.ts");
+const changeMs = glassMs();
 const PREVIEW = "http://127.0.0.1:5190/round7-preview-10/index.html";
 writeFileSync(
   new URL("./change-beside-preview.json", import.meta.url),
@@ -146,7 +146,6 @@ const finish = [
   { click: [559, 846] },
   { wait: 800, label: "C: after the press (still on /work: no second change started, no click reached the page, focus on main)", eval: `(${snap})('C','/work','main')` },
   { go: "{{BASE}}/", wait: 6000 },
-  { label: "D setup: main's class on the home page", eval: "((document.querySelector('main')||{}).className||'').split(' ')[0]" },
   { label: "D: 1 s into a change to /work, press Back", eval: startAndWait("/work", 1000) },
   { label: "D: after Back (R59: no second reveal; the page before is live and settled within a few hundred ms; no radial change, no glass animation)", eval: backNoReveal("/", "home-page") },
   { go: "{{BASE}}/", wait: 6000 },

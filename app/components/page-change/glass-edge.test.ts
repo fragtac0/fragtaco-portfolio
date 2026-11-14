@@ -1,12 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { HALF, TILES } from "./glass-field";
-import { lineColorAt, lineGradient, lineTilePixels, maskTilePixels } from "./glass-edge";
-import { glowAt, shadeAt } from "./glass-math";
+import { glowColorAt, glowGradient, glowTilePixels, maskTilePixels, shadeGradient, shadeTilePixels } from "./glass-edge";
+import { GLASS, glowAt, shadeAt } from "./glass-math";
 
 const alpha = (px: Uint8ClampedArray, n: number, x: number, y: number) => px[(y * n + x) * 4 + 3];
-/** the pixel at distance `rho` (farthest-corner distances) along +x from the middle of an `n` tile */
-const along = (n: number, rho: number) => ({ x: Math.min(n - 1, Math.round(n / 2 + (rho / HALF) * (n / 2))), y: n / 2 });
-
 describe("maskTilePixels", () => {
   const n = 128;
   const front = 0.7;
@@ -48,45 +45,52 @@ describe("maskTilePixels", () => {
     }
     expect(Math.max(...radii) - Math.min(...radii)).toBeGreaterThan(0.1);
   });
-  it("is the preview's band: 0.15 of a corner distance each side, in every tile (the same width in pixels, not a share of the front)", () => {
-    // along +x, going from opaque to clear takes about 2 bands wherever the lobes are at their middle, in a small and a large tile
-    for (const f of [TILES[0], TILES[12], TILES[TILES.length - 1] * 0.8]) {
-      const t = maskTilePixels(n, f);
-      let first = -1;
-      let last = -1;
-      for (let r = 0; r < 1.1; r += 0.002) {
-        const p = along(n, r);
-        const a = alpha(t, n, p.x, p.y);
-        if (first < 0 && a < 250) first = r;
-        if (a > 5) last = r;
+  it("is the preview's band: the same width in pixels at every front radius (0.18 of a corner distance from 90% to 10% new page), not a share of the front", () => {
+    // newShare falls from 0.9 to 0.1 over 1.215 half-bands; the field's own slope along a ray is within a fifth of 1, so the same holds for the tile
+    const big = 256;
+    const ideal = 1.2152 * GLASS.band;
+    for (const f of [TILES[0], TILES[8], TILES[16], TILES[19]]) {
+      const t = maskTilePixels(big, f);
+      for (const a of [0, 1.3, 2.6, 4]) {
+        let at90 = -1;
+        let at10 = -1;
+        for (let r = 0; r < HALF; r += 0.001) {
+          const x = Math.round(big / 2 + ((r * Math.cos(a)) / HALF) * (big / 2));
+          const y = Math.round(big / 2 + ((r * Math.sin(a)) / HALF) * (big / 2));
+          const v = alpha(t, big, Math.min(big - 1, x), Math.min(big - 1, y)) / 255;
+          if (at90 < 0 && v < 0.9) at90 = r;
+          if (at10 < 0 && v < 0.1) at10 = r;
+        }
+        expect(at90).toBeGreaterThan(0);
+        expect(at10).toBeGreaterThan(at90);
+        expect((at10 - at90) / ideal).toBeGreaterThan(0.75);
+        expect((at10 - at90) / ideal).toBeLessThan(1.25);
       }
-      if (first >= 0 && f < 1) expect(last - first).toBeGreaterThan(0.2);
     }
   });
 });
 
-describe("lineColorAt", () => {
+describe("glowColorAt", () => {
   it("is cream over the glow's peak at the front, and nothing far from it", () => {
-    const [r, g, b, a] = lineColorAt(0);
+    const [r, g, b, a] = glowColorAt(0);
     expect(a).toBeGreaterThan(0.15);
     expect(a).toBeLessThan(0.17);
     expect(r).toBeGreaterThan(240);
     expect(g).toBeGreaterThan(240);
     expect(b).toBeGreaterThan(200);
-    expect(lineColorAt(-3)[3]).toBe(0);
-    expect(lineColorAt(4)[3]).toBe(0);
+    expect(glowColorAt(-3)[3]).toBe(0);
+    expect(glowColorAt(4)[3]).toBe(0);
   });
-  it("is the glow and the shade together: the shade is black under the glow, so alpha is both and the colour darkens with the shade", () => {
-    const x = 0.3;
-    const glow = glowAt(x);
-    const shade = shadeAt(x);
-    const [r, , , a] = lineColorAt(x);
-    expect(a).toBeCloseTo(glow + shade * (1 - glow), 9);
-    expect(r).toBeCloseTo((253 * glow) / a, 6);
-    // where there is only shade, the colour is black
-    expect(lineColorAt(-0.9)[0]).toBeLessThan(5);
-    expect(lineColorAt(-0.9)[3]).toBeGreaterThan(0.02);
+  it("is the glow alone, in cream, with the glow's strength as alpha (the shade is a picture of its own)", () => {
+    for (const x of [-0.3, 0.2, 0.9]) {
+      const [r, g, b, a] = glowColorAt(x);
+      expect(a).toBeCloseTo(glowAt(x), 12);
+      expect([r, g, b]).toEqual(glowColorAt(0).slice(0, 3));
+    }
   });
+});
+
+describe("shade", () => {
   it("shows the glass about 10% darker than the pages in the band, except in the glint", () => {
     expect(shadeAt(0)).toBeCloseTo(0, 9);
     expect(shadeAt(0.5)).toBeGreaterThan(0.05);
@@ -96,40 +100,63 @@ describe("lineColorAt", () => {
   });
 });
 
-describe("lineTilePixels", () => {
+describe("glowTilePixels", () => {
   const n = 160;
-  const px = lineTilePixels(n, 0.8);
+  const px = glowTilePixels(n, 0.8);
   it("is empty in the middle and far outside, and glows round the front", () => {
     expect(alpha(px, n, n / 2, n / 2)).toBe(0);
     expect(alpha(px, n, 0, 0)).toBe(0);
     let strongest = 0;
     for (let x = n / 2; x < n; x++) strongest = Math.max(strongest, alpha(px, n, x, n / 2));
     expect(strongest).toBeGreaterThan(0.12 * 255);
-    expect(strongest).toBeLessThanOrEqual(0.3 * 255);
+    expect(strongest).toBeLessThanOrEqual(0.2 * 255);
   });
-  it("is cream at its brightest (not the warm fringe of round 6's line)", () => {
-    let best = 0;
-    let at = 0;
+  it("is cream wherever it has any strength (not the warm fringe of round 6's line)", () => {
+    let seen = 0;
     for (let i = 0; i < n * n; i++) {
-      // brightest glow: the pixel with the most cream in it
-      const v = px[i * 4] * (px[i * 4 + 3] / 255);
-      if (v > best) [best, at] = [v, i];
+      if (px[i * 4 + 3] === 0) continue;
+      seen++;
+      expect(px[i * 4]).toBeGreaterThan(240);
+      expect(px[i * 4 + 2]).toBeGreaterThan(200);
     }
-    expect(px[at * 4]).toBeGreaterThan(240);
-    expect(px[at * 4 + 2]).toBeGreaterThan(200);
+    expect(seen).toBeGreaterThan(500);
   });
 });
 
-describe("lineGradient", () => {
-  it("is a radial gradient of the glow and the shade round the front, in the CSS lengths it is given", () => {
-    const g = lineGradient("var(--change-x) var(--change-y)", "var(--glass-front)", "var(--glass-band)");
+describe("shadeTilePixels", () => {
+  const n = 160;
+  const px = shadeTilePixels(n, 0.8);
+  it("is black, clear in the middle and far outside, and up to 10% opaque in the band round the front", () => {
+    expect(alpha(px, n, n / 2, n / 2)).toBe(0);
+    expect(alpha(px, n, 0, 0)).toBe(0);
+    let strongest = 0;
+    for (let i = 0; i < n * n; i++) {
+      expect(px[i * 4] + px[i * 4 + 1] + px[i * 4 + 2]).toBe(0);
+      strongest = Math.max(strongest, px[i * 4 + 3]);
+    }
+    expect(strongest).toBeGreaterThan(0.08 * 255);
+    expect(strongest).toBeLessThanOrEqual(0.1 * 255 + 1);
+  });
+});
+
+describe("the gradients", () => {
+  const args = ["var(--change-x) var(--change-y)", "var(--glass-front)", "var(--glass-band)"] as const;
+  it("draw the glow as a radial gradient round the front, in the CSS lengths they are given", () => {
+    const g = glowGradient(...args);
     expect(g.startsWith("radial-gradient(circle at var(--change-x) var(--change-y), ")).toBe(true);
     expect(g).toContain("calc(var(--glass-front) + 0 * var(--glass-band))");
     expect(g).toContain("calc(var(--glass-front) + -2.4 * var(--glass-band))");
     // stops run outward
     const xs = [...g.matchAll(/\+ (-?[\d.]+) \*/g)].map((m) => Number(m[1]));
     for (let i = 1; i < xs.length; i++) expect(xs[i]).toBeGreaterThan(xs[i - 1]);
-    // the stop at the front is the glow's peak
+    // the stop at the front is the glow's peak, in cream
     expect(g).toMatch(/rgb\(25\d 25\d 2\d\d \/ 0\.16\d*\) calc\(var\(--glass-front\) \+ 0 \*/);
+  });
+  it("draw the shade as black with its own strength: none at the front's glint, about 10% a half-band either side", () => {
+    const g = shadeGradient(...args);
+    expect(g).toMatch(/rgb\(0 0 0 \/ 0\) calc\(var\(--glass-front\) \+ 0 \*/);
+    const at = (x: number) => Number(g.match(new RegExp(`rgb\\(0 0 0 / ([\\d.]+)\\) calc\\(var\\(--glass-front\\) \\+ ${x} \\*`))?.[1]);
+    expect(at(0.5)).toBeCloseTo(shadeAt(0.5), 3);
+    expect(at(-0.5)).toBeCloseTo(shadeAt(-0.5), 3);
   });
 });

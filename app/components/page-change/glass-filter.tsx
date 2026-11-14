@@ -7,8 +7,9 @@
  * the push, before the soft mask mixes them (CSS applies a filter before a mask), and each colour is pushed by its own share
  * (`SPLIT`: red furthest, blue least) so the rim of the glass shows a fringe. So each filter makes the displacement map (a
  * neutral grey with the active tile of the bend's pictures laid over it: the tiles are separate images, all in the filter,
- * and only the active one has a size), pushes the picture three times, keeps one colour of each push and adds them.
- * `color-interpolation-filters` is sRGB so grey stays exactly neutral.
+ * and only the active one has a size), damps it to neutral towards the screen's edges (the vignette, glass-vignette.ts: a
+ * displacement filter reads nothing from outside the picture, so a push there would cut the page off along the edge), pushes the
+ * picture three times, keeps one colour of each push and adds them. `color-interpolation-filters` is sRGB so grey stays exactly neutral.
  */
 import { BEND_TILES } from "./glass-field";
 
@@ -21,6 +22,8 @@ export type GlassFilterId = (typeof GLASS_IDS)[keyof typeof GLASS_IDS];
 /** The ids of the pieces of a filter: its tile images, and its three pushes (red, green, blue). */
 export const tileId = (filter: GlassFilterId, index: number) => `${filter}-tile-${index}`;
 export const pushId = (filter: GlassFilterId, channel: "r" | "g" | "b") => `${filter}-push-${channel}`;
+/** The id of a filter's vignette image (sized to the screen once glass-prepare.ts has made it; with no size it damps nothing). */
+export const vignetteId = (filter: GlassFilterId) => `${filter}-vignette`;
 
 /** One colour of a pushed picture: the others zeroed (alpha kept). */
 const KEEP: Record<"r" | "g" | "b", string> = {
@@ -37,12 +40,20 @@ function Bend({ id }: { id: GlassFilterId }) {
       {BEND_TILES.map((_, i) => (
         <feImage key={i} id={tileId(id, i)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result={`tile${i}`} />
       ))}
-      <feMerge result="map">
+      <feMerge result="raw">
         <feMergeNode in="neutral" />
         {BEND_TILES.map((_, i) => (
           <feMergeNode key={i} in={`tile${i}`} />
         ))}
       </feMerge>
+      <feFlood floodColor="#ffffff" result="white" />
+      <feImage id={vignetteId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="vignette" />
+      <feMerge result="damp">
+        <feMergeNode in="white" />
+        <feMergeNode in="vignette" />
+      </feMerge>
+      {/* raw * damp - damp / 2 + 1 / 2: the push times the vignette about the neutral grey */}
+      <feComposite in="raw" in2="damp" operator="arithmetic" k1="1" k2="0" k3="-0.5" k4="0.5" result="map" />
       {CHANNELS.map((c) => (
         <feDisplacementMap
           key={c}

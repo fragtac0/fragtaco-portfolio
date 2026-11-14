@@ -94,10 +94,6 @@
   "wait": 6000
  },
  {
-  "label": "D setup: main's class on the home page",
-  "eval": "((document.querySelector('main')||{}).className||'').split(' ')[0]"
- },
- {
   "label": "D: 1 s into a change to /work, press Back",
   "eval": "(async()=>{__ftChange('/work');const t0=performance.now();while(performance.now()-t0<1000)await __sleep(20);const a=document.getAnimations().find(a=>a.animationName==='glass-p');return JSON.stringify({showing:!!document.documentElement.dataset.changeKind,glassMs:a?Math.round(a.currentTime):null})})()"
  },

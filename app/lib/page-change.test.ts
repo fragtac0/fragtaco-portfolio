@@ -22,6 +22,8 @@ describe("planChange", () => {
           ms: 2500,
           origin: { x: 720, y: 450 },
           radius: Math.hypot(720, 450),
+          vw: 1440,
+          vh: 900,
         });
       }
     }
@@ -39,7 +41,7 @@ describe("planChange", () => {
   });
 
   it("has no linear kinds", () => {
-    expect(Object.keys(planChange("/work/long-form", "/work/short-form", scr)).sort()).toEqual(["kind", "ms", "origin", "radius"]);
+    expect(Object.keys(planChange("/work/long-form", "/work/short-form", scr)).sort()).toEqual(["kind", "ms", "origin", "radius", "vh", "vw"]);
   });
 });
 

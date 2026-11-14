@@ -11,16 +11,11 @@
 // change and the first engine frame is long: the picture must hold however long the change and the arrival take), by the dock, by
 // Back, with reduced motion, and with a held change (the reveal frozen part way: the picture is already there). Then the order of the
 // words through one painting change.
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
+import { glassMs, sourceNumber } from "./glass-constants.mjs";
 
-/** A number read out of a source file, so the audit follows the app's own constants (it fails loudly when the source moved). */
-function constant(file, re, what) {
-  const m = re.exec(readFileSync(new URL(file, import.meta.url), "utf8"));
-  if (!m) throw new Error(`make-hero-return: cannot read ${what} from ${file}`);
-  return Number(m[1]);
-}
-const CHANGE_MS = constant("../../app/components/page-change/glass-math.ts", /\bms:\s*(\d+)/, "GLASS.ms");
-const REDUCED_CHANGE_MS = constant("../../app/lib/page-change.ts", /\bfade:\s*(\d+)\s*\}/, "the reduced-motion change length (MS.fade)");
+const CHANGE_MS = glassMs();
+const REDUCED_CHANGE_MS = sourceNumber("app/lib/page-change.ts", /\bfade:\s*(\d+)\s*\}/, "the reduced-motion change length (MS.fade)");
 /** How long the film runs past the change's end (the brief: at least 1.5 s; the bare frames came 0.4 s after the end on a slow CPU). */
 const AFTER_MS = 3000;
 const filmMs = (changeMs) => changeMs + AFTER_MS;

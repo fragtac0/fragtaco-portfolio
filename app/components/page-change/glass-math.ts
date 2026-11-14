@@ -27,8 +27,9 @@ export function bendPxFor(viewportHeight: number): number {
 }
 
 /**
- * How far the edge wanders from a circle, in farthest-corner distances (the preview's wander is 0.17 of the screen's height; spec 4
- * rounds it to 12%). The wander is in five or six slow lobes round the front (glass-field.ts), and it turns over the change.
+ * How far the edge wanders from a circle, as a share of the front's own radius (R111: spec 4's "up to 12% of its radius"; the
+ * preview's wander is 0.17 of the screen's height). The wander is in five or six slow lobes round the front (glass-field.ts),
+ * tapered to nothing while the front is small, and it turns over the change.
  */
 export const WARP = 0.12;
 
@@ -87,10 +88,17 @@ export function easeGlass(t: number): number {
  */
 export const UNCOVERED_AT = 0.95;
 
-/** Where the front's middle is when the change starts: the outer soft edge (a band, and the wander at its worst, ahead of it) is at the origin. */
-export const FRONT_START = -(GLASS.band + WARP);
-/** Where the front's middle is when the farthest corner is fully the new page: a band and the wander past it. */
-export const FRONT_CLEAR = 1 + GLASS.band + WARP;
+/**
+ * Where the front's middle is when the change starts (R109): a band behind the origin, so the outer soft edge is just at it and
+ * the first of the new page shows within the first frames. The wander is nil near the origin, so it needs no lead-in of its own
+ * (the brief's literal `-(band + WARP)` hid the change for the first quarter of its time).
+ */
+export const FRONT_START = -GLASS.band;
+/**
+ * Where the front's middle is when the farthest corner is fully the new page: a band past it, and the wander at its worst there
+ * (`WARP` of the front's own radius: front - WARP * front = 1 + band).
+ */
+export const FRONT_CLEAR = (1 + GLASS.band) / (1 - WARP);
 /** How far the front's middle travels over the whole eased progress (0 to 1), so that it reaches `FRONT_CLEAR` at `UNCOVERED_AT`. */
 export const SPAN = (FRONT_CLEAR - FRONT_START) / easeGlass(UNCOVERED_AT);
 
@@ -132,7 +140,7 @@ export const bendAt = (p: number) => smooth(0.05, 0.15, p) * (1 - smooth(0.93, 1
 export interface Front {
   /** The front's middle, in px from the origin: negative until the soft edge's first pixel has left it, up to past the farthest corner. */
   radius: number;
-  /** How far out the first pixel of the soft edge has got, in px (the radius plus the band and the wander at their worst; 0 at the start). */
+  /** How far out the first pixel of the soft edge has got, in px (the radius plus the band; the wander is nil that near the origin; 0 at the start). */
   opening: number;
   /** 0 to 1. */
   bend: number;
@@ -140,14 +148,13 @@ export interface Front {
 
 /**
  * Where the front is, and how strong the bend is, `t` of the way through the change (0..1, time).
- * At `t = 0` the outer soft edge is at the origin (`opening` 0, the middle behind it); the farthest corner is fully the new page
- * from `UNCOVERED_AT`. The middle is negative at first; a drawing clamps it (glass.css and glass-run.ts only draw a circle once
- * it is positive).
+ * At `t = 0` the outer soft edge is at the origin (`opening` 0, the middle a band behind it); the farthest corner is fully the
+ * new page from `UNCOVERED_AT`. The middle is negative at first; the gradients that draw it take a negative radius as it is.
  */
 export function frontAt(t: number, plan: FrontPlan): Front {
   const p = easeGlass(t);
   const radius = plan.radius * (FRONT_START + p * SPAN);
-  return { radius, opening: radius + (GLASS.band + WARP) * plan.radius, bend: bendAt(p) };
+  return { radius, opening: radius + GLASS.band * plan.radius, bend: bendAt(p) };
 }
 
 /** The bend (an SVG displacement filter on the view transition's pictures) is only used in Chromium browsers; others get the reveal and the line alone. */

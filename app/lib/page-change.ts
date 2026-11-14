@@ -44,6 +44,9 @@ export interface ChangePlan {
   /** Distance from the origin to the farthest corner of the screen. */
   radius: number;
   ms: number;
+  /** The viewport's size (the pictures of a change are this big; the glass's bend is sized from the height). */
+  vw: number;
+  vh: number;
 }
 
 /** The two lengths: the radial reveal (follow-ups spec 4, 2500 ms) and the reduced-motion fade (120 ms). */
@@ -67,9 +70,9 @@ export function planChange(from: string, to: string, env: ChangeEnv): ChangePlan
   void to;
   const origin = { x: env.vw / 2, y: env.vh / 2 };
   const radius = Math.hypot(origin.x, origin.y);
-  if (!env.supported) return { kind: "none", origin, radius, ms: 0 };
+  if (!env.supported) return { kind: "none", origin, radius, ms: 0, vw: env.vw, vh: env.vh };
   const kind: ChangeKind = env.reduced ? "fade" : "radial";
-  return { kind, origin, radius, ms: MS[kind] };
+  return { kind, origin, radius, ms: MS[kind], vw: env.vw, vh: env.vh };
 }
 
 /**

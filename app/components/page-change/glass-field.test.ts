@@ -18,8 +18,9 @@ import {
   TURN,
   turnFor,
   wander,
+  wanderAmp,
 } from "./glass-field";
-import { FRONT_CLEAR, FRONT_START, GLASS, WARP } from "./glass-math";
+import { easeGlass, FRONT_CLEAR, FRONT_START, frontAt, GLASS, SPAN, UNCOVERED_AT, WARP } from "./glass-math";
 
 describe("TILES", () => {
   it("is a ladder of front radii from HAND_OVER to past the corner, each the ratio above the one before", () => {
@@ -90,11 +91,11 @@ describe("pickBendTile", () => {
 
 describe("wander", () => {
   it("stays within -1 and 1 and has five or six lobes round the front", () => {
-    for (const rho of [0.3, 0.6, 1]) {
+    {
       for (const turn of [0, TURN / 2, TURN]) {
         let peaks = 0;
         const n = 720;
-        const at = (i: number) => wander(((i % n) / n) * 2 * Math.PI, rho, turn);
+        const at = (i: number) => wander(((i % n) / n) * 2 * Math.PI, turn);
         for (let i = 0; i < n; i++) {
           const v = at(i);
           expect(Math.abs(v)).toBeLessThanOrEqual(1 + 1e-9);
@@ -107,27 +108,46 @@ describe("wander", () => {
   });
 });
 
-describe("fieldAt", () => {
-  it("is the distance in the middle and never more than WARP away from it", () => {
-    expect(fieldAt(0, 0, 0)).toBe(0);
-    expect(fieldAt(0.05, 0.03, 1)).toBeCloseTo(Math.hypot(0.05, 0.03), 12);
-    let sawLobe = false;
-    for (let a = 0; a < 2 * Math.PI; a += 0.05) {
-      for (const rho of [0.3, 0.7, 1.1]) {
-        const d = fieldAt(rho * Math.cos(a), rho * Math.sin(a), 0.2) - rho;
-        expect(Math.abs(d)).toBeLessThanOrEqual(WARP + 1e-9);
-        if (Math.abs(d) > 0.8 * WARP) sawLobe = true;
-      }
+describe("wanderAmp", () => {
+  it("is 12% of the front's radius (R111), tapered to nothing while the front is small", () => {
+    expect(wanderAmp(-0.3)).toBe(0);
+    expect(wanderAmp(0)).toBe(0);
+    expect(wanderAmp(0.1)).toBe(0);
+    expect(wanderAmp(0.2)).toBeGreaterThan(0);
+    expect(wanderAmp(0.2)).toBeLessThan(0.2 * WARP * 0.3);
+    for (const front of [0.6, 0.8, 1.2, FRONT_CLEAR]) expect(wanderAmp(front)).toBeCloseTo(WARP * front, 12);
+    let last = 0;
+    for (let f = 0; f <= 1.4; f += 0.01) {
+      expect(wanderAmp(f)).toBeGreaterThanOrEqual(last);
+      last = wanderAmp(f);
     }
-    expect(sawLobe).toBe(true);
+  });
+});
+
+describe("fieldAt", () => {
+  it("is the distance in the middle and never more than 12% of the front's radius away from it", () => {
+    expect(fieldAt(0, 0, 0, 0.5)).toBe(0);
+    expect(fieldAt(0.05, 0.03, 1, 0.05)).toBeCloseTo(Math.hypot(0.05, 0.03), 12);
+    for (const front of [0.3, 0.7, 1.1]) {
+      let biggest = 0;
+      for (let a = 0; a < 2 * Math.PI; a += 0.05) {
+        const d = fieldAt(front * Math.cos(a), front * Math.sin(a), 0.2, front) - front;
+        expect(Math.abs(d)).toBeLessThanOrEqual(WARP * front + 1e-9);
+        biggest = Math.max(biggest, Math.abs(d));
+      }
+      // a lobe gets most of the way to the limit once the taper is over
+      if (front >= 0.5) expect(biggest).toBeGreaterThan(0.8 * WARP * front);
+    }
   });
   it("grows with the distance along every ray, so the edge is one closed curve with no folds", () => {
-    for (let a = 0; a < 2 * Math.PI; a += 0.07) {
-      let last = -1;
-      for (let rho = 0; rho <= 1.4; rho += 0.01) {
-        const d = fieldAt(rho * Math.cos(a), rho * Math.sin(a), TURN * 0.6);
-        expect(d).toBeGreaterThan(last);
-        last = d;
+    for (const front of [0.3, 0.9, FRONT_CLEAR]) {
+      for (let a = 0; a < 2 * Math.PI; a += 0.07) {
+        let last = -1;
+        for (let rho = 0; rho <= 1.4; rho += 0.01) {
+          const d = fieldAt(rho * Math.cos(a), rho * Math.sin(a), TURN * 0.6, front);
+          expect(d).toBeGreaterThan(last);
+          last = d;
+        }
       }
     }
   });
@@ -150,7 +170,7 @@ describe("fieldAt", () => {
         let hi = front * 2;
         for (let i = 0; i < 40; i++) {
           const mid = (lo + hi) / 2;
-          if (fieldAt(mid * Math.cos(a), mid * Math.sin(a), turnFor(front)) < front) lo = mid;
+          if (fieldAt(mid * Math.cos(a), mid * Math.sin(a), turnFor(front), front) < front) lo = mid;
           else hi = mid;
         }
         out.push(lo / front - 1);
@@ -163,16 +183,77 @@ describe("fieldAt", () => {
     const corr = dot(a, b) / Math.sqrt(dot(a, a) * dot(b, b));
     expect(corr).toBeLessThan(0.9);
   });
+  it("hardly steps where the front moves on from one tile to the next: the two tiles put the edge within 0.7% of a corner distance (6 px at 1440 by 900) of each other", () => {
+    for (let i = 0; i + 1 < TILES.length; i++) {
+      const at = Math.sqrt(TILES[i] * TILES[i + 1]);
+      if (at > FRONT_CLEAR) break; // the front never gets past this switch
+      const edge = (k: number, a: number) => {
+        let lo = 0;
+        let hi = TILES[k] * 2;
+        for (let j = 0; j < 40; j++) {
+          const mid = (lo + hi) / 2;
+          if (fieldAt(mid * Math.cos(a), mid * Math.sin(a), turnFor(TILES[k]), TILES[k]) < TILES[k]) lo = mid;
+          else hi = mid;
+        }
+        return (lo * at) / TILES[k];
+      };
+      for (let a = 0; a < 2 * Math.PI; a += 0.05) expect(Math.abs(edge(i, a) - edge(i + 1, a))).toBeLessThan(0.007);
+    }
+  });
+});
+
+describe("the change's first frames (R109)", () => {
+  /** the new page's share at the middle of the screen `t` of the way through the change */
+  const shareAtMiddle = (t: number) => {
+    const front = frontAt(t, { radius: 1 }).radius;
+    return newShare(halfBands(0, 0, front, turnFor(front)));
+  };
+  it("shows nothing of the new page at t = 0 and the first visible part (over 1% at the middle) before t = 0.12", () => {
+    expect(shareAtMiddle(0)).toBe(0);
+    let first = -1;
+    for (let t = 0; t <= 1; t += 0.002) {
+      if (shareAtMiddle(t) > 0.01) {
+        first = t;
+        break;
+      }
+    }
+    expect(first).toBeGreaterThan(0);
+    expect(first).toBeLessThan(0.12);
+  });
+  it("has a clear part of the new page in the middle by 20% of the time (the drawn share, not the opening)", () => {
+    expect(shareAtMiddle(0.2)).toBeGreaterThan(0.1);
+    expect(shareAtMiddle(0.4)).toBeGreaterThan(0.9);
+    // it grows and never shrinks
+    let last = 0;
+    for (let t = 0; t <= 1; t += 0.01) {
+      expect(shareAtMiddle(t)).toBeGreaterThanOrEqual(last - 1e-12);
+      last = shareAtMiddle(t);
+    }
+  });
+  it("is clear at UNCOVERED_AT: the farthest corner is all the new page, under the wander at its worst", () => {
+    const front = frontAt(UNCOVERED_AT, { radius: 1 }).radius;
+    expect(front).toBeCloseTo(FRONT_CLEAR, 9);
+    for (let a = 0; a < 2 * Math.PI; a += 0.02) {
+      expect(newShare(halfBands(Math.cos(a), Math.sin(a), front, turnFor(front)))).toBeGreaterThan(1 - 1e-9);
+    }
+    expect(easeGlass(UNCOVERED_AT) * SPAN + FRONT_START).toBeCloseTo(FRONT_CLEAR, 9);
+  });
 });
 
 describe("turn", () => {
-  it("runs from 0 at the start to TURN (about 25 degrees) at the end of the front's path", () => {
+  it("runs from 0 at HAND_OVER to TURN (about 25 degrees) once the front has cleared the screen, mostly early, and never back", () => {
     expect(TURN).toBeCloseTo((25 * Math.PI) / 180, 12);
     expect(progressFor(FRONT_START)).toBe(0);
-    expect(turnFor(FRONT_START - 1)).toBe(0);
+    expect(turnFor(FRONT_START)).toBe(0);
+    expect(turnFor(HAND_OVER)).toBe(0);
+    expect(turnFor(FRONT_CLEAR)).toBeCloseTo(TURN, 12);
     expect(turnFor(9)).toBe(TURN);
-    expect(turnFor(0.2)).toBeLessThan(turnFor(1));
-    expect(turnFor(1)).toBeLessThan(TURN);
+    expect(turnFor(0.6)).toBeGreaterThan(0.5 * TURN);
+    let last = 0;
+    for (let f = 0; f <= 1.5; f += 0.01) {
+      expect(turnFor(f)).toBeGreaterThanOrEqual(last);
+      last = turnFor(f);
+    }
   });
 });
 
@@ -194,8 +275,11 @@ describe("sheets", () => {
     expect(tileCell(0, 7)).toEqual({ col: 0, row: 0 });
     expect(tileCell(9, 7)).toEqual({ col: 2, row: 1 });
   });
-  it("covers the whole screen: a tile reaches past the farthest corner even at its smallest scale", () => {
-    expect(HALF / 1.04).toBeGreaterThan(1);
-    expect(GLASS.band).toBeGreaterThan(0);
+  it("covers the whole screen: at every front radius the scaled tile reaches past the farthest corner, with the soft edge's band to spare", () => {
+    for (let r = HAND_OVER; r <= FRONT_CLEAR; r += 0.01) {
+      const pick = pickTile(r);
+      expect(pick).not.toBeNull();
+      if (pick) expect(HALF * pick.scale).toBeGreaterThan(1 + GLASS.band / 2);
+    }
   });
 });

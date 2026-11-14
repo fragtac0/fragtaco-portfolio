@@ -10,7 +10,7 @@
 import { eachTilePixel } from "./glass-field";
 import { bendProfile } from "./glass-math";
 
-/** The most the profile reaches over its peak (at about 0.35 half-bands outside the front it is 1.05): the push is stored over this. */
+/** The most the profile reaches over its peak (1.08, at 0.22 half-bands outside the front): the push is stored over this. */
 export const BEND_MAX = 1.1;
 
 /** The bend tile for a front of radius `front`. `n` pixels square. */

@@ -7,9 +7,9 @@
  * The front starts behind the middle (its outer soft edge at the origin) and its middle is at (start + span * p) farthest-corner
  * distances at the eased progress p. A CSS animation drives --glass-p (the eased progress, 0 to 1) on the pseudo-elements that
  * use it. A front smaller than glass-field.ts's HAND_OVER is drawn from that number alone, as plain gradients: a circle with a
- * soft edge (--glass-band each side, the same width at every moment) and, from glass-run.ts, a glow. From then on glass-run.ts
- * (data-glass-live) sizes and places the sheets of tiles that draw the edge with its wander (the mask on the new page, the glow
- * and the darker glass on the line's group); without them the plain gradients draw the whole change.
+ * soft edge (--glass-band each side, the same width at every moment) and, from glass-prepare.ts, a glow and a shade. From then on
+ * glass-run.ts (data-glass-live) sizes and places the sheets of tiles that draw the edge with its wander (the mask on the new
+ * page, the glow and the darker glass on the groups of their own); without them the plain gradients draw the whole change.
  * The bend (data-glass="bend", Chromium only) is an SVG filter on each of the two pictures (glass-filter.tsx).
  * If glass-run.ts finds the animation not running, or anything throws, it sets data-glass-fallback and the plain UA
  * crossfade takes over (every rule here is off under it). */
@@ -32,7 +32,8 @@ html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-old(
   mix-blend-mode: normal;
 }
 html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root),
-html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-glow),
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-shade) {
   animation: glass-p var(--change-ms) var(--change-ease) forwards;
 }
 html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root) {
@@ -41,7 +42,8 @@ html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(
 
 /* where the front's middle is: a radius (negative at first), and how wide its soft edge is each side */
 html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root),
-html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-glow),
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-shade) {
   --glass-band: calc(var(--change-r) * var(--change-band));
   --glass-front: calc(var(--change-r) * (var(--change-start) + var(--glass-p) * var(--change-span)));
 }
@@ -70,25 +72,37 @@ html[data-glass="bend"][data-change-kind="radial"]:not([data-glass-fallback])::v
   filter: url("#ft-glass-new");
 }
 
-/* ---- the glow and the darker glass: an empty full-screen element with its own name, so its group (a box the size of the screen)
- * can draw them. glass-run.ts adds the gradient (the same glow glass-edge.ts draws into the tiles) and, from the hand-over, the sheet. */
-[data-glass-line] {
+/* ---- the glow and the darker glass: two empty full-screen elements with names of their own, so their groups (boxes the size of the
+ * screen) can draw them. As in the preview, `(page + cream * glow) * (1 - shade)`: the glow is added to the pages (plus-lighter) and the
+ * shade, black with its own strength, is drawn over it (the shade's element comes after the glow's). glass-prepare.ts adds the
+ * gradients (the same glow and shade glass-edge.ts draws into the tiles) and, from the hand-over, glass-run.ts the sheets. */
+[data-glass-glow],
+[data-glass-shade] {
   position: fixed;
   inset: 0;
   pointer-events: none;
 }
-html[data-change-kind="radial"]:not([data-glass-fallback]) [data-glass-line] {
-  view-transition-name: glass-line;
+html[data-change-kind="radial"]:not([data-glass-fallback]) [data-glass-glow] {
+  view-transition-name: glass-glow;
 }
-/* it fades out over the last 5% of the progress (the front has long left the screen by then) */
-html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
+html[data-change-kind="radial"]:not([data-glass-fallback]) [data-glass-shade] {
+  view-transition-name: glass-shade;
+}
+/* both fade out over the last 5% of the progress (the front has long left the screen by then) */
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-glow),
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-shade) {
   opacity: clamp(0, (1 - var(--glass-p)) / 0.05, 1);
   background-repeat: no-repeat;
 }
-::view-transition-old(glass-line) {
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-glow) {
+  mix-blend-mode: plus-lighter;
+}
+::view-transition-old(glass-glow),
+::view-transition-old(glass-shade) {
   display: none;
 }
-::view-transition-new(glass-line) {
+::view-transition-new(glass-glow),
+::view-transition-new(glass-shade) {
   animation: none;
   mix-blend-mode: normal;
 }

@@ -1,10 +1,11 @@
 {
- "what": "R54.1 glass gate at 2.5 s with the wide, refracted edge (three-colour bend on both pictures): animating frames over 34 ms, per change",
- "file": "scripts/audit/page-change.json (written by make-page-change.mjs) for the first group; scratch steps of the same recorder (init from page-change.json, __rec(true) then the debug hook __ftChange) for the desktop-three and phone groups",
+ "what": "R54.1 / R54.1b glass gate at 2.5 s with the wide, refracted edge: animating frames over 34 ms, per change",
+ "file": "scripts/audit/page-change.json, page-change-hook.json and page-change-phone.json (all written by make-page-change.mjs); each change reports over34 (when and how long), marks (ms from the click at which the glass pictures became ready, negative = before the click) and the long-animation-frame entries over 34 ms with their scripts",
  "setup": "production build served on :5180, headless Chrome, CPU slowed 4 times, fresh profile; 1440 by 900 at dpr 2, and the phone profile 390 by 844 at dpr 3 with touch; the lane held the gate lock for every run",
  "rule": "animOver34 must be 0 (commit frames and frames before the transition's ready are not counted, R31); a run that fails is repeated (R72), a cold-start outlier that does not repeat counts as noise",
- "build": "R54.1: 2.5 s, band 0.15, wander 0.12 in five or six lobes, mask and glow from sheets of 28 tiles (glass-field.ts), bend = one SVG filter on each of the two pictures with three displacement passes (red 1.29, green 1, blue 0.71), 33 bend tiles in each filter",
- "groups": {
+ "build": "R54.1b: 2.5 s, band 0.15, wander 12% of the front radius in five or six lobes, mask, glow and shade from sheets of 28 tiles each (glass-field.ts), bend = one SVG filter on each of the two pictures with three displacement passes (red 1.29, green 1, blue 0.71), 23 bend tiles in each filter (9 early every 0.05, then 14), a vignette that damps the push at the screen edges, glow added (plus-lighter) and shade multiplied; tile making pauses while a change runs",
+ "verdict": "R54.1b, 7 runs (2 pointer runs of 5 changes, 3 hook runs of 5, 2 phone runs of 5 = 35 changes): 31 changes had 0 frames over 34 ms. 4 had one single frame over 34 ms: hook run 1 home to work (the first change of the run) 49.9 ms at 418 ms; hook run 2 home to work (the first change of the run) 50 ms at 617 ms, so the first desktop hook change failed in 2 of 3 runs, at different times; pointer run 2 Forward, home to work, 66.6 ms at 972 ms; phone run 2 work to home 83.3 ms at 1503 ms. Cause: not found, not attributed to the glass scripts. None of the four frames has a long-animation-frame entry (the only entries over 34 ms are the commit frames 54 to 86 ms after the click, before the transition's ready, which are not counted, R31); the glass pictures were ready 6.3 to 37 s before every click (marks all negative), so tile making never overlapped a change; the per-frame work is now one cached clock read and a few attribute writes. The rate (4 of 35 changes, 1 frame each) is no better and no worse than the first cut's; by R72's rule a cold first change that fails at a different moment each time counts as noise, but it is not shown to be, and it stays on the owner's device check list. Everything else passes: the phone profile had 1 frame over 34 ms in 10 changes (a single 83 ms).",
+ "groups_r54_1_first_cut": {
   "page-change.json, first full build (14 bend tiles, no early tiles)": [
    [
     {
@@ -520,5 +521,939 @@
    ]
   ]
  },
- "verdict": "final build: 0 frames over 34 ms in 4 of its 7 desktop runs (both page-change.json runs, two of the five hook runs) and in the phone run; the other 3 desktop runs each had one or two single frames of 50 to 83 ms (3 to 5 frames at 60 fps), on a cold first change (home to work) or on experience to home, the outlier R72 describes; none came twice on the same change in consecutive runs. Recorded openly, owner device check."
+ "groups_r54_1b": {
+  "page-change.json (pointer clicks, back and forward), 1440 by 900 dpr 2, CPU 4x": [
+   [
+    {
+     "change": "home to work",
+     "animMs": 2537,
+     "animFrames": 149,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 3,
+     "over34": [],
+     "marks": {
+      "vignette": -8496,
+      "sheets": -8528,
+      "bend": -7908
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 68,
+       "durationMs": 73,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 22 forced12",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 21 forced11",
+        "TimerHandler:setTimeout  _index-B-f0IDYB.js:154450 6"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "work to home",
+     "animMs": 2548,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -15944,
+      "sheets": -15977,
+      "bend": -15357
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 91,
+       "durationMs": 87,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 23 forced15"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2546,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -23438,
+      "sheets": -23470,
+      "bend": -22850
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 43,
+       "durationMs": 74,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 15 forced11",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 17 forced11"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "Back, work to home",
+     "animMs": 2537,
+     "animFrames": 151,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -30125,
+      "sheets": -30157,
+      "bend": -29537
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 97,
+       "durationMs": 100,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 26 forced17",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 34 forced21"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "Forward, home to work",
+     "animMs": 2558,
+     "animFrames": 153,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -36846,
+      "sheets": -36879,
+      "bend": -36258
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 48,
+       "durationMs": 66,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 16 forced8",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 9"
+       ]
+      }
+     ]
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2552,
+     "animFrames": 152,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -8773,
+      "sheets": -8806,
+      "bend": -8185
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 108,
+       "durationMs": 84,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 8",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 22 forced13",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 21 forced10",
+        "TimerHandler:setTimeout  _index-B-f0IDYB.js:154450 6"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "work to home",
+     "animMs": 2545,
+     "animFrames": 151,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 2,
+     "over34": [],
+     "marks": {
+      "vignette": -16294,
+      "sheets": -16326,
+      "bend": -15705
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 99,
+       "durationMs": 100,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 8"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2553,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -23806,
+      "sheets": -23838,
+      "bend": -23217
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 55,
+       "durationMs": 75,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 20 forced12",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 9 forced6"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "Back, work to home",
+     "animMs": 2551,
+     "animFrames": 152,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -30507,
+      "sheets": -30539,
+      "bend": -29918
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 78,
+       "durationMs": 87,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 24 forced14",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 29 forced24"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "Forward, home to work",
+     "animMs": 2566,
+     "animFrames": 150,
+     "animMax": 66.6,
+     "animOver34": 1,
+     "animOver20": 2,
+     "over34": [
+      [
+       972,
+       66.6
+      ]
+     ],
+     "marks": {
+      "vignette": -37241,
+      "sheets": -37273,
+      "bend": -36652
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 54,
+       "durationMs": 81,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 15 forced9",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 20 forced13",
+        "TimerHandler:setTimeout  _index-B-f0IDYB.js:154888 5"
+       ]
+      }
+     ]
+    }
+   ]
+  ],
+  "page-change-hook.json (five changes by the hook), 1440 by 900 dpr 2, CPU 4x": [
+   [
+    {
+     "change": "home to work",
+     "animMs": 2562,
+     "animFrames": 146,
+     "animMax": 49.9,
+     "animOver34": 1,
+     "animOver20": 7,
+     "over34": [
+      [
+       418,
+       49.9
+      ]
+     ],
+     "marks": {
+      "vignette": -6945,
+      "sheets": -6976,
+      "bend": -6359
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 86,
+       "durationMs": 96,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 20 forced11"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "work to home",
+     "animMs": 2549,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -13764,
+      "sheets": -13794,
+      "bend": -13177
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 126,
+       "durationMs": 80,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 28 forced15",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 27 forced19"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2538,
+     "animFrames": 152,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -20564,
+      "sheets": -20594,
+      "bend": -19977
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 63,
+       "durationMs": 69,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 23 forced14",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 25 forced13"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2555,
+     "animFrames": 153,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -27295,
+      "sheets": -27326,
+      "bend": -26709
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 45,
+       "durationMs": 77,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 23 forced13",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 11 forced6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 8"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2556,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -34013,
+      "sheets": -34044,
+      "bend": -33427
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 47,
+       "durationMs": 72,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 12 forced7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 19 forced11",
+        "FrameRequestCallback ct page-change-bxKMYOjZ.js:11277 6 forced5"
+       ]
+      }
+     ]
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2555,
+     "animFrames": 149,
+     "animMax": 50,
+     "animOver34": 1,
+     "animOver20": 4,
+     "over34": [
+      [
+       617,
+       50
+      ]
+     ],
+     "marks": {
+      "vignette": -6912,
+      "sheets": -6942,
+      "bend": -6308
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 81,
+       "durationMs": 82,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 20 forced9",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 23 forced10",
+        "FrameRequestCallback ct page-change-bxKMYOjZ.js:11277 7"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "work to home",
+     "animMs": 2549,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -13713,
+      "sheets": -13742,
+      "bend": -13109
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 107,
+       "durationMs": 99,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 8",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 31 forced22"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2539,
+     "animFrames": 152,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -20513,
+      "sheets": -20543,
+      "bend": -19909
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 79,
+       "durationMs": 67,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 20 forced15",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 21 forced9"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2551,
+     "animFrames": 153,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -27258,
+      "sheets": -27288,
+      "bend": -26654
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 48,
+       "durationMs": 77,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 24 forced13",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 25 forced17"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2555,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -33977,
+      "sheets": -34007,
+      "bend": -33373
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 48,
+       "durationMs": 75,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 15 forced8",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 17 forced10",
+        "FrameRequestCallback ct page-change-bxKMYOjZ.js:11277 6"
+       ]
+      }
+     ]
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2555,
+     "animFrames": 151,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 3,
+     "over34": [],
+     "marks": {
+      "vignette": -6914,
+      "sheets": -6946,
+      "bend": -6326
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 81,
+       "durationMs": 84,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 20 forced11",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 24 forced11"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "work to home",
+     "animMs": 2559,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -13709,
+      "sheets": -13741,
+      "bend": -13121
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 96,
+       "durationMs": 101,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 23 forced16"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2537,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -20500,
+      "sheets": -20532,
+      "bend": -19912
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 63,
+       "durationMs": 71,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 24 forced15",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 22 forced12",
+        "TimerHandler:setTimeout  _index-B-f0IDYB.js:154888 5"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2547,
+     "animFrames": 153,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -27226,
+      "sheets": -27257,
+      "bend": -26637
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 47,
+       "durationMs": 82,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 25 forced16",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 28 forced18"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2540,
+     "animFrames": 153,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -33945,
+      "sheets": -33977,
+      "bend": -33357
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 54,
+       "durationMs": 63,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 14 forced9",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 26 forced14",
+        "TimerHandler:setTimeout  _index-B-f0IDYB.js:154888 5"
+       ]
+      }
+     ]
+    }
+   ]
+  ],
+  "page-change-phone.json (five changes by the hook), 390 by 844 dpr 3 touch, CPU 4x": [
+   [
+    {
+     "change": "home to work",
+     "animMs": 2571,
+     "animFrames": 152,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 3,
+     "over34": [],
+     "marks": {
+      "vignette": -6856,
+      "sheets": -6887,
+      "bend": -6267
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 85,
+       "durationMs": 100,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 25 forced15",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 24 forced12"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "work to home",
+     "animMs": 2524,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -13663,
+      "sheets": -13693,
+      "bend": -13074
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 71,
+       "durationMs": 95,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 27 forced18"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2526,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -20399,
+      "sheets": -20429,
+      "bend": -19810
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 48,
+       "durationMs": 57,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 16 forced12",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 19 forced10"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2550,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -27089,
+      "sheets": -27119,
+      "bend": -26500
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 43,
+       "durationMs": 73,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 25 forced14",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 14 forced7",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 8"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2524,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -33795,
+      "sheets": -33826,
+      "bend": -33206
+     },
+     "longAnimationFramesOver34": []
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2539,
+     "animFrames": 151,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 2,
+     "over34": [],
+     "marks": {
+      "vignette": -6928,
+      "sheets": -6960,
+      "bend": -6341
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 66,
+       "durationMs": 68,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 20 forced9",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 21 forced11"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "work to home",
+     "animMs": 2541,
+     "animFrames": 150,
+     "animMax": 83.3,
+     "animOver34": 1,
+     "animOver20": 1,
+     "over34": [
+      [
+       1503,
+       83.3
+      ]
+     ],
+     "marks": {
+      "vignette": -13675,
+      "sheets": -13707,
+      "bend": -13089
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 75,
+       "durationMs": 105,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 7"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2538,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -20449,
+      "sheets": -20481,
+      "bend": -19863
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 61,
+       "durationMs": 72,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 23 forced13",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 23 forced14"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2556,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0,
+     "over34": [],
+     "marks": {
+      "vignette": -27181,
+      "sheets": -27213,
+      "bend": -26595
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 46,
+       "durationMs": 93,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 6",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 25 forced14",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 34 forced23"
+       ]
+      }
+     ]
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2555,
+     "animFrames": 153,
+     "animMax": 33.2,
+     "animOver34": 0,
+     "animOver20": 1,
+     "over34": [],
+     "marks": {
+      "vignette": -33914,
+      "sheets": -33946,
+      "bend": -33327
+     },
+     "longAnimationFramesOver34": [
+      {
+       "atMs": 46,
+       "durationMs": 68,
+       "scripts": [
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 5",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 12 forced8",
+        "MessagePort.onmessage Se components-qZHuWLRu.js:10922 18 forced11",
+        "FrameRequestCallback ct page-change-bxKMYOjZ.js:11277 6"
+       ]
+      }
+     ]
+    }
+   ]
+  ]
+ },
+ "groups_r54_1_first_cut_note": "the R54.1 first cut (28-tile sheets, glow and shade in one alpha layer, no vignette), kept as it was recorded. Its \"none came twice\" sentence below was wrong: home to work failed in hook runs 1 and 2 of that build.",
+ "verdict_r54_1_first_cut_corrected": "R54.1 first cut: 3 of its 5 hook runs and 1 of its desktop runs had single frames of 50 to 83 ms; home to work repeated (hook runs 1 and 2), so the sentence \"none came twice on the same change in consecutive runs\" was wrong."
 }

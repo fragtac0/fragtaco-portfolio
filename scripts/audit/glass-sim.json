@@ -54,8 +54,8 @@
   "wait": 1500
  },
  {
-  "label": "the sheets' step fails (the line sheet's picture cannot be made), the bend's step is separate: no sheets, so the change uses the gradient reveal and glow for its whole length (no 'live' mark), and the bend still runs",
-  "init": "{const o=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(...a){if(this.width===1344)throw new Error('the line sheet fails');return o.apply(this,a)}}",
+  "label": "the sheets' step fails (the glow sheet's picture cannot be made), the bend's step is separate: no sheets, so the change uses the gradient reveal and glow for its whole length (no 'live' mark), and the bend still runs",
+  "init": "{const o=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(...a){if(this.width===1344)throw new Error('the glow sheet fails');return o.apply(this,a)}}",
   "go": "{{BASE}}/",
   "wait": 6000
  },

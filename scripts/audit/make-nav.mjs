@@ -5,6 +5,7 @@
 // by an observer armed before the move). Needs the production build on :5180.
 // usage: node scripts/audit/make-nav.mjs   then   BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/nav.json <outdir>
 import { readFileSync, writeFileSync } from "node:fs";
+import { glassMs } from "./glass-constants.mjs";
 
 const file = new URL("./nav.json", import.meta.url);
 const all = JSON.parse(readFileSync(file, "utf8"));
@@ -12,8 +13,7 @@ const firstTour = all.findIndex((s) => s.init?.includes("__arm"));
 // A click whose change finishes while the page is idle is not advanced by headless Chrome: wait for it inside the page.
 // The wait after a click is long enough for the change (its real length is read from the source: GLASS.ms in glass-math.ts, so a
 // longer or shorter change moves the wait, never the other way round), however the file was written before.
-const CHANGE_MS = Number(/\bms:\s*(\d+)/.exec(readFileSync(new URL("../../app/components/page-change/glass-math.ts", import.meta.url), "utf8"))?.[1]);
-if (!Number.isFinite(CHANGE_MS)) throw new Error("make-nav: cannot read GLASS.ms from glass-math.ts");
+const CHANGE_MS = glassMs();
 const CHANGE_WAIT = CHANGE_MS + 1300;
 const settle = (s) => {
   if (s.eval?.endsWith(".click(); 1")) return { ...s, eval: s.eval.replace(/\.click\(\); 1$/, `.click(); new Promise(r=>setTimeout(r,${CHANGE_WAIT})).then(()=>1)`), wait: undefined };
