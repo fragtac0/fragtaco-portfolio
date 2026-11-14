@@ -51,3 +51,22 @@ describe("the label of a bead", () => {
     expect(tip).toContain("transform: translate(calc(12px + var(--flip, 0) * (-100% - 24px)), -50%)");
   });
 });
+
+describe("the bead's touch area (R108)", () => {
+  it("is taken by the hit span, clipped by the engine's --hit, and not by the button itself", () => {
+    expect(rule(".map-pin")).toContain("pointer-events: none");
+    expect(rule(".map-hit")).toContain("pointer-events: auto");
+    expect(rule(".map-hit")).toContain("clip-path: var(--hit, none)");
+    expect(rule(".map-pin:disabled .map-hit")).toContain("pointer-events: none");
+  });
+});
+
+describe("the picture's first look by CSS", () => {
+  const map = readFileSync(new URL("./map.css", import.meta.url), "utf8");
+
+  it("is the phone's under the same media query as the engine's (view.ts PHONE_LOOK_MEDIA)", () => {
+    expect(map).toContain("@media (max-width: 700px)");
+    expect(map).toMatch(/@media \(max-width: 700px\) \{\s*\.map-stage \{[^}]*--map-look-x: var\(--map-phone-x\)[^}]*--map-zoom: var\(--map-phone-zoom\)/);
+    expect(map).toMatch(/\.map-stage \{\s*--map-look-x: var\(--map-desk-x\)/);
+  });
+});

@@ -32,7 +32,9 @@ type Props = {
  * The milestones as glass beads (spec 9.3), each a button of 44 px with a Phosphor icon (hidden in the overview), a label
  * on hover and on focus that is also its name for a screen reader. Pressing one in the overview goes into My climb at
  * that milestone; in My climb it moves the camera there. The last, "now", is orange. The engine places each with a
- * transform; before it has, the box is invisible.
+ * transform; before it has, the box is invisible. A touch or a click is taken by the button's hit span, which the engine cuts to the
+ * bead's own share of the 44 px when beads overlap (bead-hit.ts, R108), so the visible centre of a bead always opens that bead; the
+ * keyboard and a screen reader use the button.
  */
 export default function MilestonePins({ moments, selected, ready, onChoose, boxRef, pinRef }: Props) {
   return (
@@ -50,8 +52,9 @@ export default function MilestonePins({ moments, selected, ready, onChoose, boxR
             data-now={i === moments.length - 1 ? "" : undefined}
             data-current={selected === i ? "" : undefined}
             aria-current={selected === i ? "step" : undefined}
-            onClick={() => onChoose(i)}
+            onClick={() => ready && onChoose(i)}
           >
+            <span className="map-hit" aria-hidden="true" />
             <span className="map-bead" aria-hidden="true">
               <Icon />
             </span>

@@ -9,6 +9,7 @@
 // The loop runs only while the page is visible. The engine touches no global: the clock, the frame callback and the layers
 // are handed in, and it is tested with stand-ins (climb-engine.test.ts). The page (experience-map.tsx) wires the real ones.
 import { settle, springStep } from "./camera";
+import { writeHits } from "./bead-hit";
 import { chartAlpha } from "./chart";
 import { createChartState } from "./chart-state";
 import { changeAt, IN_MS, kOf, startChange, type Change, type Mode } from "./climb-change";
@@ -21,7 +22,7 @@ import { smooth } from "./map-math";
 import { drawTerrain, type Terrain } from "./terrain-canvas";
 import { aheadTrail, sharesFor, trailAt, type TrailPoint } from "./trail";
 import { drawRadar, drawTrail, pinPlaces, radarFoot, radarPhases, radarSide, type Pin } from "./trail-layer";
-import { OVERVIEW, fitOverview, glideTo, overviewPoints, pictureOpacity, planeTransform, project, sameLook, viewOf, type Cam, type Look, type Stage, type View } from "./view";
+import { OVERVIEW, PHONE_OVERVIEW, fitOverview, glideTo, overviewPoints, pictureOpacity, planeTransform, project, sameLook, viewOf, type Cam, type Look, type Stage, type View } from "./view";
 import type { XY } from "./card-slot";
 
 export type { CanvasLayer, ClimbEngine, ClimbLayers, ClimbOptions, Host, Layer, StageLayer, StyleLike } from "./climb-engine-types";
@@ -53,14 +54,16 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
   const radarCtx = radarCanvas.getContext("2d");
   const frameCtx = frameCanvas.getContext("2d");
   const chart = createChartState();
-  const cam: Cam = { ...OVERVIEW, trail };
+  /** Where the overview starts, and where `fitOverview` searches from: the picture's own framing, or the phone's. */
+  const start = (): Look => (options.phone?.() ? PHONE_OVERVIEW : OVERVIEW);
+  const cam: Cam = { ...start(), trail };
   const size: Stage = { w: 0, h: 0 };
   const ahead = aheadTrail([trail[trail.length - 1].x, trail[trail.length - 1].y], SUMMIT_XY);
   const shares = sharesFor(pins.length);
   let spots = shares.map((u) => ({ ...trailAt(trail, u), u }));
   let keep = NO_KEEP_OUT;
   /** The overview's framing that `cam` is gliding to. */
-  let look: Look = { ...OVERVIEW };
+  let look: Look = { ...start() };
   let dpr = 1;
   let k = 0;
   /** How far along the trail the camera sits, where it is going, and how fast it is going (a soft spring). */
@@ -84,6 +87,8 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
   let seen: View = viewOf(cam, 0, 1, size);
   let wasCalm = false;
   let alphaWas = "";
+  /** Each bead's hit area as last written (bead-hit.ts), so a frame writes only what changed. */
+  const hitWas: (string | null)[] = pins.map(() => null);
   /** The night map was drawn for reduced motion, which never changes its view: it need not be drawn again until the size or the heights do. */
   let terrainFresh = false;
   /** A change to a state was asked for before the heights or the size were there. */
@@ -110,11 +115,11 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     return [...pinPlaces(v, spots).map((p) => reachBox(p.head[0], p.head[1], BEAD_REACH)), ...line(trail), ...line(ahead)];
   };
 
-  /** The overview's framing (R104): the picture's own where the whole trail and its nine beads already fit between the page's words and the dock, else the nearest one where they do. */
+  /** The overview's framing (R104): the start's (the picture's own, or the phone's) where the whole trail and its nine beads already fit between the page's words and the dock, else the nearest one where they do. */
   function frameOverview() {
     if (size.w <= 0 || size.h <= 0) return; // no size yet: the first resize does it
 
-    look = fitOverview(OVERVIEW, overviewPoints(spots, [trail, ahead], BEAD_TARGET / 2, TRAIL_REACH), size, keep);
+    look = fitOverview(start(), overviewPoints(spots, [trail, ahead], BEAD_TARGET / 2, TRAIL_REACH), size, keep);
     if (reduced()) Object.assign(cam, look);
   }
 
@@ -152,12 +157,15 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     const alpha = String(+(fade * shown).toFixed(3));
     const over = chartAlpha(seen.night); // the overview's own marks fade with the picture
 
-    if (trailCtx !== null) drawTrail(trailCtx, seen, size, dpr, trail, ahead, places, (c) => chart.under(c, seen, size, over));
+    if (trailCtx !== null) drawTrail(trailCtx, seen, size, dpr, trail, ahead, places, (c) => chart.under(c, seen, size, over, want !== "climb"));
     if (frameCtx !== null) {
       const at = want === "climb" ? spots[index] : { x: SUMMIT_XY[0], y: SUMMIT_XY[1] };
 
       chart.frame(frameCtx, seen, size, dpr, [at.x, at.y], over * fade);
     }
+    const heads = places.map((p) => p.head);
+
+    writeHits(pins.map((p) => p.style), heads, hitWas);
     places.forEach(({ head }, i) => {
       pins[i].style.transform = `translate(${head[0]}px, ${head[1]}px)`;
       pins[i].style.setProperty("--bs", String(0.5 + 0.5 * seen.k));
@@ -171,7 +179,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     foot = radarFoot(seen, spots[spots.length - 1]);
     radarCanvas.style.transform = `translate(${foot[0] - side / 2}px, ${foot[1] - side / 2}px)`;
     radar(now, calm);
-    options.onHeads?.(places.map((p) => p.head), { w: size.w, h: size.h });
+    options.onHeads?.(heads, { w: size.w, h: size.h });
     dirty = false;
 
     const rows = options.trace?.();

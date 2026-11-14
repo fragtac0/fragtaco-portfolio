@@ -69,12 +69,12 @@ describe("the chart state", () => {
     const state = createChartState();
     const { c, strokes } = testCanvas();
 
-    state.under(c, overview, phone, 1);
+    state.under(c, overview, phone, 1, true);
 
     const withMarks = strokes.length;
     const bare = testCanvas();
 
-    state.under(bare.c, overview, phone, 0);
+    state.under(bare.c, overview, phone, 0, true);
     expect(withMarks).toBeGreaterThan(40);
     expect(withMarks - bare.strokes.length).toBe(3); // two rings and the summit's triangle
   });
@@ -85,7 +85,7 @@ describe("the chart state", () => {
     const ys = (v: typeof climb) => {
       const { c, strokes } = testCanvas();
 
-      state.under(c, v, phone, 0);
+      state.under(c, v, phone, 0, true);
 
       return strokes.flatMap((s) => s.points.map((p) => p[1]));
     };
@@ -105,9 +105,9 @@ describe("the chart state", () => {
     const open = testCanvas();
     const bare = testCanvas();
 
-    state.under(open.c, overview, phone, 1);
+    state.under(open.c, overview, phone, 1, true);
     state.setKeepOut({ words: [words], dock: null }, cam, phone, []);
-    state.under(bare.c, overview, phone, 1);
+    state.under(bare.c, overview, phone, 1, true);
     expect(open.clips).toHaveLength(0);
     expect(bare.clips.length).toBeGreaterThan(0);
     for (const clip of bare.clips) {
@@ -116,5 +116,20 @@ describe("the chart state", () => {
     }
     expect(bare.balanced()).toBe(true); // every save has its restore
     expect(bare.strokes).toHaveLength(open.strokes.length);
+  });
+
+  it("draws no hollows while the words are faded out (My climb): the crosses run over their place", () => {
+    const state = createChartState();
+    const climb = viewOf(cam, 1, 0.5, phone);
+    const shown = testCanvas();
+    const hidden = testCanvas();
+
+    state.setKeepOut({ words: [{ l: 100, t: 300, r: 300, b: 360 }], dock: null }, cam, phone, []);
+    state.under(shown.c, climb, phone, 0, true);
+    state.under(hidden.c, climb, phone, 0, false);
+    expect(shown.clips.length).toBeGreaterThan(0);
+    expect(hidden.clips).toHaveLength(0);
+    expect(hidden.balanced()).toBe(true);
+    expect(hidden.strokes).toHaveLength(shown.strokes.length);
   });
 });

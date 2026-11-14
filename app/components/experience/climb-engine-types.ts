@@ -8,7 +8,7 @@ import type { TrailPoint } from "./trail";
 import type { Stage } from "./view";
 
 /** The bits of a style the engine writes (a CSSStyleDeclaration is one). */
-export type StyleLike = { transform: string; opacity: string; width: string; height: string; visibility: string; zIndex: string; setProperty(name: string, value: string): void };
+export type StyleLike = { transform: string; opacity: string; width: string; height: string; visibility: string; zIndex: string; setProperty(name: string, value: string): void; removeProperty(name: string): unknown };
 export type Layer = { style: StyleLike };
 export type CanvasLayer = Layer & { width: number; height: number; getContext(kind: "2d"): CanvasRenderingContext2D | null };
 export type StageLayer = Layer & { classList: { toggle(name: string, force?: boolean): unknown } };
@@ -24,6 +24,8 @@ export type ClimbOptions = {
   trail: TrailPoint[];
   /** Whether motion is reduced right now (asked every frame). */
   reduced: () => boolean;
+  /** Whether the screen is a phone's (asked when the overview is framed): its overview starts at `PHONE_OVERVIEW`, not the picture's own framing. Absent: not a phone. */
+  phone?: () => boolean;
   host: Host;
   /** A milestone was chosen (null: none, the map left My climb) and how long the card should wait, in milliseconds, for the camera. */
   onSelect?: (index: number | null, wait: number) => void;

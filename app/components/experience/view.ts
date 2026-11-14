@@ -22,6 +22,14 @@ export const STEM = 15;
 export const MOUNTAIN = { x: 487, y: 320 };
 /** Where the overview looks and how much it is zoomed (a slight zoom, so the picture always covers the frame). */
 export const OVERVIEW = { ax: 470, ay: 325, s: 1.1 };
+/**
+ * Where a narrow screen (a phone: `PHONE_LOOK_MEDIA`) starts its overview, in the page's CSS and in the engine, so the first look is near
+ * the one `fitOverview` finds for the phones the page was measured on (390 by 844 and 360 by 640 keep it as it is, 320 by 568 zooms in a
+ * step and moves 22 px; the picture's own framing needed a glide of 91, 47 and 63 px). It still covers any stage at its zoom.
+ */
+export const PHONE_OVERVIEW = { ax: 530, ay: 345, s: 1.1 };
+/** The screens that start at `PHONE_OVERVIEW` (a phone held upright; one held sideways starts at the picture's own framing). */
+export const PHONE_LOOK_MEDIA = "(max-width: 700px)";
 
 export type Stage = { w: number; h: number };
 /** The camera's own numbers: where the overview looks, and the trail the camera climbs (sampled, with heights). */

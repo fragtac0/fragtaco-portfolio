@@ -27,9 +27,18 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
-  pointer-events: auto;
+  pointer-events: none; /* a touch is taken by the hit span below, which the engine cuts so that overlapping buttons share their overlap by the nearest centre (R108) */
   transition: opacity 350ms;
   -webkit-tap-highlight-color: transparent;
+}
+.map-hit {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  clip-path: var(--hit, none);
+}
+.map-pin:disabled .map-hit {
+  pointer-events: none;
 }
 .map-pin:hover,
 .map-pin:focus-visible {

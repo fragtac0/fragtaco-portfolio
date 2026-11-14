@@ -238,6 +238,21 @@ describe("the overview's framing (Ruling R104)", () => {
     expect(seen[1] - seen[0]).toBeGreaterThan(-20); // a soft start, not a jump
   });
 
+  it("starts a phone at the phone's own place (the page's CSS puts it there) and stays, where that already fits (390 by 844)", () => {
+    const { engine, layers, f } = setup({ phone: true });
+    const seen: number[] = [];
+
+    engine.setKeepOut(phone);
+    engine.resize(390, 844, 2);
+    engine.setTerrain(terrain());
+    for (let i = 0; i < 60; i++) {
+      seen.push(settled(layers.plane.style.transform)[0]);
+      f.run(1000 / 60);
+    }
+    expect(layers.plane.style.transform).toContain("translate(-530px, -345px)");
+    expect(new Set(seen)).toEqual(new Set([-530])); // no glide at all
+  });
+
   it("goes to the fitted framing at once under reduced motion", () => {
     const { engine, layers } = setup({ reduced: true });
 

@@ -15,8 +15,8 @@ export type ChartState = {
   setKeepOut(keep: KeepOut, cam: Cam, stage: Stage, avoid: readonly Box[]): void;
   /** The heights are read: the grid's rows take the height under them. */
   setHeights(field: HeightField): void;
-  /** The grid and the overview's marks on the (cleared) trail canvas, under the trail; `over` is the picture's opacity. The rings and the crosses keep out of the page's words. */
-  under(c: CanvasRenderingContext2D, v: View, stage: Stage, over: number): void;
+  /** The grid and the overview's marks on the (cleared) trail canvas, under the trail; `over` is the picture's opacity. The rings and the crosses keep out of the page's words, while `words` says they show (in My climb they are faded out and the grid runs over their place). */
+  under(c: CanvasRenderingContext2D, v: View, stage: Stage, over: number, words: boolean): void;
   /** The frame on its own canvas; `at` is the point the readout tells; `over` the overview-only items' strength. */
   frame(c: CanvasRenderingContext2D, v: View, stage: Stage, dpr: number, at: XY, over: number): void;
 };
@@ -44,7 +44,7 @@ export function createChartState(): ChartState {
       refit(cam, stage, avoid);
     },
     setHeights: (field) => setChartHeights(chart, field),
-    under: (c, v, stage, over) => drawChart(c, v, chart, SUMMIT_XY, over, { stage, boxes: keep.words }),
+    under: (c, v, stage, over, words) => drawChart(c, v, chart, SUMMIT_XY, over, words ? { stage, boxes: keep.words } : undefined),
     frame(c, v, stage, dpr, at, over) {
       const f = foot || stage.h;
       const items = frameItems(v, stage, f, SUMMIT_XY, at);

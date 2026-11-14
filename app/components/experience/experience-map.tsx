@@ -11,7 +11,7 @@ import MomentCard, { cardView } from "./moment-card";
 import { whenIdle } from "../../utils/idle";
 import { loadTerrain } from "./terrain-canvas";
 import type { TrailPoint } from "./trail";
-import { OVERVIEW } from "./view";
+import { OVERVIEW, PHONE_LOOK_MEDIA, PHONE_OVERVIEW } from "./view";
 import "./map.css";
 
 /**
@@ -22,8 +22,12 @@ import "./map.css";
 export const RELIEF_SRC = "/mars/relief.webp";
 export const RELIEF_PHONE_SRC = "/mars/relief-phone.webp";
 export const PHONE_MEDIA = "(max-width: 700px), (max-height: 520px) and (max-width: 960px)";
-/** The rest: the other side of `PHONE_MEDIA` (a short desktop window, wider than any phone held sideways, still gets the large picture). */
-export const ROOMY_MEDIA = "(min-width: 701px) and (min-height: 521px), (min-width: 961px)";
+/**
+ * The rest: exactly the other side of `PHONE_MEDIA` (a short desktop window, wider than any phone held sideways, still gets the large picture). Written
+ * with strict comparisons so no width between 700 and 701 px (a zoomed page has fractional widths) falls in neither; a browser too old to read them
+ * loses only the preload (the picture's own `<source>` still chooses).
+ */
+export const ROOMY_MEDIA = "(width > 700px) and (height > 520px), (width > 960px)";
 export const HEIGHTS_SRC = "/mars/heights.png";
 /** The longest the heights wait for an idle moment after the engine starts, in milliseconds. */
 export const HEIGHTS_IDLE_MS = 800;
@@ -126,6 +130,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     const e = createClimbEngine(layers as unknown as ClimbLayers, {
       trail,
       reduced: () => live.current.reduced,
+      phone: () => window.matchMedia(PHONE_LOOK_MEDIA).matches,
       host: { now: () => performance.now(), raf: (cb) => requestAnimationFrame(cb), cancel: (n) => cancelAnimationFrame(n) },
       onSelect: (index, wait) => controller.request(index, wait),
       onHeads: (heads, size) => controller.update(heads, { w: size.w, h: size.h - dock }),
@@ -204,12 +209,15 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
         ref={stage}
         className="map-stage"
         aria-hidden="true"
-        // the overview's place for the picture, from view.ts, so the CSS cannot drift from it: the look-at point as a share of the picture, and the zoom
+        // the overview's place for the picture, from view.ts, so the CSS cannot drift from it: the look-at point as a share of the picture, and the zoom (the picture's own and the phone's; map.css picks one)
         style={
           {
-            "--map-look-x": `${(OVERVIEW.ax / PICTURE.w) * 100}%`,
-            "--map-look-y": `${(OVERVIEW.ay / PICTURE.h) * 100}%`,
-            "--map-zoom": OVERVIEW.s,
+            "--map-desk-x": `${(OVERVIEW.ax / PICTURE.w) * 100}%`,
+            "--map-desk-y": `${(OVERVIEW.ay / PICTURE.h) * 100}%`,
+            "--map-desk-zoom": OVERVIEW.s,
+            "--map-phone-x": `${(PHONE_OVERVIEW.ax / PICTURE.w) * 100}%`,
+            "--map-phone-y": `${(PHONE_OVERVIEW.ay / PICTURE.h) * 100}%`,
+            "--map-phone-zoom": PHONE_OVERVIEW.s,
             "--map-ratio": PICTURE.w / PICTURE.h,
           } as CSSProperties
         }

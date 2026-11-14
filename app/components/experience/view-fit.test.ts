@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PICTURE } from "./frame";
 import { DOCK_GAP, WORDS_GAP, overlaps, type Box, type KeepOut } from "./keep-out";
 import { MILESTONE_SHARES, aheadTrail, lowerTrail, sampleTrail, trailAt, type Point } from "./trail";
-import { FIT_GUTTER, OVERVIEW, fitOverview, glideTo, overviewAt, overviewPoints, project, sameLook, viewOf, type Stage } from "./view";
+import { FIT_GUTTER, OVERVIEW, PHONE_LOOK_MEDIA, PHONE_OVERVIEW, fitOverview, glideTo, overviewAt, overviewPoints, project, sameLook, viewOf, type Stage } from "./view";
 
 const ROUTE: Point[] = [[639.5, 329.6], [619.2, 329.0], [604.8, 330.2], [589.7, 332.4], [579.2, 349.4], [565.5, 377.2], [542.1, 400.1], [511.4, 402.0], [487.3, 393.1], [468.9, 380.4], [458.1, 366.2]];
 const SUMMIT: Point = [500, 325];
@@ -129,6 +129,40 @@ describe("fitOverview", () => {
 
     fitOverview(OVERVIEW, POINTS, PAGES["844x390"].stage, PAGES["844x390"].keep);
     expect(performance.now() - t0).toBeLessThan(150);
+  });
+});
+
+describe("the phone's first look", () => {
+  /** The most a point of the picture moves on the screen between two framings, in pixels (the first glide). */
+  const glidePx = (a: typeof OVERVIEW, b: typeof OVERVIEW, st: Stage) =>
+    Math.max(...[[500, 325], [458, 366], [640, 330], [560, 400]].map(([x, y]) => Math.hypot(...(overviewAt(a, st, x, y).map((v, i) => v - overviewAt(b, st, x, y)[i]) as [number, number]))));
+
+  it("is the picture's zoom and covers any stage at it (the look-at point is where the stage cannot show past the picture)", () => {
+    expect(PHONE_OVERVIEW.s).toBe(OVERVIEW.s);
+    for (const [w, h] of [[320, 568], [390, 844], [700, 420], [700, 1100]]) {
+      const S = Math.max(w / PICTURE.w, h / PICTURE.h) * PHONE_OVERVIEW.s;
+
+      expect(PHONE_OVERVIEW.ax).toBeGreaterThanOrEqual(w / (2 * S));
+      expect(PHONE_OVERVIEW.ax).toBeLessThanOrEqual(PICTURE.w - w / (2 * S));
+      expect(PHONE_OVERVIEW.ay).toBeGreaterThanOrEqual(h / (2 * S));
+      expect(PHONE_OVERVIEW.ay).toBeLessThanOrEqual(PICTURE.h - h / (2 * S));
+    }
+  });
+
+  it("makes the first glide short on the phones the page was measured on (it was 91, 47 and 63 px from the picture's own)", () => {
+    const most: Record<string, number> = { "390x844": 1, "360x640": 1, "320x568": 30 };
+
+    for (const [name, limit] of Object.entries(most)) {
+      const { stage, keep: k } = PAGES[name];
+      const look = fitOverview(PHONE_OVERVIEW, POINTS, stage, k);
+
+      expect(glidePx(PHONE_OVERVIEW, look, stage), name).toBeLessThanOrEqual(limit);
+      expect(glidePx(PHONE_OVERVIEW, look, stage), name).toBeLessThan(glidePx(OVERVIEW, fitOverview(OVERVIEW, POINTS, stage, k), stage));
+    }
+  });
+
+  it("applies to the width that the page's CSS and the engine both read", () => {
+    expect(PHONE_LOOK_MEDIA).toBe("(max-width: 700px)");
   });
 });
 

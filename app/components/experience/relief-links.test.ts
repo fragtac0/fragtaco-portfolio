@@ -7,6 +7,44 @@ import { HEIGHTS_IDLE_MS, HEIGHTS_SRC, PHONE_MEDIA, RELIEF_PHONE_SRC, RELIEF_SRC
 type Link = { rel: string; href: string; media?: string };
 const preloads = (links as unknown as () => Link[])();
 
+/** The two media queries as the page writes them (a comma list of `and` lists of `max-`/`min-` conditions and `width > N` comparisons), read at a screen size. */
+function matches(query: string, w: number, h: number): boolean {
+  return query.split(",").some((part) =>
+    [...part.matchAll(/\(([^)]+)\)/g)].every(([, c]) => {
+      const m = /^(max|min)-(width|height):\s*([\d.]+)px$/.exec(c) ?? /^(width|height)\s*(>|<=)\s*([\d.]+)px$/.exec(c);
+
+      if (!m) throw new Error(`unread condition ${c}`);
+
+      const [, a, b, n] = m;
+      const v = (b === "width" || a === "width") ? w : h;
+      const limit = Number(n);
+
+      if (a === "max") return v <= limit;
+      if (a === "min") return v >= limit;
+
+      return b === ">" ? v > limit : v <= limit;
+    }),
+  );
+}
+
+describe("the two media queries", () => {
+  it("are complements: every screen size, a fractional width or height too, is on exactly one side", () => {
+    const widths = [...Array.from({ length: 80 }, (_, i) => 280 + i * 11), 700, 700.2, 700.5, 700.99, 701, 960, 960.5, 961];
+    const heights = [300, 520, 520.4, 520.5, 521, 640, 900];
+
+    for (const w of widths) for (const h of heights) expect(matches(PHONE_MEDIA, w, h) !== matches(ROOMY_MEDIA, w, h), `${w} x ${h}`).toBe(true);
+  });
+
+  it("send a phone, a phone held sideways and a narrow tablet to the small picture, a desktop window and a short one to the large", () => {
+    expect(matches(PHONE_MEDIA, 390, 844)).toBe(true);
+    expect(matches(PHONE_MEDIA, 844, 390)).toBe(true);
+    expect(matches(ROOMY_MEDIA, 820, 1180)).toBe(true);
+    expect(matches(ROOMY_MEDIA, 1440, 900)).toBe(true);
+    expect(matches(ROOMY_MEDIA, 1280, 500)).toBe(true);
+    expect(matches(ROOMY_MEDIA, 700.5, 800)).toBe(true);
+  });
+});
+
 describe("the route's preloads", () => {
   it("are the picture for a phone (under its media query) and the large one (under the other side of it), and nothing else", () => {
     expect(preloads).toHaveLength(2);

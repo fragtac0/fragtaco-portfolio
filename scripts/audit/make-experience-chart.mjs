@@ -78,14 +78,15 @@ const wordsLeave = {
 // ---- the phones ----
 // Each bead's touch target (the button, 44 px): the share of it that is on the screen and outside the dock, and the share of it where a touch lands on the bead
 // itself (a neighbour's target may lie over part of it: the beads are closer than 44 px on a small stage, and the one lower on the screen is on top). All nine must be
-// whole on the screen outside the dock and own part of their target; the pairs whose targets overlap are counted and reported.
+// whole on the screen outside the dock and own part of their target, and the visible centre of every bead must land on that bead (R108: the page cuts the overlapping
+// targets by the nearest centre); the pairs whose targets overlap are counted and reported.
 const REACH = `const area=a=>Math.max(0,a.r-a.l)*Math.max(0,a.b-a.t);const pinsEls=qa('.map-pin'),tg=pinsEls.map(R);
 const own=pinsEls.map((p,i)=>{const r=tg[i],vis={l:Math.max(0,r.l),t:Math.max(0,r.t),r:Math.min(W,r.r),b:Math.min(H,r.b)},x={l:Math.max(vis.l,dock.l),t:Math.max(vis.t,dock.t),r:Math.min(vis.r,dock.r),b:Math.min(vis.b,dock.b)};
 let hits=0,n=0;for(let a=0;a<11;a++)for(let b=0;b<11;b++){const px=r.l+(a+.5)*r.w/11,py=r.t+(b+.5)*r.h/11;n++;if(px<0||py<0||px>=W||py>=H)continue;const e=document.elementFromPoint(px,py);if(e&&p.contains(e))hits++}
 const c=document.elementFromPoint(r.l+r.w/2,r.t+r.h/2);return {outside:(area(vis)-area(x))/(r.w*r.h),hit:hits/n,centre:!!c&&p.contains(c)}});
 let pairs=0,worst=0;for(let i=0;i<tg.length;i++)for(let j=i+1;j<tg.length;j++){const a=area({l:Math.max(tg[i].l,tg[j].l),t:Math.max(tg[i].t,tg[j].t),r:Math.min(tg[i].r,tg[j].r),b:Math.min(tg[i].b,tg[j].b)});if(a>0){pairs++;worst=Math.max(worst,a/(tg[i].w*tg[i].h))}}
 const reachInfo={beads:pinsEls.length,minOutsideShare:+Math.min(...own.map(o=>o.outside)).toFixed(3),minOwnShare:+Math.min(...own.map(o=>o.hit)).toFixed(2),centresOnOwnBead:own.filter(o=>o.centre).length,overlappingPairs:pairs,mostOverlapped:+worst.toFixed(2)};
-reachInfo.ok=reachInfo.beads===9&&reachInfo.minOutsideShare>=0.995&&reachInfo.minOwnShare>=0.15;`;
+reachInfo.ok=reachInfo.beads===9&&reachInfo.minOutsideShare>=0.995&&reachInfo.minOwnShare>=0.4&&reachInfo.centresOnOwnBead===9;`;
 
 const layout = (tag, sizeName) => ({
   eval: `(async()=>{${sleep}${ready}${R}${INK}${Q}const W=innerWidth,H=innerHeight,dockEl=q('[data-dock-glass]'),dock=R(dockEl);
@@ -97,6 +98,7 @@ const beads=qa('.map-pin .map-bead').map(b=>{const r=R(b);return {x:r.l+r.w/2,y:
 const under=beads.filter(b=>texts.some(t=>hit({l:b.x-b.rad,t:b.y-b.rad,r:b.x+b.rad,b:b.y+b.rad},t))).length;
 const sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});
 ${REACH}
+const pl0=q('.map-plane'),pa=R(pl0),pin=pl0.style.cssText;pl0.style.cssText='';const pb=R(pl0);pl0.style.cssText=pin;const firstGlide=+Math.max(...[pa.l-pb.l,pa.t-pb.t,pa.r-pb.r,pa.b-pb.b].map(Math.abs)).toFixed(1);
 const fs=parseFloat(getComputedStyle(title).fontSize);const phone=W<700;
 const fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;
 const corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b));
@@ -108,7 +110,7 @@ const readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);
 const trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);
 const o={size:[W,H],dock:[dock.l,dock.t,dock.r,dock.b].map(Math.round),heading:inside(heading),caption:inside(cap),switch:inside(sw),
 clearOfDock:[heading,cap,sw].every(r=>!hit(r,dock)),titleLines:Math.round(tr.h/fs*10)/10,titleSize:fs,switchUnderTitle:W<500?sw.t>=tr.b-1:null,switchClearOfTitle:!hit(sw,tr),
-beadsUnderWords:under,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),reach:reachInfo,corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};
+beadsUnderWords:under,firstGlidePx:firstGlide,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),reach:reachInfo,corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};
 o.ok=o.heading&&o.caption&&o.switch&&o.clearOfDock&&(!phone||o.titleLines<=1.3)&&o.switchClearOfTitle&&(W>=500||o.switchUnderTitle)&&under===0&&o.hitAreas&&reachInfo.ok&&corners.every(n=>n>0)&&squares.every(n=>n>0)&&readoutInk>0&&underDock===0&&underWords.every(n=>n===0)&&trailInk>0;
 return JSON.stringify(o)})()`,
   label: `${sizeName}, overview: the words inside the screen and clear of the dock, one line of title on a phone, no bead under a line of the words, 44 px targets, all nine beads whole on the screen outside the dock and reachable, the frame's marks present and clear of the dock and the words (${tag})`,
@@ -125,6 +127,18 @@ o.ok=op===1&&o.cardInside&&o.cardAboveDock&&north===0&&corners.every(n=>n>0)&&re
 return JSON.stringify(o)})()`,
   label: `${sizeName}, My climb: the card inside the screen and above the dock, no north or degree labels, the corner marks and the readout stay, the grid is on the trail's canvas, 44 px targets`,
 });
+// A real touch (or click) on the visible centre of each of the nine beads, in the overview, chooses that bead (R108): the page goes into My climb at it, and back.
+const centreTaps = (w, h, dpr, mobile, name) => [
+  { size: [w, h], dpr, mobile, touch: mobile, reduce: false, go: "{{BASE}}/experience", wait: 3500 },
+  { eval: `(async()=>{${sleep}${ready}return 'ready'})()`, label: `${name}: ready for the taps` },
+  ...Array.from({ length: 9 }, (_, i) => [
+    { [mobile ? "tap" : "click"]: `(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[${i}].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()` },
+    {
+      eval: `(async()=>{${sleep}${Q}await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:${i},chosen:cur,mode:q('.map-page').dataset.mode};${press("Overview")};await sleep(3600);o.ok=cur.length===1&&cur[0]===${i}&&o.mode==='climb';return JSON.stringify(o)})()`,
+      label: `${w} x ${h}: ${mobile ? "a touch" : "a click"} on the visible centre of bead ${i + 1} chooses bead ${i + 1}`,
+    },
+  ]).flat(),
+];
 const phoneRun = (w, h, dpr, mobile, name) => [
   { size: [w, h], dpr, mobile, touch: mobile, reduce: false, init: "window.__expTrace=[]", go: "{{BASE}}/experience", wait: 3500 },
   layout(`${w} x ${h}`, name),
@@ -244,6 +258,8 @@ export const chartSteps = [
   ...phoneRun(360, 640, 2, true, "small"),
   ...phoneRun(320, 568, 2, true, "tiny"),
   ...phoneRun(844, 390, 2, true, "landscape"),
+  ...centreTaps(1440, 900, 1, false, "desktop"),
+  ...centreTaps(320, 568, 2, true, "tiny"),
   ...reach,
   ...carryOvers,
   ...reducedChart,
@@ -253,6 +269,7 @@ export const chartSteps = [
 /** Parts of the list, to run one at a time while working on them. */
 export const chartParts = {
   tiny: phoneRun(320, 568, 2, true, "tiny"),
+  taps: [...centreTaps(1440, 900, 1, false, "desktop"), ...centreTaps(320, 568, 2, true, "tiny")],
   keys: [...reach, ...carryOvers],
   reduced: reducedChart,
   weight,

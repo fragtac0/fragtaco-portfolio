@@ -18,8 +18,23 @@
   pointer-events: none;
 }
 
+/* the overview's first look: the picture's own, or on a narrow screen (view.ts PHONE_LOOK_MEDIA) the phone's */
+.map-stage {
+  --map-look-x: var(--map-desk-x);
+  --map-look-y: var(--map-desk-y);
+  --map-zoom: var(--map-desk-zoom);
+}
+@media (max-width: 700px) {
+  .map-stage {
+    --map-look-x: var(--map-phone-x);
+    --map-look-y: var(--map-phone-y);
+    --map-zoom: var(--map-phone-zoom);
+  }
+}
+
 /* The picture, 1000 by 650 map units. Until the engine has a size it is placed by CSS alone, where `planeTransform`
- * puts it in the overview (view.ts OVERVIEW, passed in as --map-look-x/-y/--map-zoom/--map-ratio): as wide as the
+ * puts it in the overview (view.ts OVERVIEW, or PHONE_OVERVIEW on a narrow screen, passed in as --map-desk-*, --map-phone-*
+ * and --map-ratio, chosen below): as wide as the
  * stage needs for the zoomed picture to cover it, its look-at point in the stage's middle. Once the engine runs it
  * sets the plane's own size (1000 by 650 px) and its transform inline, which win over this. */
 .map-plane {
