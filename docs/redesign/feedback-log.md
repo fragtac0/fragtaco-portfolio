@@ -644,3 +644,16 @@ Given while the build was at task 10 of 21, after Aditya looked at the build run
 
 - The larger portfolio thumbnails and the page change's new numbers become build tasks once he has picked from the preview; the opening is redesigned only after he approves a direction.
 - The case study is written when the site is final, from this log, `changes-2026-11.md`, the specs and plans, the build ledgers and the PRs. Nothing extra is needed now beyond keeping those complete.
+
+**His choices on the tenth preview (2026-11-14)**
+
+| Question | Answer |
+|---|---|
+| What the home box shows | The whole open page, small |
+| Length of opening and closing | 1.0 s |
+| The page change's edge | "Wider + Stronger", with: "again the preview on localhost was not like the one you are showing - it looked very bad. Look into that as well" |
+| Browser he checks in | A Chromium browser |
+
+I looked into it: `docs/redesign/compare/round7/change-experience-to-home.jpg` and `compare/local/r51-reveal-50.jpg` show the built change as a thin bright ring, almost a perfect circle, with hardly any bend. The cause is the numbers and the line picture, not the browser. The fix and the other two changes are written up in `docs/superpowers/specs/2026-11-14-round7-followups-design.md` and planned as tasks 22 to 26 in `docs/superpowers/plans/2026-11-14-round7-followups.md`, to run after task 19.
+
+My call: the home page behind an opening box sinks back and dims (the preview's default).
