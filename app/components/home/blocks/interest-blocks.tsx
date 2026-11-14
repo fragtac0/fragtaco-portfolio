@@ -5,6 +5,7 @@ import type { SiteBook, SiteVideo } from "../../../types";
 import EclipseGround from "../../ground/eclipse-ground";
 import type { LayerKind } from "../layer/layer-state";
 import "./blocks.css";
+import MiniLedge from "./mini-ledge";
 import { miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 import { useMiniFit } from "./use-mini-fit";
 import { useMiniSpines } from "./use-mini-spines";
@@ -81,7 +82,7 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
               </span>
             </div>
             <div ref={shelfArtRef} className="blk-art ms" aria-hidden="true">
-              <div className="ms-plank" />
+              <MiniLedge />
               <div ref={shelfRowRef} className="ms-row">
                 {books.map((book, i) => {
                   const s = spines[i];

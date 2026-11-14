@@ -1,4 +1,5 @@
-import { clamp, flatFrame, LINE_PX } from "./shelf-math";
+import { clamp, flatFrame } from "./shelf-math";
+import { ledgeHeight } from "./ledge";
 import { placeMarker } from "./shelf-hud";
 import { headerBottom } from "./shelf-head";
 import type { ShelfCtx } from "./shelf-open";
@@ -34,7 +35,7 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   st.fitH = h;
   st.fitTop = top;
   if (st.opened) closeBook(true);
-  const { renderer: r, camera, span, line } = gl;
+  const { renderer: r, camera, span } = gl;
   r.setSize(w, h, false);
   const tallest = Math.max(...gl.books.map((b) => b.H));
   const f = flatFrame({ vw: w, vh: h, span, tallest, top });
@@ -49,10 +50,12 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   camera.bottom = -h / 2 / f.scale;
   camera.position.y = (f.baseRow - h / 2) / f.scale;
   camera.updateProjectionMatrix();
-  // the hairline runs the row's reach, just under the books' feet
-  line.scale.set(f.reach, LINE_PX / f.scale, 1);
-  line.position.set(0, -LINE_PX / f.scale / 2, line.position.z);
-  placeMarker(els.marker, f.baseRow + LINE_PX + 14);
+  // the rock ledge runs the row's reach, hung from the books' feet; the marker sits low on it
+  const ledgeH = ledgeHeight(h, f.baseRow);
+  gl.fitLedge(f.reach * f.scale, h, f.baseRow, f.scale);
+  placeMarker(els.marker, f.baseRow + Math.max(8, ledgeH - 8));
+  // the dot field behind the row (a sibling of the host in the stage) stops at the ledge's top (reading.css `.dot-field`)
+  els.host.parentElement?.style.setProperty("--ledge-top", `${f.baseRow}px`);
   // read by scripts/audit/shelf.json: the tallest spine's share of the height, the row's of the width, the feet's row
   canvas.dataset.tall = ((f.scale * tallest) / h).toFixed(4);
   canvas.dataset.row = ((f.scale * span) / w).toFixed(4);

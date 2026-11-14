@@ -61,8 +61,10 @@ export type ShelfScene = {
   scene: THREE.Scene;
   camera: THREE.OrthographicCamera;
   books: Book[];
-  /** The hairline the books stand on. */
-  line: FlatMesh;
+  /** The rock ledge the books stand on (`drawLedge`). Its opacity follows the row's dimming. */
+  ledge: FlatMesh;
+  /** The fit changed: sizes and redraws the ledge for a stage `stageH` tall whose books stand at `baseRow`, `scale` CSS pixels per world unit. */
+  fitLedge(reachPx: number, stageH: number, baseRow: number, scale: number): void;
   /** The row's width in world units. */
   span: number;
   /** CSS pixels per world unit (set by the fit). */

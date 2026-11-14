@@ -11,6 +11,16 @@
   height: 100%;
   display: block;
 }
+/* the dot field fills the stage down to the ledge's top (--ledge-top, set on the stage by shelf-fit.ts); it comes before the host in the stage, so the shelf's canvas sits on top */
+.home-layer .dot-field {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: var(--ledge-top, 100%);
+  display: block;
+  pointer-events: none;
+}
 .home-layer .shelf-canvas {
   touch-action: none;
   overscroll-behavior: contain;

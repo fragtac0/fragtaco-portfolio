@@ -1,5 +1,4 @@
 import type { Book, ShelfScene } from "./shelf-scene";
-import { LINE_ALPHA } from "../../../styles/tokens";
 import {
   dropProgress,
   DROP_FALL,
@@ -127,7 +126,7 @@ export function poseBooks(s: ShelfScene, f: PoseInput): boolean {
     b.wallSh.material.opacity = 0.5 * lift * e * (a.open > 0.01 ? 1 : dim) * show;
     b.wallSh.visible = b.wallSh.material.opacity > 0.004;
   }
-  s.line.visible = dim > 0.004;
-  s.line.material.opacity = LINE_ALPHA * dim;
+  s.ledge.visible = dim > 0.004;
+  s.ledge.material.opacity = dim;
   return busy;
 }

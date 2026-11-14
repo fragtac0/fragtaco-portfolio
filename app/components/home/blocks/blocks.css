@@ -134,14 +134,17 @@ html.intro .home-blocks {
   transform: translateX(-50%) scale(var(--ms-fit, 1));
   transform-origin: 50% 100%;
 }
-/* the books stand on one hairline, as in the layer they open into (`.sp-line` in reading.css) */
-.home-blocks .ms-plank {
+/* the books stand on the rock ledge, the one the layer opens into (reading/ledge.ts); the preview's 74 units are squeezed into the 44 px under the row's feet */
+.home-blocks .ms-ledge {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 43px;
-  height: 1px;
-  background: var(--line);
+  bottom: 0;
+  width: 100%;
+  height: 44px; /* the row's feet are 44 px above the preview's bottom edge (.ms-row bottom) */
+  display: block;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
 }
 /* each spine is a canvas painted by the 3D shelf's painter (use-mini-spines.ts); the cloth shows until it is */
 .home-blocks .ms-sp {

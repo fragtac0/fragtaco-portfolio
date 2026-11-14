@@ -5,6 +5,7 @@ import { useLayerControl } from "../layer/layer-context";
 import "./reading.css";
 import ReadingFallback from "./reading-fallback";
 import type { ShelfEngine } from "./shelf-engine";
+import { useDotField } from "./use-dot-field";
 
 type ReadingSceneProps = {
   /** Null on the server and until HomePage has created it on the client. */
@@ -30,6 +31,7 @@ type ReadingSceneProps = {
 function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingSceneProps) {
   const { registerSceneHooks } = useLayerControl();
   const hostRef = useRef<HTMLDivElement>(null);
+  const dotsRef = useRef<HTMLCanvasElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const markerRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLParagraphElement>(null);
@@ -110,10 +112,14 @@ function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingScenePr
     if (fallback && active) drawn.current();
   }, [fallback, active]);
 
+  // the dot field behind the row moves only while the shelf is open (and the tab visible); a still frame is drawn at once
+  useDotField(dotsRef, active && !fallback);
+
   if (fallback) return <ReadingFallback books={books} />;
 
   return (
     <div className="shelf-scene">
+      <canvas ref={dotsRef} className="dot-field" aria-hidden="true" />
       <div ref={hostRef} className="shelf-host" />
       <div ref={infoRef} className="book-info">
         <h3>{""}</h3>
