@@ -50,7 +50,7 @@
     }
    ]
   ],
-  "page-change.json, early bend tiles every 0.025 (33 tiles): FAILED the gate in 3 of 3 runs, so the step was widened to 0.05 (ruling R54a, see the report)": [
+  "page-change.json, early bend tiles every 0.025 (33 tiles): FAILED the gate in 3 of 3 runs, so the step was widened to 0.05 (ruling R113, see the report)": [
    [
     {
      "change": "home to work",

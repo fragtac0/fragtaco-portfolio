@@ -21,8 +21,8 @@
   inset: 0;
   /* The stack ring's radius and icon, the same rule as stackRadius() in ring-math.ts, so the intro can be
      sized to sit inside it without waiting for any script. */
-  --stack-icon: 60px;
-  --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 34px));
+  --stack-icon: 76px;
+  --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 42px));
   /* what is left inside the stack ring's icons, less a margin */
   --intro-r: calc(var(--stack-r) - var(--stack-icon) / 2 - 14px);
 }
@@ -65,6 +65,24 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /* The dock's keep-out (R54.2): the rings turn through every place near the middle, and the video tiles are large, so one
+     would pass under the dock's tabs. The video rings fade out into a hole round the dock instead (the groups, below; the
+     stack ring's icons stay inside the dock's top on every screen with a ring): an ellipse at the bottom centre that holds the
+     dock's glass (448 by 113 px, 24 px up from the screen's foot; 350 by 93 px, 12 up on a phone) with 16 px to spare.
+     The numbers are dockHole() in ring-math.ts. */
+  --hole-x: 339px;
+  --hole-y: 216px;
+}
+.work-ring-group[data-ring="long"],
+.work-ring-group[data-ring="short"] {
+  -webkit-mask-image: radial-gradient(ellipse var(--hole-x) var(--hole-y) at 50% 100%, transparent 96%, #000 118%);
+  mask-image: radial-gradient(ellipse var(--hole-x) var(--hole-y) at 50% 100%, transparent 96%, #000 118%);
+}
+@media (max-width: 639.98px) {
+  .work-rings {
+    --hole-x: 270px;
+    --hole-y: 171px;
+  }
 }
 /* One ring. It settles from 96% and fades in on arrival over 500 ms, each ring 60 ms after the one inside it. */
 .work-ring-group {
@@ -263,13 +281,13 @@
 }
 
 /* ---------- phones ---------- */
-/* Item sizes and ring radii come from ring-math at every size (a phone gets two video rings, tablets three).
-   Under 700 px the stack icons are 52 px and the intro is the title and one short line, with a dark halo so
+/* Item sizes and ring radii come from ring-math at every size (a phone gets one video ring of large tiles, a laptop two).
+   Under 700 px the stack icons are 56 px and the intro is the title and one short line, with a dark halo so
    a passing item never mutes it. */
 @media (max-width: 699.98px) {
   .work-stage {
-    --stack-icon: 52px;
-    --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 30px));
+    --stack-icon: 56px;
+    --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 32px));
   }
   .work-text {
     max-width: 15ch; /* narrow enough to sit inside the stack ring */

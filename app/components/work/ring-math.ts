@@ -1,12 +1,16 @@
 // Pure maths for the /work rings (spec 6.2). No DOM, safe on the server.
 //
-// One stack ring and up to four video rings round the intro, evenly spaced from the stack ring out to
-// a last ring at 0.92 of the screen's half-diagonal (so the outer rings pass through the corners and
-// run off the edges). Every video tile has the same long side L. Items are upright rectangles on
+// One stack ring and up to four video rings round the intro, packed outward from the stack ring, each as
+// close to the one inside it as the clearance rule allows, none beyond 0.92 of the screen's half-diagonal.
+// Every video tile has the same long side L, which a screen asks for (`targetL`, R54.2: about 190 px at 1440 by 900) and
+// which the plan gets as near to as it can with the most coverage (`coverage`). Items are upright rectangles on
 // rings that turn at different speeds, so two of them can meet at any angle. They never overlap if
 // their centres stay at least `clear(a, b)` apart: if both sides of the gap rule were short, the
 // centres would be closer than the diagonal `sqrt(sx^2 + sy^2)` that this function returns.
 
+import { coverage } from "./ring-coverage";
+
+export { coverage };
 export type Size = { w: number; h: number };
 export type RingKind = "stack" | "long" | "short";
 export type RingOrderMode = "alternating" | "paired";
@@ -20,7 +24,13 @@ export const GAP = 12;
 export const TILE_ASPECT = 9 / 16;
 /** The video tile's long side L runs from this to that. */
 export const L_MIN = 96;
-export const L_MAX = 220;
+export const L_MAX = 340;
+/** The long side a screen asks for: `TARGET_BASE + TARGET_SLOPE * sqrt(vw * vh)`, 200 px at 1440 by 900 (spec 5: about 190), and on a phone at least `PHONE_SHARE` of its width. */
+const TARGET_BASE = 79;
+const TARGET_SLOPE = 0.1066;
+const PHONE_SHARE = 0.54;
+/** A plan may use an L down to this share of the largest one a single video ring could have, to fit more rings. */
+const L_WINDOW = 0.9;
 /** The outermost ring's radius as a share of the half-diagonal. */
 export const OUTER_SHARE = 0.92;
 /** Seconds for one turn: the stack ring, then each video ring outward. */
@@ -37,9 +47,22 @@ export function clear(a: Size, b: Size, gap = GAP): number {
   return Math.sqrt(sx * sx + sy * sy);
 }
 
-/** The stack icons' side: 60 px, 52 px under 700 px wide. */
+/** The stack icons' side: 76 px, 56 px under 700 px wide (R54.2; they were 60 and 52). */
 export function stackIconSize(vw: number): number {
-  return vw < PHONE_WIDTH ? 52 : 60;
+  return vw < PHONE_WIDTH ? 56 : 76;
+}
+
+/** The long side of a video tile that a `vw` by `vh` screen asks for, whole pixels from `L_MIN` to `L_MAX`. */
+export function targetL(vw: number, vh: number): number {
+  const area = vw > 0 && vh > 0 ? Math.sqrt(vw * vh) : 0;
+  // a phone has room for one ring of large tiles, not two of small ones, so its tiles grow more
+  const phone = vw > 0 && vw < PHONE_WIDTH ? PHONE_SHARE * Math.min(vw, vh) : 0;
+  return Math.min(L_MAX, Math.max(L_MIN, Math.round(Math.max(TARGET_BASE + TARGET_SLOPE * area, phone))));
+}
+
+/** The radius of the circle the intro (title and text) must stay inside: the stack ring less its icons and a margin (the CSS `--intro-r`). */
+export function introRadius(vw: number, vh: number): number {
+  return stackRadius(vw, vh) - stackIconSize(vw) / 2 - 14;
 }
 
 /**
@@ -49,6 +72,21 @@ export function stackIconSize(vw: number): number {
 export function stackRadius(vw: number, vh: number): number {
   const icon = stackIconSize(vw);
   return Math.min(Math.max(190, 0.24 * vh), 0.42 * vw, vw / 2 - icon / 2 - EDGE_MARGIN);
+}
+
+/** The dock's glass as the audit measured it on /work: 448 by 113 px, 24 px above the screen's foot (350 by 93 px, 12 above it, under 640 px wide). */
+export function dockBox(vw: number): { width: number; height: number; foot: number } {
+  return vw < 640 ? { width: Math.min(350, vw - 20), height: 93, foot: 12 } : { width: 448, height: 113, foot: 24 };
+}
+
+/**
+ * The ellipse, at the bottom centre of the screen, that the rings fade out in (`.work-rings` mask, the CSS --hole-x and --hole-y): through the
+ * corners of the dock's box with 16 px to spare, so no tile shows under the dock's tabs. Its radii are those of the CSS, which
+ * has them for the two dock sizes.
+ */
+export function dockHole(vw: number): { rx: number; ry: number } {
+  const { width, height, foot } = dockBox(vw);
+  return { rx: Math.round(((width / 2 + 16) * Math.SQRT2)), ry: Math.round((height + foot + 16) * Math.SQRT2) };
 }
 
 export function halfDiagonal(vw: number, vh: number): number {
@@ -79,20 +117,25 @@ export function ringCapacity(radius: number, size: Size): number {
   return Math.max(1, n);
 }
 
-/**
- * The largest L, whole pixels from `L_MAX` down to `lowest`, for which every pair of rings (the stack
- * ring included) has radii at least `clear` apart, or null if none does.
- */
-function largestFit(kinds: ("long" | "short")[], step: number, stack: Size, lowest: number): number | null {
-  for (let L = L_MAX; L >= lowest; L--) {
-    const sizes = [stack, ...kinds.map((k) => tileSize(k, L))];
-    let ok = true;
-    for (let i = 0; i < sizes.length && ok; i++) {
-      for (let j = i + 1; j < sizes.length && ok; j++) {
-        ok = (j - i) * step >= clear(sizes[i], sizes[j]);
-      }
-    }
-    if (ok) return L;
+/** The radii of video rings of `kinds` with long side `L`, each as near the one inside it (the stack ring first) as `clear` allows. */
+function packRadii(kinds: ("long" | "short")[], L: number, stack: Size, inner: number): number[] {
+  const radii: number[] = [];
+  let prev = stack;
+  let radius = inner;
+  for (const kind of kinds) {
+    const size = tileSize(kind, L);
+    radius += clear(prev, size);
+    radii.push(radius);
+    prev = size;
+  }
+  return radii;
+}
+
+/** The largest L, whole pixels from `top` down to `L_MIN`, for which rings of `kinds` pack inside `outer`, with those radii, or null. */
+function largestFit(kinds: ("long" | "short")[], stack: Size, inner: number, outer: number, top: number) {
+  for (let L = top; L >= L_MIN; L--) {
+    const radii = packRadii(kinds, L, stack, inner);
+    if (radii[radii.length - 1] <= outer) return { L, radii };
   }
   return null;
 }
@@ -134,57 +177,17 @@ export interface RingPlan {
 
 const whole = (n: number) => (Number.isFinite(n) && n > 0 ? Math.floor(n) : 0);
 
-/**
- * The rings for a screen and item counts. L is never below 96 (R34): the number of video rings is the
- * largest of 4, 3, 2 or 1 (long form, the inner kind in both modes) for which `L` can be 96 or more with the
- * clearance rule holding between every pair of rings (the stack ring included), else none: the stack ring
- * alone, every video then being on the walls. A plan whose scan failed is never returned. Each kind's
- * items fill its rings from the inside out, shared out by capacity; the first items in content order
- * are kept.
- */
-export function ringPlan(
-  vw: number,
-  vh: number,
-  counts: { stack: number; long: number; short: number },
-  mode: RingOrderMode = RING_ORDER_MODE,
-): RingPlan {
-  const icon = stackIconSize(vw);
-  const stackSize: Size = { w: icon, h: icon };
-  const inner = stackRadius(vw, vh);
-  const outer = Math.max(inner, OUTER_SHARE * halfDiagonal(vw, vh));
+type Counts = { stack: number; long: number; short: number };
 
-  // a screen too small (or not a size at all) for even the stack ring: nothing is drawn
-  if (!(inner > 0) || !Number.isFinite(outer)) {
-    return { L: L_MIN, rings: [], hidden: { long: whole(counts.long), short: whole(counts.short) } };
-  }
-
-  let kinds: ("long" | "short")[] = [];
-  let step = 0;
-  let fit = L_MIN;
-  for (const n of [4, 3, 2, 1]) {
-    const k = ringKinds(n, mode);
-    const s = (outer - inner) / n;
-    const L = largestFit(k, s, stackSize, L_MIN);
-    if (L !== null) {
-      kinds = k;
-      step = s;
-      fit = L;
-      break;
-    }
-  }
-
+/** The video rings for `kinds` at long side `L` on `radii`, and the videos left out. Each kind's items fill its rings from the inside out. */
+function videoRings(kinds: ("long" | "short")[], radii: number[], L: number, counts: Counts) {
   const rings: PlannedRing[] = [];
-  const stackCount = Math.min(whole(counts.stack), ringCapacity(inner, stackSize));
-  if (stackCount > 0) {
-    rings.push({ id: "stack", kind: "stack", radius: inner, count: stackCount, size: stackSize, periodS: STACK_PERIOD, dir: 1 });
-  }
-
   const hidden = { long: 0, short: 0 };
   for (const kind of ["long", "short"] as const) {
     const slots = kinds.map((k, i) => ({ k, i })).filter((s) => s.k === kind);
-    const size = tileSize(kind, fit);
-    const radii = slots.map((s) => inner + (s.i + 1) * step);
-    const caps = radii.map((r) => ringCapacity(r, size));
+    const size = tileSize(kind, L);
+    const kindRadii = slots.map((s) => radii[s.i]);
+    const caps = kindRadii.map((r) => ringCapacity(r, size));
     const total = whole(counts[kind]);
     const kept = Math.min(total, caps.reduce((a, b) => a + b, 0));
     hidden[kind] = total - kept;
@@ -200,7 +203,7 @@ export function ringPlan(
       rings.push({
         id: `${kind}-${k + 1}`,
         kind,
-        radius: radii[k],
+        radius: kindRadii[k],
         count,
         size,
         periodS: VIDEO_PERIODS[i],
@@ -208,10 +211,57 @@ export function ringPlan(
       });
     });
   }
+  return { rings, hidden };
+}
 
-  // inside to outside
-  rings.sort((a, b) => a.radius - b.radius);
-  return { L: fit, rings, hidden };
+/**
+ * The rings for a screen and item counts (R54.2: larger tiles, fewer rings). The screen asks for a long side
+ * (`targetL`). For 4, 3, 2 and 1 video rings (long form the inner kind, in both modes), each L from the largest up
+ * to that which packs inside the outer ring (the clearance rule holding between every pair of rings, the stack
+ * ring included) down to 90% of the best a single ring could have is a plan, and the one with the most `coverage` is returned. L is never below 96 (R34): where no ring packs, none: the stack ring alone, every video then being
+ * on the walls. A plan whose scan failed is never returned. Each kind's items fill its rings from the inside out,
+ * shared out by capacity; the first items in content order are kept.
+ */
+export function ringPlan(vw: number, vh: number, counts: Counts, mode: RingOrderMode = RING_ORDER_MODE): RingPlan {
+  const icon = stackIconSize(vw);
+  const stackSize: Size = { w: icon, h: icon };
+  const inner = stackRadius(vw, vh);
+  const outer = Math.max(inner, OUTER_SHARE * halfDiagonal(vw, vh));
+
+  // a screen too small (or not a size at all) for even the stack ring: nothing is drawn
+  if (!(inner > 0) || !Number.isFinite(outer)) {
+    return { L: L_MIN, rings: [], hidden: { long: whole(counts.long), short: whole(counts.short) } };
+  }
+
+  const stackRing: PlannedRing[] = [];
+  const stackCount = Math.min(whole(counts.stack), ringCapacity(inner, stackSize));
+  if (stackCount > 0) {
+    stackRing.push({ id: "stack", kind: "stack", radius: inner, count: stackCount, size: stackSize, periodS: STACK_PERIOD, dir: 1 });
+  }
+
+  const top = targetL(vw, vh);
+  const one = largestFit(ringKinds(1, mode), stackSize, inner, outer, top);
+  let best: RingPlan | null = null;
+  let bestShare = -1;
+  if (one) {
+    for (const n of [4, 3, 2, 1]) {
+      const kinds = ringKinds(n, mode);
+      const fit = largestFit(kinds, stackSize, inner, outer, top);
+      if (!fit) continue;
+      // every whole L from the largest that packs down to the window, the largest first so a tie goes to larger tiles
+      for (let L = fit.L; L >= Math.max(L_MIN, Math.ceil(L_WINDOW * one.L)); L--) {
+        const { rings, hidden } = videoRings(kinds, packRadii(kinds, L, stackSize, inner), L, counts);
+        const plan: RingPlan = { L, rings: [...stackRing, ...rings].sort((a, b) => a.radius - b.radius), hidden };
+        const share = coverage(plan, vw, vh);
+        if (share > bestShare + 1e-9) {
+          best = plan;
+          bestShare = share;
+        }
+      }
+    }
+  }
+  if (best) return best;
+  return { L: L_MIN, rings: stackRing, hidden: { long: whole(counts.long), short: whole(counts.short) } };
 }
 
 /** Degrees round a ring, slot 0 at the top, clockwise. */

@@ -1,0 +1,273 @@
+{
+ "what": "R54.2: larger thumbnails and icon tiles on the portfolio page (spec 5). coverage() is the share of the screen under video tiles, averaged over one turn of every ring (24 steps), only the part on screen.",
+ "build": "production build on :5180, headless Chrome, scripts/audit/rings.json, rings-mode.json, page-change.json; real content: 8 tools, 21 long form, 35 short form",
+ "coverageBefore": {
+  "1440x900": 0.151,
+  "390x844": 0.175,
+  "1920x1080": 0.165
+ },
+ "plansNow": {
+  "1440x900": {
+   "L": 200,
+   "coverage": 0.313,
+   "videoRings": 2,
+   "shown": 26,
+   "hidden": {
+    "long": 11,
+    "short": 19
+   }
+  },
+  "1920x1080": {
+   "L": 233,
+   "coverage": 0.272,
+   "videoRings": 2,
+   "shown": 26,
+   "hidden": {
+    "long": 11,
+    "short": 19
+   }
+  },
+  "820x1180": {
+   "L": 173,
+   "coverage": 0.226,
+   "videoRings": 2,
+   "shown": 32,
+   "hidden": {
+    "long": 8,
+    "short": 16
+   }
+  },
+  "390x844": {
+   "L": 211,
+   "coverage": 0.245,
+   "videoRings": 1,
+   "shown": 8,
+   "hidden": {
+    "long": 13,
+    "short": 35
+   }
+  },
+  "375x667": {
+   "L": 203,
+   "coverage": 0.223,
+   "videoRings": 1,
+   "shown": 8,
+   "hidden": {
+    "long": 13,
+    "short": 35
+   }
+  },
+  "568x320": {
+   "L": 96,
+   "coverage": 0,
+   "videoRings": 0,
+   "shown": 0,
+   "hidden": {
+    "long": 21,
+    "short": 35
+   }
+  },
+  "320x568": {
+   "L": 173,
+   "coverage": 0.21,
+   "videoRings": 1,
+   "shown": 8,
+   "hidden": {
+    "long": 13,
+    "short": 35
+   }
+  },
+  "1024x768": {
+   "L": 157,
+   "coverage": 0.291,
+   "videoRings": 2,
+   "shown": 28,
+   "hidden": {
+    "long": 10,
+    "short": 18
+   }
+  },
+  "2560x1440": {
+   "L": 284,
+   "coverage": 0.261,
+   "videoRings": 3,
+   "shown": 37,
+   "hidden": {
+    "long": 0,
+    "short": 19
+   }
+  }
+ },
+ "tile": {
+  "1440x900": "200 by 112.5 (long form), 112.5 by 200 (short form); was 112 by 63",
+  "icon": "76 px (was 60), 56 px under 700 px wide (was 52)"
+ },
+ "audit": {
+  "1440x900": {
+   "itemsInRings": 34,
+   "minGapPx": 14.03,
+   "pairsUnder12": 0,
+   "titleGapMinPx": 126.3,
+   "roomFromTextToStackIconsPx": 19.2,
+   "dockCornerMetric": 0.917,
+   "holeSolidUntil": 0.96,
+   "masked": [
+    "stack:false",
+    "long:true",
+    "short:true"
+   ]
+  },
+  "1920x1080": {
+   "itemsInRings": 34,
+   "minGapPx": 14.32,
+   "pairsUnder12": 0,
+   "titleGapMinPx": 139.7,
+   "roomFromTextToStackIconsPx": 32,
+   "dockCornerMetric": 0.917,
+   "holeSolidUntil": 0.96,
+   "masked": [
+    "stack:false",
+    "long:true",
+    "short:true"
+   ]
+  },
+  "820x1180": {
+   "itemsInRings": 40,
+   "minGapPx": 12.95,
+   "pairsUnder12": 0,
+   "titleGapMinPx": 173.1,
+   "roomFromTextToStackIconsPx": 65.5,
+   "dockCornerMetric": 0.917,
+   "holeSolidUntil": 0.96,
+   "masked": [
+    "stack:false",
+    "long:true",
+    "short:true"
+   ]
+  },
+  "390x844": {
+   "itemsInRings": 16,
+   "minGapPx": 13.12,
+   "pairsUnder12": 0,
+   "titleGapMinPx": 114.7,
+   "roomFromTextToStackIconsPx": 30.8,
+   "dockCornerMetric": 0.892,
+   "holeSolidUntil": 0.96,
+   "masked": [
+    "stack:false",
+    "long:true"
+   ]
+  },
+  "375x667": {
+   "itemsInRings": 16,
+   "minGapPx": 12.93,
+   "pairsUnder12": 0,
+   "titleGapMinPx": 112.8,
+   "roomFromTextToStackIconsPx": 29,
+   "dockCornerMetric": 0.892,
+   "holeSolidUntil": 0.96,
+   "masked": [
+    "stack:false",
+    "long:true"
+   ]
+  },
+  "568x320": {
+   "itemsInRings": 8,
+   "minGapPx": 48.02,
+   "pairsUnder12": 0,
+   "titleGapMinPx": null,
+   "roomFromTextToStackIconsPx": 25.8,
+   "dockCornerMetric": 0.892,
+   "holeSolidUntil": 0.96,
+   "masked": [
+    "stack:false"
+   ]
+  },
+  "320x568": {
+   "itemsInRings": 16,
+   "minGapPx": 13.25,
+   "pairsUnder12": 0,
+   "titleGapMinPx": 105.6,
+   "roomFromTextToStackIconsPx": 22.4,
+   "dockCornerMetric": 0.833,
+   "holeSolidUntil": 0.96,
+   "masked": [
+    "stack:false",
+    "long:true"
+   ]
+  },
+  "1024x768": {
+   "itemsInRings": 36,
+   "minGapPx": 12.22,
+   "pairsUnder12": 0,
+   "titleGapMinPx": 121.5,
+   "roomFromTextToStackIconsPx": 14.2,
+   "dockCornerMetric": 0.917,
+   "holeSolidUntil": 0.96,
+   "masked": [
+    "stack:false",
+    "long:true",
+    "short:true"
+   ]
+  },
+  "2560x1440": {
+   "itemsInRings": 45,
+   "minGapPx": 12.83,
+   "pairsUnder12": 0,
+   "titleGapMinPx": 154.3,
+   "roomFromTextToStackIconsPx": 45.6,
+   "dockCornerMetric": 0.917,
+   "holeSolidUntil": 0.96,
+   "masked": [
+    "stack:false",
+    "long:true",
+    "short:true",
+    "long:true"
+   ]
+  }
+ },
+ "frameGateRingsInReveal": {
+  "file": "scripts/audit/page-change.json",
+  "rule": "animOver34 must be 0",
+  "changes": [
+   {
+    "change": "home to work",
+    "animMax": 16.8,
+    "animOver34": 0,
+    "animOver20": 0
+   },
+   {
+    "change": "work to home",
+    "animMax": 16.8,
+    "animOver34": 0,
+    "animOver20": 0
+   },
+   {
+    "change": "home to work (2nd)",
+    "animMax": 33.3,
+    "animOver34": 0,
+    "animOver20": 1
+   },
+   {
+    "change": "Back, work to home",
+    "animMax": 33.3,
+    "animOver34": 0,
+    "animOver20": 1
+   },
+   {
+    "change": "Forward, home to work",
+    "animMax": 33.2,
+    "animOver34": 0,
+    "animOver20": 1
+   }
+  ]
+ },
+ "frames": {
+  "1440x900 dpr 2, CPU 4x, at rest and hovering": "240 frames, max 16.8 ms, 0 over 20",
+  "390x844 dpr 3, CPU 4x, at rest and hovering": "240 frames, max 16.8 ms, 0 over 20"
+ },
+ "viaChange": {
+  "1440x900": "34 items in the page at 277 ms, still during the reveal, 0 lazy, 26 of 26 pictures ready at 1 s, turning together after"
+ },
+ "thumbnail": "long form stays hqdefault.jpg (480 by 360): 200 css px at dpr 2 is 400 px, so no larger file is needed; fewer pictures mount (10 long form at 1440 by 900 instead of 21), so a page load fetches fewer"
+}

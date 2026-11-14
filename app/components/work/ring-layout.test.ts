@@ -11,14 +11,9 @@ const AUDIT_SIZES: [number, number][] = [[1440, 900], [1920, 1080], [820, 1180],
 describe("layoutRings", () => {
   it("draws the stack ring and the video rings inside to outside, for the real content on a laptop", () => {
     const { rings } = layoutRings(WORK, 1440, 900);
-    expect(rings.map((r) => `${r.id}:${r.slots.length}`)).toEqual([
-      "stack:8",
-      "long-1:13",
-      "short-1:14",
-      "long-2:22",
-      "short-2:21",
-    ]);
-    expect(rings.map((r) => r.order)).toEqual([0, 1, 2, 3, 4]);
+    // R54.2: larger tiles, so two video rings (a laptop), not four
+    expect(rings.map((r) => `${r.id}:${r.slots.length}`)).toEqual(["stack:8", "long-1:10", "short-1:16"]);
+    expect(rings.map((r) => r.order)).toEqual([0, 1, 2]);
   });
 
   it("keeps every ring and every neighbour clear for the real counts (8, 21, 35) at the seven audit sizes", () => {
@@ -40,9 +35,9 @@ describe("layoutRings", () => {
     }
   });
 
-  it("shows all 21 long form videos in the rings on a laptop and a desktop", () => {
-    expect(layoutRings(REAL, 1440, 900).hidden.long).toBe(0);
-    expect(layoutRings(REAL, 1920, 1080).hidden.long).toBe(0);
+  it("leaves the videos that fit in no ring to the walls: 11 long form on a laptop, none of them on a wide screen", () => {
+    expect(layoutRings(REAL, 1440, 900).hidden).toEqual({ long: 11, short: 19 });
+    expect(layoutRings(REAL, 2560, 1440).hidden.long).toBe(0);
   });
 
   it("is the ring plan: radii, sizes, periods and directions come from ringPlan", () => {
@@ -94,8 +89,8 @@ describe("layoutRings", () => {
   });
 
   it("can be asked for the paired order", () => {
-    const { rings } = layoutRings(WORK, 1440, 900, "paired");
-    expect(rings.filter((r) => r.kind !== "stack").map((r) => r.kind)).toEqual(["long", "long", "short", "short"]);
+    const { rings } = layoutRings(WORK, 2560, 1440, "paired");
+    expect(rings.filter((r) => r.kind !== "stack").map((r) => r.kind)).toEqual(["long", "long", "short"]);
   });
 
   it("copes with a screen of no size", () => {

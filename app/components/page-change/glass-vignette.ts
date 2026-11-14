@@ -1,5 +1,5 @@
 /**
- * The bend's push, damped to nothing at the screen's edges (R114, a review finding on the first cut). A displacement filter
+ * The bend's push, damped to nothing at the screen's edges (a review finding on the first cut). A displacement filter
  * takes each pixel from `push` px away, and where that is outside the picture an SVG filter gets transparent black (the preview's
  * shader clamps to the edge instead): within the push of the screen's edge the picture lost its red, then its green, then
  * everything, and the dark page behind showed through as a strip along the edge while the band crossed it. So the displacement map

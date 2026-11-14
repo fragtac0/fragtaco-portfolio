@@ -6,7 +6,8 @@
 //  - freezes the rings at 40 sampled phases (each ring and its items' turn-back set to the same random share of
 //    its period, paused) and reads the gap between every pair of item boxes (`.work-item-turn`, upright): the
 //    smallest gap over all pairs and phases, and how many pairs touch or overlap (both must be 12 or more / 0),
-//  - checks the intro (title and its lines of text) sits inside the stack ring's icons,
+//  - checks the intro (title and its lines of text) sits inside the stack ring's icons, that no video tile comes within 40 px of it (R54.2),
+//    and that the dock's box lies inside the ellipse the rings fade out in (R54.2: nothing shows under the dock's tabs),
 //  - the arrival through a page change (R60): the rings are in the page for the reveal, standing still, then turn together.
 // Pictures (1440 by 900, 1920 by 1080, 820 by 1180, 390 by 844) at three ring phases each. The long form pictures are YouTube thumbnails loaded at run time;
 // where they cannot be reached (or must not be kept) the audit paints neutral, generated gradients on the tiles (a number and a corner
@@ -49,9 +50,20 @@ window.__gap=()=>{const b=[...document.querySelectorAll('.work-item-turn')].map(
  for(let i=0;i<b.length;i++)for(let j=i+1;j<b.length;j++){const a=b[i],c=b[j];
   const g=Math.max(a.l-c.r,c.l-a.r,a.t-c.b,c.t-a.b);if(g<min){min=g;pair=a.id+' / '+c.id}if(g<11.99)touching++}
  return{n:b.length,min,pair,touching}};
-window.__sweep=(k)=>{let min=Infinity,pair='',touching=0,n=0;
- for(let i=1;i<=k;i++){window.__phase(i*7919);const g=window.__gap();n=g.n;touching+=g.touching;if(g.min<min){min=g.min;pair=g.pair}}
- return{items:n,phases:k,minGap:+min.toFixed(2),worst:pair,pairsUnder12:touching}};
+// the nearest a video tile comes to the title block's text (R54.2: 40 px or more): the gap between boxes, 0 where they touch
+window.__titleGap=()=>{const rects=[];for(const el of document.querySelectorAll('.work-title,.work-text-full,.work-text-short')){
+  if(getComputedStyle(el).display==='none')continue;const r=document.createRange();r.selectNodeContents(el);rects.push(...r.getClientRects())}
+ let min=Infinity;for(const t of document.querySelectorAll('.work-item[data-kind=video] .work-item-turn')){const b=t.getBoundingClientRect();
+  for(const r of rects){const dx=Math.max(r.left-b.right,b.left-r.right,0),dy=Math.max(r.top-b.bottom,b.top-r.bottom,0);min=Math.min(min,Math.hypot(dx,dy))}}return min};
+window.__sweep=(k)=>{let min=Infinity,pair='',touching=0,n=0,title=Infinity;
+ for(let i=1;i<=k;i++){window.__phase(i*7919);const g=window.__gap();n=g.n;touching+=g.touching;if(g.min<min){min=g.min;pair=g.pair}title=Math.min(title,window.__titleGap())}
+ return{items:n,phases:k,minGap:+min.toFixed(2),worst:pair,pairsUnder12:touching,titleGapMin:+title.toFixed(1)}};
+// the dock's box (measured) against the ellipse the rings fade out in (computed --hole-x and --hole-y at the bottom centre of the screen): the farthest corner of the
+// dock in the ellipse's own units. The mask is clear until 0.96 and solid from 1.18, so 0.96 or less keeps every tile out from under the tabs
+window.__dock=()=>{const d=document.querySelector('[data-dock-glass]');if(!d)return null;const r=d.getBoundingClientRect();const cs=getComputedStyle(document.querySelector('.work-rings'));
+ const hx=parseFloat(cs.getPropertyValue('--hole-x')),hy=parseFloat(cs.getPropertyValue('--hole-y'));let worst=0;
+ for(const x of [r.left,r.right])for(const y of [r.top,r.bottom])worst=Math.max(worst,Math.hypot((x-innerWidth/2)/hx,(innerHeight-y)/hy));
+ return{dock:[r.left,r.top,r.right,r.bottom].map(Math.round),hole:[hx,hy],cornerMetric:+worst.toFixed(3),masked:[...document.querySelectorAll('.work-ring-group')].map(g=>g.dataset.ring+':'+(getComputedStyle(g).maskImage!=='none'))}};
 // frame gaps over ms: how many frames, the average, the 95th percentile, the worst and how many were over 20 ms
 window.__frames=(ms)=>new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<ms)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);
  r(JSON.stringify({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length}))}}requestAnimationFrame(f)});
@@ -121,19 +133,19 @@ window.__fake=()=>{let i=0;for(const img of document.querySelectorAll('.work-cov
 `.trim();
 
 const SIZES = [
-  { name: "1440x900", size: [1440, 900], dpr: 1, rings: 5, pictures: true },
-  { name: "1920x1080", size: [1920, 1080], dpr: 1, rings: 5, pictures: true },
-  { name: "820x1180", size: [820, 1180], dpr: 1, rings: 4, pictures: true, mobile: true, touch: true },
-  { name: "390x844", size: [390, 844], dpr: 2, rings: 3, pictures: true, mobile: true, touch: true },
+  { name: "1440x900", size: [1440, 900], dpr: 1, rings: 3, pictures: true },
+  { name: "1920x1080", size: [1920, 1080], dpr: 1, rings: 3, pictures: true },
+  { name: "820x1180", size: [820, 1180], dpr: 1, rings: 3, pictures: true, mobile: true, touch: true },
+  { name: "390x844", size: [390, 844], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
   { name: "375x667", size: [375, 667], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
   { name: "568x320", size: [568, 320], dpr: 2, rings: 1, pictures: true, mobile: true, touch: true },
   { name: "320x568", size: [320, 568], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
-  { name: "1024x768", size: [1024, 768], dpr: 1, rings: 4 },
-  { name: "2560x1440", size: [2560, 1440], dpr: 1, rings: 5 },
+  { name: "1024x768", size: [1024, 768], dpr: 1, rings: 3 },
+  { name: "2560x1440", size: [2560, 1440], dpr: 1, rings: 4 },
 ];
 
 // where the first long-1 and stack items sit at the start of a turn at 1440 by 900 (read by the step before them)
-const HOVER = { long1: [805, 103], stack: [720, 234] };
+const HOVER = { long1: [844, 70], stack: [720, 234] };
 const steps = [];
 let first = true;
 for (const s of SIZES) {
@@ -144,6 +156,7 @@ for (const s of SIZES) {
   steps.push({ label: `${s.name} rings mounted`, eval: `window.__ready(${s.rings})` });
   steps.push({ label: `${s.name} overlap at 40 phases`, eval: "window.__sweep(40)" });
   steps.push({ label: `${s.name} intro inside the stack ring`, eval: "window.__intro()" });
+  steps.push({ label: `${s.name} the dock inside the rings' hole (corner metric 0.96 or less)`, eval: "window.__dock()" });
   if (s.pictures) {
     steps.push({ label: `${s.name} generated pictures on tiles`, eval: "window.__fake()", wait: 600 });
     [1, 2, 3].forEach((p) => {
@@ -155,7 +168,7 @@ for (const s of SIZES) {
 }
 
 // behaviour: hover pauses one ring, a stack icon is no tab stop and does nothing, reduced motion is still
-steps.push({ size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(5)", label: "ready for behaviour" });
+steps.push({ size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(3)", label: "ready for behaviour" });
 steps.push({
   label: "stack icons: names, no tab stop, no link",
   eval: `JSON.stringify({n:document.querySelectorAll('.work-item[data-kind=stack]').length,
@@ -188,11 +201,11 @@ steps.push({ move: [5, 5] });
 // Frame timing, CPU 4 times slower, after the arrival: at rest, then with the pointer on a ring item (that ring paused).
 // The hover points are the first long-1 item at the start of a turn (read by the step before each).
 const FRAME_RUNS = [
-  { name: "1440x900 dpr 2", size: [1440, 900], dpr: 2, mobile: false, touch: false, hover: [806, 103] },
-  { name: "390x844 dpr 3", size: [390, 844], dpr: 3, mobile: true, touch: true, hover: [266, 135] },
+  { name: "1440x900 dpr 2", size: [1440, 900], dpr: 2, mobile: false, touch: false, hover: [844, 70] },
+  { name: "390x844 dpr 3", size: [390, 844], dpr: 3, mobile: true, touch: true, hover: [300, 109] },
 ];
 for (const f of FRAME_RUNS) {
-  steps.push({ size: f.size, dpr: f.dpr, mobile: f.mobile, touch: f.touch, cpu: 4, go: "{{BASE}}/work", wait: 3000, eval: "window.__ready(" + (f.mobile ? 3 : 5) + ")", label: `frames ${f.name}: ready` });
+  steps.push({ size: f.size, dpr: f.dpr, mobile: f.mobile, touch: f.touch, cpu: 4, go: "{{BASE}}/work", wait: 3000, eval: "window.__ready(" + (f.mobile ? 2 : 3) + ")", label: `frames ${f.name}: ready` });
   steps.push({ wait: 1200, label: `frames ${f.name} at rest, 4 s`, eval: "window.__frames(4000)" });
   steps.push({ label: `frames ${f.name}: first long-1 item at the start of the turn`, eval: `window.__start('.work-ring[data-ring-id="long-1"] .work-item-turn')` });
   steps.push({ move: f.hover, wait: 200 });
@@ -201,9 +214,9 @@ for (const f of FRAME_RUNS) {
   steps.push({ move: [5, 5], cpu: 1 });
 }
 
-// the rings arriving through a page change from home (R60): present for the reveal (all 64 items in within about half a second, standing
+// the rings arriving through a page change from home (R60): present for the reveal (all 34 items in within about half a second, standing
 // still, pictures loading at once, none lazy), turning together when the change ends
-steps.push({ size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/", wait: 3000, eval: "window.__want=64;'ready'", label: "via a change: from home" });
+steps.push({ size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/", wait: 3000, eval: "window.__want=34;'ready'", label: "via a change: from home" });
 steps.push({ label: "via a change: the rings during the reveal and when it ends", eval: "window.__viaChange()" });
 
 // reduced motion through a change (the 120 ms fade): no batches and no change arrival, so the rings come in whole at the first commit with the plain 300 ms fade (as on a first load)
@@ -222,7 +235,7 @@ steps.push({ shot: "r51-covers-404-grey" });
 // a first load keeps the pictures lazy (they do not compete with the page's own requests); a rotating item brings its picture when it nears the screen
 steps.push({ intercept: [], nocache: false, go: "{{BASE}}/work", wait: 3000, eval: "window.__covers()", label: "first load: covers are lazy" });
 
-steps.push({ reduce: true, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(5)", label: "reduced motion: ready" });
+steps.push({ reduce: true, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(3)", label: "reduced motion: ready" });
 steps.push({
   label: "reduced motion: no ring or item is turning",
   eval: `JSON.stringify({turning:document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin').length,
@@ -235,7 +248,7 @@ writeFileSync(new URL("./rings.json", import.meta.url), JSON.stringify(steps, nu
 // One picture at 1440 by 900 of whichever order mode the running build ships (RING_ORDER_MODE): build with the mode set,
 // run this, and copy rings-mode.jpg to docs/redesign/screenshots/r43-rings-<mode>.jpg
 const mode = [
-  { size: [1440, 900], dpr: 1, mobile: false, touch: false, init, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(5)", label: "ready" },
+  { size: [1440, 900], dpr: 1, mobile: false, touch: false, init, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(3)", label: "ready" },
   { eval: "window.__fake()", wait: 600, label: "generated pictures on tiles" },
   { eval: "window.__sweep(40)", label: "overlap at 40 phases" },
   { eval: "window.__phase(104729)", wait: 300 },
