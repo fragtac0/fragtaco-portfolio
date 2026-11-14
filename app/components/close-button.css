@@ -1,24 +1,31 @@
 /*
- * The close and back button of the full page layers (components/close-button.tsx): a pill with the word and the
- * key that does the same. One look for the shelves (home/layer) and the video walls (work); where it sits (the
- * right end of the header) is each header's own rule. Colours and sizes come from tokens.css.
+ * The close and back button of the full page layers (components/close-button.tsx): a small glass pill with the word
+ * and the key that does the same, the one look for the shelves (home/layer), the video walls (work) and, as a round
+ * pill, the open video's own close (home/watching). The glass is --pill-bg, --pill-edge and --pill-blur in tokens.css.
+ * Where it sits (the right end of the header) is each header's own rule.
  */
 .xp-close {
   box-sizing: border-box;
-  height: 44px;
-  padding: 0 16px 0 18px;
+  height: 34px;
+  padding: 0 8px 0 14px;
   border-radius: 999px;
   border: 0;
-  outline: 1px solid rgba(253, 252, 230, 0.22);
-  background: color-mix(in srgb, var(--ground) 72%, transparent);
-  color: inherit;
+  background: var(--pill-bg);
+  box-shadow: var(--pill-edge);
+  -webkit-backdrop-filter: var(--pill-blur);
+  backdrop-filter: var(--pill-blur);
+  color: var(--ink-1);
   font: inherit;
   cursor: pointer;
   font-size: var(--t-meta);
+  line-height: 1;
   text-decoration: none;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
+}
+.xp-close:hover {
+  color: var(--cream);
 }
 .xp-close:focus-visible {
   outline: 2px solid var(--cream); /* the same ring as the shelves had */
@@ -27,13 +34,17 @@
 .xp-close kbd {
   font: inherit;
   font-size: var(--t-micro);
-  padding: 2px 6px;
-  border-radius: 6px;
-  background: rgba(253, 252, 230, 0.1);
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: rgb(var(--ink-rgb) / 0.12);
   color: var(--ink-2);
 }
-/* touch devices have no Esc key */
+/* touch devices have no Esc key, and a finger needs the larger target */
 @media (hover: none) {
+  .xp-close {
+    height: 40px;
+    padding: 0 16px;
+  }
   .xp-close kbd {
     display: none;
   }

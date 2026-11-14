@@ -6,14 +6,14 @@ import { tileSize } from "./wall-math";
  * chosen tile's centre comes to `chosenRect`'s, a little above the middle, and the tile grows there
  * to about twice its size (round 6's tile size), with its text under it (`textZone`). The tile does
  * not travel across the wall (only the little the block's edge keeps the camera from, for a tile in a
- * corner). The other tiles move away from the middle of that rectangle (`spread`: up to 140 px for
- * the nearest, none beyond 60% of the half-diagonal), shrink to 92% and dim to 55%. `hiddenTiles`
+ * corner). The other tiles move away from the middle of that rectangle (`spread`: at most 140 px and
+ * about 61 px in practice for the nearest (R37), none beyond 60% of the half-diagonal), shrink to 92% and dim to 55%. `hiddenTiles`
  * says which of them fade out instead: the ones in the text block's way, the ones more than 5%
  * behind the chosen video and, so that no two visible tiles ever overlap, the nearer of any two that
  * still do. The pose, the camera and the engine use these; everything here is pure.
  */
 
-/** How long the wall takes to open and to close, ms (spec 7); reduced motion fades over `FADE_MS`. */
+/** How long the wall takes to open and to close, ms (spec 8.1); reduced motion fades over `FADE_MS`. */
 export const OPEN_MS = 420;
 export const CLOSE_MS = 320;
 export const FADE_MS = 300;
@@ -123,7 +123,7 @@ export function textZone(rect: Rect, vw: number): Rect {
  * corner) that brings the tile's centre to `place`, a point on the screen. The pan stays inside the
  * block's range (`panRange`, the rule `clampPan` keeps: the block's edge never passes the screen's
  * middle third), so a tile near a corner of the block comes as near to `place` as the range allows
- * and the rest of the way is the tile's own (`Tile` residual in wall-pose.ts). A block too small for a
+ * and the rest of the way is the tile's own (the `res` that `resOf` in wall-pose.ts carries). A block too small for a
  * range stays where it is.
  */
 export function cameraPan(p: {

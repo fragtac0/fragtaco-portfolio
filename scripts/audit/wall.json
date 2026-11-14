@@ -365,11 +365,19 @@
   "label": "arrows-to-the-edge-then-stay"
  },
  {
+  "eval": "(()=>{const e=document.activeElement;const d=document.querySelector('.vov');return {tag:e&&e.tagName,cls:e&&e.className,text:(e&&e.textContent||'').slice(0,24),inDetail:!!(e&&d&&d.contains(e)),inLayer:!!(e&&e.closest('.home-layer')),isBody:e===document.body,detailInert:d?d.hasAttribute('inert'):null}})()",
+  "label": "R52.3 focus after the arrow keys: it stays on the open video's Watch link (the swap does not move it), in the detail, not on the body"
+ },
+ {
   "key": "Escape",
   "vk": 27,
   "wait": 100,
   "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
   "label": "close-esc"
+ },
+ {
+  "eval": "(()=>{const e=document.activeElement;const d=document.querySelector('.vov');return {tag:e&&e.tagName,cls:e&&e.className,text:(e&&e.textContent||'').slice(0,24),inDetail:!!(e&&d&&d.contains(e)),inLayer:!!(e&&e.closest('.home-layer')),isBody:e===document.body,detailInert:d?d.hasAttribute('inert'):null}})()",
+  "label": "R52.3 focus after Esc (the detail has closed): read where it is (in the layer, not lost to the body)"
  },
  {
   "move": [

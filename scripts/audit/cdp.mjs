@@ -2,7 +2,7 @@
 // (navigate, wait, eval, key, click, shot) and print each eval result.
 // usage: BASE=http://localhost:5178 node scripts/audit/cdp.mjs <steps.json> <outdir>
 // Step keys: size, dpr, mobile, touch, reduce, intercept [{match, fail | status, type, body}], net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk, +mod: modifiers, 1 Alt, 2 Ctrl, 4 Meta, 8 Shift), mdrag [x0,y0,x1,y1,n] (mouse; may be an expression), wheel [x,y,dx,dy,n],
-// click, move, sweep, tap, drag (click, move and tap also take a string: an expression the page answers with [x, y]), eval (+label), shot, requests ({match} + label: the hosts requested since the last such step), sample ({grid:[cols,rows]} + label: photographs the page and prints the share of pixels
+// click, move, sweep, tap, drag (click, move and tap also take a string: an expression the page answers with [x, y]), eval (+label), shot, requests ({match} + label: the hosts requested since the last such step), contrast ([{name, selector, ink: [r,g,b,a], glass?}] + label: hides each element's text (`glass`: only makes the colour transparent, so the element's own background stays in the picture), photographs the page and prints the WCAG contrast of the ink over the picture behind it: worst, 1st percentile, mean), sample ({grid:[cols,rows]} + label: photographs the page and prints the share of pixels
 // darker than #2a2826, the share of orange-hued pixels and the average colour on a grid; see PIXEL_SAMPLER below),
 // film ({ms, dark?, share?, rect?, keep?, at?} + label: the page runs `eval` first when given, then every frame the compositor produces for `ms` is photographed (a screencast); each is
 // reduced to 48 by 30 cells (over the `rect` selector's box, read once the film is over, e.g. "#hero"; the whole frame without it) and a frame counts as bare when `share` (0.75) or more of its cells are darker than luma `dark` (20); prints the frame count, the longest gap between frames, `darkShareMax` (the largest share of dark cells in any frame), the box measured, the
@@ -89,6 +89,30 @@ const TILE_SAMPLES = (b64, g) => `(async()=>{const g=${JSON.stringify(g)};const 
    for(let yy=0;yy<5;yy++)for(let xx=0;xx<7;xx++){const px=Math.min(w-1,Math.floor((xx+.5)*w/7)),py=Math.min(h-1,Math.floor((yy+.5)*h/5)),o=(py*w+px)*4;v.push(Math.round(.2126*d[o]+.7152*d[o+1]+.0722*d[o+2]))}
    out.push(v)}
   return JSON.stringify(out)})()`;
+// Runs inside the page on a PNG screenshot: for each box ({name, x, y, w, h} in CSS pixels, and `ink` [r, g, b, a]) the WCAG contrast of that ink
+// laid over every pixel of the box (the screenshot is taken with the text hidden, so the pixels are the picture behind it): the worst, the 1st percentile,
+// the mean, and the brightest pixel's luma. Used by the `contrast` step.
+const CONTRAST = (b64, boxes) => `(async()=>{
+  const bmp = await createImageBitmap(await (await fetch("data:image/png;base64,${b64}")).blob());
+  const c = new OffscreenCanvas(bmp.width, bmp.height), x = c.getContext("2d", { willReadFrequently: true });
+  x.drawImage(bmp, 0, 0); const k = bmp.width / innerWidth;
+  const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  const lum = (r, g, b) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  const out = [];
+  for (const bx of ${JSON.stringify(boxes)}) {
+    const x0 = Math.max(0, Math.floor(bx.x * k)), y0 = Math.max(0, Math.floor(bx.y * k)), w = Math.max(1, Math.min(bmp.width - x0, Math.ceil(bx.w * k))), h = Math.max(1, Math.min(bmp.height - y0, Math.ceil(bx.h * k)));
+    const d = x.getImageData(x0, y0, w, h).data, cs = [], ink = bx.ink; let sum = 0, maxL = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const bl = lum(d[i], d[i + 1], d[i + 2]);
+      const tr = ink[0] * ink[3] + d[i] * (1 - ink[3]), tg = ink[1] * ink[3] + d[i + 1] * (1 - ink[3]), tb = ink[2] * ink[3] + d[i + 2] * (1 - ink[3]);
+      const tl = lum(tr, tg, tb), hi = Math.max(tl, bl), lo = Math.min(tl, bl), cr = (hi + 0.05) / (lo + 0.05);
+      cs.push(cr); sum += cr; if (bl > maxL) maxL = bl;
+    }
+    cs.sort((p, q) => p - q);
+    out.push({ name: bx.name, box: [x0 / k, y0 / k, w / k, h / k].map(Math.round), worst: +cs[0].toFixed(2), p1: +cs[Math.floor(cs.length * 0.01)].toFixed(2), mean: +(sum / cs.length).toFixed(2), brightestBg: +maxL.toFixed(4) });
+  }
+  return JSON.stringify(out);
+})()`;
 async function runFilm(f, label) {
   const dark = f.dark ?? 20, share = f.share ?? 0.75;
   castFrames.length = 0;
@@ -173,6 +197,16 @@ for (const s of steps) {
     const png = await send("Page.captureScreenshot", { format: "png" });
     const r = await send("Runtime.evaluate", { expression: PIXEL_SAMPLER(png.result.data, cols, rows), awaitPromise: true, returnByValue: true });
     console.log(JSON.stringify({ step: s.label ?? "sample", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description }));
+  }
+  if (s.contrast) {
+    // `contrast`: [{name, selector, ink: [r, g, b, a]}]: hides the text of each (visibility), photographs the page and prints the contrast of the ink over the picture behind it
+    const boxes = (await send("Runtime.evaluate", { expression: `(()=>{const o=[];for(const it of ${JSON.stringify(s.contrast)}){const e=document.querySelector(it.selector);if(!e)continue;const r=e.getBoundingClientRect();o.push({name:it.name,x:r.left,y:r.top,w:r.width,h:r.height,ink:it.ink});if(it.glass){for(const n of [e,...e.querySelectorAll('*')])n.style.setProperty('color','transparent','important');e.style.setProperty('outline','none','important')}else e.style.visibility='hidden'}return o})()`, returnByValue: true })).result?.result?.value ?? [];
+    await sleep(300); await send("Page.captureScreenshot", { format: "png" });
+    const png = await send("Page.captureScreenshot", { format: "png" });
+    if (s.contrast.some(it => it.save)) writeFileSync(`${outDir}/${s.contrast.find(it => it.save).save}.png`, Buffer.from(png.result.data, "base64"));
+    const r = await send("Runtime.evaluate", { expression: CONTRAST(png.result.data, boxes), awaitPromise: true, returnByValue: true });
+    await send("Runtime.evaluate", { expression: `for(const it of ${JSON.stringify(s.contrast)}){const e=document.querySelector(it.selector);if(e){e.style.visibility='';for(const n of [e,...e.querySelectorAll('*')])n.style.removeProperty('color');e.style.removeProperty('outline')}}`, returnByValue: true });
+    console.log(JSON.stringify({ step: s.label ?? "contrast", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description }));
   }
   if (s.film) await runFilm(s.film, s.label);
   if (s.shot) {

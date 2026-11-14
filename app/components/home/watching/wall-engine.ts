@@ -85,6 +85,8 @@ export function createWall(
   const slicer = createSlicer();
   /** The still frame on the screen (see `frame`), or "" when the next frame must be drawn. */
   let drawnStill = "";
+  /** The video has closed, but the camera is still bringing the wall home: the choice is let go of when it arrives (see `thaw`). */
+  let thawing = false;
 
   // interaction and view state, shared with the input code through the context
   const st = createWallState();
@@ -151,6 +153,8 @@ export function createWall(
     raf = requestAnimationFrame(frame);
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
+    // a close that was timed in real time waits for the camera, which moves by frame time, so the wall never jumps the rest of the way
+    if (thawing && camera.settled()) letGo();
     const { vw, vh, size } = st;
     const { pitchX } = size;
     const choosing = st.choice !== null;
@@ -222,8 +226,16 @@ export function createWall(
 
   // ---- lifecycle
 
+  /** Lets go of the chosen video: the wall is as it was before the click. */
+  function letGo() {
+    thawing = false;
+    st.choice = null;
+    pose.reset();
+  }
+
   function stop() {
     running = false;
+    thawing = false;
     runToken++;
     cancelAnimationFrame(raf);
     els?.chip.classList.remove("on");
@@ -286,7 +298,13 @@ export function createWall(
 
     spreads: true,
     freeze(key) {
-      if (!key || st.choice?.key === key) return;
+      if (!key) return;
+      thawing = false;
+      if (st.choice?.key === key) {
+        // the same video again while it closes (the input cannot do this, the choice being locked): it opens again
+        st.choice.live = true;
+        return;
+      }
       const tl = st.tiles.find((x) => x.key === key);
       if (!tl) return;
       st.choice = { key, idx: tl.idx, live: true };
@@ -296,8 +314,9 @@ export function createWall(
       if (st.choice) st.choice.live = false;
     },
     thaw() {
-      st.choice = null;
-      pose.reset();
+      // with the loop running the camera may still be on its way (a long frame, a slow device): wait for it
+      if (running && st.choice && !camera.settled()) thawing = true;
+      else letGo();
     },
     rectOf: input.rectOf,
 

@@ -53,6 +53,8 @@ const RAD_BIG = 20;
 const NO_SHIFT = { x: 0, y: 0 };
 /** The camera is counted as still when every tile is this near its resting place, px. */
 const SHIFT_EPS = 0.05;
+/** How fast a tile fades out or back in as the wall opens, per second (an ease with a time constant of about 70 ms); it does not depend on how far the tile is pushed. */
+const HIDE_RATE = 14;
 
 export type PoseInput = {
   dt: number;
@@ -172,6 +174,7 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
     const chosen = choice.live && tl.key === choice.key;
     const push = reduced ? 0 : chosen ? Math.min(eo, o.startOpen) : eo;
     const sp = spread({ x: cx, y: cy, cx: rc.x, cy: rc.y, halfDiag: choice.halfDiag, open: push });
+    // the size follows `eo` (how open the wall is), not `push`: the chosen tile is pushed less, but it shrinks and grows with the rest (spread() gives `push`'s own scale)
     const scale = reduced ? 1 : 1 - (1 - SPREAD_SCALE) * eo;
     const dim = 1 - (1 - SPREAD_DIM) * eo;
     tl.cx = sp.x;
@@ -180,7 +183,7 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
     tl.h = th * scale;
     tl.rad = 12 * scale;
     tl.dim = dim + (1 - dim) * tl.e; // the channel's other videos stay bright
-    tl.fade = 1 - ease(hideOf, tl.key, o.hidden.has(tl.key) ? 1 : 0, o.reduced ? 1 : Math.min(1, o.dt * 14)) * eo;
+    tl.fade = 1 - ease(hideOf, tl.key, o.hidden.has(tl.key) ? 1 : 0, o.reduced ? 1 : Math.min(1, o.dt * HIDE_RATE)) * eo;
     const was = travelled.get(tl.key) || 0;
     const v = stepToward(was, chosen ? 1 : 0, o.dt, o.secs);
     if (v !== was) easing = true;

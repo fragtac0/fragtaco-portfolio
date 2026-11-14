@@ -28,6 +28,8 @@ export type Camera = {
   shiftInto(out: Point): void;
   /** The views the wall will be seen from while the camera works (home and the chosen tile's), so the tiles in both are laid out; empty otherwise. */
   views(): readonly Point[];
+  /** True when the camera has nothing left to travel: no video chosen, or the close has brought it home (the wall may let go of the choice without a jump). */
+  settled(): boolean;
 };
 
 export function createCamera(st: WallState, reduced: boolean): Camera {
@@ -112,5 +114,7 @@ export function createCamera(st: WallState, reduced: boolean): Camera {
     },
 
     views: () => (on ? list : []),
+
+    settled: () => !on || (leg >= 1 && open <= 0),
   };
 }

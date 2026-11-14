@@ -1,4 +1,17 @@
-import { WARP_INNER, WARP_MAX, warpMargin } from "./wall-warp";
+import { channels, GROUND as GROUND_HEX } from "../../../styles/tokens";
+import {
+  BLUR_INNER,
+  BLUR_MAX_PX,
+  EDGE_DARK_INNER,
+  EDGE_DARK_SIDE,
+  FRINGE_INNER,
+  FRINGE_MAX_PX,
+  HEAD_BAND_PX,
+  HEAD_DARK,
+  WARP_INNER,
+  WARP_MAX,
+  warpMargin,
+} from "./wall-warp";
 
 /**
  * The second pass of the wall (spec 7). The tiles are drawn flat into a texture a little larger
@@ -19,18 +32,34 @@ import { WARP_INNER, WARP_MAX, warpMargin } from "./wall-warp";
  */
 
 const f = (n: number) => n.toFixed(6);
+/** The ground as an opaque premultiplied colour for the shader: `r,g,b,1.` */
+const GROUND = `${channels(GROUND_HEX).map((v) => f(v / 255)).join(",")},1.`;
 
 const VS = `attribute vec2 p;uniform vec2 uRes;varying vec2 vS;
   void main(){vS=p*uRes;gl_Position=vec4(p.x*2.-1.,1.-p.y*2.,0.,1.);}`;
 const FS = `precision highp float;varying vec2 vS;
   uniform sampler2D uTex;uniform vec2 uRes;uniform float uMargin;
   float shiftOf(float r){float u=clamp((r-${f(WARP_INNER)})/${f(1 - WARP_INNER)},0.,1.);return ${f(WARP_MAX)}*u*u*(3.-2.*u);}
+  vec2 tc(vec2 p){vec2 t=(p+uMargin)/(uRes+2.*uMargin);return vec2(t.x,1.-t.y);}
+  vec4 fr(vec2 p,vec2 f){vec4 g=texture2D(uTex,tc(p));return vec4(texture2D(uTex,tc(p+f)).r,g.g,texture2D(uTex,tc(p-f)).b,g.a);}
   void main(){
     vec2 c=uRes*.5;float hd=length(c);vec2 d=vS-c;float R=length(d)/hd;
     vec2 w=vS;
     if(R>.00001){float r=R;for(int i=0;i<6;i++)r=R+shiftOf(r);w=c+d*(r/R);}
-    vec2 t=(w+uMargin)/(uRes+2.*uMargin);
-    gl_FragColor=texture2D(uTex,vec2(t.x,1.-t.y));
+    float bl=${f(BLUR_MAX_PX)}*smoothstep(${f(BLUR_INNER)},1.,R);
+    float fg=${f(FRINGE_MAX_PX)}*smoothstep(${f(FRINGE_INNER)},1.,R);
+    vec4 col;
+    if(bl+fg>0.){
+      vec2 f=R>.00001?d/(R*hd)*fg:vec2(0.);
+      float o=bl*.7071;
+      col=fr(w,f)*.36+.16*(fr(w+vec2(o,o),f)+fr(w+vec2(-o,o),f)+fr(w+vec2(o,-o),f)+fr(w+vec2(-o,-o),f));
+    }else col=texture2D(uTex,tc(w));
+    float sx=${f(EDGE_DARK_SIDE)}*smoothstep(${f(EDGE_DARK_INNER)},1.,abs(vS.x-c.x)/c.x);
+    float sy=${f(EDGE_DARK_SIDE)}*smoothstep(${f(EDGE_DARK_INNER)},1.,abs(vS.y-c.y)/c.y);
+    float band=min(${f(HEAD_BAND_PX)},uRes.y*.25);
+    float tp=${f(HEAD_DARK)}*(1.-smoothstep(band*.5,band,vS.y));
+    float dk=1.-(1.-sx)*(1.-sy)*(1.-tp);
+    gl_FragColor=mix(col,vec4(${GROUND}),dk);
   }`;
 
 /** What the first pass needs to know about its target. */

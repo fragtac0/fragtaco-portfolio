@@ -160,7 +160,6 @@ function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: Watch
         ) : (
           <>
             <div ref={hostRef} className="wall-host" />
-            <div className="wall-vig" />
             <div ref={chipRef} className="chip" aria-live="polite">
               <b />
               <span />

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { blockPlan, clampPan, panRange, restFloat, sizeOfPlan } from "./wall-block";
+import { blockPlan, clampPan, panRange, restFloat, sizeOfPlan, SOFT_EDGE } from "./wall-block";
 import { createCamera } from "./wall-camera";
-import { choiceLayout, createChoiceLayout, countOverlaps } from "./wall-choice";
+import { choiceLayout, createChoiceLayout, countOverlaps, countUnderText } from "./wall-choice";
 import { layoutTiles } from "./wall-math";
 import { createPose } from "./wall-pose";
 import { cameraPan } from "./wall-spread";
@@ -84,7 +84,6 @@ describe("the camera", () => {
     r.run(0.5);
     const { rect } = choiceLayout(1440, 900);
     const t = r.by("5,5");
-    expect(t.cx - t.w / 2 + 0).toBeLessThan(rect.x + rect.w); // sanity: on the screen
     // the tile is exactly at the middle of the chosen rect (no travel of its own: it is a middle tile)
     expect(t.cx).toBeCloseTo(rect.x + rect.w / 2, 3);
     expect(t.cy).toBeCloseTo(rect.y + rect.h / 2, 3);
@@ -92,6 +91,24 @@ describe("the camera", () => {
     const end = cameraPan({ idx: 5 * r.st.plan.cols + 5, plan: r.st.plan, place: { x: rect.x + rect.w / 2, y: rect.y + rect.h / 2 }, vw: 1440, vh: 900 });
     expect(r.st.view.x).toBeCloseTo(end.x, 6);
     expect(r.st.view.y).toBeCloseTo(end.y, 6);
+  });
+
+  it("says when it is home: not while a video is chosen or closing, then once the close has finished", () => {
+    const r = rig(1440, 900);
+    expect(r.camera.settled()).toBe(true);
+    r.choose(4, 6);
+    r.run(0.6);
+    expect(r.camera.settled()).toBe(false);
+    r.st.choice = { ...(r.st.choice as NonNullable<typeof r.st.choice>), live: false };
+    r.run(0.1);
+    expect(r.camera.settled()).toBe(false);
+    r.run(0.4);
+    expect(r.camera.settled()).toBe(true);
+    // under reduced motion it never travels, so it is always home
+    const q = rig(1440, 900, true);
+    q.choose(4, 6);
+    q.run(0.2);
+    expect(q.camera.settled()).toBe(true);
   });
 
   it("is half way at about 210 ms and has not arrived before 420 ms", () => {
@@ -139,14 +156,16 @@ describe("the camera", () => {
       const [y0, y1] = panRange(r.st.plan.height, 900);
       for (let t = 0; t < 1; t += 0.016) {
         r.frame();
-        expect(r.st.view.x).toBeGreaterThanOrEqual(Math.min(x0, 0) - 5);
-        expect(r.st.view.x).toBeLessThanOrEqual(Math.max(x1, 0) + 5);
-        expect(r.st.view.y).toBeGreaterThanOrEqual(Math.min(y0, 0) - 5);
-        expect(r.st.view.y).toBeLessThanOrEqual(Math.max(y1, 0) + 5);
+        // the range, with the few pixels the float may add
+        expect(r.st.view.x).toBeGreaterThanOrEqual(x0 - 5);
+        expect(r.st.view.x).toBeLessThanOrEqual(x1 + 5);
+        expect(r.st.view.y).toBeGreaterThanOrEqual(y0 - 5);
+        expect(r.st.view.y).toBeLessThanOrEqual(y1 + 5);
       }
+      // parked in the soft band at most (R83, R85): clampPan would pull it in by under a quarter of SOFT_EDGE
       const [hx, hy] = clampPan(r.st.view.x, r.st.view.y, r.st.plan, 1440, 900);
-      expect(Math.abs(hx - r.st.view.x)).toBeLessThanOrEqual(80);
-      expect(Math.abs(hy - r.st.view.y)).toBeLessThanOrEqual(80);
+      expect(Math.abs(hx - r.st.view.x)).toBeLessThanOrEqual(SOFT_EDGE / 4 + 5);
+      expect(Math.abs(hy - r.st.view.y)).toBeLessThanOrEqual(SOFT_EDGE / 4 + 5);
     }
   });
 
@@ -222,6 +241,7 @@ describe("the wall opening with the camera", () => {
       r.choose(cx, cy);
       const choice = r.run(1.2)!;
       expect(countOverlaps(r.list(), choice)).toBe(0);
+      expect(countUnderText(r.list(), choice)).toBe(0);
       expect(r.pose.moving()).toBe(false);
     }
   });
@@ -251,12 +271,13 @@ describe("the wall opening with the camera", () => {
     expect(fadeJump).toBeLessThan(0.45);
   });
 
-  it("is steady at the six Review Focus sizes: opens, then holds with the chosen tile on the place", () => {
+  it("is steady at the Review Focus sizes: opens, then holds with the chosen tile on the place", () => {
     for (const [vw, vh] of [
       [320, 568],
       [390, 844],
       [844, 390],
       [820, 1180],
+      [1024, 768],
       [1440, 900],
       [2560, 1440],
     ]) {
@@ -274,6 +295,7 @@ describe("the wall opening with the camera", () => {
         expect(tl.cx).toBeCloseTo(rect.x + rect.w / 2, 2);
         expect(tl.cy).toBeCloseTo(rect.y + rect.h / 2, 2);
         expect(countOverlaps(r.list(), choice)).toBe(0);
+        expect(countUnderText(r.list(), choice)).toBe(0);
         // close and come back
         r.st.choice = { ...r.st.choice!, live: false };
         r.run(0.5);

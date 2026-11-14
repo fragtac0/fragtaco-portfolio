@@ -6,7 +6,7 @@ import { createPose, type PoseChoice, type PoseInput } from "./wall-pose";
 import { cameraPan, chosenRect, crosses, easeInOut, SPREAD_DIM, SPREAD_SCALE, textZone } from "./wall-spread";
 import type { Tile } from "./wall-types";
 
-/** The pose while a video is chosen (spec 7, "Click"): the wall opens around it. */
+/** The pose while a video is chosen (spec 8.1, the click): the wall opens around it. */
 
 const videos = [{ channel: "A" }, { channel: "B" }, { channel: "A" }, { channel: "A" }];
 // the block's own tiles at 1440 by 900: half of round 6's, so the chosen video (round 6's size) is twice a tile
