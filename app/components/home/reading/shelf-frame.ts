@@ -1,7 +1,8 @@
 import { clearPlacement, noTransition, windowSize, type FrameBox } from "../layer/frame-box";
 import { dotPlacement, subWindow } from "../layer/frame-math";
 import type { ShelfCtx, ShelfState } from "./shelf-open";
-import type { ShelfScene } from "./shelf-scene";
+import { RENDER_DPR_MAX } from "./shelf-math";
+import { newBag, type ShelfScene } from "./shelf-scene";
 
 /**
  * The shelf's picture in a frame (layer/frame-math.ts). The row is always fitted to the window the open page would fill
@@ -35,19 +36,35 @@ export function applyView(ctx: ShelfCtx, gl: ShelfScene, vw: number, vh: number)
   gl.camera.updateProjectionMatrix();
 }
 
+/**
+ * Sets the renderer's pixel ratio: the screen's (`device`) up to `RENDER_DPR_MAX`, and up to `cap` while docked with a cap. A new
+ * ratio makes the next `applyView` size the renderer again and has the shelf drawn.
+ */
+export function syncRatio(gl: ShelfScene, st: ShelfState, device: number, cap: number | undefined): void {
+  const ratio = Math.min(device || 1, RENDER_DPR_MAX, cap ?? Infinity);
+  if (gl.renderer.getPixelRatio() === ratio) return;
+  gl.renderer.setPixelRatio(ratio);
+  st.viewKey = "";
+  st.dirty = true;
+}
+
 const DOT_STYLES = ["position", "left", "top", "width", "height", "transform", "transform-origin", "clip-path"] as const;
 
-/** Puts the dot field where the frame's picture has it (or back to the stylesheet's place with no frame). */
+/**
+ * Puts the dot field where the frame's picture has it (or back to the stylesheet's place with no frame). In a frame the caller
+ * places (`place: false`) it is positioned absolutely from the frame's own corner instead, in the canvas's offset parent.
+ */
 export function placeDots(dots: HTMLElement | undefined, box: FrameBox, vw: number, vh: number, ledgeTop: number): void {
   if (!dots) return;
   const f = box.frame();
-  const p = f && dotPlacement(f, vw, vh, ledgeTop);
+  const own = box.placed();
+  const p = f && dotPlacement(own ? f : { ...f, left: 0, top: 0 }, vw, vh, ledgeTop);
   const s = dots.style;
   if (!p) {
     clearPlacement(dots, DOT_STYLES, () => box.frame() !== null);
     return;
   }
-  s.position = "fixed";
+  s.position = own ? "fixed" : "absolute";
   s.left = `${p.left}px`;
   s.top = `${p.top}px`;
   s.width = `${p.width}px`;
@@ -59,8 +76,17 @@ export function placeDots(dots: HTMLElement | undefined, box: FrameBox, vw: numb
   noTransition(dots);
 }
 
-/** Docks or undocks the shelf's canvas: out of the tab order and let the pointer through while docked, the hover and the press forgotten. */
-export function dockStage(canvas: HTMLCanvasElement, st: ShelfState, on: boolean): void {
+/**
+ * Docks or undocks the shelf's canvas: out of the tab order and let the pointer through while docked, the hover and the press
+ * forgotten, and an open book put away at once (without its closing animation, which would keep the docked shelf drawing).
+ */
+export function dockStage(
+  canvas: HTMLCanvasElement,
+  st: ShelfState,
+  on: boolean,
+  gl?: Pick<ShelfScene, "books"> | null,
+  closeBook?: (refocus: boolean) => void,
+): void {
   canvas.style.pointerEvents = on ? "none" : "";
   canvas.tabIndex = on ? -1 : 0;
   if (!on) {
@@ -76,4 +102,6 @@ export function dockStage(canvas: HTMLCanvasElement, st: ShelfState, on: boolean
   st.flickV = 0;
   st.dirty = true;
   canvas.classList.remove("dragging");
+  closeBook?.(false);
+  gl?.books.forEach((b) => (b.anim = newBag()));
 }

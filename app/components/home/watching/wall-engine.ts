@@ -1,12 +1,12 @@
 import type { SiteVideo } from "~/types";
 import { createSlicer } from "../../../utils/idle";
 import { watchContextLost } from "../context-lost";
-import { createFrameBox, windowSize } from "../layer/frame-box";
+import { createFrameBox, windowSize, type FrameOptions } from "../layer/frame-box";
 import { drawDue, type Frame } from "../layer/frame-math";
-import { dockCanvas, fitBuffer, readCanvas } from "./wall-canvas";
+import { dockCanvas, fitBuffer, placeAt, readCanvas } from "./wall-canvas";
 import { drawTiles } from "./wall-draw";
 import { createWallGl, type WallGl } from "./wall-gl";
-import { createChoiceLayout, picturesSettled, thawWaits } from "./wall-choice";
+import { createChoiceHold, createChoiceLayout, picturesSettled } from "./wall-choice";
 import { createCamera } from "./wall-camera";
 import { createChip, createProbe } from "./wall-hud";
 import { reportFrame } from "./wall-probes";
@@ -27,20 +27,17 @@ import {
 } from "./wall-types";
 
 /**
- * The video wall: every thumbnail on one finite block of small tiles in a fixed shuffled order, drawn
- * flat with raw WebGL1 (spec 7, 8.1; the `Wall` module of docs/redesign/mockups/home-v4.html). All tiles are one size and one
- * brightness; the block floats a few pixels at rest, is moved by the pointer and stops softly at its edges (wall-block.ts:
- * nothing wraps). Hover is proximity only (wall-proximity.ts). The focused video's channel keeps a hairline edge, and
- * thumbnails arrive with a fade. The wall is drawn to a texture and shown through a fish-eye at its borders (wall-warp.ts,
- * wall-warp-pass.ts); the pointer goes through the inverse before anything is hit.
+ * The video wall: every thumbnail on one finite block of small tiles in a fixed shuffled order, drawn flat with raw WebGL1 (spec
+ * 7, 8.1; the `Wall` module of docs/redesign/mockups/home-v4.html). All tiles are one size and one brightness; the block floats
+ * a few pixels at rest, is moved by the pointer and stops softly at its edges (wall-block.ts). Hover is proximity only
+ * (wall-proximity.ts). The focused video's channel keeps a hairline edge, and thumbnails arrive with a fade. The wall is drawn to
+ * a texture and shown through a fish-eye at its borders (wall-warp.ts, wall-warp-pass.ts); the pointer goes through the inverse.
  *
  * The engine owns its canvas. `prepare()` creates the GL context, program and atlas texture in steps (idle time, or short slices
- * once `setUrgent(true)`) and starts loading thumbnails, so the wall is warm when the layer opens; if it is not, the layer keeps
- * showing the block's picture until the first frame. `setFrame()` draws the open page's picture scaled to cover a smaller frame,
- * `setDocked()` takes its input away and holds it to 30 draws a second (layer/frame-math.ts, wall-canvas.ts). `mount()` puts
- * the canvas into the layer and wires the pointer, wheel and keyboard, `unmount()` takes it out but keeps the GL objects for an
- * instant re-open, and `dispose()` frees everything and loses the context. This file keeps the state, the frame and the
- * lifecycle; the rest is in the wall-*.ts files beside it.
+ * once `setUrgent(true)`) and starts loading thumbnails, so the wall is warm when the layer opens. `setFrame()` draws the open
+ * page's picture scaled to cover a smaller frame, `setDocked()` takes its input away and holds it to 30 draws a second
+ * (layer/frame-math.ts, wall-canvas.ts). `mount()` puts the canvas into the layer and wires the input, `unmount()` takes it out
+ * but keeps the GL objects, `dispose()` frees everything. The rest is in the wall-*.ts files beside it.
  */
 
 const STAGE_LABEL = "Video wall. Use the arrow keys to move, Enter to open.";
@@ -83,10 +80,12 @@ export function createWall(
   let drawnStill = "";
   /** The frame the picture is drawn into (layer/frame-box.ts), whether the wall is docked in it, and when the last frame was drawn. */
   const box = createFrameBox(canvas);
+  lost.subscribe(() => box.abandon()); // a lost context draws no more: a waiter for a frame is let go
   let docked = false;
   let lastDrawn = 0;
-  /** The video has closed, but the camera is still bringing the wall home: the choice is let go of when it arrives (see `thaw`). */
-  let thawing = false;
+  /** The docked pixel-ratio cap (`setDocked`), and that the buffer must be sized again for a new one. */
+  let dprCap: number | undefined;
+  let refit = false;
 
   // interaction and view state, shared with the input code through the context
   const st = createWallState();
@@ -95,6 +94,7 @@ export function createWall(
   const pose = createPose(videos);
   const motion = createMotion(st, REDUCE);
   const camera = createCamera(st, REDUCE);
+  const hold = createChoiceHold(st, pose, camera, () => running);
   const choiceOf = createChoiceLayout();
   const chip = createChip(videos, st);
   const probe = createProbe(canvas);
@@ -122,7 +122,7 @@ export function createWall(
           if (disposed || !wgl) return;
           // size the drawing buffer now: the layer is fixed to the viewport, so `start()` finds
           // this size and does not resize inside the frame that opens the layer
-          fitBuffer(canvas, box, wgl, ...windowSize());
+          fitBuffer(canvas, box, wgl, ...windowSize(), dprCap);
         },
       ])
       .catch((err: unknown) => {
@@ -140,7 +140,7 @@ export function createWall(
     if (fitBlock(st, atlas?.cells.length ?? videos.length) && had) pose.reset();
     probe("block", `${st.plan.cols}x${st.plan.rows}:${Math.round(st.plan.width)}x${Math.round(st.plan.height)}`);
     applyView(st, !REDUCE);
-    fitBuffer(canvas, box, wgl, st.vw, st.vh);
+    fitBuffer(canvas, box, wgl, st.vw, st.vh, dprCap);
     drawnStill = "";
   }
 
@@ -152,15 +152,19 @@ export function createWall(
   function frame(now: number) {
     if (!running || !wgl || !atlas) return;
     raf = requestAnimationFrame(frame);
-    // a new frame is applied here, in the frame that draws it; a docked wall draws at most 30 times a second (`dt` then spans both)
-    const reframed = box.hasPending();
-    if (!reframed && !drawDue(now, lastDrawn, docked)) return;
-    if (reframed && box.commit() === "resized") sizes();
+    // a new frame is applied here, in the frame that draws it; a docked wall draws at most 30 times a second (`dt` then spans
+    // both), and only a new size (the picture must be drawn again) goes ahead of that, a move of the frame does not
+    const due = drawDue(now, lastDrawn, docked);
+    let framed = box.hasPending() ? box.commit() : "none";
+    if (refit) framed = "resized";
+    refit = false;
+    if (framed === "resized") sizes();
+    else if (framed === "moved") placeAt(st, box.frame());
+    if (framed !== "resized" && !due) return;
     lastDrawn = now;
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    // a close that was timed in real time waits for the camera, which moves by frame time, so the wall never jumps the rest of the way
-    if (thawing && camera.settled()) letGo();
+    hold.tick();
     const { vw, vh, size } = st;
     const { pitchX } = size;
     const choosing = st.choice !== null;
@@ -224,16 +228,10 @@ export function createWall(
 
   // ---- lifecycle
 
-  /** Lets go of the chosen video: the wall is as it was before the click. */
-  function letGo() {
-    thawing = false;
-    st.choice = null;
-    pose.reset();
-  }
-
   function stop() {
+    box.abandon(); // a waiter for a frame is let go: none will be drawn
     running = false;
-    thawing = false;
+    hold.cancel();
     runToken++;
     cancelAnimationFrame(raf);
     els?.chip.classList.remove("on");
@@ -270,10 +268,11 @@ export function createWall(
 
     async start(opts) {
       const my = ++runToken;
+      box.resume();
       onFirstFrame = opts?.onFirstFrame ?? null;
       await prepare();
-      if (my !== runToken || !els) return;
-      if (!wgl || failed || lost.lost()) return; // the scene switches to its plain grid
+      if (my !== runToken) return;
+      if (!els || !wgl || failed || lost.lost()) return box.abandon(); // the scene switches to its plain grid
       st.hoverKey = null;
       st.kbd = null;
       pose.reset();
@@ -281,6 +280,7 @@ export function createWall(
       drawnStill = "";
       box.commit();
       box.invalidate();
+      refit = false;
       sizes();
       running = true;
       last = lastDrawn = performance.now();
@@ -297,38 +297,24 @@ export function createWall(
     onLost: lost.subscribe,
 
     spreads: true,
-    freeze(key) {
-      if (!key) return;
-      thawing = false;
-      if (st.choice?.key === key) {
-        // the same video again while it closes (the input cannot do this, the choice being locked): it opens again
-        st.choice.live = true;
-        return;
-      }
-      const tl = st.tiles.find((x) => x.key === key);
-      if (!tl) return;
-      st.choice = { key, idx: tl.idx, live: true };
-      st.hoverKey = key;
-    },
-    release() {
-      if (st.choice) st.choice.live = false;
-    },
-    thaw(instant) {
-      // with the loop running the camera may still be on its way (a long frame, a slow device): wait for it,
-      // unless the close was instant (a resize): then nothing is left to wait for
-      if (thawWaits({ instant, running, chosen: !!st.choice, settled: camera.settled() })) thawing = true;
-      else letGo();
-    },
+    freeze: (key) => hold.freeze(key),
+    release: () => hold.release(),
+    thaw: (instant) => hold.thaw(instant),
     rectOf: input.rectOf,
 
-    setFrame(frame: Frame | null) {
-      box.request(frame);
+    setFrame(frame: Frame | null, opts?: FrameOptions) {
+      box.request(frame, opts);
       if (!running) box.commit(); // the loop applies it otherwise, in the frame it draws
     },
-    setDocked(on) {
+    setDocked(on, opts) {
       docked = on;
       lastDrawn = 0;
       dockCanvas(canvas, st, on);
+      const cap = on ? opts?.maxDpr : undefined;
+      if (cap !== dprCap) {
+        dprCap = cap;
+        refit = true;
+      }
     },
     whenDrawn: () => box.whenDrawn(),
 

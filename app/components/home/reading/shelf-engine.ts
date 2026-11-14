@@ -1,7 +1,8 @@
 import type { SiteBook } from "~/types";
 import { createSlicer } from "../../../utils/idle";
 import { watchContextLost } from "../context-lost";
-import { createFrameBox } from "../layer/frame-box";
+import { createFrameBox, type FrameOptions } from "../layer/frame-box";
+import type { Frame } from "../layer/frame-math";
 import { createEngineCovers } from "./shelf-engine-covers";
 import { attachShelfInput, createShelfInput } from "./shelf-input";
 import { createOpenPath, newShelfState, type ShelfCtx, type ShelfEls } from "./shelf-open";
@@ -9,7 +10,7 @@ import type { ShelfEngine } from "./shelf-engine-types";
 import { createAnimate, poseBooks } from "./shelf-pose";
 import { createMarkerSync } from "./shelf-hud";
 import { fitShelf } from "./shelf-fit";
-import { applyView, dockStage, placeDots, stageSize } from "./shelf-frame";
+import { applyView, dockStage, placeDots, stageSize, syncRatio } from "./shelf-frame";
 import { loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
 import { Aborted, abortable, buildShelf } from "./shelf-build";
 import { createFontCap, createSpineFonts, type SpineFonts } from "./shelf-spine-fonts";
@@ -24,15 +25,13 @@ import { initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
  * while the row dims to 70% and the note shows beside it (shelf-open.ts, shelf-lift.ts).
  *
  * three.js is only loaded with `import("three")` (shelf-build.ts), its own chunk. The engine owns its canvas: `prepare()` builds the
- * scene in idle time while no layer is mounted, so the layer opens onto a warm scene; once the layer is open and waiting,
- * `setUrgent()` runs the same steps back to back (about 8 ms a frame), and the wait for the fonts is capped from `mount()` (R89).
- * `mount()` puts the canvas into the layer, `unmount()` takes it out but keeps the GL scene for an instant re-open, `dispose()` frees
- * everything. A lost graphics context makes `hasFailed()` true and calls `onLost` listeners. `setFrame()` draws the open page's
- * picture scaled to cover a smaller frame and `setDocked()` takes its input away (shelf-frame.ts, layer/frame-math.ts).
- *
- * The poses are shelf-pose.ts, the open-book path shelf-open.ts, the real covers shelf-covers.ts (wired in shelf-engine-covers.ts),
- * the scene shelf-scene.ts, the sizing shelf-fit.ts, the camera shelf-camera.ts, the marker shelf-hud.ts, the listeners
- * shelf-input.ts; this file keeps the state, the frame and the lifecycle.
+ * scene in idle time while no layer is mounted, so the layer opens onto a warm scene; once the layer waits, `setUrgent()` runs the
+ * same steps back to back, and the wait for the fonts is capped from `mount()` (R89). `mount()` puts the canvas into the layer,
+ * `unmount()` takes it out but keeps the GL scene, `dispose()` frees everything. A lost graphics context makes `hasFailed()` true
+ * and calls `onLost` listeners. `setFrame()` draws the open page's picture scaled to cover a smaller frame and `setDocked()` takes
+ * its input away (shelf-frame.ts, layer/frame-math.ts). The poses are shelf-pose.ts, the open-book path shelf-open.ts, the covers
+ * shelf-engine-covers.ts, the scene shelf-scene.ts, the sizing shelf-fit.ts, the camera shelf-camera.ts, the marker shelf-hud.ts,
+ * the listeners shelf-input.ts; this file keeps the state, the frame and the lifecycle.
  */
 
 export type { ShelfEls, ShelfEngine };
@@ -69,7 +68,11 @@ export function createShelf(
   const slicer = createSlicer();
   /** The frame the picture is drawn into (layer/frame-box.ts), and whether the shelf is docked in it: no input, drawn only on change. */
   const box = createFrameBox(canvas);
+  lost.subscribe(() => box.abandon()); // a lost context draws no more: a waiter for a frame is let go
   let docked = false;
+  /** The docked pixel-ratio cap (`setDocked`), and that the renderer must be sized again for a new one. */
+  let dprCap: number | undefined;
+  let refit = false;
 
   // Not running, or past the entrance with no book open and none still opening or closing: a cover is
   // painted only then, so it never costs a frame of the lift.
@@ -144,6 +147,7 @@ export function createShelf(
     if (!gl) return;
     const [w, h] = stageSize(canvas, box);
     if (!w || !h) return;
+    syncRatio(gl, st, window.devicePixelRatio, dprCap);
     applyView(ctx, gl, w, h);
     placeDots(els?.dots, box, w, h, st.ledgeTop);
     if (redraw) st.dirty = true;
@@ -158,7 +162,11 @@ export function createShelf(
     raf = requestAnimationFrame(frame);
     const s = gl;
     // a frame asked for is applied here, in the frame that draws it, so the canvas's size and its picture change together
-    const framed = box.hasPending() ? box.commit() : "none";
+    let framed = box.hasPending() ? box.commit() : "none";
+    if (refit) {
+      refit = false;
+      if (framed === "none") framed = "moved";
+    }
     if (framed !== "none") {
       if (framed === "resized") fit();
       reframe(framed === "resized");
@@ -178,36 +186,18 @@ export function createShelf(
     if (el > introS && calm() && covers.drain()) busy = true; // one late cover per frame
 
     const prev = st.hoverHit;
-    st.hoverHit =
-      !st.opened && el > introS - 0.4 && st.inside && !(st.down && st.down.moved)
-        ? pick(s.books)
-        : null;
+    st.hoverHit = !st.opened && el > introS - 0.4 && st.inside && !(st.down && st.down.moved) ? pick(s.books) : null;
     if (st.hoverHit !== prev) canvas.style.cursor = st.hoverHit ? "pointer" : "";
     const focused = st.focusIdx >= 0 ? s.books[st.focusIdx] : null;
 
-    if (
-      poseBooks(s, {
-        el,
-        dt,
-        now,
-        reduced,
-        hover: st.hoverHit,
-        focused,
-        opened: st.opened,
-        animate,
-      })
-    ) {
-      busy = true;
-    }
+    if (poseBooks(s, { el, dt, now, reduced, hover: st.hoverHit, focused, opened: st.opened, animate })) busy = true;
     if (busy) {
       s.renderer.render(s.scene, s.camera);
       st.dirty = false;
       box.drawn();
-      if (onFirstFrame) {
-        const cb = onFirstFrame;
-        onFirstFrame = null;
-        cb();
-      }
+      const first = onFirstFrame;
+      onFirstFrame = null;
+      first?.();
     }
   }
 
@@ -243,6 +233,7 @@ export function createShelf(
   }
 
   function stop() {
+    box.abandon(); // a waiter for a frame is let go: none will be drawn
     running = false;
     runToken++;
     cancelAnimationFrame(raf);
@@ -280,10 +271,11 @@ export function createShelf(
 
     async start(opts) {
       const my = ++runToken;
+      box.resume();
       onFirstFrame = opts?.onFirstFrame ?? null;
       await prepare();
-      if (my !== runToken || !els) return;
-      if (!gl || lost.lost()) return; // the scene switches to its plain grid
+      if (my !== runToken) return;
+      if (!els || !gl || lost.lost()) return box.abandon(); // the scene switches to its plain grid
 
       box.commit();
       box.invalidate();
@@ -316,13 +308,18 @@ export function createShelf(
       fontCap.urgent(on); // the layer has opened onto the shelf: the font wait gets its shorter leg (R89)
     },
     closeBook: () => closeBook(true),
-    setFrame(frame) {
-      box.request(frame);
+    setFrame(frame: Frame | null, opts?: FrameOptions) {
+      box.request(frame, opts);
       if (!running) box.commit(); // the loop applies it otherwise, in the frame it draws
     },
-    setDocked(on) {
+    setDocked(on, opts) {
       docked = on;
-      dockStage(canvas, st, on);
+      dockStage(canvas, st, on, gl, closeBook);
+      const cap = on ? opts?.maxDpr : undefined;
+      if (cap !== dprCap) {
+        dprCap = cap;
+        refit = true;
+      }
     },
     whenDrawn: () => box.whenDrawn(),
     focusNext,

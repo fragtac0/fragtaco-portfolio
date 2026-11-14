@@ -28,7 +28,8 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   const { canvas, st, cam } = ctx;
   const [w, h] = stageSize(canvas, ctx.box);
   if (!w || !h) return;
-  const top = headerBottom(canvas);
+  // framed, the window (and so the header) does not change while the frame moves: the header is measured again only for a new window size
+  const top = ctx.box.frame() && w === st.fitW && h === st.fitH ? st.fitTop : headerBottom(canvas);
   if (w === st.fitW && h === st.fitH && top === st.fitTop) return;
   const first = st.fitW === 0; // the first fit of a mount repaints the spines at once, a resize waits for the size to settle
   st.fitW = w;

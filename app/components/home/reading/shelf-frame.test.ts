@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createFrameBox } from "../layer/frame-box";
 import type { Frame } from "../layer/frame-math";
-import { applyView, dockStage, placeDots } from "./shelf-frame";
+import { applyView, dockStage, placeDots, syncRatio } from "./shelf-frame";
 import { newShelfState, type ShelfCtx } from "./shelf-open";
 import type { ShelfScene } from "./shelf-scene";
 
@@ -15,6 +15,8 @@ function fakeEl() {
   const own: Record<string, unknown> = {
     removeProperty: (p: string) => void props.delete(camel(p)),
     setProperty: (p: string, v: string) => void props.set(camel(p), v),
+    getPropertyValue: (p: string) => props.get(camel(p)) ?? "",
+    getPropertyPriority: () => "",
   };
   const style = new Proxy(own, {
     get: (t, k: string) => (k in t ? t[k] : props.get(k)),
@@ -23,10 +25,10 @@ function fakeEl() {
   return { el: { style } as unknown as HTMLCanvasElement, props };
 }
 
-function setup(frame: Frame | null) {
+function setup(frame: Frame | null, opts?: { place?: boolean }) {
   const { el } = fakeEl();
   const box = createFrameBox(el);
-  box.request(frame);
+  box.request(frame, opts);
   box.commit();
   const calls: Array<[string, ...Array<number | boolean>]> = [];
   const gl = {
@@ -85,6 +87,15 @@ describe("the dot field in a frame", () => {
     expect(props.get("clipPath")).toBe("inset(0px 0px 0px 0px)");
   });
 
+  it("in a frame the caller places it is absolute from the frame's own corner, in the canvas's offset parent", () => {
+    const { el, props } = fakeEl();
+    const { ctx } = setup({ left: 100, top: 400, width: 720, height: 450 }, { place: false });
+    placeDots(el, ctx.box, VW, VH, 600);
+    expect(props.get("position")).toBe("absolute");
+    expect([props.get("left"), props.get("top")]).toEqual(["0px", "0px"]);
+    expect(props.get("transform")).toBe("scale(0.5)");
+  });
+
   it("goes back to the stylesheet's place with no frame", () => {
     const { el, props } = fakeEl();
     const framed = setup({ left: 100, top: 400, width: 720, height: 450 });
@@ -121,5 +132,57 @@ describe("docking the shelf", () => {
     expect(canvas.tabIndex).toBe(0);
     expect(props.get("pointerEvents")).toBe("");
     expect(props.has("aria-hidden")).toBe(false);
+  });
+});
+
+describe("the renderer's pixel ratio", () => {
+  const renderer = (ratio: number) => {
+    const calls: number[] = [];
+    return { gl: { renderer: { getPixelRatio: () => ratio, setPixelRatio: (r: number) => calls.push(r) } } as unknown as ShelfScene, calls };
+  };
+
+  it("is the screen's up to the shelf's own maximum, and left alone when it already is", () => {
+    const { gl, calls } = renderer(1.75);
+    const st = newShelfState();
+    st.dirty = false;
+    st.viewKey = "x";
+    syncRatio(gl, st, 2, undefined);
+    expect(calls).toEqual([]);
+    expect([st.dirty, st.viewKey]).toEqual([false, "x"]);
+  });
+
+  it("a docked cap lowers it, makes the next view size the renderer again, and has the shelf drawn", () => {
+    const { gl, calls } = renderer(1.75);
+    const st = newShelfState();
+    st.dirty = false;
+    st.viewKey = "x";
+    syncRatio(gl, st, 2, 1);
+    expect(calls).toEqual([1]);
+    expect([st.dirty, st.viewKey]).toEqual([true, ""]);
+  });
+
+  it("a cap above the screen's ratio changes nothing", () => {
+    const { gl, calls } = renderer(1);
+    syncRatio(gl, newShelfState(), 1, 3);
+    expect(calls).toEqual([]);
+  });
+});
+
+describe("docking puts an open book away at once", () => {
+  it("closes it without a refocus and resets every book's animation, so nothing keeps the shelf drawing", () => {
+    const { el, props } = fakeEl();
+    const canvas = Object.assign(el, {
+      tabIndex: 0,
+      setAttribute: (k: string, v: string) => props.set(k, v),
+      removeAttribute: (k: string) => props.delete(k),
+      blur: () => undefined,
+      classList: { remove: () => undefined },
+    });
+    const st = newShelfState();
+    const books = [{ anim: { open: 0.6 } }, { anim: { open: 0 } }] as unknown as ShelfScene["books"];
+    const closed: boolean[] = [];
+    dockStage(canvas, st, true, { books }, (refocus) => closed.push(refocus));
+    expect(closed).toEqual([false]);
+    expect(books.every((b) => b.anim.open === 0)).toBe(true);
   });
 });

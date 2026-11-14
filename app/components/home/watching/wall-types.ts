@@ -1,3 +1,4 @@
+import type { DockOptions, DrawnResult, FrameOptions } from "../layer/frame-box";
 import type { Frame } from "../layer/frame-math";
 import { blockPlan, sizeOfPlan, type BlockPlan } from "./wall-block";
 import type { LayoutTile, TileSize } from "./wall-math";
@@ -55,17 +56,26 @@ export type WallEngine = {
   rectOf(key: string): DOMRect | null;
   /**
    * Draws the open page's picture for the current window scaled to cover `frame` (CSS pixels in the window), centred, and nothing
-   * outside it; null draws the whole window as before. The canvas is placed at the frame (fixed). Never rebuilds the wall: a frame
-   * asked for while the loop runs is applied by the loop in the frame it draws, so the canvas's size and picture change together.
+   * outside it; null draws the whole window as before. By default the canvas is placed at the frame (fixed); with
+   * `{ place: false }` the caller owns the canvas's place and size (it sits in its home box and scrolls with the page) and only
+   * the frame's size is used: a move is nothing, a new size is a resize, and switching `place` at the same size changes no
+   * picture. Never rebuilds the wall: a frame asked for while the loop runs is applied by the loop in the frame it draws, so the
+   * canvas's size and picture change together. Called while the loop is stopped it applies at once (the canvas keeps its old
+   * buffer until the next `start()`), so call it on a hidden or running wall.
    */
-  setFrame(frame: Frame | null): void;
+  setFrame(frame: Frame | null, opts?: FrameOptions): void;
   /**
    * Docked: the wall takes no pointer, wheel or key input (the canvas is out of the tab order and lets the pointer through) and
-   * draws at most 30 times a second, drifting as at rest. Not docked: as always.
+   * draws at most 30 times a second, drifting as at rest; only a frame of a new size goes ahead of that (a move of the frame
+   * does not). `maxDpr` caps the drawing buffer's pixel ratio while docked. Not docked: as always.
    */
-  setDocked(docked: boolean): void;
-  /** Resolves after the first frame drawn with the current frame (when the loop runs; at once if that has happened). */
-  whenDrawn(): Promise<void>;
+  setDocked(docked: boolean, opts?: DockOptions): void;
+  /**
+   * Resolves "drawn" after the first frame drawn with the current frame (at once if that has happened) and "stopped" when the
+   * wall stops, unmounts, is disposed, fails to draw or loses its context: it never hangs. Call it after `start()`; with no
+   * loop and nothing to draw it answers "stopped" at once.
+   */
+  whenDrawn(): Promise<DrawnResult>;
   /** Move the keyboard focus one tile: (1, 0) right, (0, 1) down. */
   focusNext(dx: number, dy: number): void;
   openFocused(): void;

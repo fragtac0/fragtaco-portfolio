@@ -5,12 +5,15 @@
 //   B: `setFrame(null)`: the whole window, as before frames existed;
 //   ref: B scaled by `gluedScale` and cut to F.
 // A and ref differ in at most 2% of their pixels at dpr 2 (a pixel differs when a channel is 48 or more apart: the two are made by the GPU at
-// two sizes and by a resample; at dpr 1 the 480 px picture's fine edges differ more, 0.4% to 6%, so the share is reported there, not gated). For the shelf the ground and the dot field canvas (placed in the frame by the engine) are in both. The
+// two sizes and by a resample; at dpr 1 the 480 px picture's fine edges differ more, 0.4% to 6%, so the share is reported there, not gated;
+// the threshold is 48 in any channel, and the share at 24 is reported beside it (`sharePct24`, never gated). For the shelf the ground and the dot field canvas (placed in the frame by the engine) are in both. The
 // wall's picture includes its second pass (the edge blur, fringe and dark fade are part of the framed picture).
 // Also read: `whenDrawn` resolves in the frame that draws the new frame (the picture is grabbed inside it), `setFrame` builds nothing
 // (no program is created or compiled), the canvas stays the same element, a docked scene is out of the tab order, lets the pointer
 // through and answers no key, a docked wall draws at most 30 times a second and a docked shelf draws nothing while still, and an
-// undocked wall draws every frame. Contact sheets (A, ref, difference) are saved as `local-r55-1-<engine>-<size>-<frame>.jpg`: they show
+// undocked wall draws every frame. Docked and moving (setFrame on every frame for 2 s): the wall stays at its 30 draws a second, the shelf
+// draws none and measures no header; the caller-placed frame (`place: false`) writes no position and switching it at the same size
+// leaves the buffer and the picture alone; `setDocked(true, { maxDpr: 1 })` draws the buffer at one pixel per CSS pixel. Contact sheets (A, ref, difference) are saved as `local-r55-1-<engine>-<size>-<frame>.jpg`: they show
 // thumbnails and covers, keep them under docs/redesign/compare/local/. Run: node scripts/audit/make-frame-compare.mjs
 import { writeFileSync } from "node:fs";
 
@@ -52,10 +55,19 @@ const HELPER = `window.__fc = window.__fc || (() => {
     for (const p of parts) { const c = document.createElement('canvas'); c.width = p.width; c.height = p.height; c.getContext('2d').drawImage(p, 0, 0); c.style.cssText = 'width:' + (p.width / devicePixelRatio * k) + 'px;height:' + (p.height / devicePixelRatio * k) + 'px;outline:1px solid #888'; o.appendChild(c); }
     document.body.appendChild(o);
   };
-  const settle = (eng) => Promise.race([eng.whenDrawn().then(() => 'drawn'), new Promise((r) => setTimeout(() => r('timeout'), 4000))]);
+  const settle = (eng) => Promise.race([eng.whenDrawn(), new Promise((r) => setTimeout(() => r('timeout'), 4000))]);
+  // counts the engine's draws until stop() (the wall: a bind of the screen's framebuffer; the shelf: a clear), and reads of the layer header's box
+  const counter = (kind) => {
+    const proto = (kind === 'wall' ? WebGLRenderingContext : WebGL2RenderingContext).prototype, name = kind === 'wall' ? 'bindFramebuffer' : 'clear', o = proto[name];
+    const rect = Element.prototype.getBoundingClientRect, c = { draws: 0, headReads: 0 };
+    proto[name] = function () { if (kind !== 'wall' || arguments[1] === null) c.draws++; return o.apply(this, arguments); };
+    Element.prototype.getBoundingClientRect = function () { if (this.classList && this.classList.contains('xp-head')) c.headReads++; return rect.apply(this, arguments); };
+    return { stop: () => { proto[name] = o; Element.prototype.getBoundingClientRect = rect; return c; } };
+  };
+  const frames = (n, each) => new Promise((r) => { let i = 0; const go = () => { each(i); if (++i >= n) r(); else requestAnimationFrame(go); }; requestAnimationFrame(go); });
   const hooks = { programs: 0 };
   for (const C of [WebGLRenderingContext, WebGL2RenderingContext]) { const o = C.prototype.createProgram; C.prototype.createProgram = function () { hooks.programs++; return o.apply(this, arguments); }; }
-  return { win, composite, refOf, diffOf, sheet, settle, hooks, canvasOf };
+  return { win, composite, refOf, diffOf, sheet, settle, hooks, canvasOf, counter, frames };
 })();`;
 
 const FRAMES = [
@@ -72,9 +84,9 @@ const compare = (kind, f) => `(async()=>{
   const placed = (() => { const r = c0.getBoundingClientRect(); return [r.left, r.top, r.width, r.height].map(Math.round); })();
   eng.setFrame(null); const back = await fc.settle(eng);
   const B = fc.composite('${kind}', null);
-  const { r: R, s } = fc.refOf(B, F, A), d = fc.diffOf(A, R, 48);
+  const { r: R, s } = fc.refOf(B, F, A), d = fc.diffOf(A, R, 48), d24 = fc.diffOf(A, R, 24);
   fc.sheet([A, R, d.mask]);
-  return { kind: '${kind}', frame: '${f.name}', dpr: devicePixelRatio, scale: +s.toFixed(4), pixels: A.width * A.height, differing: d.n, sharePct: +(d.share * 100).toFixed(3), meanAbs: +d.mean.toFixed(2),
+  return { kind: '${kind}', frame: '${f.name}', dpr: devicePixelRatio, scale: +s.toFixed(4), pixels: A.width * A.height, differing: d.n, sharePct: +(d.share * 100).toFixed(3), sharePct24: +(d24.share * 100).toFixed(3), meanAbs: +d.mean.toFixed(2),
     gatesShare: devicePixelRatio >= 2, ok: (devicePixelRatio < 2 || d.share <= 0.02) && how === 'drawn' && back === 'drawn', drawnInFrame: how, backInFrame: back, drawnAfterMs: dt, placedAt: placed, canvasPlaced: placed.join(',') === [F.left, F.top, F.width, F.height].join(','),
     sameCanvas: fc.canvasOf('${kind}') === c0, programsCreated: fc.hooks.programs - p0 };
 })()`;
@@ -103,6 +115,59 @@ const docked = (kind) => `(async()=>{
   return out;
 })()`;
 
+// a docked scene whose frame moves every frame for 2 s (the scene scrolls past while docked): the wall stays at its 30 draws a second, the shelf draws none
+const dockedMove = (kind) => `(async()=>{
+  ${HELPER}
+  const fc = window.__fc, eng = window.__ftEngines.${kind}, c = fc.canvasOf('${kind}');
+  const F = { left: 100, top: 400, width: 480, height: 300 };
+  eng.setFrame(F); await fc.settle(eng); eng.setDocked(true); await new Promise((r) => setTimeout(r, 300));
+  const k = fc.counter('${kind}');
+  await new Promise((r) => { const t0 = performance.now(); const go = () => { const i = Math.round((performance.now() - t0) / 16); eng.setFrame({ ...F, left: 100 + (i % 200), top: 400 - (i % 50) }); if (performance.now() - t0 < 2000) requestAnimationFrame(go); else r(); }; go(); });
+  const moved = k.stop();
+  const out = { kind: '${kind}', movedDrawsIn2s: moved.draws, headReads: moved.headReads, left: c.style.left };
+  // a frame that grows every frame (the opening move): the shelf does not measure the header again while the window is the same
+  const k2 = fc.counter('${kind}');
+  await fc.frames(40, (i) => eng.setFrame({ ...F, width: 480 + i * 6, height: 300 + i * 4 }));
+  const grown = k2.stop();
+  out.grownDraws = grown.draws; out.grownHeadReads = grown.headReads;
+  eng.setDocked(false); eng.setFrame(null); await fc.settle(eng);
+  out.ok = ${kind === "wall" ? "out.movedDrawsIn2s <= 62 && out.movedDrawsIn2s >= 20 && out.grownDraws >= 20" : "out.movedDrawsIn2s === 0 && out.headReads === 0 && out.grownHeadReads === 0"} && out.left !== '';
+  return out;
+})()`;
+
+// the caller owns the canvas's place (place: false), and the docked pixel-ratio cap
+const placeCase = (kind) => `(async()=>{
+  ${HELPER}
+  const fc = window.__fc, eng = window.__ftEngines.${kind}, c = fc.canvasOf('${kind}');
+  const F = { left: 100, top: 400, width: 480, height: 300 }, dims = () => [c.width, c.height].join('x');
+  eng.setDocked(true);
+  eng.setFrame(F, { place: false }); const a = await fc.settle(eng);
+  const unplaced = { drawn: a, position: c.style.position, left: c.style.left, top: c.style.top, dims: dims() };
+  const k = fc.counter('${kind}');
+  eng.setFrame({ ...F, left: 700, top: 20 }, { place: false }); const moved = await fc.settle(eng);
+  await new Promise((r) => setTimeout(r, 300));
+  unplaced.afterMove = { drawn: moved, left: c.style.left, dims: dims() };
+  // the open move starts: the window placement takes over at the same size
+  eng.setFrame(F); const b = await fc.settle(eng); await new Promise((r) => setTimeout(r, 300));
+  const r1 = c.getBoundingClientRect(), placed = { drawn: b, position: c.style.position, rect: [r1.left, r1.top, r1.width, r1.height].map(Math.round), dims: dims() };
+  eng.setFrame(F, { place: false }); const d = await fc.settle(eng); await new Promise((r) => setTimeout(r, 300));
+  const back = { drawn: d, position: c.style.position, left: c.style.left, dims: dims() };
+  const switchDraws = k.stop().draws;
+  // the docked pixel-ratio cap: the buffer is the frame at 1 device pixel per CSS pixel, and back to the screen's ratio
+  eng.setDocked(true, { maxDpr: 1 }); await new Promise((r) => setTimeout(r, 400));
+  const capped = dims();
+  eng.setDocked(true); await new Promise((r) => setTimeout(r, 400));
+  const uncapped = dims();
+  eng.setDocked(false); eng.setFrame(null); await fc.settle(eng);
+  const out = { kind: '${kind}', unplaced, placed, back, switchDraws, capped, uncapped };
+  const ratio = Math.min(devicePixelRatio, ${kind === "wall" ? 2 : 1.75}), full = Math.round(F.width * ratio) + 'x' + Math.round(F.height * ratio);
+  out.ok = unplaced.drawn === 'drawn' && unplaced.position === '' && unplaced.left === '' && unplaced.top === '' && unplaced.afterMove.left === '' && unplaced.afterMove.dims === unplaced.dims &&
+    unplaced.afterMove.drawn === 'drawn' && placed.position === 'fixed' && placed.rect.join(',') === [F.left, F.top, F.width, F.height].join(',') && placed.dims === unplaced.dims && placed.drawn === 'drawn' &&
+    back.position === '' && back.left === '' && back.dims === unplaced.dims && back.drawn === 'drawn' && unplaced.dims === full &&
+    capped === F.width + 'x' + F.height && uncapped === full ${kind === "shelf" ? "&& switchDraws === 0" : ""};
+  return out;
+})()`;
+
 const steps = [];
 for (const kind of ["wall", "shelf"]) {
   const hash = kind === "wall" ? "#watching" : "#reading";
@@ -120,7 +185,11 @@ for (const kind of ["wall", "shelf"]) {
       steps.push({ wait: 300, shot: `local-r55-1-${kind}-${dpr}x-${f.name}` });
       steps.push({ eval: `document.getElementById('fc-sheet')?.remove(), 0`, wait: 200 });
     }
-    if (dpr === 2) steps.push({ eval: docked(kind), label: `${kind}-docked`, wait: 200 });
+    if (dpr === 2) {
+      steps.push({ eval: docked(kind), label: `${kind}-docked`, wait: 200 });
+      steps.push({ eval: dockedMove(kind), label: `${kind}-docked-move`, wait: 200 });
+      steps.push({ eval: placeCase(kind), label: `${kind}-place-false`, wait: 200 });
+    }
   }
 }
 writeFileSync(new URL("./frame-compare.json", import.meta.url), JSON.stringify(steps, null, 1) + "\n");

@@ -1,3 +1,4 @@
+import type { DockOptions, DrawnResult, FrameOptions } from "../layer/frame-box";
 import type { Frame } from "../layer/frame-math";
 import type { ShelfEls } from "./shelf-open";
 
@@ -23,14 +24,26 @@ export type ShelfEngine = {
   closeBook(): void;
   /**
    * Draws the open page's picture for the current window scaled to cover `frame` (CSS pixels in the window), centred, and nothing
-   * outside it, with the ledge and (through `els.dots`) the dot field; null draws the whole window as before. The canvas is placed at
-   * the frame (fixed). Never rebuilds the scene: a frame asked for while the loop runs is applied by the loop in the frame it draws.
+   * outside it, with the ledge and (through `els.dots`) the dot field; null draws the whole window as before. By default the
+   * canvas (and the dot field) is placed at the frame (fixed); with `{ place: false }` the caller owns the canvas's place and size
+   * (it sits in its home box and scrolls with the page; the dot field is then positioned absolutely from the frame's own corner,
+   * so it must share the canvas's offset parent) and only the frame's size is used: a move is nothing, a new size is a resize,
+   * and switching `place` at the same size changes no picture. Never rebuilds the scene: a frame asked for while the loop runs is
+   * applied by the loop in the frame it draws. Called while the loop is stopped it applies at once (the canvas keeps its old
+   * buffer until the next `start()`), so call it on a hidden or running shelf.
    */
-  setFrame(frame: Frame | null): void;
-  /** Docked: no pointer, wheel or key input (the canvas is out of the tab order and lets the pointer through); it draws only when something changed. */
-  setDocked(docked: boolean): void;
-  /** Resolves after the first frame drawn with the current frame (when the loop runs; at once if that has happened). */
-  whenDrawn(): Promise<void>;
+  setFrame(frame: Frame | null, opts?: FrameOptions): void;
+  /**
+   * Docked: no pointer, wheel or key input (the canvas is out of the tab order and lets the pointer through); an open book is
+   * closed at once, and it draws only when something changed. `maxDpr` caps the renderer's pixel ratio while docked.
+   */
+  setDocked(docked: boolean, opts?: DockOptions): void;
+  /**
+   * Resolves "drawn" after the first frame drawn with the current frame (at once if that has happened) and "stopped" when the
+   * shelf stops, unmounts, is disposed, fails to build or loses its context: it never hangs. Call it after `start()`; with no
+   * loop and nothing to draw it answers "stopped" at once.
+   */
+  whenDrawn(): Promise<DrawnResult>;
   focusNext(dir: 1 | -1): void;
   openFocused(): void;
   dispose(): void;

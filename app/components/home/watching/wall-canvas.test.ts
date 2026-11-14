@@ -1,11 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createFrameBox } from "../layer/frame-box";
 import type { Frame } from "../layer/frame-math";
-import { fitBuffer } from "./wall-canvas";
+import { bufferDpr, fitBuffer, placeAt } from "./wall-canvas";
 import type { WallGl } from "./wall-gl";
+import { createWallState } from "./wall-types";
 
 function setup(frame: Frame | null) {
-  const canvas = { width: 300, height: 150, style: new Proxy({ removeProperty: () => undefined, setProperty: () => undefined }, { set: () => true }) } as unknown as HTMLCanvasElement;
+  const canvas = { width: 300, height: 150, style: new Proxy(
+      { removeProperty: () => undefined, setProperty: () => undefined, getPropertyValue: () => "", getPropertyPriority: () => "" },
+      { set: () => true },
+    ) } as unknown as HTMLCanvasElement;
   const box = createFrameBox(canvas);
   box.request(frame);
   box.commit();
@@ -15,7 +19,8 @@ function setup(frame: Frame | null) {
 }
 
 // the pixel ratio comes from the window, which the node tests do not have
-(globalThis as { window?: unknown }).window = { devicePixelRatio: 2 };
+beforeAll(() => vi.stubGlobal("window", { devicePixelRatio: 2 }));
+afterAll(() => vi.unstubAllGlobals());
 
 describe("the wall's drawing buffer", () => {
   it("is the window at the pixel ratio with no frame, and the second pass shows the whole buffer", () => {
@@ -49,5 +54,28 @@ describe("the wall's drawing buffer", () => {
     Object.defineProperty(canvas, "width", { get: () => 300, set: () => writes++ });
     fitBuffer(canvas, box, wgl, 150, 75);
     expect(writes).toBe(0);
+  });
+});
+
+describe("the docked pixel-ratio cap", () => {
+  it("is the screen's ratio up to 2 with no cap, and lowers the buffer when asked", () => {
+    expect(bufferDpr()).toBe(2);
+    expect(bufferDpr(1)).toBe(1);
+    expect(bufferDpr(3)).toBe(2);
+    const { canvas, box, wgl } = setup({ left: 0, top: 0, width: 720, height: 200 });
+    fitBuffer(canvas, box, wgl, 1440, 900, 1);
+    expect([canvas.width, canvas.height]).toEqual([720, 200]);
+    fitBuffer(canvas, box, wgl, 1440, 900);
+    expect([canvas.width, canvas.height]).toEqual([1440, 400]);
+  });
+});
+
+describe("a frame that only moved", () => {
+  it("is where the pointer maps from, and a missing frame leaves it", () => {
+    const st = createWallState();
+    placeAt(st, { left: 30, top: 40, width: 1, height: 1 });
+    expect([st.ox, st.oy]).toEqual([30, 40]);
+    placeAt(st, null);
+    expect([st.ox, st.oy]).toEqual([30, 40]);
   });
 });

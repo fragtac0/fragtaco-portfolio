@@ -1,5 +1,6 @@
 import { chosenRect, crosses, overlaps, textZone, type Rect } from "./wall-spread";
-import type { PoseChoice } from "./wall-pose";
+import type { Camera } from "./wall-camera";
+import type { Pose, PoseChoice } from "./wall-pose";
 import type { Tile, WallState } from "./wall-types";
 
 /**
@@ -94,4 +95,50 @@ export function picturesSettled(
  */
 export function thawWaits(o: { instant?: boolean; running: boolean; chosen: boolean; settled: boolean }): boolean {
   return !o.instant && o.running && o.chosen && !o.settled;
+}
+
+/**
+ * The chosen video's hold on the wall (the engine's freeze, release and thaw): a video that closes while the camera is still
+ * bringing the wall home is let go of when the camera arrives (`tick`, every frame), so the wall never jumps the rest of the way.
+ */
+export function createChoiceHold(st: WallState, pose: Pose, camera: Camera, running: () => boolean) {
+  let thawing = false;
+  const letGo = () => {
+    thawing = false;
+    st.choice = null;
+    pose.reset();
+  };
+  return {
+    /** The loop is going round: a close that was timed in real time waits for the camera, which moves by frame time. */
+    tick: () => {
+      if (thawing && camera.settled()) letGo();
+    },
+    /** The loop stopped: nothing is left to wait for. */
+    cancel: () => {
+      thawing = false;
+    },
+    letGo,
+    freeze: (key?: string) => {
+      if (!key) return;
+      thawing = false;
+      if (st.choice?.key === key) {
+        // the same video again while it closes (the input cannot do this, the choice being locked): it opens again
+        st.choice.live = true;
+        return;
+      }
+      const tl = st.tiles.find((x) => x.key === key);
+      if (!tl) return;
+      st.choice = { key, idx: tl.idx, live: true };
+      st.hoverKey = key;
+    },
+    release: () => {
+      if (st.choice) st.choice.live = false;
+    },
+    thaw: (instant?: boolean) => {
+      // with the loop running the camera may still be on its way (a long frame, a slow device): wait for it,
+      // unless the close was instant (a resize): then nothing is left to wait for
+      if (thawWaits({ instant, running: running(), chosen: !!st.choice, settled: camera.settled() })) thawing = true;
+      else letGo();
+    },
+  };
 }
