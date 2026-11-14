@@ -661,3 +661,40 @@ Given while the build was at task 10 of 21, after Aditya looked at the build run
 I looked into it: `docs/redesign/compare/round7/change-experience-to-home.jpg` and `compare/local/r51-reveal-50.jpg` show the built change as a thin bright ring, almost a perfect circle, with hardly any bend. The cause is the numbers and the line picture, not the browser. The fix and the other two changes are written up in `docs/superpowers/specs/2026-11-14-round7-followups-design.md` and planned as tasks 22 to 26 in `docs/superpowers/plans/2026-11-14-round7-followups.md`, to run after task 19.
 
 My call: the home page behind an opening box sinks back and dims (the preview's default).
+
+### Feedback on the page change as built (2026-11-15, during the build)
+
+He looked at the R54 build (the 2.5 s page change with the wide, refracted edge) on his own machine while the two build lanes were still running, and wrote: "The animation between pages is now lagging a lot and the page shifts in position once it loads. It should not happen if the animation is too heavy. Figure out and come to me with solutions. We can then decide ahead".
+
+**What I measured** (headless Chrome on his Mac, an M4 Pro, one warmed change from home to the portfolio page, thread time inside the 2.57 s of the change):
+
+| Version | Renderer's compositor thread | Display compositor thread |
+|---|---|---|
+| As built (bend on both pages, three colours) | about 1,000 ms | about 600 ms |
+| As built, but 3 map pictures in each filter instead of 24 (a cost probe, not a usable build) | about 350 ms | about 220 ms |
+| One-colour bend | about 430 ms | about 220 ms |
+| Bend on the page being left only | about 580 ms | about 320 ms |
+| One-colour bend on the page being left only | about 310 ms | about 150 ms |
+| No bend | 80 to 110 ms | 70 to 85 ms |
+
+- The cost is the same at 1512 by 982 at 2x and at 1920 by 1080 at 1x: it is bookkeeping per frame, not pixels. About two thirds of the bend's cost is the 24 map pictures each filter carries, of which one is in use at a time.
+- Warm, on a quiet machine, every frame was presented at 60 Hz. The first change after a page load had frames of 67 to 167 ms with no script running. He was watching while both lanes were building and auditing on the same machine, and his built-in display runs at 120 Hz, where the headroom is gone.
+- The frame gate missed it because it measures the gaps between animation frames in a headless browser at 60 Hz on a quiet machine.
+
+**The shifts** (five changes frozen 17 ms before their end at 1512 by 982 at 2x, photographed, ended, photographed at once and 0.7 s later):
+
+- The dock: after every change to a page with the second row, the dock is pictured with one row and grows about 50 px, 185 to 320 ms after the change ends. Between two pages that both have the row it shrinks during the change and opens again after it. This was task 5's design (the row is in neither picture).
+- The arriving page is not finished when it is uncovered. Portfolio to Long form: the reveal uncovers the heading and the ground only, and the 21 thumbnails arrive after it ends (ruling R75, recorded as his taste call). Portfolio to Home: the reveal uncovers the blurred placeholder, and the sharp painting and its caption come after. Home to Portfolio: the rings stand still through the reveal and start turning as it ends.
+- The bend pushes the arriving page inward by up to 5.7% of the viewport's height (about 56 px), and it slides back as the edge passes.
+- No jump at the hand-over from the picture to the live page: the frozen last frame and the live page line up in all five.
+
+**His choices (2026-11-15)**
+
+| Question | Answer |
+|---|---|
+| How to make the change lighter | Same look, leaner: one map picture in the filter, a warm-up after load, and the bend dropped if frames slip |
+| Which shifts he saw | All four offered: the dock, the page content sliding, thumbnails or tiles moving, the whole page jumping |
+| How the arriving page should behave | Finished before the reveal: the page being left stays on screen for a short moment while the new page gets ready, then the reveal uncovers a complete, still page |
+| The bend on the arriving page | Half strength (the page being left keeps the full bend and the fringe) |
+
+These become tasks 27 and 28: `docs/superpowers/specs/2026-11-15-round7-change-arrival-design.md`, `docs/superpowers/plans/2026-11-15-round7-change-arrival.md`. They reverse two earlier rulings: R75 (the wall arrives after the reveal) and task 5's rule that the dock's second row is in neither picture.
