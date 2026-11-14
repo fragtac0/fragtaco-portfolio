@@ -14,7 +14,7 @@
   "label": "at-blocks"
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,4800)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3800)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
   "label": "home-from-blocks"
  },
  {
@@ -25,7 +25,7 @@
   "label": "card-open"
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,4800)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3800)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
   "label": "home-with-card"
  },
  {
@@ -46,14 +46,14 @@
   "wait": 1200
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/work\\\"]\").click(); new Promise(r=>setTimeout(r,4800)).then(()=>1)"
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/work\\\"]\").click(); new Promise(r=>setTimeout(r,3800)).then(()=>1)"
  },
  {
   "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
   "label": "work"
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,4800)).then(()=>1)"
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3800)).then(()=>1)"
  },
  {
   "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
@@ -64,7 +64,7 @@
    1440,
    900
   ],
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__arm=()=>{const k=new Set();window.__k=k;const h=document.documentElement;\n new MutationObserver(()=>{if(h.dataset.changeKind)k.add(h.dataset.changeKind)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});return 'armed'};\nwindow.__state=()=>({path:location.pathname,title:document.title,\n active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.trim().toLowerCase()+'='+e.getAttribute('aria-current')),\n kind:[...(window.__k||[])].join('+')||'none',\n rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row'});\n// The change is 3.5 s (round 7): read once it is over (the kind was seen and the mark is gone), or after 0.9 s when no change was started.\nwindow.__move=(act,want)=>{window.__arm();act();return new Promise(res=>{const t0=performance.now(),h=document.documentElement;const iv=setInterval(()=>{const el=performance.now()-t0;\n if((window.__k.size&&!h.dataset.changeKind&&el>150)||(!window.__k.size&&el>900)||el>9000){clearInterval(iv);setTimeout(()=>{const got=window.__state();\n const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},300)}},40)})};",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__arm=()=>{const k=new Set();window.__k=k;const h=document.documentElement;\n new MutationObserver(()=>{if(h.dataset.changeKind)k.add(h.dataset.changeKind)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});return 'armed'};\nwindow.__state=()=>({path:location.pathname,title:document.title,\n active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.trim().toLowerCase()+'='+e.getAttribute('aria-current')),\n kind:[...(window.__k||[])].join('+')||'none',\n rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row'});\n// Read once the change is over (the kind was seen and the mark is gone), or after 0.9 s when no change was started.\nwindow.__move=(act,want)=>{window.__arm();act();return new Promise(res=>{const t0=performance.now(),h=document.documentElement;const iv=setInterval(()=>{const el=performance.now()-t0;\n if((window.__k.size&&!h.dataset.changeKind&&el>150)||(!window.__k.size&&el>900)||el>9000){clearInterval(iv);setTimeout(()=>{const got=window.__state();\n const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},300)}},40)})};",
   "go": "{{BASE}}/work",
   "wait": 2500,
   "label": "tour: hard load /work",

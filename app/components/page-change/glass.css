@@ -1,14 +1,16 @@
-/* The liquid-glass page change (round 7 spec 4: one radial reveal from the centre of the screen, 3.5 s, for every change).
- * While a change runs, app/lib/page-change.ts marks <html> with data-change-kind (radial | fade), the origin and size
- * (--change-x, --change-y = the centre, --change-r = farthest corner, --change-ms) and the numbers from glass-math.ts's
- * glassVars() (--change-band, -warp, -lead, -travel, -reach, -ease), so nothing below repeats a constant.
+/* The liquid-glass page change (follow-ups spec 4: one radial reveal from the centre of the screen, 2.5 s, for every change, as
+ * the tenth preview's edge with "Wider" and "Stronger"). While a change runs, app/lib/page-change.ts marks <html> with
+ * data-change-kind (radial | fade), the origin and size (--change-x, --change-y = the centre, --change-r = farthest corner,
+ * --change-ms) and the numbers from glass-math.ts's glassVars() (--change-band, -warp, -start, -span, -ease), so nothing below
+ * repeats a constant.
  *
- * The reveal runs on its own, in CSS: a CSS animation drives --glass-p (the eased progress, 0 to 1) on each pseudo-element
- * that uses it, and everything is a function of that number. The new page is drawn over the old one under a mask whose edge
- * is soft (band of the travel each side) and, once glass-run.ts has made the pictures (data-glass-edge), wanders a little
- * (warp), like the painting's front. The line is the same edge, in the group of a named, empty full-screen element
- * ([data-glass-line]), above the pictures so the bend never smears it. Without the pictures the mask is a plain gradient
- * and the line a plain gradient.
+ * The front starts behind the middle (its outer soft edge at the origin) and its middle is at (start + span * p) farthest-corner
+ * distances at the eased progress p. A CSS animation drives --glass-p (the eased progress, 0 to 1) on the pseudo-elements that
+ * use it. A front smaller than glass-field.ts's HAND_OVER is drawn from that number alone, as plain gradients: a circle with a
+ * soft edge (--glass-band each side, the same width at every moment) and, from glass-run.ts, a glow. From then on glass-run.ts
+ * (data-glass-live) sizes and places the sheets of tiles that draw the edge with its wander (the mask on the new page, the glow
+ * and the darker glass on the line's group); without them the plain gradients draw the whole change.
+ * The bend (data-glass="bend", Chromium only) is an SVG filter on each of the two pictures (glass-filter.tsx).
  * If glass-run.ts finds the animation not running, or anything throws, it sets data-glass-fallback and the plain UA
  * crossfade takes over (every rule here is off under it). */
 @property --glass-p {
@@ -37,35 +39,39 @@ html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(
   mix-blend-mode: normal;
 }
 
-/* where the front's middle is: a radius */
+/* where the front's middle is: a radius (negative at first), and how wide its soft edge is each side */
 html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root),
 html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
-  --glass-front: calc(var(--glass-p) * var(--change-r) * var(--change-travel));
+  --glass-band: calc(var(--change-r) * var(--change-band));
+  --glass-front: calc(var(--change-r) * (var(--change-start) + var(--glass-p) * var(--change-span)));
 }
 
-/* ---- the reveal, as gradients */
+/* ---- the reveal, as a gradient: the new page inside a circle, soft over a band each side of the front. The stops are
+ * 1 - smoothstep(-1, 1, x) at x = -1, -2/3, -1/3, 0, 1/3, 2/3 and 1 half-bands (glass-field.ts's newShare), as the preview has it. */
 html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root) {
   mask-image: radial-gradient(
     circle at var(--change-x) var(--change-y),
-    #000 calc(var(--glass-front) * (1 - var(--change-band))),
-    transparent calc(var(--glass-front) * (1 + var(--change-band)))
+    #000 calc(var(--glass-front) - var(--glass-band)),
+    rgb(0 0 0 / 0.926) calc(var(--glass-front) - var(--glass-band) * 0.6667),
+    rgb(0 0 0 / 0.741) calc(var(--glass-front) - var(--glass-band) * 0.3333),
+    rgb(0 0 0 / 0.5) var(--glass-front),
+    rgb(0 0 0 / 0.259) calc(var(--glass-front) + var(--glass-band) * 0.3333),
+    rgb(0 0 0 / 0.074) calc(var(--glass-front) + var(--glass-band) * 0.6667),
+    transparent calc(var(--glass-front) + var(--glass-band))
   );
 }
 
-/* ---- the reveal, with the pictures (glass-run.ts sets data-glass-edge and adds the mask-image and background-image rules) */
-html[data-glass-edge][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root) {
-  --glass-reach: calc(var(--glass-front) * var(--change-reach));
-  mask-repeat: no-repeat;
-  mask-size: calc(2 * var(--glass-reach)) calc(2 * var(--glass-reach));
-  mask-position: calc(var(--change-x) - var(--glass-reach)) calc(var(--change-y) - var(--glass-reach));
+/* ---- the bend: an SVG filter on each of the two pictures, only when glass-run.ts has switched it on. The CSS applies a filter
+ * before a mask, so the new page is pushed first and cut out after, as the preview mixes its two pushed pictures. */
+html[data-glass="bend"][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-old(root) {
+  filter: url("#ft-glass-old");
+}
+html[data-glass="bend"][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root) {
+  filter: url("#ft-glass-new");
 }
 
-/* ---- the bend: the SVG filter on the picture pair (glass-filter.tsx), only when glass-run.ts has switched it on */
-html[data-glass="bend"][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-image-pair(root) {
-  filter: url("#ft-glass-radial");
-}
-
-/* ---- the line: an empty full-screen element with its own name, so its group (a box the size of the screen) can draw it */
+/* ---- the glow and the darker glass: an empty full-screen element with its own name, so its group (a box the size of the screen)
+ * can draw them. glass-run.ts adds the gradient (the same glow glass-edge.ts draws into the tiles) and, from the hand-over, the sheet. */
 [data-glass-line] {
   position: fixed;
   inset: 0;
@@ -74,29 +80,10 @@ html[data-glass="bend"][data-change-kind="radial"]:not([data-glass-fallback])::v
 html[data-change-kind="radial"]:not([data-glass-fallback]) [data-glass-line] {
   view-transition-name: glass-line;
 }
-/* it fades in over the first 8% of the progress and out over the last 20%, as the bend does */
+/* it fades out over the last 5% of the progress (the front has long left the screen by then) */
 html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
-  opacity: clamp(0, min(var(--glass-p) / 0.08, (1 - var(--glass-p)) / 0.2), 1);
+  opacity: clamp(0, (1 - var(--glass-p)) / 0.05, 1);
   background-repeat: no-repeat;
-  --glass-cream: color-mix(in srgb, var(--ink-1) 70%, transparent);
-  --glass-glow: color-mix(in srgb, var(--ink-1) 10%, transparent);
-  --glass-fringe: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
-  background-image: radial-gradient(
-    circle at var(--change-x) var(--change-y),
-    transparent calc(var(--glass-front) - 14px),
-    var(--glass-glow) calc(var(--glass-front) - 4px),
-    var(--glass-cream) calc(var(--glass-front) - 0.8px),
-    var(--glass-cream) calc(var(--glass-front) + 0.8px),
-    var(--glass-fringe) calc(var(--glass-front) + 4px),
-    transparent calc(var(--glass-front) + 10px)
-  );
-}
-html[data-glass-edge][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-line) {
-  --glass-reach: calc(var(--glass-front) * var(--change-reach));
-  background-size: calc(2 * var(--glass-reach)) calc(2 * var(--glass-reach));
-  background-position: calc(var(--change-x) - var(--glass-reach)) calc(var(--change-y) - var(--glass-reach));
 }
 ::view-transition-old(glass-line) {
   display: none;

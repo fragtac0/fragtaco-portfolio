@@ -1,47 +1,51 @@
 import { describe, expect, it } from "vitest";
-import { GLASS, REACH } from "./glass-math";
-import { fbm, ringPixels } from "./glass-texture";
+import { HALF } from "./glass-field";
+import { BEND_MAX, bendTilePixels } from "./glass-texture";
 
 const NEUTRAL = 128;
 const at = (px: Uint8ClampedArray, n: number, x: number, y: number) => {
   const i = (y * n + x) * 4;
   return { r: px[i], g: px[i + 1], b: px[i + 2], a: px[i + 3] };
 };
-/** push in units of the strongest push (-1..1) */
-const push = (v: number) => (v - NEUTRAL) / 127;
-
-describe("fbm", () => {
-  it("is deterministic and stays between 0 and 1", () => {
-    for (let i = 0; i < 50; i++) {
-      const v = fbm(i * 0.37, i * 0.91);
-      expect(v).toBeGreaterThanOrEqual(0);
-      expect(v).toBeLessThanOrEqual(1);
-      expect(fbm(i * 0.37, i * 0.91)).toBe(v);
-    }
-  });
+/** push in units of the peak push (-BEND_MAX..BEND_MAX) */
+const push = (v: number) => ((v - NEUTRAL) / 127) * BEND_MAX;
+/** the pixel `rho` corner distances from the middle in direction `a` */
+const place = (n: number, rho: number, a: number) => ({
+  x: Math.min(n - 1, Math.round(n / 2 + ((rho * Math.cos(a)) / HALF) * (n / 2))),
+  y: Math.min(n - 1, Math.round(n / 2 + ((rho * Math.sin(a)) / HALF) * (n / 2))),
 });
 
-describe("ringPixels", () => {
-  const n = 128;
-  const px = ringPixels(n);
-  it("is opaque everywhere and never pushes more than the full push", () => {
+describe("bendTilePixels", () => {
+  const n = 160;
+  const front = 0.8;
+  const px = bendTilePixels(n, front);
+  it("is opaque everywhere and never pushes more than the stored maximum", () => {
     for (let i = 0; i < n * n; i++) {
       expect(px[i * 4 + 3]).toBe(255);
-      expect(Math.abs(push(px[i * 4])) ** 2 + Math.abs(push(px[i * 4 + 1])) ** 2).toBeLessThanOrEqual(1.02);
+      expect(Math.hypot(push(px[i * 4]), push(px[i * 4 + 1]))).toBeLessThanOrEqual(BEND_MAX + 0.02);
     }
   });
-  it("pushes nothing at the middle and at the edge of the square, and something at the front", () => {
+  it("pushes nothing in the middle and nothing a few half-bands outside the front", () => {
     const mid = at(px, n, n / 2, n / 2);
     expect([mid.r, mid.g]).toEqual([NEUTRAL, NEUTRAL]);
-    const corner = at(px, n, 0, 0);
-    expect([corner.r, corner.g]).toEqual([NEUTRAL, NEUTRAL]);
-    // the front is at 1 / (1 + REACH * band) of the half-size from the middle
-    const front = Math.round((n / 2) * (1 + (1 / (1 + REACH * GLASS.band))));
-    let strongest = 0;
-    for (let x = front - 3; x <= front + 3; x++) {
-      const p = at(px, n, Math.min(n - 1, x), n / 2);
-      strongest = Math.max(strongest, Math.hypot(push(p.r), push(p.g)));
+    const far = place(n, 1.1, 0);
+    const o = at(px, n, far.x, far.y);
+    expect(Math.abs(push(o.r))).toBeLessThan(0.05);
+  });
+  it("pushes along the line from the middle, at the full peak at the front", () => {
+    for (const a of [0, 1, 2.2, 3.5, 5]) {
+      let strongest = 0;
+      for (let rho = front - 0.15; rho <= front + 0.2; rho += 0.005) {
+        const p = place(n, rho, a);
+        const c = at(px, n, p.x, p.y);
+        const m = Math.hypot(push(c.r), push(c.g));
+        strongest = Math.max(strongest, m);
+        // along the radial direction
+        if (m > 0.3) {
+          expect(push(c.r) * Math.cos(a) + push(c.g) * Math.sin(a)).toBeGreaterThan(0.25);
+        }
+      }
+      expect(strongest).toBeGreaterThan(0.85);
     }
-    expect(strongest).toBeGreaterThan(0.2);
   });
 });

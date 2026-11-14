@@ -14,12 +14,12 @@ describe("planChange", () => {
     expect(plan.ms).toBe(0);
   });
 
-  it("is the same radial 3500 ms reveal from the centre for every pair of pages, the two walls included", () => {
+  it("is the same radial 2500 ms reveal from the centre for every pair of pages, the two walls included", () => {
     for (const from of PAGES) {
       for (const to of PAGES) {
         expect(planChange(from, to, scr)).toEqual({
           kind: "radial",
-          ms: 3500,
+          ms: 2500,
           origin: { x: 720, y: 450 },
           radius: Math.hypot(720, 450),
         });
@@ -143,10 +143,10 @@ describe("changePage", () => {
     // the centre of the screen, whatever was clicked
     expect(env.props.get("--change-x")).toBe("720px");
     expect(env.props.get("--change-y")).toBe("450px");
-    expect(env.props.get("--change-ms")).toBe("3500ms");
+    expect(env.props.get("--change-ms")).toBe("2500ms");
     expect(env.props.has("--change-w")).toBe(false);
     // the glass numbers glass.css reads, from glass-math.ts
-    expect(env.props.get("--change-band")).toBe("0.07");
+    expect(env.props.get("--change-band")).toBe("0.15");
     expect(env.props.get("--change-ease")).toBe("cubic-bezier(0.65, 0, 0.35, 1)");
     expect(isPageSettled()).toBe(false);
     r.dataArrives();
@@ -511,6 +511,22 @@ describe("watchHistory", () => {
     expect(w.html.dataset.changeKind).toBeUndefined();
     expect(isPageSettled()).toBe(true);
     // the router has its data for the history target, with a transition of its own: skipped
+    w.dataArrives("/experience", { currentLocation: {}, nextLocation: {} });
+    w.routerStartsTransition();
+    expect(w.transitions.at(-1)?.skipped).toBe(true);
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    await tick();
+    expect(isPageSettled()).toBe(true);
+    w.stop();
+  });
+
+  it("R59: a click's change that commits its own page a frame after a Back does not end the hold on the router's transition for the Back", async () => {
+    const w = setup();
+    const r = w.router("/timeline");
+    void changePage(r.navigate, "/timeline"); // the change is about to commit /timeline
+    w.pop("/experience"); // Back, a frame before that
+    pageCommitted("/timeline"); // the click's own page commits after all: the hold must stay
+    // the router has its data for the history target, with a transition of its own: still skipped, not run as a crossfade
     w.dataArrives("/experience", { currentLocation: {}, nextLocation: {} });
     w.routerStartsTransition();
     expect(w.transitions.at(-1)?.skipped).toBe(true);

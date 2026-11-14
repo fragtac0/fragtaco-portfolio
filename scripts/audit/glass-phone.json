@@ -72,12 +72,12 @@
   "eval": "__release()"
  },
  {
-  "label": "local-phone-home-to-work-03 (t=0.4): to the start page",
+  "label": "local-phone-home-to-work-03 (t=0.35): to the start page",
   "eval": "__jump('/')"
  },
  {
-  "label": "local-phone-home-to-work-03 (t=0.4)",
-  "eval": "__hold('/work',0.4)"
+  "label": "local-phone-home-to-work-03 (t=0.35)",
+  "eval": "__hold('/work',0.35)"
  },
  {
   "wait": 120,
@@ -92,12 +92,12 @@
   "eval": "__release()"
  },
  {
-  "label": "local-phone-home-to-work-04 (t=0.5): to the start page",
+  "label": "local-phone-home-to-work-04 (t=0.4): to the start page",
   "eval": "__jump('/')"
  },
  {
-  "label": "local-phone-home-to-work-04 (t=0.5)",
-  "eval": "__hold('/work',0.5)"
+  "label": "local-phone-home-to-work-04 (t=0.4)",
+  "eval": "__hold('/work',0.4)"
  },
  {
   "wait": 120,
@@ -112,12 +112,12 @@
   "eval": "__release()"
  },
  {
-  "label": "local-phone-home-to-work-05 (t=0.6): to the start page",
+  "label": "local-phone-home-to-work-05 (t=0.5): to the start page",
   "eval": "__jump('/')"
  },
  {
-  "label": "local-phone-home-to-work-05 (t=0.6)",
-  "eval": "__hold('/work',0.6)"
+  "label": "local-phone-home-to-work-05 (t=0.5)",
+  "eval": "__hold('/work',0.5)"
  },
  {
   "wait": 120,
@@ -132,12 +132,12 @@
   "eval": "__release()"
  },
  {
-  "label": "local-phone-home-to-work-06 (t=0.7): to the start page",
+  "label": "local-phone-home-to-work-06 (t=0.65): to the start page",
   "eval": "__jump('/')"
  },
  {
-  "label": "local-phone-home-to-work-06 (t=0.7)",
-  "eval": "__hold('/work',0.7)"
+  "label": "local-phone-home-to-work-06 (t=0.65)",
+  "eval": "__hold('/work',0.65)"
  },
  {
   "wait": 120,

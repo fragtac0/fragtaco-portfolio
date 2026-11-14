@@ -5,7 +5,7 @@
    900
   ],
   "dpr": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__watch=async(to)=>{const h=document.documentElement,rows=[];const t0=performance.now();__ftChange(to);for(let i=0;i<260;i++){await new Promise(r=>setTimeout(r,40));const cs=getComputedStyle(h,'::view-transition-new(root)');rows.push([Math.round(performance.now()-t0),h.dataset.changeKind||'-',cs.getPropertyValue('--glass-p')||'?',h.dataset.glass||'-',h.dataset.glassEdge!==undefined?'edge':'-',h.dataset.glassFallback!==undefined?'FALLBACK':'-',(document.getElementById('ft-glass-ring-push')||{getAttribute(){return '?'}}).getAttribute('scale')]);if(!h.dataset.changeKind&&i>5)break}return rows.filter((r,i)=>i%6===0||!r[1]||r[1]==='-').slice(0,24).map(r=>r.join(' ')).join(' | ')};",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__watch=async(to)=>{const h=document.documentElement,rows=[];const t0=performance.now();__ftChange(to);for(let i=0;i<260;i++){await new Promise(r=>setTimeout(r,40));const cs=getComputedStyle(h,'::view-transition-new(root)');rows.push([Math.round(performance.now()-t0),h.dataset.changeKind||'-',cs.getPropertyValue('--glass-p')||'?',h.dataset.glass||'-',h.dataset.glassLive!==undefined?'live':'-',h.dataset.glassFallback!==undefined?'FALLBACK':'-',(document.getElementById('ft-glass-old-push-g')||{getAttribute(){return '?'}}).getAttribute('scale')]);if(!h.dataset.changeKind&&i>5)break}return rows.filter((r,i)=>i%6===0||!r[1]||r[1]==='-').slice(0,24).map(r=>r.join(' ')).join(' | ')};",
   "go": "{{BASE}}/",
   "wait": 6000
  },
@@ -54,13 +54,13 @@
   "wait": 1500
  },
  {
-  "label": "the radial edge step fails, the bend's step is separate: no edge pictures, so the change uses the gradient reveal, and the bend still runs",
-  "init": "{const o=HTMLCanvasElement.prototype.toDataURL;HTMLCanvasElement.prototype.toDataURL=function(...a){if(this.width===384)throw new Error('the radial line picture fails');return o.apply(this,a)}}",
+  "label": "the sheets' step fails (the line sheet's picture cannot be made), the bend's step is separate: no sheets, so the change uses the gradient reveal and glow for its whole length (no 'live' mark), and the bend still runs",
+  "init": "{const o=HTMLCanvasElement.prototype.toBlob;HTMLCanvasElement.prototype.toBlob=function(...a){if(this.width===1344)throw new Error('the line sheet fails');return o.apply(this,a)}}",
   "go": "{{BASE}}/",
   "wait": 6000
  },
  {
-  "label": "the radial change with its edge step failed: gradient reveal ('-' for edge) and the bend on",
-  "eval": "(async()=>{const styles=[...document.querySelectorAll('style[data-glass-pictures]')].length;const bendHref=!!document.getElementById('ft-glass-ring')?.getAttribute('href');const a=await __watch('/work');return JSON.stringify({pictureStyles:styles,bendMap:bendHref,radial:a.slice(0,400)})})()"
+  "label": "the radial change with its sheets step failed: gradient reveal ('-' for live) and the bend on",
+  "eval": "(async()=>{const styles=[...document.querySelectorAll('style[data-glass-sheets]')].length;const glow=[...document.querySelectorAll('style[data-glass-glow]')].length;const bendHref=!!document.getElementById('ft-glass-old-tile-0')?.getAttribute('href');const a=await __watch('/work');return JSON.stringify({sheetStyles:styles,glowStyle:glow,bendMap:bendHref,radial:a.slice(0,400)})})()"
  }
 ]

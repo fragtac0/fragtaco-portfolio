@@ -7,7 +7,7 @@
  * (`usePageSettled`). Heavy work on the arriving page (starting WebGL, decoding the ring pictures,
  * starting the ring motion) waits for that, so it never lands inside the transition.
  *
- * Every change is the same reveal (round 7 spec 4): radial from the centre of the screen, 3.5 s, whatever the two pages
+ * Every change is the same reveal (round 7 spec 4): radial from the centre of the screen, 2.5 s, whatever the two pages
  * are and whatever was clicked. While it runs the browser shows pictures of the two pages and nothing under them can be
  * used, so the first press or key press during one finishes it (`finishChange`, wired by change-finish.ts).
  *
@@ -46,7 +46,7 @@ export interface ChangePlan {
   ms: number;
 }
 
-/** The two lengths: the radial reveal (spec 4, 3500 ms) and the reduced-motion fade (120 ms). */
+/** The two lengths: the radial reveal (follow-ups spec 4, 2500 ms) and the reduced-motion fade (120 ms). */
 const MS: Record<ChangeKind, number> = { radial: GLASS.ms, fade: 120 };
 
 /** What the screen is like: whether the browser can run View Transitions, reduced motion, and the viewport. */
@@ -60,7 +60,7 @@ export interface ChangeEnv {
 /**
  * Pure: what a change looks like on this screen. The same for every pair of pages (`from` and `to` are the addresses; they
  * are named so a call says what it is for, and the reveal does not depend on them): radial from the centre of the screen,
- * 3500 ms, or the 120 ms fade under reduced motion. No View Transitions support gives `none` (the page just changes).
+ * 2500 ms, or the 120 ms fade under reduced motion. No View Transitions support gives `none` (the page just changes).
  */
 export function planChange(from: string, to: string, env: ChangeEnv): ChangePlan {
   void from;
@@ -244,7 +244,7 @@ export const planNow = (from: string, to: string) =>
 
 /**
  * True while the radial reveal is the change that is running (the mark on <html>), false for the reduced-motion fade, no
- * transition at all, and when nothing is changing. For work that is only worth its cost under the 3.5 s reveal.
+ * transition at all, and when nothing is changing. For work that is only worth its cost under the 2.5 s reveal.
  */
 export const isRadialChange = () => typeof document !== "undefined" && document.documentElement.dataset.changeKind === "radial";
 

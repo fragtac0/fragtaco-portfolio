@@ -52,7 +52,7 @@ const wait = (ms) => ({ wait: ms });
 /** Opens on `/` (seen) or `/work` (not seen); leaves the page on /work, ready for the change to home. */
 function arrive(kind, o = {}) {
   steps.push({ size: [1440, 900], dpr: o.dpr ?? 1, reduce: !!o.reduce, cpu: 1, init: base(kind === "return"), go: "{{BASE}}" + (kind === "return" ? "/" : "/work"), wait: 7000 });
-  if (kind === "return") steps.push({ eval: toWork, wait: 3500 });
+  if (kind === "return") steps.push({ eval: toWork, wait: CHANGE_MS + 1000 });
   if (o.cpu) steps.push({ cpu: o.cpu, wait: 500 });
 }
 // `at`: the frame nearest that time is saved too (<keep>-at.jpg), just after the change: the home picture, where the bare frame was

@@ -1,6 +1,6 @@
 /**
  * The way out of a page change. While a change runs the browser shows pictures of the two pages and nothing under them
- * can be used, and it lasts 3.5 s, so the first pointer press or key press during one finishes it at once
+ * can be used, and it lasts 2.5 s, so the first pointer press or key press during one finishes it at once
  * (`finishChange`: the transition skips to its end and the new page is live). The press that finishes a change is
  * swallowed: it does not also activate what is under it (a click that follows the press, a key's own action, the key's
  * repeats and its release, and no other listener sees it). Browser shortcuts (a key with Ctrl, Cmd or Alt), a bare modifier key,

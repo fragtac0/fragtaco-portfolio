@@ -18,9 +18,12 @@ export interface RouterLike {
 /**
  * A move inside one page that the router may still animate (it does so on a POP whenever the page's
  * address was ever changed with a transition): take its transition and skip it, so in-page moves (a
- * layer's hash, the work view) never crossfade the whole page. The wrapper goes after the next commit.
+ * layer's hash, the work view) never crossfade the whole page. The wrapper goes after the commit of `path`,
+ * the page the move lands on, not after the next commit of any page: a change that was a frame or two from
+ * committing when the Back was pressed still commits its own page first, and that must not end the hold
+ * before the router's transition for this move arrives (it would run as an unmarked 200 ms crossfade).
  */
-function skipRouterTransition() {
+function skipRouterTransition(path: string) {
   skipHold.end?.();
   const restore = captureNextTransition((t) => {
     t.ready.catch(() => undefined);
@@ -39,7 +42,7 @@ function skipRouterTransition() {
   };
   skipHold.end = end;
   const timer = window.setTimeout(end, 4000);
-  const offCommit = onCommit(end);
+  const offCommit = onCommit(() => committedPathname() === path && end());
 }
 
 /**
@@ -82,7 +85,7 @@ export function watchHistory(): () => void {
     if (ended || path === committedPathname()) {
       // The router's own popstate listener has run before this point (it has the new state already, so
       // there is nothing to wait for), and it starts its transition a few effects later: be ready for it.
-      if (router && "startViewTransition" in document) skipRouterTransition();
+      if (router && "startViewTransition" in document) skipRouterTransition(path);
       return;
     }
     const plan = planNow(committedPathname() ?? "", path);

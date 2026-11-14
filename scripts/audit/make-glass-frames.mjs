@@ -1,8 +1,11 @@
-// Writes the audit files that save frames of the page change (round 7, Task 6: one radial reveal from the centre, 3.5 s):
+// Writes the audit files that save frames of the page change (round 7, Task 6: one radial reveal from the centre; 2.5 s since follow-ups Task 22):
 //   transition.json   four pairs, nine frames each: home to work, work to long form, long form to short form, experience to home
 //   glass-phone.json  home to work on a phone (390 by 844, dpr 2)
 //   glass-coverage.json  experience to home (no thumbnails) at 0.6, 0.7, 0.8, 0.9, 0.95 and 1.0 of the time, with each page alone (R62:
 //                     the screen is fully uncovered at about 0.95)
+//   change-beside-build.json / change-beside-preview.json  the sheet beside the tenth preview (Task 22): the build's experience to home at
+//                     20, 35, 50, 65 and 80% of its length (no thumbnails), and the preview's own change (docs/redesign/round7-preview-10, served
+//                     on 127.0.0.1:5190) filmed in real time with its frames saved at the same times; make-change-sheet.mjs sets the two side by side
 //   glass-finish.json a press or a key during a change finishes it: a finish by key at 1 s (focus left on the dock's tab, or on the
 //                     page's main), a finish by a pointer press and by a touch tap that must not also activate what is under it,
 //                     Back at 1 s (R59: no second reveal, the page before is live within a few hundred ms), and a bare modifier or a
@@ -14,7 +17,7 @@
 // with the same finish a press uses (`__ftFinish`).
 // Shots of pages that show YouTube thumbnails (the work pages) are named `local-...`: save them under docs/redesign/compare/local/.
 // usage: node scripts/audit/make-glass-frames.mjs   then   BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/transition.json <outdir>
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 const init = `
 try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}
@@ -31,8 +34,8 @@ window.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}
  setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});
 `.trim();
 
-/** moments of the change, as a share of its length (the ease is in and out, so they are spread) */
-const MOMENTS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.92];
+/** moments of the change, as a share of its length (the ease is in and out, so they are spread; 0.2, 0.35, 0.5, 0.65 and 0.8 are the ones the sheet beside the tenth preview uses) */
+const MOMENTS = [0.1, 0.2, 0.3, 0.35, 0.4, 0.5, 0.65, 0.8, 0.92];
 /** moments for the coverage sheet (R62: the screen is fully uncovered at about 0.95 of the time, not at 0.7) */
 const COVER_MOMENTS = [0.6, 0.7, 0.8, 0.9, 0.95, 1];
 
@@ -73,6 +76,31 @@ const coverage = [
 ];
 writeFileSync(new URL("./glass-coverage.json", import.meta.url), JSON.stringify(coverage, null, 1) + "\n");
 
+// ---- the sheet beside the tenth preview: the same five moments, in the build (held, exactly) and in the preview (filmed in real time)
+const BESIDE = [0.2, 0.35, 0.5, 0.65, 0.8];
+writeFileSync(
+  new URL("./change-beside-build.json", import.meta.url),
+  JSON.stringify([start(desktop, 1), ...frames("beside-build", "/experience", "/", BESIDE)], null, 1) + "\n",
+);
+const changeMs = Number(/\bms:\s*(\d+)/.exec(readFileSync(new URL("../../app/components/page-change/glass-math.ts", import.meta.url), "utf8"))?.[1]);
+if (!Number.isFinite(changeMs)) throw new Error("make-glass-frames: cannot read GLASS.ms from glass-math.ts");
+const PREVIEW = "http://127.0.0.1:5190/round7-preview-10/index.html";
+writeFileSync(
+  new URL("./change-beside-preview.json", import.meta.url),
+  JSON.stringify(
+    [
+      { size: [1440, 900], dpr: 1, go: PREVIEW, wait: 3500 },
+      { eval: "document.querySelector('button[data-sec=change]').click()&&'the page change tab'", wait: 5000 },
+      {
+        label: "the preview's change, in real time (its defaults: 2.5 s, Wider, Stronger), frames saved at the build's five moments",
+        film: { ms: changeMs + 500, eval: "document.getElementById('changeStage').click()", keep: "beside-preview", ats: BESIDE.map((t) => Math.round(t * changeMs)), rect: "#changeStage" },
+      },
+    ],
+    null,
+    1,
+  ) + "\n",
+);
+
 const phone = [start([390, 844], 2, true), ...frames("local-phone-home-to-work", "/", "/work")];
 writeFileSync(new URL("./glass-phone.json", import.meta.url), JSON.stringify(phone, null, 1) + "\n");
 
@@ -87,7 +115,7 @@ const startAndWait = (to, ms) => `(async()=>{__ftChange('${to}');const t0=perfor
 /** counts clicks that reach the document (a capture listener on document runs after the window's, where the press is swallowed) */
 const countClicks = "(()=>{window.__clicks=0;document.addEventListener('click',()=>{window.__clicks++},true);return 'counting clicks'})()";
 /** R59: after Back during a change: no second radial change, no glass animation, the address and main agree, settled within a few hundred ms */
-const backNoReveal = (want, mainWant) => `(async()=>{const h=document.documentElement;window.__kinds=[];let glass=0,seen=0;
+const backNoReveal = (want, mainWant) => `(async()=>{const h=document.documentElement;window.__kinds=[];let glass=0;
  new MutationObserver(()=>{const k=h.dataset.changeKind;if(k)__kinds.push(k)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});
  const t0=performance.now();let settledMs=null;history.back();
  while(performance.now()-t0<2500){await __sleep(16);if(document.getAnimations().some(a=>a.animationName==='glass-p'))glass++;

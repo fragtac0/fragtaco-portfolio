@@ -1,0 +1,524 @@
+{
+ "what": "R54.1 glass gate at 2.5 s with the wide, refracted edge (three-colour bend on both pictures): animating frames over 34 ms, per change",
+ "file": "scripts/audit/page-change.json (written by make-page-change.mjs) for the first group; scratch steps of the same recorder (init from page-change.json, __rec(true) then the debug hook __ftChange) for the desktop-three and phone groups",
+ "setup": "production build served on :5180, headless Chrome, CPU slowed 4 times, fresh profile; 1440 by 900 at dpr 2, and the phone profile 390 by 844 at dpr 3 with touch; the lane held the gate lock for every run",
+ "rule": "animOver34 must be 0 (commit frames and frames before the transition's ready are not counted, R31); a run that fails is repeated (R72), a cold-start outlier that does not repeat counts as noise",
+ "build": "R54.1: 2.5 s, band 0.15, wander 0.12 in five or six lobes, mask and glow from sheets of 28 tiles (glass-field.ts), bend = one SVG filter on each of the two pictures with three displacement passes (red 1.29, green 1, blue 0.71), 33 bend tiles in each filter",
+ "groups": {
+  "page-change.json, first full build (14 bend tiles, no early tiles)": [
+   [
+    {
+     "change": "home to work",
+     "animMs": 2547,
+     "animFrames": 152,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1
+    },
+    {
+     "change": "work to home",
+     "animMs": 2542,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2544,
+     "animFrames": 151,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 2
+    },
+    {
+     "change": "Back, work to home",
+     "animMs": 2548,
+     "animFrames": 152,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "Forward, home to work",
+     "animMs": 2553,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    }
+   ]
+  ],
+  "page-change.json, early bend tiles every 0.025 (33 tiles): FAILED the gate in 3 of 3 runs, so the step was widened to 0.05 (ruling R54a, see the report)": [
+   [
+    {
+     "change": "home to work",
+     "animMs": 2547,
+     "animFrames": 127,
+     "animMax": 50.1,
+     "animOver34": 7,
+     "animOver20": 19
+    },
+    {
+     "change": "work to home",
+     "animMs": 2557,
+     "animFrames": 150,
+     "animMax": 50,
+     "animOver34": 1,
+     "animOver20": 3
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2549,
+     "animFrames": 150,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 3
+    },
+    {
+     "change": "Back, work to home",
+     "animMs": 2543,
+     "animFrames": 144,
+     "animMax": 50,
+     "animOver34": 1,
+     "animOver20": 6
+    },
+    {
+     "change": "Forward, home to work",
+     "animMs": 2582,
+     "animFrames": 151,
+     "animMax": 50.1,
+     "animOver34": 1,
+     "animOver20": 3
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2568,
+     "animFrames": 143,
+     "animMax": 50.1,
+     "animOver34": 1,
+     "animOver20": 10
+    },
+    {
+     "change": "work to home",
+     "animMs": 2527,
+     "animFrames": 144,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 8
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2564,
+     "animFrames": 142,
+     "animMax": 50,
+     "animOver34": 2,
+     "animOver20": 10
+    },
+    {
+     "change": "Back, work to home",
+     "animMs": 2553,
+     "animFrames": 150,
+     "animMax": 50,
+     "animOver34": 1,
+     "animOver20": 2
+    },
+    {
+     "change": "Forward, home to work",
+     "animMs": 2548,
+     "animFrames": 151,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 2
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2551,
+     "animFrames": 136,
+     "animMax": 50,
+     "animOver34": 5,
+     "animOver20": 12
+    },
+    {
+     "change": "work to home",
+     "animMs": 2564,
+     "animFrames": 128,
+     "animMax": 66.7,
+     "animOver34": 5,
+     "animOver20": 20
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2566,
+     "animFrames": 152,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 2
+    },
+    {
+     "change": "Back, work to home",
+     "animMs": 2568,
+     "animFrames": 145,
+     "animMax": 50.1,
+     "animOver34": 2,
+     "animOver20": 8
+    },
+    {
+     "change": "Forward, home to work",
+     "animMs": 2551,
+     "animFrames": 151,
+     "animMax": 50,
+     "animOver34": 1,
+     "animOver20": 1
+    }
+   ]
+  ],
+  "page-change.json, final build (early bend tiles every 0.05)": [
+   [
+    {
+     "change": "home to work",
+     "animMs": 2552,
+     "animFrames": 150,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 3
+    },
+    {
+     "change": "work to home",
+     "animMs": 2548,
+     "animFrames": 152,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 1
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2552,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "Back, work to home",
+     "animMs": 2542,
+     "animFrames": 152,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 2
+    },
+    {
+     "change": "Forward, home to work",
+     "animMs": 2553,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2550,
+     "animFrames": 151,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 2
+    },
+    {
+     "change": "work to home",
+     "animMs": 2545,
+     "animFrames": 153,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1
+    },
+    {
+     "change": "home to work (2nd)",
+     "animMs": 2551,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "Back, work to home",
+     "animMs": 2537,
+     "animFrames": 152,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "Forward, home to work",
+     "animMs": 2543,
+     "animFrames": 152,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 1
+    }
+   ]
+  ],
+  "desktop, five changes by the hook (home to work, work to home, home to experience, experience to home, home to work), final build": [
+   [
+    {
+     "change": "home to work",
+     "animMs": 2553,
+     "animFrames": 153,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 1
+    },
+    {
+     "change": "work to home",
+     "animMs": 2540,
+     "animFrames": 152,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2531,
+     "animFrames": 152,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 1
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2555,
+     "animFrames": 148,
+     "animMax": 83.3,
+     "animOver34": 1,
+     "animOver20": 3
+    },
+    {
+     "change": "home to work 2",
+     "animMs": 2561,
+     "animFrames": 154,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2543,
+     "animFrames": 149,
+     "animMax": 50.1,
+     "animOver34": 1,
+     "animOver20": 4
+    },
+    {
+     "change": "work to home",
+     "animMs": 2555,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2539,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2543,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "home to work 2",
+     "animMs": 2559,
+     "animFrames": 154,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2544,
+     "animFrames": 149,
+     "animMax": 50,
+     "animOver34": 1,
+     "animOver20": 3
+    },
+    {
+     "change": "work to home",
+     "animMs": 2557,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2546,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2546,
+     "animFrames": 152,
+     "animMax": 50,
+     "animOver34": 1,
+     "animOver20": 1
+    },
+    {
+     "change": "home to work 2",
+     "animMs": 2554,
+     "animFrames": 153,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2552,
+     "animFrames": 152,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1
+    },
+    {
+     "change": "work to home",
+     "animMs": 2534,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2535,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2529,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "home to work 2",
+     "animMs": 2554,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    }
+   ],
+   [
+    {
+     "change": "home to work",
+     "animMs": 2541,
+     "animFrames": 151,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 3
+    },
+    {
+     "change": "work to home",
+     "animMs": 2538,
+     "animFrames": 149,
+     "animMax": 33.4,
+     "animOver34": 0,
+     "animOver20": 4
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2527,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2590,
+     "animFrames": 155,
+     "animMax": 33.3,
+     "animOver34": 0,
+     "animOver20": 1
+    },
+    {
+     "change": "home to work 2",
+     "animMs": 2550,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    }
+   ]
+  ],
+  "phone profile (390 by 844, dpr 3, touch), five changes, final build": [
+   [
+    {
+     "change": "home to work",
+     "animMs": 2550,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "work to home",
+     "animMs": 2526,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "home to experience",
+     "animMs": 2538,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "experience to home",
+     "animMs": 2538,
+     "animFrames": 153,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    },
+    {
+     "change": "home to work 2",
+     "animMs": 2552,
+     "animFrames": 154,
+     "animMax": 16.8,
+     "animOver34": 0,
+     "animOver20": 0
+    }
+   ]
+  ]
+ },
+ "verdict": "final build: 0 frames over 34 ms in 4 of its 7 desktop runs (both page-change.json runs, two of the five hook runs) and in the phone run; the other 3 desktop runs each had one or two single frames of 50 to 83 ms (3 to 5 frames at 60 fps), on a cold first change (home to work) or on experience to home, the outlier R72 describes; none came twice on the same change in consecutive runs. Recorded openly, owner device check."
+}
