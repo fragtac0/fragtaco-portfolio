@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import file from "../../../../content/site/videos.json";
 import {
   FLOAT_MAX,
+  floatWithin,
   MAX_GROW,
   MIN_TILE_W,
   SOFT_EDGE,
@@ -55,15 +56,10 @@ describe("blockPlan", () => {
     expect(p.height).toBeCloseTo(p.rows * (p.tileH + p.gap) - p.gap, 6);
   });
 
-  it.each(SCREENS)("is larger than the screen in both directions at %i by %i where 109 tiles allow", (vw, vh) => {
+  it.each(SCREENS)("is larger than the screen in both directions at %i by %i", (vw, vh) => {
     const p = blockPlan(109, vw, vh);
-    // the largest tile (190 px wide) cannot fill a 2560 by 1440 screen with 109 tiles: that is not asked of it
-    const most = tileWidthFor(vw);
-    const area = 109 * (most + Math.ceil(most * 0.075)) * ((most * 9) / 16 + Math.ceil(most * 0.075));
-    if (area > 1.3 * vw * vh) {
-      expect(p.width).toBeGreaterThan(vw);
-      expect(p.height).toBeGreaterThan(vh);
-    }
+    expect(p.width).toBeGreaterThan(vw);
+    expect(p.height).toBeGreaterThan(vh);
   });
 
   it("never grows the tiles when the block already covers the screen, and keeps them near half of round 6's", () => {
@@ -234,12 +230,50 @@ describe("restFloat", () => {
     expect(moved).toBeGreaterThan(2);
   });
 
+  it("is a small offset even at t = 0: whether the block floats is the caller's choice", () => {
+    const [x, y] = restFloat(0);
+    expect(Math.hypot(x, y)).toBeGreaterThan(1);
+    expect(Math.hypot(x, y)).toBeLessThan(FLOAT_MAX * 2);
+  });
+
   it("is smooth: no jump between near moments", () => {
     for (let t = 0; t < 120; t += 0.1) {
       const a = restFloat(t);
       const b = restFloat(t + 0.016);
       expect(Math.hypot(a[0] - b[0], a[1] - b[1])).toBeLessThan(0.1);
     }
+  });
+});
+
+describe("floatWithin", () => {
+  it("adds the float whole where there is room", () => {
+    expect(floatWithin(100, 3, 0, 200)).toBe(103);
+    expect(floatWithin(100, -3, 0, 200)).toBe(97);
+    expect(floatWithin(100, 0, 0, 200)).toBe(100);
+  });
+  it("scales it down within FLOAT_MAX of the end it moves toward, to nothing at the end", () => {
+    expect(floatWithin(200, 3, 0, 200)).toBe(200);
+    expect(floatWithin(0, -3, 0, 200)).toBe(0);
+    expect(floatWithin(198, 3, 0, 200)).toBeCloseTo(198 + 3 * (2 / FLOAT_MAX), 9);
+    // moving away from the near end it keeps its whole size
+    expect(floatWithin(200, -3, 0, 200)).toBe(197);
+  });
+  it("never leaves the range, at any float and any position in or near it", () => {
+    for (let p = -2; p <= 12; p += 0.5) {
+      for (let t = 0; t < 200; t += 1.7) {
+        const [f] = restFloat(t);
+        const v = floatWithin(Math.min(10, Math.max(0, p)), f, 0, 10);
+        expect(v).toBeGreaterThanOrEqual(-1e-9);
+        expect(v).toBeLessThanOrEqual(10 + 1e-9);
+      }
+    }
+  });
+  it("is smooth in the float", () => {
+    expect(Math.abs(floatWithin(198, 0.01, 0, 200) - floatWithin(198, -0.01, 0, 200))).toBeLessThan(0.02);
+  });
+  it("holds a block with no room (a range of one point) still", () => {
+    expect(floatWithin(5, 4, 5, 5)).toBe(5);
+    expect(floatWithin(5, -4, 5, 5)).toBe(5);
   });
 });
 

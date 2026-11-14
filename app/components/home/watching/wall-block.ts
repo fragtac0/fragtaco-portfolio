@@ -155,13 +155,27 @@ export const centredPan = (plan: BlockPlan, vw: number, vh: number): [number, nu
   (plan.height - vh) / 2,
 ];
 
-/** The few pixels the whole block floats by at rest, at wall-clock `t` seconds (nothing when `t` stands still at 0). */
+/**
+ * The few pixels the whole block floats by at rest, at wall-clock `t` seconds. It is always some
+ * small offset (about 1 to 3 px at t = 0); whether the block floats at all is the caller's choice
+ * (it holds still while a video is chosen, while you look at a tile, and under reduced motion).
+ */
 export function restFloat(t: number): [number, number] {
   return [Math.sin(t * 0.37) * 3 + Math.sin(t * 0.11 + 1) * 1.5, Math.cos(t * 0.29) * 2.5 + Math.sin(t * 0.13) * 1.5];
 }
 
 /** The most `restFloat` moves the block from rest on either axis, px. */
 export const FLOAT_MAX = 4.5;
+
+/**
+ * A float offset `f` added to a position `p` that already sits in [`lo`, `hi`], scaled down within
+ * `FLOAT_MAX` of the end it moves toward, so the sum never leaves the range: a block held at its
+ * edge stays exactly there (the edge never passes the middle third, floating or not). Smooth in `f`.
+ */
+export function floatWithin(p: number, f: number, lo: number, hi: number): number {
+  const room = Math.max(0, f < 0 ? p - lo : hi - p);
+  return p + f * Math.min(1, room / FLOAT_MAX);
+}
 
 /**
  * The tile one step from (`cx`, `cy`) in direction (`dx`, `dy`), or the same tile when there is none

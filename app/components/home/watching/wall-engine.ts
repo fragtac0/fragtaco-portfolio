@@ -1,15 +1,18 @@
 import type { SiteVideo } from "~/types";
 import { createSlicer } from "../../../utils/idle";
 import { watchContextLost } from "../context-lost";
+import { frameSize, readCanvas, sizeBuffer } from "./wall-canvas";
 import { drawTiles } from "./wall-draw";
 import { createWallGl, type WallGl } from "./wall-gl";
 import { countOverlaps, countUnderText, createChoiceLayout, picturesSettled } from "./wall-choice";
 import { createChip, createProbe } from "./wall-hud";
+import { focusOf } from "./wall-focus";
 import { attachWallInput, createWallInput } from "./wall-input";
-import { blockPlan, centredPan, loadOrder, sizeOfPlan } from "./wall-block";
-import { atlasLayout, cellUv, hitTile, layoutTiles, type Atlas } from "./wall-math";
+import { blockPlan, loadOrder } from "./wall-block";
+import { atlasLayout, cellUv, layoutTiles, type Atlas } from "./wall-math";
 import { applyView, createMotion } from "./wall-motion";
 import { createPose } from "./wall-pose";
+import { fitBlock } from "./wall-reshape";
 import { createThumbs, type Thumbs } from "./wall-thumbs";
 import {
   createWallState,
@@ -84,9 +87,7 @@ export function createWall(
 
   // interaction and view state, shared with the input code through the context
   const st = createWallState();
-  const { pan, mouse } = st;
-  /** Where the tiles' nearness comes from, in flat wall coordinates. */
-  let point: { x: number; y: number } | null = null;
+  const { mouse } = st;
   let cursor = "";
   const pose = createPose(videos);
   const motion = createMotion(st, REDUCE);
@@ -110,21 +111,14 @@ export function createWall(
           const a = atlasLayout(videos.length, window.innerWidth < 700);
           atlas = a;
           uvs = a.cells.map((_, i) => cellUv(i, a));
-          thumbs = createThumbs(
-            wgl.gl,
-            a,
-            videos,
-            () => running,
-            loadOrder(blockPlan(a.cells.length, window.innerWidth, window.innerHeight), a.cells.length),
-          );
+          const [fw, fh] = frameSize(canvas);
+          thumbs = createThumbs(wgl.gl, a, videos, () => running, loadOrder(blockPlan(a.cells.length, fw, fh), a.cells.length));
         },
         () => {
           if (disposed || !wgl) return;
           // size the drawing buffer now: the layer is fixed to the viewport, so `start()` finds
           // this size and does not resize inside the frame that opens the layer
-          const d = Math.min(window.devicePixelRatio || 1, 2);
-          canvas.width = Math.round(window.innerWidth * d);
-          canvas.height = Math.round(window.innerHeight * d);
+          sizeBuffer(canvas, window.innerWidth, window.innerHeight);
         },
       ])
       .catch((err: unknown) => {
@@ -135,28 +129,14 @@ export function createWall(
   }
 
   function sizes() {
-    st.vw = canvas.clientWidth;
-    st.vh = canvas.clientHeight;
-    const r = canvas.getBoundingClientRect();
-    st.ox = r.left;
-    st.oy = r.top;
-    const count = atlas?.cells.length ?? videos.length;
-    const plan = blockPlan(count, st.vw, st.vh);
-    // a different block (a first run, a resize that changed its grid): stand it in the middle of the screen
-    const shape = (p: typeof plan) => `${p.cols}x${p.rows}@${p.tileW}`;
-    const reshaped = shape(plan) !== shape(st.plan);
-    st.plan = plan;
-    st.size = sizeOfPlan(plan);
-    if (reshaped) [pan.x, pan.y] = centredPan(plan, st.vw, st.vh);
-    probe("block", `${plan.cols}x${plan.rows}:${Math.round(plan.width)}x${Math.round(plan.height)}`);
+    readCanvas(canvas, st);
+    const had = st.plan.cols > 0;
+    // a different grid keeps the chosen video, the keyboard's tile and the hover on their videos
+    // (their keys name cells), so the pose's per-key easing starts over
+    if (fitBlock(st, atlas?.cells.length ?? videos.length) && had) pose.reset();
+    probe("block", `${st.plan.cols}x${st.plan.rows}:${Math.round(st.plan.width)}x${Math.round(st.plan.height)}`);
     applyView(st, !REDUCE);
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const W = Math.round(st.vw * dpr);
-    const H = Math.round(st.vh * dpr);
-    if (canvas.width !== W || canvas.height !== H) {
-      canvas.width = W;
-      canvas.height = H;
-    }
+    sizeBuffer(canvas, st.vw, st.vh);
   }
 
   const ctx: WallCtx = { canvas, st, running: () => running, count: () => atlas?.cells.length ?? videos.length };
@@ -170,7 +150,7 @@ export function createWall(
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     const { vw, vh, size } = st;
-    const { cw, ch, pitchX } = size;
+    const { pitchX } = size;
     const choosing = st.choice !== null;
     const hovering = FINE && mouse.inside && !st.dragging && !choosing;
     motion.step(dt, hovering);
@@ -182,25 +162,7 @@ export function createWall(
       plan: st.plan,
       count: atlas.cells.length,
     }) as Tile[];
-    if (st.choice) {
-      st.hoverKey = st.choice.key; // the chosen video is the one in focus: its channel's others stay lit
-    } else {
-      // nearest tile, gaps included, so the focus never drops between two videos
-      st.hoverKey = hovering ? hitTile(list, mouse.x, mouse.y, size) : null;
-      if (st.hoverKey === null && st.kbd && !st.dragging) {
-        st.hoverKey = `${st.kbd.cx},${st.kbd.cy}`;
-      }
-    }
-    const ft = st.hoverKey === null ? null : (list.find((tl) => tl.key === st.hoverKey) ?? null);
-    // the pointer, or the keyboard's tile, is what the tiles near it answer to; a chosen video
-    // has the wall's attention instead
-    point = choosing
-      ? null
-      : hovering
-        ? { x: mouse.x, y: mouse.y }
-        : st.kbd && ft
-          ? { x: ft.x + cw / 2, y: ft.y + ch / 2 }
-          : null;
+    const { ft, point } = focusOf(st, list, hovering);
     const focusIdx = ft ? ft.idx : null;
     const choice = choiceOf(st);
     const ghosts = pose.apply(list, {
@@ -241,6 +203,7 @@ export function createWall(
     chip.place(els?.chip, list, echo.size);
     probe("echo", String(echo.size));
     probe("chosen", st.choice?.key ?? "");
+    probe("kbd", st.kbd ? String(st.kbd.cy * st.plan.cols + st.kbd.cx) : "");
     if (canvas.dataset.watchView) probe("view", `${Math.round(st.view.x)},${Math.round(st.view.y)}`);
     probe("under", choice ? String(countUnderText(list, choice)) : "0");
     probe("overlaps", choice ? String(countOverlaps(list, choice)) : "0");
@@ -294,7 +257,6 @@ export function createWall(
       if (!wgl || failed || lost.lost()) return; // the scene switches to its plain grid
       st.hoverKey = null;
       st.kbd = null;
-      point = null;
       pose.reset();
       st.choice = null;
       drawnStill = "";

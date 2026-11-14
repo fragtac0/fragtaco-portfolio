@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import file from "../../../../content/site/videos.json";
 import { blockPlan, sizeOfPlan } from "./wall-block";
 import {
   atlasLayout,
@@ -54,6 +55,15 @@ describe("atlasLayout", () => {
     const a = atlasLayout(57, false);
     expect(a.ah).toBe(4096);
     expect(a.cells).toHaveLength(57);
+  });
+
+  it("holds every video of videos.json at both cell sizes (a re-sync past the capacity must raise it first)", () => {
+    const n = (file.items as unknown[]).length;
+    for (const small of [false, true]) {
+      const a = atlasLayout(n, small);
+      expect(a.capacity, `videos.json has ${n} videos; the atlas holds ${a.capacity}`).toBeGreaterThanOrEqual(n);
+      expect(a.cells).toHaveLength(n);
+    }
   });
 
   it("caps the atlas at the largest texture that holds whole rows", () => {

@@ -1,4 +1,4 @@
-import { clampPan, panRange, pullLimits, restFloat, SOFT_EDGE } from "./wall-block";
+import { clampPan, floatWithin, panRange, pullLimits, restFloat, SOFT_EDGE } from "./wall-block";
 import type { WallState } from "./wall-types";
 
 /**
@@ -9,23 +9,27 @@ import type { WallState } from "./wall-types";
  *
  * `pan` is where the wall has been pulled to; it may sit up to 80 px past an edge while it is held
  * there, and eases back once it is let go. `view` is what the screen shows: `pan` through the soft stop
- * (`clampPan`), plus the few pixels the block floats at rest.
+ * (`clampPan`), plus the few pixels the block floats at rest (scaled down near an edge, so the float never
+ * takes the edge past `clampPan`'s limit).
  */
 
 export type Motion = {
   /** Advances the wall by `dt` seconds. */
   step(dt: number, hovering: boolean): void;
-  /** Works `view` out again from `pan` (after a resize or a new pan), without advancing anything. */
-  settle(): void;
 };
 
-/** Sets `st.view` from `st.pan`: through the soft stop, plus the rest float. */
+/**
+ * Sets `st.view` from `st.pan`: through the soft stop, plus the rest float when `floating` (the float is
+ * cut to the room left before an edge, so the view never leaves `clampPan`'s range).
+ */
 export function applyView(st: WallState, floating: boolean) {
   const { plan, vw, vh, view, pan } = st;
   const [x, y] = clampPan(pan.x, pan.y, plan, vw, vh);
   const [fx, fy] = floating ? restFloat(st.t) : [0, 0];
-  view.x = x + fx;
-  view.y = y + fy;
+  const [x0, x1] = panRange(plan.width, vw);
+  const [y0, y1] = panRange(plan.height, vh);
+  view.x = floatWithin(x, fx, x0, x1);
+  view.y = floatWithin(y, fy, y0, y1);
 }
 
 export function createMotion(st: WallState, reduced: boolean): Motion {
@@ -52,7 +56,6 @@ export function createMotion(st: WallState, reduced: boolean): Motion {
   }
 
   return {
-    settle: () => applyView(st, !reduced),
     step(dt, hovering) {
       if (st.choice) {
         vel.x = vel.y = 0;
