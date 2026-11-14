@@ -28,6 +28,7 @@
   --surface-2: #21201f; /* raised panels, chips */
   --line: rgba(253, 252, 230, 0.1); /* hairlines and borders */
   --accent: #fc4c00;
+  --cream: #fdfce6; /* the cream itself, at full strength (the --ink steps are this at 92 / 72 / 62%) */
   --accent-soft: rgba(252, 76, 0, 0.14); /* the active pill's fill */
   --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the page's orange glow (the open card, the dock); only the About and Credits tabs have their own, below (R69) */
   --glass-rgb: 16 16 15; /* the dock glass: this colour at 46% */
@@ -45,6 +46,13 @@
   --tab-glow: 0 0 26px -6px rgba(252, 76, 0, 0.55);
   --tab-glow-hot: 0 0 28px -3px rgba(252, 76, 0, 0.8);
 
+  /* the glass tile under each app icon on /work (round 7, spec 7): an opaque dark warm body, a lit top edge, a soft inner glow, a real shadow */
+  --tile-body: linear-gradient(160deg, #38332e 0%, #231f1c 52%, #171513 100%);
+  --tile-glow: radial-gradient(110% 80% at 50% 0%, rgba(255, 226, 196, 0.2), rgba(255, 226, 196, 0) 62%);
+  --tile-edge: inset 0 1px 0 rgba(255, 240, 222, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.55);
+  --tile-inner: inset 0 0 14px rgba(255, 214, 170, 0.12);
+  --tile-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 12px 22px -6px rgba(0, 0, 0, 0.75), 0 3px 6px rgba(0, 0, 0, 0.5);
+
   /* a card (About, Credits) sliding in or out: about 700 ms on the painting's ease in and out (R58); app/components/home/cards/card-pose.ts PANEL_MS is the same number */
   --panel-ms: 700ms;
   --ease-panel: cubic-bezier(0.65, 0, 0.35, 1);
@@ -52,6 +60,10 @@
   /* where the painting ends: the top of the home section's Eclipse ground (placement 2, about rgb(11, 11, 10) across its
      first rows, a little under --ground), so the hero's lower edge fades into it with no line (hero.css .hero-edge) */
   --hero-seam-rgb: 11 11 10;
+
+  /* the header of a full page layer (a shelf, a video wall): the title at the left, the close or back pill at the right */
+  --head-pad-top: clamp(28px, 4vw, 56px);
+  --head-pad-x: clamp(24px, 4.5vw, 72px);
 
   /* the dock's idle labels (the active one is 100%) */
   --dock-idle: 0.85;
@@ -85,7 +97,6 @@
   --dock-clear: 108px; /* kept free above the bottom nav dock */
   --rail: clamp(72px, 4.8vw, 100px);
   --card-h: clamp(520px, 72dvh, 760px);
-  --cream: #fdfce6;
 }
 @media (max-width: 699.98px) {
   .home-page {

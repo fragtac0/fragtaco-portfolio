@@ -3,11 +3,12 @@
  *
  * Ported from the ObsidianUI Art Gallery (vendor/obsidianui/art-gallery.jsx, webgl-surface.jsx),
  * Copyright (c) 2026 ObsidianUI, MIT License (vendor/obsidianui/LICENSE). Kept: three.js with an
- * orthographic camera and a ShaderMaterial on a 2 by 2 plane, the animation loop and the cleanup of
- * textures, geometry, material and renderer. Changed (spec 6.5): React and the text atlas are gone (this is a
- * plain module the wall page drives), the grid is fitted and finite, drag no longer scrolls or zooms
- * (it nudges and settles back), the grid drifts on a 50 s loop, the warp is 0.05, the tile under the pointer
- * grows 4%, a ring marks the focused tile, pictures stream into an atlas a few per frame.
+ * orthographic camera and a ShaderMaterial on a 2 by 2 plane (gallery-scene.ts), the animation loop and the cleanup
+ * of textures, geometry, material and renderer. Changed (spec 6.5, round 7 spec 7): React and the text atlas are gone
+ * (this is a plain module the wall page drives), the grid is the largest that fits and is finite, there is no warp,
+ * drag no longer scrolls or zooms (it nudges and settles back), the grid drifts on a 50 s loop, the tile under the
+ * pointer grows 4%, a ring marks the focused tile, pictures stream into an atlas a few per frame, and the wall
+ * arrives: nothing is drawn until the first pictures are in (or 1.2 s), then the tiles come in from the middle.
  *
  * three.js is only ever loaded with `import("three")` inside `createGallery`, so it is its own chunk and the
  * server never sees it. The loop runs only while the tab is visible and the canvas is on screen; with
@@ -27,8 +28,6 @@ import {
   HOVER_GROW,
   NUDGE_HOLD_MS,
   NUDGE_MAX_PX,
-  RADIUS_PX,
-  WARP_K,
   driftAt,
   fitGrid,
   rubberBand,
@@ -39,9 +38,10 @@ import {
   type Pt,
   type Safe,
 } from "./gallery-math";
-import { FRAGMENT, VERTEX } from "./gallery-shaders";
+import { createScene } from "./gallery-scene";
 import type { Gallery, GalleryOptions } from "./gallery-types";
-import { GROWN_SLOTS, createTileState, type TileState } from "./gallery-state";
+import { createTileState, type TileState } from "./gallery-state";
+import { arrivalOrder, canStart } from "./wall-arrival";
 
 export type { Gallery, GalleryOptions } from "./gallery-types";
 
@@ -115,48 +115,22 @@ function assemble(
   const atlas = (parts.atlas = createAtlas(
     T,
     renderer,
-    opts.items.map((it) => it.src),
-    opts.aspect,
-    cellLong,
+    {
+      srcs: opts.items.map((it) => it.src),
+      arts: opts.items.map((it) => it.art),
+      aspect: opts.aspect,
+      cellLong,
+      order: arrivalOrder(grid.cols, grid.rows, count), // the pictures come in the order the tiles arrive
+    },
     () => wake(),
   ));
-  const L = atlas.layout;
-  const uniforms = {
-    uRes: { value: new T.Vector2(vw, vh) },
-    uOffset: { value: new T.Vector2() },
-    uGrid: { value: new T.Vector4() },
-    uTile: { value: new T.Vector4() },
-    uLastOff: { value: 0 },
-    uK: { value: WARP_K },
-    uRadius: { value: RADIUS_PX },
-    uGrow: { value: HOVER_GROW },
-    uGrown: { value: Array.from({ length: GROWN_SLOTS }, () => new T.Vector2(-1, 0)) },
-    uAtlas: { value: new T.Vector4(L.cols, L.cellW, L.cellH, 0) },
-    uAtlasSize: { value: new T.Vector2(L.width, L.height) },
-    uPics: { value: atlas.texture },
-    uState: { value: state.texture },
-  };
-  const geometry = (parts.geometry = new T.PlaneGeometry(2, 2));
-  const material = (parts.material = new T.ShaderMaterial({
-    vertexShader: VERTEX,
-    fragmentShader: FRAGMENT,
-    uniforms,
-    transparent: true,
-    depthTest: false,
-    depthWrite: false,
-  }));
-  material.premultipliedAlpha = true;
-  const mesh = new T.Mesh(geometry, material);
-  mesh.frustumCulled = false;
-  const scene = new T.Scene();
-  scene.add(mesh);
-  const camera = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+  const view = createScene(T, atlas, state, vw, vh);
+  parts.geometry = view.geometry;
+  parts.material = view.material;
 
   function applyGrid() {
-    uniforms.uRes.value.set(vw, vh);
-    uniforms.uGrid.value.set(grid.cols, grid.rows, grid.count, grid.gap);
-    uniforms.uTile.value.set(grid.tileW, grid.tileH, grid.originX, grid.originY);
-    uniforms.uLastOff.value = grid.lastRowOffset;
+    view.applyGrid(grid, vw, vh);
+    state.setLayout(grid.cols, grid.rows, grid.lastRowOffset / (grid.tileW + grid.gap));
   }
 
   // ---- state
@@ -174,6 +148,9 @@ function assemble(
   let pull: Pt = { x: 0, y: 0 };
   let lastNudge = 0;
   let stepBusy = true;
+  // nothing is drawn until the atlas has its first pictures or 1.2 s have passed (wall-arrival.ts); then the tiles arrive
+  let started = false;
+  let drawnTold = false;
 
   const active = () => !destroyed && !lost && !hidden && onScreen;
   const offsetAt = (now: number): Pt => {
@@ -184,7 +161,7 @@ function assemble(
 
   function updateHover(off: Pt) {
     const grown = hover === null ? null : { i: hover, grow: HOVER_GROW * state.amount(hover) };
-    const i = pointer ? tileAt(pointer.x, pointer.y, grid, off, vw, vh, grown) : null;
+    const i = pointer && started ? tileAt(pointer.x, pointer.y, grid, off, grown) : null;
     if (i === hover) return;
     hover = i;
     dirty = true;
@@ -201,18 +178,38 @@ function assemble(
     if ((pull.x !== 0 || pull.y !== 0) && now - lastNudge > NUDGE_HOLD_MS) pull = settleNudge(pull, dt);
     const off = offsetAt(now);
     const uploaded = atlas.pump();
+    if (!started) {
+      const facts = {
+        pictures: atlas.uploaded(),
+        count,
+        settled: atlas.settled(),
+        artReady: atlas.artReady(),
+        elapsedMs: now - t0,
+      };
+      if (!canStart(facts)) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+      started = true;
+      view.compile(renderer); // the shader links before the arrival's clock starts, not inside its first frame
+      state.start(performance.now(), typeof opts.instant === "function" ? opts.instant() : opts.instant === true); // pictures that are in by now show whole; the rest fade in over their art
+      canvas.dataset.startMs = String(Math.round(now - t0)); // for the audit: when the first frame was drawn, and with how many pictures
+      canvas.dataset.startPictures = String(facts.pictures);
+      dirty = true;
+    }
     if (pointer) updateHover(off);
     // the easing only runs while something eases, was asked for or arrived
     if (uploaded > 0 || dirty || stepBusy) stepBusy = state.step(dt, now, atlas.loadedAt);
+    if (!stepBusy && !("arrived" in canvas.dataset)) canvas.dataset.arrived = ""; // the arrival is over and no picture is still fading in
     const busy = stepBusy || atlas.waiting() || pull.x !== 0 || pull.y !== 0;
     if (dirty || busy || now - lastDraw >= IDLE_FRAME_MS) {
-      uniforms.uOffset.value.set(off.x, off.y);
-      for (let k = 0; k < GROWN_SLOTS; k++) {
-        uniforms.uGrown.value[k].set(state.grown[k * 2], state.grown[k * 2 + 1]);
-      }
-      renderer.render(scene, camera);
+      view.render(renderer, off);
       lastDraw = now;
       dirty = false;
+      if (!drawnTold) {
+        drawnTold = true; // the first frame is on the canvas: the links may go
+        opts.onDrawn?.();
+      }
     }
     if (busy || !reduced) raf = requestAnimationFrame(frame);
   }
@@ -286,8 +283,8 @@ function assemble(
       canvas.style.cursor = "";
       atlas.dispose();
       state.dispose();
-      geometry.dispose();
-      material.dispose();
+      view.geometry.dispose();
+      view.material.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
     },
@@ -301,7 +298,7 @@ function assemble(
       setPointer: (x, y) => api.setPointer(x, y),
       clearPointer: () => api.clearPointer(),
       nudge: (dx, dy) => api.nudge(dx, dy),
-      pick: (x, y) => tileAt(x, y, grid, offsetAt(performance.now()), vw, vh, hover === null ? null : { i: hover, grow: HOVER_GROW * state.amount(hover) }),
+      pick: (x, y) => (started ? tileAt(x, y, grid, offsetAt(performance.now()), hover === null ? null : { i: hover, grow: HOVER_GROW * state.amount(hover) }) : null),
     },
     (i) => opts.onActivate?.(i),
     listeners.signal,

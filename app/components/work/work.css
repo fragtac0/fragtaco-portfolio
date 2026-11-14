@@ -42,7 +42,9 @@
   margin: 0;
   font-family: Doto, monospace;
   font-weight: 800;
-  font-size: var(--t-hero);
+  /* "My portfolio" is twelve letters wide: sized from the room inside the stack ring (--intro-r) so it never
+     reaches the tool icons, whatever the screen */
+  font-size: min(var(--t-hero), calc(var(--intro-r) * 0.235));
   line-height: 1;
   color: var(--ink-1);
 }
@@ -85,6 +87,16 @@
   padding: 0;
   list-style: none;
   animation: work-spin var(--dur) linear infinite;
+}
+/* Arriving through a page change (R60): the rings and intro are just there for the reveal to show (its edge is the arrival), with no fade of their own... */
+.work-page[data-arrival="change"] .work-ring-group,
+.work-page[data-arrival="change"] .work-intro {
+  animation: none;
+}
+/* ...and stand still while it runs (data-still, until it is over): no moving layers to raster during the reveal; then all turn together. */
+.work-page[data-still] .work-ring,
+.work-page[data-still] .work-item-turn {
+  animation: none;
 }
 @keyframes work-spin {
   from { rotate: 0deg; }
@@ -166,19 +178,30 @@
   height: 100%;
   object-fit: cover;
 }
+/* a video's picture fades in when it has loaded (cover-image.ts marks it ready); until then the tile shows its dark body */
+.work-cover img {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+.work-cover img[data-ready] {
+  opacity: 1;
+}
 .work-cover {
   border-radius: clamp(8px, calc(var(--h) * 0.1), 16px);
   box-shadow: 0 0 0 1px var(--line), 0 8px 22px rgba(0, 0, 0, 0.4);
 }
-/* A tool: the app's own icon inside one common rounded tile, so the eight read as one family. An icon
-   that is already a square tile fills it (the tile's clip rounds Final Cut Pro's square corners); a bare logo
-   (marked data-bare once its shape is known) sits inside with room round it. Not a link: it does nothing. */
+/* A tool: the app's own icon on one common glass tile, so the eight read as one family (round 7, spec 7): an
+   opaque dark warm body, a lit top edge, a soft inner glow and a real shadow (tokens.css, --tile-*). The icon sits
+   inside with room round it: an app square (the Adobe set, Final Cut Pro) a little less than a bare logo (Figma,
+   Blender, marked data-bare once its shape is known). Not a link: it does nothing. */
 .work-mark {
+  position: relative;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(253, 252, 230, 0.14);
-  border-radius: 22%;
-  background: var(--surface-1);
+  border: 0;
+  border-radius: 24%;
+  background: var(--tile-glow), var(--tile-body);
+  box-shadow: var(--tile-edge), var(--tile-inner), var(--tile-shadow);
   font-family: Doto, monospace;
   font-weight: 800;
   font-size: calc(var(--w) * 0.43);
@@ -187,15 +210,19 @@
   cursor: default;
 }
 .work-mark img {
+  /* filled to the tile by inset, not by a percentage height (a grid track has none), so a tall logo is contained */
+  position: absolute;
+  inset: 0;
   display: block;
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
+  padding: 15%;
   object-fit: contain;
   user-select: none;
 }
 .work-mark img[data-bare] {
-  box-sizing: border-box;
-  padding: 14%;
+  padding: 17%;
 }
 .work-item[data-kind="stack"]:hover .work-item-face {
   scale: 1; /* a tool is not a control: it does not grow */
@@ -263,6 +290,26 @@
   }
 }
 
+/* A phone held upright: the title on two lines ("My" over "portfolio"), larger inside the narrow ring. On its side it keeps one. */
+@media (max-width: 699.98px) and (min-height: 459.98px) {
+  .work-title {
+    width: min-content;
+    font-size: min(var(--t-hero), calc(var(--intro-r) * 0.3));
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+}
+
+/* Under 460 px high (a phone on its side): one short line under the title, so the dock does not cover it. */
+@media (max-height: 459.98px) {
+  .work-text-full {
+    display: none;
+  }
+  .work-text-short {
+    display: inline;
+  }
+}
+
 /* ---------- reduced motion: rings stand still, arrival is a plain fade ---------- */
 @media (prefers-reduced-motion: reduce) {
   .work-ring,
@@ -274,6 +321,7 @@
     animation-delay: 0s;
   }
   .work-item-face,
+  .work-cover img,
   .work-label {
     transition: none;
   }

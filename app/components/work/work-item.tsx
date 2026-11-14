@@ -1,5 +1,6 @@
 import type { FocusEvent, PointerEvent } from "react";
 import { coverUrl } from "../../content/work-media";
+import { shapeCover } from "./cover-image";
 import { labelSide } from "./ring-layout";
 import type { RingEntry } from "./ring-entries";
 import type { RingKind } from "./ring-math";
@@ -16,6 +17,13 @@ interface WorkItemProps {
   entry: RingEntry;
   ring: RingKind;
   place: RingSlotPlace;
+  /**
+   * Load a video's picture only when it nears the screen. On for a page made without the radial reveal (a first load, or
+   * the reduced-motion fade): the outer rings' pictures are mostly off screen and should not compete with the page's own
+   * requests. Off for a page made during the radial reveal, which is not painted until it ends, so a lazy picture would
+   * not start until then.
+   */
+  lazy?: boolean;
 }
 
 // Which side the label opens on is read from where the item is when the pointer or focus arrives.
@@ -40,7 +48,7 @@ function shapeIcon(img: HTMLImageElement | null) {
  * (the app's name is its accessible name; it is not a link and not a tab stop), or its two-letter mark
  * where it has no icon. A video is a link to its public page.
  */
-export default function WorkItem({ entry, ring, place }: WorkItemProps) {
+export default function WorkItem({ entry, ring, place, lazy = false }: WorkItemProps) {
   const width = Math.round(place.width);
   const height = Math.round(place.height);
 
@@ -85,7 +93,17 @@ export default function WorkItem({ entry, ring, place }: WorkItemProps) {
         rel="noreferrer"
         aria-label={`${v.title}, for ${v.for}, ${v.year}`}
       >
-        <img src={coverUrl(v, entry.tall)} width={width} height={height} alt="" loading="lazy" decoding="async" />
+        <img
+          ref={(img) => shapeCover(img, v.id, entry.tall)}
+          src={coverUrl(v, entry.tall)}
+          width={width}
+          height={height}
+          alt=""
+          decoding="async"
+          loading={lazy ? "lazy" : undefined}
+          onLoad={(e) => shapeCover(e.currentTarget, v.id, entry.tall)}
+          onError={(e) => shapeCover(e.currentTarget, v.id, entry.tall)}
+        />
       </a>
     );
   }

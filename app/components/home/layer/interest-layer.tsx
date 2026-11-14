@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { inertProps } from "../../../utils/inert";
+import CloseButton from "../../close-button";
 import "./layer.css";
 import { cloneBlock, posterPose, posterTransform, type PosterPose } from "./layer-poster";
 import { GROW_MS, SCENE_DELAY_MS, type LayerKind, type LayerState } from "./layer-state";
@@ -78,7 +79,7 @@ export default function InterestLayer({
   children,
 }: InterestLayerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLElement>(null);
   const posterRef = useRef<HTMLDivElement>(null);
   const posterRect = useRef<{ left: number; top: number; width: number; height: number } | null>(null);
   const { kind, phase } = state;
@@ -274,9 +275,7 @@ export default function InterestLayer({
           </h2>
           <span className="xp-meta">{meta}</span>
         </div>
-        <button ref={closeRef} type="button" className="xp-close" onClick={onClose}>
-          Close <kbd>Esc</kbd>
-        </button>
+        <CloseButton ref={closeRef} label="Close" onClick={onClose} />
       </header>
       <div ref={posterRef} className="layer-poster home-blocks" aria-hidden="true" />
       {KINDS.map((k) => (

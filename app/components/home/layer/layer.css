@@ -27,7 +27,7 @@
   align-items: flex-start;
   gap: 18px;
   min-height: 120px;
-  padding: clamp(28px, 4vw, 56px) clamp(24px, 4.5vw, 72px) 22px;
+  padding: var(--head-pad-top) var(--head-pad-x) 22px;
   pointer-events: none;
   /* a dark fade behind the title and Close, so books and videos passing under it stay readable */
   background: linear-gradient(180deg, color-mix(in srgb, var(--ground) 92%, transparent), color-mix(in srgb, var(--ground) 60%, transparent) 60%, var(--ground-clear));
@@ -64,33 +64,9 @@
   font-size: var(--t-meta);
   color: var(--ink-3);
 }
+/* the button itself is components/close-button.css; the header puts it at the right end */
 .home-layer .xp-close {
   margin-left: auto;
-  height: 44px;
-  padding: 0 16px 0 18px;
-  border-radius: 999px;
-  border: 0;
-  outline: 1px solid rgba(253, 252, 230, 0.22);
-  background: color-mix(in srgb, var(--ground) 72%, transparent);
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  font-size: var(--t-meta);
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-.home-layer .xp-close:focus-visible {
-  outline: 2px solid var(--cream);
-  outline-offset: 2px;
-}
-.home-layer .xp-close kbd {
-  font: inherit;
-  font-size: var(--t-micro);
-  padding: 2px 6px;
-  border-radius: 6px;
-  background: rgba(253, 252, 230, 0.1);
-  color: var(--ink-2);
 }
 .home-layer .xp-pane {
   position: absolute;
@@ -142,13 +118,6 @@
 html.locked,
 html.locked body {
   overflow: hidden;
-}
-
-/* touch devices have no Esc key */
-@media (hover: none) {
-  .home-layer .xp-close kbd {
-    display: none;
-  }
 }
 
 @media (max-width: 699.98px) {

@@ -1,6 +1,6 @@
 /*
- * The video wall (round 6 spec 6.5): the stage under the heading and the return mark, the canvas of the
- * gallery engine, the links (the visible wall until the engine runs, the accessible list after it) and the
+ * The video wall (round 6 spec 6.5, round 7 spec 7): the stage under the heading and the back button, the canvas of
+ * the gallery engine, the links (the accessible list; the visible wall only when there is no WebGL) and the
  * hover caption. Colours, sizes and layers come from tokens.css.
  */
 .wall-stage {
@@ -37,8 +37,10 @@
   height: 100%;
   overflow: hidden;
   border-radius: 8px;
-  background: var(--surface-1);
-  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--surface-1) center / cover; /* the tile's art goes here (video-wall.tsx) until its picture is in */
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 300ms ease-out;
   -webkit-tap-highlight-color: transparent;
 }
 .wall-tile img {
@@ -46,6 +48,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 300ms ease-out;
+}
+/* once the page is running, a picture is shown when it has loaded (cover-image.ts); without scripts it just shows */
+.wall-stage[data-fit] .wall-tile img:not([data-ready]) {
+  opacity: 0;
 }
 .wall-tile:hover {
   transform: scale(1.04);
@@ -86,18 +93,34 @@
   }
 }
 
-/* The engine is running: the links stay, in place, as the list for keyboard and screen reader (they take
-   focus; the ring is drawn by the engine). They fade out over the pictures that the engine fades in. */
-.wall-stage[data-live] .wall-links li {
+/* The links are the list only (out of sight, in place, still focusable) once the engine has drawn (data-drawn): the wall's
+   arrival is the first thing seen, and the ring is drawn by the engine. They are the wall itself when there is no WebGL or the
+   context was lost (data-plain), and, on a slow first load, when they were already showing before the engine was ready
+   (data-shown, set once by video-wall.tsx): then they stay until the first frame is drawn and fade out under it, so the
+   wall is never blank in between. Before the first frame a tile with keyboard focus shows (its art and its ring), so a
+   focused link is never invisible. */
+.wall-stage[data-fit]:not([data-plain]):not([data-shown]):not([data-drawn]) .wall-links li {
   pointer-events: none;
 }
-.wall-stage[data-live] .wall-tile {
+.wall-stage[data-fit]:not([data-plain]):not([data-shown]):not([data-drawn]) .wall-tile:not(:focus-visible) {
   opacity: 0;
   transform: none;
-  transition: opacity 500ms ease-out 250ms;
+  transition: none;
 }
-.wall-stage[data-live] .wall-tile:focus-visible {
-  outline: none;
+.wall-stage[data-fit]:not([data-plain])[data-drawn] .wall-links li {
+  pointer-events: none;
+}
+.wall-stage[data-fit]:not([data-plain])[data-drawn] .wall-tile {
+  opacity: 0;
+  transform: none;
+  transition: opacity 300ms ease-out; /* the links fade out under the engine's tiles (a focused one too, until its ring is drawn) */
+  outline: none; /* the engine draws the ring */
+}
+/* the engine failed or its context was lost: the links are the wall again at once, so there is no gap where the canvas was */
+.wall-stage[data-plain] .wall-tile {
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0s;
 }
 
 /* the hover caption, in the style of the painting caption (home hero) */
@@ -140,11 +163,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .wall-tile,
-  .wall-stage[data-live] .wall-tile,
+  .wall-tile img,
   .wall-caption {
     transition: none;
   }
   .wall-stage:not([data-fit]) .wall-links {
     animation-duration: 0.01ms;
+  }
+  .wall-stage[data-fit]:not([data-plain])[data-drawn] .wall-tile,
+  .wall-stage[data-plain] .wall-tile {
+    transition: none;
   }
 }

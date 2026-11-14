@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fitGrid, tileRect, warp } from "./gallery-math";
+import { fitGrid, tileRect } from "./gallery-math";
 import { WALL_GAP_PX, arrowTarget, fallbackBox, wallSafe } from "./wall-layout";
 
 const SIZES: Array<[number, number]> = [
@@ -21,51 +21,38 @@ describe("wallSafe", () => {
 });
 
 describe("fallbackBox", () => {
-  it("stays close to the plain rectangle for one tile (the centre, where the warp is weakest)", () => {
-    const g = fitGrid(1, 1440, 900, 16 / 9, wallSafe(1440, 900, 93, 150));
-    const b = fallbackBox(g, 0, 1440, 900);
-    const r = tileRect(g, 0);
-    // one tile, centred in the safe area: close to the screen centre, so the warp barely scales it
-    expect(Math.abs(b.w - r.w) / r.w).toBeLessThan(0.05);
-    expect(Math.abs(b.h - r.h) / r.h).toBeLessThan(0.05);
-  });
-
-  it("pulls corner tiles in, toward the centre, and keeps every box on screen at every size", () => {
+  it("is the tile's own rectangle, so the links sit exactly where the engine draws the pictures", () => {
     for (const [vw, vh] of SIZES) {
-      for (const [count, aspect] of [[35, 16 / 9], [35, 9 / 16]] as const) {
+      for (const [count, aspect] of [[21, 16 / 9], [35, 9 / 16]] as const) {
         const g = fitGrid(count, vw, vh, aspect, wallSafe(vw, vh, 80, 130));
         for (let i = 0; i < count; i++) {
-          const b = fallbackBox(g, i, vw, vh);
-          expect(b.x).toBeGreaterThanOrEqual(0);
-          expect(b.y).toBeGreaterThanOrEqual(0);
-          expect(b.x + b.w).toBeLessThanOrEqual(vw);
-          expect(b.y + b.h).toBeLessThanOrEqual(vh);
-          expect(b.w).toBeGreaterThan(0);
-          expect(b.h).toBeGreaterThan(0);
+          expect(fallbackBox(g, i)).toEqual(tileRect(g, i));
         }
-        const first = fallbackBox(g, 0, vw, vh);
-        const plain = tileRect(g, 0);
-        // the first tile is top left: the warp moves its left and top edges toward the centre
-        expect(first.x).toBeGreaterThan(plain.x);
-        expect(first.y).toBeGreaterThan(plain.y);
       }
     }
   });
 
-  it("matches the warp of the tile's middle edges", () => {
-    const g = fitGrid(35, 1440, 900, 16 / 9, wallSafe(1440, 900, 93, 150));
-    const r = tileRect(g, 7);
-    const b = fallbackBox(g, 7, 1440, 900);
-    expect(b.x).toBeCloseTo(warp(r.x, r.y + r.h / 2, 1440, 900)[0], 9);
-    expect(b.y).toBeCloseTo(warp(r.x + r.w / 2, r.y, 1440, 900)[1], 9);
+  it("keeps every box on screen at every size", () => {
+    for (const [vw, vh] of SIZES) {
+      for (const [count, aspect] of [[21, 16 / 9], [35, 9 / 16]] as const) {
+        const g = fitGrid(count, vw, vh, aspect, wallSafe(vw, vh, 80, 130));
+        for (let i = 0; i < count; i++) {
+          const b = fallbackBox(g, i);
+          expect(b.x).toBeGreaterThanOrEqual(0);
+          expect(b.y).toBeGreaterThanOrEqual(0);
+          expect(b.x + b.w).toBeLessThanOrEqual(vw);
+          expect(b.y + b.h).toBeLessThanOrEqual(vh);
+        }
+      }
+    }
   });
 
   it("follows the drift", () => {
     const g = fitGrid(8, 1440, 900, 16 / 9, wallSafe(1440, 900, 93, 150));
-    const a = fallbackBox(g, 3, 1440, 900);
-    const b = fallbackBox(g, 3, 1440, 900, { x: 5, y: -4 });
-    expect(b.x - a.x).toBeGreaterThan(3);
-    expect(b.y - a.y).toBeLessThan(-2);
+    const a = fallbackBox(g, 3);
+    const b = fallbackBox(g, 3, { x: 5, y: -4 });
+    expect(b.x - a.x).toBeCloseTo(5, 9);
+    expect(b.y - a.y).toBeCloseTo(-4, 9);
   });
 });
 

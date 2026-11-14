@@ -1,6 +1,6 @@
 // Writes scripts/audit/nav.json: the round 5 home and work checks (kept as they were) followed by the round 6 tour of the
 // five addresses (/, /work, /work/long-form, /work/short-form, /experience): every move through the dock, the row,
-// the return mark and Esc, then Back and Forward retracing them. Each move prints {ok, got, want}: the address, the title,
+// the back button and Esc, then Back and Forward retracing them. Each move prints {ok, got, want}: the address, the title,
 // which controls of the dock are current ("label=page|true") and which kind of change ran (read from <html data-change-kind>
 // by an observer armed before the move). Needs the production build on :5180.
 // usage: node scripts/audit/make-nav.mjs   then   BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/nav.json <outdir>
@@ -35,11 +35,11 @@ window.__move=(act,want)=>{window.__arm();act();return new Promise(res=>{const t
 
 const ROW = (to) => `document.querySelector('header[data-site-nav] [data-work-tab="${to}"]').click()`;
 const DOCK = (to) => `document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href="${to}"]').click()`;
-const MARK = `document.querySelector('.return-mark').click()`;
+const MARK = `document.querySelector('.wall-head a.xp-close').click()`; // the back button (R51.2)
 const BACK = `history.back()`;
 const FWD = `history.forward()`;
 
-const T = { work: "Work - FragTaco", long: "Long form - FragTaco", short: "Short form - FragTaco", exp: "My experience - FragTaco", home: "FragTaco - Aditya Bhoir" };
+const T = { work: "My portfolio - FragTaco", long: "Long form - FragTaco", short: "Short form - FragTaco", exp: "My experience - FragTaco", home: "FragTaco - Aditya Bhoir" };
 const at = (path, title, active, kind) => ({ path, title, active, kind });
 const WORK = at("/work", T.work, ["work=page"], "radial");
 const LONG = at("/work/long-form", T.long, ["long form=page", "work=true"], "radial");
@@ -70,7 +70,7 @@ const tour = [
   move("experience -> experience again = nothing (row, no change)", ROW("/experience"), k(EXP, "none")),
   move("experience -> short (row, radial)", ROW("/work/short-form"), SHORT),
   move("short -> short again = nothing (row, no change)", ROW("/work/short-form"), k(SHORT, "none")),
-  move("short -> rings (return mark, radial)", MARK, WORK),
+  move("short -> rings (back button, radial)", MARK, WORK),
   move("rings -> rings again = nothing (dock work tab, no change)", DOCK("/work"), k(WORK, "none")),
   move("work -> long (row, radial)", ROW("/work/long-form"), LONG),
   move("long -> long again = nothing (row, no change)", ROW("/work/long-form"), k(LONG, "none")),

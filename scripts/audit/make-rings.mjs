@@ -6,15 +6,37 @@
 //  - freezes the rings at 40 sampled phases (each ring and its items' turn-back set to the same random share of
 //    its period, paused) and reads the gap between every pair of item boxes (`.work-item-turn`, upright): the
 //    smallest gap over all pairs and phases, and how many pairs touch or overlap (both must be 12 or more / 0),
-//  - checks the intro (title and its lines of text) sits inside the stack ring's icons.
+//  - checks the intro (title and its lines of text) sits inside the stack ring's icons,
+//  - the arrival through a page change (R60): the rings are in the page for the reveal, standing still, then turn together.
 // Pictures (1440 by 900, 1920 by 1080, 820 by 1180, 390 by 844) at three ring phases each. The long form pictures are YouTube thumbnails loaded at run time;
 // where they cannot be reached (or must not be kept) the audit paints neutral, generated gradients on the tiles (a number and a corner
 // mark show they are upright) so the geometry can still be seen: nothing from a third party is drawn.
 // The two order modes are photographed from two builds (RING_ORDER_MODE is a constant), see the task report.
 import { writeFileSync } from "node:fs";
+import { crc32, deflateSync } from "node:zlib";
+
+// YouTube answers a removed video with HTTP 404 and a small grey picture (120 by 90) that does load: made here (a flat grey PNG), so no network is needed
+const png = (w, h, grey) => {
+  const raw = Buffer.alloc((w * 3 + 1) * h, grey);
+  for (let y = 0; y < h; y++) raw[y * (w * 3 + 1)] = 0;
+  const chunk = (type, data) => {
+    const head = Buffer.alloc(4);
+    head.writeUInt32BE(data.length);
+    const body = Buffer.concat([Buffer.from(type), data]);
+    const tail = Buffer.alloc(4);
+    tail.writeUInt32BE(crc32(body));
+    return Buffer.concat([head, body, tail]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0);
+  ihdr.writeUInt32BE(h, 4);
+  ihdr.set([8, 2, 0, 0, 0], 8);
+  return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk("IHDR", ihdr), chunk("IDAT", deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]).toString("base64");
+};
+const GREY_404 = png(120, 90, 160);
 
 const init = `
-try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}
+try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}
 // every ring and its items' turn-back to one random share of the ring's period, paused
 window.__phase=(seed)=>{let s=seed>>>0;const rnd=()=>((s=(Math.imul(s,1664525)+1013904223)>>>0)/4294967296);
  document.getAnimations().filter(a=>a.animationName==='work-ring-in').forEach(a=>a.finish());
@@ -55,6 +77,42 @@ window.__intro=()=>{const cx=innerWidth/2,cy=innerHeight/2;const ul=document.que
   if(getComputedStyle(el).display==='none')continue;const r=document.createRange();r.selectNodeContents(el);rects.push(...r.getClientRects())}
  for(const r of rects)for(const x of [r.left,r.right])for(const y of [r.top,r.bottom])far=Math.max(far,Math.hypot(x-cx,y-cy));
  return{stackRadius:+R.toFixed(1),icon,textReach:+far.toFixed(1),roomToIcons:+(R-icon/2-far).toFixed(1)}};
+// the rings arriving through a page change (R60): from the start of a change to /work (the debug hook), polls every frame for when the
+// first item and the last item are in the page, whether the rings are standing still (data-still) while the reveal runs, how many
+// pictures have loaded (and none is lazy) when the reveal is a second old, then waits for the change to end and reads that the rings
+// are all turning together (a spin on every ring and a turn-back on every item, each started at the same moment)
+window.__viaChange=()=>new Promise(res=>{const t0=performance.now();const out={firstItemMs:null,allItemsMs:null,stillDuringReveal:null,lazy:null,readyAt1s:null,coversAt1s:null,
+ turningAfter:null,startsEqual:null,rings:0,items:0,changeEndedMs:null};__ftChange('/work');
+ const iv=setInterval(()=>{const t=performance.now()-t0;const n=document.querySelectorAll('.work-item').length;
+  if(out.firstItemMs===null&&n>0)out.firstItemMs=Math.round(t);
+  const want=window.__want||0;if(out.allItemsMs===null&&n>0&&n>=want&&t>0){out.allItemsMs=Math.round(t)}
+  if(out.stillDuringReveal===null&&n>0&&t>700){const m=document.querySelector('.work-page');out.stillDuringReveal=!!m&&m.hasAttribute('data-still')&&document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin').length===0;
+   out.lazy=document.querySelectorAll('.work-cover img[loading=lazy]').length;out.coversAt1s=document.querySelectorAll('.work-cover img').length;out.readyAt1s=document.querySelectorAll('.work-cover img[data-ready]').length;out.items=n;out.rings=document.querySelectorAll('.work-ring').length}
+  if(t>1500&&!document.documentElement.dataset.changeKind){clearInterval(iv);out.changeEndedMs=Math.round(t);
+   setTimeout(()=>{const sp=document.getAnimations().filter(a=>a.animationName==='work-spin');const un=document.getAnimations().filter(a=>a.animationName==='work-unspin');
+    out.turningAfter={spin:sp.length,unspin:un.length,stillAttr:document.querySelector('.work-page').hasAttribute('data-still')};
+    out.startsEqual=new Set([...sp,...un].map(a=>Math.round(a.startTime))).size<=2;res(JSON.stringify(out))},400)}
+  if(t>9000){clearInterval(iv);res(JSON.stringify({timeout:true,out}))}},16)});
+// the rings arriving through a reduced-motion change (the 120 ms fade, R60 only batches the radial reveal): polls every 8 ms for how many items are in the page
+// each time that number changes (it must go from none to all in one step), whether the page carries the change arrival or standing-still marks, and the
+// ring groups' own animation (the plain fade) once they are in
+window.__viaFade=()=>new Promise(res=>{const t0=performance.now();const out={steps:[],kind:null,arrival:'unset',still:'unset',groupAnim:null,groupMs:null,turning:null,changeEndedMs:null};let last=-1;__ftChange('/work');
+ const iv=setInterval(()=>{const t=performance.now()-t0;const n=document.querySelectorAll('.work-item').length;
+  if(!out.kind&&document.documentElement.dataset.changeKind)out.kind=document.documentElement.dataset.changeKind;
+  if(n!==last){out.steps.push([Math.round(t),n]);last=n}
+  const g=document.querySelector('.work-ring-group');const m=document.querySelector('.work-page');
+  if(g&&out.groupAnim===null){const a=g.getAnimations().find(x=>x.animationName==='work-fade'||x.animationName==='work-ring-in');out.groupAnim=getComputedStyle(g).animationName;out.groupMs=a?a.effect.getTiming().duration:null;out.arrival=String(m.getAttribute('data-arrival'));out.still=String(m.hasAttribute('data-still'))}
+  if(t>400&&!document.documentElement.dataset.changeKind){clearInterval(iv);out.changeEndedMs=Math.round(t);
+   setTimeout(()=>{out.turning=document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin').length;res(JSON.stringify(out))},400)}
+  if(t>6000){clearInterval(iv);res(JSON.stringify({timeout:true,out}))}},8)});
+// the covers: how many, how many are lazy, ready (shown), swapped for the local art (fallback) and still showing a loaded picture of 120 px or less
+window.__covers=()=>{const c=[...document.querySelectorAll('.work-cover img')];return JSON.stringify({covers:c.length,lazy:c.filter(i=>i.loading==='lazy').length,ready:c.filter(i=>'ready' in i.dataset).length,
+ fallback:c.filter(i=>'fallback' in i.dataset).length,localArt:c.filter(i=>i.currentSrc.startsWith('data:')).length,greyShown:c.filter(i=>i.complete&&i.naturalWidth>0&&i.naturalWidth<=120&&!i.currentSrc.startsWith('data:')).length,
+ faded:c.filter(i=>getComputedStyle(i).opacity==='1').length})};
+// a change to /work, then the covers once the change is over and the pictures have had time (all of them load at once through a change)
+window.__changeCovers=()=>new Promise(res=>{const t0=performance.now();__ftChange('/work');const iv=setInterval(()=>{
+ if(performance.now()-t0>1500&&!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(window.__covers()),1500)}
+ if(performance.now()-t0>9000){clearInterval(iv);res('timeout')}},50)});
 // neutral generated pictures (no third party) when the real ones cannot be loaded
 window.__fake=()=>{let i=0;for(const img of document.querySelectorAll('.work-cover img')){i++;const tall=img.closest('.work-item').dataset.ring==='short';
  const W=tall?360:640,H=tall?640:360,hue=(i*47)%360;
@@ -142,6 +200,27 @@ for (const f of FRAME_RUNS) {
   steps.push({ label: `frames ${f.name}: a ring is paused (hover took)`, eval: `JSON.stringify(document.querySelectorAll('.work-item:hover').length)` });
   steps.push({ move: [5, 5], cpu: 1 });
 }
+
+// the rings arriving through a page change from home (R60): present for the reveal (all 64 items in within about half a second, standing
+// still, pictures loading at once, none lazy), turning together when the change ends
+steps.push({ size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/", wait: 3000, eval: "window.__want=64;'ready'", label: "via a change: from home" });
+steps.push({ label: "via a change: the rings during the reveal and when it ends", eval: "window.__viaChange()" });
+
+// reduced motion through a change (the 120 ms fade): no batches and no change arrival, so the rings come in whole at the first commit with the plain 300 ms fade (as on a first load)
+steps.push({ reduce: true, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/", wait: 3000, eval: "'ready'", label: "reduced motion via a change: from home" });
+steps.push({ label: "reduced motion via a change: items go from none to all in one step, plain fade, no arrival or still marks", eval: "window.__viaFade()" });
+steps.push({ reduce: false });
+
+// a cover that fails (R51.1b): the tile shows the local art. Requests to YouTube's thumbnail host are intercepted: unreachable (the host does not resolve), then
+// a removed video (HTTP 404 with the small grey picture), with the cache off (a cached thumbnail would not be intercepted). Through a change every picture loads at once. The pictures are generated art, so the shot may be committed.
+steps.push({ intercept: [{ match: "i.ytimg.com", fail: "NameNotResolved" }], nocache: true, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/", wait: 3000, eval: "'ready'", label: "failed covers (host unreachable): from home" });
+steps.push({ label: "failed covers (host unreachable): every cover swapped for the local art, none grey", eval: "window.__changeCovers()" });
+steps.push({ shot: "r51-covers-unreachable" });
+steps.push({ intercept: [{ match: "i.ytimg.com", status: 404, type: "image/png", body: GREY_404 }], go: "{{BASE}}/", wait: 3000, eval: "'ready'", label: "failed covers (404, grey 120 by 90 picture): from home" });
+steps.push({ label: "failed covers (404, grey picture): swapped for the local art, none grey", eval: "window.__changeCovers()" });
+steps.push({ shot: "r51-covers-404-grey" });
+// a first load keeps the pictures lazy (they do not compete with the page's own requests); a rotating item brings its picture when it nears the screen
+steps.push({ intercept: [], nocache: false, go: "{{BASE}}/work", wait: 3000, eval: "window.__covers()", label: "first load: covers are lazy" });
 
 steps.push({ reduce: true, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(5)", label: "reduced motion: ready" });
 steps.push({

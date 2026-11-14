@@ -13,7 +13,6 @@ import {
   settleNudge,
   tileAt,
   tileRect,
-  warp,
   type Grid,
 } from "./gallery-math";
 
@@ -25,27 +24,27 @@ describe("tileAt", () => {
   const vh = 900;
   const g = fitGrid(35, vw, vh, 16 / 9, safeFor(vw, vh));
   const drift = { x: 3, y: -2 };
-  /** Where a point in layout space is on the screen. */
-  const screen = (x: number, y: number) => warp(x + drift.x, y + drift.y, vw, vh);
+  /** Where a point of the grid is on the screen: the drift only (there is no warp). */
+  const screen = (x: number, y: number): [number, number] => [x + drift.x, y + drift.y];
 
   it("returns the right tile at every tile centre", () => {
     for (let i = 0; i < 35; i++) {
       const r = tileRect(g, i);
       const [sx, sy] = screen(r.x + r.w / 2, r.y + r.h / 2);
-      expect(tileAt(sx, sy, g, drift, vw, vh)).toBe(i);
+      expect(tileAt(sx, sy, g, drift)).toBe(i);
     }
   });
 
   it("returns the corner tiles near the corners of the grid", () => {
     const first = tileRect(g, 0);
     const [ax, ay] = screen(first.x + 2, first.y + 2);
-    expect(tileAt(ax, ay, g, drift, vw, vh)).toBe(0);
+    expect(tileAt(ax, ay, g, drift)).toBe(0);
     const last = tileRect(g, 34);
     const [bx, by] = screen(last.x + last.w - 2, last.y + last.h - 2);
-    expect(tileAt(bx, by, g, drift, vw, vh)).toBe(34);
+    expect(tileAt(bx, by, g, drift)).toBe(34);
     const topRight = tileRect(g, g.cols - 1);
     const [cx, cy] = screen(topRight.x + topRight.w - 2, topRight.y + 2);
-    expect(tileAt(cx, cy, g, drift, vw, vh)).toBe(g.cols - 1);
+    expect(tileAt(cx, cy, g, drift)).toBe(g.cols - 1);
   });
 
   it("is null at the four corners of the screen and in the margins", () => {
@@ -58,16 +57,16 @@ describe("tileAt", () => {
       [vw / 2, vh - 2],
       [2, vh / 2],
     ]) {
-      expect(tileAt(x, y, g, drift, vw, vh)).toBeNull();
+      expect(tileAt(x, y, g, drift)).toBeNull();
     }
   });
 
   it("is null in the gaps between tiles, across and down", () => {
     const a = tileRect(g, 0);
     const [hx, hy] = screen(a.x + a.w + g.gap / 2, a.y + a.h / 2);
-    expect(tileAt(hx, hy, g, drift, vw, vh)).toBeNull();
+    expect(tileAt(hx, hy, g, drift)).toBeNull();
     const [vx, vy] = screen(a.x + a.w / 2, a.y + a.h + g.gap / 2);
-    expect(tileAt(vx, vy, g, drift, vw, vh)).toBeNull();
+    expect(tileAt(vx, vy, g, drift)).toBeNull();
   });
 
   it("is null where a short last row has no tile", () => {
@@ -77,43 +76,43 @@ describe("tileAt", () => {
     expect(inLast).toBeLessThan(sg.cols); // 34 leaves the last row short at this size
     const last = tileRect(sg, n - 1);
     const [sx, sy] = screen(last.x + last.w + sg.gap + last.w / 2, last.y + last.h / 2);
-    expect(tileAt(sx, sy, sg, drift, vw, vh)).toBeNull();
+    expect(tileAt(sx, sy, sg, drift)).toBeNull();
     const first = tileRect(sg, (sg.rows - 1) * sg.cols);
     const [ex, ey] = screen(first.x - sg.gap - first.w / 2, first.y + first.h / 2);
-    expect(tileAt(ex, ey, sg, drift, vw, vh)).toBeNull();
+    expect(tileAt(ex, ey, sg, drift)).toBeNull();
   });
 
   it("follows the drift: the same screen point lands on a tile or not as the grid moves", () => {
     const r = tileRect(g, 0);
-    const [sx, sy] = warp(r.x + 1, r.y + 1, vw, vh);
-    expect(tileAt(sx, sy, g, { x: 0, y: 0 }, vw, vh)).toBe(0);
-    expect(tileAt(sx, sy, g, { x: 6, y: 6 }, vw, vh)).toBeNull();
+    const [sx, sy] = [r.x + 1, r.y + 1];
+    expect(tileAt(sx, sy, g, { x: 0, y: 0 })).toBe(0);
+    expect(tileAt(sx, sy, g, { x: 6, y: 6 })).toBeNull();
   });
 
   it("tests the hovered tile's grown box first, so its visible fringe still hits it", () => {
     const a = tileRect(g, 9);
     // 3 px outside the tile's right edge, level with its middle: in the gap
     const [sx, sy] = screen(a.x + a.w + 3, a.y + a.h / 2);
-    expect(tileAt(sx, sy, g, drift, vw, vh)).toBeNull();
+    expect(tileAt(sx, sy, g, drift)).toBeNull();
     // with the tile grown 4% (about 3 px a side here) the point is on its fringe
     const grown = { i: 9, grow: 0.04 };
     const wide = a.w * 0.02;
     expect(wide).toBeGreaterThan(2.9);
-    expect(tileAt(sx, sy, g, drift, vw, vh, grown)).toBe(9);
+    expect(tileAt(sx, sy, g, drift, grown)).toBe(9);
     // not grown yet: no change
-    expect(tileAt(sx, sy, g, drift, vw, vh, { i: 9, grow: 0 })).toBeNull();
+    expect(tileAt(sx, sy, g, drift, { i: 9, grow: 0 })).toBeNull();
     // a point inside a neighbour's nominal box but under the grown fringe belongs to the grown tile
     const [nx, ny] = screen(a.x + a.w + g.gap + 0.5, a.y + a.h / 2);
-    expect(tileAt(nx, ny, g, drift, vw, vh)).toBe(10);
-    expect(tileAt(nx, ny, g, drift, vw, vh, { i: 9, grow: 0.5 })).toBe(9);
+    expect(tileAt(nx, ny, g, drift)).toBe(10);
+    expect(tileAt(nx, ny, g, drift, { i: 9, grow: 0.5 })).toBe(9);
   });
 
   it("works on a grid object of any fit (phone, portrait tiles)", () => {
     const pg: Grid = fitGrid(40, 390, 844, 9 / 16, safeFor(390, 844));
     for (let i = 0; i < 40; i++) {
       const r = tileRect(pg, i);
-      const [sx, sy] = warp(r.x + r.w / 2, r.y + r.h / 2, 390, 844);
-      expect(tileAt(sx, sy, pg, { x: 0, y: 0 }, 390, 844)).toBe(i);
+      const [sx, sy] = [r.x + r.w / 2, r.y + r.h / 2];
+      expect(tileAt(sx, sy, pg, { x: 0, y: 0 })).toBe(i);
     }
   });
 });

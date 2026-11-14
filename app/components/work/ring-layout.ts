@@ -57,3 +57,11 @@ export function introLine(text: string): string {
   const clause = text.split(/[,;:.!?]/)[0].trim();
   return clause || text.trim();
 }
+
+/**
+ * How many of a ring's `count` items are in the page when `shown` items are, counting the rings inside to outside and
+ * `first` the items in the rings before this one (a page that comes in through a change builds its rings a few items at a time).
+ */
+export function mountedIn(shown: number, first: number, count: number): number {
+  return Math.max(0, Math.min(count, shown - first));
+}

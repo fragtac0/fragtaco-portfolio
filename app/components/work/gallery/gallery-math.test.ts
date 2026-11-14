@@ -1,16 +1,11 @@
 import { describe, expect, it } from "vitest";
-import {
-  fitGrid,
-  safeInsets,
-  tileRect,
-  unwarp,
-  warp,
-} from "./gallery-math";
+import { GAP_PX, fitGrid, largestGrid, safeInsets, tileRect } from "./gallery-math";
 
-/** Review Focus 1: the same screen sizes as the rings' tests. */
+/** Review Focus: the same screen sizes as the rings' tests, with the odd ones (844 by 390, 820 by 1180). */
 const SIZES: [number, number][] = [
   [320, 568],
   [568, 320],
+  [844, 390],
   [640, 360],
   [667, 375],
   [375, 667],
@@ -69,7 +64,7 @@ describe("fitGrid", () => {
           let best = 0;
           for (let c = 1; c <= n; c++) {
             const r = Math.ceil(n / c);
-            const w = Math.min((aw - (c - 1) * 10) / c, ((ah - (r - 1) * 10) / r) * aspect);
+            const w = Math.min((aw - (c - 1) * GAP_PX) / c, ((ah - (r - 1) * GAP_PX) / r) * aspect);
             best = Math.max(best, w);
           }
           expect(g.tileW).toBeGreaterThanOrEqual(best - 1e-9);
@@ -79,12 +74,13 @@ describe("fitGrid", () => {
     }
   }
 
-  it("keeps a 10 px gap between neighbours by default and takes another", () => {
+  it("keeps an 8 px gap between neighbours by default and takes another", () => {
     const g = fitGrid(8, 1440, 900, 16 / 9, safeFor(1440, 900));
-    expect(g.gap).toBe(10);
+    expect(GAP_PX).toBe(8);
+    expect(g.gap).toBe(8);
     const a = tileRect(g, 0);
     const b = tileRect(g, 1);
-    expect(b.x - (a.x + a.w)).toBeCloseTo(10, 6);
+    expect(b.x - (a.x + a.w)).toBeCloseTo(8, 6);
     const c = fitGrid(8, 1440, 900, 16 / 9, safeFor(1440, 900), 4);
     expect(c.gap).toBe(4);
     expect(c.tileW).toBeGreaterThan(g.tileW);
@@ -138,38 +134,66 @@ describe("fitGrid", () => {
   });
 });
 
-describe("warp and unwarp", () => {
-  const points = (vw: number, vh: number): [number, number][] => {
-    const out: [number, number][] = [];
-    for (let i = 0; i <= 10; i++) for (let j = 0; j <= 10; j++) out.push([(vw * i) / 10, (vh * j) / 10]);
-    return out;
-  };
+describe("largestGrid", () => {
+  /** The two walls at their real counts: 21 long form videos (wide tiles), 35 short form (upright). */
+  const WALLS: Array<[string, number, number]> = [
+    ["21 wide tiles", 21, 16 / 9],
+    ["35 upright tiles", 35, 9 / 16],
+  ];
   for (const [vw, vh] of SIZES) {
-    it(`invert each other to within 0.5 px anywhere at ${vw}x${vh}`, () => {
-      for (const [x, y] of points(vw, vh)) {
-        const [wx, wy] = warp(x, y, vw, vh);
-        const [ux, uy] = unwarp(wx, wy, vw, vh);
-        expect(Math.hypot(ux - x, uy - y)).toBeLessThan(0.5);
-        const [vx, vy] = unwarp(x, y, vw, vh);
-        const [bx, by] = warp(vx, vy, vw, vh);
-        expect(Math.hypot(bx - x, by - y)).toBeLessThan(0.5);
-      }
-    });
+    for (const [name, n, aspect] of WALLS) {
+      const safe = safeFor(vw, vh);
+      const aw = vw - 2 * safe.side;
+      const ah = vh - safe.top - safe.bottom;
+
+      it(`${name} at ${vw}x${vh}: every tile and every gap inside the safe area, nothing left over`, () => {
+        const g = largestGrid(n, vw, vh, aspect, GAP_PX, safe);
+        expect(g.cols * g.rows).toBeGreaterThanOrEqual(n);
+        expect((g.rows - 1) * g.cols).toBeLessThan(n); // no whole row of empty slots
+        expect(g.tileW).toBeGreaterThan(0);
+        expect(g.tileH).toBeCloseTo(g.tileW / aspect, 9);
+        expect(g.cols * g.tileW + (g.cols - 1) * GAP_PX).toBeLessThanOrEqual(aw + 1e-6);
+        expect(g.rows * g.tileH + (g.rows - 1) * GAP_PX).toBeLessThanOrEqual(ah + 1e-6);
+      });
+
+      it(`${name} at ${vw}x${vh}: no other grid gives a larger tile, and it touches one limit`, () => {
+        const g = largestGrid(n, vw, vh, aspect, GAP_PX, safe);
+        let best = 0;
+        for (let c = 1; c <= n; c++) {
+          const r = Math.ceil(n / c);
+          best = Math.max(best, Math.min((aw - (c - 1) * GAP_PX) / c, ((ah - (r - 1) * GAP_PX) / r) * aspect));
+        }
+        expect(g.tileW).toBeCloseTo(best, 9);
+        const wide = g.cols * g.tileW + (g.cols - 1) * GAP_PX;
+        const tall = g.rows * g.tileH + (g.rows - 1) * GAP_PX;
+        expect(Math.min(aw - wide, ah - tall)).toBeLessThan(1e-6);
+      });
+    }
   }
-  it("leaves the centre alone and pulls the rest toward it (barrel), most at the corners", () => {
-    expect(warp(720, 450, 1440, 900)).toEqual([720, 450]);
-    const [cx, cy] = warp(0, 0, 1440, 900);
-    expect(cx).toBeGreaterThan(0);
-    expect(cy).toBeGreaterThan(0);
-    // a point on the left edge moves in by about 5% of the half width, at the corner about 10%
-    expect(cx).toBeCloseTo(72, 6);
-    const [ex] = warp(0, 450, 1440, 900);
-    expect(ex).toBeCloseTo(720 * 0.05, 3);
+
+  it("gives the grids worked out by hand at 1440 by 900 (a 108 px heading band over, a 144 px dock band under)", () => {
+    // room: 1324.8 by 648. 21 wide tiles: 5 by 5 is 219.0 px a tile (height limits), 6 by 4 only 214.1, 7 by 3 only 182.4
+    const wide = largestGrid(21, 1440, 900, 16 / 9, 8, safeFor(1440, 900));
+    expect([wide.cols, wide.rows]).toEqual([5, 5]);
+    expect(wide.tileW).toBeCloseTo(((648 - 4 * 8) / 5) * (16 / 9), 6);
+    // 35 upright tiles: 12 by 3 is 103.1 px (width limits); 7 by 5, the exact fit, would be only 69.3
+    const tall = largestGrid(35, 1440, 900, 9 / 16, 8, safeFor(1440, 900));
+    expect([tall.cols, tall.rows]).toEqual([12, 3]);
+    expect(tall.tileW).toBeCloseTo((1324.8 - 11 * 8) / 12, 6);
   });
-  it("is the identity at k = 0", () => {
-    const [wx, wy] = warp(10, 20, 100, 100, 0);
-    expect(wx).toBeCloseTo(10, 9);
-    expect(wy).toBeCloseTo(20, 9);
-    expect(unwarp(10, 20, 100, 100, 0)[0]).toBeCloseTo(10, 9);
+
+  it("is a few px narrower with a bigger gap and wider with none: the gap is the only thing between tiles", () => {
+    const safe = safeFor(1440, 900);
+    expect(largestGrid(21, 1440, 900, 16 / 9, 0, safe).tileW).toBeGreaterThan(largestGrid(21, 1440, 900, 16 / 9, 8, safe).tileW);
+    expect(largestGrid(21, 1440, 900, 16 / 9, 24, safe).tileW).toBeLessThan(largestGrid(21, 1440, 900, 16 / 9, 8, safe).tileW);
+  });
+
+  it("breaks a tie toward fewer empty slots, then the first (fewest columns), and never gives NaN", () => {
+    // a square safe area of 100 by 100, square tiles, 4 of them: 2 by 2 (no empty) beats 1 by 4 and 4 by 1
+    const g = largestGrid(4, 120, 120, 1, 0, { top: 10, bottom: 10, side: 10 });
+    expect([g.cols, g.rows]).toEqual([2, 2]);
+    const none = largestGrid(40, 320, 200, 16 / 9, 8, { top: 150, bottom: 150, side: 20 });
+    expect(Number.isFinite(none.tileW)).toBe(true);
+    expect(none.tileW).toBeGreaterThan(0);
   });
 });

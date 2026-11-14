@@ -1,16 +1,11 @@
 /**
- * The pure geometry of the video wall's gallery (spec 6.5): the fitted grid, the barrel warp and its
- * inverse, which tile is under a point, the slow drift, the nudge that settles back, and the picture
- * atlas layout. No DOM, no three.js: everything here has a vitest test.
+ * The pure geometry of the video wall's gallery (round 7 spec 7): the largest grid that keeps every
+ * tile on screen, which tile is under a point, the slow drift, the nudge that settles back, and the
+ * picture atlas layout. No DOM, no three.js: everything here has a vitest test.
  *
- * Coordinates are CSS pixels on the canvas, origin top left. "Layout space" is where the grid is
- * drawn before the warp; "screen space" is what the person sees after it. The grid (plus the drift and
- * any nudge) lives in layout space; the pointer lives in screen space and is brought back with `unwarp`.
- *
- * Ported from the ObsidianUI Art Gallery (MIT, see vendor/obsidianui/LICENSE): the distortion idea.
- * What changed: the original samples an endless grid with screen = layout pushed OUT at the edges
- * (0.08); the wall is finite and must stay on screen, so the warp here is a true barrel (layout pulled
- * IN toward the centre, 0.05), which needs a small inverse (Newton) that the shader repeats.
+ * Coordinates are CSS pixels on the canvas, origin top left. There is no warp (round 6 had a barrel
+ * distortion, ported from the ObsidianUI Art Gallery, MIT, see vendor/obsidianui/LICENSE; round 7
+ * removed it): what the grid says is what is drawn and what the pointer hits, drift and nudge aside.
  */
 
 export type Safe = { top: number; bottom: number; side: number };
@@ -31,11 +26,9 @@ export type Grid = {
   count: number;
 };
 
-export const GAP_PX = 10;
+/** The even gap between tiles (round 7 spec 7: small). */
+export const GAP_PX = 8;
 export const RADIUS_PX = 8;
-export const WARP_K = 0.05;
-/** The shader repeats the inverse with this many Newton steps; the test holds it to 0.5 px. */
-export const UNWARP_ITERATIONS = 5;
 export const HOVER_GROW = 0.04;
 export const DRIFT_PERIOD_S = 50;
 export const DRIFT_RADIUS_PX = 6;
@@ -50,11 +43,41 @@ export function safeInsets(vw: number, vh: number, topBand = 0, bottomBand = 0):
   return { top: MARGIN * vh + topBand, bottom: MARGIN * vh + bottomBand, side: MARGIN * vw };
 }
 
+export type GridFit = { cols: number; rows: number; tileW: number; tileH: number };
+
 /**
- * The columns and rows that give the largest tile (of the given aspect, width over height) with every
- * tile inside the safe area. The grid is centred in it; a short last row is centred too.
- * Ties (the same tile size) go to the choice with fewer empty slots, then the squarer grid.
+ * The columns and rows that give the largest tile (of the given aspect, width over height) with every tile
+ * inside the safe area and `gap` px between neighbours. Ties (the same tile size) go to the choice with fewer
+ * empty slots, then the squarer grid (the first found, fewest columns). Never NaN: a safe area with no room gives
+ * a tiny positive tile.
  */
+export function largestGrid(
+  count: number,
+  vw: number,
+  vh: number,
+  tileAspect: number,
+  gap: number,
+  safe: Safe,
+): GridFit {
+  const n = Math.max(1, Math.floor(count));
+  const aw = Math.max(1, vw - 2 * safe.side);
+  const ah = Math.max(1, vh - safe.top - safe.bottom);
+  let best = { cols: 1, rows: n, w: 0, empty: Infinity };
+  for (let cols = 1; cols <= n; cols++) {
+    const rows = Math.ceil(n / cols);
+    const w = Math.max(
+      1e-3,
+      Math.min((aw - (cols - 1) * gap) / cols, ((ah - (rows - 1) * gap) / rows) * tileAspect),
+    );
+    const empty = cols * rows - n;
+    if (w > best.w + 1e-9 || (Math.abs(w - best.w) <= 1e-9 && empty < best.empty)) {
+      best = { cols, rows, w, empty };
+    }
+  }
+  return { cols: best.cols, rows: best.rows, tileW: best.w, tileH: best.w / tileAspect };
+}
+
+/** `largestGrid` placed: centred in the safe area, a short last row centred too. */
 export function fitGrid(
   count: number,
   vw: number,
@@ -64,22 +87,9 @@ export function fitGrid(
   gap = GAP_PX,
 ): Grid {
   const n = Math.max(1, Math.floor(count));
+  const { cols, rows, tileW, tileH } = largestGrid(n, vw, vh, aspect, gap, safe);
   const aw = Math.max(1, vw - 2 * safe.side);
   const ah = Math.max(1, vh - safe.top - safe.bottom);
-  let best = { cols: 1, rows: n, w: 0, empty: Infinity };
-  for (let cols = 1; cols <= n; cols++) {
-    const rows = Math.ceil(n / cols);
-    const w = Math.max(
-      1e-3,
-      Math.min((aw - (cols - 1) * gap) / cols, ((ah - (rows - 1) * gap) / rows) * aspect),
-    );
-    const empty = cols * rows - n;
-    if (w > best.w + 1e-9 || (Math.abs(w - best.w) <= 1e-9 && empty < best.empty)) {
-      best = { cols, rows, w, empty };
-    }
-  }
-  const { cols, rows, w: tileW } = best;
-  const tileH = tileW / aspect;
   const gridW = cols * tileW + (cols - 1) * gap;
   const gridH = rows * tileH + (rows - 1) * gap;
   const inLast = n - (rows - 1) * cols;
@@ -96,7 +106,7 @@ export function fitGrid(
   };
 }
 
-/** Where tile `i` is in layout space (no drift, no warp). */
+/** Where tile `i` is (no drift). */
 export function tileRect(g: Grid, i: number): Rect {
   const row = Math.floor(i / g.cols);
   const col = i % g.cols;
@@ -108,28 +118,8 @@ export function tileRect(g: Grid, i: number): Rect {
   };
 }
 
-/** Layout point to screen point: a barrel warp, pulling the edges and corners in. */
-export function warp(x: number, y: number, vw: number, vh: number, k = WARP_K): [number, number] {
-  const u = (2 * x - vw) / vw;
-  const v = (2 * y - vh) / vh;
-  const f = 1 - k * (u * u + v * v);
-  return [((u * f + 1) * vw) / 2, ((v * f + 1) * vh) / 2];
-}
-
-/** Screen point back to layout point (Newton on the radius: the warp is radial and monotonic for k up to 1/6). */
-export function unwarp(x: number, y: number, vw: number, vh: number, k = WARP_K): [number, number] {
-  const u = (2 * x - vw) / vw;
-  const v = (2 * y - vh) / vh;
-  const s = Math.hypot(u, v);
-  if (s < 1e-9 || k === 0) return [x, y];
-  let r = s;
-  for (let i = 0; i < UNWARP_ITERATIONS; i++) r -= (r - k * r * r * r - s) / (1 - 3 * k * r * r);
-  const g = r / s;
-  return [((u * g + 1) * vw) / 2, ((v * g + 1) * vh) / 2];
-}
-
 /**
- * The tile under a screen point, or null in a gap, a margin or an empty slot. `drift` is drift plus nudge.
+ * The tile under a point, or null in a gap, a margin or an empty slot. `drift` is drift plus nudge.
  * `grown` is the hovered tile and how far it has grown (0.04 at full): its grown box, which covers part of
  * the gap, is tested first, so the visible fringe of a grown tile still hits it.
  */
@@ -138,24 +128,21 @@ export function tileAt(
   y: number,
   g: Grid,
   drift: Pt,
-  vw: number,
-  vh: number,
   grown?: { i: number; grow: number } | null,
 ): number | null {
-  const [cx, cy] = unwarp(x, y, vw, vh);
   if (grown && grown.i >= 0 && grown.i < g.count && grown.grow > 0) {
     const r = tileRect(g, grown.i);
     const hw = (r.w * (1 + grown.grow)) / 2;
     const hh = (r.h * (1 + grown.grow)) / 2;
-    if (Math.abs(cx - drift.x - (r.x + r.w / 2)) <= hw && Math.abs(cy - drift.y - (r.y + r.h / 2)) <= hh) {
+    if (Math.abs(x - drift.x - (r.x + r.w / 2)) <= hw && Math.abs(y - drift.y - (r.y + r.h / 2)) <= hh) {
       return grown.i;
     }
   }
-  const ly = cy - drift.y - g.originY;
+  const ly = y - drift.y - g.originY;
   const pitchY = g.tileH + g.gap;
   const row = Math.floor(ly / pitchY);
   if (row < 0 || row >= g.rows || ly - row * pitchY > g.tileH) return null;
-  const lx = cx - drift.x - g.originX - (row === g.rows - 1 ? g.lastRowOffset : 0);
+  const lx = x - drift.x - g.originX - (row === g.rows - 1 ? g.lastRowOffset : 0);
   const pitchX = g.tileW + g.gap;
   const col = Math.floor(lx / pitchX);
   if (col < 0 || col >= g.cols || lx - col * pitchX > g.tileW) return null;

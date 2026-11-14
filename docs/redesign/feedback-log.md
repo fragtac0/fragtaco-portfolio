@@ -315,6 +315,7 @@ None open. Asked after v3 and answered on 2026-11-02:
 - R48 assets and content (round 7, part 1, Tasks 1 and 2): the long form list is the 21 real videos (the 12 listed, then 7 from All Risk is Creative and 2 from The Samder Show), resolved by `yarn sync:work` with yt-dlp; short form keeps 35 placeholders, now drawn locally (`placeholderArt`, no picsum anywhere); the YouTube wall's playlist holds 109 videos again (read with yt-dlp, the old page reader stopped at 100). Mars: `public/mars/relief.webp` (Viking colour mosaic, 2800 by 1820, toned orange, 654 KiB) and `heights.png` (MOLA heights, 1000 by 650) for the new map, rebuilt by `yarn mars` from NASA Trek tiles; the six spine faces load from a second, non-blocking font link.
 - R49 bugs (round 7, part 2, Tasks 3 to 5): returning home no longer shows a black frame on the painting (the remembered painting or its blurred placeholder is part of the page the change reveals, and the painting engine stays hidden until it holds a picture, so this holds for any length of change); the painting's words fade out, the painting changes, and the new words fade in only once the new painting is up, the first painting included; a visit that starts elsewhere and goes home by the dock skips the intro rather than playing it from black (ruling R53). Opening or closing either shelf never shows an empty box: a copy of the block grows into the layer and dissolves into the scene's first frame, the scene's last frame shrinks back on close, and a scene that has not drawn 1.5 s after opening gives way to its plain list; the book drop-in is gone (R55) and so is the hint line at the foot of both shelves. The dock's highlight slides between tabs on one ease with no bounce (the old shared-layout spring moved in screen coordinates while the home dock rose), and the tab of the page that is open does nothing.
 - R50 what every page shares (round 7, part 3, Tasks 6 to 8): every page change is one slow radial reveal from the centre of the screen, 3.5 s on the painting's ease, with the wandering edge, the bright line and the bend kept; a press or key during a change finishes it at once without activating what is under it, and Back or Forward during a change lands on the right page with no second reveal (rulings R58 to R63; the glass gate still passes at 3.5 s). The work pages and the section under the home painting sit on the Eclipse ground (WebGL, about 30 frames a second, a still picture first and for reduced motion or no WebGL, stopped when hidden, covered or changing; placements 0, 1, 3 and 2; the `shaders` package and the old ground are gone). The About and Credits tabs are orange gradients with white text (4.63 to 1), a glow and a drop shadow; their panels slide in and out over 700 ms; the painting fades into the section below with no line.
+- R51 portfolio and walls (round 7, part 4, Tasks 9 and 10): the work page reads "My portfolio" (the dock tab stays "work"); the eight app icons sit in opaque glass tiles; the rings show the real long form thumbnails and local placeholder art for short form (a missing YouTube picture falls back to the art), and they are already in the arriving page during the reveal (R60, R72). The two walls have no warp: one flat grid with the largest tile that keeps every video on screen, 8 px gaps, a short last row centred (R73); the tiles come in from the centre outward after the reveal settles (R75), always over their own art so no tile is ever an empty box; a slow or missing engine leaves the plain links on screen (R74, R77). The rings mark is replaced by a Back pill shared with the shelves' Close button.
 
 ## Round 5: final status (11 November 2026)
 
@@ -616,3 +617,44 @@ Eighth preview: `docs/redesign/round7-preview-8/index.html`. Both titles are set
 - "My experience" is the biggest, with a small description under it. "Olympus Mons" and the rest are smaller.
 
 Ninth preview: `docs/redesign/round7-preview-9/index.html`. Title 34 to 64 px in full cream; description 12.5 px at 70%; the name of the mountain 13 px, letter-spaced, in warm light orange (#ffc9a3); its line 11 px at 56%.
+
+### Feedback during the round 7 build (2026-11-14)
+
+Given while the build was at task 10 of 21, after Aditya looked at the build running on his machine. To be done after the tasks already planned, as extra tasks of round 7.
+
+**What he asked**
+
+1. The shelf and wall opening on the home page is still bad: "we see a preview of the wall but that fades away into something else. It still looks jarring." From the click to the open page it has to be seamless. His idea: load the page inside the box on the home page itself and expand that to full screen. He wants a preview first.
+2. The page change: 2.5 s (it was 3.5 s). The travelling edge should be wider and refracted. "The one in preview and the one on the screen right now is very different so fix that." At the moment "it just feels like a weird thing".
+3. The thumbnails on the portfolio page should be larger so the empty space is used. Remove the warp from the long form and short form walls, which he still saw.
+4. Keep git properly updated as documentation. Once the site is final there will be a Markdown case study of what every round did and how the site evolved.
+
+**What I found**
+
+- The opening: task 4 (R49.2) grows a copy of the home block and then dissolves it into the 3D scene. The copy is a different picture from the scene (flat CSS spines and drifting columns against 3D books and a WebGL wall), so the dissolve is the jarring part. It cannot be tuned away; the box and the scene have to be the same picture.
+- The page change: the build (R50.1) has a soft edge of about the same width as the preview (7% against 9%), but its edge wanders 3% where the preview wanders about 17%, its bend is 22 px with no colour split and only in Chromium browsers, and it draws a thin bright ring (a 0.6% core at up to 70%) where the preview has a soft glint. That thin ring is what reads as "a weird thing". Both the preview and the build also sit still for the first part of the time before anything shows; at 2.5 s that dead time would be about a third of the change.
+- The portfolio thumbnails are 108 by 60 px (long form) and 60 by 108 px (short form) on a 1440 by 900 screen.
+- The warp: it was removed in task 10 (R51.2, committed 13 Nov 18:42). I checked the running build: the long form wall is a flat grid. He most likely saw a build from before that commit. The same check showed the wall staying blank for 8 to 11 s on a hard load, which is the open finding of task 10's review.
+
+**Tenth preview:** `docs/redesign/round7-preview-10/index.html`
+
+- Opening: the box on the home page holds the live scene from the start, and opening only changes the frame around it. Three choices of what the box shows (the whole open page in miniature, which is his idea; half way; real size seen through the box), three lengths (0.7, 1.0, 1.4 s), and the home page behind either sinking back and dimming or staying as it is. Closing is the same move backwards.
+- Page change: 2.5 s, radial from the centre, with three edge widths (9%, 15%, 22% of the travel) and three strengths of refraction with a colour split. The front now starts just out of sight and ends as the last corner clears, so there is no dead time at either end.
+
+**My calls**
+
+- The larger portfolio thumbnails and the page change's new numbers become build tasks once he has picked from the preview; the opening is redesigned only after he approves a direction.
+- The case study is written when the site is final, from this log, `changes-2026-11.md`, the specs and plans, the build ledgers and the PRs. Nothing extra is needed now beyond keeping those complete.
+
+**His choices on the tenth preview (2026-11-14)**
+
+| Question | Answer |
+|---|---|
+| What the home box shows | The whole open page, small |
+| Length of opening and closing | 1.0 s |
+| The page change's edge | "Wider + Stronger", with: "again the preview on localhost was not like the one you are showing - it looked very bad. Look into that as well" |
+| Browser he checks in | A Chromium browser |
+
+I looked into it: `docs/redesign/compare/round7/change-experience-to-home.jpg` and `compare/local/r51-reveal-50.jpg` show the built change as a thin bright ring, almost a perfect circle, with hardly any bend. The cause is the numbers and the line picture, not the browser. The fix and the other two changes are written up in `docs/superpowers/specs/2026-11-14-round7-followups-design.md` and planned as tasks 22 to 26 in `docs/superpowers/plans/2026-11-14-round7-followups.md`, to run after task 19.
+
+My call: the home page behind an opening box sinks back and dims (the preview's default).
