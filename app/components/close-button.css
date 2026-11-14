@@ -21,7 +21,7 @@
   align-items: center;
 }
 .xp-close:focus-visible {
-  outline: 2px solid var(--ink-1); /* not --cream: that is defined on the home page only */
+  outline: 2px solid var(--cream); /* the same ring as the shelves had */
   outline-offset: 2px;
 }
 .xp-close kbd {

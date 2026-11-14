@@ -244,7 +244,7 @@ export function createAtlas(
     artLayout,
     loadedAt,
     pump() {
-      if (disposed || !glTexture) return 0;
+      if (disposed) return 0;
       let a = 0;
       while (a < ART_UPLOADS_PER_FRAME && readyArt.length && glArt && artCell.ctx) {
         const { i, img } = readyArt.shift() as { i: number; img: HTMLImageElement };
@@ -256,7 +256,7 @@ export function createAtlas(
         }
         a++;
       }
-      if (broken || !picCell.ctx) return 0;
+      if (broken || !glTexture || !picCell.ctx) return 0; // the art above never waits on the picture texture
       let up = 0;
       while (up < UPLOADS_PER_FRAME && ready.length) {
         const { i, img } = ready.shift() as { i: number; img: HTMLImageElement };

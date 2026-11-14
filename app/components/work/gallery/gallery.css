@@ -58,7 +58,7 @@
   transform: scale(1.04);
 }
 .wall-tile:focus-visible {
-  outline: 2px solid var(--ink-1); /* not --cream: that is defined on the home page only, so the ring never showed on a wall */
+  outline: 2px solid var(--cream);
   outline-offset: -2px;
 }
 
@@ -93,19 +93,34 @@
   }
 }
 
-/* The links are the list only (out of sight, in place, still focusable) while the engine starts and runs: the wall's
-   arrival is the first thing seen, and the ring is drawn by the engine. They are the wall itself only when there is
-   no WebGL or the context was lost (data-plain). */
-.wall-stage[data-fit]:not([data-plain]) .wall-links li {
+/* The links are the list only (out of sight, in place, still focusable) once the engine has drawn (data-drawn): the wall's
+   arrival is the first thing seen, and the ring is drawn by the engine. They are the wall itself when there is no WebGL or the
+   context was lost (data-plain), and, on a slow first load, when they were already showing before the engine was ready
+   (data-shown, set once by video-wall.tsx): then they stay until the first frame is drawn and fade out under it, so the
+   wall is never blank in between. Before the first frame a tile with keyboard focus shows (its art and its ring), so a
+   focused link is never invisible. */
+.wall-stage[data-fit]:not([data-plain]):not([data-shown]):not([data-drawn]) .wall-links li {
   pointer-events: none;
 }
-.wall-stage[data-fit]:not([data-plain]) .wall-tile {
+.wall-stage[data-fit]:not([data-plain]):not([data-shown]):not([data-drawn]) .wall-tile:not(:focus-visible) {
   opacity: 0;
   transform: none;
   transition: none;
 }
-.wall-stage[data-fit]:not([data-plain]) .wall-tile:focus-visible {
-  outline: none;
+.wall-stage[data-fit]:not([data-plain])[data-drawn] .wall-links li {
+  pointer-events: none;
+}
+.wall-stage[data-fit]:not([data-plain])[data-drawn] .wall-tile {
+  opacity: 0;
+  transform: none;
+  transition: opacity 300ms ease-out; /* the links fade out under the engine's tiles (a focused one too, until its ring is drawn) */
+  outline: none; /* the engine draws the ring */
+}
+/* the engine failed or its context was lost: the links are the wall again at once, so there is no gap where the canvas was */
+.wall-stage[data-plain] .wall-tile {
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0s;
 }
 
 /* the hover caption, in the style of the painting caption (home hero) */
@@ -154,5 +169,9 @@
   }
   .wall-stage:not([data-fit]) .wall-links {
     animation-duration: 0.01ms;
+  }
+  .wall-stage[data-fit]:not([data-plain])[data-drawn] .wall-tile,
+  .wall-stage[data-plain] .wall-tile {
+    transition: none;
   }
 }

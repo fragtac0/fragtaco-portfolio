@@ -28,6 +28,7 @@
   --surface-2: #21201f; /* raised panels, chips */
   --line: rgba(253, 252, 230, 0.1); /* hairlines and borders */
   --accent: #fc4c00;
+  --cream: #fdfce6; /* the cream itself, at full strength (the --ink steps are this at 92 / 72 / 62%) */
   --accent-soft: rgba(252, 76, 0, 0.14); /* the active pill's fill */
   --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the page's orange glow (the open card, the dock); only the About and Credits tabs have their own, below (R69) */
   --glass-rgb: 16 16 15; /* the dock glass: this colour at 46% */
@@ -96,7 +97,6 @@
   --dock-clear: 108px; /* kept free above the bottom nav dock */
   --rail: clamp(72px, 4.8vw, 100px);
   --card-h: clamp(520px, 72dvh, 760px);
-  --cream: #fdfce6;
 }
 @media (max-width: 699.98px) {
   .home-page {

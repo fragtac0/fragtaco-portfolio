@@ -150,6 +150,7 @@ function assemble(
   let stepBusy = true;
   // nothing is drawn until the atlas has its first pictures or 1.2 s have passed (wall-arrival.ts); then the tiles arrive
   let started = false;
+  let drawnTold = false;
 
   const active = () => !destroyed && !lost && !hidden && onScreen;
   const offsetAt = (now: number): Pt => {
@@ -191,7 +192,7 @@ function assemble(
       }
       started = true;
       view.compile(renderer); // the shader links before the arrival's clock starts, not inside its first frame
-      state.start(performance.now()); // pictures that are in by now show whole; the rest fade in over their art
+      state.start(performance.now(), typeof opts.instant === "function" ? opts.instant() : opts.instant === true); // pictures that are in by now show whole; the rest fade in over their art
       canvas.dataset.startMs = String(Math.round(now - t0)); // for the audit: when the first frame was drawn, and with how many pictures
       canvas.dataset.startPictures = String(facts.pictures);
       dirty = true;
@@ -205,6 +206,10 @@ function assemble(
       view.render(renderer, off);
       lastDraw = now;
       dirty = false;
+      if (!drawnTold) {
+        drawnTold = true; // the first frame is on the canvas: the links may go
+        opts.onDrawn?.();
+      }
     }
     if (busy || !reduced) raf = requestAnimationFrame(frame);
   }

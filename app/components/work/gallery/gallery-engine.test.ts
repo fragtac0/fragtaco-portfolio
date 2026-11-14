@@ -89,6 +89,23 @@ describe("the tile state's arrival", () => {
     }
   });
 
+  it("instant: nothing before the first frame, then every tile whole at once with no arrival and no further frames asked for", async () => {
+    const T = await import("three");
+    const { createTileState } = await import("./gallery-state");
+    const state = createTileState(T, 7, false);
+    state.setLayout(7, 1, 0);
+    const data = state.texture.image.data as Uint8Array;
+    const loadedAt = new Float64Array(7);
+    expect(state.step(1 / 60, 500, loadedAt)).toBe(false);
+    for (let i = 0; i < 7; i++) expect(G(data, i)).toBe(0);
+    state.start(1000, true);
+    expect(state.step(1 / 60, 1016, loadedAt)).toBe(false); // the first frame after the start: all whole, nothing left to ease
+    for (let i = 0; i < 7; i++) {
+      expect(G(data, i)).toBe(255);
+      expect(A(data, i)).toBe(255);
+    }
+  });
+
   it("shows a picture that was in before the first frame whole, and fades in one that comes after", async () => {
     const T = await import("three");
     const { createTileState } = await import("./gallery-state");

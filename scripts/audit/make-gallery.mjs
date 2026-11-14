@@ -19,6 +19,12 @@
 //  - real input: a real mouse move shows the caption of the tile under it, a real click (a real tap on the phone)
 //    opens it, the arrow keys move the focus (the engine's ring) and Enter opens that one,
 //  - with WebGL refused (`getContext` returns null for webgl) the links are all there, visible, in place.
+//  - R51.2b: a slow first load (the chunks held back by the cdp.mjs `intercept` step's `delay`, so the page runs only after the server's
+//    links have been shown at 2.5 s): the wall must never go show, blank, show. A screencast film with `tiles` reads, in every frame the
+//    compositor produced, how many of the wall's tiles show something (`blankFramesAfterShown` must be 0), with a timeline of the
+//    stage's marks (`?tl`: data-fit, data-shown, data-drawn, data-plain, data-live) and the focus-visible tile before the engine draws,
+//  - R51.2b: a lost WebGL context on a wall (`WEBGL_lose_context`): the links are the wall again with no frame between (no hole),
+//  - R51.2b: the Back pill on screen, not over the heading, not under the dock and the first tab stop, at every size (320 by 568 and 844 by 390 too).
 // Moves: Long form to Short form (and back) through the dock row's links: the kind of change (the one `radial` reveal since round 7),
 // that no canvas exists while a change runs and that the old canvas is gone after it.
 // Pictures: nothing from a third party is drawn here (and none may reach a tracked picture): the audit patches
@@ -166,6 +172,51 @@ window.__back=()=>{const a=document.querySelector('.wall-head a.xp-close'),h=doc
   rightGap:+(innerWidth-r.right).toFixed(1),padRight:pr,topGap:+r.top.toFixed(1),padTop:pt,height:Math.round(r.height),
   samePlaceAsShelf:Math.abs(innerWidth-r.right-pr)<0.6&&Math.abs(r.top-pt)<0.6,
   kbdShown:!!k&&getComputedStyle(k).display!=='none',focusable:a.matches('a[href]')})};
+// ---- the stage's marks over time (?tl): when data-fit, data-shown, data-drawn, data-plain and data-live change, and how many canvases and visible tiles there are then
+window.__tl=[];
+(()=>{
+ if(!/[?&]tl(&|$)/.test(location.search))return;
+ const snap=()=>{const s=document.querySelector('.wall-stage');if(!s)return null;const d=s.dataset;
+  const t0=s.querySelector('.wall-tile').getBoundingClientRect(),cols=d.grid?JSON.parse(d.grid).cols:null; // the first link's place (to 10 px) and the grid's columns: a layout jump while the links show is a change here
+  return {fit:d.fit!==undefined,shown:d.shown!==undefined,drawn:d.drawn!==undefined,plain:d.plain!==undefined,live:d.live!==undefined,canvases:document.querySelectorAll('.wall-canvas').length,cols,tile0:[Math.round(t0.left/10)*10,Math.round(t0.top/10)*10,Math.round(t0.width/10)*10],
+   listOpacity:+getComputedStyle(s.querySelector('.wall-links')).opacity,tilesVisible:[...document.querySelectorAll('.wall-tile')].filter(a=>+getComputedStyle(a).opacity*+getComputedStyle(a.closest('.wall-links')).opacity>0.5).length}};
+ const note=()=>{const v=snap();if(!v)return;const p=window.__tl.at(-1);const k=JSON.stringify(v);if(!p||p.k!==k)window.__tl.push({t:Math.round(performance.now()),k,...v})};
+ new MutationObserver(note).observe(document,{attributes:true,subtree:true,childList:true,attributeFilter:['data-fit','data-shown','data-drawn','data-plain','data-live']});
+ setInterval(note,100);
+ // a headless page that is only waiting (for a held back script) is not given frames, so the CSS animation that shows the server's links and every timer stand still; a frame loop keeps it running
+ const keep=()=>requestAnimationFrame(keep);keep();
+})();
+// ---- the Back pill: on screen, over nothing, the first tab stop of the page's content (R51.2b)
+window.__backOnScreen=()=>{const a=document.querySelector('.wall-head a.xp-close');if(!a)return JSON.stringify({found:false});
+ const r=a.getBoundingClientRect(),n=document.querySelector('.wall-name').getBoundingClientRect(),c=document.querySelector('.wall-count').getBoundingClientRect();
+ const cy=r.top+r.height/2,hit=document.elementFromPoint(r.left+r.width/2,cy),hit2=document.elementFromPoint(r.left+r.height/2,cy),hit3=document.elementFromPoint(r.right-r.height/2,cy); // the pill's two round ends: their middles, not the box's corners
+ const dockEl=document.querySelector('[data-dock-glass]');const dock=dockEl?dockEl.getBoundingClientRect():null;
+ const hits=(b)=>!(r.right<=b.left||r.left>=b.right||r.bottom<=b.top||r.top>=b.bottom);
+ const first=document.querySelector('.wall-links a'),head=document.querySelector('.wall-head');
+ const tabbables=[...document.querySelectorAll('main a[href],main button')];
+ return JSON.stringify({found:true,viewport:[innerWidth,innerHeight],box:[r.left,r.top,r.right,r.bottom].map(v=>+v.toFixed(1)),
+  inside:r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight,opacity:+getComputedStyle(a).opacity,
+  clickable:a.contains(hit)&&a.contains(hit2)&&a.contains(hit3),overHeading:hits(n)||hits(c),underDock:dock?hits(dock):false,
+  headerBeforeWall:!!(head.compareDocumentPosition(document.querySelector('.wall-stage'))&Node.DOCUMENT_POSITION_FOLLOWING),
+  backFirstTabStop:tabbables[0]===a,backBeforeFirstTile:!!(a.compareDocumentPosition(first)&Node.DOCUMENT_POSITION_FOLLOWING),
+  headingLeftOfBack:n.left<r.left&&Math.abs(n.top-r.top)<60,height:Math.round(r.height)})};
+// ---- a lost context on a wall (R51.2b): from the loss on, every animation frame says whether the canvas is there, the links are the wall (data-plain) and how many tiles show
+window.__lose=()=>new Promise(res=>{const c=document.querySelector('.wall-canvas');if(!c){res(JSON.stringify({error:'no canvas'}));return}
+ const gl=c.getContext('webgl2');const ext=gl&&gl.getExtension('WEBGL_lose_context');if(!ext){res(JSON.stringify({error:'no WEBGL_lose_context'}));return}
+ const s=document.querySelector('.wall-stage'),n=document.querySelectorAll('.wall-tile').length,t0=performance.now();
+ const rows=[];let holes=0,plainAt=null,canvasGoneAt=null;
+ ext.loseContext();
+ const f=()=>{const t=Math.round(performance.now()-t0),canvases=document.querySelectorAll('.wall-canvas').length,plain=s.dataset.plain!==undefined,
+   visible=[...document.querySelectorAll('.wall-tile')].filter(a=>+getComputedStyle(a).opacity>0.99).length;
+  if(canvasGoneAt===null&&canvases===0)canvasGoneAt=t;if(plainAt===null&&plain)plainAt=t;
+  // a hole: no canvas to draw the wall and the links not yet showing all of it
+  if(canvases===0&&visible<n)holes++;
+  rows.push([t,canvases,plain?1:0,visible]);
+  if(t<1500)requestAnimationFrame(f);else{const last=rows.at(-1);
+   res(JSON.stringify({tiles:n,canvasGoneAtMs:canvasGoneAt,plainAtMs:plainAt,holeFrames:holes,frames:rows.length,final:{canvases:last[1],plain:!!last[2],tilesVisible:last[3]},
+    inside:[...document.querySelectorAll('.wall-tile')].every(a=>{const r=a.getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight}),
+    ok:holes===0&&last[1]===0&&!!last[2]&&last[3]===n}))}};
+ requestAnimationFrame(f)});
 // ---- long animation frames (what script made a long frame), kept from the start of the page
 window.__loaf=[];try{new PerformanceObserver(l=>{for(const e of l.getEntries())window.__loaf.push({t:Math.round(e.startTime),d:Math.round(e.duration),s:(e.scripts||[]).map(x=>(x.sourceURL.split('/').pop()||'-')+':'+x.invoker.slice(0,40)+':'+Math.round(x.duration)).join(';')})}).observe({type:'long-animation-frame',buffered:true})}catch(e){}
 // ---- frame gaps
@@ -198,6 +249,7 @@ function wall(kind, size, opts = {}) {
   steps.push(LIVE(`${tag} (reduced): live`));
   steps.push({ eval: "__fit()", label: `${tag}: fit` });
   steps.push({ eval: "__hits()", label: `${tag}: hits (reduced motion)` });
+  steps.push({ eval: "__backOnScreen()", label: `${tag}: the back pill is on screen, over nothing, the first tab stop` });
   if (opts.geometryOnly) return steps;
   // 2. motion on: frames, real input, pictures
   steps.push({ reduce: false, go: `{{BASE}}${path}`, wait: 1500 });
@@ -265,6 +317,38 @@ function wall(kind, size, opts = {}) {
     steps.push({ shot: `slow-warm-${tag}` });
     steps.push({ shot: `local-r51-wall-${tag}-slow-plain` });
     steps.push({ net: { kbps: 100000, latency: 0 }, nocache: false });
+  }
+  if (!phone) {
+    // a slow first load (R51.2b): the page's scripts are held back 6 s (so the server's links, shown from about 3 s, have been on screen for seconds before the page runs) and three.js
+    // a further time. Frames of the whole load, tiles counted in each: after the wall has been seen it must never go blank (blankFramesAfterShown 0).
+    //  (a) three.js arrives 1.5 s later: the links stay, the engine draws whole tiles at once and the links fade out under them;
+    //  (c) only three.js is late (4 s): the links are shown 1.5 s after the wall could start and stay until the engine has drawn;
+    //  (b) three.js never arrives in time (14 s, the engine's wait is 5 s): the links are the wall.
+    const slowLoad = (label, threeMs, keep, jsMs = 6000) => {
+      steps.push({ net: { kbps: 100000, latency: 0 }, nocache: true, intercept: [{ match: "three.module", delay: threeMs }, ...(jsMs ? [{ match: ".js", delay: jsMs }] : [])], go: "about:blank", wait: 1500 }); // the film navigates from a page that is really blank (a slow navigation would cancel it)
+      steps.push({ film: { ms: 22000, dark: 8, keep: `local-r51-${tag}-firstload-${keep}`, ats: [1500, 2400, 2700, 3000, 3500, 4500, 6000, 7000, 8500, 10000, 13000], tiles: true, eval: `location.href='{{BASE}}${path}?tl'` }, label: `${tag} slow first load ${label}: frames` });
+      steps.push({ eval: "JSON.stringify({timeline:window.__tl.map(({k,...r})=>r),focusable:document.querySelectorAll('.wall-links a').length})", label: `${tag} slow first load ${label}: the stage's marks over time` });
+      steps.push({ intercept: [], nocache: false, net: { kbps: 100000, latency: 0 } });
+    };
+    slowLoad("(a) three.js 1.5 s later", 1500, "a");
+    // (c) the page's own scripts are quick but three.js is held 4 s: the wall must not stay blank until it comes: the links show from 1.5 s after the wall could start and fade out under the engine
+    slowLoad("(c) only three.js 4 s late", 4000, "c", 0);
+    if (kind === "long") slowLoad("(b) three.js too late", 14000, "b");
+    // the same load with the first tile focused by the keyboard while the engine is not drawing yet: a focused link is visible, with its ring
+    steps.push({ net: { kbps: 100000, latency: 0 }, nocache: true, intercept: [{ match: "three.module", delay: 6000 }], reduce: false, go: `{{BASE}}${path}`, wait: 3000 });
+    steps.push({ key: "Tab", vk: 9 });
+    steps.push({ key: "Tab", vk: 9 });
+    steps.push({ eval: "new Promise(r=>setTimeout(()=>{const a=document.activeElement,s=document.querySelector('.wall-stage');const c=a?getComputedStyle(a):null;r(JSON.stringify({onTile:!!a&&a.classList.contains('wall-tile'),focusVisible:!!a&&a.matches(':focus-visible'),fit:s.dataset.fit!==undefined,drawn:s.dataset.drawn!==undefined,plain:s.dataset.plain!==undefined,opacity:c&&+c.opacity,outline:c&&c.outlineStyle+' '+c.outlineWidth,othersHidden:[...document.querySelectorAll('.wall-tile')].filter(t=>t!==a&&+getComputedStyle(t).opacity<0.01).length}))},800))", label: `${tag} before the engine draws: a focused tile shows with its ring` });
+    steps.push({ shot: `focus-early-warm-${tag}` });
+    steps.push({ shot: `r51-wall-${tag}-focus-before-engine` });
+    steps.push({ intercept: [], nocache: false });
+    // a lost context on a wall (R51.2b): the links are the wall again with no hole (a frame with no canvas and the links not all showing)
+    steps.push({ reduce: false, go: `{{BASE}}${path}`, wait: 1500 });
+    steps.push(LIVE(`${tag}: live (for the lost context)`));
+    steps.push({ wait: 800 });
+    steps.push({ eval: "__lose()", label: `${tag}: lost context: the plain list at once, no hole` });
+    steps.push({ shot: `lost-warm-${tag}` });
+    steps.push({ shot: `r51-wall-${tag}-lost-context` });
   }
   // 4. no WebGL: the links
   steps.push({ eval: "__nogl(true)", label: `${tag}: webgl refused` });

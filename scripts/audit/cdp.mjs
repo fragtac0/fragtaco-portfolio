@@ -39,12 +39,13 @@ const requested = []; // every request the page made since the last `requests` s
 const castFrames = []; // screencast frames of the `film` step: every frame the compositor produced, not one in a while
 ws.addEventListener("message", e => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } else if (m.method === "Network.requestWillBeSent") requested.push(m.params.request.url); else if (m.method === "Fetch.requestPaused") answerPaused(m.params); else if (m.method === "Page.screencastFrame") { castFrames.push({ t: performance.now(), data: m.params.data }); ws.send(JSON.stringify({ id: ++id, method: "Page.screencastFrameAck", params: { sessionId: m.params.sessionId } })); } });
 const send = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
-// `intercept` step: [{ match, fail?: "NameNotResolved", status?, type?, body? (base64) }]; a request whose url contains `match` is failed or answered with that response, the rest go on; [] switches it off
+// `intercept` step: [{ match, fail?: "NameNotResolved", status?, type?, body? (base64), delay? (ms) }]; a request whose url contains `match` is failed or answered with that response, or with `delay` only held that long and then let go on (a slow chunk); the rest go on (the first rule that matches wins); [] switches it off
 let rules = [];
 function answerPaused(p) {
   const rule = rules.find(x => p.request.url.includes(x.match));
   const call = (method, params) => ws.send(JSON.stringify({ id: ++id, method, params }));
   if (!rule) call("Fetch.continueRequest", { requestId: p.requestId });
+  else if (rule.delay && !rule.fail && !rule.status && !rule.body) setTimeout(() => call("Fetch.continueRequest", { requestId: p.requestId }), rule.delay);
   else if (rule.fail) call("Fetch.failRequest", { requestId: p.requestId, errorReason: rule.fail });
   else call("Fetch.fulfillRequest", { requestId: p.requestId, responseCode: rule.status ?? 200, responseHeaders: [{ name: "Content-Type", value: rule.type ?? "image/png" }, { name: "Access-Control-Allow-Origin", value: "*" }], body: rule.body ?? "" });
 }
@@ -77,9 +78,21 @@ const PIXEL_SAMPLER = (b64, cols, rows) => `(async()=>{
 const FILM_LUMA = (b64, dark, box) => `(async()=>{const b=await createImageBitmap(await (await fetch("data:image/jpeg;base64,${b64}")).blob());const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
   const bx=${JSON.stringify(box ?? null)},k=b.width/innerWidth;if(bx)x.drawImage(b,bx.x*k,bx.y*k,bx.w*k,bx.h*k,0,0,48,30);else x.drawImage(b,0,0,48,30);
   const d=x.getImageData(0,0,48,30).data;let under=0,sum=0,sq=0;for(let i=0;i<d.length;i+=4){const l=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2];sum+=l;sq+=l*l;if(l<${dark})under++}const m=sum/1440;return [under/1440,m,Math.sqrt(Math.max(0,sq/1440-m*m))]})()`;
+// Runs inside the page on a JPEG frame of a video wall: the luma at a 7 by 5 grid of points in the middle 70% of every tile (`g` is the wall's
+// grid, data-grid). runFilm compares each frame with a reference frame taken before any tile is on screen: a tile is showing when it differs
+// from the ground behind it (the ground is a glow, not flat, so the spread inside a tile cannot tell a tile from the ground).
+const TILE_SAMPLES = (b64, g) => `(async()=>{const g=${JSON.stringify(g)};const b=await createImageBitmap(await (await fetch("data:image/jpeg;base64,${b64}")).blob());
+  const k=b.width/innerWidth,c=new OffscreenCanvas(b.width,b.height),x=c.getContext("2d",{willReadFrequently:true});x.drawImage(b,0,0);const out=[];
+  for(let i=0;i<g.count;i++){const row=Math.floor(i/g.cols),col=i%g.cols;const tx=g.originX+col*(g.tileW+g.gap)+(row===g.rows-1?g.lastRowOffset:0),ty=g.originY+row*(g.tileH+g.gap);
+   const x0=Math.round((tx+g.tileW*.15)*k),y0=Math.round((ty+g.tileH*.15)*k),w=Math.max(2,Math.round(g.tileW*.7*k)),h=Math.max(2,Math.round(g.tileH*.7*k));
+   const d=x.getImageData(x0,y0,w,h).data,v=[];
+   for(let yy=0;yy<5;yy++)for(let xx=0;xx<7;xx++){const px=Math.min(w-1,Math.floor((xx+.5)*w/7)),py=Math.min(h-1,Math.floor((yy+.5)*h/5)),o=(py*w+px)*4;v.push(Math.round(.2126*d[o]+.7152*d[o+1]+.0722*d[o+2]))}
+   out.push(v)}
+  return JSON.stringify(out)})()`;
 async function runFilm(f, label) {
   const dark = f.dark ?? 20, share = f.share ?? 0.75;
   castFrames.length = 0;
+  if (f.tiles) await send("Page.bringToFront"); // a long film of a slow load must not be throttled as a background page
   await send("Page.startScreencast", { format: "jpeg", quality: 40, everyNthFrame: 1 });
   const t0 = performance.now();
   if (f.eval) void send("Runtime.evaluate", { expression: f.eval, awaitPromise: true, returnByValue: true });
@@ -93,12 +106,32 @@ async function runFilm(f, label) {
     box = r.result?.result?.value ?? null;
   }
   for (const fr of frames) { const v = (await send("Runtime.evaluate", { expression: FILM_LUMA(fr.data, dark, box), awaitPromise: true, returnByValue: true })).result?.result?.value ?? [1, 0]; rows.push({ at: Math.round(fr.t - t0), share: +v[0].toFixed(2), mean: +v[1].toFixed(1), std: +(v[2] ?? 99).toFixed(2), data: fr.data }); }
+  // `tiles`: a video wall's tiles showing in each frame (see TILE_SAMPLES: each frame against the same page with the wall hidden); the frames where the wall is blank after it has been seen are the gap this catches
+  let tileReport;
+  if (f.tiles) {
+    const grid = (await send("Runtime.evaluate", { expression: `(()=>{const s=document.querySelector('.wall-stage');return s&&s.dataset.grid?JSON.parse(s.dataset.grid):null})()`, returnByValue: true })).result?.result?.value ?? null;
+    if (grid && rows.length) {
+      const samples = async r => JSON.parse((await send("Runtime.evaluate", { expression: TILE_SAMPLES(r.data, grid), awaitPromise: true, returnByValue: true })).result?.result?.value ?? "[]");
+      // the reference: the same page with the wall hidden (the ground, the heading, the dock), photographed after the film
+      await send("Runtime.evaluate", { expression: `document.querySelector('.wall-stage').style.visibility='hidden'`, returnByValue: true });
+      await sleep(300); await send("Page.captureScreenshot", { format: "jpeg", quality: 40 });
+      const shot = await send("Page.captureScreenshot", { format: "jpeg", quality: 40 });
+      await send("Runtime.evaluate", { expression: `document.querySelector('.wall-stage').style.visibility=''`, returnByValue: true });
+      const ref = await samples({ data: shot.result.data });
+      for (const r of rows) { const v = await samples(r); r.tiles = v.filter((t, i) => t.reduce((s, x, j) => s + Math.abs(x - (ref[i]?.[j] ?? 0)), 0) / t.length > 6).length; }
+      // frames in the first second are the page before the one that loads (the film starts on it)
+      const seen = rows.findIndex(r => r.at > (f.tilesFrom ?? 1000) && r.tiles >= grid.count * 0.9);
+      const after = seen < 0 ? [] : rows.slice(seen);
+      const series = []; for (const r of rows.filter(r => r.at > (f.tilesFrom ?? 1000))) if (!series.length || series.at(-1)[1] !== r.tiles) series.push([r.at, r.tiles]);
+      tileReport = { count: grid.count, firstShownAtMs: seen < 0 ? null : rows[seen].at, blankFramesAfterShown: after.filter(r => r.tiles < grid.count / 2).length, minTilesAfterShown: after.length ? Math.min(...after.map(r => r.tiles)) : null, finalTiles: rows.at(-1).tiles, series: series.length > 40 ? series.slice(0, 20).concat([["...", series.length]], series.slice(-19)) : series };
+    }
+  }
   const bare = rows.filter(r => r.share >= share || (f.flat != null && r.std < f.flat));
   let gap = 0; for (let i = 1; i < rows.length; i++) gap = Math.max(gap, rows[i].at - rows[i - 1].at);
   if (f.keep && rows.length) { const worst = rows.reduce((a, b) => (b.share > a.share ? b : a)); writeFileSync(`${outDir}/${f.keep}.jpg`, Buffer.from(worst.data, "base64")); }
   if (f.keep && f.at != null && rows.length) { const near = rows.reduce((a, b) => (Math.abs(b.at - f.at) < Math.abs(a.at - f.at) ? b : a)); writeFileSync(`${outDir}/${f.keep}-at.jpg`, Buffer.from(near.data, "base64")); }
   if (f.keep && f.ats) for (const a of f.ats) { const near = rows.reduce((p, b) => (Math.abs(b.at - a) < Math.abs(p.at - a) ? b : p)); writeFileSync(`${outDir}/${f.keep}-${String(a).padStart(4, "0")}.jpg`, Buffer.from(near.data, "base64")); }
-  console.log(JSON.stringify({ step: label ?? "film", stdMin: rows.length ? Math.min(...rows.map(r => r.std)) : null, stdSeries: f.series ? rows.map(r => [r.at, r.std, r.mean]) : undefined, frames: rows.length, longestGapMs: gap, firstMs: rows[0]?.at, lastMs: rows.at(-1)?.at, darkShareMax: rows.length ? Math.max(...rows.map(r => r.share)) : null, box: box ? [Math.round(box.x), Math.round(box.y), Math.round(box.w), Math.round(box.h)] : (f.rect ? "not found: whole frame" : "whole frame"), bareFrames: bare.map(r => [r.at, r.share, r.mean, r.std]), ok: rows.length > 5 && bare.length === 0 }));
+  console.log(JSON.stringify({ step: label ?? "film", stdMin: rows.length ? Math.min(...rows.map(r => r.std)) : null, stdSeries: f.series ? rows.map(r => [r.at, r.std, r.mean]) : undefined, frames: rows.length, longestGapMs: gap, firstMs: rows[0]?.at, lastMs: rows.at(-1)?.at, darkShareMax: rows.length ? Math.max(...rows.map(r => r.share)) : null, box: box ? [Math.round(box.x), Math.round(box.y), Math.round(box.w), Math.round(box.h)] : (f.rect ? "not found: whole frame" : "whole frame"), bareFrames: bare.map(r => [r.at, r.share, r.mean, r.std]), ok: rows.length > 5 && bare.length === 0, ...(tileReport ? { tileReport } : {}) }));
 }
 for (const s of steps) {
   if (s.size) await send("Emulation.setDeviceMetricsOverride", { width: s.size[0], height: s.size[1], deviceScaleFactor: s.dpr ?? 1, mobile: !!s.mobile });

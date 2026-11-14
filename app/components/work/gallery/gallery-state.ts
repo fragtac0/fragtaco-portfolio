@@ -48,8 +48,8 @@ export type TileState = {
   texture: THREE.DataTexture;
   /** The grid the tiles arrive in: columns, rows and how many columns a short last row is shifted to the middle. Asked again after a resize. */
   setLayout(cols: number, rows: number, lastShift: number): void;
-  /** The first frame is drawn at `now`: the arrival runs from here, and pictures already in show whole. */
-  start(now: number): void;
+  /** The first frame is drawn at `now`: the arrival runs from here, and pictures already in show whole. `instant`: the tiles are whole from this frame with no arrival (the wall was already showing as links). */
+  start(now: number, instant?: boolean): void;
   setHover(i: number | null): void;
   setFocus(i: number | null): void;
   /** The eased hover amount of tile `i`, 0 to 1. */
@@ -77,6 +77,7 @@ export function createTileState(T: typeof THREE, count: number, reduced: boolean
   let rows = count;
   let lastShift = 0;
   let startedAt = -1;
+  let instant = false;
 
   const grown = new Float32Array(GROWN_SLOTS * 2);
   const live: Array<[number, number]> = [];
@@ -89,8 +90,9 @@ export function createTileState(T: typeof THREE, count: number, reduced: boolean
       rows = r;
       lastShift = shift;
     },
-    start(now) {
+    start(now, whole = false) {
       startedAt = now;
+      instant = whole;
     },
     amount: (i) => hover[i] ?? 0,
     setHover: (i) => (hoverIdx = i),
@@ -112,9 +114,11 @@ export function createTileState(T: typeof THREE, count: number, reduced: boolean
         if (hover[i] > 0) live.push([i, hover[i]]);
         const b = Math.round(ring[i] * 255);
         const row = Math.floor(i / cols);
-        const pose = started
-          ? arrival(Math.min(i % cols, cols - 1) + (row === rows - 1 ? lastShift : 0), row, cols, rows, t, reduced)
-          : { scale: ARRIVAL.scaleFrom, alpha: 0 };
+        const pose = !started
+          ? { scale: ARRIVAL.scaleFrom, alpha: 0 }
+          : instant
+            ? { scale: 1, alpha: 1 }
+            : arrival((i % cols) + (row === rows - 1 ? lastShift : 0), row, cols, rows, t, reduced);
         if (started && pose.alpha < 1) busy = true;
         const g = Math.round(pose.alpha * 255);
         const a = Math.round(((pose.scale - ARRIVAL.scaleFrom) / (1 - ARRIVAL.scaleFrom)) * 255);

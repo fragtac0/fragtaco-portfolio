@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
 import { placeholderArt } from "../../../content/placeholder-art";
 import { coverUrl } from "../../../content/work-media";
 import { usePageArrived } from "../../../lib/use-page-settled";
@@ -17,6 +17,12 @@ interface VideoWallProps {
   items: WorkVideo[];
 }
 
+// Layout effects warn on the server; the server never measures, so there it is a plain effect.
+const useIsoLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
+
+/** If the engine has not drawn this long after the wall could start (the page has arrived and the wall is measured), the links are shown as the wall until it does (three.js still downloading on a slow connection), so the wall is never blank for long. */
+const SHOW_LINKS_AFTER_MS = 1500;
+
 const ARROWS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"]);
 
 /**
@@ -25,7 +31,8 @@ const ARROWS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home
  * where the pictures are. They are out of sight (still the accessible list: they take focus, Enter opens them, arrow
  * keys move the engine's ring) while the engine starts and arrives, so the wall's arrival is the first thing seen, and
  * they are the visible wall for good when there is no WebGL or the context is lost (a picture that does not load shows
- * the tile's local art).
+ * the tile's local art). On a slow first load, where the links are already showing before the engine is ready, they stay
+ * showing until it has drawn (`data-shown`, `data-drawn`; gallery.css) so the wall never goes blank in between.
  * A click or tap on the canvas opens the tile's link in a new tab through that link, so `rel="noreferrer"`
  * and the browser's own new-tab handling apply. Hovering a tile shows its title and year at the lower left.
  */
@@ -39,13 +46,23 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
   const armed = useRef<number | null>(null);
   const [hover, setHover] = useState<number | null>(null);
   const [ring, setRing] = useState<number | null>(null);
+  // `early`: the wall is on screen as links before the engine has drawn. Two ways in: the server's grid of links is shown by
+  // gallery.css after 2.5 s, and if that has happened by the time the page runs (a slow first load) they are already showing
+  // (read once at mount, before the first measure, so before `data-fit` hides anything); or the engine is still not drawing
+  // `SHOW_LINKS_AFTER_MS` after the wall could start (below). The links then stay until the engine has drawn, fade out under it,
+  // and the engine draws whole tiles with no arrival, so the wall is never blank for long and never shows, blanks, shows.
+  const [early, setEarly] = useState(false);
+  useIsoLayoutEffect(() => {
+    const list = listRef.current;
+    if (list && Number.parseFloat(getComputedStyle(list).opacity) > 0.5) setEarly(true);
+  }, []);
 
   const box = useWallBox(stage);
   const arrived = usePageArrived(2);
   const reduced = useReducedMotion();
   const srcs = useMemo(() => items.map((video) => coverUrl(video, tall)), [items, tall]);
   const arts = useMemo(() => items.map((video) => placeholderArt(video.id, tall)), [items, tall]);
-  const { live, failed, api } = useWallEngine({
+  const { live, drawn, failed, api } = useWallEngine({
     host: canvasHost,
     arrived,
     measured: box !== null,
@@ -53,12 +70,21 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
     arts,
     aspect,
     reduced,
+    instant: early,
     safe: () => safeOf(null, stage.current),
     onHover: setHover,
     onActivate: (i) => {
       armed.current = i; // opened by the click event that follows, which a new tab is allowed from
     },
   });
+
+  // the engine is slow to draw (the arrival is the first thing seen when it is not): show the links meanwhile
+  const fitted = box !== null;
+  useEffect(() => {
+    if (!arrived || !fitted || drawn || failed || early) return;
+    const t = window.setTimeout(() => setEarly(true), SHOW_LINKS_AFTER_MS);
+    return () => window.clearTimeout(t);
+  }, [arrived, fitted, drawn, failed, early]);
 
   const grid = useMemo(
     () => (box ? fitGrid(items.length, box.vw, box.vh, aspect, safeOf(box, null)) : null),
@@ -129,6 +155,8 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
       className="wall-stage"
       data-fit={grid ? "" : undefined}
       data-live={live ? "" : undefined}
+      data-drawn={drawn ? "" : undefined}
+      data-shown={early ? "" : undefined}
       data-plain={failed ? "" : undefined}
       data-grid={grid ? JSON.stringify({ ...grid, vw: box?.vw, vh: box?.vh }) : undefined}
     >

@@ -17,7 +17,8 @@ interface WallPageProps {
  * One video wall (`/work/long-form`, `/work/short-form`): the heading (kind and count) at the top
  * left, the back button at the top right (the shelves' close button: the same component and place) and the
  * wall itself (`VideoWall`: the shader gallery over the links, which stay as the list and as the picture
- * where there is no WebGL). Esc goes back to the rings with the page change, as the back button does.
+ * where there is no WebGL). The header comes first in the page (as on the shelves), so the heading is read first and
+ * Back is the first tab stop; it stays above the wall by its layer. Esc goes back to the rings with the page change, as the back button does.
  */
 export default function WallPage({ kind, videos }: WallPageProps) {
   const navigate = useNavigate();
@@ -34,11 +35,11 @@ export default function WallPage({ kind, videos }: WallPageProps) {
 
   return (
     <main className="wall-page" data-wall={kind}>
-      <VideoWall kind={kind} items={videos} />
       <div className="wall-head" data-wall-top="">
         <WallHeading kind={kind} count={videos.length} />
         <BackButton />
       </div>
+      <VideoWall kind={kind} items={videos} />
     </main>
   );
 }
