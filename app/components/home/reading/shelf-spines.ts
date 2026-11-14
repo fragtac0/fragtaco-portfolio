@@ -2,7 +2,7 @@ import type * as THREE from "three";
 import type { SiteBook } from "~/types";
 import { drawSpinePhoto, type SpineSize } from "./spine-draw";
 import { paintSpine } from "./spine-paint";
-import { spineFontsReady, watchSpineFonts } from "./spine-fonts";
+import { missingFaces } from "./spine-fonts";
 import { designFor, hasSeries, plainSeries, type SeriesDesign } from "./spine-series";
 import { spineColours, type SpineColours } from "./spine-styles";
 
@@ -12,8 +12,8 @@ import { spineColours, type SpineColours } from "./spine-styles";
  * design from the series (spine-series.ts). A book with no design of its own gets the series' plain
  * style from its colour first and from its cover's colours when they arrive (shelf-covers.ts, a short
  * crossfade); a designed book keeps its design. A spine is painted again when a late face arrives
- * (`repaintSpines`), and from the picture when the book has a `spine` path. The camera is orthographic, so the on-screen size is known from the fit: a new fit
- * (a resize) repaints at the new size on the same canvas and texture, which are never replaced, so
+ * (`lateSpines`, `repaintSpines`; shelf-spine-fonts.ts), and from the picture when the book has a `spine` path. The camera is
+ * orthographic, so the on-screen size is known from the fit: a new fit (a resize) repaints at the new size on the same canvas and texture, which are never replaced, so
  * nothing leaks. Client only.
  */
 
@@ -26,6 +26,8 @@ export type SpineFace = {
   colours: SpineColours;
   /** The pixel ratio (at most 2) the canvas is drawn for; the author's minimum size and the edge follow it. */
   dpr: number;
+  /** The faces its design names that had not loaded when it was last painted (it is in a fallback for these). */
+  missing: string[];
   /** The author's font size on the canvas in pixels, as last set (0 under a picture); the audit reads it. */
   authorPx: number;
   /** The real picture of the spine, once it has loaded (a book with `spine` set). */
@@ -78,18 +80,23 @@ const blank = (w: number, h: number): HTMLCanvasElement => {
   return c;
 };
 
+/** The letters a book's spine shows (the subsets its faces must have). */
+export const spineText = (d: Pick<SiteBook, "title" | "author">): string => `${d.title} ${d.author}`;
+
 /** Paints the face's current look (the picture when it has one, else the designed spine) onto a canvas. */
 function paintLook(
   c: HTMLCanvasElement,
   d: SiteBook,
-  face: Pick<SpineFace, "design" | "photo" | "dpr" | "authorPx">,
+  face: Pick<SpineFace, "design" | "photo" | "dpr" | "authorPx" | "missing">,
 ): void {
   const x = ctxOf(c);
   const size = { w: c.width, h: c.height };
   if (face.photo) {
     drawSpinePhoto(x, size, face.photo);
     face.authorPx = 0;
+    face.missing = [];
   } else {
+    face.missing = missingFaces(face.design, spineText(d)); // read first: what was loaded is what this paint uses
     face.authorPx = paintSpine(x, size.w, size.h, d, face.design, { dpr: face.dpr }).authorSize;
   }
 }
@@ -117,6 +124,7 @@ export function createSpineFace(
     photo: null,
     dpr: cappedDpr(dpr),
     authorPx: 0,
+    missing: [] as string[],
   };
   paintLook(canvas, d, first);
   return { canvas, tex: toTex(canvas), ...first, fade: null };
@@ -159,9 +167,17 @@ export function retintSpine(b: SpineBook, colours: SpineColours, animate: boolea
 }
 
 /**
- * A late face arrived: paints every spine again on its own canvas (same size, so the texture's
- * storage stays and only its contents are sent again). A crossfade in progress is dropped: the repaint
- * is already its end.
+ * The spines that were painted with a face missing and can now be drawn in at least one more of
+ * them: only these are painted again when a late face arrives. Pure but for the font set it asks.
+ */
+export const lateSpines = (books: readonly SpineBook[]): SpineBook[] =>
+  books.filter(
+    (b) => b.spine.missing.length > 0 && missingFaces(b.spine.design, spineText(b.d)).length < b.spine.missing.length,
+  );
+
+/**
+ * Paints these spines again, each on its own canvas (same size, so the texture's storage stays and
+ * only its contents are sent again). A crossfade in progress is dropped: the repaint is already its end.
  */
 export function repaintSpines(books: SpineBook[]): void {
   for (const b of books) {
@@ -274,45 +290,5 @@ export function loadSpinePhotos(
       img.onload = img.onerror = null;
       img.src = "";
     }
-  };
-}
-
-export type SpineFonts = {
-  /** Resolves when the spine faces have loaded (or 2.5 s have passed): paint the spines after it. */
-  ready: Promise<void>;
-  /** The scene's spines exist: paints them again now if a face arrived while they were being made. */
-  scene(books: SpineBook[]): void;
-  stop(): void;
-};
-
-/**
- * The spine faces for `books`: `ready` to wait on before the spines are painted, and a repaint of
- * the scene's spines (then `repainted()`) whenever a face arrives after that. Start it before the
- * scene is built; call `scene` once the scene exists.
- */
-export function createSpineFonts(books: SiteBook[], repainted: () => void): SpineFonts {
-  const designs = books.map((b) => designFor(b, firstColours(b.color)));
-  const letters = books.map((b) => `${b.title} ${b.author}`).join(" ");
-  let live: SpineBook[] | null = null;
-  let late = false;
-  const repaint = () => {
-    if (!live) {
-      late = true;
-      return;
-    }
-    repaintSpines(live);
-    repainted();
-  };
-  const stop = watchSpineFonts(designs, letters, repaint);
-  return {
-    ready: spineFontsReady(designs, letters),
-    scene(list) {
-      live = list;
-      if (late) {
-        late = false;
-        repaint();
-      }
-    },
-    stop,
   };
 }

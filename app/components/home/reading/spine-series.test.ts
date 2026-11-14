@@ -5,6 +5,7 @@ import { EMBLEMS } from "./spine-emblems";
 import {
   AUTHOR_FONT,
   SERIES,
+  bookLook,
   designFor,
   familyList,
   hasSeries,
@@ -123,6 +124,24 @@ describe("type helpers", () => {
     const families = new Set(Object.values(SERIES).map((d) => parseFont(d.font).family));
     for (const f of families) {
       expect(["Archivo", "Bodoni Moda", "Newsreader", "Space Grotesk", "Unbounded", "Young Serif", "IBM Plex Mono"]).toContain(f);
+    }
+  });
+});
+
+describe("bookLook (every face of a book takes the spine's cloth, R90)", () => {
+  it("is the design's cloth and foil for a designed book, and the plain style from its colour for others", () => {
+    expect(bookLook({ id: "story", color: "#151312" })).toEqual({ cloth: SERIES.story.cloth, foil: SERIES.story.foil });
+    expect(bookLook({ id: "x", series: "ways-of-seeing", color: "#c21f2b" })).toEqual({
+      cloth: SERIES["ways-of-seeing"].cloth,
+      foil: SERIES["ways-of-seeing"].foil,
+    });
+    const plain = bookLook({ id: "no-design", color: "#101010" });
+    expect(plain.cloth).toBe("#101010");
+  });
+  it("has type that reads on the cloth, for every design (the generated cover's title and author)", () => {
+    for (const id of Object.keys(SERIES)) {
+      const { cloth, foil } = bookLook({ id, color: "#000000" });
+      expect(contrast(cloth, foil), id).toBeGreaterThanOrEqual(3);
     }
   });
 });

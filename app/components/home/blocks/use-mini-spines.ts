@@ -5,8 +5,11 @@ import { spineFontsReady, watchSpineFonts } from "../reading/spine-fonts";
 import { designFor } from "../reading/spine-series";
 import { spineColours } from "../reading/spine-styles";
 
-/** The small shelf's author is set a little under the 3D shelf's 10 px floor: the block is a picture, not a page to read. */
-export const MINI_AUTHOR_MIN_CSS = 5;
+/**
+ * The small shelf's author is set true to scale (no floor, R91) and left out when that is under this
+ * many CSS pixels: the block is a picture, and lettering that small is neither legible nor faithful.
+ */
+export const MINI_AUTHOR_HIDE_UNDER_CSS = 7;
 const MAX_DPR = 2;
 
 /**
@@ -14,18 +17,21 @@ const MAX_DPR = 2;
  * size on screen: each `canvas[data-spine]` in the row is its spine's own size times the shelf's fit
  * (`--ms-fit`, set by use-mini-fit) times the pixel ratio. They are painted after the spine faces
  * are ready (until then the cloth stands in), again when the block is resized and again when a late
- * face arrives. Call after `useMiniFit` so a resize reads the new fit. No React state.
+ * face arrives. Nothing is loaded or painted until `near` (the block is close to the screen, see
+ * use-near.ts), so the spine faces do not compete with the first paint for bandwidth. Call after
+ * `useMiniFit` so a resize reads the new fit. No React state of its own.
  */
 export function useMiniSpines(
   artRef: RefObject<HTMLElement>,
   rowRef: RefObject<HTMLElement>,
   books: readonly SiteBook[],
   spines: readonly { width: number; height: number }[],
+  near: boolean,
 ) {
   useEffect(() => {
     const art = artRef.current;
     const row = rowRef.current;
-    if (!art || !row || books.length === 0) return;
+    if (!near || !art || !row || books.length === 0) return;
     const designs = books.map((b) => designFor(b, spineColours({ dominant: b.color, secondary: b.color })));
     const letters = books.map((b) => `${b.title} ${b.author}`).join(" ");
     let ready = false;
@@ -49,7 +55,7 @@ export function useMiniSpines(
           c.width = w;
           c.height = h;
         }
-        paintSpine(ctx, w, h, book, designs[i], { dpr, authorMinCss: MINI_AUTHOR_MIN_CSS });
+        paintSpine(ctx, w, h, book, designs[i], { dpr, authorMinCss: 0, authorHideUnderCss: MINI_AUTHOR_HIDE_UNDER_CSS });
       });
     };
     let stopped = false;
@@ -66,5 +72,5 @@ export function useMiniSpines(
       stopWatch();
       ro.disconnect();
     };
-  }, [artRef, rowRef, books, spines]);
+  }, [artRef, rowRef, books, spines, near]);
 }

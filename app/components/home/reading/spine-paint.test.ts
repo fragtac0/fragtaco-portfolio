@@ -7,6 +7,8 @@ import { EMBLEMS, drawEmblem } from "./spine-emblems";
 import {
   AUTHOR_MIN_CSS_PX,
   drawingWidth,
+  faceOf,
+  measurer,
   paintSpine,
   planSpine,
   type SpinePlan,
@@ -142,6 +144,24 @@ describe("type scales with the spine's width", () => {
     expect(c.author.size * c.u).toBeGreaterThanOrEqual(5 - 1e-6);
   });
 
+  it("leaves the author out when it would be set under the hide size (the small shelf, R91), and keeps it above", () => {
+    const b = books[0];
+    const w = Math.round(drawingWidth(b.pages) * 0.42);
+    const small = plan(b, w, 220, design(b), { authorMinCss: 0, authorHideUnderCss: 7 });
+    expect(small.author.text).toBe("");
+    expect(small.author.size).toBe(0);
+    const { ctx, marks } = recordingCtx();
+    const out = paintSpine(ctx, w, 220, b, design(b), { authorMinCss: 0, authorHideUnderCss: 7 });
+    expect(out.authorText).toBe("");
+    expect(marks.some((m) => m.text === b.author.toLocaleUpperCase())).toBe(false);
+    // twice the size: the author is 8.4 CSS px, kept
+    const big = plan(b, w * 2, 440, design(b), { authorMinCss: 0, authorHideUnderCss: 7 });
+    expect(big.author.text).not.toBe("");
+    expect(big.author.size * big.u).toBeGreaterThanOrEqual(7 - 1e-6);
+    // the room it left goes to the title
+    expect(small.title.size).toBeGreaterThanOrEqual(plan(b, w, 220, design(b), { authorMinCss: 0 }).title.size);
+  });
+
   it("keeps the title and its lines inside the spine's width across", () => {
     for (const [, scale, dpr] of SIZES) {
       for (const b of books) {
@@ -247,5 +267,54 @@ describe("the cloth grain", () => {
     expect(mean).toBeGreaterThan(0.03);
     expect(mean).toBeLessThan(0.2);
     expect(Math.max(...a) / 255).toBeLessThan(0.4);
+  });
+});
+
+describe("type measured as it is drawn", () => {
+  /** A context whose whole-string measure includes a kerning pull (half a pixel a pair). */
+  function kerned() {
+    const { ctx } = recordingCtx();
+    const base = ctx.measureText.bind(ctx);
+    return new Proxy(ctx, {
+      get(t, k: string) {
+        if (k === "measureText") return (text: string) => ({ width: base(text).width - Math.max(0, [...text].length - 1) * 0.5 });
+        return (t as unknown as Record<string, unknown>)[k];
+      },
+    });
+  }
+
+  it("measures tracked lettering as the sum of its letters' advances, as it is drawn (no kerning)", () => {
+    const d = SERIES["sculpting-in-time"]; // tracked 0.2em
+    const ctx = kerned();
+    const size = 16;
+    const text = "SCULPTING IN TIME";
+    const n = [...text].length;
+    const letters = n * 0.6 * size;
+    const whole = ctx.measureText(text).width;
+    expect(whole).toBeLessThan(letters); // the whole string is shorter by its kerning
+    expect(measurer(ctx, faceOf(ctx, d))(text, size)).toBeCloseTo(letters + 0.2 * size * (n - 1), 6);
+  });
+
+  it("measures an untracked line whole, with its kerning", () => {
+    const d = SERIES["on-film-editing"];
+    const ctx = kerned();
+    const text = "On Film Editing";
+    expect(measurer(ctx, faceOf(ctx, d))(text, 19)).toBeCloseTo(ctx.measureText(text).width, 6);
+  });
+
+  it("sets the font width back to normal for the author after a condensed or expanded title", () => {
+    const widths: string[] = [];
+    const { ctx } = recordingCtx();
+    const spy = new Proxy(ctx, {
+      set(t, k: string, v) {
+        if (k === "fontStretch") widths.push(String(v));
+        (t as unknown as Record<string, unknown>)[k] = v;
+        return true;
+      },
+    });
+    const b = books.find((k) => k.id === "sculpting-in-time")!; // extra-condensed
+    paintSpine(spy, 62, 700, b, design(b));
+    expect(widths).toContain("extra-condensed");
+    expect(widths[widths.length - 1]).toBe("normal"); // the author's face was set last
   });
 });

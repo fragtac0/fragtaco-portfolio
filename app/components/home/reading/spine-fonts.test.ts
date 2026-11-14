@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { FONT_WAIT_MS, facesOf, familyOfFace, spineFontsReady, stylesheetApplied, watchSpineFonts } from "./spine-fonts";
+import { FONT_WAIT_MS, OPEN_FONT_WAIT_MS, facesOf, familyOfFace, faceLoaded, missingFaces, spineFontsReady, stylesheetApplied, watchSpineFonts } from "./spine-fonts";
 import { SERIES } from "./spine-series";
 
 type Listener = (e: Event) => void;
@@ -166,3 +166,30 @@ describe("watchSpineFonts", () => {
     expect(late).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("faceLoaded and missingFaces", () => {
+  it("say a face is not loaded while the stylesheet is held back, though the font set has never heard of it", () => {
+    const p = page("print");
+    (document.fonts as unknown as { check: () => boolean }).check = () => true; // what a browser says of an unknown family
+    expect(faceLoaded('600 17px "Bodoni Moda"', "x")).toBe(false);
+    expect(missingFaces(SERIES.story, "Story")).toEqual(seriesFacesOf(SERIES.story));
+    p.apply();
+    expect(faceLoaded('600 17px "Bodoni Moda"', "x")).toBe(true);
+    expect(missingFaces(SERIES.story, "Story")).toEqual([]);
+  });
+
+  it("follow the font set's check once the stylesheet is in force, and say loaded when there is no way to ask", () => {
+    page("all");
+    (document.fonts as unknown as { check: (f: string) => boolean }).check = (f) => !f.includes("Bodoni");
+    expect(missingFaces(SERIES.story, "Story")).toEqual(['800 46px "Bodoni Moda"']);
+    vi.unstubAllGlobals();
+    expect(missingFaces(SERIES.story, "Story")).toEqual([]);
+  });
+
+  it("the open path waits for less than the idle path", () => {
+    expect(OPEN_FONT_WAIT_MS).toBeLessThan(FONT_WAIT_MS);
+    expect(OPEN_FONT_WAIT_MS).toBeLessThanOrEqual(1000);
+  });
+});
+
+const seriesFacesOf = (d: (typeof SERIES)[string]) => facesOf([d]);

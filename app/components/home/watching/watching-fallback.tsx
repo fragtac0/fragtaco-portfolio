@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import type { SiteVideo } from "../../../types";
+import { useHeadClear } from "../layer/use-head-clear";
 import type { WallControl } from "./wall-types";
 import type { WallPick } from "./pick-channel";
 import { thumbUrl } from "./wall-math";
@@ -29,8 +31,10 @@ type WatchingFallbackProps = {
  * detail view the wall does (the button's rectangle is where the shot flies from).
  */
 export default function WatchingFallback({ videos, onPick }: WatchingFallbackProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useHeadClear(scrollRef);
   return (
-    <div className="fb-scroll">
+    <div className="fb-scroll" ref={scrollRef}>
       <ul className="fb-grid fb-videos" aria-label="Videos on the wall">
         {videos.map((v, i) => (
           <li key={v.id}>

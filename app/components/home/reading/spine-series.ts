@@ -1,4 +1,4 @@
-import type { SpineColours } from "./spine-styles";
+import { spineColours, type SpineColours } from "./spine-styles";
 
 /**
  * The spine series (round 7 spec 8.2): fourteen designs, one per book, drawn as one family. Each has a
@@ -89,6 +89,16 @@ export function plainSeries(colours: SpineColours): SeriesDesign {
 /** The design a book wears: its entry in the series, or the plain style from `colours`. */
 export function designFor(book: SeriesKey, colours: SpineColours): SeriesDesign {
   return SERIES[book.series ?? book.id] ?? plainSeries(colours);
+}
+
+/**
+ * What a book is bound in, for every face of it that is not the spine (its generated cover, boards,
+ * page edges, and the plain grid): the series' cloth and foil, so all faces of a book agree with its
+ * spine (R90). A book with no entry gets the plain style from its own colour.
+ */
+export function bookLook(book: SeriesKey & { color: string }): { cloth: string; foil: string } {
+  const { cloth, foil } = designFor(book, spineColours({ dominant: book.color, secondary: book.color }));
+  return { cloth, foil };
 }
 
 export type ParsedFont = { italic: boolean; weight: number; size: number; family: string };

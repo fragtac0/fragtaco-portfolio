@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { SiteBook } from "../../../types";
 import { drawingWidth } from "../reading/spine-paint";
 import { SERIES } from "../reading/spine-series";
-import { MINI_SCALE, fitMiniShelf, miniShelfScale, inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
+import { MINI_SCALE, fitMiniShelf, miniShelfScale, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 
 const book = (over: Partial<SiteBook>): SiteBook => ({
   id: "b",
@@ -18,18 +18,6 @@ const book = (over: Partial<SiteBook>): SiteBook => ({
   ...over,
 });
 
-describe("inkOn", () => {
-  it("picks dark ink on a light spine and light ink on a dark one", () => {
-    expect(inkOn("#f0e6d0")).toBe("#17120d");
-    expect(inkOn("#1b1b1b")).toBe("#f6f0e2");
-  });
-  it("switches at luminance 0.56", () => {
-    // 0.299 r + 0.587 g + 0.114 b over 255: mid grey (#8f8f8f = 143) is 0.561
-    expect(inkOn("#8f8f8f")).toBe("#17120d");
-    expect(inkOn("#8e8e8e")).toBe("#f6f0e2");
-  });
-});
-
 describe("miniSpine", () => {
   it("is the series' own spine at the small scale: the width from pages, the height from the trim", () => {
     const s = miniSpine(book({ pages: 400, heightIn: 9 }));
@@ -39,13 +27,9 @@ describe("miniSpine", () => {
     expect(miniSpine(book({ pages: 2000 })).width).toBe(Math.round(72 * MINI_SCALE));
     expect(miniSpine(book({ pages: 10 })).width).toBe(Math.round(32 * MINI_SCALE));
   });
-  it("stands the design's cloth and foil, or the plain style from the book's colour", () => {
-    const designed = miniSpine(book({ id: "story" }));
-    expect(designed.background).toBe(SERIES.story.cloth);
-    expect(designed.ink).toBe(SERIES.story.foil);
-    const plain = miniSpine(book({ id: "no-design", color: "#101010" }));
-    expect(plain.background).toBe("#101010");
-    expect(plain.ink).toBe("#f6f0e2");
+  it("stands the design's cloth, or the plain style from the book's colour", () => {
+    expect(miniSpine(book({ id: "story" })).background).toBe(SERIES.story.cloth);
+    expect(miniSpine(book({ id: "no-design", color: "#101010" })).background).toBe("#101010");
   });
   it("keeps the shape of the spine the 3D shelf shows (width over height within a quarter)", () => {
     for (const b of [book({ pages: 146, heightIn: 8.5 }), book({ pages: 466, heightIn: 9.5 }), book({ pages: 176, heightIn: 11 })]) {

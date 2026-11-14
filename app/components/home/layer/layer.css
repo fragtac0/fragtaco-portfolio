@@ -192,8 +192,9 @@ html.locked body {
   inset: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* the first row starts under the header's strip (its title and count), never behind the count */
-  padding: max(120px, calc(var(--head-pad-top) + 78px)) clamp(16px, 3vw, 44px) 56px;
+  /* the first row starts under the header (its title and count), never behind the count: --fb-top is the header's
+     measured bottom (use-head-clear.ts); until it is set, an estimate */
+  padding: var(--fb-top, max(120px, calc(var(--head-pad-top) + 78px))) clamp(16px, 3vw, 44px) 56px;
 }
 .home-layer .fb-grid {
   list-style: none;

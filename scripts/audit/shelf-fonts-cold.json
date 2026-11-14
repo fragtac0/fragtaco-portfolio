@@ -1,0 +1,64 @@
+[
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "nocache": true,
+  "intercept": [
+   {
+    "match": "family=Archivo",
+    "delay": 7500
+   }
+  ],
+  "init": "window.__sc=[];(function(){const t0=performance.now();let last=t0;function f(n){const lay=document.querySelector('.home-layer');const g=n-last;last=n;window.__sc.push([Math.round(n),Math.round(g),lay?lay.className:'',!!document.querySelector('.shelf-host canvas'),!!document.querySelector('.home-layer .fb-scene')]);if(n-t0<14000)requestAnimationFrame(f)}requestAnimationFrame(f)})()",
+  "go": "{{BASE}}/#reading",
+  "wait": 3500
+ },
+ {
+  "eval": "(()=>{const a=window.__sc;const open=a.filter(r=>r[2]!=='');const first=open[0];const drawn=open.find(r=>/\\bready\\b/.test(r[2]));const last=a[a.length-1];const fam=['Archivo','Bodoni Moda','Unbounded','Newsreader','Space Grotesk','Young Serif'];const loaded=document.fonts?[...document.fonts].filter(f=>fam.includes(f.family)&&f.status==='loaded').length:-1;const cv=a.find(r=>r[3]);const classes=[];let pc='';for(const r of open){if(r[2]!==pc){classes.push([r[0],r[2]]);pc=r[2]}}return {layerFirstSeenAt:first&&first[0],canvasMountedAt:cv&&cv[0],layerClasses:classes,drawnAtMs:drawn&&drawn[0],waitedMs:drawn&&first?Math.round(drawn[0]-first[0]):null,canvasShown:!!drawn&&drawn[3],gridShown:last[4],spineFacesLoadedAtTheEnd:loaded,link:document.querySelector('link[data-spine-fonts]').media}})()",
+  "label": "cold deep link /#reading, the spine faces' stylesheet held back 7.5 s: the canvas (not the grid) draws, drawnAtMs under 1500"
+ },
+ {
+  "shot": "local-r52-4b-cold-sheet-held-warm"
+ },
+ {
+  "shot": "local-r52-4b-cold-sheet-held"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "nocache": true,
+  "intercept": [
+   {
+    "match": "fonts.gstatic.com",
+    "delay": 8000
+   }
+  ],
+  "init": "window.__sc=[];(function(){const t0=performance.now();let last=t0;function f(n){const lay=document.querySelector('.home-layer');const g=n-last;last=n;window.__sc.push([Math.round(n),Math.round(g),lay?lay.className:'',!!document.querySelector('.shelf-host canvas'),!!document.querySelector('.home-layer .fb-scene')]);if(n-t0<14000)requestAnimationFrame(f)}requestAnimationFrame(f)})()",
+  "go": "{{BASE}}/#reading",
+  "wait": 3500
+ },
+ {
+  "eval": "(()=>{const a=window.__sc;const open=a.filter(r=>r[2]!=='');const first=open[0];const drawn=open.find(r=>/\\bready\\b/.test(r[2]));const last=a[a.length-1];const fam=['Archivo','Bodoni Moda','Unbounded','Newsreader','Space Grotesk','Young Serif'];const loaded=document.fonts?[...document.fonts].filter(f=>fam.includes(f.family)&&f.status==='loaded').length:-1;const cv=a.find(r=>r[3]);const classes=[];let pc='';for(const r of open){if(r[2]!==pc){classes.push([r[0],r[2]]);pc=r[2]}}return {layerFirstSeenAt:first&&first[0],canvasMountedAt:cv&&cv[0],layerClasses:classes,drawnAtMs:drawn&&drawn[0],waitedMs:drawn&&first?Math.round(drawn[0]-first[0]):null,canvasShown:!!drawn&&drawn[3],gridShown:last[4],spineFacesLoadedAtTheEnd:loaded,link:document.querySelector('link[data-spine-fonts]').media}})()",
+  "label": "cold deep link /#reading, every font file held back 8 s (the interface faces and the spine faces): the canvas draws, drawnAtMs under 1500"
+ },
+ {
+  "shot": "local-r52-4b-cold-files-held-warm"
+ },
+ {
+  "shot": "local-r52-4b-cold-files-held"
+ }
+]

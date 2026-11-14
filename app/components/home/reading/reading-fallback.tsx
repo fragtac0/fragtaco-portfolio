@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SiteBook } from "../../../types";
-import { inkOn } from "../blocks/mini-previews";
+import { bookLook } from "./spine-series";
 import { inertProps } from "../../../utils/inert";
 import { useLayerControl } from "../layer/layer-context";
+import { useHeadClear } from "../layer/use-head-clear";
 
 /** Covers are fetched at runtime and never stored. A missing one is a 404 (`default=false`). */
 export const coverUrl = (isbn: string) =>
@@ -14,7 +15,7 @@ type ReadingFallbackProps = {
 
 /**
  * The reading pane without WebGL2: the books as a simple grid of covers (a cover image, or a CSS
- * cover in the spine colour with the title when none loads), each a button. Activating one shows
+ * cover in the book's cloth and foil, as on its spine, with the title when none loads), each a button. Activating one shows
  * the same note as the shelf: title, "author, pages", the placeholder note and "Put it back".
  * Esc closes the note before the layer, through the same hooks the shelf registers.
  */
@@ -25,6 +26,8 @@ export default function ReadingFallback({ books }: ReadingFallbackProps) {
   const [broken, setBroken] = useState<ReadonlySet<string>>(new Set());
   const openRef = useRef<string | null>(null);
   const gridRef = useRef<HTMLUListElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useHeadClear(scrollRef);
   const backRef = useRef<HTMLButtonElement>(null);
   /** The book to give focus back to when the note closes. */
   const returnTo = useRef<string | null>(null);
@@ -62,7 +65,7 @@ export default function ReadingFallback({ books }: ReadingFallbackProps) {
 
   return (
     <div className="fb-scene">
-      <div className="fb-scroll" {...inertProps(!!open)}>
+      <div className="fb-scroll" ref={scrollRef} {...inertProps(!!open)}>
         <ul ref={gridRef} className="fb-grid fb-books" aria-label="Books on the shelf">
           {books.map((b) => (
             <li key={b.id}>
@@ -79,8 +82,8 @@ export default function ReadingFallback({ books }: ReadingFallbackProps) {
                   <span
                     className="fb-cover fb-cover-css"
                     style={{
-                      backgroundColor: b.color,
-                      color: inkOn(b.color),
+                      backgroundColor: bookLook(b).cloth,
+                      color: bookLook(b).foil,
                       aspectRatio: b.aspect,
                     }}
                     aria-hidden="true"

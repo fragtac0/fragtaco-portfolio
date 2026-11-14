@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef, type CSSProperties } from "react";
+import { memo, useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
 import { inertProps } from "../../../utils/inert";
 import { countLabel } from "../../../utils/count-label";
 import type { SiteBook, SiteVideo } from "../../../types";
@@ -36,7 +36,16 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
     () => [["reading", readRef], ["watching", watchRef]] as const,
     [],
   );
-  useNear(blocks, onNear);
+  // the shelf block coming near also lets its small spines load their faces (use-mini-spines.ts)
+  const [shelfNear, setShelfNear] = useState(false);
+  const onNearBlock = useCallback(
+    (kind: LayerKind) => {
+      if (kind === "reading") setShelfNear(true);
+      onNear(kind);
+    },
+    [onNear],
+  );
+  useNear(blocks, onNearBlock);
 
   const columns = miniWallColumns(videos);
   const spines = useMemo(() => books.map(miniSpine), [books]);
@@ -44,7 +53,7 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
   const shelfRowRef = useRef<HTMLDivElement>(null);
   const fitSpines = useMemo(() => spines.map((s) => ({ w: s.width, h: s.height })), [spines]);
   useMiniFit(shelfArtRef, shelfRowRef, fitSpines);
-  useMiniSpines(shelfArtRef, shelfRowRef, books, spines);
+  useMiniSpines(shelfArtRef, shelfRowRef, books, spines, shelfNear);
 
   return (
     <section
@@ -86,7 +95,6 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
                           width: s.width,
                           height: s.height,
                           backgroundColor: s.background,
-                          color: s.ink,
                         } as CSSProperties
                       }
                     >

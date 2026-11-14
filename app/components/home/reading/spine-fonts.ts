@@ -9,8 +9,10 @@ import { seriesFaces, type SeriesDesign } from "./spine-series";
  * fallback face. Client only.
  */
 
-/** The longest the first paint waits for the faces. */
+/** The longest the first paint waits for the faces while nothing waits for the shelf (the idle path). */
 export const FONT_WAIT_MS = 2500;
+/** The longest it waits once the layer is open and waiting for the shelf (R89): the layer gives up on 3D at 1.5 s. */
+export const OPEN_FONT_WAIT_MS = 1000;
 
 /** The distinct faces the designs name (each as a CSS font shorthand). Pure. */
 export function facesOf(designs: readonly SeriesDesign[]): string[] {
@@ -30,6 +32,20 @@ export function stylesheetApplied(): boolean {
   const l = link();
   return !l || l.media === "all" || l.media === "" || l.media === "screen";
 }
+
+/**
+ * True when `face` can be drawn for `text` now: the stylesheet is in force and the face has loaded.
+ * (`document.fonts.check` alone says true for a family it has never heard of, as while the
+ * stylesheet is still `media="print"`.) With no font set to ask, true.
+ */
+export function faceLoaded(face: string, text: string): boolean {
+  if (typeof document === "undefined" || typeof document.fonts?.check !== "function") return true;
+  return stylesheetApplied() && document.fonts.check(face, text);
+}
+
+/** The faces of `design` that cannot be drawn for `text` yet; a spine painted now is in a fallback for these. */
+export const missingFaces = (design: SeriesDesign, text: string): string[] =>
+  seriesFaces(design).filter((f) => !faceLoaded(f, text));
 
 /** Runs `fn` once the stylesheet is in force (at once when it already is); returns a stop. */
 function whenApplied(fn: () => void): () => void {

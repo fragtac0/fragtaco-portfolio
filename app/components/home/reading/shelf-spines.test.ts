@@ -4,7 +4,6 @@ import {
   FADE_SECONDS,
   MAX_FADES,
   createSpineFace,
-  createSpineFonts,
   firstColours,
   repaintSpines,
   resizeSpines,
@@ -239,70 +238,5 @@ describe("resizeSpines", () => {
     showSpinePhoto(b, { naturalWidth: 90, naturalHeight: 600 } as HTMLImageElement, false);
     expect(b.spine.fade).toBeNull();
     expect([second.from.width, second.from.height, second.to.width, second.to.height]).toEqual([0, 0, 0, 0]);
-  });
-});
-
-describe("createSpineFonts", () => {
-  /** A font set that lets the test finish loads and announce a face. */
-  function fontSet() {
-    const listeners = new Set<(e: Event) => void>();
-    vi.stubGlobal("document", {
-      createElement: () => fakeCanvas(),
-      querySelector: () => null,
-      fonts: {
-        load: () => Promise.resolve([]),
-        addEventListener: (_: string, l: (e: Event) => void) => listeners.add(l),
-        removeEventListener: (_: string, l: (e: Event) => void) => listeners.delete(l),
-      },
-    });
-    vi.stubGlobal("window", { setTimeout: (f: () => void, ms: number) => setTimeout(f, ms) });
-    return (family: string) => {
-      for (const l of listeners) l({ type: "loadingdone", fontfaces: [{ family }] } as unknown as Event);
-    };
-  }
-
-  it("paints the scene's spines again when a face arrives after they were made, and says so", async () => {
-    vi.useFakeTimers();
-    const arrive = fontSet();
-    const b = spineBook(book());
-    const repainted = vi.fn();
-    const fonts = createSpineFonts([book()], repainted);
-    fonts.scene([b]);
-    const live = b.spine.canvas as unknown as FakeCanvas;
-    live.drawn.length = 0;
-    const uploads = b.uploads;
-    arrive("Bodoni Moda");
-    await vi.advanceTimersByTimeAsync(100);
-    expect(live.drawn.some((d) => d.fn === "fillText")).toBe(true);
-    expect(b.uploads).toBe(uploads + 1);
-    expect(repainted).toHaveBeenCalledTimes(1);
-    fonts.stop();
-    vi.useRealTimers();
-  });
-
-  it("paints them again as soon as the scene exists when the face arrived before it", async () => {
-    vi.useFakeTimers();
-    const arrive = fontSet();
-    const b = spineBook(book());
-    const repainted = vi.fn();
-    const fonts = createSpineFonts([book()], repainted);
-    arrive("Bodoni Moda");
-    await vi.advanceTimersByTimeAsync(100);
-    expect(repainted).not.toHaveBeenCalled(); // no scene yet
-    const uploads = b.uploads;
-    fonts.scene([b]);
-    expect(b.uploads).toBe(uploads + 1);
-    expect(repainted).toHaveBeenCalledTimes(1);
-    fonts.scene([b]); // told twice: nothing more is owed
-    expect(repainted).toHaveBeenCalledTimes(1);
-    fonts.stop();
-    vi.useRealTimers();
-  });
-
-  it("is ready when the faces are", async () => {
-    fontSet();
-    const fonts = createSpineFonts([book()], () => undefined);
-    await expect(fonts.ready).resolves.toBeUndefined();
-    fonts.stop();
   });
 });

@@ -28,8 +28,10 @@ export type PaintBook = Pick<SiteBook, "title" | "author" | "pages">;
 export type PaintOptions = {
   /** The device pixel ratio the canvas is made for (default 1): the hairline edge follows it. */
   dpr?: number;
-  /** The author is never set under this many CSS pixels (default 10; the small shelf asks for less). */
+  /** The author is never set under this many CSS pixels (default 10; the small shelf asks for none). */
   authorMinCss?: number;
+  /** The author is left out when it would be set under this many CSS pixels (default never: the small shelf says 7). */
+  authorHideUnderCss?: number;
 };
 
 /** Default author floor in CSS pixels. */
@@ -45,7 +47,7 @@ const GAP_RULE = 12; // between a rule pair and the emblem or the mark
 const MARK = 13; // the ring mark's size
 const MARK_FOOT = 14; // under the mark
 const AUTHOR_FOOT = 12; // under the author
-const TITLE_PAD = 8; // the title keeps this far from what is above and below it
+const TITLE_PAD = 14; // the title keeps this far from what is above and below it (the preview's `.sp-title` padding)
 /** The share of the spine's width the title's lines may take across. */
 const ACROSS = 0.92;
 /** The author takes at most this share of the spine's length (unless the floor forces more). */
@@ -120,6 +122,7 @@ export function planSpine(
   const surname = authorText.trim().split(/\s+/).pop() ?? authorText;
   const cap = Math.max(0, foot - AUTHOR_FOOT - top) * AUTHOR_SHARE;
   const size0 = Math.max(AUTHOR_FONT.size, authorMin);
+  const hideBelow = ((opts.authorHideUnderCss ?? 0) * dpr) / u; // too small to read: left out, the title has the room
   let author = { text: authorText, size: size0 };
   if (m.author(authorText, size0) > cap) {
     let s = size0;
@@ -127,7 +130,8 @@ export function planSpine(
     author = { text: authorText, size: s };
     if (m.author(authorText, s) > cap && surname !== authorText) author = { text: surname, size: s };
   }
-  const authorTop = foot - AUTHOR_FOOT - m.author(author.text, author.size);
+  if (author.size < hideBelow) author = { text: "", size: 0 };
+  const authorTop = foot - AUTHOR_FOOT - (author.text ? m.author(author.text, author.size) : 0);
 
   // the title, centred in what is left, shrunk until it fits along and across the spine
   const lines = titleText(book, design);
@@ -175,12 +179,13 @@ type Face = { f: ParsedFont; stretch: number; track: number; squash: number };
 /** Sets the context's font for `face` at `size`; a context with no `fontStretch` squeezes the letters instead. */
 function setFace(ctx: CanvasRenderingContext2D, face: Face, size: number, weight = face.f.weight): void {
   ctx.font = `${face.f.italic ? "italic " : ""}${weight} ${size.toFixed(2)}px ${familyList(face.f.family)}`;
-  if (face.stretch !== 100 && "fontStretch" in ctx) {
-    (ctx as unknown as { fontStretch: string }).fontStretch = stretchKeyword(face.stretch);
+  // always assigned: the face drawn before (a condensed title) must not leak its width into the author's
+  if ("fontStretch" in ctx) {
+    (ctx as unknown as { fontStretch: string }).fontStretch = face.stretch !== 100 ? stretchKeyword(face.stretch) : "normal";
   }
 }
 
-const faceOf = (ctx: CanvasRenderingContext2D, d: SeriesDesign): Face => {
+export const faceOf = (ctx: CanvasRenderingContext2D, d: SeriesDesign): Face => {
   const stretch = stretchOf(d);
   return {
     f: parseFont(d.font),
@@ -197,11 +202,17 @@ const authorFace: Face = {
   squash: 1,
 };
 
-function measurer(ctx: CanvasRenderingContext2D, face: Face): Measure {
+/**
+ * A line's length as `setLine` draws it: whole when untracked (kerning counts), else the sum of its
+ * letters' advances (tracked lettering is drawn a letter at a time, so there is no kerning) plus the spacing.
+ */
+export function measurer(ctx: CanvasRenderingContext2D, face: Face): Measure {
   return (text, size) => {
     setFace(ctx, face, size);
-    const n = [...text].length;
-    return (ctx.measureText(text).width + face.track * size * Math.max(0, n - 1)) * face.squash;
+    const letters = [...text];
+    const advance =
+      face.track === 0 ? ctx.measureText(text).width : letters.reduce((n, ch) => n + ctx.measureText(ch).width, 0);
+    return (advance + face.track * size * Math.max(0, letters.length - 1)) * face.squash;
   };
 }
 
@@ -298,7 +309,7 @@ export function paintSpine(
     setLine(ctx, face, line, t.size, t.centre - len / 2, across);
   });
   ctx.globalAlpha = 0.92;
-  setLine(ctx, authorFace, plan.author.text, plan.author.size, plan.author.top, 0);
+  if (plan.author.text) setLine(ctx, authorFace, plan.author.text, plan.author.size, plan.author.top, 0);
   ctx.restore();
   ctx.restore();
   return {
