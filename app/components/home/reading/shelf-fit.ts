@@ -2,6 +2,7 @@ import { clamp, flatFrame } from "./shelf-math";
 import { ledgeHeight } from "./ledge";
 import { placeMarker } from "./shelf-hud";
 import { headerBottom } from "./shelf-head";
+import { applyView, placeDots, stageSize } from "./shelf-frame";
 import type { ShelfCtx } from "./shelf-open";
 import type { Book } from "./shelf-scene-types";
 
@@ -25,8 +26,7 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   const els = ctx.els();
   if (!gl || !els) return;
   const { canvas, st, cam } = ctx;
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
+  const [w, h] = stageSize(canvas, ctx.box);
   if (!w || !h) return;
   const top = headerBottom(canvas);
   if (w === st.fitW && h === st.fitH && top === st.fitTop) return;
@@ -35,8 +35,8 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   st.fitH = h;
   st.fitTop = top;
   if (st.opened) closeBook(true);
-  const { renderer: r, camera, span } = gl;
-  r.setSize(w, h, false);
+  const { camera, span } = gl;
+  applyView(ctx, gl, w, h);
   const tallest = Math.max(...gl.books.map((b) => b.H));
   const f = flatFrame({ vw: w, vh: h, span, tallest, top });
   gl.scale = f.scale;
@@ -56,6 +56,8 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   placeMarker(els.marker, f.baseRow + Math.max(8, ledgeH - 8));
   // the dot field behind the row (a sibling of the host in the stage) stops at the ledge's top (reading.css `.dot-field`)
   els.stage?.style.setProperty("--ledge-top", `${f.baseRow}px`);
+  st.ledgeTop = f.baseRow;
+  placeDots(els.dots, ctx.box, w, h, f.baseRow);
   // read by scripts/audit/shelf.json: the tallest spine's share of the height, the row's of the width, the feet's row
   canvas.dataset.tall = ((f.scale * tallest) / h).toFixed(4);
   canvas.dataset.row = ((f.scale * span) / w).toFixed(4);

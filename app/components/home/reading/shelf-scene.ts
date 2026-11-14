@@ -7,6 +7,7 @@ import {
   softRectCanvas,
   topCanvas,
 } from "./shelf-canvases";
+import { windowSize } from "../layer/frame-box";
 import { ledgeHeight } from "./ledge";
 import { addShelfLights } from "./shelf-light";
 import { createLedge } from "./shelf-ledge";
@@ -119,10 +120,11 @@ export async function buildShelfScene(
 
     // the spines are first painted for the size the stage is most likely to be (the window); the fit repaints them if it is not
     const sizes = books.map(bookSize);
+    const [guessW, guessH] = windowSize();
     const guess = flatFrame({
-      vw: window.innerWidth,
-      vh: window.innerHeight,
-      top: headGuess(window.innerWidth),
+      vw: guessW,
+      vh: guessH,
+      top: headGuess(guessW),
       span: sizes.reduce((n, b) => n + b.T, 0) + SHELF_GAP * (books.length - 1),
       tallest: Math.max(...sizes.map((b) => b.H)),
     });
@@ -213,7 +215,7 @@ export async function buildShelfScene(
     const ledge = createLedge(T, WALLZ, unit, track);
     const ledgeAt = (reachPx: number, stageH: number, baseRow: number, scale: number) =>
       ledge.fit(reachPx, ledgeHeight(stageH, baseRow), scale, Math.min(window.devicePixelRatio || 1, RENDER_DPR_MAX));
-    ledgeAt(guess.reach * guess.scale, window.innerHeight, guess.baseRow, guess.scale);
+    ledgeAt(guess.reach * guess.scale, guessH, guess.baseRow, guess.scale);
     scene.add(ledge.mesh);
 
     // compile and upload now, so opening the shelf does not stall on its first frame, but in

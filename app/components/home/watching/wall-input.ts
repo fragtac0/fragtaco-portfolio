@@ -30,8 +30,10 @@ import { edgeUnwarp, edgeWarp } from "./wall-warp";
  */
 
 export type WallInputHandlers = {
-  /** The frame loop is running. */
+  /** The frame loop is running and the wall answers input (it is not docked). */
   running: () => boolean;
+  /** The frame loop is running, docked or not. */
+  live: () => boolean;
   /** A video is chosen (opening, open or closing). */
   locked: () => boolean;
   pointerMove: (e: PointerEvent) => void;
@@ -87,7 +89,7 @@ export function attachWallInput(
     },
     on,
   );
-  window.addEventListener("resize", () => h.running() && h.resize(), on);
+  window.addEventListener("resize", () => h.live() && h.resize(), on);
 }
 
 export type WallInput = {
@@ -210,6 +212,7 @@ export function createWallInput(
 
   const handlers: WallInputHandlers = {
     running: ctx.running,
+    live: ctx.live,
     locked,
     pointerMove(e) {
       [mouse.x, mouse.y] = toWall(e.clientX, e.clientY);

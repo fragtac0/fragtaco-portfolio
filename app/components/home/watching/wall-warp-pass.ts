@@ -1,4 +1,5 @@
 import { channels, GROUND as GROUND_HEX } from "../../../styles/tokens";
+import type { FrameView } from "../layer/frame-math";
 import {
   BLUR_INNER,
   BLUR_MAX_PX,
@@ -26,6 +27,10 @@ import {
  * 40% of the screen's pixels) five taps (the middle at 0.36 and four diagonals at 0.16) of which only the middle one is read
  * three times, red and blue displaced along the radius: 7 reads there (3 for the fringe, 4 plain), the single read of the
  * unblurred picture everywhere else. A 3 px fringe under a 4.5 px blur cannot be told from one on every tap.
+ *
+ * With a frame (layer/frame-math.ts) the picture of the whole window is `pic.w` by `pic.h` device pixels, placed at `pic.x`, `pic.y`
+ * in a drawing buffer that may be smaller (the part outside the buffer is cropped by it): the first pass draws that size, this
+ * pass draws it into that rectangle of the canvas. With no frame the picture is the whole buffer, as it always was.
  *
  * The texture lives on unit 1 only while this pass runs, so the atlas on unit 0 (wall-thumbs.ts)
  * is never disturbed.
@@ -79,14 +84,17 @@ export type WarpTarget = {
   height: number;
 };
 
+/** The window's picture in the canvas's drawing buffer (device pixels): the whole buffer when nothing is framed. */
+export type Picture = Pick<FrameView, "x" | "y" | "w" | "h" | "bufW" | "bufH">;
+
 export type WarpPass = {
   /**
-   * Sizes the target for a `vw` by `vh` screen (reallocating only when it changes), binds it and
+   * Sizes the target for a `vw` by `vh` screen drawn as `pic` (reallocating only when it changes), binds it and
    * sets its viewport. Null when the GPU cannot render to a target of that size.
    */
-  begin(vw: number, vh: number): WarpTarget | null;
-  /** Draws the target to the canvas through the warp. Leaves the canvas bound and unit 0 active. */
-  present(vw: number, vh: number): void;
+  begin(vw: number, vh: number, pic?: Picture): WarpTarget | null;
+  /** Draws the target to the canvas, into `pic`'s rectangle, through the warp. Leaves the canvas bound and unit 0 active. */
+  present(vw: number, vh: number, pic?: Picture): void;
   dispose(): void;
 };
 
@@ -139,6 +147,15 @@ export function createWarpPass(g: WebGLRenderingContext, main: WebGLProgram): Wa
     g.activeTexture(g.TEXTURE0);
     return ok;
   };
+  /** No frame: the picture is the whole drawing buffer. */
+  const whole = (): Picture => ({
+    x: 0,
+    y: 0,
+    w: g.drawingBufferWidth,
+    h: g.drawingBufferHeight,
+    bufW: g.drawingBufferWidth,
+    bufH: g.drawingBufferHeight,
+  });
   const release = () => {
     g.bindFramebuffer(g.FRAMEBUFFER, null);
     g.deleteFramebuffer(fbo);
@@ -155,16 +172,16 @@ export function createWarpPass(g: WebGLRenderingContext, main: WebGLProgram): Wa
   }
 
   return {
-    begin(vw, vh) {
-      // the target has the canvas's density: the drawing buffer plus the margin in device pixels
-      const dprX = vw > 0 ? g.drawingBufferWidth / vw : 1;
-      const dprY = vh > 0 ? g.drawingBufferHeight / vh : 1;
+    begin(vw, vh, pic = whole()) {
+      // the target has the picture's density: the picture plus the margin in device pixels
+      const dprX = vw > 0 ? pic.w / vw : 1;
+      const dprY = vh > 0 ? pic.h / vh : 1;
       const dm = Math.ceil(warpMargin(vw, vh) * dprX);
       margin = dm / dprX;
       const width = vw + 2 * margin;
       const height = vh + 2 * margin * (dprX / dprY);
-      let pw = g.drawingBufferWidth + 2 * dm;
-      let ph = g.drawingBufferHeight + 2 * dm;
+      let pw = pic.w + 2 * dm;
+      let ph = pic.h + 2 * dm;
       // never more than the GPU can hold (then the copy is resampled, as it was before)
       const cap = g.getParameter(g.MAX_TEXTURE_SIZE) as number;
       if (Math.max(pw, ph) > cap) {
@@ -183,9 +200,9 @@ export function createWarpPass(g: WebGLRenderingContext, main: WebGLProgram): Wa
       g.viewport(0, 0, pw, ph);
       return { margin, width, height };
     },
-    present(vw, vh) {
+    present(vw, vh, pic = whole()) {
       g.bindFramebuffer(g.FRAMEBUFFER, null);
-      g.viewport(0, 0, g.drawingBufferWidth, g.drawingBufferHeight);
+      g.viewport(pic.x, pic.bufH - pic.y - pic.h, pic.w, pic.h); // GL counts rows from the bottom
       g.disable(g.BLEND); // a straight copy: every pixel is written
       g.useProgram(prog);
       g.activeTexture(g.TEXTURE1);

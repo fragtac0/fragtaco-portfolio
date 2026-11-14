@@ -1,37 +1,38 @@
 import type { SiteBook } from "~/types";
 import { createSlicer } from "../../../utils/idle";
 import { watchContextLost } from "../context-lost";
-import { createCoverQueue } from "./shelf-covers";
+import { createFrameBox } from "../layer/frame-box";
+import { createEngineCovers } from "./shelf-engine-covers";
 import { attachShelfInput, createShelfInput } from "./shelf-input";
-import { createOpenPath, type ShelfCtx, type ShelfEls, type ShelfState } from "./shelf-open";
+import { createOpenPath, newShelfState, type ShelfCtx, type ShelfEls } from "./shelf-open";
 import type { ShelfEngine } from "./shelf-engine-types";
 import { createAnimate, poseBooks } from "./shelf-pose";
 import { createMarkerSync } from "./shelf-hud";
-import { fitShelf, readCovers } from "./shelf-fit";
+import { fitShelf } from "./shelf-fit";
+import { applyView, dockStage, placeDots, stageSize } from "./shelf-frame";
 import { loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
 import { Aborted, abortable, buildShelf } from "./shelf-build";
 import { createFontCap, createSpineFonts, type SpineFonts } from "./shelf-spine-fonts";
-import { loadSpinePhotos, retintSpine, stepSpineFades } from "./shelf-spines";
-import { spineColours } from "./spine-styles";
-import { clamp, flick, initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
+import { loadSpinePhotos, stepSpineFades } from "./shelf-spines";
+import { stepCamera } from "./shelf-camera";
+import { initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
 
 /**
- * The reading shelf: 14 books in one row on a line, seen face on and drawn with three.js (ported from
- * the `Shelf` module of docs/redesign/mockups/home-v4.html; since R44.3 the camera is orthographic and
- * the row unlit, so the colours are true). Shadows are not a shadow map: a lifted book has a soft
- * shadow on the ground behind it. Opening a book lifts it and turns it to its cover (620 ms) while the
- * row dims to 70% and the note shows beside it (shelf-open.ts, shelf-lift.ts).
+ * The reading shelf: 14 books in one row on a line, seen face on and drawn with three.js (ported from the `Shelf` module of
+ * docs/redesign/mockups/home-v4.html; since R44.3 the camera is orthographic and the row unlit, so the colours are true). A lifted
+ * book has a soft shadow on the ground behind it, not a shadow map. Opening a book lifts it and turns it to its cover (620 ms)
+ * while the row dims to 70% and the note shows beside it (shelf-open.ts, shelf-lift.ts).
  *
- * three.js is only loaded with `import("three")` (shelf-build.ts), its own chunk. The engine owns its
- * canvas: `prepare()` builds the scene in idle time while no layer is mounted, so the layer opens onto
- * a warm scene; once the layer is open and waiting, `setUrgent()` runs the same steps back to back
- * (about 8 ms a frame), and the wait for the fonts is capped from `mount()` (R89). `mount()` puts the canvas into the layer,
- * `unmount()` takes it out but keeps the GL scene for an instant re-open, `dispose()` frees everything.
- * A lost graphics context makes `hasFailed()` true and calls `onLost` listeners.
+ * three.js is only loaded with `import("three")` (shelf-build.ts), its own chunk. The engine owns its canvas: `prepare()` builds the
+ * scene in idle time while no layer is mounted, so the layer opens onto a warm scene; once the layer is open and waiting,
+ * `setUrgent()` runs the same steps back to back (about 8 ms a frame), and the wait for the fonts is capped from `mount()` (R89).
+ * `mount()` puts the canvas into the layer, `unmount()` takes it out but keeps the GL scene for an instant re-open, `dispose()` frees
+ * everything. A lost graphics context makes `hasFailed()` true and calls `onLost` listeners. `setFrame()` draws the open page's
+ * picture scaled to cover a smaller frame and `setDocked()` takes its input away (shelf-frame.ts, layer/frame-math.ts).
  *
- * The poses are shelf-pose.ts, the open-book path shelf-open.ts, the real covers shelf-covers.ts, the
- * scene shelf-scene.ts, the sizing shelf-fit.ts, the marker shelf-hud.ts, the listeners shelf-input.ts;
- * this file keeps the state, the frame (including the flick after a drag) and the lifecycle.
+ * The poses are shelf-pose.ts, the open-book path shelf-open.ts, the real covers shelf-covers.ts (wired in shelf-engine-covers.ts),
+ * the scene shelf-scene.ts, the sizing shelf-fit.ts, the camera shelf-camera.ts, the marker shelf-hud.ts, the listeners
+ * shelf-input.ts; this file keeps the state, the frame and the lifecycle.
  */
 
 export type { ShelfEls, ShelfEngine };
@@ -66,6 +67,9 @@ export function createShelf(
   let runToken = 0;
   let onFirstFrame: (() => void) | null = null;
   const slicer = createSlicer();
+  /** The frame the picture is drawn into (layer/frame-box.ts), and whether the shelf is docked in it: no input, drawn only on change. */
+  const box = createFrameBox(canvas);
+  let docked = false;
 
   // Not running, or past the entrance with no book open and none still opening or closing: a cover is
   // painted only then, so it never costs a frame of the lift.
@@ -75,51 +79,24 @@ export function createShelf(
       !st.opened &&
       !gl?.books.some((b) => b.anim.open > 0));
 
-  // Real covers: downloaded, decoded, painted and uploaded outside the entrance (shelf-covers.ts).
-  const covers = createCoverQueue({
-    disposed: () => disposed,
-    ready: () => !!gl,
-    running: () => running,
-    calm: () => calm(),
-    upload(t, c) {
-      if (!gl) return;
-      const old = t.image as HTMLCanvasElement | undefined;
-      if (old && (old.width !== c.width || old.height !== c.height)) t.dispose(); // new storage for a new size
-      t.image = c;
-      t.needsUpdate = true;
-      gl.renderer.initTexture(t);
-      readCovers(canvas, gl.books);
-    },
-    pixels: (d) => gl?.books.find((k) => k.d.id === d.id)?.coverPx ?? 640,
-    // the cover's colours: the spine fades over to them while the loop runs, else it is repainted at once
-    colours(d, c) {
-      const b = gl?.books.find((k) => k.d.id === d.id);
-      if (!b) return;
-      retintSpine(b, spineColours(c), running && !reduced);
-      st.dirty = true;
-    },
-  });
   let stopPhotos: (() => void) | null = null;
   // the spine faces: painted after they load (capped once the layer waits), again when one arrives late (shelf-spine-fonts.ts)
   let fonts: SpineFonts | null = null;
   const fontCap = createFontCap();
 
   // interaction state
-  const st: ShelfState = {
-    t0: 0,
-    opened: null,
-    hoverHit: null,
-    down: null,
-    inside: false,
-    dirty: true,
-    focusIdx: -1,
-    camTarget: null,
-    flickV: 0,
-    fitW: 0,
-    fitH: 0,
-    fitTop: 0,
-  };
+  const st = newShelfState();
   const cam = { x: 0, xV: 0 };
+  // Real covers: downloaded, decoded, painted and uploaded outside the entrance (shelf-covers.ts).
+  const covers = createEngineCovers({
+    canvas,
+    st,
+    scene: () => gl,
+    disposed: () => disposed,
+    running: () => running,
+    calm: () => calm(),
+    reduced,
+  });
 
   const animate = createAnimate(reduced);
   // the position marker under the line (shelf-hud.ts)
@@ -132,7 +109,9 @@ export function createShelf(
     cam,
     scene: () => gl,
     els: () => els,
-    running: () => running,
+    box,
+    running: () => running && !docked,
+    live: () => running,
     reduced,
     intro,
   };
@@ -160,6 +139,16 @@ export function createShelf(
 
   const fit = () => fitShelf(ctx, closeBook);
 
+  /** Applies the frame in force to the renderer, the camera and the dot field (after `fit` when the picture's size changed). */
+  function reframe(redraw: boolean) {
+    if (!gl) return;
+    const [w, h] = stageSize(canvas, box);
+    if (!w || !h) return;
+    applyView(ctx, gl, w, h);
+    placeDots(els?.dots, box, w, h, st.ledgeTop);
+    if (redraw) st.dirty = true;
+  }
+
   const { handlers, pick, focusNext, openFocused } = createShelfInput(ctx, openBookPath, fit);
 
   // ---- the frame
@@ -168,6 +157,12 @@ export function createShelf(
     if (!running || !gl) return;
     raf = requestAnimationFrame(frame);
     const s = gl;
+    // a frame asked for is applied here, in the frame that draws it, so the canvas's size and its picture change together
+    const framed = box.hasPending() ? box.commit() : "none";
+    if (framed !== "none") {
+      if (framed === "resized") fit();
+      reframe(framed === "resized");
+    }
     const el = (now - st.t0) / 1000;
     const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));
     last = now;
@@ -175,18 +170,7 @@ export function createShelf(
     // the open book keeps breathing, unless motion is reduced
     let busy = el < introS + 0.3 || st.dirty || (!!st.opened && !reduced);
 
-    if (st.camTarget !== null) {
-      if (animate(cam, "x", st.camTarget, 7, dt)) busy = true;
-      else st.camTarget = null;
-    }
-    if (st.flickV !== 0) {
-      // coasting after a flick; a touch, an arrow key or an open book ends it
-      const f = st.opened || st.down ? { dx: 0, v: 0 } : flick(st.flickV, dt);
-      const x = clamp(cam.x + f.dx, -s.maxX, s.maxX);
-      st.flickV = x === cam.x + f.dx ? f.v : 0; // an end of the shelf stops it
-      cam.x = x;
-      busy = true;
-    }
+    if (stepCamera(st, cam, s.maxX, animate, dt)) busy = true;
     if (stepSpineFades(s.books, dt)) busy = true;
     syncMarker(els?.marker, cam.x, s.maxX, s.visible);
     s.camera.position.x = cam.x; // the fit set the height; the camera looks straight down -z
@@ -218,6 +202,7 @@ export function createShelf(
     if (busy) {
       s.renderer.render(s.scene, s.camera);
       st.dirty = false;
+      box.drawn();
       if (onFirstFrame) {
         const cb = onFirstFrame;
         onFirstFrame = null;
@@ -300,10 +285,13 @@ export function createShelf(
       if (my !== runToken || !els) return;
       if (!gl || lost.lost()) return; // the scene switches to its plain grid
 
+      box.commit();
+      box.invalidate();
       fit();
+      reframe(true);
       // the books stand in place: start past the end of the drop-in
       st.t0 = performance.now() - (intro() + 0.4) * 1000;
-      cam.x = initialCamX(gl.maxX, canvas.clientWidth < NARROW_PX);
+      cam.x = initialCamX(gl.maxX, stageSize(canvas, box)[0] < NARROW_PX);
       cam.xV = st.flickV = 0;
       for (const b of gl.books) b.anim = newBag();
       st.opened = st.hoverHit = st.camTarget = st.down = null;
@@ -328,6 +316,15 @@ export function createShelf(
       fontCap.urgent(on); // the layer has opened onto the shelf: the font wait gets its shorter leg (R89)
     },
     closeBook: () => closeBook(true),
+    setFrame(frame) {
+      box.request(frame);
+      if (!running) box.commit(); // the loop applies it otherwise, in the frame it draws
+    },
+    setDocked(on) {
+      docked = on;
+      dockStage(canvas, st, on);
+    },
+    whenDrawn: () => box.whenDrawn(),
     focusNext,
     openFocused,
 
@@ -335,6 +332,7 @@ export function createShelf(
       if (disposed) return;
       unmount();
       disposed = true;
+      box.release();
       covers.clear();
       stopPhotos?.();
       fonts?.stop();

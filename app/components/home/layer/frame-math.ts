@@ -1,0 +1,131 @@
+/**
+ * The maths of a scene drawn into a frame (round 7 follow-ups, spec 6.1 and 6.2). The wall and the shelf draw the open page for the
+ * current window; with a frame set they draw that same picture scaled evenly until it covers the frame, centred, and
+ * nothing outside the frame. Pure: the engines' DOM and GL work is frame-box.ts and their own files.
+ */
+
+/** A rectangle in CSS pixels in the window. */
+export type Frame = { left: number; top: number; width: number; height: number };
+
+/** The straight line from `box` at `e = 0` to the whole `vw` by `vh` window at `e = 1` (each number exact at both ends). */
+export function frameAt(box: Frame, vw: number, vh: number, e: number): Frame {
+  const mix = (a: number, b: number) => (1 - e) * a + e * b;
+  return {
+    left: mix(box.left, 0),
+    top: mix(box.top, 0),
+    width: mix(box.width, vw),
+    height: mix(box.height, vh),
+  };
+}
+
+/** How much the open page's picture is scaled to cover `frame`: the larger of the width and height shares (1 for the whole window). */
+export function gluedScale(frame: Frame, vw: number, vh: number): number {
+  return Math.max(frame.width / vw, frame.height / vh);
+}
+
+/**
+ * Where a picture goes: the canvas's CSS size, its drawing buffer and the whole window's picture inside the buffer, all
+ * in device pixels (`x` and `y` from the buffer's top-left corner, negative when the picture is larger than the frame and cropped by it).
+ */
+export type FrameView = {
+  cssW: number;
+  cssH: number;
+  bufW: number;
+  bufH: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** CSS pixels of the frame per CSS pixel of the window. */
+  scale: number;
+  /** The picture fills the buffer exactly (no frame, or one that covers the window): nothing is offset and nothing cropped. */
+  full: boolean;
+};
+
+/**
+ * The view for `frame` (null: the whole window, as before frames existed) of a `vw` by `vh` window at `dpr` device pixels per
+ * CSS pixel. A frame that covers the window gives exactly the view of no frame.
+ */
+export function frameView(frame: Frame | null, vw: number, vh: number, dpr: number): FrameView {
+  if (!frame) {
+    const bufW = Math.max(1, Math.round(vw * dpr));
+    const bufH = Math.max(1, Math.round(vh * dpr));
+    return { cssW: vw, cssH: vh, bufW, bufH, x: 0, y: 0, w: bufW, h: bufH, scale: 1, full: true };
+  }
+  const scale = gluedScale(frame, vw, vh);
+  const bufW = Math.max(1, Math.round(frame.width * dpr));
+  const bufH = Math.max(1, Math.round(frame.height * dpr));
+  // never a pixel short of the buffer (rounding must not leave a bare column or row)
+  const w = Math.max(bufW, Math.round(vw * scale * dpr));
+  const h = Math.max(bufH, Math.round(vh * scale * dpr));
+  const x = Math.round((bufW - w) / 2);
+  const y = Math.round((bufH - h) / 2);
+  return {
+    cssW: frame.width,
+    cssH: frame.height,
+    bufW,
+    bufH,
+    x,
+    y,
+    w,
+    h,
+    scale,
+    full: x === 0 && y === 0 && w === bufW && h === bufH,
+  };
+}
+
+/** The part of the `vw` by `vh` window's picture that `frame` shows, in window pixels (the whole window for none, or for a frame that covers it). */
+export function subWindow(frame: Frame | null, vw: number, vh: number): { x: number; y: number; w: number; h: number } {
+  if (!frame) return { x: 0, y: 0, w: vw, h: vh };
+  const s = gluedScale(frame, vw, vh);
+  const w = frame.width / s;
+  const h = frame.height / s;
+  return { x: (vw - w) / 2, y: (vh - h) / 2, w, h };
+}
+
+/**
+ * Where a canvas that is `vw` wide and `ledgeTop` tall in window pixels (the shelf's dot field, which has its own canvas) goes
+ * so it is part of the same picture: its top-left corner in the window, the scale about that corner, and how much to cut off each
+ * side (top, right, bottom, left, in its own pixels) to stay inside the frame. Null while there is no row yet.
+ */
+export function dotPlacement(
+  frame: Frame,
+  vw: number,
+  vh: number,
+  ledgeTop: number,
+): { left: number; top: number; width: number; height: number; scale: number; inset: [number, number, number, number] } | null {
+  if (!(ledgeTop > 0)) return null;
+  const scale = gluedScale(frame, vw, vh);
+  const v = subWindow(frame, vw, vh);
+  const cut = (n: number) => Math.max(0, n);
+  return {
+    left: frame.left + (frame.width - vw * scale) / 2,
+    top: frame.top + (frame.height - vh * scale) / 2,
+    width: vw,
+    height: ledgeTop,
+    scale,
+    inset: [cut(v.y), cut(vw - (v.x + v.w)), cut(ledgeTop - (v.y + v.h)), cut(v.x)],
+  };
+}
+
+/** True when the two frames are the same place and size (null is the whole window). */
+export function sameFrame(a: Frame | null, b: Frame | null): boolean {
+  if (!a || !b) return a === b;
+  return a.left === b.left && a.top === b.top && a.width === b.width && a.height === b.height;
+}
+
+/** True when the two frames are the same size (a move alone needs no new picture). */
+export function sameFrameSize(a: Frame | null, b: Frame | null): boolean {
+  if (!a || !b) return a === b;
+  return a.width === b.width && a.height === b.height;
+}
+
+/** A docked scene draws at most this often: 30 a second. */
+export const DOCKED_MS = 1000 / 30;
+/** A frame arrives a little before or after its time on a screen's own clock: this much slack keeps a 60 Hz screen at every second frame. */
+const SLACK_MS = 1;
+
+/** Whether a frame at `now` may draw, `last` being when the last one did (ms). Always when not docked. */
+export function drawDue(now: number, last: number, docked: boolean): boolean {
+  return !docked || now - last >= DOCKED_MS - SLACK_MS;
+}

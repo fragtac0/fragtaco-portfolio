@@ -10,7 +10,7 @@
  */
 
 import { SURFACE_1, glslVec3 } from "../../../styles/tokens";
-import { createWarpPass, type WarpPass } from "./wall-warp-pass";
+import { createWarpPass, type Picture, type WarpPass } from "./wall-warp-pass";
 
 /** A tile before its picture loads: tokens.css --surface-1. */
 const SURFACE_VEC3 = glslVec3(SURFACE_1);
@@ -50,6 +50,8 @@ export type WallUniforms = Record<UniformName, WebGLUniformLocation | null>;
 export type WallGl = {
   gl: WebGLRenderingContext;
   uniforms: WallUniforms;
+  /** Where the window's picture goes in the drawing buffer (a frame, layer/frame-math.ts); null: the whole buffer. */
+  setPicture(pic: Picture | null): void;
   /**
    * Starts a frame: binds the flat target (the screen plus the warp's margin), clears it and sets
    * the coordinates so tiles are placed in screen pixels, as if the target were the screen.
@@ -116,6 +118,7 @@ export function createWallGl(canvas: HTMLCanvasElement): WallGl | null {
   g.enable(g.BLEND);
   g.blendFunc(g.ONE, g.ONE_MINUS_SRC_ALPHA);
   const warp: WarpPass | null = createWarpPass(g, prog);
+  let picture: Picture | undefined;
   if (!warp) {
     g.deleteBuffer(buffer);
     g.deleteProgram(prog);
@@ -125,8 +128,11 @@ export function createWallGl(canvas: HTMLCanvasElement): WallGl | null {
   return {
     gl: g,
     uniforms: U,
+    setPicture(pic) {
+      picture = pic ?? undefined;
+    },
     beginFrame(vw, vh, time) {
-      const t = warp.begin(vw, vh);
+      const t = warp.begin(vw, vh, picture);
       if (!t) return false;
       g.clearColor(0, 0, 0, 0);
       g.clear(g.COLOR_BUFFER_BIT);
@@ -136,7 +142,7 @@ export function createWallGl(canvas: HTMLCanvasElement): WallGl | null {
       return true;
     },
     endFrame(vw, vh) {
-      warp.present(vw, vh);
+      warp.present(vw, vh, picture);
     },
     quad(x, y, w, h, kind, alpha, pad, rad) {
       g.uniform4f(U.uRect, x, y, w, h);

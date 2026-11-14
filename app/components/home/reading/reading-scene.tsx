@@ -68,6 +68,7 @@ function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingScenePr
     engine.mount({
       host,
       stage: stageRef.current ?? undefined,
+      dots: dotsRef.current ?? undefined,
       info,
       marker: markerRef.current ?? undefined,
       status: statusRef.current ?? undefined,

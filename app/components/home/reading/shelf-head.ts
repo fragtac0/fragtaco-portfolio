@@ -1,3 +1,4 @@
+import { windowSize } from "../layer/frame-box";
 import { headGuess } from "./shelf-math";
 
 /**
@@ -7,7 +8,9 @@ import { headGuess } from "./shelf-math";
  * chase a fraction.
  */
 export function headerBottom(stage: Element): number {
-  const head = stage.closest(".home-layer")?.querySelector(".xp-head");
-  if (!head) return headGuess(window.innerWidth);
-  return Math.max(0, Math.ceil(head.getBoundingClientRect().bottom - stage.getBoundingClientRect().top));
+  const layer = stage.closest(".home-layer");
+  const head = layer?.querySelector(".xp-head");
+  if (!layer || !head) return headGuess(windowSize()[0]);
+  // from the layer's top, which is the window the row is fitted to (the canvas itself may be a smaller frame)
+  return Math.max(0, Math.ceil(head.getBoundingClientRect().bottom - layer.getBoundingClientRect().top));
 }

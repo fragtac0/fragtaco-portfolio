@@ -1,5 +1,7 @@
+import { windowSize, type FrameBox } from "../layer/frame-box";
 import { clamp, FRONT } from "./shelf-math";
 import { headerBottom } from "./shelf-head";
+import { stageSize } from "./shelf-frame";
 import { liftLayout, sideBySide } from "./shelf-lift";
 import type { Book, ShelfScene } from "./shelf-scene";
 
@@ -14,6 +16,8 @@ export type ShelfEls = {
   host: HTMLElement;
   /** The stage the host is in (the dot field is its other child): the fit sets `--ledge-top` on it. */
   stage?: HTMLElement;
+  /** The dot field's canvas behind the row: placed with the picture when a frame is set (shelf-frame.ts). */
+  dots?: HTMLElement;
   /** The note card: `h3`, `.by`, `.note` and a `button`. */
   info: HTMLElement;
   /** The position marker under the line: a track with one thumb child (`.shelf-marker`). */
@@ -51,7 +55,29 @@ export type ShelfState = {
   fitH: number;
   /** The header's bottom the last fit was made under (px). */
   fitTop: number;
+  /** The feet's row of the last fit (px from the stage's top): the dot field's height. */
+  ledgeTop: number;
+  /** What the renderer and camera were last sized to (shelf-frame.ts `applyView`), so an unchanged view is not set again. */
+  viewKey: string;
 };
+
+/** A fresh state: nothing open, nothing pressed, the next frame is drawn. */
+export const newShelfState = (): ShelfState => ({
+  t0: 0,
+  opened: null,
+  hoverHit: null,
+  down: null,
+  inside: false,
+  dirty: true,
+  focusIdx: -1,
+  camTarget: null,
+  flickV: 0,
+  fitW: 0,
+  fitH: 0,
+  fitTop: 0,
+  ledgeTop: 0,
+  viewKey: "",
+});
 
 /** What the engine lends to the modules it split off: its canvas, state and live accessors. */
 export type ShelfCtx = {
@@ -60,7 +86,12 @@ export type ShelfCtx = {
   cam: { x: number; xV: number };
   scene: () => ShelfScene | null;
   els: () => ShelfEls | null;
+  /** The frame the picture is drawn into (layer/frame-box.ts). */
+  box: FrameBox;
+  /** The loop runs and the shelf answers input (it is not docked). */
   running: () => boolean;
+  /** The loop runs, docked or not: the window being resized still re-fits the row. */
+  live: () => boolean;
   /** Motion is reduced: no coasting after a flick. */
   reduced: boolean;
   /** Seconds the drop-in lasts (0 when motion is reduced). */
@@ -93,9 +124,8 @@ export function createOpenPath(ctx: ShelfCtx): OpenPath {
   function layoutOpen(b: Book, gl: ShelfScene, els: ShelfEls) {
     const { camera } = gl;
     const info = els.info;
-    const vw = canvas.clientWidth;
-    const vh = canvas.clientHeight;
-    const wide = sideBySide(window.innerWidth, window.innerHeight);
+    const [vw, vh] = stageSize(canvas, ctx.box);
+    const wide = sideBySide(...windowSize());
     const sc = gl.scale;
     const baseRow = vh / 2 + camera.position.y * sc; // the row of the books' feet
     const rowH = b.H * sc;

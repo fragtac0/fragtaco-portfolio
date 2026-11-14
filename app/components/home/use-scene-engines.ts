@@ -58,6 +58,20 @@ export function useSceneEngines(books: SiteBook[], videos: SiteVideo[]) {
     };
   }, [wall]);
 
+  // A test hook for the audit scripts (set sessionStorage "ft:debug-engines" to "1"): the two engines, to give them a frame and dock them.
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("ft:debug-engines") !== "1") return;
+    } catch {
+      return;
+    }
+    const w = window as { __ftEngines?: { shelf: ShelfEngine | null; wall: WallEngine | null } };
+    w.__ftEngines = { shelf, wall };
+    return () => {
+      delete w.__ftEngines;
+    };
+  }, [shelf, wall]);
+
   // What a block's words and previews warm up: the scenes hook their prepare() here.
   const onBlockNear = useCallback(
     (kind: LayerKind) => {

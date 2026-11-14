@@ -38,6 +38,8 @@ export type ShelfInputHandlers = {
   enter: () => void;
   /** The window was resized while running. */
   resize: () => void;
+  /** The frame loop is running, docked or not. */
+  live: () => boolean;
 };
 
 export function attachShelfInput(
@@ -69,7 +71,7 @@ export function attachShelfInput(
     },
     on,
   );
-  window.addEventListener("resize", () => h.running() && h.resize(), on);
+  window.addEventListener("resize", () => h.live() && h.resize(), on);
 }
 
 export type ShelfInput = {
@@ -130,6 +132,7 @@ export function createShelfInput(
 
   const handlers: ShelfInputHandlers = {
     running: ctx.running,
+    live: ctx.live,
     opened: () => !!st.opened,
     pointerMove(e) {
       const gl = ctx.scene();
