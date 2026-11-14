@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { IN_MS, OUT_MS, FADE_MS } from "./climb-change";
 import { ENTRY_U, WAIT_ENTRY, WAIT_MOVE, WAIT_STAY } from "./climb-engine";
+import { HOP_MS } from "./climb-hop";
 import { OMEGA } from "./camera";
 import { setup, started, terrain } from "./climb-engine-fixtures";
 
@@ -89,15 +90,19 @@ describe("the camera along the trail", () => {
     expect(travelled).toBeGreaterThan(0);
   });
 
-  it("jumps with no travel under reduced motion", () => {
-    const { engine, f } = setup({ reduced: true });
+  it("jumps with no travel under reduced motion, and the night map is drawn again at the new place", () => {
+    const { engine, f, fills } = setup({ reduced: true });
 
     started(engine, f);
     engine.go("climb", 0);
     f.run(FADE_MS + 100);
+
+    const before = fills.length;
+
     engine.go("climb", 8);
-    f.run(20);
+    f.run(HOP_MS + 100);
     expect(engine.state().u).toBe(engine.state().goal);
+    expect(fills.length).toBeGreaterThan(before);
   });
 
   it("moves the beads each frame the view changes, half size in the overview and full size in My climb", () => {

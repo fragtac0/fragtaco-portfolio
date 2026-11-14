@@ -9,7 +9,7 @@
 .map-pins {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: var(--z-map-beads);
   isolation: isolate;
   pointer-events: none;
   opacity: 0;
@@ -33,7 +33,7 @@
 }
 .map-pin:hover,
 .map-pin:focus-visible {
-  z-index: 9999 !important; /* the label of the one under the pointer is above the other beads (the engine sets the others' order by height) */
+  z-index: var(--z-map-bead-top) !important; /* the label of the one under the pointer is above the other beads (the engine sets the others' order by height) */
 }
 .map-pin:disabled {
   cursor: default;
@@ -74,10 +74,14 @@
 .map-pin:focus-visible .map-bead {
   transform: scale(calc(var(--bs, 1) * 1.14));
 }
+/* the focus ring is on the bead (which is bigger than a ring inside the 44 px button would be, and would cover it) */
 .map-pin:focus-visible {
+  outline: none;
+  opacity: 1 !important; /* a bead stepped back under the card is whole while it has the focus */
+}
+.map-pin:focus-visible .map-bead {
   outline: 2px solid var(--cream);
-  outline-offset: -6px;
-  border-radius: 50%;
+  outline-offset: 3px;
 }
 /* the chosen one and "now" are orange */
 .map-pin[data-current] .map-bead,
@@ -89,18 +93,18 @@
   box-shadow:
     0 12px 22px -6px rgb(0 0 0 / 0.8),
     0 0 0 3px rgb(255 255 255 / 0.9),
-    0 0 26px rgb(252 76 0 / 0.55),
+    0 0 26px rgb(var(--accent-rgb) / 0.55),
     inset 0 2px 2px rgb(255 255 255 / 0.55);
 }
 /* the label: on hover and on keyboard focus; it is also the button's name for a screen reader */
 .map-pin-tip {
   position: absolute;
-  left: calc(100% - 8px);
+  left: 50%;
   top: 50%;
-  margin-top: -14px;
   padding: 4px 10px;
-  border-radius: 999px;
-  white-space: nowrap;
+  border-radius: 14px;
+  width: max-content;
+  max-width: min(320px, calc(50vw - 28px)); /* the side with more room is the one it opens on (the engine's --flip), so it fits there: long labels take two lines on a phone */
   font-size: var(--t-micro);
   line-height: 18px;
   color: var(--ink-1);
@@ -109,7 +113,8 @@
   -webkit-backdrop-filter: var(--pill-blur);
   backdrop-filter: var(--pill-blur);
   opacity: 0;
-  transform: translateX(-4px);
+  /* on the bead's right, or on its left when the engine says the bead is near the right edge (--flip is 1) */
+  transform: translate(calc(10px + var(--flip, 0) * (-100% - 20px)), -50%);
   transition:
     opacity 250ms,
     transform 250ms;
@@ -118,7 +123,7 @@
 .map-pin:hover .map-pin-tip,
 .map-pin:focus-visible .map-pin-tip {
   opacity: 1;
-  transform: none;
+  transform: translate(calc(14px + var(--flip, 0) * (-100% - 28px)), -50%);
 }
 
 /* the card: out quickly, in gently; its words arrive with it, a breath apart, with no sliding */

@@ -2,6 +2,7 @@
 // blurs (Ruling R101: nothing here sits under a backdrop blur, so the blurs never re-run while the radar moves).
 // The trail canvas covers the stage and is drawn when the view changes. The radar canvas is a small square round "now",
 // drawn every frame the radar runs. The foot of each pin and the trail share one height, so the feet sit on the line.
+import { ACCENT, CREAM, rgba } from "../../styles/tokens";
 import type { XY } from "./card-slot";
 import { liftOf } from "./heights";
 import { STEM, project, type Stage, type View } from "./view";
@@ -20,10 +21,10 @@ export const RADAR_POINTS = 40;
 /** The most a radar ring's radius can be, in screen pixels for each unit of the stage's scale (the climb's, with the near side's perspective). */
 export const RADAR_REACH = 66;
 
-/** The colours (the cream and the accent of tokens.css, as the preview mixed them for the canvas). */
+/** The colours: the cream and the accent come from tokens.ts (a canvas cannot read a CSS variable); the shadow and the white stems are the preview's. */
 export const TRAIL_SHADOW = "rgba(0, 0, 0, 0.42)";
-export const TRAIL_INK = "#fff8e8";
-export const AHEAD_INK = "rgba(255, 248, 232, 0.8)";
+export const TRAIL_INK = CREAM;
+export const AHEAD_INK = rgba(CREAM, 0.8);
 export const STEM_INK = "rgba(255, 255, 255, 0.8)";
 export const FOOT_INK = "#fff";
 
@@ -140,7 +141,7 @@ export function drawRadar(c: CanvasRenderingContext2D, v: View, at: Spot, foot: 
       if (i) c.lineTo(x - foot[0] + half, y - foot[1] + half);
       else c.moveTo(x - foot[0] + half, y - foot[1] + half);
     });
-    c.strokeStyle = `rgba(252, 76, 0, ${alpha})`;
+    c.strokeStyle = rgba(ACCENT, alpha);
     c.stroke();
   }
 }

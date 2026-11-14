@@ -28,6 +28,7 @@
   --surface-2: #21201f; /* raised panels, chips */
   --line: rgba(253, 252, 230, 0.1); /* hairlines and borders */
   --accent: #fc4c00;
+  --accent-rgb: 252 76 0; /* the accent as a channel triple, for a glow (rgb(var(--accent-rgb) / 0.55)); tokens.test.ts keeps it equal to --accent */
   --cream: #fdfce6; /* the cream itself, at full strength (the --ink steps are this at 92 / 72 / 62%) */
   --accent-soft: rgba(252, 76, 0, 0.14); /* the active pill's fill */
   --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the page's orange glow (the open card, the dock); only the About and Credits tabs have their own, below (R69) */
@@ -96,6 +97,9 @@
   --z-layer: 300;
   --z-detail: 400;
   --z-transition: 900;
+  /* the Mars map's beads: the box that holds them (the engine orders the beads inside it by height), and the bead under the pointer or the focus, above its neighbours so its label is */
+  --z-map-beads: 0;
+  --z-map-bead-top: 9999;
 
   /* the dot screen and grain drawn over the dark pages (the home page and /work) */
   --dots: radial-gradient(rgba(245, 239, 230, 0.9) 0.6px, transparent 0.6px);

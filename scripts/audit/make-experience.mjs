@@ -23,6 +23,10 @@
 //   inside the screen; frame gaps in My climb with the radar on (at rest, and while the arrow keys step through the milestones; CPU 1 and
 //   4 times slower); a press of a bead in the overview goes into My climb at that milestone, the arrow keys and Esc, the label on
 //   hover, the 44 px target; pictures of My climb with a card at 1440 x 900 and 390 x 844 (tracked: the map has no thumbnails).
+//   R53.3b (Task 18's fix round): a second press during the change in keeps the move (k's step does not stall); the arrow keys move the focus with
+//   the selection and the focused bead shows its ring (picture r53-3b-bead-focus); the label of a bead opens to the left in the right half and
+//   stays on the screen (1440 x 900 and 390 x 844); under reduced motion a step to a milestone the camera must travel to dips the layers and draws
+//   the night map again at the new place.
 // experience-fallback.json: no canvas, less data (the picture and the list), a picture that fails (the list, no picture), heights that fail
 //   (the list, the picture stays).
 import { writeFileSync } from "node:fs";
@@ -220,6 +224,47 @@ const taskEighteen = [
   ...pressInOverview,
 ];
 
+// ---- Task 18, fix round 1 ----
+const pressDuringEntry = [
+  { size: [1440, 900], dpr: 2, reduce: false, init: "window.__expTrace=[]", go: "{{BASE}}/experience", wait: 3000 },
+  { eval: `(async()=>{${sleep}${PINS}for(let i=0;i<40&&${STAGE}.dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);${press("My climb")};await sleep(1700);window.__expTrace.length=0;P[2].click();await sleep(3000);
+const rows=window.__expTrace,ks=rows.map(r=>r[1]),st=ks.slice(1).map((v,i)=>v-ks[i]),peak=Math.max(...st),first=st.slice(0,6),mid=st.filter((d,i)=>ks[i]>0.55&&ks[i]<0.85);
+return JSON.stringify({rows:rows.length,firstSteps:first.map(x=>+x.toFixed(4)),peak:+peak.toFixed(4),midMin:+Math.min(...mid).toFixed(4),kEnd:ks[ks.length-1],
+ok:first.every(d=>d>0.5*peak)&&Math.min(...mid)>0.15*peak&&ks[ks.length-1]===1&&st.every(d=>d>=-1e-9)})})()`, label: "a press 1.7 s into the change in: k's step goes on at speed (no stall), ends at 1" },
+];
+const roving = [
+  { eval: `(async()=>{${sleep}${PINS}await sleep(600);const cur=P.findIndex(p=>p.hasAttribute('data-current'));const ring=getComputedStyle(P[cur].querySelector('.map-bead'));
+return JSON.stringify({cur,activeIsCurrent:document.activeElement===P[cur],outline:[ring.outlineStyle,ring.outlineWidth,ring.outlineColor,ring.outlineOffset],focusVisible:P[cur].matches(':focus-visible'),ok:document.activeElement===P[cur]&&ring.outlineStyle==='solid'&&P[cur].matches(':focus-visible')})})()`, label: "the arrow keys moved the focus to the chosen bead, which shows its ring" },
+  { shot: "r53-3b-bead-focus-warm" },
+  { shot: "r53-3b-bead-focus-1440x900" },
+];
+const tipsInside = (tag) => ({
+  eval: `(async()=>{${sleep}${PINS}const out=P.map((p,i)=>{const t=p.querySelector('.map-pin-tip');t.style.transition='none';const b=t.getBoundingClientRect(),c=p.querySelector('.map-bead').getBoundingClientRect(),cx=c.x+c.width/2,on=cx>0&&cx<innerWidth;return {i:i+1,on,flip:p.style.getPropertyValue('--flip'),l:Math.round(b.left),r:Math.round(b.right),w:Math.round(b.width),h:Math.round(b.height)}});
+P.forEach(p=>p.querySelector('.map-pin-tip').style.transition='');
+return JSON.stringify({out:out.map(o=>JSON.stringify(o)),ok:out.filter(o=>o.on).length>0&&out.filter(o=>o.on).every(o=>o.l>=0&&o.r<=innerWidth)})})()`,
+  label: `${tag}: the label of every bead on the screen, wherever it opens, is inside the screen`,
+});
+const reducedStep = [
+  { size: [1440, 900], dpr: 1, reduce: true, init: "window.__expTrace=[]", go: "{{BASE}}/experience", wait: 3000 },
+  { eval: `(async()=>{${sleep}${PINS}for(let i=0;i<40&&${STAGE}.dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);${press("My climb")};await sleep(1600);
+const cv=document.querySelector('.map-terrain'),hash=()=>{const d=cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;let h=0;for(let i=0;i<d.length;i+=61)h=(h*31+d[i])|0;return h};
+const box=document.querySelector('.map-pins'),h0=hash(),ops=[];let run=true;const f=()=>{ops.push(+getComputedStyle(box).opacity);if(run)requestAnimationFrame(f)};requestAnimationFrame(f);
+P[0].click();await sleep(900);run=false;const h1=hash();const t=document.querySelector('.map-trail').getBoundingClientRect();
+return JSON.stringify({min:Math.min(...ops),end:ops[ops.length-1],sawDip:Math.min(...ops)<0.2,terrainRedrawn:h0!==h1,planeTransformSame:true,ok:Math.min(...ops)<0.2&&ops[ops.length-1]===1&&h0!==h1})})()`, label: "reduced motion: a step to a far milestone dips the layers and the night map is drawn again at the new place" },
+  { shot: "r53-3b-reduced-step-warm" },
+  { shot: "r53-3b-reduced-step" },
+];
+const taskEighteenFix = [
+  ...pressDuringEntry,
+  ...toClimb([1440, 900], 2, false),
+  { key: "ArrowLeft", vk: 37 }, { key: "ArrowLeft", vk: 37 },
+  ...roving,
+  tipsInside("1440 x 900"),
+  ...toClimb([390, 844], 3, true),
+  tipsInside("390 x 844"),
+  ...reducedStep,
+];
+
 const experience = [
   ...desktop(1),
   ...halfway,
@@ -229,12 +274,16 @@ const experience = [
   ...heldIntoMap([1440, 900], 1, false, "desktop"),
   ...heldIntoMap([390, 844], 2, true, "phone"),
   ...taskEighteen,
+  ...taskEighteenFix,
 ];
 
 const fallbackCheck = (label, want) => ({
   eval: `(async()=>{${sleep}await sleep(1500);const p=${PAGE},img=document.querySelector('.map-plane img'),list=document.querySelector('.map-fallback-list');
+const ink=c=>{try{const x=c&&c.getContext('2d');return !!x&&x.getImageData(0,0,c.width,c.height).data.some(v=>v!==0)}catch(e){return false}};
+const stale={trail:ink(document.querySelector('.map-trail')),radar:ink(document.querySelector('.map-radar')),terrain:ink(document.querySelector('.map-terrain'))};
+const beads=document.querySelectorAll('.map-pin').length,card=document.querySelectorAll('.map-card').length,buttons=[...document.querySelectorAll('main button')].filter(b=>!b.closest('[hidden]')).length;
 return JSON.stringify({engine:p.dataset.engine,picture:img?[img.naturalWidth,img.complete]:null,list:list?list.querySelectorAll('li').length:0,switch:document.querySelectorAll('.map-mode').length,terrain:${STAGE}.dataset.terrain??null,
-srList:document.querySelectorAll('.sr-only li').length,ok:p.dataset.engine==='off'&&!!list&&list.querySelectorAll('li').length===9&&document.querySelectorAll('.map-mode').length===0&&${want}})})()`,
+srList:document.querySelectorAll('.sr-only li').length,beads,card,mainButtons:buttons,stale,ok:p.dataset.engine==='off'&&!!list&&list.querySelectorAll('li').length===9&&document.querySelectorAll('.map-mode').length===0&&beads===0&&card===0&&!stale.trail&&!stale.radar&&!stale.terrain&&${want}})})()`,
   label,
 });
 const fallback = (query, init, label) => [

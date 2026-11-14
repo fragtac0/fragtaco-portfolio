@@ -558,5 +558,103 @@
  {
   "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');await sleep(4200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,current:P.findIndex(p=>p.hasAttribute('data-current')),cardOpacity:+getComputedStyle(card).opacity,plane:+getComputedStyle(document.querySelector('.map-plane')).opacity,ok:document.querySelector('.map-page').dataset.mode==='overview'&&P.every(p=>!p.hasAttribute('data-current'))&&+getComputedStyle(card).opacity===0&&+getComputedStyle(document.querySelector('.map-plane')).opacity===1})})()",
   "label": "Esc returns to the overview (no card, no chosen bead)"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(1700);window.__expTrace.length=0;P[2].click();await sleep(3000);\nconst rows=window.__expTrace,ks=rows.map(r=>r[1]),st=ks.slice(1).map((v,i)=>v-ks[i]),peak=Math.max(...st),first=st.slice(0,6),mid=st.filter((d,i)=>ks[i]>0.55&&ks[i]<0.85);\nreturn JSON.stringify({rows:rows.length,firstSteps:first.map(x=>+x.toFixed(4)),peak:+peak.toFixed(4),midMin:+Math.min(...mid).toFixed(4),kEnd:ks[ks.length-1],\nok:first.every(d=>d>0.5*peak)&&Math.min(...mid)>0.15*peak&&ks[ks.length-1]===1&&st.every(d=>d>=-1e-9)})})()",
+  "label": "a press 1.7 s into the change in: k's step goes on at speed (no stall), ends at 1"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "mobile": false,
+  "touch": false,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');await sleep(600);const cur=P.findIndex(p=>p.hasAttribute('data-current'));const ring=getComputedStyle(P[cur].querySelector('.map-bead'));\nreturn JSON.stringify({cur,activeIsCurrent:document.activeElement===P[cur],outline:[ring.outlineStyle,ring.outlineWidth,ring.outlineColor,ring.outlineOffset],focusVisible:P[cur].matches(':focus-visible'),ok:document.activeElement===P[cur]&&ring.outlineStyle==='solid'&&P[cur].matches(':focus-visible')})})()",
+  "label": "the arrow keys moved the focus to the chosen bead, which shows its ring"
+ },
+ {
+  "shot": "r53-3b-bead-focus-warm"
+ },
+ {
+  "shot": "r53-3b-bead-focus-1440x900"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const out=P.map((p,i)=>{const t=p.querySelector('.map-pin-tip');t.style.transition='none';const b=t.getBoundingClientRect(),c=p.querySelector('.map-bead').getBoundingClientRect(),cx=c.x+c.width/2,on=cx>0&&cx<innerWidth;return {i:i+1,on,flip:p.style.getPropertyValue('--flip'),l:Math.round(b.left),r:Math.round(b.right),w:Math.round(b.width),h:Math.round(b.height)}});\nP.forEach(p=>p.querySelector('.map-pin-tip').style.transition='');\nreturn JSON.stringify({out:out.map(o=>JSON.stringify(o)),ok:out.filter(o=>o.on).length>0&&out.filter(o=>o.on).every(o=>o.l>=0&&o.r<=innerWidth)})})()",
+  "label": "1440 x 900: the label of every bead on the screen, wherever it opens, is inside the screen"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const out=P.map((p,i)=>{const t=p.querySelector('.map-pin-tip');t.style.transition='none';const b=t.getBoundingClientRect(),c=p.querySelector('.map-bead').getBoundingClientRect(),cx=c.x+c.width/2,on=cx>0&&cx<innerWidth;return {i:i+1,on,flip:p.style.getPropertyValue('--flip'),l:Math.round(b.left),r:Math.round(b.right),w:Math.round(b.width),h:Math.round(b.height)}});\nP.forEach(p=>p.querySelector('.map-pin-tip').style.transition='');\nreturn JSON.stringify({out:out.map(o=>JSON.stringify(o)),ok:out.filter(o=>o.on).length>0&&out.filter(o=>o.on).every(o=>o.l>=0&&o.r<=innerWidth)})})()",
+  "label": "390 x 844: the label of every bead on the screen, wherever it opens, is inside the screen"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": true,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(1600);\nconst cv=document.querySelector('.map-terrain'),hash=()=>{const d=cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;let h=0;for(let i=0;i<d.length;i+=61)h=(h*31+d[i])|0;return h};\nconst box=document.querySelector('.map-pins'),h0=hash(),ops=[];let run=true;const f=()=>{ops.push(+getComputedStyle(box).opacity);if(run)requestAnimationFrame(f)};requestAnimationFrame(f);\nP[0].click();await sleep(900);run=false;const h1=hash();const t=document.querySelector('.map-trail').getBoundingClientRect();\nreturn JSON.stringify({min:Math.min(...ops),end:ops[ops.length-1],sawDip:Math.min(...ops)<0.2,terrainRedrawn:h0!==h1,planeTransformSame:true,ok:Math.min(...ops)<0.2&&ops[ops.length-1]===1&&h0!==h1})})()",
+  "label": "reduced motion: a step to a far milestone dips the layers and the night map is drawn again at the new place"
+ },
+ {
+  "shot": "r53-3b-reduced-step-warm"
+ },
+ {
+  "shot": "r53-3b-reduced-step"
  }
 ]

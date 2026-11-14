@@ -20,7 +20,7 @@ describe("the loop", () => {
     expect(calm.f.pending()).toBe(0);
   });
 
-  it("draws the radar's rings every frame, and the trail only when the view changes", () => {
+  it("draws the radar's rings about 30 times a second (R102), and the trail only when the view changes", () => {
     const { engine, f, radarCalls, trailCalls } = setup();
 
     started(engine, f);
@@ -28,7 +28,8 @@ describe("the loop", () => {
     const [strokes, trails] = [radarCalls.stroke, trailCalls.stroke];
 
     f.run(500);
-    expect(radarCalls.stroke - strokes).toBeGreaterThanOrEqual(2 * 20); // two rings, a frame each
+    expect(radarCalls.stroke - strokes).toBeGreaterThanOrEqual(2 * 14); // two rings, every other frame at 60 Hz (500 ms: 15 draws)
+    expect(radarCalls.stroke - strokes).toBeLessThanOrEqual(2 * 17);
     expect(trailCalls.stroke).toBe(trails); // nothing moved: the trail was not drawn again
     engine.go("climb");
     f.run(500);

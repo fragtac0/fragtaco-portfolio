@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, type CSSProperties, type MutableRefObject } from "react";
 import type { ExperienceMoment } from "../../types";
 import { createCardController, type CardController } from "./card-controller";
 import type { Mode } from "./climb-change";
@@ -36,6 +36,8 @@ type Props = {
   onReady: () => void;
   /** A bead was pressed. */
   onChoose: (index: number) => void;
+  /** Filled with a function that moves the keyboard focus to a bead (the arrow keys move the focus with the selection). */
+  focusBeadRef: MutableRefObject<((index: number) => void) | null>;
   /** The picture failed, or the heights or a 2D canvas did: the page falls back to the list. */
   onFailPicture: () => void;
   onFailHeights: () => void;
@@ -53,7 +55,7 @@ const trace = () => (window as unknown as { __expTrace?: number[][] }).__expTrac
  * and the first paint show the picture. The layers' strength follows `--night`, which the engine writes (no React state per
  * frame). Nothing but the beads is read by a screen reader: the moments are listed by the page.
  */
-export default function ExperienceMap({ trail, moments, of, mode, selected, running, reduced, picture: showPicture, ready, onReady, onChoose, onFailPicture, onFailHeights }: Props) {
+export default function ExperienceMap({ trail, moments, of, mode, selected, running, reduced, picture: showPicture, ready, onReady, onChoose, focusBeadRef, onFailPicture, onFailHeights }: Props) {
   const stage = useRef<HTMLDivElement>(null);
   const plane = useRef<HTMLDivElement>(null);
   const night = useRef<HTMLDivElement>(null);
@@ -66,12 +68,22 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
   const pins = useRef<(HTMLButtonElement | null)[]>([]);
   const engine = useRef<ClimbEngine | null>(null);
   const live = useRef({ mode, selected, reduced, onFailHeights, onReady });
+  /** The state the engine was last told to go to, so the effect below speaks only when it has changed (and the engine just made already got it). */
+  const told = useRef<{ mode: Mode; selected: number | null } | null>(null);
   const setBox = useCallback((el: HTMLDivElement | null) => void (pinBox.current = el), []);
   const setPin = useCallback((i: number, el: HTMLButtonElement | null) => void (pins.current[i] = el), []);
 
   useEffect(() => {
     live.current = { mode, selected, reduced, onFailHeights, onReady };
   });
+
+  useEffect(() => {
+    focusBeadRef.current = (index) => pins.current[index]?.focus();
+
+    return () => {
+      focusBeadRef.current = null;
+    };
+  }, [focusBeadRef]);
 
   // a picture that failed before the page woke up never fires onError here
   useEffect(() => {
@@ -120,6 +132,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     observer.observe(el);
     window.addEventListener("resize", measure);
     document.addEventListener("visibilitychange", onVisible);
+    told.current = { mode: live.current.mode, selected: live.current.selected };
     e.go(live.current.mode, live.current.selected ?? undefined);
     loadTerrain(HEIGHTS_SRC).then(
       (t) => {
@@ -147,7 +160,11 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
   }, [running, trail, moments.length]);
 
   useEffect(() => {
-    engine.current?.go(mode, selected ?? undefined);
+    const was = told.current;
+
+    if (!engine.current || (was !== null && was.mode === mode && was.selected === selected)) return;
+    told.current = { mode, selected };
+    engine.current.go(mode, selected ?? undefined);
   }, [mode, selected]);
 
   return (
@@ -182,8 +199,13 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
         <div className="map-fog" />
         <div className="map-vignette" />
       </div>
-      <MilestonePins moments={moments} selected={selected} ready={ready} onChoose={onChoose} boxRef={setBox} pinRef={setPin} />
-      <MomentCard ref={card} moments={moments} of={of} />
+      {running ? (
+        // only while the engine runs: in the fallback there are no beads (the list serves) and nothing dead in the accessibility tree
+        <>
+          <MilestonePins moments={moments} selected={selected} ready={ready} onChoose={onChoose} boxRef={setBox} pinRef={setPin} />
+          <MomentCard ref={card} moments={moments} of={of} />
+        </>
+      ) : null}
     </>
   );
 }

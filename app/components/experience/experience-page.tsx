@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { usePageArrived } from "../../lib/use-page-settled";
 import type { SiteExperience } from "../../types";
 import { useReducedMotion } from "../work/gallery/use-reduced-motion";
@@ -53,6 +53,7 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
   const reduced = useReducedMotion();
   // "pending" while the page change is still on (the page shows the picture and no list), "on" once the engine may run
   const engine = !available || failed !== null ? "off" : arrived ? "on" : "pending";
+  const focusBeadRef = useRef<((index: number) => void) | null>(null);
   const onReady = useCallback(() => setReady(true), []);
   const choose = useCallback((index: number) => {
     setMode("climb");
@@ -66,7 +67,7 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
     [last],
   );
 
-  // the arrow keys step through the milestones in My climb and Escape returns to the overview
+  // the arrow keys step through the milestones in My climb, the focus going with the selection (so a screen reader says the step), and Escape returns to the overview
   useEffect(() => {
     if (engine !== "on" || mode !== "climb") return;
 
@@ -74,7 +75,11 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
         e.preventDefault();
-        setSelected((s) => Math.max(0, Math.min(last, (s ?? last) + (e.key === "ArrowRight" ? 1 : -1))));
+
+        const next = Math.max(0, Math.min(last, (selected ?? last) + (e.key === "ArrowRight" ? 1 : -1)));
+
+        setSelected(next);
+        focusBeadRef.current?.(next);
       } else if (e.key === "Escape") {
         changeMode("overview");
       }
@@ -83,7 +88,7 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
     window.addEventListener("keydown", onKey);
 
     return () => window.removeEventListener("keydown", onKey);
-  }, [engine, mode, last, changeMode]);
+  }, [engine, mode, selected, last, changeMode]);
 
   return (
     <main className="map-page" data-mode={engine === "on" ? mode : "overview"} data-engine={engine} aria-label="Map of Olympus Mons, Mars">
@@ -96,6 +101,7 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
         ready={ready && engine === "on"}
         onReady={onReady}
         onChoose={choose}
+        focusBeadRef={focusBeadRef}
         running={engine === "on"}
         reduced={reduced}
         picture={failed !== "picture"}

@@ -10,7 +10,8 @@
 // are handed in, and it is tested with stand-ins (climb-engine.test.ts). The page (experience-map.tsx) wires the real ones.
 import { settle, springStep } from "./camera";
 import type { XY } from "./card-slot";
-import { changeAt, startChange, type Change, type Mode } from "./climb-change";
+import { changeAt, IN_MS, kOf, startChange, type Change, type Mode } from "./climb-change";
+import { dipAt, hopStart, jumpNow } from "./climb-hop";
 import { PICTURE, SUMMIT_XY } from "./frame";
 import { setHeights } from "./heights";
 import { smooth } from "./map-math";
@@ -73,6 +74,10 @@ export const WAIT_MOVE = 1300;
 export const WAIT_ENTRY = 3150;
 /** The spring is at rest when it is this near its goal and this slow. */
 const REST = 0.0004;
+/** A bead whose head is past this share of the stage's width shows its label on its left (the side with more room), so the label is not cut off at the edge. */
+export const FLIP_AT = 0.5;
+/** The radar is redrawn at about 30 frames a second (its ring moves under half a pixel a frame): this many milliseconds apart at least (Ruling R102). */
+export const RADAR_GAP = 30;
 
 export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): ClimbEngine {
   const { stage, plane, night, terrain: canvas, trail: trailCanvas, radar: radarCanvas, pinBox, pins } = layers;
@@ -100,6 +105,9 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
   let visible = true;
   let handle = 0;
   let last = 0;
+  /** When the radar was last drawn, and when the dip of a reduced-motion step began (null: none). */
+  let radarAt = -1e9;
+  let hop: number | null = null;
   let side = 0;
   let foot: XY = [0, 0];
   let seen: View = viewOf(cam, 0, 1, size);
@@ -114,7 +122,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
   if (gone) options.onFail?.();
 
   const springing = () => Math.abs(goal - u) > REST || Math.abs(vel) > REST;
-  const moving = () => change !== null || springing();
+  const moving = () => change !== null || springing() || hop !== null;
 
   function schedule() {
     if (handle || gone || !visible || size.w === 0) return;
@@ -123,6 +131,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
 
   /** The radar's rings, at `now` (milliseconds); still, under reduced motion. */
   function radar(now: number, calm: boolean) {
+    radarAt = now;
     if (radarCtx !== null) drawRadar(radarCtx, seen, spots[spots.length - 1], foot, side, dpr, radarPhases(calm ? 800 : now));
   }
 
@@ -131,12 +140,15 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     const v = viewOf(cam, k, u, size);
     const dark = calm ? k : v.night;
     const opacity = pictureOpacity(dark);
+    const { shown, done } = dipAt(hop, now);
+
+    if (done) hop = null;
 
     if (opacity > PICTURE_SEEN) plane.style.transform = planeTransform(calm ? viewOf(cam, 0, u, size) : v);
     plane.style.opacity = String(opacity);
     plane.style.visibility = opacity > 0 ? "visible" : "hidden";
     night.style.opacity = String(smooth(0, 0.7, dark));
-    canvas.style.opacity = String(smooth(0.04, 0.75, dark));
+    canvas.style.opacity = String(smooth(0.04, 0.75, dark) * shown);
     stage.style.setProperty("--night", smooth(0.45, 1, k).toFixed(3));
     stage.classList.toggle("is-night", k > 0.45);
     if (dark > NIGHT_ON && terrain !== null && ctx !== null && !(calm && terrainFresh)) {
@@ -147,12 +159,13 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     seen = calm ? viewOf(cam, k < 0.5 ? 0 : 1, u, size) : v;
 
     const places: Pin[] = pinPlaces(seen, spots);
-    const alpha = calm ? String(Math.abs(1 - 2 * k)) : "1";
+    const alpha = String(+((calm ? Math.abs(1 - 2 * k) : 1) * shown).toFixed(3));
 
     if (trailCtx !== null) drawTrail(trailCtx, seen, size, dpr, trail, ahead, places);
     places.forEach(({ head }, i) => {
       pins[i].style.transform = `translate(${head[0]}px, ${head[1]}px)`;
       pins[i].style.setProperty("--bs", String(0.5 + 0.5 * seen.k));
+      pins[i].style.setProperty("--flip", head[0] > FLIP_AT * size.w ? "1" : "0");
       pins[i].style.zIndex = String(Math.round(head[1]));
     });
     if (alpha !== alphaWas) {
@@ -191,12 +204,18 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       dirty = true;
     }
     if (springing()) {
-      [u, vel] = calm ? [goal, 0] : springStep(u, vel, goal, dt);
+      // reduced motion: no travel. A step that moves the camera waits for the middle of its dip, then jumps (and the night map, which keeps its view under reduced motion, is drawn again)
+      if (!calm) [u, vel] = springStep(u, vel, goal, dt);
+      else if (jumpNow(hop, now)) {
+        [u, vel] = [goal, 0];
+        terrainFresh = false;
+      }
       if (!springing()) [u, vel] = [goal, 0];
       dirty = true;
     }
+    if (hop !== null) dirty = true;
     if (dirty) scene(now, traced);
-    else if (!calm) radar(now, calm);
+    else if (!calm && now - radarAt >= RADAR_GAP) radar(now, calm);
     if (moving() || !calm) schedule();
   }
 
@@ -219,6 +238,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     const far = Math.abs(next - goal) > 0.001;
 
     goal = next;
+    if (far && entering <= 0 && reduced()) hop = hopStart(hop, host.now());
 
     return entering > 0 ? WAIT_ENTRY * entering : far ? WAIT_MOVE : WAIT_STAY;
   }
@@ -230,10 +250,16 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     if (terrain === null || size.w === 0) return; // setTerrain and resize start it
     pending = false;
 
-    const wait = mode === "climb" ? aim(to, 1 - k) : 0;
-    const next = startChange(k, mode, host.now(), reduced());
+    // a change already heading there carries on (one camera move, however many presses come during it); any other starts from where k is
+    const running = change !== null && change.to === kOf(mode);
+    let wait = mode === "climb" ? aim(to, 1 - k) : 0;
 
-    if (next !== null) change = next;
+    if (running && change !== null && 1 - k > 1e-6) wait = Math.max(0, change.t0 + change.ms * (WAIT_ENTRY / IN_MS) - host.now());
+    if (!running) {
+      const next = startChange(k, mode, host.now(), reduced());
+
+      if (next !== null) change = next;
+    }
     options.onSelect?.(mode === "climb" ? to : null, wait);
     schedule();
   }
@@ -294,6 +320,12 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       gone = true;
       if (handle) host.cancel(handle);
       handle = 0;
+      // leave nothing of the trail, the radar or the beads behind (the page falls back to the list when the heights fail)
+      for (const [c, cv] of [[trailCtx, trailCanvas], [radarCtx, radarCanvas], [ctx, canvas]] as const) {
+        c?.setTransform(1, 0, 0, 1, 0, 0);
+        c?.clearRect(0, 0, cv.width, cv.height);
+      }
+      pinBox.style.opacity = "";
     },
   };
 }

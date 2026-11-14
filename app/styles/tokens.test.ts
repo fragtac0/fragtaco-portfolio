@@ -21,6 +21,10 @@ describe("tokens.ts", () => {
     expect(token("--cream")).toBe(CREAM);
   });
 
+  it("gives the accent's channel triple", () => {
+    expect(/--accent-rgb:\s*(\d+) (\d+) (\d+);/.exec(css)?.slice(1).map(Number)).toEqual(channels(ACCENT));
+  });
+
   it("gives the ink's channel triple, the cream", () => {
     expect(/--ink-rgb:\s*(\d+) (\d+) (\d+);/.exec(css)?.slice(1).map(Number)).toEqual(channels(CREAM));
     // the three ink steps are that cream

@@ -65,7 +65,13 @@ export function cardView(card: HTMLElement, pins: () => readonly (HTMLElement | 
     },
     cover(indices) {
       pins().forEach((pin, i) => {
-        if (pin) pin.style.opacity = indices.includes(i) ? "0.16" : "";
+        if (!pin) return;
+
+        const under = indices.includes(i);
+
+        // a bead under the card is stepped back and cannot be pressed through the glass (it can still be reached with the keyboard)
+        pin.style.opacity = under ? "0.16" : "";
+        pin.style.pointerEvents = under ? "none" : "";
       });
     },
   };
