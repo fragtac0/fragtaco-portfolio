@@ -1,14 +1,18 @@
 import type * as THREE from "three";
 import type { SiteBook } from "~/types";
-import { drawSpine, drawSpinePhoto, type SpineSize } from "./spine-draw";
-import { spineColours, spineStyle, type SpineColours, type SpineStyle } from "./spine-styles";
+import { drawSpinePhoto, type SpineSize } from "./spine-draw";
+import { paintSpine } from "./spine-paint";
+import { spineFontsReady, watchSpineFonts } from "./spine-fonts";
+import { designFor, hasSeries, plainSeries, type SeriesDesign } from "./spine-series";
+import { spineColours, type SpineColours } from "./spine-styles";
 
 /**
  * The spines of the shelf as textures. Each spine's canvas is the spine as it stands on screen
- * times the device pixel ratio (at most 2), painted by `drawSpine` (spine-draw.ts) from the
- * book's colours. It is painted first from the book's own colour, repainted with a short crossfade
- * when the cover's colours arrive (shelf-covers.ts), and painted from the picture when the book has
- * a `spine` path. The camera is orthographic, so the on-screen size is known from the fit: a new fit
+ * times the device pixel ratio (at most 2), painted by `paintSpine` (spine-paint.ts) in the book's
+ * design from the series (spine-series.ts). A book with no design of its own gets the series' plain
+ * style from its colour first and from its cover's colours when they arrive (shelf-covers.ts, a short
+ * crossfade); a designed book keeps its design. A spine is painted again when a late face arrives
+ * (`repaintSpines`), and from the picture when the book has a `spine` path. The camera is orthographic, so the on-screen size is known from the fit: a new fit
  * (a resize) repaints at the new size on the same canvas and texture, which are never replaced, so
  * nothing leaks. Client only.
  */
@@ -16,7 +20,9 @@ import { spineColours, spineStyle, type SpineColours, type SpineStyle } from "./
 export type SpineFace = {
   canvas: HTMLCanvasElement;
   tex: THREE.CanvasTexture;
-  style: SpineStyle;
+  /** What the spine wears: the book's entry in the series, or the plain style from `colours`. */
+  design: SeriesDesign;
+  /** The colours the plain style is made from (the cover's, once they arrive). */
   colours: SpineColours;
   /** The pixel ratio (at most 2) the canvas is drawn for; the author's minimum size and the edge follow it. */
   dpr: number;
@@ -76,7 +82,7 @@ const blank = (w: number, h: number): HTMLCanvasElement => {
 function paintLook(
   c: HTMLCanvasElement,
   d: SiteBook,
-  face: Pick<SpineFace, "style" | "colours" | "photo" | "dpr" | "authorPx">,
+  face: Pick<SpineFace, "design" | "photo" | "dpr" | "authorPx">,
 ): void {
   const x = ctxOf(c);
   const size = { w: c.width, h: c.height };
@@ -84,7 +90,7 @@ function paintLook(
     drawSpinePhoto(x, size, face.photo);
     face.authorPx = 0;
   } else {
-    face.authorPx = drawSpine(x, size, d, face.style, face.colours, face.dpr).authorSize;
+    face.authorPx = paintSpine(x, size.w, size.h, d, face.design, { dpr: face.dpr }).authorSize;
   }
 }
 
@@ -104,9 +110,10 @@ export function createSpineFace(
   dpr = 1,
 ): SpineFace {
   const canvas = blank(size.w, size.h);
+  const colours = firstColours(d.color);
   const first = {
-    style: spineStyle(d.id),
-    colours: firstColours(d.color),
+    design: designFor(d, colours),
+    colours,
     photo: null,
     dpr: cappedDpr(dpr),
     authorPx: 0,
@@ -135,10 +142,33 @@ function look(b: SpineBook, change: () => void, animate: boolean): void {
   face.fade = { from, to, t: 0, live: false };
 }
 
-/** The cover's colours arrived: the spine goes over to them. A book with a spine picture keeps it. */
+/**
+ * The cover's colours arrived: a spine in the plain style goes over to them. A book with a spine
+ * picture keeps it, and a designed book keeps its design (the cloth and foil are the series').
+ */
 export function retintSpine(b: SpineBook, colours: SpineColours, animate: boolean): void {
-  if (b.spine.photo) return;
-  look(b, () => (b.spine.colours = colours), animate);
+  if (b.spine.photo || hasSeries(b.d)) return;
+  look(
+    b,
+    () => {
+      b.spine.colours = colours;
+      b.spine.design = plainSeries(colours);
+    },
+    animate,
+  );
+}
+
+/**
+ * A late face arrived: paints every spine again on its own canvas (same size, so the texture's
+ * storage stays and only its contents are sent again). A crossfade in progress is dropped: the repaint
+ * is already its end.
+ */
+export function repaintSpines(books: SpineBook[]): void {
+  for (const b of books) {
+    dropFade(b.spine);
+    paintLook(b.spine.canvas, b.d, b.spine);
+    b.spine.tex.needsUpdate = true;
+  }
 }
 
 /** The picture of the spine arrived: the spine goes over to it. */
@@ -244,5 +274,45 @@ export function loadSpinePhotos(
       img.onload = img.onerror = null;
       img.src = "";
     }
+  };
+}
+
+export type SpineFonts = {
+  /** Resolves when the spine faces have loaded (or 2.5 s have passed): paint the spines after it. */
+  ready: Promise<void>;
+  /** The scene's spines exist: paints them again now if a face arrived while they were being made. */
+  scene(books: SpineBook[]): void;
+  stop(): void;
+};
+
+/**
+ * The spine faces for `books`: `ready` to wait on before the spines are painted, and a repaint of
+ * the scene's spines (then `repainted()`) whenever a face arrives after that. Start it before the
+ * scene is built; call `scene` once the scene exists.
+ */
+export function createSpineFonts(books: SiteBook[], repainted: () => void): SpineFonts {
+  const designs = books.map((b) => designFor(b, firstColours(b.color)));
+  const letters = books.map((b) => `${b.title} ${b.author}`).join(" ");
+  let live: SpineBook[] | null = null;
+  let late = false;
+  const repaint = () => {
+    if (!live) {
+      late = true;
+      return;
+    }
+    repaintSpines(live);
+    repainted();
+  };
+  const stop = watchSpineFonts(designs, letters, repaint);
+  return {
+    ready: spineFontsReady(designs, letters),
+    scene(list) {
+      live = list;
+      if (late) {
+        late = false;
+        repaint();
+      }
+    },
+    stop,
   };
 }

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { SiteBook } from "../../../types";
-import { fitMiniShelf, miniShelfScale, inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
+import { drawingWidth } from "../reading/spine-paint";
+import { SERIES } from "../reading/spine-series";
+import { MINI_SCALE, fitMiniShelf, miniShelfScale, inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 
 const book = (over: Partial<SiteBook>): SiteBook => ({
   id: "b",
@@ -29,18 +31,28 @@ describe("inkOn", () => {
 });
 
 describe("miniSpine", () => {
-  it("sizes the spine from pages and height", () => {
+  it("is the series' own spine at the small scale: the width from pages, the height from the trim", () => {
     const s = miniSpine(book({ pages: 400, heightIn: 9 }));
-    expect(s.width).toBe(Math.round(14 + 400 * 0.055));
-    expect(s.width).toBe(36);
+    expect(s.width).toBe(Math.round(drawingWidth(400) * MINI_SCALE));
+    expect(s.width).toBe(26);
     expect(s.height).toBe(189);
+    expect(miniSpine(book({ pages: 2000 })).width).toBe(Math.round(72 * MINI_SCALE));
+    expect(miniSpine(book({ pages: 10 })).width).toBe(Math.round(32 * MINI_SCALE));
   });
-  it("carries the spine colour, its ink and the band flag", () => {
-    const s = miniSpine(book({ color: "#101010", style: "band" }));
-    expect(s.background).toBe("#101010");
-    expect(s.ink).toBe("#f6f0e2");
-    expect(s.band).toBe(true);
-    expect(miniSpine(book({ style: "block" })).band).toBe(false);
+  it("stands the design's cloth and foil, or the plain style from the book's colour", () => {
+    const designed = miniSpine(book({ id: "story" }));
+    expect(designed.background).toBe(SERIES.story.cloth);
+    expect(designed.ink).toBe(SERIES.story.foil);
+    const plain = miniSpine(book({ id: "no-design", color: "#101010" }));
+    expect(plain.background).toBe("#101010");
+    expect(plain.ink).toBe("#f6f0e2");
+  });
+  it("keeps the shape of the spine the 3D shelf shows (width over height within a quarter)", () => {
+    for (const b of [book({ pages: 146, heightIn: 8.5 }), book({ pages: 466, heightIn: 9.5 }), book({ pages: 176, heightIn: 11 })]) {
+      const s = miniSpine(b);
+      const real = (0.035 + b.pages * 0.00048) / (b.heightIn * 0.17);
+      expect(Math.abs(s.width / s.height / real - 1)).toBeLessThan(0.25);
+    }
   });
 });
 

@@ -4,7 +4,9 @@ import {
   FADE_SECONDS,
   MAX_FADES,
   createSpineFace,
+  createSpineFonts,
   firstColours,
+  repaintSpines,
   resizeSpines,
   retintSpine,
   showSpinePhoto,
@@ -12,6 +14,7 @@ import {
   stepSpineFades,
   type SpineBook,
 } from "./shelf-spines";
+import { SERIES, plainSeries } from "./spine-series";
 import { contrast } from "./spine-styles";
 
 /** A canvas stand-in: sizes and a context that records what was drawn. */
@@ -33,6 +36,8 @@ function fakeCanvas(): FakeCanvas {
         get(t, k: string) {
           if (k in t) return (t as Record<string, unknown>)[k];
           if (k === "measureText") return (s: string) => ({ width: s.length * 5 });
+          if (k === "createLinearGradient") return () => ({ addColorStop: () => undefined });
+          if (k === "createImageData") return (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4) });
           return () => c.drawn.push({ fn: k, alpha: t.globalAlpha });
         },
         set(t, k: string, v) {
@@ -59,7 +64,10 @@ const book = (over: Partial<SiteBook> = {}): SiteBook => ({
   ...over,
 });
 
-function spineBook(d = book(), size = { w: 90, h: 600 }): SpineBook & { disposed: number; uploads: number } {
+/** A book with no design of its own (the plain style, retinted from its cover); `book()` is the designed `story`. */
+const plainBook = () => book({ id: "plain-one", title: "A Plain One", author: "Some Author" });
+
+function spineBook(d = plainBook(), size = { w: 90, h: 600 }): SpineBook & { disposed: number; uploads: number } {
   const state = { disposed: 0, uploads: 0 };
   const tex = {
     dispose: () => state.disposed++,
@@ -74,6 +82,7 @@ function spineBook(d = book(), size = { w: 90, h: 600 }): SpineBook & { disposed
 beforeEach(() => {
   made.length = 0;
   vi.stubGlobal("document", { createElement: () => fakeCanvas() });
+  vi.stubGlobal("Path2D", class {});
 });
 afterEach(() => vi.unstubAllGlobals());
 
@@ -105,7 +114,36 @@ describe("a spine face", () => {
     expect(b.spine.canvas.width).toBe(90);
     expect(b.spine.canvas.height).toBe(600);
     expect((b.spine.canvas as unknown as FakeCanvas).drawn.some((d) => d.fn === "fillText")).toBe(true);
-    expect(b.spine.style).toBeGreaterThanOrEqual(0);
+    expect(b.spine.design).toEqual(plainSeries(firstColours("#151312")));
+  });
+
+  it("wears its design from the series when it has one, and keeps it when the cover's colours arrive", () => {
+    const b = spineBook(book());
+    expect(b.spine.design).toBe(SERIES.story);
+    const live = b.spine.canvas as unknown as FakeCanvas;
+    live.drawn.length = 0;
+    retintSpine(b, { ground: "#a8352a", ink: "#f6f0e2", accent: "#f6f0e2" }, true);
+    expect(b.spine.fade).toBeNull();
+    expect(b.spine.design).toBe(SERIES.story);
+    expect(live.drawn).toHaveLength(0);
+  });
+
+  it("paints again, on the same canvas and texture, when a late face arrives, and drops a crossfade", () => {
+    const a = spineBook();
+    const designed = spineBook(book());
+    retintSpine(a, { ground: "#a8352a", ink: "#f6f0e2", accent: "#f6f0e2" }, true);
+    const { from } = a.spine.fade!;
+    const canvas = a.spine.canvas;
+    const live = designed.spine.canvas as unknown as FakeCanvas;
+    live.drawn.length = 0;
+    const uploads = [a.uploads, designed.uploads];
+    repaintSpines([a, designed]);
+    expect(a.spine.fade).toBeNull();
+    expect(from.width).toBe(0);
+    expect(a.spine.canvas).toBe(canvas);
+    expect(live.drawn.some((d) => d.fn === "fillText")).toBe(true);
+    expect([a.uploads, designed.uploads]).toEqual([uploads[0] + 1, uploads[1] + 1]);
+    expect(a.disposed).toBe(0); // the size did not change: no new storage
   });
 
   it("goes over to the cover's colours at once without animation", () => {
@@ -113,6 +151,7 @@ describe("a spine face", () => {
     const before = b.uploads;
     retintSpine(b, { ground: "#a8352a", ink: "#f6f0e2", accent: "#f6f0e2" }, false);
     expect(b.spine.colours.ground).toBe("#a8352a");
+    expect(b.spine.design.cloth).toBe("#a8352a");
     expect(b.spine.fade).toBeNull();
     expect(b.uploads).toBe(before + 1);
   });
@@ -152,7 +191,7 @@ describe("a spine face", () => {
   });
 
   it("keeps the picture when it has one, and shows it when it arrives", () => {
-    const b = spineBook(book({ spine: "/books/story-spine.webp" }));
+    const b = spineBook(book({ id: "plain-one", spine: "/books/story-spine.webp" }));
     const img = { naturalWidth: 90, naturalHeight: 600 } as HTMLImageElement;
     showSpinePhoto(b, img, false);
     expect(b.spine.photo).toBe(img);
@@ -166,7 +205,7 @@ describe("a spine face", () => {
 
 describe("resizeSpines", () => {
   it("repaints only a changed size, on the same canvas and texture, disposing the old storage", () => {
-    const b = spineBook(book(), spinePixels(0.26, 1.6, 375, 1));
+    const b = spineBook(plainBook(), spinePixels(0.26, 1.6, 375, 1));
     const canvas = b.spine.canvas;
     const tex = b.spine.tex;
     expect(resizeSpines([b], 375, 1)).toBe(false);
@@ -181,7 +220,7 @@ describe("resizeSpines", () => {
   });
 
   it("drops a crossfade in progress and zeroes its helper canvases", () => {
-    const b = spineBook(book(), spinePixels(0.26, 1.6, 375, 1));
+    const b = spineBook(plainBook(), spinePixels(0.26, 1.6, 375, 1));
     retintSpine(b, { ground: "#a8352a", ink: "#f6f0e2", accent: "#f6f0e2" }, true);
     const { from, to } = b.spine.fade!;
     resizeSpines([b], 200, 1);
@@ -200,5 +239,70 @@ describe("resizeSpines", () => {
     showSpinePhoto(b, { naturalWidth: 90, naturalHeight: 600 } as HTMLImageElement, false);
     expect(b.spine.fade).toBeNull();
     expect([second.from.width, second.from.height, second.to.width, second.to.height]).toEqual([0, 0, 0, 0]);
+  });
+});
+
+describe("createSpineFonts", () => {
+  /** A font set that lets the test finish loads and announce a face. */
+  function fontSet() {
+    const listeners = new Set<(e: Event) => void>();
+    vi.stubGlobal("document", {
+      createElement: () => fakeCanvas(),
+      querySelector: () => null,
+      fonts: {
+        load: () => Promise.resolve([]),
+        addEventListener: (_: string, l: (e: Event) => void) => listeners.add(l),
+        removeEventListener: (_: string, l: (e: Event) => void) => listeners.delete(l),
+      },
+    });
+    vi.stubGlobal("window", { setTimeout: (f: () => void, ms: number) => setTimeout(f, ms) });
+    return (family: string) => {
+      for (const l of listeners) l({ type: "loadingdone", fontfaces: [{ family }] } as unknown as Event);
+    };
+  }
+
+  it("paints the scene's spines again when a face arrives after they were made, and says so", async () => {
+    vi.useFakeTimers();
+    const arrive = fontSet();
+    const b = spineBook(book());
+    const repainted = vi.fn();
+    const fonts = createSpineFonts([book()], repainted);
+    fonts.scene([b]);
+    const live = b.spine.canvas as unknown as FakeCanvas;
+    live.drawn.length = 0;
+    const uploads = b.uploads;
+    arrive("Bodoni Moda");
+    await vi.advanceTimersByTimeAsync(100);
+    expect(live.drawn.some((d) => d.fn === "fillText")).toBe(true);
+    expect(b.uploads).toBe(uploads + 1);
+    expect(repainted).toHaveBeenCalledTimes(1);
+    fonts.stop();
+    vi.useRealTimers();
+  });
+
+  it("paints them again as soon as the scene exists when the face arrived before it", async () => {
+    vi.useFakeTimers();
+    const arrive = fontSet();
+    const b = spineBook(book());
+    const repainted = vi.fn();
+    const fonts = createSpineFonts([book()], repainted);
+    arrive("Bodoni Moda");
+    await vi.advanceTimersByTimeAsync(100);
+    expect(repainted).not.toHaveBeenCalled(); // no scene yet
+    const uploads = b.uploads;
+    fonts.scene([b]);
+    expect(b.uploads).toBe(uploads + 1);
+    expect(repainted).toHaveBeenCalledTimes(1);
+    fonts.scene([b]); // told twice: nothing more is owed
+    expect(repainted).toHaveBeenCalledTimes(1);
+    fonts.stop();
+    vi.useRealTimers();
+  });
+
+  it("is ready when the faces are", async () => {
+    fontSet();
+    const fonts = createSpineFonts([book()], () => undefined);
+    await expect(fonts.ready).resolves.toBeUndefined();
+    fonts.stop();
   });
 });

@@ -9,7 +9,7 @@ import { createAnimate, poseBooks } from "./shelf-pose";
 import { createMarkerSync } from "./shelf-hud";
 import { fitShelf, readCovers } from "./shelf-fit";
 import { buildShelfScene, loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
-import { loadSpinePhotos, retintSpine, stepSpineFades } from "./shelf-spines";
+import { createSpineFonts, loadSpinePhotos, retintSpine, stepSpineFades, type SpineFonts } from "./shelf-spines";
 import { spineColours } from "./spine-styles";
 import { clamp, flick, initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
 
@@ -106,6 +106,8 @@ export function createShelf(
     },
   });
   let stopPhotos: (() => void) | null = null;
+  // the spine faces: the spines are painted after they load, and again when one arrives late (shelf-spines.ts)
+  let fonts: SpineFonts | null = null;
 
   // interaction state
   const st: ShelfState = {
@@ -146,7 +148,10 @@ export function createShelf(
 
   async function build(): Promise<ShelfScene> {
     const T = await import("three");
-    await loadShelfFonts();
+    fonts = createSpineFonts(books, () => {
+      st.dirty = true;
+    });
+    await Promise.all([loadShelfFonts(), fonts.ready]);
     if (disposed) throw new Aborted();
     // the scene is built in steps the slicer spreads out; a disposed engine ends the build at the next one
     const run = (steps: Array<() => void>) =>
@@ -246,6 +251,7 @@ export function createShelf(
           return;
         }
         gl = g;
+        fonts?.scene(g.books);
         covers.wake();
         // a book with a picture of its spine shows that instead (none does yet)
         stopPhotos = loadSpinePhotos(g.books, {
@@ -338,6 +344,7 @@ export function createShelf(
       disposed = true;
       covers.clear();
       stopPhotos?.();
+      fonts?.stop();
       gl?.dispose();
       gl = null;
     },

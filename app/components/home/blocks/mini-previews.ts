@@ -1,4 +1,7 @@
 import type { SiteBook, SiteVideo } from "../../../types";
+import { drawingWidth } from "../reading/spine-paint";
+import { designFor } from "../reading/spine-series";
+import { spineColours } from "../reading/spine-styles";
 
 /** Spine ink from the spine's luminance (mockup: inkOn). Dark ink on light spines, light on dark. */
 export function inkOn(hex: string): string {
@@ -7,20 +10,26 @@ export function inkOn(hex: string): string {
   return l > 0.56 ? "#17120d" : "#f6f0e2";
 }
 
-/** One spine of the mini shelf: width from the page count, height from the trim height. */
+/** The mini shelf is the series' own drawing scaled by this: a spine of 32 to 72 units, 8.4 to 26 inches tall at 50 units an inch. */
+export const MINI_SCALE = 0.42;
+
+/**
+ * One spine of the mini shelf: the same shape as the book's spine in the series (the width from its
+ * pages, the height from its trim height; spine-paint.ts draws it) at `MINI_SCALE`, in the cloth and
+ * foil of its design. The cloth stands behind the canvas until the lettering is painted.
+ */
 export function miniSpine(book: SiteBook): {
   width: number;
   height: number;
   background: string;
   ink: string;
-  band: boolean;
 } {
+  const design = designFor(book, spineColours({ dominant: book.color, secondary: book.color }));
   return {
-    width: Math.round(14 + book.pages * 0.055),
-    height: Math.round(book.heightIn * 21),
-    background: book.color,
-    ink: inkOn(book.color),
-    band: book.style === "band",
+    width: Math.round(drawingWidth(book.pages) * MINI_SCALE),
+    height: Math.round(book.heightIn * 50 * MINI_SCALE),
+    background: design.cloth,
+    ink: design.foil,
   };
 }
 

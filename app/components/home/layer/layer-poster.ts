@@ -38,7 +38,8 @@ export function posterTransform(pose: PosterPose | null): string {
 /**
  * A copy of the block for the poster (DOM, so checked in the browser audit, `shelf.json` and
  * `wall.json`, not by a unit test): nothing in it can be reached or announced (ids, links,
- * buttons and tab stops are dropped), the wall's drifting columns are held where they were, and it is
+ * buttons and tab stops are dropped), the wall's drifting columns are held where they were, the small shelf's
+ * painted spines are copied across, and it is
  * sized exactly like the block was.
  */
 export function cloneBlock(block: HTMLElement, rect: Rect): HTMLElement {
@@ -57,6 +58,15 @@ export function cloneBlock(block: HTMLElement, rect: Rect): HTMLElement {
     col.style.animation = "none";
     const at = was[i] ? getComputedStyle(was[i]).transform : "none";
     col.style.transform = at;
+  });
+  // a cloned canvas is empty: the small shelf's spines are copied across as they were painted
+  const drawn = block.querySelectorAll<HTMLCanvasElement>("canvas");
+  copy.querySelectorAll<HTMLCanvasElement>("canvas").forEach((c, i) => {
+    const from = drawn[i];
+    if (!from || !from.width || !from.height) return;
+    c.width = from.width;
+    c.height = from.height;
+    c.getContext("2d")?.drawImage(from, 0, 0);
   });
   copy.style.width = `${rect.width}px`;
   copy.style.height = `${rect.height}px`;

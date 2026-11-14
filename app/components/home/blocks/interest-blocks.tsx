@@ -7,6 +7,7 @@ import type { LayerKind } from "../layer/layer-state";
 import "./blocks.css";
 import { miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 import { useMiniFit } from "./use-mini-fit";
+import { useMiniSpines } from "./use-mini-spines";
 import { useNear } from "./use-near";
 
 /** The ids the layer and the deep link find the blocks by (mockup: blkRead, blkWatch). */
@@ -43,6 +44,7 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
   const shelfRowRef = useRef<HTMLDivElement>(null);
   const fitSpines = useMemo(() => spines.map((s) => ({ w: s.width, h: s.height })), [spines]);
   useMiniFit(shelfArtRef, shelfRowRef, fitSpines);
+  useMiniSpines(shelfArtRef, shelfRowRef, books, spines);
 
   return (
     <section
@@ -77,7 +79,7 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
                   return (
                     <div
                       key={book.id}
-                      className={s.band ? "ms-sp band" : "ms-sp"}
+                      className="ms-sp"
                       style={
                         {
                           "--i": i,
@@ -88,7 +90,7 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
                         } as CSSProperties
                       }
                     >
-                      <span>{book.title}</span>
+                      <canvas data-spine={i} />
                     </div>
                   );
                 })}

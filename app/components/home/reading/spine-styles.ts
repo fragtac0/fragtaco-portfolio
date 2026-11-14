@@ -1,34 +1,10 @@
 import { CREAM, GROUND, rgba } from "../../../styles/tokens";
 
 /**
- * Which of the five spine designs a book wears, and the colours its spine is drawn in. Pure: no
- * canvas, no DOM (the painting is spine-draw.ts). Spec 8, "Designed spines".
+ * Colour maths for the spines (WCAG contrast, mixing) and the colours a plain spine is made from a
+ * cover's: `spineColours`. Pure: no canvas, no DOM. The designs themselves are spine-series.ts and the
+ * painting is spine-paint.ts.
  */
-
-export type SpineStyle = 0 | 1 | 2 | 3 | 4;
-
-/**
- * FNV-1a over the id's UTF-16 units, started from a chosen seed (not the standard offset: this one
- * spreads the 14 books 2, 4, 2, 3, 3 over the five styles). A book always gets the same style, on
- * every machine.
- */
-const SEED = 9;
-function hash(id: string): number {
-  let h = SEED;
-  for (let i = 0; i < id.length; i++) {
-    h ^= id.charCodeAt(i);
-    h = Math.imul(h, 0x01000193) >>> 0;
-  }
-  return h >>> 0;
-}
-
-/**
- * The spine design for a book: 0 heavy condensed capitals, 1 classic serif capitals between rules,
- * 2 italic serif title, 3 typewriter, 4 light wide-spaced capitals. Stable per id.
- */
-export function spineStyle(bookId: string): SpineStyle {
-  return (hash(bookId) % 5) as SpineStyle;
-}
 
 // ---- colour maths (WCAG 2 relative luminance and contrast)
 

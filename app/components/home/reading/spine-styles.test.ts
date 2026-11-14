@@ -11,7 +11,6 @@ import {
   needsEdge,
   parseHex,
   spineColours,
-  spineStyle,
   toHex,
 } from "./spine-styles";
 
@@ -20,52 +19,6 @@ const books = (
     readFileSync(path.join(process.cwd(), "content", "site", "books.json"), "utf8"),
   ) as { items: { id: string; color: string }[] }
 ).items;
-
-/** The style of every book, pinned: a change to the hash or its seed shows here, so no book changes its look by accident. */
-const PINNED: Record<string, number> = {
-  "in-the-blink-of-an-eye": 3,
-  "sculpting-in-time": 0,
-  "making-movies": 3,
-  "on-film-editing": 2,
-  story: 1,
-  "save-the-cat": 1,
-  "the-creative-act": 3,
-  "steal-like-an-artist": 2,
-  "show-your-work": 4,
-  "ways-of-seeing": 4,
-  "understanding-comics": 1,
-  "thinking-with-type": 0,
-  "grid-systems-in-graphic-design": 1,
-  "the-design-of-everyday-things": 4,
-};
-
-describe("spineStyle", () => {
-  it("is the pinned style for each of the 14 books", () => {
-    expect(books.map((b) => b.id).sort()).toEqual(Object.keys(PINNED).sort());
-    for (const b of books) expect(spineStyle(b.id), b.id).toBe(PINNED[b.id]);
-  });
-
-  it("is stable for an id and always 0 to 4", () => {
-    for (const b of books) {
-      const s = spineStyle(b.id);
-      expect(spineStyle(b.id)).toBe(s);
-      expect([0, 1, 2, 3, 4]).toContain(s);
-    }
-    expect(spineStyle("")).toBeGreaterThanOrEqual(0);
-  });
-
-  it("uses all five styles across the 14 books", () => {
-    expect(books).toHaveLength(14);
-    const seen = new Set(books.map((b) => spineStyle(b.id)));
-    expect([...seen].sort()).toEqual([0, 1, 2, 3, 4]);
-  });
-
-  it("does not give one style to nearly every book", () => {
-    const counts = [0, 0, 0, 0, 0];
-    for (const b of books) counts[spineStyle(b.id)]++;
-    expect(Math.max(...counts)).toBeLessThanOrEqual(4);
-  });
-});
 
 describe("colour maths", () => {
   it("round trips hex", () => {

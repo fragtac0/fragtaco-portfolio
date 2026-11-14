@@ -1,0 +1,48 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "nocache": true,
+  "intercept": [
+   {
+    "match": "family=Archivo",
+    "delay": 7500
+   }
+  ],
+  "go": "{{BASE}}/",
+  "wait": 3300
+ },
+ {
+  "eval": "(()=>{document.querySelector('.blk-hit[data-xp=reading]').click();return {link:document.querySelector('link[data-spine-fonts]').media}})()",
+  "label": "open the shelf 3.3 s in, the spine faces' stylesheet held back 7.5 s (a late face: the link is still media=print)"
+ },
+ {
+  "wait": 900
+ },
+ {
+  "shot": "r52-4-late-warm"
+ },
+ {
+  "shot": "r52-4-late-fonts-fallback"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');return {canvas:!!c,drawn:document.querySelector('.home-layer').className,spineFamilies:[...document.fonts].filter(f=>['Archivo','Bodoni Moda','Unbounded'].includes(f.family)&&f.status==='loaded').length,link:document.querySelector('link[data-spine-fonts]').media}})()",
+  "label": "the shelf is up and no spine face has loaded (spineFamilies 0): the spines are in the fallback faces"
+ },
+ {
+  "eval": "new Promise(r=>{const t0=performance.now();const q=()=>{const n=[...document.fonts].filter(f=>f.family==='Bodoni Moda'&&f.status==='loaded').length;if(n>0||performance.now()-t0>9000)r({bodoniLoaded:n,ms:Math.round(performance.now()-t0)});else setTimeout(q,100)};q()})",
+  "label": "the faces arrive late; the repaint follows (shot r52-4-late-fonts-repainted shows the series' faces)"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "shot": "r52-4-late-warm2"
+ },
+ {
+  "shot": "r52-4-late-fonts-repainted"
+ }
+]

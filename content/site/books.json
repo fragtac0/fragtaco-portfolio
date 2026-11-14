@@ -10,6 +10,7 @@
       "aspect": 0.647,
       "color": "#ece6d6",
       "style": "plain",
+      "series": "in-the-blink-of-an-eye",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -22,6 +23,7 @@
       "aspect": 0.667,
       "color": "#2c3b43",
       "style": "band",
+      "series": "sculpting-in-time",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -34,6 +36,7 @@
       "aspect": 0.65,
       "color": "#a8352a",
       "style": "block",
+      "series": "making-movies",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -46,6 +49,7 @@
       "aspect": 0.667,
       "color": "#c79a2a",
       "style": "plain",
+      "series": "on-film-editing",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -58,6 +62,7 @@
       "aspect": 0.66,
       "color": "#151312",
       "style": "band",
+      "series": "story",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -70,6 +75,7 @@
       "aspect": 0.667,
       "color": "#efe9dc",
       "style": "block",
+      "series": "save-the-cat",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -82,6 +88,7 @@
       "aspect": 0.68,
       "color": "#e3ddd0",
       "style": "plain",
+      "series": "the-creative-act",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -94,6 +101,7 @@
       "aspect": 0.76,
       "color": "#1c1b19",
       "style": "block",
+      "series": "steal-like-an-artist",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -106,6 +114,7 @@
       "aspect": 0.76,
       "color": "#f0ece2",
       "style": "block",
+      "series": "show-your-work",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -118,6 +127,7 @@
       "aspect": 0.65,
       "color": "#c21f2b",
       "style": "plain",
+      "series": "ways-of-seeing",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -130,6 +140,7 @@
       "aspect": 0.66,
       "color": "#d6b03a",
       "style": "band",
+      "series": "understanding-comics",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -142,6 +153,7 @@
       "aspect": 0.78,
       "color": "#e04a26",
       "style": "block",
+      "series": "thinking-with-type",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -154,6 +166,7 @@
       "aspect": 0.73,
       "color": "#dad8cf",
       "style": "plain",
+      "series": "grid-systems-in-graphic-design",
       "note": "Placeholder for one or two lines on why this book stays with you."
     },
     {
@@ -166,6 +179,7 @@
       "aspect": 0.66,
       "color": "#1f4b73",
       "style": "band",
+      "series": "the-design-of-everyday-things",
       "note": "Placeholder for one or two lines on why this book stays with you."
     }
   ]
