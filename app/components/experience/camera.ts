@@ -40,15 +40,21 @@ export function settle(cam: Cam, goalU: number, m: Milestone, stage: Stage): num
   return m.u;
 }
 
-/** One step of dt seconds of a critically damped spring: the place and speed afterwards. It does not overshoot the goal. */
+/**
+ * One step of `dt` seconds (at most `MAX_DT`: a longer one, after a stalled tab, counts as that) of a critically
+ * damped spring: the place and speed afterwards. From rest it does not overshoot its goal, whatever the step.
+ * A goal set just ahead of a camera that is already moving toward it may be overshot a little, as in the
+ * preview the owner chose (Ruling R98): a spring cannot stop in less than its stopping distance.
+ */
 export function springStep(u: number, vel: number, goal: number, dt: number): [number, number] {
   const w = OMEGA;
   const d = u - goal;
+  const t = Math.min(Math.max(dt, 0), MAX_DT);
   // The exact solution of x'' = -w^2 x - 2 w x' over dt (no overshoot for any dt, unlike a plain Euler step).
-  const e = Math.exp(-w * dt);
+  const e = Math.exp(-w * t);
   const c = vel + w * d;
-  const next = goal + (d + c * dt) * e;
-  const speed = (vel - w * c * dt) * e;
+  const next = goal + (d + c * t) * e;
+  const speed = (vel - w * c * t) * e;
 
   return [next, speed];
 }

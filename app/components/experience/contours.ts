@@ -3,7 +3,7 @@
 // d3-contour (ISC) finds the rings; the colours are mixed here so that nothing else of d3 is needed.
 import { contours } from "d3-contour";
 import { HEIGHT_FRAME } from "./frame";
-import type { HeightField } from "./heights";
+import { normalise, type HeightField } from "./heights";
 import { clamp, lerp, range } from "./map-math";
 
 /** One line of the map: its height n (0 plain, 1 summit; a little below 0 under the plain), colours, width and rings (x, y pairs in map units). */
@@ -46,7 +46,7 @@ export function thresholdsOf(field: Pick<HeightField, "lo" | "hi">): number[] {
 
 /** Every level of the field, lowest first, ready to draw one over the next. */
 export function buildLevels(field: HeightField): Level[] {
-  const { w, h, base, hi } = field;
+  const { w, h } = field;
   const { x0, y0, w: fw, h: fh } = HEIGHT_FRAME;
 
   return contours()
@@ -54,7 +54,7 @@ export function buildLevels(field: HeightField): Level[] {
     .smooth(true)
     .thresholds(thresholdsOf(field))(field.data as unknown as number[]) // @types/d3-contour asks for number[]; it only indexes, so the Float32Array is fine
     .map((ct, i) => {
-      const n = (ct.value - base) / (hi - base);
+      const n = normalise(field, ct.value);
       const major = i % MAJOR_EVERY === 0;
 
       return {

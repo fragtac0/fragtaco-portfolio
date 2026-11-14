@@ -2,8 +2,8 @@
 // 2.5 degrees, a small cross every 5), two dotted range rings round the summit, the degree labels, the scale bar
 // and the position readout. Pure maths: positions in map units or on the stage; the engine draws them.
 import { HEIGHT_FRAME, KM_PER_UNIT, latOf, lonOf, xOf, yOf } from "./frame";
-import { range, smooth } from "./map-math";
-import { project, type Stage, type View } from "./view";
+import { range } from "./map-math";
+import { pictureOpacity, project, type Stage, type View } from "./view";
 
 /** The grid's lines every 2.5 degrees, and which are strong (every 5). */
 export const LONS = range(190, 266, 2.5);
@@ -59,7 +59,7 @@ export function gridCrosses(): Cross[] {
 }
 
 /** How strong the chart marks of the overview are: they tilt with the picture and fade exactly as it does. */
-export const chartAlpha = (night: number) => 1 - smooth(0.12, 0.85, night);
+export const chartAlpha = pictureOpacity;
 
 /** The grid's ink strength: more over the dark ground of My climb (up to 2.6 times), for the same faint look. */
 export const gridBoost = (k: number) => 1 + 1.6 * k;

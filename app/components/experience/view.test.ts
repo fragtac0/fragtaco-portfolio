@@ -82,6 +82,14 @@ describe("viewOf: the overview", () => {
 
       expect(1000 * v.S).toBeGreaterThanOrEqual(1.1 * stage.w - 1e-9);
       expect(650 * v.S).toBeGreaterThanOrEqual(1.1 * stage.h - 1e-9);
+      // and the picture's four corners, projected, lie outside the stage (the stage is inside the picture)
+      const [left, top] = project(v, 0, 0, 0);
+      const [right, bottom] = project(v, 1000, 650, 0);
+
+      expect(left).toBeLessThanOrEqual(0);
+      expect(top).toBeLessThanOrEqual(0);
+      expect(right).toBeGreaterThanOrEqual(stage.w);
+      expect(bottom).toBeGreaterThanOrEqual(stage.h);
     }
   });
 

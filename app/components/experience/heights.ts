@@ -73,6 +73,13 @@ export function makeField(grey: ArrayLike<number>, w: number, h: number, r: numb
   };
 }
 
+/** A grey level as a height: 0 at the plain, 1 at the summit (a flat field, with no summit above its plain, is all 0 rather than not a number). */
+export function normalise(field: Pick<HeightField, "base" | "hi">, grey: number): number {
+  const span = field.hi - field.base;
+
+  return span > 0 ? (grey - field.base) / span : 0;
+}
+
 /** The ground's height at a map position: 0 at the plain, 1 at the summit (less than 0 below the plain). Bilinear between cells; outside the frame the edge cell. */
 export function sampleHeight(field: HeightField, x: number, y: number): number {
   const { data, w, h } = field;
@@ -86,7 +93,7 @@ export function sampleHeight(field: HeightField, x: number, y: number): number {
   const i = iy * w + ix;
   const v = (data[i] * (1 - a) + data[i + 1] * a) * (1 - b) + (data[i + w] * (1 - a) + data[i + w + 1] * a) * b;
 
-  return (v - field.base) / (field.hi - field.base);
+  return normalise(field, v);
 }
 
 /** Set `n` on each point to the height under it. */

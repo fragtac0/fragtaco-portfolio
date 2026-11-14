@@ -1,0 +1,201 @@
+/*
+ * The two states of the Mars map (experience-map.tsx, spec 9.1 and 9.2): the stage and its layers, the switch, and the
+ * list shown where there is no map. The stage fills the page; its layers, bottom to top, are the toned picture (a
+ * plane the engine moves), the night, the night map's canvas, the fade into the night, three depth blurs, the soft
+ * blur toward the edges and the darkening. The words and buttons (experience.css, and the switch here) sit above them.
+ * `--night` is written by the engine each frame (0 in the overview, 1 in My climb): the overlays follow it.
+ * Colours, sizes and layers come from tokens.css.
+ */
+.map-stage {
+  --night: 0;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size; /* the picture's first place is worked out in the stage's own units (cqw, cqh) */
+  pointer-events: none;
+}
+
+/* The picture, 1000 by 650 map units. Until the engine has a size it is placed by CSS alone, where `planeTransform`
+ * puts it in the overview (view.ts OVERVIEW, passed in as --map-look-x/-y/--map-zoom/--map-ratio): as wide as the
+ * stage needs for the zoomed picture to cover it, its look-at point in the stage's middle. Once the engine runs it
+ * sets the plane's own size (1000 by 650 px) and its transform inline, which win over this. */
+.map-plane {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: max(calc(100vw * var(--map-zoom)), calc(100dvh * var(--map-zoom) * var(--map-ratio)));
+  width: max(calc(100cqw * var(--map-zoom)), calc(100cqh * var(--map-zoom) * var(--map-ratio)));
+  aspect-ratio: var(--map-ratio);
+  transform-origin: 0 0;
+  transform: translate(calc(50cqw - var(--map-look-x)), calc(50cqh - var(--map-look-y)));
+  will-change: transform, opacity;
+}
+.map-plane img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+.map-night {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(110% 90% at 50% 60%, #171411 0%, #0e0d0c 60%, #080808 100%);
+  opacity: 0;
+}
+.map-terrain {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+/* The ground fades into the night toward the far edge and the sides: a plain overlay, cheap to draw. */
+.map-fog {
+  position: absolute;
+  inset: 0;
+  opacity: var(--night);
+  background:
+    linear-gradient(
+      to bottom,
+      rgb(var(--map-night)) 3%,
+      rgb(var(--map-night) / 0.86) 16%,
+      rgb(var(--map-night) / 0.45) 30%,
+      transparent 46%
+    ),
+    linear-gradient(to right, rgb(var(--map-night)) 0%, transparent 15%, transparent 85%, rgb(var(--map-night)) 100%);
+}
+/* Depth blurs: two far (the top), one near (the foot). Their strength follows the tilt through --night. */
+.map-focus {
+  position: absolute;
+  left: 0;
+  right: 0;
+  opacity: var(--night);
+}
+.map-focus-far {
+  top: 0;
+  height: 58%;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  -webkit-mask-image: linear-gradient(#000 10%, transparent);
+  mask-image: linear-gradient(#000 10%, transparent);
+}
+.map-focus-far-2 {
+  top: 0;
+  height: 34%;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  -webkit-mask-image: linear-gradient(#000 20%, transparent);
+  mask-image: linear-gradient(#000 20%, transparent);
+}
+.map-focus-near {
+  bottom: 0;
+  height: 22%;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  -webkit-mask-image: linear-gradient(transparent, #000 80%);
+  mask-image: linear-gradient(transparent, #000 80%);
+}
+/* A very soft blur toward the edges and corners, and a soft darkening, to keep the eye in the middle. */
+.map-edge-blur {
+  position: absolute;
+  inset: 0;
+  -webkit-backdrop-filter: blur(2.5px);
+  backdrop-filter: blur(2.5px);
+  -webkit-mask-image: radial-gradient(ellipse 74% 72% at 50% 50%, transparent 58%, #000 100%);
+  mask-image: radial-gradient(ellipse 74% 72% at 50% 50%, transparent 58%, #000 100%);
+}
+.map-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 76% at 50% 48%,
+    transparent 50%,
+    rgb(var(--map-night) / 0.45) 80%,
+    rgb(var(--map-night) / 0.92) 100%
+  );
+}
+
+/* The switch (top right): the pill glass of the layers, the chosen state filled with cream. */
+.map-mode {
+  position: absolute;
+  top: 28px;
+  right: 48px;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  box-shadow: var(--pill-edge);
+  -webkit-backdrop-filter: var(--pill-blur);
+  backdrop-filter: var(--pill-blur);
+}
+.map-mode-button {
+  padding: 7px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: var(--t-meta);
+  cursor: pointer;
+  transition: background-color 400ms ease-out, color 400ms ease-out;
+}
+.map-mode-button:hover {
+  color: var(--ink-1);
+}
+.map-mode-button[aria-pressed="true"] {
+  background: rgb(var(--ink-rgb) / 0.92);
+  color: var(--ground);
+}
+.map-mode-button:focus-visible {
+  outline: 2px solid var(--ink-1);
+  outline-offset: 2px;
+}
+
+/* The list the page shows where there is no map to draw on (no canvas, less data, a picture that did not come). */
+.map-fallback-list {
+  position: absolute;
+  top: 84px;
+  right: 48px;
+  bottom: calc(var(--site-nav-height, 132px) + 24px);
+  width: min(380px, 44vw);
+  overflow: auto;
+  padding: 4px 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgb(var(--glass-rgb) / 0.78);
+  touch-action: pan-y;
+}
+
+@media (max-width: 699.98px) {
+  .map-mode {
+    top: 22px;
+    right: 16px;
+  }
+  .map-mode-button {
+    padding: 6px 12px;
+  }
+  .map-fallback-list {
+    top: auto;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    height: 34%;
+    bottom: calc(var(--site-nav-height, 132px) + 12px + env(safe-area-inset-bottom));
+  }
+}
+/* Under 400 px the title and the switch do not share a row: the switch goes under the title, left, and the paragraph (experience.css) starts below it. */
+@media (max-width: 399.98px) {
+  .map-mode {
+    top: 62px;
+    right: auto;
+    left: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-mode-button {
+    transition: none;
+  }
+}

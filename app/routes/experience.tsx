@@ -1,16 +1,16 @@
 import { json, type HeadersFunction, type LinksFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import ExperiencePage from "../components/experience/experience-page";
+import { HEIGHTS_SRC, RELIEF_SRC } from "../components/experience/experience-map";
 import WorkShell from "../components/work/work-shell";
 import { getExperiencePageContent } from "../content/loaders.server";
 
-// The four level 1 tiles (264 KB together) are the map's first picture: the page shows them as images and the
-// canvas draws from them first, so they are asked for from the HTML (and, through Remix's prefetch, when the dock row's
-// link is hovered) rather than after the script runs. The finer levels come as the view needs them.
-export const links: LinksFunction = () =>
-  [0, 1].flatMap((y) =>
-    [0, 1].map((x) => ({ rel: "preload", as: "image", href: `/mars/1/${x}_${y}.webp`, type: "image/webp" })),
-  );
+// The toned picture (670 KB) is the map's first paint and the height picture (124 KB) is read into the night map once the
+// page change is over, so both are asked for from the HTML (and, through Remix's prefetch, when the dock row's link is hovered).
+export const links: LinksFunction = () => [
+  { rel: "preload", as: "image", href: RELIEF_SRC, type: "image/webp" },
+  { rel: "preload", as: "image", href: HEIGHTS_SRC, type: "image/png" },
+];
 
 export const meta: MetaFunction = () => [
   { title: "My experience - FragTaco" },
@@ -29,13 +29,13 @@ export async function loader() {
   return json(content, { headers: { "Cache-Control": "private, max-age=300" } });
 }
 
-// The Mars map (spec 9). The dock and its row come from WorkShell, so My experience is the current link of the row.
+// The Mars map, in two states (spec 9). The dock and its row come from WorkShell, so My experience is the current link of the row.
 export default function Experience() {
-  const { navigationItems, socialLinks, experience, today } = useLoaderData<typeof loader>();
+  const { navigationItems, socialLinks, experience } = useLoaderData<typeof loader>();
 
   return (
     <WorkShell navigationItems={navigationItems} socialLinks={socialLinks} ground={false}>
-      <ExperiencePage experience={experience} today={today} />
+      <ExperiencePage experience={experience} />
     </WorkShell>
   );
 }

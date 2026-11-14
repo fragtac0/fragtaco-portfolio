@@ -61,6 +61,9 @@
      first rows, a little under --ground), so the hero's lower edge fades into it with no line (hero.css .hero-edge) */
   --hero-seam-rgb: 11 11 10;
 
+  /* the night of the Mars map (round 7, spec 9.2): the fade toward the far edge and the sides, and the darkening toward the corners, as a channel triple (rgb(var(--map-night) / 0.45)) */
+  --map-night: 12 11 10;
+
   /* the header of a full page layer (a shelf, a video wall): the title at the left, the close or back pill at the right */
   --head-pad-top: clamp(28px, 4vw, 56px);
   --head-pad-x: clamp(24px, 4.5vw, 72px);

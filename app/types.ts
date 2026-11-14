@@ -1,3 +1,5 @@
+import type { MOMENT_ICONS } from "./content/experience-schema";
+
 export type HomeSectionId = "about";
 export type NavigationKey = "home" | "work";
 
@@ -168,17 +170,8 @@ export interface SiteWork {
   clients: WorkClient[];
 }
 
-/** The icon of a milestone's bead on the map (Phosphor, fill weight; the names are the ones of spec 9.3). */
-export type ExperienceIcon =
-  | "gear"
-  | "scissors"
-  | "graduation-cap"
-  | "megaphone"
-  | "video-camera"
-  | "film-slate"
-  | "microphone"
-  | "paper-plane"
-  | "hiker";
+/** The icon of a milestone's bead on the map (Phosphor, fill weight; the nine names are `MOMENT_ICONS`, spec 9.3). */
+export type ExperienceIcon = (typeof MOMENT_ICONS)[number];
 
 export interface ExperienceMoment {
   id: string;
@@ -219,7 +212,7 @@ export interface SiteExperience {
   heading: { title: string; text: string; description: string };
   moments: ExperienceMoment[];
   /** The words of the map's controls: the Journey and Places switch, the heading's More and Less. */
-  ui: { journey: string; places: string; more: string; less: string };
+  ui: { overview: string; climb: string; more: string; less: string };
   caption: { title: string; line: string; /** The fact shown with the caption (its height and width). */ factId: string; credit: string };
   /** Hand-placed points of the route, in order (Task 19 places them on the picture). */
   route: { lon: number; lat: number }[];

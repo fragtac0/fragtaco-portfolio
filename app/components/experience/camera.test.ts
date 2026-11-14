@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MIDDLE, OMEGA, inMiddle, settle, springStep, type Milestone } from "./camera";
+import { MAX_DT, MIDDLE, OMEGA, inMiddle, settle, springStep, type Milestone } from "./camera";
 import { liftOf } from "./heights";
 import { lowerTrail, MILESTONE_SHARES, sampleTrail, trailAt, type Point } from "./trail";
 import { OVERVIEW, STEM, project, viewOf, type Cam, type Stage } from "./view";
@@ -90,7 +90,7 @@ describe("springStep", () => {
     return out;
   }
 
-  for (const dt of [1 / 240, 1 / 144, 1 / 60, 1 / 30, 0.05, 0.25, 1]) {
+  for (const dt of [1 / 240, 1 / 144, 1 / 60, 1 / 30, MAX_DT]) {
     it(`never overshoots, and only ever moves toward the goal, from rest in steps of ${dt.toFixed(3)} s`, () => {
       for (const [from, goal] of [[0, 1], [1, 0], [0.3, 0.9]]) {
         const path = run(from, 0, goal, dt, 12);
@@ -102,6 +102,13 @@ describe("springStep", () => {
       }
     });
   }
+
+  it("counts a step longer than MAX_DT as MAX_DT (a stalled tab does not throw the camera), and never goes back in time", () => {
+    for (const long of [0.06, 0.25, 1, 60]) expect(springStep(0.2, 0.1, 0.9, long)).toEqual(springStep(0.2, 0.1, 0.9, MAX_DT));
+    expect(springStep(0.2, 0.1, 0.9, -1)).toEqual(springStep(0.2, 0.1, 0.9, 0));
+    // after a stall of a minute the camera is a step nearer its goal, not on it
+    expect(springStep(0, 0, 1, 60)[0]).toBeLessThan(0.01);
+  });
 
   it("starts gently (the speed grows from nothing) and settles", () => {
     const [u1, v1] = springStep(0, 0, 1, 1 / 60);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HEIGHT, blur3, liftOf, makeField, sampleHeight, setHeights, type HeightField } from "./heights";
+import { HEIGHT, blur3, liftOf, makeField, normalise, sampleHeight, setHeights, type HeightField } from "./heights";
 
 /** A cone of grey, 255 at its peak, falling to 0 at `radius` cells, on a w by h grid (peak in the middle cell). */
 function cone(w: number, h: number, radius: number): Uint8Array {
@@ -115,6 +115,23 @@ describe("sampleHeight", () => {
 
     expect(f.base).toBe(50);
     expect(sampleHeight(f, -300, -195)).toBeCloseTo(-1, 9);
+  });
+});
+
+describe("a flat field (no summit above the plain)", () => {
+  const flat = makeField(new Array(12 * 8).fill(120), 12, 8, 0);
+
+  it("is height 0 everywhere, never not a number", () => {
+    expect(flat.hi).toBe(flat.base);
+    for (const [x, y] of [[500, 325], [-300, -195], [1300, 845], [0, 0]]) expect(sampleHeight(flat, x, y)).toBe(0);
+    expect(normalise(flat, 300)).toBe(0);
+  });
+
+  it("normalise is 0 at the plain and 1 at the summit of a field that has one", () => {
+    const f = makeField(cone(41, 31, 12), 41, 31, 0);
+
+    expect(normalise(f, f.base)).toBe(0);
+    expect(normalise(f, f.hi)).toBe(1);
   });
 });
 

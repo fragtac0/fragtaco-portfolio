@@ -1,17 +1,17 @@
-export type Layer = "journey" | "places";
+import type { Mode } from "./climb-change";
 
 type Props = {
-  layer: Layer;
-  labels: { journey: string; places: string };
-  onChange: (layer: Layer) => void;
+  mode: Mode;
+  labels: { overview: string; climb: string };
+  onChange: (mode: Mode) => void;
 };
 
-/** The Journey / Places switch (spec 9.5), top right: two buttons, the pressed one filled. Counts as the map's own interface. */
-export default function ModeSwitch({ layer, labels, onChange }: Props) {
+/** The switch of the two states (spec 9), top right: Overview and My climb, the chosen one filled. */
+export default function ModeSwitch({ mode, labels, onChange }: Props) {
   return (
-    <div className="map-mode" role="group" aria-label={`${labels.journey} / ${labels.places}`} data-map-ui="">
-      {(["journey", "places"] as const).map((key) => (
-        <button key={key} type="button" className="map-mode-button" aria-pressed={layer === key} onClick={() => onChange(key)}>
+    <div className="map-mode" role="group" aria-label={`${labels.overview} / ${labels.climb}`}>
+      {(["overview", "climb"] as const).map((key) => (
+        <button key={key} type="button" className="map-mode-button" aria-pressed={mode === key} onClick={() => onChange(key)}>
           {labels[key]}
         </button>
       ))}

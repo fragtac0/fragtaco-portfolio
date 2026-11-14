@@ -87,6 +87,21 @@ describe("buildLevels", () => {
   });
 });
 
+describe("a flat field", () => {
+  it("makes no levels, and none of their numbers is not a number", () => {
+    const flat = makeField(new Array(20 * 12).fill(90), 20, 12, 0);
+
+    expect(buildLevels(flat)).toEqual([]);
+    expect(thresholdsOf(flat)).toEqual([]);
+  });
+
+  it("a field with a plain but a barely higher summit still makes finite levels", () => {
+    const f = makeField(cone(30, 20, 10, 2), 30, 20, 0);
+
+    for (const l of buildLevels(f)) expect(Number.isFinite(l.n)).toBe(true);
+  });
+});
+
 describe("colours", () => {
   it("fill: a deep brown that warms a little with height", () => {
     expect(fillOf(0)).toBe("rgb(15, 14, 13)");
