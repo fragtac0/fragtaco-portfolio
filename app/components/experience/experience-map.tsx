@@ -1,7 +1,11 @@
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, type CSSProperties } from "react";
+import type { ExperienceMoment } from "../../types";
+import { createCardController, type CardController } from "./card-controller";
 import type { Mode } from "./climb-change";
 import { createClimbEngine, type ClimbEngine, type ClimbLayers } from "./climb-engine";
 import { PICTURE } from "./frame";
+import MilestonePins from "./milestone-pins";
+import MomentCard, { cardView } from "./moment-card";
 import { loadTerrain } from "./terrain-canvas";
 import type { TrailPoint } from "./trail";
 import { OVERVIEW } from "./view";
@@ -11,15 +15,28 @@ import "./map.css";
 export const RELIEF_SRC = "/mars/relief.webp";
 export const HEIGHTS_SRC = "/mars/heights.png";
 
+/** `fetchpriority` as an attribute: React 18.3 does not know the camel case prop (the painting does the same). */
+const HIGH = { fetchpriority: "high" } as Record<string, string>;
+
 type Props = {
   trail: TrailPoint[];
+  moments: ExperienceMoment[];
+  /** The word between "3" and "9" on a card. */
+  of: string;
   mode: Mode;
+  /** The chosen milestone in My climb (null in the overview). */
+  selected: number | null;
   /** Whether the engine runs: from the end of the page change, where a 2D canvas is there and the picture came. */
   running: boolean;
   reduced: boolean;
   /** Whether the picture is shown (false once it failed to load). */
   picture: boolean;
-  /** The picture or the heights failed: the page falls back to the list. */
+  /** The heights are read: the switch and the beads can be pressed. */
+  ready: boolean;
+  onReady: () => void;
+  /** A bead was pressed. */
+  onChoose: (index: number) => void;
+  /** The picture failed, or the heights or a 2D canvas did: the page falls back to the list. */
   onFailPicture: () => void;
   onFailHeights: () => void;
 };
@@ -29,23 +46,31 @@ const trace = () => (window as unknown as { __expTrace?: number[][] }).__expTrac
 
 /**
  * The two states of the map (spec 9.1 and 9.2), as layers of one stage: the toned picture (one `<img>` in a plane that
- * the engine moves with a 3D transform), the night under it, the night map's canvas, and over them the fade into the
- * night toward the far edge and the sides, three depth blurs (two far, one near), the soft blur toward the edges and
- * the darkening. Before the engine starts the plane is placed by CSS alone, exactly where the engine will put it in the
- * overview, so a page change and the first paint show the picture. The overlays' strength follows `--night`, which the
- * engine writes (no React state per frame). Nothing here is read by a screen reader: the moments are listed by the page.
+ * the engine moves with a 3D transform), the night under it, the night map's canvas, three depth blurs (two far, one
+ * near), the soft blur toward the edges, the trail and the radar (above every blur: Ruling R101), the fade into the night
+ * toward the far edge and the sides, and the darkening. After the stage come the milestones' beads and their card. Before
+ * the engine starts the plane is placed by CSS alone, exactly where the engine will put it in the overview, so a page change
+ * and the first paint show the picture. The layers' strength follows `--night`, which the engine writes (no React state per
+ * frame). Nothing but the beads is read by a screen reader: the moments are listed by the page.
  */
-export default function ExperienceMap({ trail, mode, running, reduced, picture: showPicture, onFailPicture, onFailHeights }: Props) {
+export default function ExperienceMap({ trail, moments, of, mode, selected, running, reduced, picture: showPicture, ready, onReady, onChoose, onFailPicture, onFailHeights }: Props) {
   const stage = useRef<HTMLDivElement>(null);
   const plane = useRef<HTMLDivElement>(null);
   const night = useRef<HTMLDivElement>(null);
   const terrain = useRef<HTMLCanvasElement>(null);
+  const trailCanvas = useRef<HTMLCanvasElement>(null);
+  const radar = useRef<HTMLCanvasElement>(null);
+  const card = useRef<HTMLDivElement>(null);
   const picture = useRef<HTMLImageElement>(null);
+  const pinBox = useRef<HTMLDivElement | null>(null);
+  const pins = useRef<(HTMLButtonElement | null)[]>([]);
   const engine = useRef<ClimbEngine | null>(null);
-  const live = useRef({ mode, reduced, onFailHeights });
+  const live = useRef({ mode, selected, reduced, onFailHeights, onReady });
+  const setBox = useCallback((el: HTMLDivElement | null) => void (pinBox.current = el), []);
+  const setPin = useCallback((i: number, el: HTMLButtonElement | null) => void (pins.current[i] = el), []);
 
   useEffect(() => {
-    live.current = { mode, reduced, onFailHeights };
+    live.current = { mode, selected, reduced, onFailHeights, onReady };
   });
 
   // a picture that failed before the page woke up never fires onError here
@@ -56,21 +81,35 @@ export default function ExperienceMap({ trail, mode, running, reduced, picture: 
   }, [onFailPicture]);
 
   useEffect(() => {
-    const layers = { stage: stage.current, plane: plane.current, night: night.current, terrain: terrain.current };
+    const els = pins.current.slice(0, moments.length);
+    const box = pinBox.current;
+    const layers = { stage: stage.current, plane: plane.current, night: night.current, terrain: terrain.current, trail: trailCanvas.current, radar: radar.current, pinBox: box, pins: els };
+    const cardEl = card.current;
 
-    if (!running || !layers.stage || !layers.plane || !layers.night || !layers.terrain) return;
+    if (!running || !cardEl || !box || els.length !== moments.length || els.some((el) => el === null) || Object.values(layers).some((l) => l === null)) return;
 
-    const el = layers.stage;
+    const el = stage.current as HTMLDivElement;
+    // how much of the stage's foot the dock covers: a card keeps above it
+    let dock = 0;
+    const controller: CardController = createCardController(
+      cardView(cardEl, () => pins.current),
+      { set: (fn, ms) => window.setTimeout(fn, ms), clear: (id) => window.clearTimeout(id) },
+      () => live.current.reduced,
+    );
     const e = createClimbEngine(layers as unknown as ClimbLayers, {
       trail,
       reduced: () => live.current.reduced,
       host: { now: () => performance.now(), raf: (cb) => requestAnimationFrame(cb), cancel: (n) => cancelAnimationFrame(n) },
+      onSelect: (index, wait) => controller.request(index, wait),
+      onHeads: (heads, size) => controller.update(heads, { w: size.w, h: size.h - dock }),
+      onFail: () => live.current.onFailHeights(),
       trace,
     });
     let gone = false;
     const measure = () => {
       const r = el.getBoundingClientRect();
 
+      dock = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--site-nav-height")) || 0;
       e.resize(r.width, r.height, Math.min(window.devicePixelRatio || 1, 2));
     };
     const onVisible = () => e.setVisible(!document.hidden);
@@ -81,12 +120,13 @@ export default function ExperienceMap({ trail, mode, running, reduced, picture: 
     observer.observe(el);
     window.addEventListener("resize", measure);
     document.addEventListener("visibilitychange", onVisible);
-    e.go(live.current.mode);
+    e.go(live.current.mode, live.current.selected ?? undefined);
     loadTerrain(HEIGHTS_SRC).then(
       (t) => {
         if (gone) return;
         e.setTerrain(t);
         el.dataset.terrain = "ready";
+        live.current.onReady();
       },
       () => {
         if (!gone) live.current.onFailHeights();
@@ -97,45 +137,53 @@ export default function ExperienceMap({ trail, mode, running, reduced, picture: 
       gone = true;
       engine.current = null;
       e.destroy();
+      controller.destroy();
+      controller.request(null, 0);
       observer.disconnect();
       window.removeEventListener("resize", measure);
       document.removeEventListener("visibilitychange", onVisible);
       delete el.dataset.terrain;
     };
-  }, [running, trail]);
+  }, [running, trail, moments.length]);
 
   useEffect(() => {
-    engine.current?.go(mode);
-  }, [mode]);
+    engine.current?.go(mode, selected ?? undefined);
+  }, [mode, selected]);
 
   return (
-    <div
-      ref={stage}
-      className="map-stage"
-      aria-hidden="true"
-      // the overview's place for the picture, from view.ts, so the CSS cannot drift from it: the look-at point as a share of the picture, and the zoom
-      style={
-        {
-          "--map-look-x": `${(OVERVIEW.ax / PICTURE.w) * 100}%`,
-          "--map-look-y": `${(OVERVIEW.ay / PICTURE.h) * 100}%`,
-          "--map-zoom": OVERVIEW.s,
-          "--map-ratio": PICTURE.w / PICTURE.h,
-        } as CSSProperties
-      }
-    >
-      <div ref={plane} className="map-plane">
-        {showPicture ? (
-          <img ref={picture} src={RELIEF_SRC} alt="" width={PICTURE.w} height={PICTURE.h} draggable={false} decoding="async" fetchPriority="high" onError={onFailPicture} />
-        ) : null}
+    <>
+      <div
+        ref={stage}
+        className="map-stage"
+        aria-hidden="true"
+        // the overview's place for the picture, from view.ts, so the CSS cannot drift from it: the look-at point as a share of the picture, and the zoom
+        style={
+          {
+            "--map-look-x": `${(OVERVIEW.ax / PICTURE.w) * 100}%`,
+            "--map-look-y": `${(OVERVIEW.ay / PICTURE.h) * 100}%`,
+            "--map-zoom": OVERVIEW.s,
+            "--map-ratio": PICTURE.w / PICTURE.h,
+          } as CSSProperties
+        }
+      >
+        <div ref={plane} className="map-plane">
+          {showPicture ? (
+            <img ref={picture} src={RELIEF_SRC} alt="" width={PICTURE.w} height={PICTURE.h} draggable={false} decoding="async" {...HIGH} onError={onFailPicture} />
+          ) : null}
+        </div>
+        <div ref={night} className="map-night" />
+        <canvas ref={terrain} className="map-terrain" />
+        <div className="map-focus map-focus-far" />
+        <div className="map-focus map-focus-far-2" />
+        <div className="map-focus map-focus-near" />
+        <div className="map-edge-blur" />
+        <canvas ref={trailCanvas} className="map-trail" />
+        <canvas ref={radar} className="map-radar" />
+        <div className="map-fog" />
+        <div className="map-vignette" />
       </div>
-      <div ref={night} className="map-night" />
-      <canvas ref={terrain} className="map-terrain" />
-      <div className="map-focus map-focus-far" />
-      <div className="map-focus map-focus-far-2" />
-      <div className="map-focus map-focus-near" />
-      <div className="map-fog" />
-      <div className="map-edge-blur" />
-      <div className="map-vignette" />
-    </div>
+      <MilestonePins moments={moments} selected={selected} ready={ready} onChoose={onChoose} boxRef={setBox} pinRef={setPin} />
+      <MomentCard ref={card} moments={moments} of={of} />
+    </>
   );
 }

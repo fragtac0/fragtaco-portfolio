@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { usePageArrived } from "../../lib/use-page-settled";
 import type { SiteExperience } from "../../types";
 import { useReducedMotion } from "../work/gallery/use-reduced-motion";
@@ -37,9 +37,13 @@ const never = () => () => {};
  */
 export default function ExperiencePage({ experience }: { experience: SiteExperience }) {
   const { heading, caption, facts, moments, ui, route } = experience;
+  const last = moments.length - 1;
   const fact = facts.find((f) => f.id === caption.factId);
   const trail = useMemo(() => sampleTrail(lowerTrail(route.map((p): [number, number] => [xOf(p.lon), yOf(p.lat)]), SUMMIT_XY)), [route]);
   const [mode, setMode] = useState<Mode>("overview");
+  /** The chosen milestone in My climb; null in the overview. */
+  const [selected, setSelected] = useState<number | null>(null);
+  const [ready, setReady] = useState(false);
   // false on the server and while hydrating, so the first render is the same on both
   const available = useSyncExternalStore(never, mapAvailable, () => true);
   const [failed, setFailed] = useState<"picture" | "heights" | null>(null);
@@ -49,12 +53,49 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
   const reduced = useReducedMotion();
   // "pending" while the page change is still on (the page shows the picture and no list), "on" once the engine may run
   const engine = !available || failed !== null ? "off" : arrived ? "on" : "pending";
+  const onReady = useCallback(() => setReady(true), []);
+  const choose = useCallback((index: number) => {
+    setMode("climb");
+    setSelected(index);
+  }, []);
+  const changeMode = useCallback(
+    (next: Mode) => {
+      setMode(next);
+      setSelected(next === "climb" ? last : null);
+    },
+    [last],
+  );
+
+  // the arrow keys step through the milestones in My climb and Escape returns to the overview
+  useEffect(() => {
+    if (engine !== "on" || mode !== "climb") return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        setSelected((s) => Math.max(0, Math.min(last, (s ?? last) + (e.key === "ArrowRight" ? 1 : -1))));
+      } else if (e.key === "Escape") {
+        changeMode("overview");
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+
+    return () => window.removeEventListener("keydown", onKey);
+  }, [engine, mode, last, changeMode]);
 
   return (
-    <main className="map-page" data-mode={mode} data-engine={engine} aria-label="Map of Olympus Mons, Mars">
+    <main className="map-page" data-mode={engine === "on" ? mode : "overview"} data-engine={engine} aria-label="Map of Olympus Mons, Mars">
       <ExperienceMap
         trail={trail}
+        moments={moments}
+        of={ui.of}
         mode={mode}
+        selected={selected}
+        ready={ready && engine === "on"}
+        onReady={onReady}
+        onChoose={choose}
         running={engine === "on"}
         reduced={reduced}
         picture={failed !== "picture"}
@@ -64,7 +105,7 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
       <HeadingBlock title={heading.title} text={heading.description} />
       <MapCaption title={caption.title} line={caption.line} fact={fact?.text} credit={caption.credit} />
       {engine === "on" ? (
-        <ModeSwitch mode={mode} labels={ui} onChange={setMode} />
+        <ModeSwitch mode={mode} labels={ui} onChange={changeMode} disabled={!ready} />
       ) : engine === "off" ? (
         // only when the map cannot run; while the page change is still on show nothing (the sr-only list below serves)
         <div className="map-fallback-list" data-map-ui="">

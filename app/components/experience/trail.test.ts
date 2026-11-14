@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aheadTrail, basisCurve, catmullRom, lowerTrail, MILESTONE_SHARES, sampleCurves, sampleTrail, trailAt, type Point, type TrailPoint } from "./trail";
+import { aheadTrail, basisCurve, catmullRom, lowerTrail, MILESTONE_SHARES, sampleCurves, sampleTrail, sharesFor, trailAt, type Point, type TrailPoint } from "./trail";
 
 // The first route of content/site/experience.json in map units, and the summit.
 const ROUTE: Point[] = [[639.5, 329.6], [619.2, 329.0], [604.8, 330.2], [589.7, 332.4], [579.2, 349.4], [565.5, 377.2], [542.1, 400.1], [511.4, 402.0], [487.3, 393.1], [468.9, 380.4], [458.1, 366.2]];
@@ -152,5 +152,17 @@ describe("trailAt", () => {
 describe("MILESTONE_SHARES", () => {
   it("are nine, rising from 0 to 1", () => {
     expect([...MILESTONE_SHARES]).toEqual([0, 0.3, 0.38, 0.48, 0.58, 0.66, 0.8, 0.93, 1]);
+  });
+});
+
+describe("sharesFor", () => {
+  it("is the nine shares of the design for nine milestones", () => {
+    expect(sharesFor(9)).toEqual([...MILESTONE_SHARES]);
+  });
+
+  it("spreads any other number evenly from 0 to 1", () => {
+    expect(sharesFor(3)).toEqual([0, 0.5, 1]);
+    expect(sharesFor(2)).toEqual([0, 1]);
+    expect(sharesFor(1)).toEqual([1]);
   });
 });

@@ -211,8 +211,8 @@ export interface SiteExperience {
   /** `text` is the round 6 paragraph (Task 19 removes it); `description` is the one quiet line under the title. */
   heading: { title: string; text: string; description: string };
   moments: ExperienceMoment[];
-  /** The words of the map's controls: the Journey and Places switch, the heading's More and Less. */
-  ui: { overview: string; climb: string; more: string; less: string };
+  /** The words of the map's controls: the Overview and My climb switch, and the "of" in a card's "3 of 9". `more` and `less` are unused (Task 19 removes them with `heading.text`). */
+  ui: { overview: string; climb: string; of: string; more: string; less: string };
   caption: { title: string; line: string; /** The fact shown with the caption (its height and width). */ factId: string; credit: string };
   /** Hand-placed points of the route, in order (Task 19 places them on the picture). */
   route: { lon: number; lat: number }[];

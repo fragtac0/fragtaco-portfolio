@@ -78,7 +78,7 @@ export const ExperienceSchema = z
     moments: z.array(MomentSchema).min(2).refine(hasUniqueIds, uniqueIds),
     caption: z.object({ title: text, line: text, factId: text, credit: text }),
     /** The few words of the map's own controls. */
-    ui: z.object({ overview: text, climb: text, more: text, less: text }),
+    ui: z.object({ overview: text, climb: text, of: text, more: text, less: text }),
     route: z.array(LonLatSchema).min(2),
     cliff: z.object({ source: SourceSchema, points: z.array(LonLatSchema).min(3) }),
     rim: z.object({ north: z.number(), south: z.number(), east: z.number(), west: z.number(), source: SourceSchema }),

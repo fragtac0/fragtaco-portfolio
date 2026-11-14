@@ -1,9 +1,12 @@
 /*
  * The two states of the Mars map (experience-map.tsx, spec 9.1 and 9.2): the stage and its layers, the switch, and the
  * list shown where there is no map. The stage fills the page; its layers, bottom to top, are the toned picture (a
- * plane the engine moves), the night, the night map's canvas, the fade into the night, three depth blurs, the soft
- * blur toward the edges and the darkening. The words and buttons (experience.css, and the switch here) sit above them.
- * `--night` is written by the engine each frame (0 in the overview, 1 in My climb): the overlays follow it.
+ * plane the engine moves), the night, the night map's canvas, three depth blurs, the soft blur toward the edges, the
+ * trail and the radar, the fade into the night and the darkening. The beads and the card (cards.css) come after the
+ * stage; the words and buttons (experience.css, and the switch here) sit above them.
+ * `--night` is written by the engine each frame (0 in the overview, 1 in My climb): the overlays follow it. The trail and
+ * the radar are above every backdrop blur, and the depth blurs are not there at all while the night is 0 (Ruling R101),
+ * so the blurs run only while the view changes, never for the radar's sake.
  * Colours, sizes and layers come from tokens.css.
  */
 .map-stage {
@@ -51,6 +54,21 @@
   opacity: 0;
 }
 
+/* The trail and the radar: above the blurs, below the fade, so the far end of the trail dims with the ground. */
+.map-trail {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.map-radar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+}
+
 /* The ground fades into the night toward the far edge and the sides: a plain overlay, cheap to draw. */
 .map-fog {
   position: absolute;
@@ -66,7 +84,12 @@
     ),
     linear-gradient(to right, rgb(var(--map-night)) 0%, transparent 15%, transparent 85%, rgb(var(--map-night)) 100%);
 }
-/* Depth blurs: two far (the top), one near (the foot). Their strength follows the tilt through --night. */
+/* Depth blurs: two far (the top), one near (the foot). Their strength follows the tilt through --night, and while it is 0
+ * (the overview) they are not rendered at all: a backdrop blur that is only transparent still costs. The engine sets
+ * .is-night on the stage once the night has begun. */
+.map-stage:not(.is-night) .map-focus {
+  display: none;
+}
 .map-focus {
   position: absolute;
   left: 0;
@@ -144,6 +167,10 @@
 }
 .map-mode-button:hover {
   color: var(--ink-1);
+}
+.map-mode-button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 .map-mode-button[aria-pressed="true"] {
   background: rgb(var(--ink-rgb) / 0.92);

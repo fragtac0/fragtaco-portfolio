@@ -10,6 +10,13 @@ export type TrailPoint = { x: number; y: number; n: number };
 /** The share of the trail at which each of the nine milestones sits. */
 export const MILESTONE_SHARES = [0, 0.3, 0.38, 0.48, 0.58, 0.66, 0.8, 0.93, 1] as const;
 
+/** The shares of the trail for `count` milestones: the nine of the design, or an even spread if the content has another number. */
+export function sharesFor(count: number): number[] {
+  if (count === MILESTONE_SHARES.length) return [...MILESTONE_SHARES];
+
+  return Array.from({ length: count }, (_, i) => (count > 1 ? i / (count - 1) : 1));
+}
+
 /** How many steps the trail is sampled in, and the steps of the dotted part ahead. */
 export const TRAIL_STEPS = 200;
 export const AHEAD_STEPS = 60;

@@ -64,6 +64,12 @@
   /* the night of the Mars map (round 7, spec 9.2): the fade toward the far edge and the sides, and the darkening toward the corners, as a channel triple (rgb(var(--map-night) / 0.45)) */
   --map-night: 12 11 10;
 
+  /* the card of a milestone on the Mars map (round 7, spec 9.5): 252 px wide, a 15 px title, 11.5 px text, a 10.5 px date line */
+  --map-card-w: 252px;
+  --map-card-title: 15px;
+  --map-card-text: 11.5px;
+  --map-card-meta: 10.5px;
+
   /* the header of a full page layer (a shelf, a video wall): the title at the left, the close or back pill at the right */
   --head-pad-top: clamp(28px, 4vw, 56px);
   --head-pad-x: clamp(24px, 4.5vw, 72px);

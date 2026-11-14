@@ -1,102 +1,49 @@
 import { describe, expect, it } from "vitest";
 import { IN_MS, OUT_MS, FADE_MS } from "./climb-change";
-import { NIGHT_ON, createClimbEngine, type ClimbEngine, type Host } from "./climb-engine";
-import { buildLevels } from "./contours";
-import { makeField } from "./heights";
-import { lowerTrail, sampleTrail } from "./trail";
-import type { Terrain } from "./terrain-canvas";
-
-/** A clock and a frame queue that the test turns by hand: `run(ms)` plays frames every 1000/fps ms. */
-function fakeHost() {
-  let t = 0;
-  let id = 0;
-  let queue = new Map<number, (now: number) => void>();
-  const host: Host = {
-    now: () => t,
-    raf: (cb) => {
-      queue.set(++id, cb);
-
-      return id;
-    },
-    cancel: (n) => void queue.delete(n),
-  };
-
-  return {
-    host,
-    pending: () => queue.size,
-    /** Play frames for `ms` of time (60 frames a second unless `fps` says otherwise). Returns how many frames ran. */
-    run(ms: number, fps = 60) {
-      let frames = 0;
-      const end = t + ms;
-
-      while (t < end) {
-        t = Math.min(end, t + 1000 / fps);
-
-        const due = queue;
-
-        queue = new Map();
-        due.forEach((cb) => {
-          frames++;
-          cb(t);
-        });
-        if (queue.size === 0) break;
-      }
-
-      return frames;
-    },
-    jump: (ms: number) => void (t += ms),
-  };
-}
-
-function setup(reduced = false) {
-  const fills: string[] = [];
-  const style = () => ({ transform: "", opacity: "", width: "", height: "", props: {} as Record<string, string>, setProperty(n: string, v: string) { this.props[n] = v; } });
-  const store: Record<string, unknown> = {};
-  const ctx = new Proxy(store, {
-    get: (o, key: string) => (key === "fill" ? () => fills.push("fill") : key in o ? o[key] : () => {}),
-    set: (o, key: string, v) => ((o[key] = v), true),
-  }) as unknown as CanvasRenderingContext2D;
-  const layers = {
-    stage: { style: style() },
-    plane: { style: style() },
-    night: { style: style() },
-    terrain: { style: style(), width: 0, height: 0, getContext: () => ctx },
-  };
-  const f = fakeHost();
-  const rows: number[][] = [];
-  const trail = sampleTrail(lowerTrail([[640, 330], [600, 345], [570, 380], [550, 410], [545, 420]], [500, 325]));
-  const engine = createClimbEngine(layers, { trail, reduced: () => reduced, host: f.host, trace: () => rows });
-
-  return { engine, layers, f, rows, fills, trail };
-}
-
-/** A hill in the middle of a field, read as the heights (80 by 52 cells over the height frame, the summit at 500, 325). */
-function terrain(): Terrain {
-  const [w, h] = [80, 52];
-  const grey: number[] = [];
-
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) grey.push(240 * Math.max(0, 1 - Math.hypot(x - (w - 1) / 2, y - (h - 1) / 2) / 30));
-
-  const field = makeField(grey, w, h, 0);
-
-  return { field, levels: buildLevels(field) };
-}
-
-function started(e: ClimbEngine, f: ReturnType<typeof fakeHost>) {
-  e.resize(1440, 900, 2);
-  e.setTerrain(terrain());
-  f.run(50);
-}
+import { NIGHT_ON } from "./climb-engine";
+import { setup, smoothNight, started, terrain } from "./climb-engine-fixtures";
 
 describe("the loop", () => {
-  it("asks for no frame while nothing moves: one for a new size, then none", () => {
+  it("keeps a frame going for the radar while the page is visible, and asks for none while nothing moves under reduced motion", () => {
     const { engine, f } = setup();
 
     expect(f.pending()).toBe(0);
     engine.resize(1440, 900, 2);
     expect(f.pending()).toBe(1);
-    expect(f.run(100)).toBe(1);
-    expect(f.pending()).toBe(0);
+    expect(f.run(100)).toBeGreaterThan(5); // a frame every vsync
+    expect(f.pending()).toBe(1);
+
+    const calm = setup({ reduced: true });
+
+    calm.engine.resize(1440, 900, 2);
+    expect(calm.f.run(100)).toBe(1); // one for the new size, then none
+    expect(calm.f.pending()).toBe(0);
+  });
+
+  it("draws the radar's rings every frame, and the trail only when the view changes", () => {
+    const { engine, f, radarCalls, trailCalls } = setup();
+
+    started(engine, f);
+
+    const [strokes, trails] = [radarCalls.stroke, trailCalls.stroke];
+
+    f.run(500);
+    expect(radarCalls.stroke - strokes).toBeGreaterThanOrEqual(2 * 20); // two rings, a frame each
+    expect(trailCalls.stroke).toBe(trails); // nothing moved: the trail was not drawn again
+    engine.go("climb");
+    f.run(500);
+    expect(trailCalls.stroke).toBeGreaterThan(trails);
+  });
+
+  it("holds the radar still under reduced motion", () => {
+    const { engine, f, radarCalls } = setup({ reduced: true });
+
+    started(engine, f);
+
+    const n = radarCalls.stroke;
+
+    f.run(1000);
+    expect(radarCalls.stroke).toBe(n);
   });
 
   it("waits for the heights: a change asked for before them starts when they arrive", () => {
@@ -111,10 +58,9 @@ describe("the loop", () => {
     f.run(IN_MS + 100);
     expect(engine.state()).toMatchObject({ k: 1, moving: false });
     expect(layers.plane.style.opacity).toBe("0");
-    expect(f.pending()).toBe(0);
   });
 
-  it("is 3.6 s in and 3.2 s out, and stops asking for frames when each is over", () => {
+  it("is 3.6 s in and 3.2 s out", () => {
     const { engine, f } = setup();
 
     started(engine, f);
@@ -123,13 +69,11 @@ describe("the loop", () => {
     expect(engine.state().moving).toBe(true);
     f.run(400);
     expect(engine.state()).toMatchObject({ k: 1, moving: false });
-    expect(f.pending()).toBe(0);
     engine.go("overview");
     f.run(OUT_MS - 200);
     expect(engine.state().moving).toBe(true);
     f.run(400);
     expect(engine.state()).toMatchObject({ k: 0, moving: false });
-    expect(f.pending()).toBe(0);
   });
 
   it("sets the plane's size once it has a size, and the canvas's pixels at the pixel ratio", () => {
@@ -139,6 +83,51 @@ describe("the loop", () => {
     expect(layers.plane.style.width).toBe("1000px");
     expect(layers.plane.style.height).toBe("650px");
     expect([layers.terrain.width, layers.terrain.height]).toEqual([2880, 1800]);
+    expect([layers.trail.width, layers.trail.height]).toEqual([2880, 1800]);
+    expect(layers.radar.width).toBe(layers.radar.height); // a small square round "now"
+    expect(layers.radar.width).toBeLessThan(600);
+  });
+
+  it("gives a canvas its size only when the size changed, so a resize does not blank the night map", () => {
+    const { engine, f, layers } = setup();
+    let sets = 0;
+
+    started(engine, f);
+    engine.go("climb");
+    f.run(IN_MS + 100);
+    for (const c of [layers.terrain, layers.trail, layers.radar]) {
+      let width = c.width;
+
+      Object.defineProperty(c, "width", { get: () => width, set: (v: number) => ((width = v), sets++), configurable: true });
+    }
+    engine.resize(1440, 900, 2); // the same size again (the window's resize event after the observer's)
+    expect(sets).toBe(0);
+    engine.resize(1200, 800, 2);
+    expect(sets).toBe(3);
+  });
+
+  it("draws the night map again at once in a resize, before the next frame is asked for", () => {
+    const { engine, f, fills } = setup();
+
+    started(engine, f);
+    engine.go("climb");
+    f.run(IN_MS + 100);
+
+    const before = fills.length;
+
+    engine.resize(1200, 800, 2);
+    expect(fills.length).toBeGreaterThan(before); // no frame has run: it was drawn inside the resize
+  });
+
+  it("treats a missing 2D context as a failure and draws nothing", () => {
+    const { engine, f, fails, layers } = setup({ noTerrainContext: true });
+
+    expect(fails).toHaveLength(1);
+    engine.resize(1440, 900, 2);
+    engine.setTerrain(terrain());
+    engine.go("climb");
+    expect(f.pending()).toBe(0);
+    expect(layers.plane.style.opacity).toBe("");
   });
 
   it("asks for no frames in a hidden tab and draws one when it comes back", () => {
@@ -238,6 +227,7 @@ describe("the change", () => {
     f.run(300); // the night has barely begun: k under 0.1
     const early = fills.length;
 
+    expect(early).toBe(0); // at 300 ms k is about 0.002 and the night under NIGHT_ON: nothing drawn
     f.run(IN_MS);
     expect(fills.length).toBeGreaterThan(early);
 
@@ -248,7 +238,28 @@ describe("the change", () => {
     engine.resize(1200, 800, 2); // a new size is a change of view
     f.run(100);
     expect(fills.length).toBeGreaterThan(done);
-    expect(NIGHT_ON).toBeGreaterThan(0);
+  });
+
+  it("draws nothing on the way out once the night is back under NIGHT_ON", () => {
+    const { engine, f, fills } = setup();
+
+    started(engine, f);
+    engine.go("climb");
+    f.run(IN_MS + 100);
+    engine.go("overview");
+
+    let last = fills.length;
+    let late = 0;
+
+    for (let t = 0; t < OUT_MS + 100; t += 17) {
+      f.run(17);
+
+      const dark = engine.state().k;
+
+      if (fills.length > last && smoothNight(dark) <= NIGHT_ON) late++;
+      last = fills.length;
+    }
+    expect(late).toBe(0);
   });
 
   it("takes a turn round part of the way from where it is, with no jump", () => {
@@ -269,7 +280,7 @@ describe("the change", () => {
 
 describe("reduced motion", () => {
   it("crossfades in the short time with the picture flat and no camera travel", () => {
-    const { engine, f, layers, rows } = setup(true);
+    const { engine, f, layers, rows } = setup({ reduced: true });
 
     started(engine, f);
 
@@ -288,7 +299,7 @@ describe("reduced motion", () => {
   });
 
   it("draws the night map once for the whole fade, not for every frame", () => {
-    const { engine, f, fills } = setup(true);
+    const { engine, f, fills } = setup({ reduced: true });
 
     started(engine, f);
     engine.go("climb");

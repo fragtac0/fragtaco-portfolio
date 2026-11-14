@@ -17,6 +17,12 @@
 //   a phone (390 x 844, dpr 3): both states, inside the screen;
 //   a client-side change into /experience frozen mid-reveal (the debug hook `__hold`): the arriving page already shows the picture
 //   (the plane covers the stage, the image is decoded), the engine is pending and there is no fallback list (R46.1's I1 again).
+//   R53.3 (Task 18): the milestones, the card and the camera's rules: clicking milestones 6, 5, 4 and 2 in turn moves the camera on none and
+//   1 and 8 do (every move writes rows to the trace); no frame in which a visible card's text changes (sampled every frame through a
+//   stress of 12 presses a tenth of a second apart); no bead under a settled card at full strength, for each of the nine, and the card
+//   inside the screen; frame gaps in My climb with the radar on (at rest, and while the arrow keys step through the milestones; CPU 1 and
+//   4 times slower); a press of a bead in the overview goes into My climb at that milestone, the arrow keys and Esc, the label on
+//   hover, the 44 px target; pictures of My climb with a card at 1440 x 900 and 390 x 844 (tracked: the map has no thumbnails).
 // experience-fallback.json: no canvas, less data (the picture and the list), a picture that fails (the list, no picture), heights that fail
 //   (the list, the picture stays).
 import { writeFileSync } from "node:fs";
@@ -142,6 +148,78 @@ const heldIntoMap = (size, dpr, mobile, tag) => [
   ]),
 ];
 
+// ---- Task 18: the milestones, the card and the camera's rules ----
+const PINS = `const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');`;
+const toClimb = (size, dpr, mobile, cpu = 1) => [
+  { size, dpr, mobile, touch: mobile, cpu, reduce: false, init: "window.__expTrace=[]", go: "{{BASE}}/experience", wait: 3000 },
+  { eval: `(async()=>{${sleep}for(let i=0;i<40&&${STAGE}.dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);${press("My climb")};await sleep(5200);return JSON.stringify({mode:${PAGE}.dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()`, label: "into My climb" },
+];
+const cameraRules = {
+  eval: `(async()=>{${sleep}${PINS}const out=[];for(const i of [5,4,3,1,0,7]){window.__expTrace.length=0;P[i].click();await sleep(2400);out.push({milestone:i+1,moved:window.__expTrace.length>0,rows:window.__expTrace.length})}
+return JSON.stringify({out,ok:out.slice(0,4).every(o=>!o.moved)&&out[4].moved&&out[5].moved})})()`,
+  label: "camera rules: milestones 6, 5, 4, 2 move it on none; 1 and 8 do",
+};
+const textNeverChanges = {
+  eval: `(async()=>{${sleep}${PINS}const b0=card.querySelector('[data-on]');let prev=b0?b0.textContent:'',viol=0,frames=0,seen=0,run=true;const log=[];
+const f=()=>{frames++;const op=+getComputedStyle(card).opacity;const b=card.querySelector('[data-on]');const t=b?b.textContent:'';if(t!==prev){if(op>0.001){viol++;log.push([frames,+op.toFixed(3),prev.slice(0,14),t.slice(0,14)])}prev=t}if(op>0.001)seen++;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);
+for(const i of [0,3,8,2,6,1,5,4,7,0,8,4]){P[i].click();await sleep(110+(i%3)*90)}await sleep(4600);run=false;
+return JSON.stringify({frames,framesCardVisible:seen,framesWithChangedText:viol,log:log.slice(0,5),ok:viol===0&&seen>0&&prev.length>0})})()`,
+  label: "no frame in which a visible card's text changes (12 quick presses)",
+};
+const coverage = (tag) => ({
+  eval: `(async()=>{${sleep}${PINS}const res=[];
+for(let i=0;i<9;i++){P[i].click();await sleep(i===0?4200:3000);const c=card.getBoundingClientRect(),op=+getComputedStyle(card).opacity,txt=card.querySelector('[data-on]').textContent.slice(0,22);
+const cur=P.map((p,k)=>{const r=p.querySelector('.map-bead').getBoundingClientRect();return {k,x:r.x+r.width/2,y:r.y+r.height/2,op:+getComputedStyle(p).opacity}});
+const under=cur.filter(q=>q.x>c.left&&q.x<c.right&&q.y>c.top&&q.y<c.bottom);
+res.push({i:i+1,cardOpacity:op,rect:[c.left,c.top,c.right,c.bottom].map(Math.round),under:under.map(q=>[q.k+1,+q.op.toFixed(2)]),fullStrengthUnder:under.filter(q=>q.k!==i&&q.op>0.3).map(q=>q.k+1),ownUnder:under.some(q=>q.k===i),inside:c.left>=0&&c.top>=0&&c.right<=innerWidth&&c.bottom<=innerHeight,text:txt})}
+return JSON.stringify({res:res.map(r=>JSON.stringify(r)),ok:res.every(r=>r.cardOpacity===1&&r.fullStrengthUnder.length===0&&r.inside)})})()`,
+  label: `${tag}: for each milestone the card is shown, inside the screen, and no other bead under it is at full strength`,
+});
+const gapsInClimb = (tag, limit) => ({
+  eval: `(async()=>{${sleep}${PINS}const g=[];let last=performance.now(),run=true;const f=n=>{g.push(n-last);last=n;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);
+const key=k=>window.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));
+await sleep(4000);const rest=g.length;for(let i=0;i<9;i++){key('ArrowLeft');await sleep(900)}for(let i=0;i<9;i++){key('ArrowRight');await sleep(900)}await sleep(1500);run=false;await sleep(40);g.splice(0,2);
+const a=g.slice(0,rest-2),b=g.slice(rest-2),st=x=>{const s=[...x].sort((p,q)=>p-q);return {n:x.length,p95:+s[Math.floor(s.length*.95)].toFixed(1),max:+s[s.length-1].toFixed(1),over${limit}:x.filter(v=>v>${limit}).length}};
+return JSON.stringify({atRestWithRadar:st(a),steppingWithArrows:st(b),ok:st(a).over${limit}===0&&st(b).over${limit}===0})})()`,
+  label: `${tag}: frame gaps in My climb with the radar on, at rest and stepping through the milestones (none over ${limit} ms)`,
+});
+const pressInOverview = [
+  { size: [1440, 900], dpr: 2, cpu: 1, init: "window.__expTrace=[]", go: "{{BASE}}/experience", wait: 3000 },
+  { eval: `(async()=>{${sleep}${PINS}for(let i=0;i<40&&${STAGE}.dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);
+const sizes=P.map(p=>{const r=p.getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)]});const iconsHidden=P.every(p=>getComputedStyle(p.querySelector('svg')).opacity==='0');const names=P.map(p=>p.textContent);
+P[3].click();await sleep(5000);const cur=P.findIndex(p=>p.hasAttribute('data-current'));
+return JSON.stringify({mode:${PAGE}.dataset.mode,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),iconsHiddenInOverview:iconsHidden,namesAreLabels:names.every(n=>n.includes(':')),first:names[0],current:cur,ariaCurrent:P[3].getAttribute('aria-current'),cardText:card.querySelector('[data-on]').textContent.slice(0,40),cardOpacity:+getComputedStyle(card).opacity,
+ok:${PAGE}.dataset.mode==='climb'&&cur===3&&sizes.every(s=>s[0]>=44&&s[1]>=44)&&iconsHidden&&+getComputedStyle(card).opacity===1})})()`, label: "a press of the fourth bead in the overview goes into My climb at that milestone (card shown, 44 px targets, no icons in the overview)" },
+  { key: "ArrowLeft", vk: 37 },
+  { eval: `(async()=>{${sleep}${PINS}await sleep(600);return JSON.stringify({current:P.findIndex(p=>p.hasAttribute('data-current')),ok:P.findIndex(p=>p.hasAttribute('data-current'))===2})})()`, label: "ArrowLeft steps back to the third" },
+  { key: "ArrowRight", vk: 39 }, { key: "ArrowRight", vk: 39 },
+  { eval: `(async()=>{${sleep}${PINS}await sleep(600);return JSON.stringify({current:P.findIndex(p=>p.hasAttribute('data-current')),ok:P.findIndex(p=>p.hasAttribute('data-current'))===4})})()`, label: "ArrowRight twice: the fifth" },
+  { move: `(()=>{const r=document.querySelectorAll('.map-pin')[0].getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2]})()` },
+  { eval: `(async()=>{${sleep}${PINS}await sleep(500);const tip=P[0].querySelector('.map-pin-tip');return JSON.stringify({tip:tip.textContent,opacity:+getComputedStyle(tip).opacity,ok:+getComputedStyle(tip).opacity>0.9&&tip.textContent.includes(':')})})()`, label: "hovering a bead shows its label" },
+  { key: "Escape", vk: 27 },
+  { eval: `(async()=>{${sleep}${PINS}await sleep(4200);return JSON.stringify({mode:${PAGE}.dataset.mode,current:P.findIndex(p=>p.hasAttribute('data-current')),cardOpacity:+getComputedStyle(card).opacity,plane:+getComputedStyle(${PLANE}).opacity,ok:${PAGE}.dataset.mode==='overview'&&P.every(p=>!p.hasAttribute('data-current'))&&+getComputedStyle(card).opacity===0&&+getComputedStyle(${PLANE}).opacity===1})})()`, label: "Esc returns to the overview (no card, no chosen bead)" },
+];
+const cardPictures = (size, dpr, mobile, tag) => [
+  ...toClimb(size, dpr, mobile),
+  { eval: `(async()=>{${sleep}${PINS}P[3].click();await sleep(3500);return JSON.stringify({text:card.querySelector('[data-on]').textContent.slice(0,40),opacity:+getComputedStyle(card).opacity})})()`, label: `${tag}: milestone 4 chosen` },
+  { shot: `r53-3-climb-card-${tag}-warm` },
+  { shot: `r53-3-climb-card-${tag}` },
+];
+const taskEighteen = [
+  ...toClimb([1440, 900], 2, false),
+  cameraRules,
+  textNeverChanges,
+  coverage("1440 x 900"),
+  ...cardPictures([1440, 900], 2, false, "1440x900"),
+  ...cardPictures([390, 844], 3, true, "390x844"),
+  ...toClimb([390, 844], 3, true).slice(0, 1),
+  { eval: `(async()=>{${sleep}for(let i=0;i<40&&${STAGE}.dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);${press("My climb")};await sleep(5200);return 'in'})()` },
+  coverage("390 x 844"),
+  ...toClimb([1440, 900], 2, false), gapsInClimb("1440 x 900, dpr 2", 20),
+  ...toClimb([1440, 900], 2, false, 4), gapsInClimb("CPU 4x slower, 1440 x 900, dpr 2", 34),
+  ...pressInOverview,
+];
+
 const experience = [
   ...desktop(1),
   ...halfway,
@@ -150,6 +228,7 @@ const experience = [
   ...phone,
   ...heldIntoMap([1440, 900], 1, false, "desktop"),
   ...heldIntoMap([390, 844], 2, true, "phone"),
+  ...taskEighteen,
 ];
 
 const fallbackCheck = (label, want) => ({
