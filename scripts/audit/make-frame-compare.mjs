@@ -25,7 +25,7 @@ const HELPER = `window.__fc = window.__fc || (() => {
   const composite = (kind, F) => {
     const d = devicePixelRatio, [vw, vh] = win(), f = F ?? { left: 0, top: 0, width: vw, height: vh };
     const out = document.createElement('canvas'); out.width = Math.round(f.width * d); out.height = Math.round(f.height * d);
-    const x = out.getContext('2d'); x.fillStyle = getComputedStyle(layer()).backgroundColor; x.fillRect(0, 0, out.width, out.height);
+    const x = out.getContext('2d'); x.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ground').trim(); x.fillRect(0, 0, out.width, out.height);
     if (kind === 'shelf') { const dots = document.querySelector('.home-layer .dot-field'), r = dots.getBoundingClientRect(); x.drawImage(dots, (r.left - f.left) * d, (r.top - f.top) * d, r.width * d, r.height * d); }
     x.drawImage(canvasOf(kind), 0, 0, out.width, out.height);
     return out;

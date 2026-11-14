@@ -1,0 +1,904 @@
+{
+ "round": "7 follow-ups",
+ "part": "R55.2",
+ "what": "the home box holds the live scene and opening is one move; numbers from scripts/audit/box-open.json (production build on :5181, headless Chrome, films are screencasts), no pictures",
+ "pass_bars": {
+  "diffAfterClickPct": "under 1 (the frame before the click against the first frames after, share of the box's pixels a channel 48 or more apart)",
+  "emptyFrames": 0,
+  "onTopNotScene": 0,
+  "othersDrawnBeforeChrome": "none",
+  "chromeStartsAtShare": "0.72 or just after",
+  "frameCost": "no frame over 34 ms beyond a cold-start outlier"
+ },
+ "films": [
+  {
+   "case": "1440x900 shelf: OPEN",
+   "kind": "shelf",
+   "dir": "open",
+   "recorderFrames": 317,
+   "movingFrames": 62,
+   "diffAfterClickPct": [
+    0,
+    0,
+    0
+   ],
+   "diffFirstAfterMs": 2.3,
+   "emptyFrames": 0,
+   "minStd": 67.51,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 6,
+   "canvasesMax": 2,
+   "radiusStart": 14,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 0.742,
+   "maxStepPx": 38.5,
+   "maxRecorderGapMs": 29.6,
+   "sameCanvas": true,
+   "endsOpen": true,
+   "endRect": [
+    0,
+    0,
+    1440,
+    900
+   ],
+   "focus": "xp-close",
+   "chromeOpacity": "1",
+   "startRect": [
+    58,
+    457,
+    648,
+    300
+   ],
+   "moveMs": 1049
+  },
+  {
+   "case": "1440x900 shelf: CLOSE",
+   "kind": "shelf",
+   "dir": "close",
+   "recorderFrames": 645,
+   "movingFrames": 122,
+   "diffAfterClickPct": [
+    0,
+    0,
+    0
+   ],
+   "diffFirstAfterMs": 9.1,
+   "emptyFrames": 0,
+   "minStd": 68.72,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 11,
+   "canvasesMax": 2,
+   "radiusStart": 14,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 1,
+   "maxStepPx": 39,
+   "maxRecorderGapMs": 24.4,
+   "sameCanvas": true,
+   "backInBox": true,
+   "endRect": [
+    58,
+    457,
+    648,
+    300
+   ],
+   "boxRect": [
+    58,
+    457,
+    648,
+    300
+   ],
+   "focusOnBlock": true,
+   "homeSunk": "none",
+   "layerGone": true,
+   "moveMs": 1027
+  },
+  {
+   "case": "1440x900 wall: OPEN",
+   "kind": "wall",
+   "dir": "open",
+   "recorderFrames": 432,
+   "movingFrames": 62,
+   "diffAfterClickPct": [
+    0,
+    0,
+    0.049
+   ],
+   "diffFirstAfterMs": 3.2,
+   "emptyFrames": 0,
+   "minStd": 66.29,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 6,
+   "canvasesMax": 1,
+   "radiusStart": 14,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 0.743,
+   "maxStepPx": 38.4,
+   "maxRecorderGapMs": 19.5,
+   "sameCanvas": true,
+   "endsOpen": true,
+   "endRect": [
+    0,
+    0,
+    1440,
+    900
+   ],
+   "focus": "xp-close",
+   "chromeOpacity": "1",
+   "startRect": [
+    734,
+    457,
+    648,
+    300
+   ],
+   "moveMs": 1038
+  },
+  {
+   "case": "1440x900 wall: CLOSE",
+   "kind": "wall",
+   "dir": "close",
+   "recorderFrames": 731,
+   "movingFrames": 122,
+   "diffAfterClickPct": [
+    0,
+    0,
+    0
+   ],
+   "diffFirstAfterMs": 6.8,
+   "emptyFrames": 0,
+   "minStd": 66.03,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 12,
+   "canvasesMax": 1,
+   "radiusStart": 13.9999,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 1,
+   "maxStepPx": 38.9,
+   "maxRecorderGapMs": 25.5,
+   "sameCanvas": true,
+   "backInBox": true,
+   "endRect": [
+    734,
+    457,
+    648,
+    300
+   ],
+   "boxRect": [
+    734,
+    457,
+    648,
+    300
+   ],
+   "focusOnBlock": true,
+   "homeSunk": "none",
+   "layerGone": true,
+   "moveMs": 1024
+  },
+  {
+   "case": "390x844 shelf: OPEN",
+   "kind": "shelf",
+   "dir": "open",
+   "recorderFrames": 238,
+   "movingFrames": 61,
+   "diffAfterClickPct": [
+    0,
+    0,
+    0.318
+   ],
+   "diffFirstAfterMs": 8.2,
+   "emptyFrames": 0,
+   "minStd": 50.17,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 6,
+   "canvasesMax": 2,
+   "radiusStart": 14,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 0.72,
+   "maxStepPx": 25,
+   "maxRecorderGapMs": 24.2,
+   "sameCanvas": true,
+   "endsOpen": true,
+   "endRect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "focus": "xp-close",
+   "chromeOpacity": "1",
+   "startRect": [
+    16,
+    385,
+    358,
+    332
+   ],
+   "moveMs": 1033
+  },
+  {
+   "case": "390x844 shelf: CLOSE",
+   "kind": "shelf",
+   "dir": "close",
+   "recorderFrames": 473,
+   "movingFrames": 122,
+   "diffAfterClickPct": [
+    0,
+    0,
+    0
+   ],
+   "diffFirstAfterMs": 3.1,
+   "emptyFrames": 0,
+   "minStd": 50.29,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 12,
+   "canvasesMax": 2,
+   "radiusStart": 13.9998,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 1,
+   "maxStepPx": 24.9,
+   "maxRecorderGapMs": 19.3,
+   "sameCanvas": true,
+   "backInBox": true,
+   "endRect": [
+    16,
+    385,
+    358,
+    332
+   ],
+   "boxRect": [
+    16,
+    385,
+    358,
+    332
+   ],
+   "focusOnBlock": true,
+   "homeSunk": "none",
+   "layerGone": true,
+   "moveMs": 1021
+  },
+  {
+   "case": "390x844 wall: OPEN",
+   "kind": "wall",
+   "dir": "open",
+   "recorderFrames": 284,
+   "movingFrames": 61,
+   "diffAfterClickPct": [
+    0,
+    0.002,
+    0.119
+   ],
+   "diffFirstAfterMs": 12.7,
+   "emptyFrames": 0,
+   "minStd": 68.59,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 6,
+   "canvasesMax": 1,
+   "radiusStart": 14,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 0.729,
+   "maxStepPx": 25.1,
+   "maxRecorderGapMs": 20.3,
+   "sameCanvas": true,
+   "endsOpen": true,
+   "endRect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "focus": "xp-close",
+   "chromeOpacity": "1",
+   "startRect": [
+    16,
+    385,
+    358,
+    332
+   ],
+   "moveMs": 1031
+  },
+  {
+   "case": "390x844 wall: CLOSE",
+   "kind": "wall",
+   "dir": "close",
+   "recorderFrames": 553,
+   "movingFrames": 122,
+   "diffAfterClickPct": [
+    0,
+    0,
+    0.154
+   ],
+   "diffFirstAfterMs": 11,
+   "emptyFrames": 0,
+   "minStd": 69.99,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 12,
+   "canvasesMax": 1,
+   "radiusStart": 14,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 1,
+   "maxStepPx": 25.2,
+   "maxRecorderGapMs": 20.1,
+   "sameCanvas": true,
+   "backInBox": true,
+   "endRect": [
+    16,
+    385,
+    358,
+    332
+   ],
+   "boxRect": [
+    16,
+    385,
+    358,
+    332
+   ],
+   "focusOnBlock": true,
+   "homeSunk": "none",
+   "layerGone": true,
+   "moveMs": 1029
+  }
+ ],
+ "reviewFocus": {
+  "RF1 shelf: stalled scene (its preparation never finishes): scroll to the box": {
+   "drawnAfterMs": 20603,
+   "drawn": false,
+   "plain": false
+  },
+  "RF1 shelf: a click before the scene is ready waits at most 400 ms (pressed), then opens to the plain grid with the same move; never ignored, never empty": {
+   "clickNotIgnored": true,
+   "pressedFromMs": 42,
+   "pressedUntilMs": 362,
+   "openedAtMs": 441,
+   "movedPlain": true,
+   "gridInLayer": true,
+   "canvasesInLayer": 0,
+   "endAt": "open",
+   "neverOpenedEmpty": true
+  },
+  "RF1 shelf: closing the plain grid puts the flat preview back": {
+   "closed": true,
+   "sceneInBox": true,
+   "miniPreviewShown": true,
+   "sceneHidden": true,
+   "focusOnBlock": true
+  },
+  "RF1 wall: stalled scene (its preparation never finishes): scroll to the box": {
+   "drawnAfterMs": 20602,
+   "drawn": false,
+   "plain": false
+  },
+  "RF1 wall: a click before the scene is ready waits at most 400 ms (pressed), then opens to the plain grid with the same move; never ignored, never empty": {
+   "clickNotIgnored": true,
+   "pressedFromMs": 43,
+   "pressedUntilMs": 362,
+   "openedAtMs": 442,
+   "movedPlain": true,
+   "gridInLayer": true,
+   "canvasesInLayer": 0,
+   "endAt": "open",
+   "neverOpenedEmpty": true
+  },
+  "RF1 wall: closing the plain grid puts the flat preview back": {
+   "closed": true,
+   "sceneInBox": true,
+   "miniPreviewShown": true,
+   "sceneHidden": true,
+   "focusOnBlock": true
+  },
+  "RF2-4 shelf: scroll to the box": {
+   "drawnAfterMs": 652,
+   "drawn": true,
+   "plain": false
+  },
+  "RF2 shelf: open (1440 by 900)": {
+   "open": [
+    0,
+    0,
+    1440,
+    900
+   ]
+  },
+  "RF2 shelf: the window is resized to 1100 by 760 while open (the open page fills it)": {
+   "afterResizeOpen": [
+    0,
+    0,
+    1100,
+    760
+   ],
+   "boxNow": [
+    69,
+    285,
+    470,
+    285
+   ]
+  },
+  "RF2 shelf: Close: the frame ends where the box is NOW, not where it was": {
+   "backInBox": true,
+   "finalRect": [
+    44,
+    276,
+    495,
+    300
+   ],
+   "boxNow": [
+    44,
+    276,
+    495,
+    300
+   ],
+   "firstClosingFrame": [
+    58,
+    457,
+    648,
+    300
+   ],
+   "lastMoveFrame": [
+    44,
+    276,
+    495,
+    300
+   ]
+  },
+  "RF3 shelf: scroll back": {
+   "drawnAfterMs": 653,
+   "drawn": true,
+   "plain": false
+  },
+  "RF3 shelf: Close half way through an opening: the move turns round from where it is (no jump)": {
+   "widthWhenTurned": 1077,
+   "turnedBackAtFrame": 34,
+   "stepsAroundTurn": [
+    37.8,
+    38.7,
+    12.7,
+    38.8,
+    37.3,
+    34.6,
+    31.8,
+    30
+   ],
+   "maxStepPx": 38.8,
+   "endsInBox": true,
+   "canvasKept": true
+  },
+  "RF3 shelf: a click half way through a closing turns it back into an opening (no jump)": {
+   "widthWhenTurned": 1200,
+   "turnedOpenAtFrame": 215,
+   "stepsAroundTurn": [
+    0,
+    3.8,
+    0,
+    3,
+    0,
+    2.3,
+    0,
+    1.7
+   ],
+   "maxStepPx": 39,
+   "endsOpen": true,
+   "hash": "#reading"
+  },
+  "RF3 shelf: close again": {
+   "closed": true,
+   "hash": ""
+  },
+  "RF4 shelf: the frame grows from the box where it is (half off screen) to the window": {
+   "boxBeforeClick": [
+    58,
+    402,
+    648,
+    300
+   ],
+   "boxTopVisibleShare": 1,
+   "firstFrame": [
+    58,
+    402,
+    648,
+    300
+   ],
+   "endRect": [
+    0,
+    0,
+    1440,
+    900
+   ]
+  },
+  "RF4 shelf: closing returns to the box's place": {
+   "closed": true,
+   "finalRect": [
+    58,
+    402,
+    648,
+    300
+   ],
+   "boxNow": [
+    58,
+    402,
+    648,
+    300
+   ]
+  },
+  "RF2-4 wall: scroll to the box": {
+   "drawnAfterMs": 703,
+   "drawn": true,
+   "plain": false
+  },
+  "RF2 wall: open (1440 by 900)": {
+   "open": [
+    0,
+    0,
+    1440,
+    900
+   ]
+  },
+  "RF2 wall: the window is resized to 1100 by 760 while open (the open page fills it)": {
+   "afterResizeOpen": [
+    0,
+    0,
+    1100,
+    760
+   ],
+   "boxNow": [
+    560,
+    285,
+    470,
+    285
+   ]
+  },
+  "RF2 wall: Close: the frame ends where the box is NOW, not where it was": {
+   "backInBox": true,
+   "finalRect": [
+    561,
+    276,
+    495,
+    300
+   ],
+   "boxNow": [
+    561,
+    276,
+    495,
+    300
+   ],
+   "firstClosingFrame": [
+    734,
+    457,
+    648,
+    300
+   ],
+   "lastMoveFrame": [
+    561,
+    276,
+    495,
+    300
+   ]
+  },
+  "RF3 wall: scroll back": {
+   "drawnAfterMs": 653,
+   "drawn": true,
+   "plain": false
+  },
+  "RF3 wall: Close half way through an opening: the move turns round from where it is (no jump)": {
+   "widthWhenTurned": 1089,
+   "turnedBackAtFrame": 34,
+   "stepsAroundTurn": [
+    38.8,
+    36.5,
+    37.9,
+    38.5,
+    36.3,
+    33.8,
+    31.2,
+    28.9
+   ],
+   "maxStepPx": 38.8,
+   "endsInBox": true,
+   "canvasKept": true
+  },
+  "RF3 wall: a click half way through a closing turns it back into an opening (no jump)": {
+   "widthWhenTurned": 1192,
+   "turnedOpenAtFrame": 213,
+   "stepsAroundTurn": [
+    0,
+    4.3,
+    0,
+    3.5,
+    0,
+    2.7,
+    0,
+    2.1
+   ],
+   "maxStepPx": 38.9,
+   "endsOpen": true,
+   "hash": "#watching"
+  },
+  "RF3 wall: close again": {
+   "closed": true,
+   "hash": ""
+  },
+  "RF4 wall: the frame grows from the box where it is (half off screen) to the window": {
+   "boxBeforeClick": [
+    734,
+    402,
+    648,
+    300
+   ],
+   "boxTopVisibleShare": 1,
+   "firstFrame": [
+    734,
+    402,
+    648,
+    300
+   ],
+   "endRect": [
+    0,
+    0,
+    1440,
+    900
+   ]
+  },
+  "RF4 wall: closing returns to the box's place": {
+   "closed": true,
+   "finalRect": [
+    734,
+    402,
+    648,
+    300
+   ],
+   "boxNow": [
+    734,
+    402,
+    648,
+    300
+   ]
+  },
+  "RF5 shelf: scroll to the box": {
+   "drawnAfterMs": 656,
+   "drawn": true,
+   "plain": false
+  },
+  "RF5 shelf: the tab is hidden for 2 s and comes back: no draws while hidden, no burst after, context kept": {
+   "drawsPerSecondRunning": 0,
+   "drawsWhileHiddenIn2s": 0,
+   "drawsInFirst500msBack": 1,
+   "drawsNextSecond": 0,
+   "burst": false,
+   "contextLost": false,
+   "drawn": true,
+   "plain": false
+  },
+  "RF5 shelf: a lost context puts the flat preview back in the box; a click opens the plain grid": {
+   "plainSet": true,
+   "liveOff": true,
+   "miniPreviewShown": true,
+   "sceneHidden": true,
+   "opensToGrid": true,
+   "noCanvasInLayer": true
+  },
+  "RF5 wall: scroll to the box": {
+   "drawnAfterMs": 702,
+   "drawn": true,
+   "plain": false
+  },
+  "RF5 wall: the tab is hidden for 2 s and comes back: no draws while hidden, no burst after, context kept": {
+   "drawsPerSecondRunning": 30,
+   "drawsWhileHiddenIn2s": 0,
+   "drawsInFirst500msBack": 14,
+   "drawsNextSecond": 30,
+   "burst": false,
+   "contextLost": false,
+   "drawn": true,
+   "plain": false
+  },
+  "RF5 wall: a lost context puts the flat preview back in the box; a click opens the plain grid": {
+   "plainSet": true,
+   "liveOff": true,
+   "miniPreviewShown": true,
+   "sceneHidden": true,
+   "opensToGrid": true,
+   "noCanvasInLayer": true
+  }
+ },
+ "reducedMotion": [
+  {
+   "case": "reduced shelf",
+   "fadeMs": 199,
+   "distinctRects": [
+    "0,0,1440,900"
+   ],
+   "opacityMax": 1,
+   "startsAt": 0,
+   "endAt": "open",
+   "growingFrame": false,
+   "closed": true,
+   "back": true
+  },
+  {
+   "case": "reduced wall",
+   "fadeMs": 183,
+   "distinctRects": [
+    "0,0,1440,900"
+   ],
+   "opacityMax": 1,
+   "startsAt": 0,
+   "endAt": "open",
+   "growingFrame": false,
+   "closed": true,
+   "back": true
+  }
+ ],
+ "frameCost": [
+  {
+   "case": "cost 1440x900 dpr2 cpu4 shelf",
+   "what": "open shelf (cold: the first move)",
+   "frames": 80,
+   "avg": 18.75,
+   "p95": 33.4,
+   "max": 83.4,
+   "over20": 7,
+   "over34": 1
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 shelf",
+   "what": "close shelf",
+   "frames": 84,
+   "avg": 17.86,
+   "p95": 33.3,
+   "max": 33.4,
+   "over20": 6,
+   "over34": 0
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 shelf",
+   "what": "open shelf again",
+   "frames": 85,
+   "avg": 17.65,
+   "p95": 33.2,
+   "max": 33.4,
+   "over20": 5,
+   "over34": 0
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 shelf",
+   "what": "close shelf again",
+   "frames": 84,
+   "avg": 17.86,
+   "p95": 33.3,
+   "max": 33.4,
+   "over20": 6,
+   "over34": 0
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 wall",
+   "what": "open wall (cold: the first move)",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.7,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 wall",
+   "what": "close wall",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.7,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 wall",
+   "what": "open wall again",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.8,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 wall",
+   "what": "close wall again",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.7,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 390x844 phone dpr3 cpu4 shelf",
+   "what": "open shelf (cold: the first move)",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.8,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 390x844 phone dpr3 cpu4 shelf",
+   "what": "close shelf",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.8,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 390x844 phone dpr3 cpu4 shelf",
+   "what": "open shelf again",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.8,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 390x844 phone dpr3 cpu4 shelf",
+   "what": "close shelf again",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.7,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 390x844 phone dpr3 cpu4 wall",
+   "what": "open wall (cold: the first move)",
+   "frames": 89,
+   "avg": 16.67,
+   "p95": 16.7,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 390x844 phone dpr3 cpu4 wall",
+   "what": "close wall",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.8,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 390x844 phone dpr3 cpu4 wall",
+   "what": "open wall again",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.8,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  },
+  {
+   "case": "cost 390x844 phone dpr3 cpu4 wall",
+   "what": "close wall again",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.7,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0
+  }
+ ],
+ "notes": {
+  "frameCostColdOutlier": "the shelf's first opening at 1440 by 900, dpr 2, CPU 4x had one frame of 50 ms (and 83 ms in a repeat) in 2 of 3 runs; every other frame of every other run is 33.4 ms or less (a cold start: the first move after load). Wall and phone: max 33.4 ms.",
+  "plainGrid": "the plain grid (no WebGL, a failed or late scene) opens with the same frame move; the frame is the dark ground with the grid fading in with the chrome, so its box reads as flat dark until then (accepted, R56's fallback)",
+  "reducedMotionHole": "in reduced motion the scene is carried into the layer at the click, so the box is dark for the 200 ms the layer fades in over it (accepted)",
+  "wallJson": "3 full runs on the final build; run 3: 174 result lines read, 0 ok:false, 0 errors, frames at most 33.3 ms (frames-rest, 2 over 20), none over 34; run 2 had one 100 ms frame in frames-camera that runs 1 and 3 did not have",
+  "shelfJson": "2 full runs; the last: 129 lines read, 0 ok:false, 0 errors, frames-dropin max 49.9 over20 2 (baseline on file), close-390-keys-middle one 83 ms frame at 2248 ms outside the open and close windows (the first run had none)"
+ }
+}

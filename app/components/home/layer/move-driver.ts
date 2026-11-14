@@ -180,9 +180,17 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     }
   }
 
+  /** The chrome follows the move exactly: its own 0.3 s opacity transition (for a hidden header) must not smooth it. */
+  function headFollows(on: boolean) {
+    if (!head) return;
+    if (on) head.style.transition = "none";
+    else head.style.removeProperty("transition");
+  }
+
   /** The scene is in its box, still: a move can start. */
   function begin() {
     at = "move";
+    headFollows(true);
     sunk = 1;
     if (sink) {
       docTop = sink.getBoundingClientRect().top + window.scrollY;
@@ -207,6 +215,7 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
   function beginClose() {
     const [vw, vh] = windowSize();
     at = "move";
+    headFollows(true);
     engine?.setDocked(true); // no input; an open book is put away
     parts.closeDetail();
     if (reduced) return;
@@ -215,6 +224,15 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     const whole: Frame = { left: 0, top: 0, width: vw, height: vh };
     carry("move", whole, 0);
     engine?.setFrame({ left: 0, top: 0, width: vw, height: vh }, { place: false });
+  }
+
+  /** The layer and its chrome are whole: what the move wrote is taken back (reduced motion keeps its layer at 1: the stylesheet starts it at 0). */
+  function settleChrome() {
+    headFollows(false);
+    head?.style.removeProperty("opacity");
+    head?.style.removeProperty("visibility");
+    if (reduced) root.style.opacity = "1";
+    else root.style.removeProperty("opacity");
   }
 
   function finishOpen() {
@@ -229,9 +247,7 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     engine?.setDocked(false);
     if (sink) sink.style.willChange = "";
     // the chrome and the layer are whole: their own styles (a hidden header while a video is open) take over again
-    head?.style.removeProperty("opacity");
-    head?.style.removeProperty("visibility");
-    root.style.removeProperty("opacity");
+    settleChrome();
     root.classList.add("ready");
     parts.done(1);
   }
@@ -288,9 +304,7 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
             showAt(1, 1);
             engine?.setFrame(null);
             engine?.setDocked(false);
-            head?.style.removeProperty("opacity");
-            head?.style.removeProperty("visibility");
-            root.style.removeProperty("opacity");
+            settleChrome();
             root.classList.add("ready");
             parts.done(1);
             return;

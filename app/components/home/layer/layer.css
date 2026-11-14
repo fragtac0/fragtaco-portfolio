@@ -182,7 +182,12 @@ html.locked body {
   .home-layer *::after {
     transition-duration: 0.01ms !important;
   }
-  /* no growing frame: the open page fades in and out over 200 ms, written by the move driver */
+  /* no growing frame: the open page fades in and out over 200 ms, written by the move driver; it starts at 0 so the first frame
+     is never at full opacity (and no transition of its own smooths the driver's writes) */
+  .home-layer {
+    opacity: 0;
+    transition: none !important;
+  }
 }
 
 /* =====================================================================
