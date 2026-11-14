@@ -18,7 +18,7 @@ export const HELPERS = `(() => {
     return out;
   };
   window.__boStart = (kind, region) => {
-    window.__bo = []; window.__an = []; window.__boState = {}; window.__boStop = false; window.__boClick = 0; window.__boRegion = region || null;
+    window.__boOff = Date.now() - (performance.timeOrigin + performance.now()); window.__bo = []; window.__an = []; window.__boState = {}; window.__boStop = false; window.__boClick = 0; window.__boRegion = region || null;
     const sc = document.querySelector('.box-scene[data-kind=' + kind + ']');
     let n = 0;
     const rec = () => {
@@ -39,9 +39,10 @@ export const HELPERS = `(() => {
     const bmp = await createImageBitmap(await (await fetch('data:image/jpeg;base64,' + b64)).blob());
     const k = bmp.width / innerWidth, c = new OffscreenCanvas(bmp.width, bmp.height), x = c.getContext('2d', { willReadFrequently: true });
     x.drawImage(bmp, 0, 0);
-    let rec = null; for (const q of window.__bo) { if (q.t <= meta.ts + 4) rec = q; else break; }
+    const ts = meta.ts - (window.__boOff || 0);
+    let rec = null; for (const q of window.__bo) { if (q.t <= ts + 4) rec = q; else break; }
     const luma = (d, i) => 0.2126 * d[i] + 0.7152 * d[i+1] + 0.0722 * d[i+2];
-    const out = { i: meta.i, ts: meta.ts, at: rec ? rec.at : null, chrome: rec ? rec.chrome : null };
+    const out = { i: meta.i, ts, at: rec ? rec.at : null, chrome: rec ? rec.chrome : null };
     if (rec) {
       const clip = (v, hi) => Math.max(0, Math.min(hi, v));
       const x0 = clip(Math.round((rec.l + rec.w * .15) * k), bmp.width - 2), y0 = clip(Math.round((rec.tp + rec.h * .15) * k), bmp.height - 2);
@@ -54,10 +55,13 @@ export const HELPERS = `(() => {
     if (R) {
       const rx = Math.max(0, Math.round(R.left * k)), ry = Math.max(0, Math.round(R.top * k)), rw = Math.min(bmp.width - rx, Math.round(R.width * k)), rh = Math.min(bmp.height - ry, Math.round(R.height * k));
       const cur = x.getImageData(rx, ry, rw, rh).data, st = window.__boState;
-      if (!window.__boClick || meta.ts < window.__boClick) st.before = cur;
-      else if (st.before && (st.after || 0) < 3) {
+      // "before": the frames up to the first frame the recorder row of which is in the move (the click may be handled a few ms before it shows); "after": from that
+      // frame on, for its first 100 ms (a film frame's time is the wall clock, the recorder's is performance.timeOrigin + performance.now(): the offset of the two, read when the recorder starts, is taken off and logged as clockOffsetMs)
+      const mv = window.__bo.find((q) => q.at === 'move');
+      if (!mv || ts < mv.t) st.before = cur;
+      else if (st.before && ts - mv.t <= 100) {
         let diff = 0; for (let i = 0; i < cur.length; i += 4) if (Math.abs(cur[i] - st.before[i]) >= 48 || Math.abs(cur[i+1] - st.before[i+1]) >= 48 || Math.abs(cur[i+2] - st.before[i+2]) >= 48) diff++;
-        out.diffPct = +(diff / (cur.length / 4) * 100).toFixed(3); out.afterMs = +(meta.ts - window.__boClick).toFixed(1); st.after = (st.after || 0) + 1;
+        out.diffPct = +(diff / (cur.length / 4) * 100).toFixed(3); out.afterMs = +(ts - mv.t).toFixed(1);
       }
     }
     window.__an.push(out);
@@ -74,8 +78,8 @@ export const HELPERS = `(() => {
     const gaps = []; for (let i = 1; i < bo.length; i++) gaps.push(bo[i].t - bo[i-1].t);
     return JSON.stringify({
       kind, dir, filmFrames: an.length, recorderFrames: bo.length, movingFrames: moving.length,
-      diffAfterClickPct: d.slice(0, 3).map((a) => a.diffPct), diffFirstAfterMs: d[0] ? d[0].afterMs : null,
-      emptyFrames: empty.length, minStd: an.length ? Math.min(...an.filter((a) => a.std != null).map((a) => a.std)) : null,
+      diffAfterMovePct: d.map((a) => a.diffPct), diffMaxFirst100msPct: d.length ? Math.max(...d.map((a) => a.diffPct)) : null, diffFrames: d.length, diffFirstAfterMs: d[0] ? d[0].afterMs : null, clockOffsetMs: +(window.__boOff || 0).toFixed(1),
+      emptyFrames: empty.length, emptyAtMsAfterMove: empty.map((a) => { const m0 = bo.find((q) => q.at === 'move'); return m0 ? +(a.ts - m0.t).toFixed(1) : null; }), minStd: an.length ? Math.min(...an.filter((a) => a.std != null).map((a) => a.std)) : null,
       onTopNotScene: bo.filter((r) => r.chrome === 0 && r.at !== 'box' && !r.topInScene).length,
       othersDrawnBeforeChrome: [...new Set(beforeChrome.flatMap((r) => r.others || []))],
       samplesOthers: beforeChrome.filter((r) => r.others).length,

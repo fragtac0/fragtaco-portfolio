@@ -1230,7 +1230,7 @@
     1800
    ]
   },
-  "label": "R49.2 wall open, reduced motion 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: a reduced-motion fade, and the plain grid whose frame fades its grid in with the chrome, leave the box dark for a moment, accepted)"
+  "label": "R49.2 wall open, reduced motion 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: reduced motion dips through dark, the page is black for an instant; no box is ever empty beside a lit page is checked in box-open.json)"
  },
  {
   "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=watching]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
@@ -1257,7 +1257,7 @@
     1000
    ]
   },
-  "label": "R49.2 wall close, reduced motion 1440x900:: no frame is the plain ground (flat check off: a reduced-motion fade, and the plain grid whose frame fades its grid in with the chrome, leave the box dark for a moment, accepted)"
+  "label": "R49.2 wall close, reduced motion 1440x900:: no frame is the plain ground (flat check off: reduced motion dips through dark, the page is black for an instant; no box is ever empty beside a lit page is checked in box-open.json)"
  },
  {
   "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=watching]');const b=document.getElementById('blkWatch');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='watching',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
@@ -1286,7 +1286,7 @@
    "ms": 2600,
    "rect": "#blkWatch .blk-box",
    "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=watching]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=watching]').click()})()",
-   "flat": 0,
+   "flat": 3,
    "share": 1.01,
    "keep": "local-watching-nogl-1440x900-open",
    "ats": [
@@ -1299,7 +1299,7 @@
     1800
    ]
   },
-  "label": "R49.2 wall open, nogl 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: a reduced-motion fade, and the plain grid whose frame fades its grid in with the chrome, leave the box dark for a moment, accepted)"
+  "label": "R49.2 wall open, nogl 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
   "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=watching]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
@@ -1313,7 +1313,7 @@
    "ms": 2000,
    "rect": "#blkWatch .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
-   "flat": 0,
+   "flat": 3,
    "share": 1.01,
    "keep": "local-watching-nogl-1440x900-close",
    "ats": [
@@ -1326,7 +1326,7 @@
     1000
    ]
   },
-  "label": "R49.2 wall close, nogl 1440x900:: no frame is the plain ground (flat check off: a reduced-motion fade, and the plain grid whose frame fades its grid in with the chrome, leave the box dark for a moment, accepted)"
+  "label": "R49.2 wall close, nogl 1440x900:: no frame is the plain ground"
  },
  {
   "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=watching]');const b=document.getElementById('blkWatch');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='watching',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
@@ -1356,7 +1356,7 @@
    "ms": 4500,
    "rect": "#blkWatch .blk-box",
    "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=watching]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=watching]').click()})()",
-   "flat": 0,
+   "flat": 3,
    "share": 1.01,
    "keep": "local-watching-stall-hang-1440x900-open",
    "ats": [
@@ -1372,7 +1372,7 @@
     4000
    ]
   },
-  "label": "R49.2 wall open, stall-hang 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: a reduced-motion fade, and the plain grid whose frame fades its grid in with the chrome, leave the box dark for a moment, accepted)"
+  "label": "R49.2 wall open, stall-hang 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
   "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=watching]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
@@ -1386,7 +1386,7 @@
    "ms": 2000,
    "rect": "#blkWatch .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
-   "flat": 0,
+   "flat": 3,
    "share": 1.01,
    "keep": "local-watching-stall-hang-1440x900-close",
    "ats": [
@@ -1399,7 +1399,7 @@
     1000
    ]
   },
-  "label": "R49.2 wall close, stall-hang 1440x900:: no frame is the plain ground (flat check off: a reduced-motion fade, and the plain grid whose frame fades its grid in with the chrome, leave the box dark for a moment, accepted)"
+  "label": "R49.2 wall close, stall-hang 1440x900:: no frame is the plain ground"
  },
  {
   "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=watching]');const b=document.getElementById('blkWatch');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='watching',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
@@ -1429,7 +1429,7 @@
    "ms": 4500,
    "rect": "#blkWatch .blk-box",
    "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=watching]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=watching]').click()})()",
-   "flat": 0,
+   "flat": 3,
    "share": 1.01,
    "keep": "local-watching-stall-late-1440x900-open",
    "ats": [
@@ -1445,7 +1445,7 @@
     4000
    ]
   },
-  "label": "R49.2 wall open, stall-late 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: a reduced-motion fade, and the plain grid whose frame fades its grid in with the chrome, leave the box dark for a moment, accepted)"
+  "label": "R49.2 wall open, stall-late 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
   "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=watching]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
@@ -1466,7 +1466,7 @@
    "ms": 2000,
    "rect": "#blkWatch .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
-   "flat": 0,
+   "flat": 3,
    "share": 1.01,
    "keep": "local-watching-stall-late-1440x900-close",
    "ats": [
@@ -1479,7 +1479,7 @@
     1000
    ]
   },
-  "label": "R49.2 wall close, stall-late 1440x900:: no frame is the plain ground (flat check off: a reduced-motion fade, and the plain grid whose frame fades its grid in with the chrome, leave the box dark for a moment, accepted)"
+  "label": "R49.2 wall close, stall-late 1440x900:: no frame is the plain ground"
  },
  {
   "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=watching]');const b=document.getElementById('blkWatch');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='watching',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",

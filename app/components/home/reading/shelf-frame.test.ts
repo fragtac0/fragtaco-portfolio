@@ -25,14 +25,23 @@ function fakeEl() {
   return { el: { style } as unknown as HTMLCanvasElement, props };
 }
 
-function setup(frame: Frame | null, opts?: { place?: boolean }) {
+function setup(frame: Frame | null, opts?: { place?: boolean; coarse?: boolean }, ratio = 2) {
   const { el } = fakeEl();
   const box = createFrameBox(el);
   box.request(frame, opts);
   box.commit();
   const calls: Array<[string, ...Array<number | boolean>]> = [];
+  const dom = { width: 0, height: 0 };
   const gl = {
-    renderer: { setSize: (...a: Array<number | boolean>) => calls.push(["setSize", ...a]) },
+    renderer: {
+      domElement: dom,
+      getPixelRatio: () => ratio,
+      setSize: (w: number, h: number, ...a: boolean[]) => {
+        calls.push(["setSize", w, h, ...a]);
+        dom.width = Math.floor(w * ratio);
+        dom.height = Math.floor(h * ratio);
+      },
+    },
     camera: {
       setViewOffset: (...a: number[]) => calls.push(["setViewOffset", ...a]),
       clearViewOffset: () => calls.push(["clearViewOffset"]),
@@ -40,7 +49,7 @@ function setup(frame: Frame | null, opts?: { place?: boolean }) {
     },
   } as unknown as ShelfScene;
   const ctx = { box, st: newShelfState() } as unknown as ShelfCtx;
-  return { ctx, gl, calls };
+  return { ctx, gl, calls, box };
 }
 
 describe("the shelf's view of a frame", () => {
@@ -73,6 +82,53 @@ describe("the shelf's view of a frame", () => {
     expect(calls.length).toBe(n);
     applyView(ctx, gl, VW, 800);
     expect(calls.length).toBeGreaterThan(n);
+  });
+});
+
+describe("the shelf's buffer while a frame moves (coarse)", () => {
+  const move = (box: ReturnType<typeof setup>["box"], width: number, coarse = true) => {
+    box.request({ left: 0, top: 0, width, height: width / 2 }, { place: false, coarse });
+    box.commit();
+  };
+
+  it("keeps the buffer a step larger than the frame, so a growing frame allocates it only every few frames", () => {
+    const { ctx, gl, calls, box } = setup({ left: 0, top: 0, width: 648, height: 300 }, { place: false, coarse: true });
+    applyView(ctx, gl, VW, VH);
+    let allocations = 1;
+    for (let w = 650; w <= 1440; w += 39) {
+      const before = calls.filter((c) => c[0] === "setSize").length;
+      move(box, w);
+      applyView(ctx, gl, VW, VH);
+      if (calls.filter((c) => c[0] === "setSize").length > before) allocations++;
+      // never smaller than the frame (at the pixel ratio), never a step and more larger
+      expect(gl.renderer.domElement.width).toBeGreaterThanOrEqual(w * 2 - 1);
+      expect(gl.renderer.domElement.width).toBeLessThanOrEqual(w * 2 + 256 + 1);
+    }
+    expect(allocations).toBeLessThan(12); // 21 frames
+  });
+
+  it("a view change that keeps the buffer sets the camera and not the size", () => {
+    const { ctx, gl, calls, box } = setup({ left: 0, top: 0, width: 648, height: 300 }, { place: false, coarse: true });
+    applyView(ctx, gl, VW, VH);
+    const sizes = () => calls.filter((c) => c[0] === "setSize").length;
+    const offsets = () => calls.filter((c) => c[0] === "setViewOffset").length;
+    const n = sizes();
+    const o = offsets();
+    move(box, 652);
+    applyView(ctx, gl, VW, VH);
+    expect(sizes()).toBe(n);
+    expect(offsets()).toBe(o + 1);
+  });
+
+  it("the end of the move asks for the exact size again: the frame that is not a moving one gets its own buffer", () => {
+    const { ctx, gl, calls, box } = setup({ left: 0, top: 0, width: 648, height: 300 }, { place: false, coarse: true });
+    applyView(ctx, gl, VW, VH);
+    move(box, 1000);
+    applyView(ctx, gl, VW, VH);
+    box.request({ left: 0, top: 0, width: 1000, height: 500 }, { place: false });
+    box.commit();
+    applyView(ctx, gl, VW, VH);
+    expect(calls.filter((c) => c[0] === "setSize").at(-1)).toEqual(["setSize", 1000, 500, false]);
   });
 });
 

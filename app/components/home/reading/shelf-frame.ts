@@ -1,5 +1,5 @@
 import { clearPlacement, noTransition, windowSize, type FrameBox } from "../layer/frame-box";
-import { dotPlacement, subWindow } from "../layer/frame-math";
+import { COARSE_STEP, coarseBuffer, dotPlacement, subWindow } from "../layer/frame-math";
 import type { ShelfCtx, ShelfState } from "./shelf-open";
 import { RENDER_DPR_MAX } from "./shelf-math";
 import { newBag, type ShelfScene } from "./shelf-scene";
@@ -24,12 +24,25 @@ export function stageSize(canvas: HTMLCanvasElement, box: FrameBox): [number, nu
 export function applyView(ctx: ShelfCtx, gl: ShelfScene, vw: number, vh: number): void {
   const f = ctx.box.frame();
   const sub = subWindow(f, vw, vh);
-  const cw = f ? f.width : vw;
-  const ch = f ? f.height : vh;
+  let cw = f ? f.width : vw;
+  let ch = f ? f.height : vh;
+  // a moving frame (the box opening or closing) keeps its drawing buffer larger than it is, allocated every few frames and not at every one
+  // (`coarseBuffer`); the picture is drawn into the whole buffer and the canvas shows it at the frame's size, so its geometry is the frame's
+  if (f && ctx.box.coarse()) {
+    const pr = gl.renderer.getPixelRatio();
+    const held = gl.renderer.domElement;
+    cw = coarseBuffer(cw * pr, held.width, COARSE_STEP, vw * pr) / pr;
+    ch = coarseBuffer(ch * pr, held.height, COARSE_STEP, vh * pr) / pr;
+  }
   const key = `${cw}x${ch}|${sub.x},${sub.y},${sub.w},${sub.h}|${vw}x${vh}`;
   if (key === ctx.st.viewKey) return;
   ctx.st.viewKey = key;
-  gl.renderer.setSize(cw, ch, false);
+  // the buffer is allocated only when its size changes (a coarse frame often leaves it as it is)
+  const size = `${cw}x${ch}`; // a new pixel ratio clears it (syncRatio)
+  if (size !== ctx.st.sizeKey) {
+    ctx.st.sizeKey = size;
+    gl.renderer.setSize(cw, ch, false);
+  }
   const whole = sub.x === 0 && sub.y === 0 && sub.w === vw && sub.h === vh;
   if (whole) gl.camera.clearViewOffset();
   else gl.camera.setViewOffset(vw, vh, sub.x, sub.y, sub.w, sub.h);
@@ -45,6 +58,7 @@ export function syncRatio(gl: ShelfScene, st: ShelfState, device: number, cap: n
   if (gl.renderer.getPixelRatio() === ratio) return;
   gl.renderer.setPixelRatio(ratio);
   st.viewKey = "";
+  st.sizeKey = "";
   st.dirty = true;
 }
 

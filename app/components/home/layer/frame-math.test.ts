@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  coarseBuffer,
+  COARSE_STEP,
   DOCKED_MS,
   drawDue,
   frameAt,
@@ -206,5 +208,43 @@ describe("dotPlacement", () => {
 
   it("is null before the ledge has a row", () => {
     expect(dotPlacement(box, VW, VH, 0)).toBeNull();
+  });
+});
+
+describe("coarseBuffer", () => {
+  it("keeps the buffer while it covers the need and is less than a step larger", () => {
+    expect(coarseBuffer(1300, 1536)).toBe(1536);
+    expect(coarseBuffer(1281, 1536)).toBe(1536);
+    expect(coarseBuffer(1536, 1536)).toBe(1536);
+  });
+  it("goes up to the next multiple of the step when the need passes the buffer, and down when it is a step or more too large", () => {
+    expect(coarseBuffer(1537, 1536)).toBe(1792);
+    expect(coarseBuffer(1280, 1536)).toBe(1280);
+    expect(coarseBuffer(900, 1536)).toBe(1024);
+  });
+  it("stops at the cap, the buffer the move ends with, so the end allocates nothing", () => {
+    expect(coarseBuffer(2700, 2560, 256, 2880)).toBe(2816);
+    expect(coarseBuffer(2850, 2560, 256, 2880)).toBe(2880);
+    expect(coarseBuffer(2880, 2880, 256, 2880)).toBe(2880);
+    expect(coarseBuffer(2850, 2880, 256, 2880)).toBe(2880);
+    expect(coarseBuffer(3000, 2880, 256, 2880)).toBe(3000); // a need above the cap is still covered
+  });
+  it("starts from nothing at the next multiple, and never makes an empty buffer", () => {
+    expect(coarseBuffer(1296, 0)).toBe(1536);
+    expect(coarseBuffer(0, 0)).toBe(256);
+    expect(coarseBuffer(0.2, 0, 64)).toBe(64);
+  });
+  it("is never smaller than the need, whatever came before, and a growing frame crosses a step only every few frames", () => {
+    let held = 0;
+    let allocations = 0;
+    for (let w = 1296; w <= 2880; w += 78) {
+      const b = coarseBuffer(w, held);
+      expect(b).toBeGreaterThanOrEqual(w);
+      expect(b - w).toBeLessThan(COARSE_STEP + 1);
+      if (b !== held) allocations++;
+      held = b;
+    }
+    // 21 frames at the peak speed of a 1 s ease at 2x: 6 allocations, not 21
+    expect(allocations).toBeLessThanOrEqual(7);
   });
 });

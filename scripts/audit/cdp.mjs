@@ -167,6 +167,19 @@ async function runFilm(f, label) {
   if (f.keep && f.ats) for (const a of f.ats) { const near = rows.reduce((p, b) => (Math.abs(b.at - a) < Math.abs(p.at - a) ? b : p)); writeFileSync(`${outDir}/${f.keep}-${String(a).padStart(4, "0")}.jpg`, Buffer.from(near.data, "base64")); }
   console.log(JSON.stringify({ step: label ?? "film", stdMin: rows.length ? Math.min(...rows.map(r => r.std)) : null, stdSeries: f.series ? rows.map(r => [r.at, r.std, r.mean]) : undefined, frames: rows.length, longestGapMs: gap, firstMs: rows[0]?.at, lastMs: rows.at(-1)?.at, darkShareMax: rows.length ? Math.max(...rows.map(r => r.share)) : null, box: box ? [Math.round(box.x), Math.round(box.y), Math.round(box.w), Math.round(box.h)] : (f.rect ? "not found: whole frame" : "whole frame"), bareFrames: bare.map(r => [r.at, r.share, r.mean, r.std]), ok: rows.length > 5 && bare.length === 0, ...(tileReport ? { tileReport } : {}) }));
 }
+async function backgroundTab(ms) {
+  const info = await (await fetch(`http://127.0.0.1:${port}/json/version`)).json();
+  const bws = new WebSocket(info.webSocketDebuggerUrl);
+  await new Promise(r => bws.addEventListener("open", r, { once: true }));
+  let bid = 0;
+  const bsend = (method, params = {}) => new Promise(r => { const i = ++bid; const h = e => { const m = JSON.parse(e.data); if (m.id === i) { bws.removeEventListener("message", h); r(m); } }; bws.addEventListener("message", h); bws.send(JSON.stringify({ id: i, method, params })); });
+  const mine = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(t => t.webSocketDebuggerUrl === wsUrl)?.id;
+  const other = (await bsend("Target.createTarget", { url: "about:blank" })).result?.targetId;
+  await sleep(ms);
+  if (mine) await bsend("Target.activateTarget", { targetId: mine });
+  if (other) await bsend("Target.closeTarget", { targetId: other });
+  bws.close();
+}
 for (const s of steps) {
   if (s.size) await send("Emulation.setDeviceMetricsOverride", { width: s.size[0], height: s.size[1], deviceScaleFactor: s.dpr ?? 1, mobile: !!s.mobile });
   if (s.touch !== undefined) await send("Emulation.setTouchEmulationEnabled", { enabled: s.touch, maxTouchPoints: 5 });
@@ -218,6 +231,9 @@ for (const s of steps) {
     await send("Runtime.evaluate", { expression: `for(const it of ${JSON.stringify(s.contrast)}){const e=document.querySelector(it.selector);if(e){e.style.visibility='';for(const n of [e,...e.querySelectorAll('*')])n.style.removeProperty('color');e.style.removeProperty('outline')}}`, returnByValue: true });
     console.log(JSON.stringify({ step: s.label ?? "contrast", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description }));
   }
+  // `background` (ms): the tab really goes to the background for that long (another tab is opened in front of it, then this one is activated again and the other closed), so rAF, timers and
+  // `visibilitychange` behave as they do for a visitor who switched tabs (the Browser domain: a second connection to the browser itself)
+  if (s.background) await backgroundTab(s.background);
   if (s.film) await runFilm(s.film, s.label);
   if (s.shot) {
     const r = await send("Page.captureScreenshot", { format: "jpeg", quality: 85 });

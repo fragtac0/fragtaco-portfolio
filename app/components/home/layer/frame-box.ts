@@ -35,6 +35,11 @@ export type FrameOptions = {
    * if a later request replaces this one before it is committed, and by `release`.
    */
   onApplied?: () => void;
+  /**
+   * The frame is moving (a box opening or closing): the engine may keep its drawing buffer larger than the frame (`coarseBuffer`)
+   * and so allocate it only every few frames. A frame asked for without it (the box's own size, the whole window) gets the exact buffer.
+   */
+  coarse?: boolean;
 };
 
 /** How a scene is docked (`setDocked`). */
@@ -48,6 +53,8 @@ export type FrameBox = {
   frame(): Frame | null;
   /** Whether the box writes the canvas's place for the frame in force (see `FrameOptions.place`). */
   placed(): boolean;
+  /** Whether the frame in force is a moving one (see `FrameOptions.coarse`). */
+  coarse(): boolean;
   /** Asks for a frame (null: the whole window). Nothing changes until `commit`. */
   request(frame: Frame | null, opts?: FrameOptions): void;
   hasPending(): boolean;
@@ -122,8 +129,10 @@ export function noTransition(el: HTMLElement | HTMLCanvasElement): void {
 export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
   let frame: Frame | null = null;
   let placed = true;
+  let coarse = false;
   let asked: Frame | null = null;
   let askedPlace = true;
+  let askedCoarse = false;
   let applied: (() => void) | null = null;
   let pending = false;
   /** No frame has been drawn since the last run, window size or committed new size. */
@@ -161,9 +170,11 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
   return {
     frame: () => frame,
     placed: () => placed,
+    coarse: () => coarse,
     request(f, opts) {
       asked = f;
       askedPlace = opts?.place !== false;
+      askedCoarse = !!opts?.coarse;
       applied = opts?.onApplied ?? null;
       pending = true;
     },
@@ -172,11 +183,14 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
       if (!pending) return "none";
       pending = false;
       const before = frame;
-      const resized = !sameFrameSize(before, asked);
+      const nextCoarse = !!asked && askedCoarse;
+      // a frame that stops being a moving one (the move's end) needs its exact buffer: that counts as a new size
+      const resized = !sameFrameSize(before, asked) || coarse !== nextCoarse;
       const nextPlaced = asked ? askedPlace : true;
       const restyle = placed !== nextPlaced || (nextPlaced && !sameFrame(before, asked));
       frame = asked;
       placed = nextPlaced;
+      coarse = nextCoarse;
       if (resized) stale = true;
       if (resized || restyle) place();
       const hook = applied;
@@ -211,6 +225,7 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
       applied = null;
       frame = null;
       placed = true;
+      coarse = false;
       place();
       stopped = true;
       flush("stopped");

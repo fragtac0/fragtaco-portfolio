@@ -4,8 +4,9 @@
 // For each box (the shelf and the wall) at 1440 by 900 (dpr 1) and 390 by 844 (phone, dpr 2, touch), a 60 fps film (a screencast: every frame the
 // compositor makes) of opening by a click and of closing by Close, read frame by frame in the page against what the page recorded on its own
 // animation frames (`window.__bo`: the scene's place and size, its corners, the chrome's opacity, and which element is on top inside the frame):
-//   - `diffFirstPct`: the share of the box's pixels (a channel 48 or more apart) that differ between the last frame before the click and the
-//     first frame after it (and the next two): under 1 (no swap, no fade: the click changes nothing the eye can see);
+//   - `diffMaxFirst100msPct`: the share of the box's pixels (a channel 48 or more apart) that differ between the last frame before the move (the frame
+//     before the first film frame whose recorder row is in the move) and each film frame in the first 100 ms of the move: under 1 (no swap, no fade: the
+//     click changes nothing the eye can see); the two clocks (the film's wall clock, the recorder's performance clock) are matched and the offset logged;
 //   - `emptyFrames`: frames in which the scene's frame shows a flat picture (a luma spread under 6 over its inner 70%): none;
 //   - `onTopNotScene`: frames before the chrome starts in which something other than the scene is on top inside the frame (elementsFromPoint): none;
 //   - `othersDrawn`: until the chrome starts, the things inside the scene that paint besides its canvases and texture (text, pictures, backgrounds,
@@ -13,46 +14,15 @@
 //   - the same canvas element throughout, the corners from 14 px to square, the chrome 0 until 72% of the eased move, the move's length;
 //   - `maxStepPx`: the biggest frame-to-frame change in the frame's place or size (the peak of a 1 s ease is about 5% of the distance a frame).
 // Then the Review Focus cases 1 to 5 (a click before the scene is ready, a resize while open then close, a turn in the opening and in the closing,
-// a box half off the screen, a tab left in the background, and a lost context), and the move's frame cost with the CPU 4 times slower at 1440 by 900
+// a box half off the screen, a tab really left in the background for 60 s, and a lost context), and the move's frame cost with the CPU 4 times slower at 1440 by 900
 // (dpr 2) and on the phone profile (every frame gap from the click to the end of the move, opening and closing, both boxes).
 // Contact sheets (12 frames of the opening and 12 of the closing per box) are made from the saved frames: `local-box-<size>-<box>-open-<ms>.jpg` and
 // `-close-`: they show thumbnails and covers, keep them under docs/redesign/compare/local/r55-2/.
 import { writeFileSync } from "node:fs";
 
-import { HELPERS } from "./box-open-helpers.mjs";
+import { BOX, OPEN_ATS, load, push, sizes, steps, toBlock, wait } from "./box-open-kit.mjs";
+import { focusCases, focusCasesLate } from "./box-open-focus.mjs";
 
-const wait = (ms) => `new Promise(r=>setTimeout(r,${ms}))`;
-const BOX = {
-  shelf: { id: "blkRead", kind: "reading", hit: "reading" },
-  wall: { id: "blkWatch", kind: "watching", hit: "watching" },
-};
-const OPEN_ATS = [380, 420, 500, 560, 620, 680, 740, 800, 880, 960, 1100, 1500];
-const sizes = [
-  { name: "1440x900", size: [1440, 900], dpr: 1, mobile: false, touch: false },
-  { name: "390x844", size: [390, 844], dpr: 2, mobile: true, touch: true },
-];
-// the helpers above are installed on every new document (they guard themselves), and a stall hook an earlier case set is cleared by the next load
-const INIT = `try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.removeItem('ft:debug-stall')}catch(e){}`;
-const load = (s, extra = {}) => ({
-  size: s.size,
-  dpr: s.dpr,
-  mobile: s.mobile,
-  touch: s.touch,
-  reduce: false,
-  cpu: 1,
-  init: `${INIT};${HELPERS}`,
-  go: "{{BASE}}/",
-  wait: 4500,
-  ...extra,
-});
-// scrolls to the block and waits (up to 20 s) for its scene to have drawn into the box; the answer is how long that took
-const toBlock = (b, label) => ({
-  eval: `new Promise(r=>{document.getElementById('${b.id}').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const sc=document.querySelector('.box-scene[data-kind=${b.kind}]');if(sc.hasAttribute('data-drawn')||sc.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:sc.hasAttribute('data-drawn'),plain:sc.hasAttribute('data-plain')})),600)}},50)})`,
-  label,
-});
-
-const steps = [];
-const push = (...s) => steps.push(...s);
 
 for (const s of sizes)
   for (const [name, b] of Object.entries(BOX)) {
@@ -112,41 +82,7 @@ for (const s of sizes)
     });
   }
 
-// ---- Review Focus 1: a click before the scene is ready
-for (const [name, b] of Object.entries(BOX)) {
-  push({
-    size: [1440, 900],
-    dpr: 1,
-    mobile: false,
-    touch: false,
-    reduce: false,
-    cpu: 1,
-    init: `try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-stall','hang')}catch(e){};${HELPERS}`,
-    go: "{{BASE}}/",
-    wait: 1500,
-  });
-  push(
-    toBlock(b, `RF1 ${name}: stalled scene (its preparation never finishes): scroll to the box`),
-  );
-  push({
-    eval: `new Promise(r=>{const t0=performance.now(),log=[],blk=document.getElementById('${b.id}');document.querySelector('[data-xp=${b.hit}]').click();
-      const i=setInterval(()=>{const sc=document.querySelector('.box-scene[data-kind=${b.kind}]');log.push([Math.round(performance.now()-t0),blk.hasAttribute('data-pressed'),!!document.querySelector('.home-layer'),sc.dataset.at||'box',sc.hasAttribute('data-plain'),!!document.querySelector('.home-layer .fb-grid,.home-layer .fb-scroll'),document.querySelectorAll('.home-layer canvas').length]);
-      if(performance.now()-t0>2600){clearInterval(i);const sc=document.querySelector('.box-scene[data-kind=${b.kind}]');const opened=log.find(l=>l[2]);const pressed=log.filter(l=>l[1]);r(JSON.stringify({clickNotIgnored:!!opened,pressedFromMs:pressed[0]?.[0]??null,pressedUntilMs:pressed.at(-1)?.[0]??null,openedAtMs:opened?.[0]??null,movedPlain:!!opened&&opened[4],gridInLayer:log.at(-1)[5],canvasesInLayer:log.at(-1)[6],endAt:log.at(-1)[3],neverOpenedEmpty:log.filter(l=>l[2]&&l[3]!=='box'&&!l[4]).length===0}))}},40)})`,
-    label: `RF1 ${name}: a click before the scene is ready waits at most 400 ms (pressed), then opens to the plain grid with the same move; never ignored, never empty`,
-  });
-  push({
-    eval: `(async()=>{await ${wait(900)};document.querySelector('.xp-close').click();await ${wait(
-      1300,
-    )};const sc=document.querySelector('.box-scene[data-kind=${
-      b.kind
-    }]');const blk=document.getElementById('${
-      b.id
-    }');return JSON.stringify({closed:!document.querySelector('.home-layer'),sceneInBox:sc.parentElement.className==='blk-live',miniPreviewShown:getComputedStyle(blk.querySelector('.blk-art')).visibility==='visible',sceneHidden:getComputedStyle(blk.querySelector('.blk-live')).display==='none',focusOnBlock:document.activeElement.dataset.xp==='${
-      b.hit
-    }'})})()`,
-    label: `RF1 ${name}: closing the plain grid puts the flat preview back`,
-  });
-}
+focusCases(); // Review Focus 1: a click before the scene is ready (and a give-up lasts one opening)
 
 // ---- Review Focus 2 to 4 on each box at 1440 by 900
 for (const [name, b] of Object.entries(BOX)) {
@@ -233,50 +169,7 @@ for (const [name, b] of Object.entries(BOX)) {
   push({ eval: `(()=>{window.__boStop=true;return 1})()` });
 }
 
-// ---- Review Focus 5: a tab left in the background; a lost context
-for (const [name, b] of Object.entries(BOX)) {
-  push(load(sizes[0]), toBlock(b, `RF5 ${name}: scroll to the box`));
-  push({
-    eval: `(async()=>{const sc=document.querySelector('.box-scene[data-kind=${
-      b.kind
-    }]');const cv=sc.querySelector('.wall-canvas,.shelf-canvas');const gl=cv.getContext('webgl2')||cv.getContext('webgl');const lost=()=>gl?gl.isContextLost():null;
-      const count=async(ms)=>{const a=window.__draws.${name};await new Promise(r=>setTimeout(r,ms));return window.__draws.${name}-a};
-      const running=await count(1000);
-      Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>'hidden'});document.dispatchEvent(new Event('visibilitychange'));
-      await ${wait(300)};const hidden=await count(2000);
-      delete document.hidden;delete document.visibilityState;document.dispatchEvent(new Event('visibilitychange'));
-      const back=await count(500);const after=await count(1000);
-      return JSON.stringify({drawsPerSecondRunning:running,drawsWhileHiddenIn2s:hidden,drawsInFirst500msBack:back,drawsNextSecond:after,burst:back>40,contextLost:lost(),drawn:sc.hasAttribute('data-drawn'),plain:sc.hasAttribute('data-plain')})})()`,
-    label: `RF5 ${name}: the tab is hidden for 2 s and comes back: no draws while hidden, no burst after, context kept`,
-  });
-  push({
-    eval: `(async()=>{const sc=document.querySelector('.box-scene[data-kind=${
-      b.kind
-    }]');const blk=document.getElementById('${
-      b.id
-    }');const cv=sc.querySelector('.wall-canvas,.shelf-canvas');const gl=cv.getContext('webgl2')||cv.getContext('webgl');const ext=gl.getExtension('WEBGL_lose_context');ext.loseContext();await ${wait(
-      900,
-    )};
-      const v={plainSet:sc.hasAttribute('data-plain'),liveOff:!blk.hasAttribute('data-live'),miniPreviewShown:getComputedStyle(blk.querySelector('.blk-art')).visibility==='visible',sceneHidden:getComputedStyle(blk.querySelector('.blk-live')).display==='none'};
-      document.querySelector('[data-xp=${b.hit}]').click();await ${wait(
-      1400,
-    )};v.opensToGrid=!!document.querySelector('.home-layer .fb-grid,.home-layer .fb-scroll');v.noCanvasInLayer=document.querySelectorAll('.home-layer canvas').length===0;return JSON.stringify(v)})()`,
-    label: `RF5 ${name}: a lost context puts the flat preview back in the box; a click opens the plain grid`,
-  });
-}
-
-// ---- reduced motion: no growing frame, a 200 ms fade
-for (const [name, b] of Object.entries(BOX)) {
-  push(load(sizes[0], { reduce: true }), toBlock(b, `reduced ${name}: scroll to the box`));
-  push({
-    eval: `(async()=>{const sc=document.querySelector('.box-scene[data-kind=${b.kind}]');const root=()=>document.querySelector('.home-layer');const log=[];const t0=performance.now();document.querySelector('[data-xp=${b.hit}]').click();
-      await new Promise(r=>{const f=()=>{const rt=root();const r0=sc.getBoundingClientRect();log.push([Math.round(performance.now()-t0),rt?+getComputedStyle(rt).opacity:null,[r0.left,r0.top,r0.width,r0.height].map(Math.round).join(','),sc.dataset.at||'box']);performance.now()-t0>700?r():requestAnimationFrame(f)};f()});
-      const rects=[...new Set(log.filter(l=>l[3]!=='box').map(l=>l[2]))];const ops=log.map(l=>l[1]).filter(v=>v!=null);
-      const o={fadeMs:(()=>{const a=log.find(l=>l[1]>0.02),z=log.find(l=>l[1]>=0.999);return a&&z?z[0]-a[0]:null})(),distinctRects:rects,opacityMax:Math.max(...ops),startsAt:ops[0],endAt:sc.dataset.at,growingFrame:log.some(l=>l[3]==='move')};
-      document.querySelector('.xp-close').click();await new Promise(r=>setTimeout(r,500));o.closed=!document.querySelector('.home-layer');o.back=sc.parentElement.className==='blk-live';return JSON.stringify(o)})()`,
-    label: `reduced ${name}: no growing frame; the open page fades in over about 200 ms and leaves the same way`,
-  });
-}
+focusCasesLate(); // Review Focus 5 (a real background tab), the open scene across it, the wall's pan at the end of the move, reduced motion
 
 // ---- the move's frame cost
 const cost = [
@@ -286,7 +179,7 @@ const cost = [
 for (const c of cost)
   for (const [name, b] of Object.entries(BOX)) {
     const gaps = (what, click, ms) =>
-      `new Promise(r=>{const g=[];let l=performance.now();const t0=l;${click};function f(n){g.push(n-l);l=n;if(n-t0<${ms})requestAnimationFrame(f);else{g.shift();const s=[...g].sort((a,b)=>a-b);r(JSON.stringify({what:'${what}',frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+s[Math.floor(s.length*.95)].toFixed(2),max:+s[s.length-1].toFixed(2),over20:g.filter(x=>x>20).length,over34:g.filter(x=>x>34).length,firstFramesMs:g.slice(0,4).map(x=>+x.toFixed(1)),over34At:g.map((x,i)=>x>34?[i,+x.toFixed(1)]:null).filter(Boolean)}))}}requestAnimationFrame(f)})`;
+      `new Promise(r=>{const loaf=[];try{new PerformanceObserver(l=>{for(const e of l.getEntries())loaf.push(e)}).observe({type:'long-animation-frame'})}catch(e){}const g=[];let l=performance.now();const t0=l;${click};function f(n){g.push(n-l);l=n;if(n-t0<${ms})requestAnimationFrame(f);else{g.shift();const s=[...g].sort((a,b)=>a-b);r(JSON.stringify({what:'${what}',frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+s[Math.floor(s.length*.95)].toFixed(2),max:+s[s.length-1].toFixed(2),over20:g.filter(x=>x>20).length,over34:g.filter(x=>x>34).length,firstFramesMs:g.slice(0,4).map(x=>+x.toFixed(1)),over34At:g.map((x,i)=>x>34?[i,+x.toFixed(1)]:null).filter(Boolean),at:'${what}',loaf:loaf.filter(e=>e.duration>50).map(e=>({start:Math.round(e.startTime-t0),dur:Math.round(e.duration),render:Math.round(e.renderStart-e.startTime),styleLayout:Math.round(e.styleAndLayoutStart-e.startTime),scripts:e.scripts.map(s=>[s.invoker,Math.round(s.duration),Math.round(s.forcedStyleAndLayoutDuration)])}))}))}}requestAnimationFrame(f)})`;
     push(load(c, { cpu: 1 }), toBlock(b, `cost ${c.name} ${name}: scroll to the box`), {
       cpu: 4,
       wait: 1500,

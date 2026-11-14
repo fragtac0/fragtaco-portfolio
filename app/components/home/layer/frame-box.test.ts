@@ -398,3 +398,45 @@ describe("onApplied (the caller's own element follows the frame in the same fram
     expect(hook).not.toHaveBeenCalled();
   });
 });
+
+describe("a moving frame (coarse)", () => {
+  it("is coarse only while a frame asked for as moving is in force", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    expect(box.coarse()).toBe(false);
+    box.request(A, { place: false, coarse: true });
+    expect(box.coarse()).toBe(false); // nothing changes until commit
+    box.commit();
+    expect(box.coarse()).toBe(true);
+    box.request({ ...A, width: 500 }, { place: false });
+    box.commit();
+    expect(box.coarse()).toBe(false);
+  });
+
+  it("the same size that stops being a moving one counts as resized: the exact buffer is wanted", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    box.request(A, { place: false, coarse: true });
+    box.commit();
+    box.drawn();
+    box.request(A, { place: false });
+    expect(box.commit()).toBe("resized");
+    box.request(A, { place: false });
+    expect(box.commit()).toBe("none");
+  });
+
+  it("no frame is never coarse, and a release puts it back", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    box.request(A, { place: false, coarse: true });
+    box.commit();
+    box.request(null, { coarse: true });
+    box.commit();
+    expect(box.coarse()).toBe(false);
+    box.request(A, { place: false, coarse: true });
+    box.commit();
+    box.release();
+    expect(box.coarse()).toBe(false);
+  });
+});
+

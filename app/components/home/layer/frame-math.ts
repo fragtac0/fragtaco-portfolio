@@ -74,6 +74,26 @@ export function frameView(frame: Frame | null, vw: number, vh: number, dpr: numb
   };
 }
 
+/**
+ * How many device pixels a drawing buffer is allocated in while a frame moves (`FrameOptions.coarse`): setting a canvas's size
+ * allocates its buffer anew, and a frame that grows every animation frame would do it at every frame (measured: 5 to 9 ms a
+ * frame at 4 times slower, two thirds of the budget). The buffer keeps its size while it still covers what is needed and is at most this
+ * much larger, and goes up (or down) to the next multiple of it otherwise; the picture is drawn into the whole buffer and shown at the frame's CSS size.
+ */
+export const COARSE_STEP = 256;
+
+/**
+ * The buffer size, in device pixels, for a picture that needs `needed` of them when the buffer is now `held` (0 for none): the same
+ * `held` while `needed <= held < needed + step`, else `needed` rounded up to a multiple of `step`, but not above `cap` (the buffer
+ * the move ends with) unless the need itself is above it. Never smaller than `needed`.
+ */
+export function coarseBuffer(needed: number, held: number, step: number = COARSE_STEP, cap: number = Infinity): number {
+  const need = Math.max(1, Math.ceil(needed));
+  if (held >= need && held - need < step) return held;
+  // `cap` (the window's own size) is where the opening ends: the buffer is exactly that there, so the end of the move allocates nothing
+  return Math.min(Math.ceil(need / step) * step, Math.max(cap, need));
+}
+
 /** The part of the `vw` by `vh` window's picture that `frame` shows, in window pixels (the whole window for none, or for a frame that covers it). */
 export function subWindow(frame: Frame | null, vw: number, vh: number): { x: number; y: number; w: number; h: number } {
   if (!frame) return { x: 0, y: 0, w: vw, h: vh };

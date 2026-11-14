@@ -210,7 +210,7 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     if (eng) {
       eng.setFrame(
         { left: 0, top: 0, width: f.width, height: f.height },
-        { place: false, onApplied: () => writeScene(f, r) },
+        { place: false, coarse: true, onApplied: () => writeScene(f, r) },
       );
     } else {
       writeScene(f, r, true);

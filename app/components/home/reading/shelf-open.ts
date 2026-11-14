@@ -59,6 +59,8 @@ export type ShelfState = {
   ledgeTop: number;
   /** What the renderer and camera were last sized to (shelf-frame.ts `applyView`), so an unchanged view is not set again. */
   viewKey: string;
+  /** The size and pixel ratio the renderer's buffer was last allocated for (shelf-frame.ts), so a view change that keeps the buffer does not allocate it again. */
+  sizeKey: string;
 };
 
 /** A fresh state: nothing open, nothing pressed, the next frame is drawn. */
@@ -77,6 +79,7 @@ export const newShelfState = (): ShelfState => ({
   fitTop: 0,
   ledgeTop: 0,
   viewKey: "",
+  sizeKey: "",
 });
 
 /** What the engine lends to the modules it split off: its canvas, state and live accessors. */
