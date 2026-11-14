@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { ManifestSchema, extentRadius, fractionDistance, frameOf, meanRadius, pointInRing } from "../components/experience/geo";
-import { CLIFF_SPAN } from "../components/experience/view-legacy";
+import { extentRadius, fractionDistance, frameOf, meanRadius, pointInRing } from "../components/experience/geo";
+import { SUMMIT } from "../components/experience/frame";
 import type { SiteExperience } from "../types";
 import { ExperienceSchema } from "./schemas";
 
@@ -30,9 +30,6 @@ const fails = (data: unknown, message?: string) => {
 describe("experience.json", () => {
   it("holds the words of spec 9.4", () => {
     expect(page.heading.title).toBe("My experience");
-    expect(page.heading.text).toBe(
-      "I trained as an engineer in Mumbai, took a part-time editing job in 2021 and never went back. Five years at Bharat in Germany took me from cutting shorts to running content and producing. Since December 2025 I edit full time as a freelancer. Still climbing.",
-    );
     expect(page.moments.map((m) => [m.label, m.title, m.line])).toEqual([
       ["2017", "IIT Engineering at VESIT, Mumbai", "Plan A did not happen. Plan B was four years of engineering."],
       ["Feb 2021", "First editing job", "Part-time short form editor at Bharat in Germany, while finishing the degree."],
@@ -72,11 +69,9 @@ describe("experience.json", () => {
     expect(collectStrings(raw).filter((s) => /[\u2013\u2014]/.test(s))).toEqual([]);
   });
 
-  it("uses the same frame as the tiles' manifest", () => {
-    const manifest = ManifestSchema.parse(readJson("public", "mars", "manifest.json"));
-
-    expect(page.frame.centre).toEqual(manifest.centre);
-    expect(page.frame.spanDeg).toBe(manifest.spanDeg);
+  it("is centred on the summit (the frame the route is checked in)", () => {
+    expect(page.frame.centre).toEqual(SUMMIT);
+    expect(page.frame.spanDeg).toBe(14);
   });
 
   it("has at most 8 places, each inside the frame with a source", () => {
@@ -100,10 +95,6 @@ describe("experience.json", () => {
 
     expect(progress).toBeGreaterThan(0);
     expect(progress).toBeLessThanOrEqual(0.6);
-  });
-
-  it("agrees with the overview's cliff size", () => {
-    expect(2 * meanRadius(page.cliff.points, frame)).toBeCloseTo(CLIFF_SPAN, 2);
   });
 });
 

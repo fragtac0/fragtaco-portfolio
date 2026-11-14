@@ -7,8 +7,8 @@
 //                             8 bit grey, blurred by 1 px.
 //
 // Tiles are fetched a few at a time with a generic user agent, retried with backoff and cached in MARS_CACHE
-// (default .cache/mars), so a rerun fetches nothing that is already there. The public/mars/0 to 4 pyramid of
-// round 6 is left alone (Task 19 deletes it).
+// (default .cache/mars), so a rerun fetches nothing that is already there. (The round 6 tile pyramid, public/mars/0 to 4,
+// its manifest and the mosaic are gone.)
 // Env: MARS_CACHE, MARS_QUALITY (WebP quality, default 80), MARS_LIMIT_KB (relief size limit, default 700).
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";

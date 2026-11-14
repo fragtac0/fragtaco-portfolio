@@ -1,0 +1,6 @@
+{
+  "what": "same-origin bytes on the wire for a first load of /experience (production build, cache off, 7 s after the address was opened; fonts from Google are cross-origin and not counted), by scripts/audit/make-experience-chart.mjs",
+  "round6": { "build": "r7/r47-prep (the base of round 7: the round 6 tile map)", "1440x900": { "totalKB": 2440, "requests": 57, "imagesKB": 2236, "jsKB": 177.1, "cssKB": 14.5, "note": "level 0 to 3 tiles, loaded as the view asked for detail" }, "390x844": { "totalKB": 770.7, "requests": 31, "imagesKB": 568.7 } },
+  "round7": { "build": "r7/r53-experience at R53.4", "1440x900": { "totalKB": 965.2, "requests": 24, "imagesKB": 774.8, "jsKB": 167, "cssKB": 12.6, "images": ["relief.webp 653.8", "heights.png 121"] }, "390x844": { "totalKB": 965.2, "requests": 24, "imagesKB": 774.8 } },
+  "public/mars on disk": { "round6": "15 MB (tile pyramid 0 to 4, mosaic, manifest, plus the two pictures)", "round7": "0.77 MB (relief.webp, heights.png)" }
+}

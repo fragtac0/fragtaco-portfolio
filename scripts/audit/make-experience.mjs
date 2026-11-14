@@ -27,11 +27,15 @@
 //   the selection and the focused bead shows its ring (picture r53-3b-bead-focus); the label of a bead opens to the left in the right half and
 //   stays on the screen (1440 x 900 and 390 x 844); under reduced motion a step to a milestone the camera must travel to dips the layers and draws
 //   the night map again at the new place.
+//   R53.4 (Task 19, make-experience-chart.mjs): the words, the phones, the chart layer and its frame, the keyboard and the screen-reader
+//   list, the carry-overs of Task 18's re-review (the focus ring, the label's side) and the weight of a first load; the fallback file
+//   also reads that the frame's canvas holds no ink where the map is not drawn.
 // experience-fallback.json: no canvas, less data (the picture and the list), a picture that fails (the list, no picture), heights that fail
 //   (the list, the picture stays).
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { chartSteps } from "./make-experience-chart.mjs";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const PAGE = `document.querySelector('.map-page')`;
@@ -275,15 +279,16 @@ const experience = [
   ...heldIntoMap([390, 844], 2, true, "phone"),
   ...taskEighteen,
   ...taskEighteenFix,
+  ...chartSteps,
 ];
 
 const fallbackCheck = (label, want) => ({
   eval: `(async()=>{${sleep}await sleep(1500);const p=${PAGE},img=document.querySelector('.map-plane img'),list=document.querySelector('.map-fallback-list');
 const ink=c=>{try{const x=c&&c.getContext('2d');return !!x&&x.getImageData(0,0,c.width,c.height).data.some(v=>v!==0)}catch(e){return false}};
-const stale={trail:ink(document.querySelector('.map-trail')),radar:ink(document.querySelector('.map-radar')),terrain:ink(document.querySelector('.map-terrain'))};
+const stale={trail:ink(document.querySelector('.map-trail')),radar:ink(document.querySelector('.map-radar')),terrain:ink(document.querySelector('.map-terrain')),frame:ink(document.querySelector('.map-frame'))};
 const beads=document.querySelectorAll('.map-pin').length,card=document.querySelectorAll('.map-card').length,buttons=[...document.querySelectorAll('main button')].filter(b=>!b.closest('[hidden]')).length;
 return JSON.stringify({engine:p.dataset.engine,picture:img?[img.naturalWidth,img.complete]:null,list:list?list.querySelectorAll('li').length:0,switch:document.querySelectorAll('.map-mode').length,terrain:${STAGE}.dataset.terrain??null,
-srList:document.querySelectorAll('.sr-only li').length,beads,card,mainButtons:buttons,stale,ok:p.dataset.engine==='off'&&!!list&&list.querySelectorAll('li').length===9&&document.querySelectorAll('.map-mode').length===0&&beads===0&&card===0&&!stale.trail&&!stale.radar&&!stale.terrain&&${want}})})()`,
+srList:document.querySelectorAll('.sr-only li').length,beads,card,mainButtons:buttons,stale,ok:p.dataset.engine==='off'&&!!list&&list.querySelectorAll('li').length===9&&document.querySelectorAll('.map-mode').length===0&&beads===0&&card===0&&!stale.trail&&!stale.radar&&!stale.terrain&&!stale.frame&&${want}})})()`,
   label,
 });
 const fallback = (query, init, label) => [

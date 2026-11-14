@@ -58,13 +58,24 @@ function trace(c: CanvasRenderingContext2D, v: View, points: readonly TrailPoint
 
 /**
  * The trail on the cleared canvas: the first one as a dark line under a cream one, then the dotted way ahead to the summit,
- * then each pin's stem and foot. `pins` come from `pinPlaces` for the same view.
+ * then each pin's stem and foot. `pins` come from `pinPlaces` for the same view. `under`, when given, draws on the cleared
+ * canvas first (the chart's grid, which the trail lies over).
  */
-export function drawTrail(c: CanvasRenderingContext2D, v: View, stage: Stage, dpr: number, trail: readonly TrailPoint[], ahead: readonly TrailPoint[], pins: readonly Pin[]): void {
+export function drawTrail(
+  c: CanvasRenderingContext2D,
+  v: View,
+  stage: Stage,
+  dpr: number,
+  trail: readonly TrailPoint[],
+  ahead: readonly TrailPoint[],
+  pins: readonly Pin[],
+  under?: (c: CanvasRenderingContext2D) => void,
+): void {
   const lift = trailLift(v);
 
   c.setTransform(dpr, 0, 0, dpr, 0, 0);
   c.clearRect(0, 0, stage.w, stage.h);
+  under?.(c);
   c.lineCap = "round";
   c.lineJoin = "round";
   trace(c, v, trail, lift);

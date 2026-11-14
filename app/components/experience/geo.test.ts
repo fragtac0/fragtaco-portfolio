@@ -1,8 +1,5 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  ManifestSchema,
   extentRadius,
   fractionDistance,
   frameOf,
@@ -13,56 +10,34 @@ import {
   toFraction,
   toLonLat,
   toPixel,
-  type Manifest,
+  type Frame,
 } from "./geo";
 
-// The round 6 tile pyramid's frame, kept here until Task 19 deletes the pyramid with the code that reads it.
+// A frame to test the projection on: the summit in the middle, 14 degrees of latitude tall, 8192 pixels across.
 const CENTRE = { lon: 226.795, lat: 18.366 };
 const SPAN_DEG = 14;
 const LON_SCALE = Math.cos((CENTRE.lat * Math.PI) / 180);
 const LON_SPAN_DEG = SPAN_DEG / LON_SCALE;
-const TILE = 512;
-const LEVELS = 5;
-const SIZE = TILE * 2 ** (LEVELS - 1);
+const SIZE = 8192;
 
-const manifest: Manifest = ManifestSchema.parse(
-  JSON.parse(readFileSync(path.join(process.cwd(), "public", "mars", "manifest.json"), "utf8")),
-);
-
-describe("the manifest", () => {
-  it("parses and holds the round 6 frame constants", () => {
-    expect(manifest.centre).toEqual(CENTRE);
-    expect(manifest.spanDeg).toBe(SPAN_DEG);
-    expect(manifest.lonScale).toBeCloseTo(LON_SCALE, 12);
-    expect(manifest.lonSpanDeg).toBeCloseTo(LON_SPAN_DEG, 12);
-    expect(manifest.tile).toBe(TILE);
-    expect(manifest.levels).toBe(LEVELS);
-    expect(manifest.size).toBe(SIZE);
-  });
-
-  it("is refused when a field is missing", () => {
-    const { size: _size, ...rest } = manifest;
-
-    expect(ManifestSchema.safeParse(rest).success).toBe(false);
-  });
-});
+const big: Frame = { centre: CENTRE, spanDeg: SPAN_DEG, lonScale: LON_SCALE, size: SIZE };
 
 describe("toPixel and toLonLat (ruling R29)", () => {
   it("puts the centre in the middle of the picture", () => {
-    expect(toPixel(CENTRE.lon, CENTRE.lat, manifest)).toEqual({ x: 4096, y: 4096 });
-    expect(toFraction(CENTRE.lon, CENTRE.lat, manifest)).toEqual({ x: 0.5, y: 0.5 });
+    expect(toPixel(CENTRE.lon, CENTRE.lat, big)).toEqual({ x: 4096, y: 4096 });
+    expect(toFraction(CENTRE.lon, CENTRE.lat, big)).toEqual({ x: 0.5, y: 0.5 });
   });
 
   it("follows x = 0.5 + dLon * lonScale / span and y = 0.5 - dLat / span", () => {
-    const p = toPixel(CENTRE.lon + 1, CENTRE.lat + 2, manifest);
+    const p = toPixel(CENTRE.lon + 1, CENTRE.lat + 2, big);
 
-    expect(p.x).toBeCloseTo((0.5 + (1 * manifest.lonScale) / manifest.spanDeg) * manifest.size, 9);
-    expect(p.y).toBeCloseTo((0.5 - 2 / manifest.spanDeg) * manifest.size, 9);
+    expect(p.x).toBeCloseTo((0.5 + (1 * big.lonScale) / big.spanDeg) * big.size, 9);
+    expect(p.y).toBeCloseTo((0.5 - 2 / big.spanDeg) * big.size, 9);
   });
 
   it("puts north up and east to the right", () => {
-    const here = toPixel(CENTRE.lon, CENTRE.lat, manifest);
-    const northEast = toPixel(CENTRE.lon + 0.5, CENTRE.lat + 0.5, manifest);
+    const here = toPixel(CENTRE.lon, CENTRE.lat, big);
+    const northEast = toPixel(CENTRE.lon + 0.5, CENTRE.lat + 0.5, big);
 
     expect(northEast.x).toBeGreaterThan(here.x);
     expect(northEast.y).toBeLessThan(here.y);
@@ -72,30 +47,30 @@ describe("toPixel and toLonLat (ruling R29)", () => {
     const west = CENTRE.lon - LON_SPAN_DEG / 2;
     const north = CENTRE.lat + SPAN_DEG / 2;
 
-    expect(toPixel(west, north, manifest).x).toBeCloseTo(0, 6);
-    expect(toPixel(west, north, manifest).y).toBeCloseTo(0, 6);
-    expect(toPixel(west + LON_SPAN_DEG, north - SPAN_DEG, manifest).x).toBeCloseTo(SIZE, 6);
-    expect(toPixel(west + LON_SPAN_DEG, north - SPAN_DEG, manifest).y).toBeCloseTo(SIZE, 6);
+    expect(toPixel(west, north, big).x).toBeCloseTo(0, 6);
+    expect(toPixel(west, north, big).y).toBeCloseTo(0, 6);
+    expect(toPixel(west + LON_SPAN_DEG, north - SPAN_DEG, big).x).toBeCloseTo(SIZE, 6);
+    expect(toPixel(west + LON_SPAN_DEG, north - SPAN_DEG, big).y).toBeCloseTo(SIZE, 6);
   });
 
   it("is round on the ground: a degree of latitude is as long as lonScale-wide degrees of longitude", () => {
-    const dLat = toPixel(CENTRE.lon, CENTRE.lat + 1, manifest).y - toPixel(CENTRE.lon, CENTRE.lat, manifest).y;
-    const dLon = toPixel(CENTRE.lon + 1 / manifest.lonScale, CENTRE.lat, manifest).x - toPixel(CENTRE.lon, CENTRE.lat, manifest).x;
+    const dLat = toPixel(CENTRE.lon, CENTRE.lat + 1, big).y - toPixel(CENTRE.lon, CENTRE.lat, big).y;
+    const dLon = toPixel(CENTRE.lon + 1 / big.lonScale, CENTRE.lat, big).x - toPixel(CENTRE.lon, CENTRE.lat, big).x;
 
     expect(Math.abs(dLat)).toBeCloseTo(dLon, 9);
   });
 
   it("is its own inverse, both ways, anywhere in and around the frame", () => {
     for (const [lon, lat] of [[222, 13], [226.795, 18.366], [231.5, 22.1], [219.4, 25.3], [234.1, 11.5], [200, -5]]) {
-      const p = toPixel(lon, lat, manifest);
-      const back = toLonLat(p.x, p.y, manifest);
+      const p = toPixel(lon, lat, big);
+      const back = toLonLat(p.x, p.y, big);
 
       expect(back.lon).toBeCloseTo(lon, 9);
       expect(back.lat).toBeCloseTo(lat, 9);
     }
     for (const [x, y] of [[0, 0], [8192, 8192], [123.4, 7000.9], [4096, 4096]]) {
-      const l = toLonLat(x, y, manifest);
-      const back = toPixel(l.lon, l.lat, manifest);
+      const l = toLonLat(x, y, big);
+      const back = toPixel(l.lon, l.lat, big);
 
       expect(back.x).toBeCloseTo(x, 7);
       expect(back.y).toBeCloseTo(y, 7);
@@ -103,8 +78,8 @@ describe("toPixel and toLonLat (ruling R29)", () => {
   });
 
   it("has fraction functions that invert each other too", () => {
-    const l = fromFraction(0.25, 0.75, manifest);
-    const f = toFraction(l.lon, l.lat, manifest);
+    const l = fromFraction(0.25, 0.75, big);
+    const f = toFraction(l.lon, l.lat, big);
 
     expect(f.x).toBeCloseTo(0.25, 12);
     expect(f.y).toBeCloseTo(0.75, 12);
@@ -114,9 +89,9 @@ describe("toPixel and toLonLat (ruling R29)", () => {
 describe("a frame of fractions", () => {
   const f = frameOf({ lon: 226.795, lat: 18.366 }, 14);
 
-  it("has the manifest's width scale and a size of 1", () => {
-    expect(f.lonScale).toBeCloseTo(manifest.lonScale, 12);
-    expect(toPixel(228, 19, f).x).toBeCloseTo(toPixel(228, 19, manifest).x / manifest.size, 12);
+  it("has the big frame's width scale and a size of 1", () => {
+    expect(f.lonScale).toBeCloseTo(big.lonScale, 12);
+    expect(toPixel(228, 19, f).x).toBeCloseTo(toPixel(228, 19, big).x / big.size, 12);
   });
 
   it("knows what is inside it", () => {

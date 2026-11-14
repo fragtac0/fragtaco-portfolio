@@ -2,7 +2,7 @@
  * The two states of the Mars map (experience-map.tsx, spec 9.1 and 9.2): the stage and its layers, the switch, and the
  * list shown where there is no map. The stage fills the page; its layers, bottom to top, are the toned picture (a
  * plane the engine moves), the night, the night map's canvas, three depth blurs, the soft blur toward the edges, the
- * trail and the radar, the fade into the night and the darkening. The beads and the card (cards.css) come after the
+ * trail and the radar, the fade into the night, the darkening and the chart's frame. The beads and the card (cards.css) come after the
  * stage; the words and buttons (experience.css, and the switch here) sit above them.
  * `--night` is written by the engine each frame (0 in the overview, 1 in My climb): the overlays follow it. The trail and
  * the radar are above every backdrop blur, and the depth blurs are not there at all while the night is 0 (Ruling R101),
@@ -67,6 +67,14 @@
   left: 0;
   top: 0;
   display: block;
+}
+/* The chart's frame (corner marks, readout, degrees, scale): above the darkening, so it stays crisp in the corners. */
+.map-frame {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* The ground fades into the night toward the far edge and the sides: a plain overlay, cheap to draw. */
@@ -213,10 +221,10 @@
     bottom: calc(var(--site-nav-height, 132px) + 12px + env(safe-area-inset-bottom));
   }
 }
-/* Under 400 px the title and the switch do not share a row: the switch goes under the title, left, and the paragraph (experience.css) starts below it. */
-@media (max-width: 399.98px) {
+/* Under 500 px the title (34 px, one line, about 270 px wide) and the switch do not share a row: the switch goes under the title, left, and the description (experience.css) starts below it. */
+@media (max-width: 499.98px) {
   .map-mode {
-    top: 62px;
+    top: 64px; /* the heading's top (22) + the title's height (34) + 8 */
     right: auto;
     left: 16px;
   }

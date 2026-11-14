@@ -50,14 +50,23 @@ export function fakeHost() {
   };
 }
 
-/** A 2D context whose calls are recorded by name. */
-function recorder(counts: Record<string, number>, nothing = false) {
+/** A call of a recorded 2D context: its name and what it was given. */
+export type Call = [string, ...unknown[]];
+
+/** A 2D context whose calls are recorded by name (and, when `log` is given, in order with their arguments). */
+function recorder(counts: Record<string, number>, nothing = false, log?: Call[]) {
   const store: Record<string, unknown> = {};
 
   return nothing
     ? null
     : (new Proxy(store, {
-        get: (o, key: string) => (key in o ? o[key] : () => void (counts[key] = (counts[key] ?? 0) + 1)),
+        get: (o, key: string) =>
+          key in o
+            ? o[key]
+            : (...args: unknown[]) => {
+                counts[key] = (counts[key] ?? 0) + 1;
+                log?.push([key, ...args]);
+              },
         set: (o, key: string, v) => ((o[key] = v), true),
       }) as unknown as CanvasRenderingContext2D);
 }
@@ -70,8 +79,10 @@ export function setup({ reduced = false, noTerrainContext = false, count = 9 }: 
   const terrainCalls: Record<string, number> = {};
   const trailCalls: Record<string, number> = {};
   const radarCalls: Record<string, number> = {};
+  const frameCalls: Record<string, number> = {};
   const classes = new Set<string>();
-  const canvas = (calls: Record<string, number>, nothing = false) => ({ style: style(), width: 0, height: 0, writes: 0, getContext: () => recorder(calls, nothing) });
+  const frameLog: Call[] = [];
+  const canvas = (calls: Record<string, number>, nothing = false, log?: Call[]) => ({ style: style(), width: 0, height: 0, writes: 0, getContext: () => recorder(calls, nothing, log) });
   const layers = {
     stage: { style: style(), classList: { toggle: (name: string, force?: boolean) => (force ? classes.add(name) : classes.delete(name)) } },
     plane: { style: style() },
@@ -79,6 +90,7 @@ export function setup({ reduced = false, noTerrainContext = false, count = 9 }: 
     terrain: canvas(terrainCalls, noTerrainContext),
     trail: canvas(trailCalls),
     radar: canvas(radarCalls),
+    frame: canvas(frameCalls, false, frameLog),
     pinBox: { style: style() },
     pins: Array.from({ length: count }, () => ({ style: style() })),
   };
@@ -99,7 +111,7 @@ export function setup({ reduced = false, noTerrainContext = false, count = 9 }: 
     onFail: () => fails.push("fail"),
   });
 
-  return { engine, layers, f, rows, fills, trail, terrainCalls, trailCalls, radarCalls, classes, selects, heads, fails };
+  return { engine, layers, f, rows, fills, trail, terrainCalls, trailCalls, radarCalls, frameCalls, frameLog, classes, selects, heads, fails };
 }
 
 /** A hill in the middle of a field, read as the heights (80 by 52 cells over the height frame, the summit at 500, 325). */

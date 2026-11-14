@@ -5,7 +5,7 @@ type Props = {
   credit: string;
 };
 
-/** The picture's caption (spec 9.4), lower left, in the painting caption's style: title, line, NASA's figures, the credit. */
+/** The picture's caption (spec 9.6), lower left: the mountain's name as a small letter-spaced label in a warm light orange, its line (the quietest words on the map), NASA's figures and the credit. It shows in the overview and leaves in My climb. On a small screen only the label and the line are shown (experience.css); the rest is still in the page. */
 export default function MapCaption({ title, line, fact, credit }: Props) {
   return (
     <figure className="map-caption">

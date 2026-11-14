@@ -4,6 +4,8 @@ import { createCardController, type CardController } from "./card-controller";
 import type { Mode } from "./climb-change";
 import { createClimbEngine, type ClimbEngine, type ClimbLayers } from "./climb-engine";
 import { PICTURE } from "./frame";
+import { FRAME_FONT } from "./frame-layer";
+import { DOCK_SELECTOR, WORDS_SELECTOR, readKeepOut } from "./keep-out";
 import MilestonePins from "./milestone-pins";
 import MomentCard, { cardView } from "./moment-card";
 import { loadTerrain } from "./terrain-canvas";
@@ -50,7 +52,8 @@ const trace = () => (window as unknown as { __expTrace?: number[][] }).__expTrac
  * The two states of the map (spec 9.1 and 9.2), as layers of one stage: the toned picture (one `<img>` in a plane that
  * the engine moves with a 3D transform), the night under it, the night map's canvas, three depth blurs (two far, one
  * near), the soft blur toward the edges, the trail and the radar (above every blur: Ruling R101), the fade into the night
- * toward the far edge and the sides, and the darkening. After the stage come the milestones' beads and their card. Before
+ * toward the far edge and the sides, the darkening, and above it the frame of the chart (its corner marks, readout, degrees
+ * and scale: frame-layer.ts, crisp in the corners). The chart's grid is drawn on the trail's canvas under the trail. After the stage come the milestones' beads and their card. Before
  * the engine starts the plane is placed by CSS alone, exactly where the engine will put it in the overview, so a page change
  * and the first paint show the picture. The layers' strength follows `--night`, which the engine writes (no React state per
  * frame). Nothing but the beads is read by a screen reader: the moments are listed by the page.
@@ -62,6 +65,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
   const terrain = useRef<HTMLCanvasElement>(null);
   const trailCanvas = useRef<HTMLCanvasElement>(null);
   const radar = useRef<HTMLCanvasElement>(null);
+  const frame = useRef<HTMLCanvasElement>(null);
   const card = useRef<HTMLDivElement>(null);
   const picture = useRef<HTMLImageElement>(null);
   const pinBox = useRef<HTMLDivElement | null>(null);
@@ -95,7 +99,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
   useEffect(() => {
     const els = pins.current.slice(0, moments.length);
     const box = pinBox.current;
-    const layers = { stage: stage.current, plane: plane.current, night: night.current, terrain: terrain.current, trail: trailCanvas.current, radar: radar.current, pinBox: box, pins: els };
+    const layers = { stage: stage.current, plane: plane.current, night: night.current, terrain: terrain.current, trail: trailCanvas.current, radar: radar.current, frame: frame.current, pinBox: box, pins: els };
     const cardEl = card.current;
 
     if (!running || !cardEl || !box || els.length !== moments.length || els.some((el) => el === null) || Object.values(layers).some((l) => l === null)) return;
@@ -118,10 +122,13 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
       trace,
     });
     let gone = false;
+    const page = el.closest(".map-page") ?? el.parentElement ?? el;
     const measure = () => {
       const r = el.getBoundingClientRect();
 
       dock = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--site-nav-height")) || 0;
+      // the chart's labels keep out of the page's words and the dock (they thin out on a phone rather than collide); told before the size, so the first drawing has both
+      e.setKeepOut(readKeepOut(page, document, r));
       e.resize(r.width, r.height, Math.min(window.devicePixelRatio || 1, 2));
     };
     const onVisible = () => e.setVisible(!document.hidden);
@@ -130,10 +137,19 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     engine.current = e;
     measure();
     observer.observe(el);
+    // the words and the dock change size when their fonts arrive and when the dock's second row opens
+    page.querySelectorAll(WORDS_SELECTOR).forEach((w) => observer.observe(w));
+    const glass = document.querySelector(DOCK_SELECTOR);
+
+    if (glass) observer.observe(glass);
     window.addEventListener("resize", measure);
     document.addEventListener("visibilitychange", onVisible);
     told.current = { mode: live.current.mode, selected: live.current.selected };
     e.go(live.current.mode, live.current.selected ?? undefined);
+    // the chart's lettering is drawn in IBM Plex Mono: drawn again when it arrives
+    document.fonts?.load(FRAME_FONT).then(() => {
+      if (!gone) e.redraw();
+    }, () => {});
     loadTerrain(HEIGHTS_SRC).then(
       (t) => {
         if (gone) return;
@@ -198,6 +214,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
         <canvas ref={radar} className="map-radar" />
         <div className="map-fog" />
         <div className="map-vignette" />
+        <canvas ref={frame} className="map-frame" />
       </div>
       {running ? (
         // only while the engine runs: in the fallback there are no beads (the list serves) and nothing dead in the accessibility tree

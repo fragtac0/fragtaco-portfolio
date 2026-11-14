@@ -74,14 +74,20 @@
 .map-pin:focus-visible .map-bead {
   transform: scale(calc(var(--bs, 1) * 1.14));
 }
-/* the focus ring is on the bead (which is bigger than a ring inside the 44 px button would be, and would cover it) */
+/* the focus ring is on the bead (which is bigger than a ring inside the 44 px button would be, and would cover it). The bead is
+ * scaled (--bs: half size in the overview, and 1.14 times more while it has the focus), so the ring's width and offset are divided
+ * by that scale and come out at about 2 px and 3 px on the screen in both states. A browser snaps a ring's width down to whole
+ * pixels (1.75 px would become 1), so the width is rounded to a whole pixel first (3.5 px becomes 4, 1.75 becomes 2). */
 .map-pin:focus-visible {
   outline: none;
   opacity: 1 !important; /* a bead stepped back under the card is whole while it has the focus */
 }
 .map-pin:focus-visible .map-bead {
-  outline: 2px solid var(--cream);
-  outline-offset: 3px;
+  outline-style: solid;
+  outline-color: var(--cream);
+  outline-width: calc(2px / (var(--bs, 1) * 1.14));
+  outline-width: round(calc(2px / (var(--bs, 1) * 1.14)), 1px);
+  outline-offset: calc(3px / (var(--bs, 1) * 1.14));
 }
 /* the chosen one and "now" are orange */
 .map-pin[data-current] .map-bead,
@@ -113,17 +119,16 @@
   -webkit-backdrop-filter: var(--pill-blur);
   backdrop-filter: var(--pill-blur);
   opacity: 0;
-  /* on the bead's right, or on its left when the engine says the bead is near the right edge (--flip is 1) */
-  transform: translate(calc(10px + var(--flip, 0) * (-100% - 20px)), -50%);
-  transition:
-    opacity 250ms,
-    transform 250ms;
+  /* on the bead's right, or on its left when the engine says the bead is near the right edge (--flip is 1). Only the opacity
+   * is transitioned: a label that is shown while the camera carries its bead across the middle (--flip changes) must not
+   * slide across the bead, so it takes its place at once */
+  transform: translate(calc(12px + var(--flip, 0) * (-100% - 24px)), -50%);
+  transition: opacity 250ms;
   pointer-events: none;
 }
 .map-pin:hover .map-pin-tip,
 .map-pin:focus-visible .map-pin-tip {
   opacity: 1;
-  transform: translate(calc(14px + var(--flip, 0) * (-100% - 28px)), -50%);
 }
 
 /* the card: out quickly, in gently; its words arrive with it, a breath apart, with no sliding */

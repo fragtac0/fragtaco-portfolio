@@ -65,6 +65,18 @@
   /* the night of the Mars map (round 7, spec 9.2): the fade toward the far edge and the sides, and the darkening toward the corners, as a channel triple (rgb(var(--map-night) / 0.45)) */
   --map-night: 12 11 10;
 
+  /* the words on the Mars map (round 7, spec 9.6), in order of importance: the title largest and brightest (the cream itself, capitals),
+     its description small and quiet (cream at 70%), the mountain's name a small letter-spaced label in a warm light orange, and its
+     line the quietest (cream at 56%, about the weight of the chart marks; the map's one text below --ink-3, over a picture that is
+     dark at its edges and shadowed) */
+  --map-title-size: clamp(34px, 4.6vw, 64px);
+  --map-desc-size: 12.5px;
+  --map-label-size: 13px;
+  --map-line-size: 11px;
+  --map-ink-desc: rgb(var(--ink-rgb) / 0.7);
+  --map-ink-line: rgb(var(--ink-rgb) / 0.56);
+  --map-ink-label: #ffc9a3;
+
   /* the card of a milestone on the Mars map (round 7, spec 9.5): 252 px wide, a 15 px title, 11.5 px text, a 10.5 px date line */
   --map-card-w: 252px;
   --map-card-title: 15px;

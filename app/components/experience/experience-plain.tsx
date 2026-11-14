@@ -1,4 +1,4 @@
-import type { ExperienceMoment, SiteExperience } from "../../types";
+import type { ExperienceMoment } from "../../types";
 import "./experience-plain.css";
 
 /** A moment's title, with the struck part (if it has one) in `<s>`. */
@@ -16,7 +16,7 @@ export function StruckTitle({ moment }: { moment: Pick<ExperienceMoment, "title"
   );
 }
 
-/** The moments as a list, with the struck part of a title in `<s>`. */
+/** The moments as a list, with the struck part of a title in `<s>`: the fallback where the map cannot be drawn, and the list a screen reader reads (experience-page.tsx). */
 export function MomentList({ moments, label }: { moments: ExperienceMoment[]; label?: string }) {
   return (
     <ol className="experience-plain-list" aria-label={label}>
@@ -30,22 +30,5 @@ export function MomentList({ moments, label }: { moments: ExperienceMoment[]; la
         </li>
       ))}
     </ol>
-  );
-}
-
-/**
- * My experience as a plain page: the heading block's words and the moments as a list. The words-only version
- * of the page (the map page, `experience-page.tsx`, carries the same list for a screen reader). The dock
- * belongs to the route (`routes/experience.tsx`, through WorkShell).
- */
-export default function ExperiencePlain({ experience }: { experience: SiteExperience }) {
-  const { heading, moments } = experience;
-
-  return (
-    <main className="experience-plain">
-      <h1 className="experience-plain-title">{heading.title}</h1>
-      <p className="experience-plain-text">{heading.text}</p>
-      <MomentList moments={moments} />
-    </main>
   );
 }

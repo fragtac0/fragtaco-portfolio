@@ -9,58 +9,22 @@
 // The loop runs only while the page is visible. The engine touches no global: the clock, the frame callback and the layers
 // are handed in, and it is tested with stand-ins (climb-engine.test.ts). The page (experience-map.tsx) wires the real ones.
 import { settle, springStep } from "./camera";
-import type { XY } from "./card-slot";
+import { chartAlpha } from "./chart";
+import { createChartState } from "./chart-state";
 import { changeAt, IN_MS, kOf, startChange, type Change, type Mode } from "./climb-change";
+import type { CanvasLayer, ClimbEngine, ClimbLayers, ClimbOptions } from "./climb-engine-types";
 import { dipAt, hopStart, jumpNow } from "./climb-hop";
 import { PICTURE, SUMMIT_XY } from "./frame";
 import { setHeights } from "./heights";
+import { BEAD_REACH, TRAIL_REACH, reachBox, type Box } from "./keep-out";
 import { smooth } from "./map-math";
 import { drawTerrain, type Terrain } from "./terrain-canvas";
 import { aheadTrail, sharesFor, trailAt, type TrailPoint } from "./trail";
 import { drawRadar, drawTrail, pinPlaces, radarFoot, radarPhases, radarSide, type Pin } from "./trail-layer";
-import { OVERVIEW, pictureOpacity, planeTransform, viewOf, type Cam, type Stage, type View } from "./view";
+import { OVERVIEW, pictureOpacity, planeTransform, project, viewOf, type Cam, type Stage, type View } from "./view";
+import type { XY } from "./card-slot";
 
-/** The bits of a style the engine writes (a CSSStyleDeclaration is one). */
-export type StyleLike = { transform: string; opacity: string; width: string; height: string; visibility: string; zIndex: string; setProperty(name: string, value: string): void };
-export type Layer = { style: StyleLike };
-export type CanvasLayer = Layer & { width: number; height: number; getContext(kind: "2d"): CanvasRenderingContext2D | null };
-export type StageLayer = Layer & { classList: { toggle(name: string, force?: boolean): unknown } };
-
-/** The layers the engine moves: the stage (for `--night`), the plane holding the picture, the night's ground, the night map's canvas, the trail's and the radar's canvases, and the beads (with the box that holds them). */
-export type ClimbLayers = { stage: StageLayer; plane: Layer; night: Layer; terrain: CanvasLayer; trail: CanvasLayer; radar: CanvasLayer; pinBox: Layer; pins: Layer[] };
-
-/** Time and frames, handed in (the page gives `performance.now` and `requestAnimationFrame`). */
-export type Host = { now(): number; raf(cb: (now: number) => void): number; cancel(id: number): void };
-
-export type ClimbOptions = {
-  /** The trail, sampled (heights are set from the terrain once it is loaded). */
-  trail: TrailPoint[];
-  /** Whether motion is reduced right now (asked every frame). */
-  reduced: () => boolean;
-  host: Host;
-  /** A milestone was chosen (null: none, the map left My climb) and how long the card should wait, in milliseconds, for the camera. */
-  onSelect?: (index: number | null, wait: number) => void;
-  /** The beads' heads on the stage, each time they moved. */
-  onHeads?: (heads: XY[], stage: Stage) => void;
-  /** A canvas could not give a 2D context: the map cannot be drawn. */
-  onFail?: () => void;
-  /** Every frame that moves: [time, k, screen y of the camera's look-at point, pitch, tx, ty, tz, zoom] (the audit's hook). */
-  trace?: () => number[][] | undefined;
-};
-
-export type ClimbEngine = {
-  /** The stage's size in CSS pixels and the pixel ratio. Draws at once if they changed. */
-  resize(w: number, h: number, dpr: number): void;
-  /** The heights are loaded: the night map can be drawn, and a change that was waiting for it starts. */
-  setTerrain(terrain: Terrain): void;
-  /** Go to a state (in My climb, to a milestone: the last, "now", by default). Before the heights are loaded the change waits for them. */
-  go(mode: Mode, index?: number): void;
-  /** Whether the page is on screen (a hidden tab asks for no frames). */
-  setVisible(visible: boolean): void;
-  /** Where things stand (the page and the tests read it). */
-  state(): { k: number; u: number; goal: number; index: number; mode: Mode; moving: boolean; ready: boolean };
-  destroy(): void;
-};
+export type { CanvasLayer, ClimbEngine, ClimbLayers, ClimbOptions, Host, Layer, StageLayer, StyleLike } from "./climb-engine-types";
 
 /** The night map is drawn only above this much night (below it its opacity is 0). */
 export const NIGHT_ON = 0.04;
@@ -80,11 +44,13 @@ export const FLIP_AT = 0.5;
 export const RADAR_GAP = 30;
 
 export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): ClimbEngine {
-  const { stage, plane, night, terrain: canvas, trail: trailCanvas, radar: radarCanvas, pinBox, pins } = layers;
+  const { stage, plane, night, terrain: canvas, trail: trailCanvas, radar: radarCanvas, frame: frameCanvas, pinBox, pins } = layers;
   const { trail, reduced, host } = options;
   const ctx = canvas.getContext("2d");
   const trailCtx = trailCanvas.getContext("2d");
   const radarCtx = radarCanvas.getContext("2d");
+  const frameCtx = frameCanvas.getContext("2d");
+  const chart = createChartState();
   const cam: Cam = { ...OVERVIEW, trail };
   const size: Stage = { w: 0, h: 0 };
   const ahead = aheadTrail([trail[trail.length - 1].x, trail[trail.length - 1].y], SUMMIT_XY);
@@ -117,7 +83,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
   let terrainFresh = false;
   /** A change to a state was asked for before the heights or the size were there. */
   let pending = false;
-  let gone = ctx === null || trailCtx === null || radarCtx === null;
+  let gone = ctx === null || trailCtx === null || radarCtx === null || frameCtx === null;
 
   if (gone) options.onFail?.();
 
@@ -128,6 +94,14 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     if (handle || gone || !visible || size.w === 0) return;
     handle = host.raf(frame);
   }
+
+  /** Where the beads and the trail's line are in the overview (the chart's labels keep out of them). */
+  const overviewAvoid = (): Box[] => {
+    const v = viewOf(cam, 0, 1, size);
+    const line = (pts: readonly TrailPoint[]) => pts.filter((_, i) => i % 4 === 0).map((p) => reachBox(...project(v, p.x, p.y, 0), TRAIL_REACH));
+
+    return [...pinPlaces(v, spots).map((p) => reachBox(p.head[0], p.head[1], BEAD_REACH)), ...line(trail), ...line(ahead)];
+  };
 
   /** The radar's rings, at `now` (milliseconds); still, under reduced motion. */
   function radar(now: number, calm: boolean) {
@@ -159,9 +133,16 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     seen = calm ? viewOf(cam, k < 0.5 ? 0 : 1, u, size) : v;
 
     const places: Pin[] = pinPlaces(seen, spots);
-    const alpha = String(+((calm ? Math.abs(1 - 2 * k) : 1) * shown).toFixed(3));
+    const fade = calm ? Math.abs(1 - 2 * k) : 1;
+    const alpha = String(+(fade * shown).toFixed(3));
+    const over = chartAlpha(seen.night); // the overview's own marks fade with the picture
 
-    if (trailCtx !== null) drawTrail(trailCtx, seen, size, dpr, trail, ahead, places);
+    if (trailCtx !== null) drawTrail(trailCtx, seen, size, dpr, trail, ahead, places, (c) => chart.under(c, seen, over));
+    if (frameCtx !== null) {
+      const at = want === "climb" ? spots[index] : { x: SUMMIT_XY[0], y: SUMMIT_XY[1] };
+
+      chart.frame(frameCtx, seen, size, dpr, [at.x, at.y], over * fade);
+    }
     places.forEach(({ head }, i) => {
       pins[i].style.transform = `translate(${head[0]}px, ${head[1]}px)`;
       pins[i].style.setProperty("--bs", String(0.5 + 0.5 * seen.k));
@@ -261,6 +242,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       if (next !== null) change = next;
     }
     options.onSelect?.(mode === "climb" ? to : null, wait);
+    dirty = true; // the readout tells the chosen milestone, or the summit
     schedule();
   }
 
@@ -283,10 +265,12 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
         side = radarSide(Math.max(w / PICTURE.w, h / PICTURE.h));
         stageBox(canvas, w, h);
         stageBox(trailCanvas, w, h);
+        stageBox(frameCanvas, w, h);
         stageBox(radarCanvas, side, side);
         radarCanvas.style.width = radarCanvas.style.height = `${side}px`;
         terrainFresh = false;
         dirty = true;
+        chart.refit(cam, size, overviewAvoid());
         if (!gone && visible && w > 0) scene(host.now(), false);
       }
       if (pending) go(want, wantIndex);
@@ -296,6 +280,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       terrain = t;
       setHeights(trail, t.field);
       setHeights(ahead, t.field);
+      chart.setHeights(t.field);
       spots = shares.map((share) => ({ ...trailAt(trail, share), u: share }));
       terrainFresh = false;
       dirty = true;
@@ -303,6 +288,15 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       schedule();
     },
     go,
+    setKeepOut(keep) {
+      chart.setKeepOut(keep, cam, size, overviewAvoid());
+      dirty = true;
+      schedule();
+    },
+    redraw() {
+      dirty = true;
+      schedule();
+    },
     setVisible(v) {
       visible = v;
       if (v) {
@@ -321,7 +315,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       if (handle) host.cancel(handle);
       handle = 0;
       // leave nothing of the trail, the radar or the beads behind (the page falls back to the list when the heights fail)
-      for (const [c, cv] of [[trailCtx, trailCanvas], [radarCtx, radarCanvas], [ctx, canvas]] as const) {
+      for (const [c, cv] of [[trailCtx, trailCanvas], [radarCtx, radarCanvas], [frameCtx, frameCanvas], [ctx, canvas]] as const) {
         c?.setTransform(1, 0, 0, 1, 0, 0);
         c?.clearRect(0, 0, cv.width, cv.height);
       }

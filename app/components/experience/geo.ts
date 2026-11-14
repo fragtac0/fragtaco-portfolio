@@ -1,4 +1,4 @@
-// The Mars map's projection (spec 9.1, ruling R29). Pure maths, no DOM, safe on the server.
+// The content's frame (spec 9.1, ruling R29): what experience.json's route, cliff and places are checked against (the schema) and what the route's maths used in round 6. Pure maths, no DOM, safe on the server.
 //
 // The picture is a square on the ground: 14 degrees of latitude tall, and wider in longitude by
 // 1 / cos(latitude of the centre) so the mountain is round. With the centre of the frame at
@@ -7,28 +7,10 @@
 //   x = 0.5 + (lon - c.lon) * lonScale / spanDeg
 //   y = 0.5 - (lat - c.lat) / spanDeg
 //
-// and in picture pixels at the top level of the tile pyramid that is the fraction times `size`.
-// The round 7 map's own frame lives in scripts/mars-frame.mjs; this file is round 6 and goes in Task 19.
-import { z } from "zod";
+// and in picture pixels that is the fraction times `size`. The round 7 map's own frame is frame.ts (and scripts/mars-frame.mjs, which cuts the pictures).
 
-/** `public/mars/manifest.json`, written by the round 6 version of `scripts/make-mars.mjs`. */
-export const ManifestSchema = z.object({
-  centre: z.object({ lon: z.number(), lat: z.number() }),
-  spanDeg: z.number().positive(),
-  lonScale: z.number().positive(),
-  lonSpanDeg: z.number().positive(),
-  tile: z.number().int().positive(),
-  levels: z.number().int().min(1),
-  size: z.number().int().positive(),
-  credit: z.string().min(1),
-  sources: z.array(z.string().min(1)),
-  grade: z.object({ black: z.number(), white: z.number(), gamma: z.number() }),
-});
-
-export type Manifest = z.infer<typeof ManifestSchema>;
-
-/** What the projection needs from the manifest (so the content schema can use it with `size` 1). */
-export type Frame = Pick<Manifest, "centre" | "spanDeg" | "lonScale" | "size">;
+/** A frame of fractions: its centre, its span in degrees of latitude, the width scale (the cosine of the centre's latitude) and a size (1 for fractions, the picture's width for pixels). */
+export type Frame = { centre: LonLat; spanDeg: number; lonScale: number; size: number };
 
 export type LonLat = { lon: number; lat: number };
 export type Point = { x: number; y: number };

@@ -1,6 +1,6 @@
 {
   "frame": { "centre": { "lon": 226.795, "lat": 18.366 }, "spanDeg": 14 },
-  "heading": { "title": "My experience", "description": "Engineer, then editor, then producer, now freelance. Still climbing.", "text": "I trained as an engineer in Mumbai, took a part-time editing job in 2021 and never went back. Five years at Bharat in Germany took me from cutting shorts to running content and producing. Since December 2025 I edit full time as a freelancer. Still climbing." },
+  "heading": { "title": "My experience", "description": "Engineer, then editor, then producer, now freelance. Still climbing." },
   "moments": [
     { "id": "vesit", "date": "2017", "label": "2017", "title": "IIT Engineering at VESIT, Mumbai", "struck": "IIT", "line": "Plan A did not happen. Plan B was four years of engineering.", "icon": "gear" },
     { "id": "first-job", "date": "2021-02", "label": "Feb 2021", "title": "First editing job", "line": "Part-time short form editor at Bharat in Germany, while finishing the degree.", "icon": "scissors" },
@@ -13,7 +13,7 @@
     { "id": "now", "date": "now", "label": "Now", "title": "Freelance creative editor", "line": "Still climbing.", "icon": "hiker" }
   ],
   "caption": { "title": "Olympus Mons", "line": "The tallest mountain known in the solar system.", "factId": "height-width", "credit": "Image: NASA / JPL-Caltech / USGS / Arizona State University" },
-  "ui": { "overview": "Overview", "climb": "My climb", "of": "of", "more": "More", "less": "Less" },
+  "ui": { "overview": "Overview", "climb": "My climb", "of": "of" },
   "route": [
     { "lon": 232.374, "lat": 18.181 },
     { "lon": 231.564, "lat": 18.208 },
