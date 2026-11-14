@@ -312,3 +312,25 @@ describe("reduced motion", () => {
     expect(fills.length).toBeLessThanOrEqual(levels * 2);
   });
 });
+
+describe("the beads' hit areas", () => {
+  it("leaves a bead under the card out of its neighbours' areas, so a visible neighbour gets its whole square back (R53.4d)", () => {
+    const { engine, layers, f } = setup();
+
+    engine.resize(320, 568, 2); // a small stage: the beads lie over one another
+    engine.setTerrain(terrain());
+    f.run(50);
+
+    const cut = layers.pins.map((p) => p.style.props["--hit"] !== undefined);
+
+    expect(cut.some(Boolean)).toBe(true);
+    layers.pins.forEach((p) => (p.under = true)); // the card covers them all
+    engine.redraw();
+    f.run(50);
+    expect(layers.pins.map((p) => p.style.props["--hit"])).toEqual(layers.pins.map(() => undefined));
+    layers.pins.forEach((p) => (p.under = false)); // and goes away
+    engine.redraw();
+    f.run(50);
+    expect(layers.pins.map((p) => p.style.props["--hit"] !== undefined)).toEqual(cut);
+  });
+});

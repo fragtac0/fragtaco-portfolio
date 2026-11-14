@@ -31,14 +31,14 @@ function nearer(poly: readonly XY[], d: XY): XY[] {
   return out;
 }
 
-/** The corners of bead `i`'s hit area, in pixels from the centre of its button. Beads at the same place (nothing to tell them apart by) do not cut each other. */
-export function hitCorners(heads: readonly XY[], i: number, half: number = BEAD_HIT_HALF): XY[] {
+/** The corners of bead `i`'s hit area, in pixels from the centre of its button. Beads at the same place (nothing to tell them apart by) do not cut each other, nor do beads in `skip` (the ones under the card, which cannot be pressed). */
+export function hitCorners(heads: readonly XY[], i: number, half: number = BEAD_HIT_HALF, skip?: readonly boolean[]): XY[] {
   let poly: XY[] = [[-half, -half], [half, -half], [half, half], [-half, half]];
 
   heads.forEach((head, j) => {
     const d: XY = [head[0] - heads[i][0], head[1] - heads[i][1]];
 
-    if (j === i || poly.length === 0 || (Math.abs(d[0]) < 0.01 && Math.abs(d[1]) < 0.01)) return;
+    if (j === i || skip?.[j] === true || poly.length === 0 || (Math.abs(d[0]) < 0.01 && Math.abs(d[1]) < 0.01)) return;
     // too far to reach this square: its line is outside it
     if (Math.hypot(d[0], d[1]) / 2 >= half * Math.SQRT2) return;
     poly = nearer(poly, d);
@@ -48,8 +48,8 @@ export function hitCorners(heads: readonly XY[], i: number, half: number = BEAD_
 }
 
 /** The same as a `clip-path` value for the hit span (its box is the button: the origin is its top left corner), or null where nothing cuts the square (no clip needed). */
-export function hitClip(heads: readonly XY[], i: number, half: number = BEAD_HIT_HALF): string | null {
-  const poly = hitCorners(heads, i, half);
+export function hitClip(heads: readonly XY[], i: number, half: number = BEAD_HIT_HALF, skip?: readonly boolean[]): string | null {
+  const poly = hitCorners(heads, i, half, skip);
 
   if (poly.length === 4 && poly.every((p) => Math.abs(Math.abs(p[0]) - half) < 1e-6 && Math.abs(Math.abs(p[1]) - half) < 1e-6)) return null;
   if (poly.length < 3) return "polygon(0 0)"; // nothing left (cannot happen to a bead's own centre, but never an error)
@@ -57,10 +57,10 @@ export function hitClip(heads: readonly XY[], i: number, half: number = BEAD_HIT
   return `polygon(${poly.map((p) => `${+(p[0] + half).toFixed(2)}px ${+(p[1] + half).toFixed(2)}px`).join(", ")})`;
 }
 
-/** Writes each bead's hit area as the custom property `--hit` on its button, only where it changed since `was` (which it updates); null removes it. */
-export function writeHits(styles: readonly { setProperty(name: string, value: string): void; removeProperty(name: string): unknown }[], heads: readonly XY[], was: (string | null)[]): void {
+/** Writes each bead's hit area as the custom property `--hit` on its button, only where it changed since `was` (which it updates); null removes it. Beads in `under` take no touch (CSS) and leave their neighbours' squares whole. */
+export function writeHits(styles: readonly { setProperty(name: string, value: string): void; removeProperty(name: string): unknown }[], heads: readonly XY[], was: (string | null)[], under?: readonly boolean[]): void {
   styles.forEach((style, i) => {
-    const hit = hitClip(heads, i);
+    const hit = under?.[i] === true ? null : hitClip(heads, i, BEAD_HIT_HALF, under);
 
     if (hit === was[i]) return;
     was[i] = hit;

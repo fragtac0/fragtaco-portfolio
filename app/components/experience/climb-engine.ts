@@ -165,7 +165,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     }
     const heads = places.map((p) => p.head);
 
-    writeHits(pins.map((p) => p.style), heads, hitWas);
+    writeHits(pins.map((p) => p.style), heads, hitWas, pins.map((p) => p.hasAttribute("data-under")));
     places.forEach(({ head }, i) => {
       pins[i].style.transform = `translate(${head[0]}px, ${head[1]}px)`;
       pins[i].style.setProperty("--bs", String(0.5 + 0.5 * seen.k));

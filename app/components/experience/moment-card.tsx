@@ -38,7 +38,7 @@ const MomentCard = forwardRef<HTMLDivElement, Props>(function MomentCard({ momen
 export default MomentCard;
 
 /** The card's element as the card's controller sees it, with the beads whose strength it sets. */
-export function cardView(card: HTMLElement, pins: () => readonly (HTMLElement | null)[]): CardView {
+export function cardView(card: HTMLElement, pins: () => readonly (HTMLElement | null)[], onCover: () => void = () => {}): CardView {
   const bodies = [...card.querySelectorAll<HTMLElement>(".map-card-body")];
   const size = () => ({ w: card.offsetWidth, h: card.offsetHeight });
 
@@ -69,10 +69,12 @@ export function cardView(card: HTMLElement, pins: () => readonly (HTMLElement | 
 
         const under = indices.includes(i);
 
-        // a bead under the card is stepped back and cannot be pressed through the glass (it can still be reached with the keyboard)
+        // a bead under the card is stepped back and cannot be pressed through the glass (it can still be reached with the keyboard):
+        // `data-under` takes its hit span out of the touch (cards.css) and the engine leaves it out of its neighbours' hit areas
         pin.style.opacity = under ? "0.16" : "";
-        pin.style.pointerEvents = under ? "none" : "";
+        pin.toggleAttribute("data-under", under);
       });
+      onCover();
     },
   };
 }

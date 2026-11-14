@@ -11,10 +11,12 @@ import type { Stage } from "./view";
 export type StyleLike = { transform: string; opacity: string; width: string; height: string; visibility: string; zIndex: string; setProperty(name: string, value: string): void; removeProperty(name: string): unknown };
 export type Layer = { style: StyleLike };
 export type CanvasLayer = Layer & { width: number; height: number; getContext(kind: "2d"): CanvasRenderingContext2D | null };
+/** A bead's button: the engine reads `data-under` (a bead under the card) to leave it out of its neighbours' hit areas. */
+export type PinLayer = Layer & { hasAttribute(name: string): boolean };
 export type StageLayer = Layer & { classList: { toggle(name: string, force?: boolean): unknown } };
 
 /** The layers the engine moves: the stage (for `--night`), the plane holding the picture, the night's ground, the night map's canvas, the trail's, the radar's and the frame's canvases, and the beads (with the box that holds them). */
-export type ClimbLayers = { stage: StageLayer; plane: Layer; night: Layer; terrain: CanvasLayer; trail: CanvasLayer; radar: CanvasLayer; frame: CanvasLayer; pinBox: Layer; pins: Layer[] };
+export type ClimbLayers = { stage: StageLayer; plane: Layer; night: Layer; terrain: CanvasLayer; trail: CanvasLayer; radar: CanvasLayer; frame: CanvasLayer; pinBox: Layer; pins: PinLayer[] };
 
 /** Time and frames, handed in (the page gives `performance.now` and `requestAnimationFrame`). */
 export type Host = { now(): number; raf(cb: (now: number) => void): number; cancel(id: number): void };

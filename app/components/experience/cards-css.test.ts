@@ -59,6 +59,10 @@ describe("the bead's touch area (R108)", () => {
     expect(rule(".map-hit")).toContain("clip-path: var(--hit, none)");
     expect(rule(".map-pin:disabled .map-hit")).toContain("pointer-events: none");
   });
+
+  it("takes a bead under the card out of the touch by data-under on its hit span, which sets its own pointer-events (an inline none on the button would not reach it)", () => {
+    expect(rule(".map-pin[data-under] .map-hit")).toContain("pointer-events: none");
+  });
 });
 
 describe("the picture's first look by CSS", () => {

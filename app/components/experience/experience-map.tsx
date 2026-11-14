@@ -123,7 +123,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     // how much of the stage's foot the dock covers: a card keeps above it
     let dock = 0;
     const controller: CardController = createCardController(
-      cardView(cardEl, () => pins.current),
+      cardView(cardEl, () => pins.current, () => e.redraw()), // a bead under the card leaves its neighbours' hit areas whole: one drawing writes them
       { set: (fn, ms) => window.setTimeout(fn, ms), clear: (id) => window.clearTimeout(id) },
       () => live.current.reduced,
     );

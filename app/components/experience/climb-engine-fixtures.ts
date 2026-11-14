@@ -92,7 +92,7 @@ export function setup({ reduced = false, noTerrainContext = false, count = 9, ph
     radar: canvas(radarCalls),
     frame: canvas(frameCalls, false, frameLog),
     pinBox: { style: style() },
-    pins: Array.from({ length: count }, () => ({ style: style() })),
+    pins: Array.from({ length: count }, () => ({ style: style(), under: false, hasAttribute(name: string) { return name === "data-under" && this.under; } })),
   };
   const fills = { get length() { return terrainCalls.fill ?? 0; } };
   const f = fakeHost();

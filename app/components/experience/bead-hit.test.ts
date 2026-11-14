@@ -102,4 +102,25 @@ describe("bead hit areas (R108)", () => {
     writeHits(styles, [[100, 100], [300, 100]], was);
     expect(log.slice(2)).toEqual(["a remove --hit", "b remove --hit"]);
   });
+  it("leaves covered beads out: a visible bead keeps its whole square against a covered neighbour, which takes no clip itself", () => {
+    const heads: XY[] = [[100, 100], [124, 100], [300, 300]];
+
+    expect(hitClip(heads, 0)).not.toBeNull();
+    expect(hitClip(heads, 0, BEAD_HIT_HALF, [false, true, false])).toBeNull();
+    expect(hitCorners(heads, 0, BEAD_HIT_HALF, [false, true, false])).toEqual([[-22, -22], [22, -22], [22, 22], [-22, 22]]);
+    // still cut by the neighbours that are not covered
+    expect(hitClip(heads, 0, BEAD_HIT_HALF, [false, false, true])).not.toBeNull();
+  });
+
+  it("writes nothing for a covered bead and the whole square for its visible neighbour", () => {
+    const log: string[] = [];
+    const style = (n: string) => ({ setProperty: (k: string) => log.push(`${n} set ${k}`), removeProperty: (k: string) => log.push(`${n} remove ${k}`) });
+    const was: (string | null)[] = [null, null];
+
+    writeHits([style("a"), style("b")], [[100, 100], [124, 100]], was, [false, true]);
+    expect(was).toEqual([null, null]);
+    expect(log).toEqual([]); // nothing to remove, nothing to write: both squares whole
+    writeHits([style("a"), style("b")], [[100, 100], [124, 100]], was, [false, false]); // the card goes: both cut again
+    expect(was.every((w) => w !== null)).toBe(true);
+  });
 });

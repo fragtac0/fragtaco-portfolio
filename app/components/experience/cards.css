@@ -40,6 +40,9 @@
 .map-pin:disabled .map-hit {
   pointer-events: none;
 }
+.map-pin[data-under] .map-hit {
+  pointer-events: none; /* a bead stepped back under the card is not pressed through the glass (moment-card.tsx) */
+}
 .map-pin:hover,
 .map-pin:focus-visible {
   z-index: var(--z-map-bead-top) !important; /* the label of the one under the pointer is above the other beads (the engine sets the others' order by height) */
