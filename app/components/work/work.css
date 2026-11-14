@@ -1,10 +1,8 @@
 /*
  * The work page. A fixed stage (no page scroll): the Eclipse ground (in the layout), the intro in the middle, a ring of tool icons and up to four rings of videos
- * turning round it, bigger than the screen on purpose (the outer rings run off the edges; ring-math.ts
- * says where they go). Rotation is CSS only:
- * each ring `ul` turns by `work-spin`, each item turns back by `work-unspin` so it stays upright, and
- * nothing here runs per frame in JavaScript. Only transform-type properties and opacity animate.
- * Type, ink and layers come from app/styles/tokens.css. Spec: docs/superpowers/specs/2026-11-11-round6-design.md, 6.2.
+ * turning round it, bigger than the screen on purpose (the outer rings run off the edges; ring-math.ts says where they go). Rotation is CSS only:
+ * each ring `ul` turns by `work-spin`, each item turns back by `work-unspin` so it stays upright, and nothing here runs per frame in JavaScript.
+ * Only transform-type properties and opacity animate. Type, ink and layers come from app/styles/tokens.css. Spec: docs/superpowers/specs/2026-11-11-round6-design.md, 6.2.
  */
 .work-page {
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -19,12 +17,14 @@
 .work-stage {
   position: absolute;
   inset: 0;
-  /* The stack ring's radius and icon, the same rule as stackRadius() in ring-math.ts, so the intro can be
-     sized to sit inside it without waiting for any script. */
+  /* The stack ring's radius and icon, the same rule as stackRadius() in ring-math.ts (the ring is 8 px out where the icons grew
+     from 60 to 76, so the title keeps its round 6 room), so the intro can be sized to sit inside it without waiting for any script. */
   --stack-icon: 76px;
-  --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 42px));
-  /* what is left inside the stack ring's icons, less a margin */
-  --intro-r: calc(var(--stack-r) - var(--stack-icon) / 2 - 14px);
+  --stack-grow: 8px;
+  --stack-r: min(calc(max(190px, 24vh) + var(--stack-grow)), 42vw, calc(50vw - 42px));
+  /* what is left inside the stack ring's icons, less a margin (INTRO_GAP in ring-math.ts) */
+  --intro-gap: 14px;
+  --intro-r: calc(var(--stack-r) - var(--stack-icon) / 2 - var(--intro-gap));
 }
 .work-intro {
   position: absolute;
@@ -65,24 +65,6 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  /* The dock's keep-out (R54.2): the rings turn through every place near the middle, and the video tiles are large, so one
-     would pass under the dock's tabs. The video rings fade out into a hole round the dock instead (the groups, below; the
-     stack ring's icons stay inside the dock's top on every screen with a ring): an ellipse at the bottom centre that holds the
-     dock's glass (448 by 113 px, 24 px up from the screen's foot; 350 by 93 px, 12 up on a phone) with 16 px to spare.
-     The numbers are dockHole() in ring-math.ts. */
-  --hole-x: 339px;
-  --hole-y: 216px;
-}
-.work-ring-group[data-ring="long"],
-.work-ring-group[data-ring="short"] {
-  -webkit-mask-image: radial-gradient(ellipse var(--hole-x) var(--hole-y) at 50% 100%, transparent 96%, #000 118%);
-  mask-image: radial-gradient(ellipse var(--hole-x) var(--hole-y) at 50% 100%, transparent 96%, #000 118%);
-}
-@media (max-width: 639.98px) {
-  .work-rings {
-    --hole-x: 270px;
-    --hole-y: 171px;
-  }
 }
 /* One ring. It settles from 96% and fades in on arrival over 500 ms, each ring 60 ms after the one inside it. */
 .work-ring-group {
@@ -282,12 +264,12 @@
 
 /* ---------- phones ---------- */
 /* Item sizes and ring radii come from ring-math at every size (a phone gets one video ring of large tiles, a laptop two).
-   Under 700 px the stack icons are 56 px and the intro is the title and one short line, with a dark halo so
-   a passing item never mutes it. */
+   Under 700 px the stack icons are 52 px and the intro is the title and one short line, with a dark halo so a passing item never mutes it. */
 @media (max-width: 699.98px) {
   .work-stage {
-    --stack-icon: 56px;
-    --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 32px));
+    --stack-icon: 52px;
+    --stack-grow: 0px;
+    --stack-r: min(calc(max(190px, 24vh) + var(--stack-grow)), 42vw, calc(50vw - 30px));
   }
   .work-text {
     max-width: 15ch; /* narrow enough to sit inside the stack ring */

@@ -10,6 +10,7 @@ import {
   ringPlan,
   slotAngle,
   stackIconSize,
+  introRadius,
   stackRadius,
   tileSize,
   type RingOrderMode,
@@ -69,18 +70,30 @@ describe("clear", () => {
 });
 
 describe("stack ring", () => {
-  it("has icons of 76 px, 56 px under 700 px wide (R54.2: they were 60 and 52)", () => {
+  it("has icons of 76 px, and 52 px under 700 px wide as in round 6 (R54.2b: a larger phone icon cost the small phones tile size and a ring)", () => {
     expect(stackIconSize(1440)).toBe(76);
     expect(stackIconSize(700)).toBe(76);
-    expect(stackIconSize(699)).toBe(56);
+    expect(stackIconSize(699)).toBe(52);
   });
 
   it("has radius min(max(190, 0.24 vh), 0.42 vw)", () => {
-    expect(stackRadius(1440, 900)).toBeCloseTo(216);
-    expect(stackRadius(1024, 768)).toBe(190);
-    expect(stackRadius(1920, 1080)).toBeCloseTo(259.2);
-    // 0.42 vw is 163.8, but the 56 px icons would then pass 4 px from the screen's sides: 195 - 28 - 4
-    expect(stackRadius(390, 844)).toBe(163);
+    // and 8 px more on a screen over 700 px wide, where the icons are 16 px larger than in round 6 (R54.2b, R119)
+    expect(stackRadius(1440, 900)).toBeCloseTo(216 + 8);
+    expect(stackRadius(1024, 768)).toBe(190 + 8);
+    expect(stackRadius(1920, 1080)).toBeCloseTo(259.2 + 8);
+    // 0.42 vw is 163.8, but the 52 px icons would then pass 4 px from the screen's sides: 195 - 26 - 4 = 165, so 0.42 vw holds
+    expect(stackRadius(390, 844)).toBeCloseTo(163.8);
+  });
+
+  it("keeps the intro's radius, and so the title's room to the icons, as in round 6 (R119): 60 px icons, a 14 px margin, a ring 8 px nearer", () => {
+    for (const [vw, vh] of [[1440, 900], [1920, 1080], [820, 1180], [1024, 768], [2560, 1440], [700, 900]]) {
+      const round6 = Math.min(Math.max(190, 0.24 * vh), 0.42 * vw, vw / 2 - 30 - 4) - 30 - 14;
+      expect(introRadius(vw, vh), `${vw}x${vh}`).toBeCloseTo(round6, 6);
+    }
+    // a phone's icons and ring are as in round 6 too
+    for (const [vw, vh] of [[390, 844], [375, 667], [320, 568], [568, 320]]) {
+      expect(introRadius(vw, vh), `${vw}x${vh}`).toBeCloseTo(Math.min(Math.max(190, 0.24 * vh), 0.42 * vw, vw / 2 - 26 - 4) - 26 - 14, 6);
+    }
   });
 
   it("keeps its icons inside the screen's width on the narrowest screens", () => {
@@ -302,11 +315,11 @@ describe("ringPlan: counts and what is left out", () => {
     );
   });
 
-  it("paired puts the long rings inside the short ring, with a smaller L than alternating", () => {
+  it("paired puts the long rings inside the short ring (its L is whatever shows most: not ordered against alternating's since R54.2)", () => {
     const paired = plan(2560, 1440, 35, "paired");
     expect(paired.rings.filter((r) => r.kind !== "stack").map((r) => r.kind)).toEqual(["long", "long", "short"]);
-    expect(paired.L).toBeLessThanOrEqual(plan(2560, 1440, 35, "alternating").L);
     expect(paired.L).toBeGreaterThanOrEqual(L_MIN);
+    expect(paired.L).toBeLessThanOrEqual(L_MAX);
   });
 });
 

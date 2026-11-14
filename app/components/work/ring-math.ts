@@ -2,13 +2,14 @@
 //
 // One stack ring and up to four video rings round the intro, packed outward from the stack ring, each as
 // close to the one inside it as the clearance rule allows, none beyond 0.92 of the screen's half-diagonal.
-// Every video tile has the same long side L, which a screen asks for (`targetL`, R54.2: about 190 px at 1440 by 900) and
-// which the plan gets as near to as it can with the most coverage (`coverage`). Items are upright rectangles on
+// Every video tile has the same long side L, which a screen asks for (`targetL`, R54.2: 200 px at 1440 by 900) and
+// which the plan gets as near to as it can with the most coverage that shows (`coverage` through the dock's keep-out, ring-keep-out.ts). Items are upright rectangles on
 // rings that turn at different speeds, so two of them can meet at any angle. They never overlap if
 // their centres stay at least `clear(a, b)` apart: if both sides of the gap rule were short, the
 // centres would be closer than the diagonal `sqrt(sx^2 + sy^2)` that this function returns.
 
 import { coverage } from "./ring-coverage";
+import { keepOutFor, nominalDock, type Rect } from "./ring-keep-out";
 
 export { coverage };
 export type Size = { w: number; h: number };
@@ -25,10 +26,12 @@ export const TILE_ASPECT = 9 / 16;
 /** The video tile's long side L runs from this to that. */
 export const L_MIN = 96;
 export const L_MAX = 340;
-/** The long side a screen asks for: `TARGET_BASE + TARGET_SLOPE * sqrt(vw * vh)`, 200 px at 1440 by 900 (spec 5: about 190), and on a phone at least `PHONE_SHARE` of its width. */
+/** The long side a screen asks for: `TARGET_BASE + TARGET_SLOPE * sqrt(vw * vh)`, 200 px at 1440 by 900 (spec 5: about 190); a phone asks for at least `PHONE_SHARE` of its short side and `PHONE_FLOOR`. */
 const TARGET_BASE = 79;
 const TARGET_SLOPE = 0.1066;
 const PHONE_SHARE = 0.54;
+/** A phone asks for at least this (what a single ring of tiles had before R54.2: no phone gets smaller tiles, R118). */
+const PHONE_FLOOR = 220;
 /** A plan may use an L down to this share of the largest one a single video ring could have, to fit more rings. */
 const L_WINDOW = 0.9;
 /** The outermost ring's radius as a share of the half-diagonal. */
@@ -47,46 +50,42 @@ export function clear(a: Size, b: Size, gap = GAP): number {
   return Math.sqrt(sx * sx + sy * sy);
 }
 
-/** The stack icons' side: 76 px, 56 px under 700 px wide (R54.2; they were 60 and 52). */
+/**
+ * The stack icons' side: 76 px (it was 60), and under 700 px wide still 52 (R54.2b: a larger phone icon took the small phones'
+ * tile size and 568 by 320's only video ring, and the brief asked for the larger icon at 1440 by 900).
+ */
 export function stackIconSize(vw: number): number {
-  return vw < PHONE_WIDTH ? 56 : 76;
+  return vw < PHONE_WIDTH ? 52 : 76;
 }
 
 /** The long side of a video tile that a `vw` by `vh` screen asks for, whole pixels from `L_MIN` to `L_MAX`. */
 export function targetL(vw: number, vh: number): number {
   const area = vw > 0 && vh > 0 ? Math.sqrt(vw * vh) : 0;
   // a phone has room for one ring of large tiles, not two of small ones, so its tiles grow more
-  const phone = vw > 0 && vw < PHONE_WIDTH ? PHONE_SHARE * Math.min(vw, vh) : 0;
+  const phone = vw > 0 && vw < PHONE_WIDTH ? Math.max(PHONE_SHARE * Math.min(vw, vh), PHONE_FLOOR) : 0;
   return Math.min(L_MAX, Math.max(L_MIN, Math.round(Math.max(TARGET_BASE + TARGET_SLOPE * area, phone))));
 }
 
+/** The margin between the stack ring's icons and the circle the intro stays inside (the CSS `--intro-gap`). */
+export const INTRO_GAP = 14;
+
 /** The radius of the circle the intro (title and text) must stay inside: the stack ring less its icons and a margin (the CSS `--intro-r`). */
 export function introRadius(vw: number, vh: number): number {
-  return stackRadius(vw, vh) - stackIconSize(vw) / 2 - 14;
+  return stackRadius(vw, vh) - stackIconSize(vw) / 2 - INTRO_GAP;
+}
+
+/** How far the stack ring moved out when its icons grew from 60 to 76 px (R54.2b, R119): half the growth, so the icons' inner edge, and the title's room, are as in round 6. Phones kept their 52 px icons. */
+export function stackGrow(vw: number): number {
+  return vw < PHONE_WIDTH ? 0 : 8;
 }
 
 /**
- * The stack ring's radius: `min(max(190, 0.24 vh), 0.42 vw)`, and never so wide that its icons leave the
+ * The stack ring's radius: `min(max(190, 0.24 vh) + stackGrow, 0.42 vw)`, and never so wide that its icons leave the
  * screen's sides (that only moves it on screens under about 375 px wide).
  */
 export function stackRadius(vw: number, vh: number): number {
   const icon = stackIconSize(vw);
-  return Math.min(Math.max(190, 0.24 * vh), 0.42 * vw, vw / 2 - icon / 2 - EDGE_MARGIN);
-}
-
-/** The dock's glass as the audit measured it on /work: 448 by 113 px, 24 px above the screen's foot (350 by 93 px, 12 above it, under 640 px wide). */
-export function dockBox(vw: number): { width: number; height: number; foot: number } {
-  return vw < 640 ? { width: Math.min(350, vw - 20), height: 93, foot: 12 } : { width: 448, height: 113, foot: 24 };
-}
-
-/**
- * The ellipse, at the bottom centre of the screen, that the rings fade out in (`.work-rings` mask, the CSS --hole-x and --hole-y): through the
- * corners of the dock's box with 16 px to spare, so no tile shows under the dock's tabs. Its radii are those of the CSS, which
- * has them for the two dock sizes.
- */
-export function dockHole(vw: number): { rx: number; ry: number } {
-  const { width, height, foot } = dockBox(vw);
-  return { rx: Math.round(((width / 2 + 16) * Math.SQRT2)), ry: Math.round((height + foot + 16) * Math.SQRT2) };
+  return Math.min(Math.max(190, 0.24 * vh) + stackGrow(vw), 0.42 * vw, vw / 2 - icon / 2 - EDGE_MARGIN);
 }
 
 export function halfDiagonal(vw: number, vh: number): number {
@@ -222,7 +221,7 @@ function videoRings(kinds: ("long" | "short")[], radii: number[], L: number, cou
  * on the walls. A plan whose scan failed is never returned. Each kind's items fill its rings from the inside out,
  * shared out by capacity; the first items in content order are kept.
  */
-export function ringPlan(vw: number, vh: number, counts: Counts, mode: RingOrderMode = RING_ORDER_MODE): RingPlan {
+export function ringPlan(vw: number, vh: number, counts: Counts, mode: RingOrderMode = RING_ORDER_MODE, dock?: Rect | null): RingPlan {
   const icon = stackIconSize(vw);
   const stackSize: Size = { w: icon, h: icon };
   const inner = stackRadius(vw, vh);
@@ -239,8 +238,12 @@ export function ringPlan(vw: number, vh: number, counts: Counts, mode: RingOrder
     stackRing.push({ id: "stack", kind: "stack", radius: inner, count: stackCount, size: stackSize, periodS: STACK_PERIOD, dir: 1 });
   }
 
+  // what shows is what is counted: the plan is scored through the dock's keep-out (the measured glass, or the nominal one before it is measured)
+  const keep = keepOutFor(dock ?? nominalDock(vw, vh));
   const top = targetL(vw, vh);
   const one = largestFit(ringKinds(1, mode), stackSize, inner, outer, top);
+  // a phone keeps the largest tile a single ring can have (R118: none gets smaller tiles); a larger screen may trade a little size for more rings
+  const lowest = one ? (vw < PHONE_WIDTH ? one.L : Math.max(L_MIN, Math.ceil(L_WINDOW * one.L))) : L_MIN;
   let best: RingPlan | null = null;
   let bestShare = -1;
   if (one) {
@@ -249,10 +252,10 @@ export function ringPlan(vw: number, vh: number, counts: Counts, mode: RingOrder
       const fit = largestFit(kinds, stackSize, inner, outer, top);
       if (!fit) continue;
       // every whole L from the largest that packs down to the window, the largest first so a tie goes to larger tiles
-      for (let L = fit.L; L >= Math.max(L_MIN, Math.ceil(L_WINDOW * one.L)); L--) {
+      for (let L = fit.L; L >= lowest; L--) {
         const { rings, hidden } = videoRings(kinds, packRadii(kinds, L, stackSize, inner), L, counts);
         const plan: RingPlan = { L, rings: [...stackRing, ...rings].sort((a, b) => a.radius - b.radius), hidden };
-        const share = coverage(plan, vw, vh);
+        const share = coverage(plan, vw, vh, keep);
         if (share > bestShare + 1e-9) {
           best = plan;
           bestShare = share;

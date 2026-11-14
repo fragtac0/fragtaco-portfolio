@@ -1,4 +1,5 @@
 // Turns item counts and the screen size into the rings to draw. Pure: no DOM, safe on the server.
+import type { Rect } from "./ring-keep-out";
 import { ringPlan, slotAngle, type PlannedRing, type RingKind, type RingOrderMode } from "./ring-math";
 
 export interface RingSlot {
@@ -30,8 +31,9 @@ export function layoutRings(
   vw: number,
   vh: number,
   mode?: RingOrderMode,
+  dock?: Rect | null,
 ): RingLayout {
-  const plan = ringPlan(vw, vh, counts, mode);
+  const plan = ringPlan(vw, vh, counts, mode, dock);
   const next: Record<RingKind, number> = { stack: 0, long: 0, short: 0 };
 
   const rings = plan.rings.map((ring, order): RingSpec => {

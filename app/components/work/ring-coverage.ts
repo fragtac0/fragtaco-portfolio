@@ -1,21 +1,18 @@
 // How much of the screen the rings' video tiles cover (R54.2). Pure: no DOM, safe on the server.
+import { visibleArea, type KeepOut } from "./ring-keep-out";
 import type { RingPlan } from "./ring-math";
 
-/** Steps one turn is sampled at. */
+/** Steps one slot of a ring is sampled at (the pattern repeats each slot, so this spans a whole turn). */
 export const COVERAGE_STEPS = 24;
 
-/** The length of [a0, a1] that lies inside [0, limit]. */
-function inside(a0: number, a1: number, limit: number): number {
-  return Math.max(0, Math.min(a1, limit) - Math.max(a0, 0));
-}
-
 /**
- * The share of a `vw` by `vh` screen under video tiles (the stack ring's icons are not counted), averaged over one
- * turn of every ring sampled at 24 steps, counting only the part of each tile that is on the screen. Tiles are upright
- * and never overlap (that is what the rings' clearance rule keeps), so their areas add up. The ring is centred on
- * the screen. 0 for a screen of no size or a plan with no video rings.
+ * The share of a `vw` by `vh` screen under video tiles (the stack ring's icons are not counted), counting only the part of
+ * each tile that is on the screen, and, with `keep`, only what shows through the dock's keep-out mask (R117: the number the
+ * solver and the tests use is what is shown). Averaged over a turn of every ring: the pattern repeats each slot, so a slot
+ * sampled at 24 steps is the whole turn. Tiles are upright and never overlap (the rings' clearance rule), so their areas add up.
+ * The rings are centred on the screen. 0 for a screen of no size or a plan with no video rings.
  */
-export function coverage(plan: Pick<RingPlan, "rings">, vw: number, vh: number): number {
+export function coverage(plan: Pick<RingPlan, "rings">, vw: number, vh: number, keep: KeepOut | null = null): number {
   if (!(vw > 0) || !(vh > 0)) return 0;
   let area = 0;
   for (const ring of plan.rings) {
@@ -27,7 +24,12 @@ export function coverage(plan: Pick<RingPlan, "rings">, vw: number, vh: number):
         const a = ((step / COVERAGE_STEPS + i) / ring.count) * 2 * Math.PI;
         const cx = vw / 2 + ring.radius * Math.cos(a);
         const cy = vh / 2 + ring.radius * Math.sin(a);
-        ringArea += inside(cx - w / 2, cx + w / 2, vw) * inside(cy - h / 2, cy + h / 2, vh);
+        const x0 = Math.max(cx - w / 2, 0);
+        const x1 = Math.min(cx + w / 2, vw);
+        const y0 = Math.max(cy - h / 2, 0);
+        const y1 = Math.min(cy + h / 2, vh);
+        if (!(x1 > x0) || !(y1 > y0)) continue;
+        ringArea += keep ? visibleArea(keep, x0, x1, y0, y1) : (x1 - x0) * (y1 - y0);
       }
     }
     area += ringArea / COVERAGE_STEPS;

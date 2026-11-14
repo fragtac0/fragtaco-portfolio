@@ -6,6 +6,7 @@ import { introLine } from "./ring-layout";
 import Rings from "./rings";
 import { ROW_ID } from "./work-switcher";
 import "./work.css";
+import "./work-keep-out.css";
 
 /** A page that comes in through a change builds its rings 8 items every 50 ms: the 64 are in within 0.4 s, long before the reveal's edge reaches the first ring. */
 const RING_BATCHES = { items: 8, ms: 50 };

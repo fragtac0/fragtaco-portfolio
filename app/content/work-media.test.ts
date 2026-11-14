@@ -46,6 +46,14 @@ describe("coverUrl", () => {
     expect(coverUrl(v, true)).toBe("https://i.ytimg.com/vi/GrtKxfATyTw/oar2.jpg");
   });
 
+  it("asks for the larger sddefault of a landscape one when sharp (a tile wider than hqdefault is at the screen's pixels), never for the portrait cut", () => {
+    const v = video({ source: "youtube", url: "https://youtu.be/GrtKxfATyTw" });
+
+    expect(coverUrl(v, false, true)).toBe("https://i.ytimg.com/vi/GrtKxfATyTw/sddefault.jpg");
+    expect(coverUrl(v, true, true)).toBe("https://i.ytimg.com/vi/GrtKxfATyTw/oar2.jpg");
+    expect(coverUrl(video({ cover: "/work/a.jpg" }), false, true)).toBe("/work/a.jpg");
+  });
+
   it("falls back to local placeholder art for other sources, upright when tall", () => {
     expect(coverUrl(video({ id: "ft-x" }), false)).toBe(placeholderArt("ft-x", false));
     expect(coverUrl(video({ id: "ft-x" }), true)).toBe(placeholderArt("ft-x", true));

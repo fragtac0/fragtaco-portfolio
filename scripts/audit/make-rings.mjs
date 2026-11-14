@@ -7,7 +7,8 @@
 //    its period, paused) and reads the gap between every pair of item boxes (`.work-item-turn`, upright): the
 //    smallest gap over all pairs and phases, and how many pairs touch or overlap (both must be 12 or more / 0),
 //  - checks the intro (title and its lines of text) sits inside the stack ring's icons, that no video tile comes within 40 px of it (R54.2),
-//    and that the dock's box lies inside the ellipse the rings fade out in (R54.2: nothing shows under the dock's tabs),
+//    that the dock's measured box lies inside the keep-out the rings fade out in (R54.2b, R117: nothing shows under the dock's tabs), that no tile can be
+//    hit by the pointer there (elementFromPoint over 40 phases), and that a focused tile drops its ring's mask (under reduced motion, where the rings stand at phase 0),
 //  - the arrival through a page change (R60): the rings are in the page for the reveal, standing still, then turn together.
 // Pictures (1440 by 900, 1920 by 1080, 820 by 1180, 390 by 844) at three ring phases each. The long form pictures are YouTube thumbnails loaded at run time;
 // where they cannot be reached (or must not be kept) the audit paints neutral, generated gradients on the tiles (a number and a corner
@@ -58,12 +59,22 @@ window.__titleGap=()=>{const rects=[];for(const el of document.querySelectorAll(
 window.__sweep=(k)=>{let min=Infinity,pair='',touching=0,n=0,title=Infinity;
  for(let i=1;i<=k;i++){window.__phase(i*7919);const g=window.__gap();n=g.n;touching+=g.touching;if(g.min<min){min=g.min;pair=g.pair}title=Math.min(title,window.__titleGap())}
  return{items:n,phases:k,minGap:+min.toFixed(2),worst:pair,pairsUnder12:touching,titleGapMin:+title.toFixed(1)}};
-// the dock's box (measured) against the ellipse the rings fade out in (computed --hole-x and --hole-y at the bottom centre of the screen): the farthest corner of the
-// dock in the ellipse's own units. The mask is clear until 0.96 and solid from 1.18, so 0.96 or less keeps every tile out from under the tabs
+// the dock's box (measured) against the keep-out the rings fade out in (the custom properties rings.tsx sets on .work-rings from the measured glass, R117): the
+// glass must lie inside the hidden box (from --keep-l to --keep-r across and from --keep-t down), and only the long and short groups are masked
 window.__dock=()=>{const d=document.querySelector('[data-dock-glass]');if(!d)return null;const r=d.getBoundingClientRect();const cs=getComputedStyle(document.querySelector('.work-rings'));
- const hx=parseFloat(cs.getPropertyValue('--hole-x')),hy=parseFloat(cs.getPropertyValue('--hole-y'));let worst=0;
- for(const x of [r.left,r.right])for(const y of [r.top,r.bottom])worst=Math.max(worst,Math.hypot((x-innerWidth/2)/hx,(innerHeight-y)/hy));
- return{dock:[r.left,r.top,r.right,r.bottom].map(Math.round),hole:[hx,hy],cornerMetric:+worst.toFixed(3),masked:[...document.querySelectorAll('.work-ring-group')].map(g=>g.dataset.ring+':'+(getComputedStyle(g).maskImage!=='none'))}};
+ const v=n=>parseFloat(cs.getPropertyValue(n));const l=v('--keep-l'),rr=v('--keep-r'),t=v('--keep-t'),f=v('--keep-f');
+ return{dock:[r.left,r.top,r.right,r.bottom].map(Math.round),keep:{l,r:rr,t,f},glassInsideKeepOut:l<=r.left&&rr>=r.right&&t<=r.top,
+  spare:{left:+(r.left-l).toFixed(1),right:+(rr-r.right).toFixed(1),top:+(r.top-t).toFixed(1)},masked:[...document.querySelectorAll('.work-ring-group')].map(g=>g.dataset.ring+':'+(getComputedStyle(g).maskImage!=='none'))}};
+// the pointer in the keep-out (R117, a mask does not stop it): at k ring phases, the topmost element at points in the blocked band (across the dock, from half its feather above its keep-out to just inside it)
+// must never be a ring item: it is the block (.work-keep-out)
+window.__band=(k)=>{const cs=getComputedStyle(document.querySelector('.work-rings'));const v=n=>parseFloat(cs.getPropertyValue(n));const l=v('--keep-l'),rr=v('--keep-r'),t=v('--keep-t'),f=v('--keep-f');
+ const pts=[];for(const x of [l+f/2+2,(l+rr)/2,rr-f/2-2])for(const y of [t-f/2+2,t+4])pts.push([x,y]);
+ let onItem=0,onBlock=0,other=0,n=0;for(let i=1;i<=k;i++){window.__phase(i*7919);for(const[x,y]of pts){const e=document.elementFromPoint(x,y);n++;
+  if(e&&e.closest('.work-item'))onItem++;else if(e&&e.closest('.work-keep-out'))onBlock++;else other++}}
+ return{phases:k,points:n,onItem,onBlock,other}};
+// the intro's room to the stack icons against what round 6 left at that size (R119: the icons keep at least that; measured on 19ca81b's rules, 60 px icons and a 14 px margin, by
+// setting those two custom properties and the ring 8 px nearer; phones, whose icons did not change, are what they were). 0.3 px of rounding is allowed
+window.__roomVs=(round6)=>{const i=window.__intro();return{...i,round6,atLeastRound6:i.roomToIcons>=round6-0.3}};
 // frame gaps over ms: how many frames, the average, the 95th percentile, the worst and how many were over 20 ms
 window.__frames=(ms)=>new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<ms)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);
  r(JSON.stringify({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length}))}}requestAnimationFrame(f)});
@@ -117,6 +128,10 @@ window.__viaFade=()=>new Promise(res=>{const t0=performance.now();const out={ste
   if(t>400&&!document.documentElement.dataset.changeKind){clearInterval(iv);out.changeEndedMs=Math.round(t);
    setTimeout(()=>{out.turning=document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin').length;res(JSON.stringify(out))},400)}
   if(t>6000){clearInterval(iv);res(JSON.stringify({timeout:true,out}))}},8)});
+// which YouTube thumbnail each landscape tile loaded: sddefault, hqdefault (asked for, or the fallback for a video with no sddefault), and the tile's width in device pixels
+window.__sources=()=>{const c=[...document.querySelectorAll('.work-item[data-ring=long] .work-cover img')];const w=c.length?c[0].getBoundingClientRect().width*devicePixelRatio:0;
+ return JSON.stringify({tiles:c.length,tileDevicePx:Math.round(w),sd:c.filter(i=>i.currentSrc.includes('/sddefault.jpg')).length,hq:c.filter(i=>i.currentSrc.includes('/hqdefault.jpg')).length,
+  hqFallback:c.filter(i=>'hq' in i.dataset).length,localArt:c.filter(i=>i.currentSrc.startsWith('data:')).length})};
 // the covers: how many, how many are lazy, ready (shown), swapped for the local art (fallback) and still showing a loaded picture of 120 px or less
 window.__covers=()=>{const c=[...document.querySelectorAll('.work-cover img')];return JSON.stringify({covers:c.length,lazy:c.filter(i=>i.loading==='lazy').length,ready:c.filter(i=>'ready' in i.dataset).length,
  fallback:c.filter(i=>'fallback' in i.dataset).length,localArt:c.filter(i=>i.currentSrc.startsWith('data:')).length,greyShown:c.filter(i=>i.complete&&i.naturalWidth>0&&i.naturalWidth<=120&&!i.currentSrc.startsWith('data:')).length,
@@ -133,15 +148,15 @@ window.__fake=()=>{let i=0;for(const img of document.querySelectorAll('.work-cov
 `.trim();
 
 const SIZES = [
-  { name: "1440x900", size: [1440, 900], dpr: 1, rings: 3, pictures: true },
-  { name: "1920x1080", size: [1920, 1080], dpr: 1, rings: 3, pictures: true },
-  { name: "820x1180", size: [820, 1180], dpr: 1, rings: 3, pictures: true, mobile: true, touch: true },
-  { name: "390x844", size: [390, 844], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
-  { name: "375x667", size: [375, 667], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
-  { name: "568x320", size: [568, 320], dpr: 2, rings: 1, pictures: true, mobile: true, touch: true },
-  { name: "320x568", size: [320, 568], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
-  { name: "1024x768", size: [1024, 768], dpr: 1, rings: 3 },
-  { name: "2560x1440", size: [2560, 1440], dpr: 1, rings: 4 },
+  { name: "1440x900", round6: 26.3, size: [1440, 900], dpr: 1, rings: 3, pictures: true },
+  { name: "1920x1080", round6: 33, size: [1920, 1080], dpr: 1, rings: 3, pictures: true },
+  { name: "820x1180", round6: 73.5, size: [820, 1180], dpr: 1, rings: 3, pictures: true, mobile: true, touch: true },
+  { name: "390x844", round6: 31.5, size: [390, 844], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
+  { name: "375x667", round6: 30, size: [375, 667], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
+  { name: "568x320", round6: 26.1, size: [568, 320], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
+  { name: "320x568", round6: 23, size: [320, 568], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
+  { name: "1024x768", round6: 15.9, size: [1024, 768], dpr: 1, rings: 3 },
+  { name: "2560x1440", round6: 46.6, size: [2560, 1440], dpr: 1, rings: 4 },
 ];
 
 // where the first long-1 and stack items sit at the start of a turn at 1440 by 900 (read by the step before them)
@@ -156,7 +171,9 @@ for (const s of SIZES) {
   steps.push({ label: `${s.name} rings mounted`, eval: `window.__ready(${s.rings})` });
   steps.push({ label: `${s.name} overlap at 40 phases`, eval: "window.__sweep(40)" });
   steps.push({ label: `${s.name} intro inside the stack ring`, eval: "window.__intro()" });
-  steps.push({ label: `${s.name} the dock inside the rings' hole (corner metric 0.96 or less)`, eval: "window.__dock()" });
+  steps.push({ label: `${s.name} the intro's room to the stack icons, at least round 6's (R119)`, eval: `window.__roomVs(${s.round6})` });
+  steps.push({ label: `${s.name} the dock's glass inside the keep-out (R117)`, eval: "window.__dock()" });
+  steps.push({ label: `${s.name} no ring item under the pointer in the keep-out, 40 phases (R117)`, eval: "window.__band(40)" });
   if (s.pictures) {
     steps.push({ label: `${s.name} generated pictures on tiles`, eval: "window.__fake()", wait: 600 });
     [1, 2, 3].forEach((p) => {
@@ -207,6 +224,8 @@ const FRAME_RUNS = [
 for (const f of FRAME_RUNS) {
   steps.push({ size: f.size, dpr: f.dpr, mobile: f.mobile, touch: f.touch, cpu: 4, go: "{{BASE}}/work", wait: 3000, eval: "window.__ready(" + (f.mobile ? 2 : 3) + ")", label: `frames ${f.name}: ready` });
   steps.push({ wait: 1200, label: `frames ${f.name} at rest, 4 s`, eval: "window.__frames(4000)" });
+  // a tile wider than hqdefault's 480 px at the screen's pixels asks for sddefault (R54.2b, M5), and falls back to hqdefault where the video has none
+  steps.push({ label: `frames ${f.name}: the pictures asked for (sddefault where a tile is over 480 device pixels wide)`, eval: "window.__sources()" });
   steps.push({ label: `frames ${f.name}: first long-1 item at the start of the turn`, eval: `window.__start('.work-ring[data-ring-id="long-1"] .work-item-turn')` });
   steps.push({ move: f.hover, wait: 200 });
   steps.push({ label: `frames ${f.name} with the pointer on a ring item, 4 s`, eval: `window.__frames(4000)` });
@@ -240,6 +259,19 @@ steps.push({
   label: "reduced motion: no ring or item is turning",
   eval: `JSON.stringify({turning:document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin').length,
     groupAnim:[...new Set([...document.querySelectorAll('.work-ring-group')].map(g=>getComputedStyle(g).animationName))]})`,
+});
+// a key press first, so the focus that follows is a keyboard one (:focus-visible), as a tab stop would give
+steps.push({ key: "Shift", vk: 16 });
+steps.push({
+  label: "reduced motion: the tile nearest the dock, focused, drops its ring's mask (R117, WCAG 2.4.7); the other video ring keeps its mask",
+  eval: `(()=>{const d=document.querySelector('[data-dock-glass]').getBoundingClientRect();const cx=(d.left+d.right)/2,cy=d.top;let best=null,bd=1e9;
+    for(const it of document.querySelectorAll('.work-item[data-kind=video]')){const r=it.getBoundingClientRect();const dist=Math.hypot(r.left+r.width/2-cx,r.top+r.height/2-cy);if(dist<bd){bd=dist;best=it}}
+    const g=best.closest('.work-ring-group');const masked=x=>getComputedStyle(x).maskImage!=='none';const before=masked(g);
+    const face=best.querySelector('.work-item-face');face.focus();
+    const r=best.getBoundingClientRect();const cs=getComputedStyle(document.querySelector('.work-rings'));const v=n=>parseFloat(cs.getPropertyValue(n));
+    const inKeep=r.right>v('--keep-l')&&r.left<v('--keep-r')&&r.bottom>v('--keep-t');
+    const others=[...document.querySelectorAll('.work-ring-group[data-ring=long],.work-ring-group[data-ring=short]')].filter(x=>x!==g).map(masked);
+    return JSON.stringify({ring:g.dataset.ring,distanceToDock:Math.round(bd),tileInKeepOut:inKeep,maskedBefore:before,maskedAfterFocus:masked(g),focusVisible:face.matches(':focus-visible'),outline:getComputedStyle(face).outlineStyle,otherVideoGroupsMasked:others})})()`,
 });
 steps.push({ reduce: false });
 

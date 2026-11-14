@@ -1,8 +1,10 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import type { SiteWork } from "../../types";
 import { entriesFor } from "./ring-entries";
+import { keepOutFor, keepOutVars, nominalDock } from "./ring-keep-out";
 import { layoutRings, mountedIn } from "./ring-layout";
 import { RING_ORDER_MODE, type RingKind } from "./ring-math";
+import { useDockBox } from "./use-dock-box";
 import { useStageSize } from "./use-stage-size";
 import WorkItem from "./work-item";
 
@@ -41,6 +43,7 @@ const LABEL: Record<RingKind, string> = {
  */
 export default function Rings({ work, batches = null, arrived = true }: RingsProps) {
   const size = useStageSize();
+  const dock = useDockBox(size?.vw ?? 0, size?.vh ?? 0);
   const entries = entriesFor(work);
   const layout = size
     ? layoutRings(
@@ -48,6 +51,7 @@ export default function Rings({ work, batches = null, arrived = true }: RingsPro
         size.vw,
         size.vh,
         RING_ORDER_MODE,
+        dock,
       )
     : null;
   const total = layout ? layout.rings.reduce((n, ring) => n + ring.slots.length, 0) : 0;
@@ -61,14 +65,17 @@ export default function Rings({ work, batches = null, arrived = true }: RingsPro
     const timer = window.setTimeout(() => setCount((n) => n + items), count === 0 ? 0 : ms);
     return () => window.clearTimeout(timer);
   }, [count, total, batches, arrived]);
-  if (!layout) return null;
+  if (!size || !layout) return null;
 
   const seen: Record<RingKind, number> = { stack: 0, long: 0, short: 0 };
   // where each ring's items begin in the count of all items, inside to outside
   const firsts = layout.rings.map((_, i) => layout.rings.slice(0, i).reduce((n, ring) => n + ring.slots.length, 0));
 
+  // the video rings fade out round the dock's glass (work.css reads these; R117), and a transparent block there takes the pointer
+  const keep = keepOutFor(dock ?? nominalDock(size.vw, size.vh));
+
   return (
-    <div className="work-rings">
+    <div className="work-rings" style={keepOutVars(keep) as CSSProperties}>
       {layout.rings.map((ring) => {
         const nth = seen[ring.kind]++;
         const mounted = mountedIn(shown, firsts[ring.order], ring.slots.length);
@@ -104,6 +111,7 @@ export default function Rings({ work, batches = null, arrived = true }: RingsPro
           </div>
         );
       })}
+      <div className="work-keep-out" aria-hidden="true" />
     </div>
   );
 }
