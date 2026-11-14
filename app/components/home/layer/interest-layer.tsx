@@ -1,227 +1,133 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import { inertProps } from "../../../utils/inert";
 import CloseButton from "../../close-button";
 import "./layer.css";
-import { cloneBlock, posterPose, posterTransform, type PosterPose } from "./layer-poster";
-import { GROW_MS, SCENE_DELAY_MS, type LayerKind, type LayerState } from "./layer-state";
+import { createMoveDriver, type FramedEngine, type MoveDriver } from "./move-driver";
+import type { LayerKind, LayerState } from "./layer-state";
 
-const FULL = "inset(0px 0px 0px 0px round 0px 0px 0px 0px)";
-const EASE = "cubic-bezier(.7,0,.2,1)";
-const KINDS: readonly LayerKind[] = ["reading", "watching"];
-const PANE_CLASS: Record<LayerKind, string> = {
-  reading: "pane-read",
-  watching: "pane-watch",
-};
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
-
-/** The block's current rect as a clip, with the block's own corners (mockup: --r-lg). */
-function insetFrom(el: HTMLElement | null): string {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  const r = el?.getBoundingClientRect() ?? {
-    top: h / 2,
-    bottom: h / 2,
-    left: w / 2,
-    right: w / 2,
-  };
-  return `inset(${r.top}px ${w - r.right}px ${h - r.bottom}px ${
-    r.left
-  }px round 44px 20px 44px 20px)`;
-}
-
-/** The poster dissolves over this long once the scene has drawn (layer.css `.layer-poster`). */
-const POSTER_FADE_MS = 350;
-/**
- * A scene that has not drawn its first frame this long after the layer opened gives up on 3D: it
- * switches to its plain grid (`gaveUp`), so a slow or hung scene never ends in a bare stage.
- */
-const SCENE_GIVE_UP_MS = 1500;
 
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 type InterestLayerProps = {
   state: LayerState;
-  /** The block the layer grows out of, and shrinks back into. */
+  /** The block the layer opens out of, and closes back into. */
   from: HTMLElement | null;
+  /** Opened with no move at all (a deep link or a hard load that starts open). */
+  instant: boolean;
   title: string;
   meta: string;
   /** A scene is showing something over the header (an open video): fade it out and make it inert. */
   headerHidden?: boolean;
+  /** The scene's own element (layer/box-scene.ts): the frame that grows, carried here from its box and back. */
+  scene: HTMLElement;
+  /** The scene's engine; null when it is the plain grid (no WebGL, a failed scene, a click that would not wait). */
+  engine: FramedEngine | null;
+  /** The home page behind: it sinks while the layer opens. */
+  sinkRef: RefObject<HTMLElement>;
+  /** Puts away an open video of this kind (a close that does not come from Esc). */
+  closeDetail: (kind: LayerKind) => void;
   onClose: () => void;
-  /** Dispatched once the grow has finished (the scene may start) and the shrink has finished. */
+  /** A click on the scene while it is closing: the closing turns round. */
+  onReopen: () => void;
+  /** Dispatched when the opening move has reached the window (the scene may answer the pointer) and when the closing has put it back in its box. */
   onGrown: () => void;
   onShrunk: () => void;
-  /**
-   * The scene for the open kind. `active` is true from the end of the grow to the start of the
-   * shrink. The scene calls `onDrawn` once its first real frame is on the screen (or at once if it
-   * has no frame to wait for, like the plain grids): until then the layer shows the block's picture.
-   * `gaveUp` turns true if that has not happened by SCENE_GIVE_UP_MS after the layer opened: the
-   * scene then switches to its plain grid (which calls `onDrawn` at once) and stays on it.
-   */
-  children: (scene: {
-    kind: LayerKind;
-    active: boolean;
-    onDrawn: () => void;
-    gaveUp: boolean;
-  }) => ReactNode;
 };
 
+/**
+ * The layer the shelf and the wall open into: the chrome (heading, count, Close), the black laid over the home page, and the
+ * stage the scene's own element is carried onto. The opening and closing are one move (spec 6.2, 6.3) run by
+ * layer/move-driver.ts; this component starts it, turns it round (Close during an opening, a click during a closing) and keeps
+ * focus and the Tab key where they belong. It mounts when a box is clicked and goes when the scene is back in its box.
+ */
 export default function InterestLayer({
   state,
   from,
+  instant,
   title,
   meta,
   headerHidden = false,
+  scene,
+  engine,
+  sinkRef,
+  closeDetail,
   onClose,
+  onReopen,
   onGrown,
   onShrunk,
-  children,
 }: InterestLayerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const shadeRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const headRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLElement>(null);
-  const posterRef = useRef<HTMLDivElement>(null);
-  const posterRect = useRef<{ left: number; top: number; width: number; height: number } | null>(null);
+  const driverRef = useRef<MoveDriver | null>(null);
   const { kind, phase } = state;
   const live = phase === "growing" || phase === "open";
 
-  // The scene's first real frame has been drawn: the stage is shown and the poster dissolves. It
-  // stays set through the close, so the scene's last frame stays in the box while it shrinks. The
-  // layer mounts afresh for each open, so this starts false each time.
-  const [drawn, setDrawn] = useState(false);
-  // (a scene only calls this once it is active, which is from the end of the grow)
-  const onDrawn = useCallback(() => setDrawn(true), []);
-  // Past SCENE_GIVE_UP_MS with nothing drawn the scene is told to use its plain grid; the grid draws at
-  // once, so the poster never gives way to the bare stage.
-  const [gaveUp, setGaveUp] = useState(false);
-  useEffect(() => {
-    if (phase !== "open" || drawn) return;
-    const t = window.setTimeout(() => setGaveUp(true), SCENE_GIVE_UP_MS);
-    return () => window.clearTimeout(t);
-  }, [phase, drawn]);
-
-  // The screen changed size (a window resize, a phone turned) while the poster still stands in for
-  // the scene: it covers the new screen. The clip is relative to the viewport, so it follows by itself.
-  useEffect(() => {
-    if (!live || drawn) return;
-    const onResize = () => {
-      const poster = posterRef.current;
-      const rect = posterRect.current;
-      if (!poster || !rect || !poster.classList.contains("go")) return;
-      poster.style.transition = "none";
-      poster.style.transform = posterTransform(posterPose(rect, window.innerWidth, window.innerHeight));
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [live, drawn]);
-
-  // Callbacks and the origin block are read at fire time, so the effects below only
-  // restart on a phase change.
-  const latest = useRef({ from, onGrown, onShrunk });
+  // Everything the move calls back is read at fire time, so the effects below restart only on a phase change.
+  const latest = useRef({ from, kind, engine, instant, onGrown, onShrunk, onReopen, closeDetail });
   useLayoutEffect(() => {
-    latest.current = { from, onGrown, onShrunk };
+    latest.current = { from, kind, engine, instant, onGrown, onShrunk, onReopen, closeDetail };
   });
 
-  // growing: start from the block's rect, then open to full screen on the next frame.
+  // growing: the move to the window (a fresh one, or the closing turned round); shrinking: the move back to the box
   useLayoutEffect(() => {
     const root = rootRef.current;
-    if (phase !== "growing" || !root) return;
-    const reduced = reducedMotion();
-    let raf = 0;
-    // the block's own picture stands in the box at the block's place and size, so the box is never
-    // the bare ground while the scene is built (layer-poster.ts)
-    const poster = posterRef.current;
-    const block = latest.current.from;
-    let pose: PosterPose | null = null;
-    if (poster && block) {
-      const r = block.getBoundingClientRect();
-      const rect = { left: r.left, top: r.top, width: r.width, height: r.height };
-      posterRect.current = rect;
-      poster.replaceChildren(cloneBlock(block, rect));
-      Object.assign(poster.style, {
-        left: `${rect.left}px`,
-        top: `${rect.top}px`,
-        width: `${rect.width}px`,
-        height: `${rect.height}px`,
-        transition: "none",
-        transform: "none",
-        opacity: "1",
-      });
-      poster.classList.remove("go");
-      pose = posterPose(rect, window.innerWidth, window.innerHeight);
-    }
-    root.style.transition = "none";
-    root.style.clipPath = reduced ? FULL : insetFrom(latest.current.from);
-    void root.offsetWidth; // commit the start rect before transitioning from it
-    root.style.transition = "";
-    if (reduced) {
-      if (poster && pose) {
-        poster.style.transform = posterTransform(pose);
-        poster.classList.add("go");
-      }
-    } else {
-      raf = requestAnimationFrame(() => {
-        root.style.transition = `clip-path ${GROW_MS}ms ${EASE}`;
-        root.style.clipPath = FULL;
-        if (poster && pose) {
-          poster.style.transition = `transform ${GROW_MS}ms ${EASE}`;
-          poster.style.transform = posterTransform(pose);
-          poster.classList.add("go");
-        }
+    const stage = stageRef.current;
+    const shade = shadeRef.current;
+    if ((phase !== "growing" && phase !== "shrinking") || !root || !stage || !shade) return;
+    let driver = driverRef.current;
+    const fresh = !driver;
+    if (!driver) {
+      const block = latest.current.from;
+      driver = driverRef.current = createMoveDriver({
+        scene,
+        stage,
+        box: block?.querySelector<HTMLElement>(".blk-box") ?? null,
+        slot: block?.querySelector<HTMLElement>(".blk-live") ?? null,
+        root,
+        shade,
+        head: headRef.current,
+        sink: sinkRef.current,
+        engine: latest.current.engine,
+        reduced: reducedMotion(),
+        closeDetail: () => {
+          if (latest.current.kind) latest.current.closeDetail(latest.current.kind);
+        },
+        done: (to) => {
+          if (to === 1) {
+            latest.current.onGrown();
+            closeRef.current?.focus({ preventScroll: true });
+            return;
+          }
+          // the scene is back in its box: focus goes back to the block's button, then the layer goes
+          const b = latest.current.from;
+          (b?.querySelector<HTMLElement>("[data-xp]") ?? b)?.focus({ preventScroll: true });
+          latest.current.onShrunk();
+        },
       });
     }
-    // the scene starts only after the grow finishes, so the clip never competes with a shader compile
-    const t = window.setTimeout(() => latest.current.onGrown(), reduced ? 0 : SCENE_DELAY_MS);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.clearTimeout(t);
-    };
+    driver.go(phase === "growing" ? 1 : 0, fresh && phase === "growing" && latest.current.instant);
+    // the scene, the stage and the sink are fixed for the layer's life
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
-  // The poster dissolves once the scene has drawn (the stage is shown at the same moment, in layer.css),
-  // and is emptied when it is gone.
-  useLayoutEffect(() => {
-    const poster = posterRef.current;
-    if (!drawn || !poster) return;
-    poster.style.transition = `opacity ${POSTER_FADE_MS}ms ease`;
-    poster.style.opacity = "0";
-    const t = window.setTimeout(() => poster.replaceChildren(), POSTER_FADE_MS + 50);
-    return () => window.clearTimeout(t);
-  }, [drawn]);
-
-  // shrinking: the layer clips back into the block with the scene's last frame (or, closed before the
-  // scene drew, the block's picture) staying in the box, then it is hidden and focus goes back to the
-  // block's button. With reduced motion nothing waits.
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    if (phase !== "shrinking" || !root) return;
-    const reduced = reducedMotion();
-    const poster = posterRef.current;
-    root.style.transition = reduced ? "none" : `clip-path ${GROW_MS}ms ${EASE}`;
-    root.style.clipPath = insetFrom(latest.current.from);
-    if (poster && poster.firstChild && poster.style.opacity !== "0") {
-      poster.style.transition = reduced ? "none" : `transform ${GROW_MS}ms ${EASE}`;
-      poster.style.transform = "none";
-      poster.classList.remove("go");
-    }
-    const done = window.setTimeout(
-      () => {
-        const block = latest.current.from;
-        const target = block?.querySelector<HTMLElement>("[data-xp]") ?? block;
-        target?.focus({ preventScroll: true });
-        latest.current.onShrunk();
-      },
-      reduced ? 0 : SCENE_DELAY_MS,
-    );
-    return () => window.clearTimeout(done);
-  }, [phase]);
-
-  // focus lands on Close 450 ms after opening
+  // the window changed size: the box's place is read again
   useEffect(() => {
-    if (!live) return;
-    const t = window.setTimeout(() => closeRef.current?.focus({ preventScroll: true }), 450);
-    return () => window.clearTimeout(t);
-  }, [live]);
+    const onResize = () => driverRef.current?.resized();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  useEffect(
+    () => () => {
+      driverRef.current?.dispose();
+      driverRef.current = null;
+    },
+    [],
+  );
 
   // keep Tab inside the layer while it is open
   useEffect(() => {
@@ -234,6 +140,7 @@ export default function InterestLayer({
         (el) =>
           el.tabIndex >= 0 &&
           !el.closest("[inert]") &&
+          getComputedStyle(el).visibility !== "hidden" &&
           (el.offsetParent !== null || el === document.activeElement),
       );
       if (items.length === 0) {
@@ -258,18 +165,36 @@ export default function InterestLayer({
     return () => window.removeEventListener("keydown", onKey, true);
   }, [live]);
 
+  // a click on the scene while it closes turns the closing round (the scene is not answering the pointer then)
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage || phase !== "shrinking") return;
+    const onClick = (e: Event) => {
+      e.preventDefault();
+      latest.current.onReopen();
+    };
+    stage.addEventListener("click", onClick);
+    return () => stage.removeEventListener("click", onClick);
+  }, [phase]);
+
   if (phase === "closed" || kind === null) return null;
 
   return (
     <div
       ref={rootRef}
-      className={`home-layer${drawn && (phase === "open" || phase === "shrinking") ? " ready" : ""}`}
+      className="home-layer"
       role="dialog"
       aria-modal="true"
       aria-labelledby="home-layer-title"
     >
+      <div ref={shadeRef} className="layer-shade" aria-hidden="true" />
+      <div ref={stageRef} className="layer-stage" />
       <header
-        className={`xp-head${kind === "watching" ? " xp-head--wall" : ""}${headerHidden ? " hidden" : ""}`}
+        ref={headRef}
+        className={`xp-head${kind === "watching" ? " xp-head--wall" : ""}${
+          headerHidden ? " hidden" : ""
+        }`}
+        style={{ visibility: "hidden", opacity: 0 }}
         {...inertProps(headerHidden)}
       >
         <div className="xp-titles">
@@ -280,15 +205,6 @@ export default function InterestLayer({
         </div>
         <CloseButton ref={closeRef} label="Close" onClick={onClose} />
       </header>
-      <div ref={posterRef} className="layer-poster home-blocks" aria-hidden="true" />
-      {KINDS.map((k) => (
-        <div key={k} className={`xp-pane ${PANE_CLASS[k]}${k === kind ? " on" : ""}`}>
-          <div className="tex" />
-          <div className="stage">
-            {k === kind ? children({ kind: k, active: phase === "open", onDrawn, gaveUp }) : null}
-          </div>
-        </div>
-      ))}
     </div>
   );
 }

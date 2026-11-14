@@ -111,12 +111,37 @@ html.intro .home-blocks {
   font-size: var(--t-body);
   line-height: 1.75;
 }
-/* the preview gets its own row under the text, so the button never sits behind it */
-.home-blocks .blk-art {
+/* the box: its own row under the text, so the button never sits behind it. It holds the live scene (the scene's own element, carried
+   in and out by layer/move-driver.ts) with its dark ground until the scene has drawn; without WebGL, or after a failed scene, the flat
+   preview (.blk-art) is its picture. The whole block is one button over it. */
+.home-blocks .blk-box {
   position: relative;
   flex: 1;
   min-height: 300px;
   margin-top: clamp(14px, 2vw, 26px);
+  border-radius: 14px; /* BOX_RADIUS in layer/open-move.ts */
+  overflow: hidden;
+  background: #0c0b0a;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.home-blocks .blk-live {
+  position: absolute;
+  inset: 0;
+}
+.home-blocks .block[data-live] .blk-art {
+  visibility: hidden;
+}
+.home-blocks .block:not([data-live]) .blk-live {
+  display: none;
+}
+/* a click before the scene is ready: the block is pressed in until it opens (at most 400 ms, layer/open-gate.ts) */
+.home-blocks .block[data-pressed] .blk-box {
+  opacity: 0.8;
+}
+.home-blocks .blk-art {
+  position: absolute;
+  inset: 0;
   pointer-events: none;
   overflow: hidden;
 }

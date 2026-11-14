@@ -33,7 +33,12 @@ describe("the frame box", () => {
     expect(box.hasPending()).toBe(false);
     expect(box.frame()).toEqual(A);
     expect(props.get("position")).toBe("fixed");
-    expect([props.get("left"), props.get("top"), props.get("width"), props.get("height")]).toEqual(["10px", "20px", "480px", "300px"]);
+    expect([props.get("left"), props.get("top"), props.get("width"), props.get("height")]).toEqual([
+      "10px",
+      "20px",
+      "480px",
+      "300px",
+    ]);
   });
 
   it("a move alone writes the style but asks for no new picture; a new size does", () => {
@@ -331,5 +336,65 @@ describe("a frame the caller places (place: false)", () => {
     } finally {
       vi.unstubAllGlobals();
     }
+  });
+});
+
+describe("onApplied (the caller's own element follows the frame in the same frame the engine draws)", () => {
+  it("is called once, by commit, never by request", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    const seen = vi.fn();
+    box.request(A, { place: false, onApplied: seen });
+    expect(seen).not.toHaveBeenCalled();
+    box.commit();
+    expect(seen).toHaveBeenCalledTimes(1);
+    box.commit(); // nothing pending now
+    expect(seen).toHaveBeenCalledTimes(1);
+  });
+
+  it("is called after the frame is in force, whether the size changed, the place did or neither", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    const inForce: Array<Frame | null> = [];
+    const hook = () => inForce.push(box.frame());
+    box.request(A, { place: false, onApplied: hook });
+    box.commit(); // a new size
+    box.request(A, { place: false, onApplied: hook });
+    box.commit(); // the same frame: "none"
+    box.request({ ...A, left: 99 }, { place: false, onApplied: hook });
+    box.commit(); // a move of an unplaced frame: "none"
+    expect(inForce).toEqual([A, A, { ...A, left: 99 }]);
+  });
+
+  it("only the last request's hook runs when several were asked before a commit", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    const first = vi.fn();
+    const second = vi.fn();
+    box.request(A, { place: false, onApplied: first });
+    box.request({ ...A, width: 600 }, { place: false, onApplied: second });
+    box.commit();
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledTimes(1);
+  });
+
+  it("a request without a hook clears the one before it", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    const first = vi.fn();
+    box.request(A, { place: false, onApplied: first });
+    box.request(A, { place: false });
+    box.commit();
+    expect(first).not.toHaveBeenCalled();
+  });
+
+  it("release drops a hook that has not run", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    const hook = vi.fn();
+    box.request(A, { place: false, onApplied: hook });
+    box.release();
+    box.commit();
+    expect(hook).not.toHaveBeenCalled();
   });
 });

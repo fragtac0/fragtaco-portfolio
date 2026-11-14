@@ -41,7 +41,7 @@ export default function ReadingFallback({ books }: ReadingFallbackProps) {
 
   useEffect(
     () =>
-      registerSceneHooks({
+      registerSceneHooks("reading", {
         isBookOpen: () => openRef.current !== null,
         closeBook: close,
       }),

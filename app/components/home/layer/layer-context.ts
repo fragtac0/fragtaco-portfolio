@@ -10,11 +10,14 @@ export type LayerSceneHooks = {
 };
 
 export type LayerControl = {
-  /** `from` is the block the layer grows out of. `push: false` opens without a history entry (deep links). */
-  openLayer: (kind: LayerKind, from: HTMLElement, opts?: { push?: boolean }) => void;
+  /**
+   * `from` is the block the layer grows out of. `push: false` opens without a history entry (deep links); `instant` opens with no
+   * move at all (a deep link or a hard load that starts open).
+   */
+  openLayer: (kind: LayerKind, from: HTMLElement, opts?: { push?: boolean; instant?: boolean }) => void;
   closeLayer: () => void;
-  /** Returns the function that unregisters the hooks. */
-  registerSceneHooks: (hooks: LayerSceneHooks) => () => void;
+  /** Both scenes live for the whole page, so the hooks are kept per kind. Returns the function that unregisters them. */
+  registerSceneHooks: (kind: LayerKind, hooks: LayerSceneHooks) => () => void;
   /** A scene hides the layer's header while it shows something over it (an open video). */
   setHeaderHidden: (hidden: boolean) => void;
 };

@@ -14,26 +14,38 @@ type WatchingSceneProps = {
   engine: WallEngine | null;
   videos: SiteVideo[];
   picks: PickChannel;
-  /** True from the end of the layer's grow to the start of its shrink. */
-  active: boolean;
-  /** Called once the wall's first frame is on the screen: the layer swaps the block's picture for the scene. */
+  /** The wall's loop runs: its box is on screen (or the layer is open) and the tab is visible. */
+  run: boolean;
+  /** The layer is not closed (it is opening, open or closing): the plain grid, if the wall has fallen back to it, is shown. */
+  open: boolean;
+  /** Called when the wall's first frame is drawn into its box (every run's first frame; the box fades the scene in once). */
   onDrawn: () => void;
-  /** The layer waited too long for the first frame: switch to the plain grid and stay on it. */
+  /** The wall cannot draw (no WebGL, a failed start or a lost context): the box shows its flat preview instead. */
+  onPlain: () => void;
+  /** The layer waited too long for a click on a box whose scene was not ready: switch to the plain grid and stay on it. */
   gaveUp: boolean;
 };
 
 /**
- * The watching pane's DOM. The engine draws into the host and drives the chip
- * through the elements it is handed; this component only provides them, starts and stops the
- * engine, shows the detail view for a picked tile (the arrow keys move the pick to another tile
- * while it is open), and registers the hooks Esc uses to close an open video before the layer.
- * While a video is open the wall behind it stays drawn (spread and dimmed) but is `inert`, and the
- * layer's own header is hidden (through the layer context). Once the layer is active the engine
- * prepares urgently. The layer shows the block's own picture until `onDrawn` is called, which is
- * when the wall's first frame has been drawn (or the plain grid is up). A lost graphics context, or
- * the layer giving up on a first frame that is too late (`gaveUp`), switches to the plain grid for good.
+ * The watching pane's DOM, which lives for as long as the page: in the home box (where the wall is drawn small and docked) and,
+ * moved there as a whole by the layer, in the open layer (layer/move-driver.ts). The engine draws into the host and drives the
+ * chip through the elements it is handed; this component only provides them, starts and stops the engine with `run`, shows
+ * the detail view for a picked tile (the arrow keys move the pick to another tile while it is open), and registers the hooks Esc
+ * uses to close an open video before the layer. While a video is open the wall behind it stays drawn (spread and dimmed) but
+ * is `inert`, and the layer's own header is hidden (through the layer context). While its box is on screen the engine prepares
+ * urgently. `onDrawn` is called when the wall's first frame is drawn. A lost graphics context, a failed start, or a click that
+ * waited for a scene that was not ready (`gaveUp`) switches to the plain grid for good (`onPlain`; shown while the layer is open).
  */
-function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: WatchingSceneProps) {
+function WatchingScene({
+  engine,
+  videos,
+  picks,
+  run,
+  open: layerOpen,
+  onDrawn,
+  onPlain,
+  gaveUp,
+}: WatchingSceneProps) {
   const { registerSceneHooks, setHeaderHidden } = useLayerControl();
   const sceneRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -61,18 +73,26 @@ function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: Watch
     if (gaveUp && !drew.current) setFallback(true);
   }, [gaveUp]);
 
-  // The layer is open and waiting: do not yield to idle time while the wall is prepared. Not while
-  // it grows: the clip-path grow runs on the main thread and back-to-back slices would cut into it.
+  // The box is on screen: do not yield to idle time while the wall is prepared.
   useEffect(() => {
-    if (fallback || !engine || !active) return;
+    if (fallback || !engine || !run) return;
     engine.setUrgent(true);
     return () => engine.setUrgent(false);
-  }, [engine, active, fallback]);
+  }, [engine, run, fallback]);
+
+  // the wall cannot draw: the box shows its flat preview
+  const plain = useRef(onPlain);
+  useEffect(() => {
+    plain.current = onPlain;
+  });
+  useEffect(() => {
+    if (fallback) plain.current();
+  }, [fallback]);
 
   useEffect(() => {
     const host = hostRef.current;
     const chip = chipRef.current;
-    const unregister = registerSceneHooks({
+    const unregister = registerSceneHooks("watching", {
       isVideoOpen: () => detailRef.current?.isOpen() ?? false,
       closeVideo: () => detailRef.current?.close(),
     });
@@ -89,7 +109,7 @@ function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: Watch
   }, [engine, picks, registerSceneHooks, fallback]);
 
   useEffect(() => {
-    if (fallback || !engine || !active) return;
+    if (fallback || !engine || !run) return;
     let live = true;
     // the wall could not start (no context, a failed shader): show the grid instead
     void engine
@@ -111,12 +131,7 @@ function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: Watch
       live = false;
       engine.stop();
     };
-  }, [engine, active, fallback]);
-
-  // no WebGL wall: the grid is the scene, and there is no frame to wait for
-  useEffect(() => {
-    if (fallback && active) drawn.current();
-  }, [fallback, active]);
+  }, [engine, run, fallback]);
 
   // While a video is open the wall is inert and the layer's header is hidden (and inert), so Tab
   // stays on the detail view; when it has closed they wake up and focus goes back to the wall stage.
@@ -128,7 +143,9 @@ function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: Watch
     setHeaderHidden(open);
     if (!open && wasOpen.current) {
       const back = fallback
-        ? sceneRef.current?.querySelector<HTMLElement>(`[data-key="${CSS.escape(lastKey.current ?? "")}"]`)
+        ? sceneRef.current?.querySelector<HTMLElement>(
+            `[data-key="${CSS.escape(lastKey.current ?? "")}"]`,
+          )
         : hostRef.current?.querySelector("canvas");
       back?.focus({ preventScroll: true });
     }
@@ -139,24 +156,34 @@ function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: Watch
     };
   }, [open, fallback, setHeaderHidden]);
 
-  const video = pick ? (videos[pick.index] ?? null) : null;
+  // The scene stays alive in its box when the layer is closed: a video still open then is put away, and the wall's choice with it.
+  const [prevLayerOpen, setPrevLayerOpen] = useState(layerOpen);
+  if (prevLayerOpen !== layerOpen) {
+    setPrevLayerOpen(layerOpen);
+    if (!layerOpen) setPick(null);
+  }
+  useEffect(() => {
+    if (layerOpen || !engine) return;
+    engine.release();
+    engine.thaw(true);
+  }, [layerOpen, engine]);
+
+  const video = pick ? videos[pick.index] ?? null : null;
   const more = pick ? echoSet(videos, pick.index).size : 0;
 
   return (
-    <div
-      ref={sceneRef}
-      className="wall-scene"
-      data-open={open ? "true" : undefined}
-    >
+    <div ref={sceneRef} className="wall-scene" data-open={open ? "true" : undefined}>
       <div ref={mainRef} className="wall-main">
         {fallback ? (
-          <WatchingFallback
-            videos={videos}
-            onPick={(p) => {
-              lastKey.current = p.key;
-              setPick(p);
-            }}
-          />
+          layerOpen ? (
+            <WatchingFallback
+              videos={videos}
+              onPick={(p) => {
+                lastKey.current = p.key;
+                setPick(p);
+              }}
+            />
+          ) : null
         ) : (
           <>
             <div ref={hostRef} className="wall-host" />

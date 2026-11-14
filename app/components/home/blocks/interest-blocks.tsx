@@ -1,4 +1,12 @@
-import { memo, useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
+import {
+  memo,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { inertProps } from "../../../utils/inert";
 import { countLabel } from "../../../utils/count-label";
 import type { SiteBook, SiteVideo } from "../../../types";
@@ -20,8 +28,12 @@ export const BLOCK_ID: Record<LayerKind, string> = {
 type InterestBlocksProps = {
   books: SiteBook[];
   videos: SiteVideo[];
-  /** `el` is the block the layer grows out of. */
-  onOpen: (kind: LayerKind, el: HTMLElement) => void;
+  /** A click on a block: the home page decides what it does while the block's scene is not ready (layer/open-gate.ts). */
+  onOpen: (kind: LayerKind) => void;
+  /** Each scene's own element (null on the server): it stands in its block's box, drawn live (layer/box-scene.ts). */
+  homes: Record<LayerKind, HTMLElement> | null;
+  /** The box shows its live scene (WebGL, not failed); false: the flat mini preview is the box's picture. */
+  live: Record<LayerKind, boolean>;
   /** Fires once per kind, in idle time, when its block comes within 240 px of the viewport. */
   onNear: (kind: LayerKind) => void;
   /** A hero card is open over the page: the blocks are out of the tab order until it closes. */
@@ -30,11 +42,24 @@ type InterestBlocksProps = {
   covered?: boolean;
 };
 
-function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covered = false }: InterestBlocksProps) {
+function InterestBlocks({
+  books,
+  videos,
+  onOpen,
+  homes,
+  live,
+  onNear,
+  blocked = false,
+  covered = false,
+}: InterestBlocksProps) {
   const readRef = useRef<HTMLElement>(null);
   const watchRef = useRef<HTMLElement>(null);
   const blocks = useMemo(
-    () => [["reading", readRef], ["watching", watchRef]] as const,
+    () =>
+      [
+        ["reading", readRef],
+        ["watching", watchRef],
+      ] as const,
     [],
   );
   // the shelf block coming near also lets its small spines load their faces (use-mini-spines.ts)
@@ -47,6 +72,15 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
     [onNear],
   );
   useNear(blocks, onNearBlock);
+
+  // each scene's element stands in its box (the layer carries it away while it is open, and back)
+  useLayoutEffect(() => {
+    if (!homes) return;
+    for (const [kind, ref] of blocks) {
+      const slot = ref.current?.querySelector(".blk-live");
+      if (slot && !homes[kind].parentElement) slot.appendChild(homes[kind]);
+    }
+  }, [homes, blocks]);
 
   const columns = miniWallColumns(videos);
   const spines = useMemo(() => books.map(miniSpine), [books]);
@@ -66,7 +100,12 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
       <EclipseGround placement={2} scope="section" covered={covered} />
       <div className="below">
         <div className="blocks">
-          <article ref={readRef} className="block idle" id={BLOCK_ID.reading}>
+          <article
+            ref={readRef}
+            className="block idle"
+            id={BLOCK_ID.reading}
+            data-live={live.reading ? "" : undefined}
+          >
             <div className="blk-text">
               <h2 className="display">
                 {"What I'm"}
@@ -81,39 +120,47 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
                 Open the shelf
               </span>
             </div>
-            <div ref={shelfArtRef} className="blk-art ms" aria-hidden="true">
-              <MiniLedge />
-              <div ref={shelfRowRef} className="ms-row">
-                {books.map((book, i) => {
-                  const s = spines[i];
-                  return (
-                    <div
-                      key={book.id}
-                      className="ms-sp"
-                      style={
-                        {
-                          "--i": i,
-                          width: s.width,
-                          height: s.height,
-                          backgroundColor: s.background,
-                        } as CSSProperties
-                      }
-                    >
-                      <canvas data-spine={i} />
-                    </div>
-                  );
-                })}
+            <div className="blk-box">
+              <div ref={shelfArtRef} className="blk-art ms" aria-hidden="true">
+                <MiniLedge />
+                <div ref={shelfRowRef} className="ms-row">
+                  {books.map((book, i) => {
+                    const s = spines[i];
+                    return (
+                      <div
+                        key={book.id}
+                        className="ms-sp"
+                        style={
+                          {
+                            "--i": i,
+                            width: s.width,
+                            height: s.height,
+                            backgroundColor: s.background,
+                          } as CSSProperties
+                        }
+                      >
+                        <canvas data-spine={i} />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+              <div className="blk-live" />
             </div>
             <button
               type="button"
               className="blk-hit"
               data-xp="reading"
               aria-label="Open the shelf"
-              onClick={(e) => onOpen("reading", readRef.current ?? e.currentTarget)}
+              onClick={() => onOpen("reading")}
             />
           </article>
-          <article ref={watchRef} className="block idle" id={BLOCK_ID.watching}>
+          <article
+            ref={watchRef}
+            className="block idle"
+            id={BLOCK_ID.watching}
+            data-live={live.watching ? "" : undefined}
+          >
             <div className="blk-text">
               <h2 className="display">
                 {"What I'm"}
@@ -128,29 +175,32 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
                 Open the wall
               </span>
             </div>
-            <div className="blk-art mw" aria-hidden="true">
-              <div className="mw-cols">
-                {columns.map((ids, c) => (
-                  <div key={c} className="mw-col">
-                    {[...ids, ...ids].map((id, k) => (
-                      <img
-                        key={k}
-                        src={miniThumbUrl(id)}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ))}
-                  </div>
-                ))}
+            <div className="blk-box">
+              <div className="blk-art mw" aria-hidden="true">
+                <div className="mw-cols">
+                  {columns.map((ids, c) => (
+                    <div key={c} className="mw-col">
+                      {[...ids, ...ids].map((id, k) => (
+                        <img
+                          key={k}
+                          src={miniThumbUrl(id)}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
+              <div className="blk-live" />
             </div>
             <button
               type="button"
               className="blk-hit"
               data-xp="watching"
               aria-label="Open the wall"
-              onClick={(e) => onOpen("watching", watchRef.current ?? e.currentTarget)}
+              onClick={() => onOpen("watching")}
             />
           </article>
         </div>

@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { createPortal } from "react-dom";
 import type { getHomePageContent } from "../../content/loaders.server";
 import SiteNav from "../site-nav";
 import InterestBlocks from "./blocks/interest-blocks";
@@ -11,9 +20,12 @@ import { countLabel } from "../../utils/count-label";
 import { layerFromHash, type LayerKind } from "./layer/layer-state";
 import { useLayerHistory } from "./layer/use-layer-history";
 import ReadingScene from "./reading/reading-scene";
+import { useBoxScenes } from "./use-box-scenes";
 import { useSceneEngines } from "./use-scene-engines";
 import { wallOrder } from "./watching/wall-block";
 import WatchingScene from "./watching/watching-scene";
+
+const noSubscription = () => () => {};
 
 /** What the home route's loader sends, which is exactly what the page takes. */
 type HomePageProps = Awaited<ReturnType<typeof getHomePageContent>>;
@@ -59,6 +71,7 @@ export default function HomePage({
   const {
     layer,
     layerFrom,
+    layerInstant,
     layerActive,
     layerControl,
     headerHidden,
@@ -66,6 +79,7 @@ export default function HomePage({
     closeLayer,
     dispatchLayer,
     openFromHash,
+    closeDetail,
   } = useLayerHistory({ heroRef, setLayerOpen });
 
   // The dock's home tab: close a card, close a layer (the same path Esc takes, so the URL hash and
@@ -95,6 +109,34 @@ export default function HomePage({
 
   // The shelf and wall engines, and what a block coming near warms up in them.
   const { shelf, wall, wallPicks, onBlockNear } = useSceneEngines(books, videos);
+  // the scenes live in their home boxes all the time (spec 6.1) and the layer carries them out and back (layer/move-driver.ts)
+  const engines = useMemo(() => ({ reading: shelf, watching: wall }), [shelf, wall]);
+  const boxes = useBoxScenes(layer, engines, openLayer);
+  const { onDrawn, onPlain } = boxes;
+  const onDrawnReading = useCallback(() => onDrawn("reading"), [onDrawn]);
+  const onPlainReading = useCallback(() => onPlain("reading"), [onPlain]);
+  const onDrawnWatching = useCallback(() => onDrawn("watching"), [onDrawn]);
+  const onPlainWatching = useCallback(() => onPlain("watching"), [onPlain]);
+  // false on the server and in the hydration render, true after (the scenes and the live boxes are client only)
+  const clientReady = useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
+  const live = useMemo(
+    () => ({
+      reading: clientReady && boxes.status.reading !== "plain",
+      watching: clientReady && boxes.status.watching !== "plain",
+    }),
+    [clientReady, boxes.status.reading, boxes.status.watching],
+  );
+  // the home page behind a layer sinks and dims while it opens (layer/move-driver.ts writes its transform)
+  const sinkRef = useRef<HTMLDivElement>(null);
+  const layerOpen = layer.phase !== "closed";
+  const settledKind = layer.phase === "open" ? layer.kind : null;
+  const onReopen = useCallback(() => {
+    if (layer.kind && layerFrom) openLayer(layer.kind, layerFrom);
+  }, [layer.kind, layerFrom, openLayer]);
 
   const onHeroReady = useCallback(() => {
     dispatch({ kind: "show" });
@@ -110,7 +152,7 @@ export default function HomePage({
     }
     // Arriving at /#reading or /#watching: open that layer from its block.
     const kind = layerFromHash(window.location.hash);
-    if (kind) openFromHash(kind);
+    if (kind) openFromHash(kind, true);
   }, [dispatch, openFromHash]);
 
   const layerMeta: Record<LayerKind, string> = {
@@ -127,32 +169,36 @@ export default function HomePage({
   return (
     <LayerControlContext.Provider value={layerControl}>
       <main className="home-page bg-ink text-fog">
-        <Hero
-          ref={heroRef}
-          name={home.hero.name}
-          roles={home.hero.roles}
-          paintings={heroPaintings}
-          firstPaintingId={firstPaintingId}
-          softened={open}
-          onReady={onHeroReady}
-        >
-          <HeroCards
-            about={home.about}
-            credits={home.credits}
-            nav={nav}
-            dispatch={dispatch}
-            hero={heroRef}
-            navCtx={navCtx}
+        <div ref={sinkRef} className="home-sink">
+          <Hero
+            ref={heroRef}
+            name={home.hero.name}
+            roles={home.hero.roles}
+            paintings={heroPaintings}
+            firstPaintingId={firstPaintingId}
+            softened={open}
+            onReady={onHeroReady}
+          >
+            <HeroCards
+              about={home.about}
+              credits={home.credits}
+              nav={nav}
+              dispatch={dispatch}
+              hero={heroRef}
+              navCtx={navCtx}
+            />
+          </Hero>
+          <InterestBlocks
+            books={books}
+            videos={videos}
+            onOpen={boxes.onOpen}
+            homes={boxes.homes}
+            live={live}
+            onNear={onBlockNear}
+            blocked={open}
+            covered={layerActive}
           />
-        </Hero>
-        <InterestBlocks
-          books={books}
-          videos={videos}
-          onOpen={openLayer}
-          onNear={onBlockNear}
-          blocked={open}
-          covered={layerActive}
-        />
+        </div>
         <SiteNav
           items={navigationItems}
           socialLinks={socialLinks}
@@ -162,39 +208,60 @@ export default function HomePage({
             onHome,
           }}
         />
-        {layer.kind !== null && layerActive && (
+        {layer.kind !== null && layerActive && boxes.homes && (
           <InterestLayer
             state={layer}
             from={layerFrom}
+            instant={layerInstant}
             title={LAYER_TITLE[layer.kind]}
             meta={layerMeta[layer.kind]}
             headerHidden={headerHidden}
+            scene={boxes.homes[layer.kind]}
+            engine={
+              boxes.status[layer.kind] === "plain" || boxes.gaveUp[layer.kind]
+                ? null
+                : layer.kind === "reading"
+                ? shelf
+                : wall
+            }
+            sinkRef={sinkRef}
+            closeDetail={closeDetail}
             onClose={closeLayer}
+            onReopen={onReopen}
             onGrown={() => dispatchLayer({ type: "grown" })}
             onShrunk={() => dispatchLayer({ type: "shrunk" })}
-          >
-            {({ kind, active, onDrawn, gaveUp }) =>
-              kind === "reading" ? (
-                <ReadingScene
-                  engine={shelf}
-                  books={books}
-                  active={active}
-                  onDrawn={onDrawn}
-                  gaveUp={gaveUp}
-                />
-              ) : (
-                <WatchingScene
-                  engine={wall}
-                  videos={videos}
-                  picks={wallPicks}
-                  active={active}
-                  onDrawn={onDrawn}
-                  gaveUp={gaveUp}
-                />
-              )
-            }
-          </InterestLayer>
+          />
         )}
+        {clientReady && boxes.homes
+          ? createPortal(
+              <ReadingScene
+                engine={shelf}
+                books={books}
+                run={boxes.run.reading}
+                open={layerOpen && layer.kind === "reading"}
+                settled={settledKind === "reading"}
+                onDrawn={onDrawnReading}
+                onPlain={onPlainReading}
+                gaveUp={boxes.gaveUp.reading}
+              />,
+              boxes.homes.reading,
+            )
+          : null}
+        {clientReady && boxes.homes
+          ? createPortal(
+              <WatchingScene
+                engine={wall}
+                videos={videos}
+                picks={wallPicks}
+                run={boxes.run.watching}
+                open={layerOpen && layer.kind === "watching"}
+                onDrawn={onDrawnWatching}
+                onPlain={onPlainWatching}
+                gaveUp={boxes.gaveUp.watching}
+              />,
+              boxes.homes.watching,
+            )
+          : null}
       </main>
     </LayerControlContext.Provider>
   );

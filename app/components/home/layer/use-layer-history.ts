@@ -24,8 +24,7 @@ import {
  * history.state: keep it, add `xp`, and bump `idx` because Remix counts entries by it.
  */
 export function nextHistoryState(current: unknown, kind: LayerKind): object {
-  const prev =
-    typeof current === "object" && current !== null ? (current as { idx?: number }) : {};
+  const prev = typeof current === "object" && current !== null ? (current as { idx?: number }) : {};
   return { ...prev, xp: kind, idx: (prev.idx ?? 0) + 1 };
 }
 
@@ -53,19 +52,33 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
   // True while the layer owns a history entry it pushed (not a deep link): closing then goes Back.
   const pushedRef = useRef(false);
   const [layerFrom, setLayerFrom] = useState<HTMLElement | null>(null);
-  const sceneHooks = useRef<LayerSceneHooks>({});
+  // the layer was opened with no move (a deep link or a hard load that starts open)
+  const [layerInstant, setLayerInstant] = useState(false);
+  // `history.back()` has been called and its popstate has not arrived yet; a click that turns the closing round in that time
+  // pushes its entry when the pop has arrived (`reopenRef`)
+  const backPendingRef = useRef(false);
+  const reopenRef = useRef<LayerKind | null>(null);
+  const sceneHooks = useRef<Partial<Record<LayerKind, LayerSceneHooks>>>({});
   // Set by a scene through the layer context; the layer is the one that hides its own header.
   const [headerHidden, setHeaderHidden] = useState(false);
   const layerLive = layer.phase === "growing" || layer.phase === "open";
 
   const openLayer = useCallback<LayerControl["openLayer"]>(
     (kind, from, opts) => {
-      if (layerRef.current.phase !== "closed") return;
+      const now = layerRef.current;
+      // a click on the block that is closing turns the closing round (open-move.ts `turn`): the entry the close left is pushed again
+      const turning = now.phase === "shrinking" && now.kind === kind;
+      if (now.phase !== "closed" && !turning) return;
       setLayerFrom(from);
+      setLayerInstant(!!opts?.instant && !turning);
       setLayerOpen(true);
       if (opts?.push !== false) {
-        window.history.pushState(nextHistoryState(window.history.state, kind), "", "#" + kind);
-        pushedRef.current = true;
+        if (turning && backPendingRef.current) {
+          reopenRef.current = kind;
+        } else {
+          window.history.pushState(nextHistoryState(window.history.state, kind), "", "#" + kind);
+          pushedRef.current = true;
+        }
       } else {
         pushedRef.current = false;
       }
@@ -80,6 +93,7 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
     if (pushedRef.current) {
       // leave the entry the layer pushed; the popstate that follows finds the layer already shrinking
       pushedRef.current = false;
+      backPendingRef.current = true;
       window.history.back();
     } else {
       // a deep link owns no entry of its own: just drop the hash (the query string stays)
@@ -90,12 +104,17 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
       );
     }
   }, [dispatchLayer]);
-  const registerSceneHooks = useCallback((hooks: LayerSceneHooks) => {
-    sceneHooks.current = hooks;
+  const registerSceneHooks = useCallback((kind: LayerKind, hooks: LayerSceneHooks) => {
+    sceneHooks.current[kind] = hooks;
     return () => {
-      if (sceneHooks.current === hooks) sceneHooks.current = {};
+      if (sceneHooks.current[kind] === hooks) delete sceneHooks.current[kind];
     };
   }, []);
+  /** An open video is put away as a closing begins (the scene stays alive in its box, so it must not be left open). */
+  const closeDetail = useCallback(
+    (kind: LayerKind) => sceneHooks.current[kind]?.closeVideo?.(),
+    [],
+  );
   const layerControl = useMemo<LayerControl>(
     () => ({ openLayer, closeLayer, registerSceneHooks, setHeaderHidden }),
     [openLayer, closeLayer, registerSceneHooks],
@@ -103,13 +122,13 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
 
   // A deep link (/#reading, /#watching on arrival, or a history move onto one) opens the layer
   // from its block, with no history entry of its own. The block is scrolled into view first,
-  // instantly, so the grow starts from where the block is.
+  // instantly, so the move starts from where the block is. On arrival (`instant`) there is no move at all.
   const openFromHash = useCallback(
-    (kind: LayerKind) => {
+    (kind: LayerKind, instant = false) => {
       const block = document.getElementById(BLOCK_ID[kind]);
       if (!block) return;
       block.scrollIntoView({ block: "center", behavior: "instant" });
-      openLayer(kind, block, { push: false });
+      openLayer(kind, block, { push: false, instant });
     },
     [openLayer],
   );
@@ -137,7 +156,16 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
   // a move onto /#reading or /#watching (Forward) opens it.
   useEffect(() => {
     const onPop = () => {
+      backPendingRef.current = false;
       pushedRef.current = false;
+      // the closing was turned round before this pop arrived: the entry the click wanted is pushed now, and the layer stays
+      const again = reopenRef.current;
+      reopenRef.current = null;
+      if (again && layerRef.current.phase !== "closed") {
+        window.history.pushState(nextHistoryState(window.history.state, again), "", "#" + again);
+        pushedRef.current = true;
+        return;
+      }
       if (layerRef.current.phase !== "closed") {
         dispatchLayer({ type: "close" });
         return;
@@ -154,7 +182,7 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
     if (!layerLive) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.repeat) return; // a held key must not walk down the layers
-      const h = sceneHooks.current;
+      const h = sceneHooks.current[layerRef.current.kind ?? "reading"] ?? {};
       const target = escTarget({
         bookOpen: h.isBookOpen?.() ?? false,
         videoOpen: h.isVideoOpen?.() ?? false,
@@ -173,6 +201,7 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
   return {
     layer,
     layerFrom,
+    layerInstant,
     layerActive,
     layerControl,
     headerHidden,
@@ -180,5 +209,6 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
     closeLayer,
     dispatchLayer,
     openFromHash,
+    closeDetail,
   };
 }

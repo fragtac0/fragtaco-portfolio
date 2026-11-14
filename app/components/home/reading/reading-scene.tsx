@@ -11,24 +11,38 @@ type ReadingSceneProps = {
   /** Null on the server and until HomePage has created it on the client. */
   engine: ShelfEngine | null;
   books: SiteBook[];
-  /** True from the end of the layer's grow to the start of its shrink. */
-  active: boolean;
-  /** Called once the shelf's first frame is on the screen: the layer swaps the block's picture for the scene. */
+  /** The shelf's loop runs: its box is on screen (or the layer is open) and the tab is visible. */
+  run: boolean;
+  /** The layer is not closed (it is opening, open or closing): the plain grid, if the shelf has fallen back to it, is shown. */
+  open: boolean;
+  /** The layer is open and still (not moving): the dot field moves. In the box and during the move it is held still. */
+  settled: boolean;
+  /** Called when the shelf's first frame is drawn into its box (every run's first frame; the box fades the scene in once). */
   onDrawn: () => void;
-  /** The layer waited too long for the first frame: switch to the plain grid and stay on it. */
+  /** The shelf cannot draw (no WebGL2, a failed start or a lost context): the box shows its flat preview instead. */
+  onPlain: () => void;
+  /** The layer waited too long for a click on a box whose scene was not ready: switch to the plain grid and stay on it. */
   gaveUp: boolean;
 };
 
 /**
- * The reading pane's DOM. The engine draws into the host and drives the note
- * through the elements it is handed; this component only provides them, starts and stops the
- * engine, and registers the hooks Esc uses to close an open book before the layer. Once the layer
- * is active (open and waiting) the engine prepares urgently. The layer shows the block's own
- * picture until `onDrawn` is called, which is when the shelf's first frame has been drawn (the
- * books stand in place at once, as the picture showed them; with no 3D shelf, as soon as the plain
- * grid is up). If the first frame is too late (`gaveUp`) the plain grid takes over for good.
+ * The reading pane's DOM, which lives for as long as the page: in the home box (where the shelf is drawn small and docked)
+ * and, moved there as a whole by the layer, in the open layer (layer/move-driver.ts). The engine draws into the host and drives
+ * the note through the elements it is handed; this component only provides them, starts and stops the engine with `run`, and
+ * registers the hooks Esc uses to close an open book before the layer. While its box is on screen the engine prepares urgently.
+ * `onDrawn` is called when the shelf's first frame is drawn (the books stand in place at once); with no 3D shelf (no WebGL2, a
+ * failed start, a lost context, or `gaveUp`) `onPlain` is called and the plain grid is shown, but only while the layer is open.
  */
-function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingSceneProps) {
+function ReadingScene({
+  engine,
+  books,
+  run,
+  open,
+  settled,
+  onDrawn,
+  onPlain,
+  gaveUp,
+}: ReadingSceneProps) {
   const { registerSceneHooks } = useLayerControl();
   const stageRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -52,13 +66,21 @@ function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingScenePr
     if (gaveUp && !drew.current) setFallback(true);
   }, [gaveUp]);
 
-  // The layer is open and waiting: do not yield to idle time while the shelf is prepared. Not while
-  // it grows: the clip-path grow runs on the main thread and back-to-back slices would cut into it.
+  // The box is on screen: do not yield to idle time while the shelf is prepared.
   useEffect(() => {
-    if (fallback || !engine || !active) return;
+    if (fallback || !engine || !run) return;
     engine.setUrgent(true);
     return () => engine.setUrgent(false);
-  }, [engine, active, fallback]);
+  }, [engine, run, fallback]);
+
+  // the shelf cannot draw: the box shows its flat preview
+  const plain = useRef(onPlain);
+  useEffect(() => {
+    plain.current = onPlain;
+  });
+  useEffect(() => {
+    if (fallback) plain.current();
+  }, [fallback]);
 
   useEffect(() => {
     if (fallback) return;
@@ -73,7 +95,7 @@ function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingScenePr
       marker: markerRef.current ?? undefined,
       status: statusRef.current ?? undefined,
     });
-    const unregister = registerSceneHooks({
+    const unregister = registerSceneHooks("reading", {
       isBookOpen: () => engine.hasOpen(),
       closeBook: () => engine.closeBook(),
     });
@@ -87,7 +109,7 @@ function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingScenePr
   }, [engine, registerSceneHooks, fallback]);
 
   useEffect(() => {
-    if (fallback || !engine || !active) return;
+    if (fallback || !engine || !run) return;
     let live = true;
     void engine
       .start({
@@ -108,17 +130,13 @@ function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingScenePr
       live = false;
       engine.stop();
     };
-  }, [engine, active, fallback]);
+  }, [engine, run, fallback]);
 
-  // no 3D shelf: the grid is the scene, and there is no frame to wait for
-  useEffect(() => {
-    if (fallback && active) drawn.current();
-  }, [fallback, active]);
+  // the dot field behind the row moves only while the layer is open and still (and the tab visible): in the box and during the
+  // move it is held where its first picture drew it, so nothing in the picture changes between the box and the move; a still frame is drawn at once
+  useDotField(dotsRef, settled && !fallback);
 
-  // the dot field behind the row moves only while the shelf is open (and the tab visible); a still frame is drawn at once
-  useDotField(dotsRef, active && !fallback);
-
-  if (fallback) return <ReadingFallback books={books} />;
+  if (fallback) return open ? <ReadingFallback books={books} /> : null;
 
   return (
     <div ref={stageRef} className="shelf-scene">

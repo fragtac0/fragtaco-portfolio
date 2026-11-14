@@ -61,7 +61,7 @@ export type WallEngine = {
    * the frame's size is used: a move is nothing, a new size is a resize, and switching `place` at the same size changes no
    * picture. Never rebuilds the wall: a frame asked for while the loop runs is applied by the loop in the frame it draws, so the
    * canvas's size and picture change together. Called while the loop is stopped it applies at once (the canvas keeps its old
-   * buffer until the next `start()`), so call it on a hidden or running wall.
+   * buffer until the next `start()`), so call it on a hidden or running wall. `place: false` while the wall is not docked is not supported (the pointer's place, `st.ox`/`st.oy`, is not kept up to date by a move that the caller makes).
    */
   setFrame(frame: Frame | null, opts?: FrameOptions): void;
   /**

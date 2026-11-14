@@ -272,6 +272,7 @@ export function createShelf(
     async start(opts) {
       const my = ++runToken;
       box.resume();
+      box.invalidate(); // a whenDrawn asked now waits for this run's first frame, not the last run's
       onFirstFrame = opts?.onFirstFrame ?? null;
       await prepare();
       if (my !== runToken) return;

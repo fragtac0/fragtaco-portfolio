@@ -28,6 +28,13 @@ export type FrameOptions = {
    * Switching between the two at the same size changes the style only, never the picture.
    */
   place?: boolean;
+  /**
+   * Called once, by `commit`, right after this frame is in force: in the engine's own frame, before it sizes its buffer and
+   * draws. A caller whose own element must follow the frame exactly (the home box's growing frame) writes it here, so the
+   * element and the picture change in the same frame whatever order the page's animation-frame callbacks run in. Dropped
+   * if a later request replaces this one before it is committed, and by `release`.
+   */
+  onApplied?: () => void;
 };
 
 /** How a scene is docked (`setDocked`). */
@@ -81,7 +88,11 @@ const savedTransition = new WeakMap<object, { value: string; priority: string }>
  * motion's 0.01 ms on everything) would otherwise start on the size changing back and hold the old size for a frame, and the
  * engine reads the size in that frame.
  */
-export function clearPlacement(el: HTMLElement | HTMLCanvasElement, props: readonly string[], stillFramed: () => boolean): void {
+export function clearPlacement(
+  el: HTMLElement | HTMLCanvasElement,
+  props: readonly string[],
+  stillFramed: () => boolean,
+): void {
   for (const p of props) el.style.removeProperty(p);
   const done = () => {
     const was = savedTransition.get(el);
@@ -100,7 +111,10 @@ export function clearPlacement(el: HTMLElement | HTMLCanvasElement, props: reado
  */
 export function noTransition(el: HTMLElement | HTMLCanvasElement): void {
   if (!savedTransition.has(el)) {
-    savedTransition.set(el, { value: el.style.getPropertyValue("transition-property"), priority: el.style.getPropertyPriority("transition-property") });
+    savedTransition.set(el, {
+      value: el.style.getPropertyValue("transition-property"),
+      priority: el.style.getPropertyPriority("transition-property"),
+    });
   }
   el.style.setProperty("transition-property", "opacity", "important");
 }
@@ -110,6 +124,7 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
   let placed = true;
   let asked: Frame | null = null;
   let askedPlace = true;
+  let applied: (() => void) | null = null;
   let pending = false;
   /** No frame has been drawn since the last run, window size or committed new size. */
   let stale = true;
@@ -149,6 +164,7 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
     request(f, opts) {
       asked = f;
       askedPlace = opts?.place !== false;
+      applied = opts?.onApplied ?? null;
       pending = true;
     },
     hasPending: () => pending,
@@ -163,6 +179,9 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
       placed = nextPlaced;
       if (resized) stale = true;
       if (resized || restyle) place();
+      const hook = applied;
+      applied = null;
+      hook?.();
       return resized ? "resized" : restyle ? "moved" : "none";
     },
     view: (vw, vh, dpr) => frameView(frame, vw, vh, dpr),
@@ -189,6 +208,7 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
     },
     release() {
       pending = false;
+      applied = null;
       frame = null;
       placed = true;
       place();

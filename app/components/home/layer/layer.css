@@ -1,14 +1,68 @@
 /* =====================================================================
-   THE LAYER: reading and watching grow out of their block (mockup: .xp)
+   THE LAYER: reading and watching open out of their box in one move (spec 6.2; layer/move-driver.ts)
+   It has no ground of its own: the scene's own element (.box-scene below) is the frame that grows, and the home page behind it
+   is the one that sinks (the black .layer-shade lays the dimming over it).
    ===================================================================== */
 .home-layer {
   position: fixed;
   inset: 0;
   z-index: var(--z-layer);
+  color: var(--cream);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+.home-layer .layer-shade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+}
+.home-layer .layer-stage {
+  display: contents;
+}
+/* a scene's own element: it stands in its home box and is carried to the layer while the box opens (box-scene.ts, move-driver.ts).
+   Its own ground and the open page's texture are part of the picture; the scene's DOM fades in once the first frame is drawn. */
+.box-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
   background: var(--ground);
   color: var(--cream);
   font-family: "IBM Plex Mono", ui-monospace, monospace;
-  transition: clip-path 0.66s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.box-scene[data-kind="watching"] {
+  background: radial-gradient(75% 65% at 50% 46%, var(--surface-1) 0%, var(--ground) 80%);
+}
+.box-scene > :not(.tex) {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.box-scene[data-drawn] > :not(.tex),
+.box-scene[data-plain] > :not(.tex) {
+  opacity: 1;
+}
+/* growing: a fixed frame at the place the driver writes (left, top, width, height, border-radius) */
+.box-scene[data-at="move"] {
+  position: fixed;
+  inset: auto;
+  z-index: 1;
+}
+.box-scene[data-at="open"] {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  border-radius: 0;
+}
+/* the plain grid (no 3D scene) is laid out for the whole window, kept at its size while the frame grows round it, and fades in with the chrome */
+.box-scene[data-plain][data-at="move"] > :not(.tex) {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  inset: auto;
+  width: var(--vw);
+  height: var(--vh);
+  transform: translate(-50%, -50%);
+  opacity: var(--inner-alpha, 0);
+  transition: none;
 }
 .home-layer .display {
   font-family: Doto, monospace;
@@ -109,52 +163,6 @@
 .home-layer .xp-close {
   margin-left: auto;
 }
-.home-layer .xp-pane {
-  position: absolute;
-  inset: 0;
-}
-.home-layer .xp-pane:not(.on) {
-  display: none;
-}
-/* the shelf stands on plain ground, so the spines are seen as painted (spec 8) */
-.home-layer .pane-read {
-  background: var(--ground);
-}
-.home-layer .pane-watch {
-  background: radial-gradient(75% 65% at 50% 46%, var(--surface-1) 0%, var(--ground) 80%);
-}
-/* The stage is shown, at once, when the scene has drawn its first real frame (`ready`): the poster above it
-   dissolves, so the box goes from the block's picture to the scene with no bare ground between. It stays
-   shown while the layer shrinks back, so the scene's last frame is what shrinks. */
-.home-layer .stage {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-}
-.home-layer.ready .stage {
-  opacity: 1;
-}
-/* the block's own picture, grown with the clip until the scene is on the screen (layer-poster.ts); the
-   timing is set in interest-layer.tsx, with the same length and curve as the clip */
-.home-layer .layer-poster {
-  position: absolute;
-  z-index: 2;
-  margin: 0;
-  overflow: hidden;
-  transform-origin: 50% 50%;
-  pointer-events: none;
-  /* kept: looked at with and without it (R49.2b), the grown copy is just as sharp once the grow ends (Chrome draws it again at the new size) and it grows on its own layer */
-  will-change: transform, opacity;
-  transition: none;
-}
-.home-layer .layer-poster .blk-text {
-  transition: opacity 0.25s ease;
-}
-/* the layer has its own title: the block's words are gone as it grows */
-.home-layer .layer-poster.go .blk-text {
-  opacity: 0;
-}
-
 /* the reading / watching layer is open (its own class, so it never fights intro or cards-open) */
 html.locked,
 html.locked body {
@@ -174,10 +182,7 @@ html.locked body {
   .home-layer *::after {
     transition-duration: 0.01ms !important;
   }
-  /* the layer appears in place (no clip-path grow) and fades in */
-  .home-layer {
-    animation: home-fade 0.3s ease backwards;
-  }
+  /* no growing frame: the open page fades in and out over 200 ms, written by the move driver */
 }
 
 /* =====================================================================
