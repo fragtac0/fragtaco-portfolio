@@ -18,9 +18,10 @@ describe("the tokens of the words", () => {
     expect(token("--map-line-size")).toBe("11px");
   });
 
-  it("has the description at 70% cream, the line at 56%, and the label in a warm light orange", () => {
+  it("has the description at 70% cream, the line at 62% (the lowest text strength, --ink-3, which the contrast over the picture asked for), and the label in a warm light orange", () => {
     expect(token("--map-ink-desc")).toBe("rgb(var(--ink-rgb) / 0.7)");
-    expect(token("--map-ink-line")).toBe("rgb(var(--ink-rgb) / 0.56)");
+    expect(token("--map-ink-line")).toBe("rgb(var(--ink-rgb) / 0.62)");
+    expect(token("--ink-3")).toContain("0.62"); // the line is no quieter than the quiet text of the site
     expect(token("--map-ink-label")).toBe("#ffc9a3");
   });
 });

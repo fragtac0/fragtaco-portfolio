@@ -9,7 +9,7 @@ This portfolio uses git-backed content files so routine updates do not require R
 - `content/site/videos.json`: the videos on the wall (written by `yarn sync:videos`, do not edit by hand)
 - `content/site/hero-paintings.json`: the hero paintings
 - `content/site/work.json`: the work page (intro, tools, long and short videos, clients)
-- `content/site/experience.json`: the My experience page (the words, the moments, the Mars map's route, places and facts)
+- `content/site/experience.json`: the My experience page (the words, the moments, the Mars map's route and facts)
 - `content/site/reach-out.json`: contact funnels and CTAs (not shown on a page yet)
 - `content/site/navigation.json`: primary navigation items
 - `content/site/social-links.json`: reusable outbound profile links
@@ -26,13 +26,13 @@ This portfolio uses git-backed content files so routine updates do not require R
 
 ## My experience page (`experience.json`)
 
-- `frame`: the Mars picture's centre (longitude, latitude) and span in degrees; centred on the summit; it is the frame the route, the cliff and the places are checked in (the Mars map draws in its own frame, `app/components/experience/frame.ts`).
-- `heading`: `title`, `description` (the one quiet line under it). `moments`: each `{ id, date, label, title, struck?, line, icon }` (`icon` is one of `gear`, `scissors`, `graduation-cap`, `megaphone`, `video-camera`, `film-slate`, `microphone`, `paper-plane`, `hiker`: the Phosphor icon of the milestone's bead). `date` is `YYYY`, `YYYY-MM` or `YYYY-MM-DD` (or `now` for the last one) and sets where the moment sits on the route; `label` is the date as shown. `struck` is the part of the title shown struck through. Dates ascend; ids are unique.
+- `frame`: the Mars picture's centre (longitude, latitude) and span in degrees; centred on the summit; it is the frame the route and the cliff are checked in (the Mars map draws in its own frame, `app/components/experience/frame.ts`).
+- `heading`: `title` (at most 16 characters: it is one line in capitals, and on a phone 13 characters fit; a longer one is cut at the screen's edge), `description` (the one quiet line under it). `moments`: each `{ id, date, label, title, struck?, line, icon }` (`icon` is one of `gear`, `scissors`, `graduation-cap`, `megaphone`, `video-camera`, `film-slate`, `microphone`, `paper-plane`, `hiker`: the Phosphor icon of the milestone's bead). `date` is `YYYY`, `YYYY-MM` or `YYYY-MM-DD` (or `now` for the last one) and sets where the moment sits on the route; `label` is the date as shown. `struck` is the part of the title shown struck through. Dates ascend; ids are unique.
 - `ui`: the words of the map's own controls: `overview`, `climb` (the switch at the top right), `of` (the word in a card's "3 of 9"). Every visible word on the page comes from this file.
 - `caption`: the picture's caption (`title`, `line`, `credit`) and `factId`, the fact shown with it (its height and width).
 - `route`: the route's points in order, `{ lon, lat }` (Mars longitude is east, 0 to 360), inside the frame. The first is outside the cliff, a later one inside it, and the last is no nearer the summit than 60% of the way from the cliff to the summit crater's rim (the schema checks this against `cliff` and `rim`).
 - `cliff`: the Gazetteer's trace of Olympus Rupes as a closed ring of points, with its `source`. `rim`: the extent of Olympus Paterae (`north`, `south`, `east`, `west`, degrees) with its `source`.
-- `places`: at most 8, each `{ id, name, lon, lat, line, sources, label?, cliffBearing? }`, inside the frame; `label` is `{ dx, dy }`, where the name sits in screen pixels from the feature (default: to its right), and `cliffBearing` (degrees clockwise from east, seen from the summit) puts the label on the cliff trace instead of at the feature's centre (Olympus Rupes is a line, and its Gazetteer centre is on the mountain); `facts`: each `{ id, text, source }`. Sources are https addresses of the USGS Gazetteer of Planetary Nomenclature or NASA. Nothing is written from memory.
+- `facts`: each `{ id, text, source }`. Sources are https addresses of the USGS Gazetteer of Planetary Nomenclature or NASA. Nothing is written from memory.
 - No em or en dash in any string.
 
 ## Publishing and sorting

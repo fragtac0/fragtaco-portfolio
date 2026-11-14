@@ -2,13 +2,15 @@ import { z } from "zod";
 import { extentRadius, frameOf, insideFrame, meanRadius, pointInRing, fractionDistance } from "../components/experience/geo";
 import { routeStopRadius } from "../components/experience/route";
 
-// My experience page (content/site/experience.json, spec 9.6): the words, the route, the places and the
-// facts of the Mars map. Every place is inside the frame, every fact and place names its source, the route
-// starts outside the cliff, crosses it and stops short of the summit, and no string has an em or en dash.
+// My experience page (content/site/experience.json, spec 9.6): the words, the route and the facts of the Mars
+// map. The route and the cliff are inside the frame, every fact names its source, the route starts outside the
+// cliff, crosses it and stops short of the summit, and no string has an em or en dash.
 
 const LonLatSchema = z.object({ lon: z.number().min(0).max(360), lat: z.number().min(-90).max(90) });
 const SourceSchema = z.string().url().startsWith("https://");
 const text = z.string().min(1);
+/** The most characters of the page title. */
+export const TITLE_MAX = 16;
 
 const hasUniqueIds = (items: { id: string }[]) => new Set(items.map((item) => item.id)).size === items.length;
 const uniqueIds = { message: "Ids must be unique within the list" };
@@ -44,19 +46,6 @@ const MomentSchema = z.object({
   icon: z.enum(MOMENT_ICONS),
 });
 
-const PlaceSchema = z.object({
-  id: text,
-  name: text,
-  lon: LonLatSchema.shape.lon,
-  lat: LonLatSchema.shape.lat,
-  line: text,
-  sources: z.array(SourceSchema).min(1),
-  /** Where the name sits, in screen pixels from the feature (a leader line joins them). Default: to its right. */
-  label: z.object({ dx: z.number(), dy: z.number() }).optional(),
-  /** A feature that is a line, not a point (the cliff): the label sits on the cliff trace, at this bearing from the summit (degrees clockwise from east). */
-  cliffBearing: z.number().min(0).max(360).optional(),
-});
-
 const FactSchema = z.object({ id: text, text, source: SourceSchema });
 
 const dashPattern = /[\u2013\u2014]/;
@@ -74,7 +63,8 @@ function collectDashes(value: unknown, path: (string | number)[], found: (string
 export const ExperienceSchema = z
   .object({
     frame: z.object({ centre: LonLatSchema, spanDeg: z.number().positive() }),
-    heading: z.object({ title: text, description: text }),
+    /** The title is one line in capitals at 34 px or more on a phone (320 px fits 13 characters of it; a longer one is cut at the edge of the page), so it is short. */
+    heading: z.object({ title: text.max(TITLE_MAX), description: text }),
     moments: z.array(MomentSchema).min(2).refine(hasUniqueIds, uniqueIds),
     caption: z.object({ title: text, line: text, factId: text, credit: text }),
     /** The few words of the map's own controls. */
@@ -82,7 +72,6 @@ export const ExperienceSchema = z
     route: z.array(LonLatSchema).min(2),
     cliff: z.object({ source: SourceSchema, points: z.array(LonLatSchema).min(3) }),
     rim: z.object({ north: z.number(), south: z.number(), east: z.number(), west: z.number(), source: SourceSchema }),
-    places: z.array(PlaceSchema).max(8).refine(hasUniqueIds, uniqueIds),
     facts: z.array(FactSchema).min(1).refine(hasUniqueIds, uniqueIds),
   })
   .superRefine((page, ctx) => {
@@ -106,9 +95,6 @@ export const ExperienceSchema = z
     }
 
     // Inside the frame.
-    page.places.forEach((place, i) => {
-      if (!insideFrame(place.lon, place.lat, frame)) issue(["places", i], "A place must be inside the frame");
-    });
     page.route.forEach((point, i) => {
       if (!insideFrame(point.lon, point.lat, frame)) issue(["route", i], "A route point must be inside the frame");
     });

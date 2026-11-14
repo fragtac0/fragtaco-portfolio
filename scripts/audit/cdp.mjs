@@ -38,7 +38,15 @@ let id = 0; const pending = new Map();
 const requested = []; // every request the page made since the last `requests` step
 const castFrames = []; // screencast frames of the `film` step: every frame the compositor produced, not one in a while
 ws.addEventListener("message", e => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } else if (m.method === "Network.requestWillBeSent") requested.push(m.params.request.url); else if (m.method === "Fetch.requestPaused") answerPaused(m.params); else if (m.method === "Page.screencastFrame") { castFrames.push({ t: performance.now(), data: m.params.data }); ws.send(JSON.stringify({ id: ++id, method: "Page.screencastFrameAck", params: { sessionId: m.params.sessionId } })); } });
-const send = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
+// A call the page never answers (a step that waits for something that did not happen, a throttled tab) used to stall the whole run for ever:
+// it now gives up after CDP_TIMEOUT_MS (default 180 s), says so on stderr and goes on, with `{ error: { message: "timeout" } }` for an answer.
+const SEND_TIMEOUT = Number(process.env.CDP_TIMEOUT_MS ?? 180000);
+const send = (method, params = {}, ms = SEND_TIMEOUT) => new Promise(r => {
+  const i = ++id;
+  const timer = setTimeout(() => { pending.delete(i); console.error(`cdp: ${method} did not answer in ${ms} ms, going on`); r({ error: { message: `timeout: ${method} did not answer in ${ms} ms` } }); }, ms);
+  pending.set(i, m => { clearTimeout(timer); r(m); });
+  ws.send(JSON.stringify({ id: i, method, params }));
+});
 // `intercept` step: [{ match, fail?: "NameNotResolved", status?, type?, body? (base64), delay? (ms) }]; a request whose url contains `match` is failed or answered with that response, or with `delay` only held that long and then let go on (a slow chunk); the rest go on (the first rule that matches wins); [] switches it off
 let rules = [];
 function answerPaused(p) {
@@ -184,7 +192,7 @@ for (const s of steps) {
   if (s.wheel) { const [x, y, dx, dy, n] = s.wheel; for (let i = 0; i < (n ?? 1); i++) { await send("Input.dispatchMouseEvent", { type: "mouseWheel", x, y, deltaX: dx, deltaY: dy }); await sleep(16); } }
   if (s.eval) {
     const r = await send("Runtime.evaluate", { expression: s.eval, awaitPromise: true, returnByValue: true });
-    console.log(JSON.stringify({ step: s.label ?? "eval", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description }));
+    console.log(JSON.stringify({ step: s.label ?? "eval", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description ?? r.error?.message }));
   }
   if (s.requests) {
     // the hosts every request since the last `requests` step went to (data: and blob: urls left out), and the urls that contain s.requests.match

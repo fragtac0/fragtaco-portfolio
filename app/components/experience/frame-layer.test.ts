@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { latitudeLabels, longitudeLabels, readout, scaleBar } from "./chart";
-import { FRAME_FONT, GLYPH, INKS, MARK, READOUT, drawFrame, frameItems, itemsLeftOut, textBox, type Item } from "./frame-layer";
-import { overlaps, reachBox, type KeepOut } from "./keep-out";
+import { FRAME_FONT, GLYPH, INKS, MARK, READOUT, drawFrame, frameItems, itemsKept, itemsLeftOut, textBox, type Item } from "./frame-layer";
+import { overlaps, reachBox, type Box, type KeepOut } from "./keep-out";
 import { alphaOf, testCanvas } from "./test-canvas";
 import { lowerTrail, sampleTrail, type Point } from "./trail";
 import { OVERVIEW, viewOf, type Stage } from "./view";
@@ -68,11 +68,12 @@ describe("frameItems", () => {
 });
 
 describe("itemsLeftOut", () => {
-  it("leaves nothing out on a wide screen with the words in their corners", () => {
+  it("leaves out only what would touch the dock on a wide screen with the words in their corners (a gap is kept to the dock)", () => {
     const keep: KeepOut = { words: [{ l: 48, t: 28, r: 440, b: 230 }, { l: 48, t: 660, r: 470, b: 760 }, { l: 1190, t: 28, r: 1392, b: 70 }], dock: { l: 497, t: 765, r: 943, b: 876 } };
     const items = frameItems(view(desk), desk, desk.h, SUMMIT, SUMMIT);
 
-    expect([...itemsLeftOut(items, keep, desk, [])]).toEqual([]);
+    expect([...itemsLeftOut(items, keep, desk, [])]).toEqual(["lon-230° E"]); // the label that sat a pixel under the dock
+    expect([...itemsLeftOut(items, { ...keep, dock: { ...(keep.dock as Box), b: 860 } }, desk, [])]).toEqual([]);
   });
 
   it("thins the labels out on a phone: what is left clashes with nothing (the words, the dock, a bead, another label) and sits on the screen", () => {
@@ -107,11 +108,12 @@ describe("itemsLeftOut", () => {
 
 describe("drawFrame", () => {
   const items = frameItems(view(desk), desk, desk.h, SUMMIT, SUMMIT);
+  const all = itemsKept(items, new Set());
 
   it("clears the canvas, sets the lettering and draws four corner marks 10 px in, with arms of 12 px", () => {
     const { c, strokes, clears, font } = testCanvas();
 
-    drawFrame(c, items, new Set(), desk, desk.h, 2, 1);
+    drawFrame(c, items, all, desk, desk.h, 2, 1);
     expect(clears[0]).toEqual([0, 0, 1440, 900]);
     expect(font()).toBe(FRAME_FONT);
     expect(FRAME_FONT).toContain("IBM Plex Mono");
@@ -128,7 +130,7 @@ describe("drawFrame", () => {
   it("draws two small squares on the edges, half way down the frame", () => {
     const { c, rects } = testCanvas();
 
-    drawFrame(c, items, new Set(), desk, desk.h, 1, 1);
+    drawFrame(c, items, all, desk, desk.h, 1, 1);
     expect(rects).toHaveLength(2);
     expect(rects[0]).toMatchObject({ x: 8.5, y: 448.5, w: 3, h: 3 });
     expect(rects[1]).toMatchObject({ x: 1428.5, y: 448.5 });
@@ -137,7 +139,7 @@ describe("drawFrame", () => {
   it("puts the frame's foot where it is told: the corners and the squares follow it", () => {
     const { c, strokes, rects } = testCanvas();
 
-    drawFrame(c, frameItems(view(desk), desk, 700, SUMMIT, SUMMIT), new Set(), desk, 700, 1, 1);
+    drawFrame(c, frameItems(view(desk), desk, 700, SUMMIT, SUMMIT), all, desk, 700, 1, 1);
     expect(strokes[2].points[1]).toEqual([10, 690]);
     expect(rects[0].y).toBe(348.5);
   });
@@ -145,7 +147,7 @@ describe("drawFrame", () => {
   it("writes the readout and, in the overview, north, the scale bar, the rings' and the degrees' lettering", () => {
     const { c, words } = testCanvas();
 
-    drawFrame(c, items, new Set(), desk, desk.h, 1, 1);
+    drawFrame(c, items, all, desk, desk.h, 1, 1);
 
     const texts = words.map((w) => w.text);
 
@@ -162,8 +164,8 @@ describe("drawFrame", () => {
     const half = testCanvas();
     const gone = testCanvas();
 
-    drawFrame(half.c, items, new Set(), desk, desk.h, 1, 0.5);
-    drawFrame(gone.c, items, new Set(), desk, desk.h, 1, 0.01);
+    drawFrame(half.c, items, all, desk, desk.h, 1, 0.5);
+    drawFrame(gone.c, items, all, desk, desk.h, 1, 0.01);
     expect(alphaOf(half.words.find((w) => w.text === "150 km")!.style)).toBeCloseTo(INKS.ring * 0.5, 9);
     expect(alphaOf(half.words.find((w) => w.text === "18.37° N   226.79° E")!.style)).toBeCloseTo(INKS.readout, 9); // the readout does not fade
     expect(gone.words.map((w) => w.text)).toEqual(["18.37° N   226.79° E"]);
@@ -173,17 +175,37 @@ describe("drawFrame", () => {
   it("draws no label that was left out", () => {
     const { c, words } = testCanvas();
 
-    drawFrame(c, items, new Set(["north", "ring-150", "scale"]), desk, desk.h, 1, 1);
+    drawFrame(c, items, itemsKept(items, new Set(["north", "ring-150", "scale"])), desk, desk.h, 1, 1);
     expect(words.map((w) => w.text)).not.toContain("N");
     expect(words.map((w) => w.text)).not.toContain("150 km");
     expect(words.map((w) => w.text)).not.toContain("200 km");
     expect(words.map((w) => w.text)).toContain("300 km");
   });
 
+  it("draws no overview item that was not kept at the overview's view, such as a label that comes into the screen as the camera moves", () => {
+    const { c, words } = testCanvas();
+    const lat = items.find((i) => i.id.startsWith("lat-")) as { id: string; text: string };
+    const kept = new Set(all);
+
+    kept.delete(lat.id);
+    kept.delete("north");
+    drawFrame(c, items, kept, desk, desk.h, 1, 1);
+    expect(words.map((w) => w.text)).not.toContain(lat.text);
+    expect(words.map((w) => w.text)).not.toContain("N");
+    expect(words.map((w) => w.text)).toContain("18.37° N   226.79° E"); // the readout is always drawn
+    expect(words.map((w) => w.text)).toContain("150 km");
+  });
+
+  it("keeps only the overview-only items that were not left out", () => {
+    expect(itemsKept(items, new Set(["north"])).has("north")).toBe(false);
+    expect(itemsKept(items, new Set()).has("north")).toBe(true);
+    expect(itemsKept(items, new Set()).has("readout")).toBe(false);
+  });
+
   it("draws the scale bar with three ticks, a line and its two figures", () => {
     const { c, strokes, words } = testCanvas();
 
-    drawFrame(c, items, new Set(), desk, desk.h, 1, 1);
+    drawFrame(c, items, all, desk, desk.h, 1, 1);
 
     const bar = scaleBar(view(desk).S, desk);
     const line = strokes.find((s) => s.points.length === 8)!;

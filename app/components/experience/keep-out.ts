@@ -53,7 +53,7 @@ export function leftOut(wanted: readonly Wanted[], keep: KeepOut, bounds: Box, a
       (!inside(box, bounds) ||
         keep.words.some((w) => overlaps(box, w, WORDS_GAP)) ||
         avoid.some((b) => overlaps(box, b)) ||
-        (keep.dock !== null && overlaps(box, keep.dock)) ||
+        (keep.dock !== null && overlaps(box, keep.dock, DOCK_GAP)) ||
         placed.some((p) => overlaps(box, p, 3)));
 
     if (blocked) gone.add(id);

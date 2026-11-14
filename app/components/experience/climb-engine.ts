@@ -16,12 +16,12 @@ import type { CanvasLayer, ClimbEngine, ClimbLayers, ClimbOptions } from "./clim
 import { dipAt, hopStart, jumpNow } from "./climb-hop";
 import { PICTURE, SUMMIT_XY } from "./frame";
 import { setHeights } from "./heights";
-import { BEAD_REACH, TRAIL_REACH, reachBox, type Box } from "./keep-out";
+import { BEAD_REACH, NO_KEEP_OUT, TRAIL_REACH, reachBox, type Box } from "./keep-out";
 import { smooth } from "./map-math";
 import { drawTerrain, type Terrain } from "./terrain-canvas";
 import { aheadTrail, sharesFor, trailAt, type TrailPoint } from "./trail";
 import { drawRadar, drawTrail, pinPlaces, radarFoot, radarPhases, radarSide, type Pin } from "./trail-layer";
-import { OVERVIEW, pictureOpacity, planeTransform, project, viewOf, type Cam, type Stage, type View } from "./view";
+import { OVERVIEW, fitOverview, glideTo, overviewPoints, pictureOpacity, planeTransform, project, sameLook, viewOf, type Cam, type Look, type Stage, type View } from "./view";
 import type { XY } from "./card-slot";
 
 export type { CanvasLayer, ClimbEngine, ClimbLayers, ClimbOptions, Host, Layer, StageLayer, StyleLike } from "./climb-engine-types";
@@ -42,6 +42,8 @@ const REST = 0.0004;
 export const FLIP_AT = 0.5;
 /** The radar is redrawn at about 30 frames a second (its ring moves under half a pixel a frame): this many milliseconds apart at least (Ruling R102). */
 export const RADAR_GAP = 30;
+/** A bead's touch target, in pixels (the overview keeps the whole of it on the screen). */
+export const BEAD_TARGET = 44;
 
 export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): ClimbEngine {
   const { stage, plane, night, terrain: canvas, trail: trailCanvas, radar: radarCanvas, frame: frameCanvas, pinBox, pins } = layers;
@@ -56,6 +58,9 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
   const ahead = aheadTrail([trail[trail.length - 1].x, trail[trail.length - 1].y], SUMMIT_XY);
   const shares = sharesFor(pins.length);
   let spots = shares.map((u) => ({ ...trailAt(trail, u), u }));
+  let keep = NO_KEEP_OUT;
+  /** The overview's framing that `cam` is gliding to. */
+  let look: Look = { ...OVERVIEW };
   let dpr = 1;
   let k = 0;
   /** How far along the trail the camera sits, where it is going, and how fast it is going (a soft spring). */
@@ -95,13 +100,23 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     handle = host.raf(frame);
   }
 
+  /** The camera with the overview's framing it is gliding to (the chart's labels are chosen for that framing, not for the one the glide passes through). */
+  const fitted = (): Cam => ({ ...cam, ...look });
   /** Where the beads and the trail's line are in the overview (the chart's labels keep out of them). */
   const overviewAvoid = (): Box[] => {
-    const v = viewOf(cam, 0, 1, size);
+    const v = viewOf(fitted(), 0, 1, size);
     const line = (pts: readonly TrailPoint[]) => pts.filter((_, i) => i % 4 === 0).map((p) => reachBox(...project(v, p.x, p.y, 0), TRAIL_REACH));
 
     return [...pinPlaces(v, spots).map((p) => reachBox(p.head[0], p.head[1], BEAD_REACH)), ...line(trail), ...line(ahead)];
   };
+
+  /** The overview's framing (R104): the picture's own where the whole trail and its nine beads already fit between the page's words and the dock, else the nearest one where they do. */
+  function frameOverview() {
+    if (size.w <= 0 || size.h <= 0) return; // no size yet: the first resize does it
+
+    look = fitOverview(OVERVIEW, overviewPoints(spots, [trail, ahead], BEAD_TARGET / 2, TRAIL_REACH), size, keep);
+    if (reduced()) Object.assign(cam, look);
+  }
 
   /** The radar's rings, at `now` (milliseconds); still, under reduced motion. */
   function radar(now: number, calm: boolean) {
@@ -137,7 +152,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     const alpha = String(+(fade * shown).toFixed(3));
     const over = chartAlpha(seen.night); // the overview's own marks fade with the picture
 
-    if (trailCtx !== null) drawTrail(trailCtx, seen, size, dpr, trail, ahead, places, (c) => chart.under(c, seen, over));
+    if (trailCtx !== null) drawTrail(trailCtx, seen, size, dpr, trail, ahead, places, (c) => chart.under(c, seen, size, over));
     if (frameCtx !== null) {
       const at = want === "climb" ? spots[index] : { x: SUMMIT_XY[0], y: SUMMIT_XY[1] };
 
@@ -195,6 +210,11 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       dirty = true;
     }
     if (hop !== null) dirty = true;
+    if (!sameLook(cam, look)) {
+      // the overview's framing glides to the fitted one (the picture's first place is the page's CSS, which cannot know the fit)
+      Object.assign(cam, glideTo(cam, look, dt));
+      dirty = true;
+    }
     if (dirty) scene(now, traced);
     else if (!calm && now - radarAt >= RADAR_GAP) radar(now, calm);
     if (moving() || !calm) schedule();
@@ -270,7 +290,8 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
         radarCanvas.style.width = radarCanvas.style.height = `${side}px`;
         terrainFresh = false;
         dirty = true;
-        chart.refit(cam, size, overviewAvoid());
+        frameOverview();
+        chart.refit(fitted(), size, overviewAvoid());
         if (!gone && visible && w > 0) scene(host.now(), false);
       }
       if (pending) go(want, wantIndex);
@@ -288,8 +309,10 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       schedule();
     },
     go,
-    setKeepOut(keep) {
-      chart.setKeepOut(keep, cam, size, overviewAvoid());
+    setKeepOut(next) {
+      keep = next;
+      frameOverview();
+      chart.setKeepOut(next, fitted(), size, overviewAvoid());
       dirty = true;
       schedule();
     },

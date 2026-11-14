@@ -23,12 +23,18 @@ describe("the focus ring of a bead", () => {
     expect(ring.indexOf("outline-width: calc(")).toBeLessThan(ring.indexOf("outline-width: round("));
   });
 
-  it("comes out near 2 px on the screen in both states: 4 px on the half-size bead (2.28 px), 2 px on the full-size one (2.28 px)", () => {
-    const width = (bs: number) => Math.max(1, Math.round(2 / (bs * 1.14))) * (bs * 1.14);
+  it("comes out near 2 px on the screen in both states, worked out from the numbers in the sheet itself: 4 px on the half-size bead, 2 px on the full-size one (2.28 px both)", () => {
+    // outline-width: round(calc(<px>px / (var(--bs, 1) * <focus scale>)), 1px), read from the rule and evaluated for a scale
+    const m = /outline-width:\s*round\(calc\((\d+(?:\.\d+)?)px \/ \(var\(--bs, 1\) \* (\d+(?:\.\d+)?)\)\), 1px\)/.exec(ring);
 
-    expect(width(0.5)).toBeCloseTo(2.28, 2);
-    expect(width(1)).toBeCloseTo(2.28, 2);
-    for (const bs of [0.5, 0.6, 0.7, 0.8, 0.9, 1]) expect(Math.abs(width(bs) - 2)).toBeLessThan(0.75);
+    expect(m).not.toBeNull();
+
+    const [px, focus] = [Number(m?.[1]), Number(m?.[2])];
+    const onScreen = (bs: number) => Math.max(1, Math.round(px / (bs * focus))) * (bs * focus);
+
+    expect(onScreen(0.5)).toBeCloseTo(2.28, 2);
+    expect(onScreen(1)).toBeCloseTo(2.28, 2);
+    for (const bs of [0.5, 0.6, 0.7, 0.8, 0.9, 1]) expect(Math.abs(onScreen(bs) - 2)).toBeLessThan(0.75);
   });
 });
 

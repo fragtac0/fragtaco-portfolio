@@ -33,6 +33,9 @@
   transform: translate(calc(50cqw - var(--map-look-x)), calc(50cqh - var(--map-look-y)));
   will-change: transform, opacity;
 }
+.map-plane picture {
+  display: contents; /* the phone's smaller picture is a <source> of this <picture>: it adds no box */
+}
 .map-plane img {
   display: block;
   width: 100%;

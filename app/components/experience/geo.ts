@@ -1,4 +1,4 @@
-// The content's frame (spec 9.1, ruling R29): what experience.json's route, cliff and places are checked against (the schema) and what the route's maths used in round 6. Pure maths, no DOM, safe on the server.
+// The content's frame (spec 9.1, ruling R29): what experience.json's route and cliff are checked against (the schema). Pure maths, no DOM, safe on the server.
 //
 // The picture is a square on the ground: 14 degrees of latitude tall, and wider in longitude by
 // 1 / cos(latitude of the centre) so the mountain is round. With the centre of the frame at

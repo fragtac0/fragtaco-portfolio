@@ -1,5 +1,5 @@
 // A 2D context for the chart's tests: it keeps the paths that were stroked (their points, the style, the width and the dash at the
-// time), the lettering that was drawn (text, place, alignment, colour) and the filled rectangles and shapes.
+// time), the clips (each as the rectangles of its path), the lettering that was drawn (text, place, alignment, colour) and the filled rectangles and shapes.
 export type Stroked = { style: string; width: number; dash: number[]; points: [number, number][] };
 export type Lettering = { text: string; x: number; y: number; align: string; style: string };
 
@@ -8,6 +8,9 @@ export function testCanvas() {
   const words: Lettering[] = [];
   const rects: { x: number; y: number; w: number; h: number; style: string }[] = [];
   const clears: number[][] = [];
+  const clips: { rule: string; rects: number[][] }[] = [];
+  let pending: number[][] = [];
+  let saved = 0;
   const dashes: number[][] = [];
   const state = { strokeStyle: "", fillStyle: "", lineWidth: 1, dash: [] as number[], textAlign: "left", font: "" };
   let path: [number, number][] = [];
@@ -15,7 +18,14 @@ export function testCanvas() {
   const c = {
     setTransform: () => {},
     clearRect: (...a: number[]) => void clears.push(a),
-    beginPath: () => void (path = []),
+    beginPath: () => {
+      path = [];
+      pending = [];
+    },
+    save: () => void saved++,
+    restore: () => void saved--,
+    rect: (...a: number[]) => void pending.push(a),
+    clip: (rule: string) => void clips.push({ rule, rects: pending }),
     moveTo: (x: number, y: number) => void path.push([x, y]),
     lineTo: (x: number, y: number) => void path.push([x, y]),
     closePath: () => {},
@@ -37,7 +47,7 @@ export function testCanvas() {
     get font() { return state.font; },
   } as unknown as CanvasRenderingContext2D;
 
-  return { c, strokes, words, rects, clears, dashes, fills: () => fills, font: () => state.font };
+  return { c, strokes, words, rects, clears, dashes, clips, balanced: () => saved === 0, fills: () => fills, font: () => state.font };
 }
 
 /** The alpha of an `rgba(r,g,b,a)` colour string. */

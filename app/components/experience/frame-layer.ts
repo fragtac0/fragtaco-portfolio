@@ -80,13 +80,17 @@ export function itemsLeftOut(items: readonly Item[], keep: KeepOut, stage: Stage
   return leftOut(wanted, keep, { l: 0, t: 0, r: stage.w, b: stage.h }, avoid);
 }
 
+/** The ids of the overview-only items that are kept (not in `gone`): the only ones the frame draws. */
+export const itemsKept = (items: readonly Item[], gone: ReadonlySet<string>): Set<string> => new Set(items.filter((i) => i.overview && !gone.has(i.id)).map((i) => i.id));
+
 const ink = (a: number) => `rgba(${INK},${a})`;
 
 /**
- * The frame on the cleared canvas. `over` is the overview-only items' strength (the picture's own opacity, 0 to 1); `gone`
- * holds the ids left out. Everything is drawn in CSS pixels (the context is set up for `dpr` here).
+ * The frame on the cleared canvas. `over` is the overview-only items' strength (the picture's own opacity, 0 to 1); `kept`
+ * holds the ids of the overview-only items that were kept at the overview's view (an item that was not there then is never drawn
+ * during the move, where it was not checked against the words, the dock and the beads). Everything is drawn in CSS pixels (the context is set up for `dpr` here).
  */
-export function drawFrame(c: CanvasRenderingContext2D, items: readonly Item[], gone: ReadonlySet<string>, stage: Stage, foot: number, dpr: number, over: number): void {
+export function drawFrame(c: CanvasRenderingContext2D, items: readonly Item[], kept: ReadonlySet<string>, stage: Stage, foot: number, dpr: number, over: number): void {
   const { inset, arm, square } = MARK;
 
   c.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -109,7 +113,7 @@ export function drawFrame(c: CanvasRenderingContext2D, items: readonly Item[], g
   c.fillRect(stage.w - inset - square / 2, foot / 2 - square / 2, square, square);
 
   for (const item of items) {
-    if (gone.has(item.id) || (item.overview && over <= 0.01)) continue;
+    if (item.overview && (!kept.has(item.id) || over <= 0.01)) continue;
 
     const a = item.overview ? over : 1;
 

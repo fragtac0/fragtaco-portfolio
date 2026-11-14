@@ -57,6 +57,12 @@ describe("leftOut", () => {
     expect([...leftOut([wanted("dock", box(100, 740, 140, 752)), wanted("off", box(380, 100, 420, 112)), wanted("above", box(100, 680, 140, 692))], keep, SCREEN)]).toEqual(["dock", "off"]);
   });
 
+  it("leaves a gap to the dock: a box less than DOCK_GAP above it is left out, one that far is kept", () => {
+    const keep: KeepOut = { words: [], dock: box(20, 700, 380, 780) };
+
+    expect([...leftOut([wanted("near", box(100, 683, 140, 695)), wanted("clear", box(100, 680, 140, 700 - DOCK_GAP))], keep, SCREEN)]).toEqual(["near"]);
+  });
+
   it("leaves out a box that overlaps a bead or a point of the trail", () => {
     const avoid = [reachBox(100, 100, BEAD_REACH)];
 

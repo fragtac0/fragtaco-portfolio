@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import { readout } from "./chart";
 import { IN_MS } from "./climb-change";
-import { setup, started } from "./climb-engine-fixtures";
+import { setup, started, terrain } from "./climb-engine-fixtures";
 import { MILESTONE_SHARES, trailAt } from "./trail";
 
 const SUMMIT = readout(500, 325);
@@ -181,5 +181,85 @@ describe("the page's words and the dock", () => {
 
     engine.destroy();
     expect(frameCalls.clearRect).toBe(n + 1);
+  });
+});
+
+describe("the overview's framing (Ruling R104)", () => {
+  const settled = (transform: string) => /translate\((-?[\d.]+)px, (-?[\d.]+)px\)$/.exec(transform)?.slice(1).map(Number) ?? [];
+
+  const phone = { words: [{ l: 16, t: 22, r: 301, b: 150.8 }, { l: 16, t: 590.5, r: 374, b: 699 }, { l: 16, t: 64, r: 198.8, b: 103.5 }], dock: { l: 20.3, t: 739, r: 369.7, b: 832 } };
+  const desk = { words: [{ l: 48, t: 28, r: 470.4, b: 224.1 }, { l: 48, t: 668.8, r: 463.4, b: 746.5 }, { l: 1193.2, t: 28, r: 1392, b: 69.5 }], dock: { l: 496.2, t: 762.5, r: 943.8, b: 876 } };
+
+  it("is the picture's own on the desktop, where the whole trail already fits", () => {
+    const { engine, layers, f } = setup();
+
+    engine.setKeepOut(desk);
+    started(engine, f);
+    expect(layers.plane.style.transform).toContain("scale(1.584) translate(-470px, -325px)");
+  });
+
+  it("puts all nine beads on a phone's screen, clear of the dock, however the keep-out and the size come", () => {
+    for (const order of ["keep first", "size first"]) {
+      const { engine, layers, f, heads } = setup();
+
+      if (order === "keep first") engine.setKeepOut(phone);
+      engine.resize(390, 844, 2);
+      if (order === "size first") engine.setKeepOut(phone);
+      engine.setTerrain(terrain());
+      f.run(2500); // the framing glides to the fitted one
+      expect(layers.plane.style.transform, order).not.toContain("translate(-470px, -325px)");
+
+      const last = heads[heads.length - 1];
+
+      expect(last, order).toHaveLength(9);
+      for (const [x, y] of last) {
+        expect(x - 22, order).toBeGreaterThanOrEqual(12);
+        expect(x + 22, order).toBeLessThanOrEqual(378);
+        expect(y + 22, order).toBeLessThanOrEqual(739);
+      }
+    }
+  });
+
+  it("starts at the picture's own place (the page's CSS put it there) and glides to the fitted one, in a few frames, with no jump", () => {
+    const { engine, layers, f } = setup();
+    const seen: number[] = [];
+
+    engine.setKeepOut(phone);
+    engine.resize(390, 844, 2);
+    engine.setTerrain(terrain());
+    seen.push(settled(layers.plane.style.transform)[0]);
+    for (let i = 0; i < 90; i++) {
+      f.run(1000 / 60);
+      seen.push(settled(layers.plane.style.transform)[0]);
+    }
+    expect(seen[0]).toBe(-470);
+    expect(seen[seen.length - 1]).toBeLessThan(-520); // the look-at point moved east: the picture's place moved west
+    for (let i = 1; i < seen.length; i++) expect(seen[i]).toBeLessThanOrEqual(seen[i - 1] + 1e-9); // never back
+    expect(seen[1] - seen[0]).toBeGreaterThan(-20); // a soft start, not a jump
+  });
+
+  it("goes to the fitted framing at once under reduced motion", () => {
+    const { engine, layers } = setup({ reduced: true });
+
+    engine.setKeepOut(phone);
+    engine.resize(390, 844, 2);
+    expect(settled(layers.plane.style.transform)[0]).toBeLessThan(-520);
+  });
+
+  it("chooses the chart's labels for the fitted framing from the start, so none pops in or out while the picture glides to it", () => {
+    const { engine, f, frameLog } = setup();
+    const lettering = () => new Set(frameLog.filter((c) => c[0] === "fillText").map((c) => String(c[1])));
+
+    engine.setKeepOut(phone);
+    engine.resize(390, 844, 2);
+    engine.setTerrain(terrain());
+    f.run(20);
+
+    const atStart = lettering();
+
+    frameLog.length = 0;
+    f.run(2500);
+    expect(lettering()).toEqual(atStart);
+    expect(atStart.size).toBeGreaterThan(1);
   });
 });

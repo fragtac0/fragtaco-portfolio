@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { extentRadius, fractionDistance, frameOf, meanRadius, pointInRing } from "../components/experience/geo";
 import { SUMMIT } from "../components/experience/frame";
 import type { SiteExperience } from "../types";
+import { TITLE_MAX } from "./experience-schema";
 import { ExperienceSchema } from "./schemas";
 
 const readJson = (...parts: string[]): unknown => JSON.parse(readFileSync(path.join(process.cwd(), ...parts), "utf8"));
@@ -72,12 +73,6 @@ describe("experience.json", () => {
   it("is centred on the summit (the frame the route is checked in)", () => {
     expect(page.frame.centre).toEqual(SUMMIT);
     expect(page.frame.spanDeg).toBe(14);
-  });
-
-  it("has at most 8 places, each inside the frame with a source", () => {
-    expect(page.places.length).toBeGreaterThan(0);
-    expect(page.places.length).toBeLessThanOrEqual(8);
-    for (const place of page.places) expect(place.sources.length).toBeGreaterThan(0);
   });
 
   it("gives every fact a source", () => {
@@ -149,19 +144,13 @@ describe("ExperienceSchema", () => {
     fails(dup, "Ids must be unique within the list");
   });
 
-  it("needs every place inside the frame, with a source, and at most 8", () => {
-    const outside = clone();
-    outside.places[0].lon = 215.53; // Lycus Sulci's longitude: west of the frame
-    outside.places[0].lat = 28.14;
-    fails(outside, "A place must be inside the frame");
+  it("needs a short page title (one line on a phone), and says so", () => {
+    const long = clone();
 
-    const unsourced = clone();
-    unsourced.places[0].sources = [];
-    fails(unsourced);
-
-    const many = clone();
-    many.places = [...many.places, { ...many.places[0], id: "extra" }];
-    fails(many);
+    long.heading.title = "A".repeat(TITLE_MAX + 1);
+    fails(long);
+    expect(TITLE_MAX).toBe(16);
+    expect(page.heading.title.length).toBeLessThanOrEqual(TITLE_MAX);
   });
 
   it("needs every fact to have a source and the caption's fact to exist", () => {
@@ -209,7 +198,7 @@ describe("ExperienceSchema", () => {
       fails(dashed, "No em or en dash");
     }
     const deep = clone();
-    deep.places[0].line = "A \u2014 B";
+    deep.facts[0].text = "A \u2014 B";
     fails(deep, "No em or en dash");
   });
 });

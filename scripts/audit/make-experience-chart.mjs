@@ -13,7 +13,16 @@
 //     reader is in the page with nine moments, and the page has its label;
 //   carry-overs: the focus ring of a bead is about 2 px on the screen in the overview as in My climb, and a label shown while the camera
 //     changes its side does not slide (it takes its place in one frame);
-//   weight: what a first load of /experience transfers (same-origin bytes, 7 s, cache off) at 1440 x 900 and 390 x 844.
+//   weight: what a first load of /experience transfers (same-origin bytes, 7 s, cache off) at 1440 x 900 and 390 x 844; the picture for the screen (the smaller one
+//     on a phone, R105) is the one shown and preloaded, the heights are not preloaded and start after the picture arrived.
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// The inks of the words are read from the tokens, so the contrast step measures what the page uses (rgb of the cream, and the strengths).
+const tokens = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "../../app/styles/tokens.css"), "utf8");
+const strength = (name) => Number(new RegExp(`${name}:\\s*rgb\\(var\\(--ink-rgb\\) / ([\\d.]+)\\)`).exec(tokens)?.[1] ?? 1);
+const CREAM = [253, 252, 230];
 const sleep = `const sleep=ms=>new Promise(r=>setTimeout(r,ms));`;
 const ready = `for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);`;
 const R = `const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;`;
@@ -24,7 +33,21 @@ const Q = `const q=s=>document.querySelector(s);const qa=s=>[...document.querySe
 const press = (name) => `[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='${name}').click()`;
 
 // ---- the words ----
-const words = (w, h, dpr, mobile) => [
+// The WCAG contrast of each of the words over the picture behind it (the cdp `contrast` step hides the text and photographs the page; the inks come from the tokens):
+// 4.5 to 1 is the aim for text this small. `glass` keeps the text's shadow in the picture (the colour only goes transparent), so the reading is what the page shows;
+// the mean over each text's box is the reading that counts (a few sunlit specks of the picture sit under the description whatever the ink: the worst and the 1st percentile are printed too).
+const contrastStep = (tag) => ({
+  contrast: [
+    { name: "title", selector: ".map-title", ink: [...CREAM, 1], glass: true },
+    { name: "description (--map-ink-desc)", selector: ".map-text", ink: [...CREAM, strength("--map-ink-desc")], glass: true },
+    { name: "label", selector: ".map-caption-title", ink: [255, 201, 163, 1], glass: true },
+    { name: "line (--map-ink-line)", selector: ".map-caption-line", ink: [...CREAM, strength("--map-ink-line")], glass: true },
+    { name: "fact (--map-ink-line)", selector: ".map-caption-fact", ink: [...CREAM, strength("--map-ink-line")], glass: true },
+    { name: "credit (--map-ink-line)", selector: ".map-caption-credit", ink: [...CREAM, strength("--map-ink-line")], glass: true },
+  ],
+  label: `contrast of the description, the line, the fact and the credit over the picture at ${tag} (worst, p1 and mean; mean 4.5 to 1 wanted)`,
+});
+const words = (w, h, dpr, mobile, contrast = false) => [
   { size: [w, h], dpr, mobile, touch: mobile, reduce: false, init: "window.__expTrace=[]", go: "{{BASE}}/experience", wait: 3500 },
   {
     eval: `(async()=>{${sleep}${ready}${Q}const cs=e=>getComputedStyle(q(e));const num=s=>parseFloat(s);const a=s=>{const m=/rgba?\\(([^)]*)\\)/.exec(s)[1].split(/[ ,\\/]+/).map(Number);return {rgb:m.slice(0,3),a:m.length>3?m[3]:1}};
@@ -32,18 +55,38 @@ const t=cs('.map-title'),d=cs('.map-text'),l=cs('.map-caption-title'),n=cs('.map
 const vw=innerWidth,want=Math.min(64,Math.max(34,vw*0.046));const tc=a(t.color),dc=a(d.color),nc=a(n.color),lc=a(l.color);
 const info={title:{size:num(t.fontSize),want:+want.toFixed(2),transform:t.textTransform,alpha:tc.a,rgb:tc.rgb,tracking:t.letterSpacing},desc:{size:num(d.fontSize),alpha:+dc.a.toFixed(2)},label:{size:num(l.fontSize),rgb:lc.rgb,transform:l.textTransform,tracking:l.letterSpacing},line:{size:num(n.fontSize),alpha:+nc.a.toFixed(2)},
 switch:qa('.map-mode-button').map(b=>b.textContent),h1:q('h1').textContent};
-const ok=Math.abs(info.title.size-want)<0.1&&t.textTransform==='uppercase'&&tc.a===1&&tc.rgb.join()==='253,252,230'&&info.desc.size===12.5&&Math.abs(dc.a-0.7)<0.01&&info.label.size===13&&lc.rgb.join()==='255,201,163'&&l.textTransform==='uppercase'&&info.line.size===11&&Math.abs(nc.a-0.56)<0.01
+const ok=Math.abs(info.title.size-want)<0.1&&t.textTransform==='uppercase'&&tc.a===1&&tc.rgb.join()==='253,252,230'&&info.desc.size===12.5&&Math.abs(dc.a-0.7)<0.01&&info.label.size===13&&lc.rgb.join()==='255,201,163'&&l.textTransform==='uppercase'&&info.line.size===11&&Math.abs(nc.a-0.62)<0.01
 &&tc.a>dc.a&&dc.a>nc.a&&info.switch.join('|')==='Overview|My climb'&&info.h1==='My experience';
 return JSON.stringify({...info,ok})})()`,
-    label: `the words at ${w} x ${h}: title 4.6vw between 34 and 64 px, in capitals and the cream, description 12.5 px at 70%, label 13 px in warm light orange, line 11 px at 56%; the switch reads Overview, My climb`,
+    label: `the words at ${w} x ${h}: title 4.6vw between 34 and 64 px, in capitals and the cream, description 12.5 px at 70%, label 13 px in warm light orange, line 11 px at 62%; the switch reads Overview, My climb`,
   },
+  ...(contrast ? [contrastStep(`${w} x ${h}`)] : []),
 ];
+// A page title too long for the line (the schema caps it, but the page must hold even so): it is cut at the page's edge and never wraps, so it does not run
+// off the screen or into the switch.
+const titleGuard = {
+  eval: `(async()=>{${sleep}${R}${Q}const t=q('.map-title'),sw=R(q('.map-mode')),was=t.textContent;t.textContent='MY EXPERIENCE AND ALL THE REST OF IT';await sleep(150);
+const r=R(t),fs=parseFloat(getComputedStyle(t).fontSize),o={rect:[r.l,r.t,r.r,r.b].map(Math.round),lines:+(r.h/fs).toFixed(2),cut:t.scrollWidth>t.clientWidth,overflowX:getComputedStyle(t).overflowX,switchClear:!hit(r,sw)};
+t.textContent=was;o.ok=r.r<=innerWidth-16+1&&o.lines<=1.3&&o.cut&&o.switchClear;return JSON.stringify(o)})()`,
+  label: "320 x 568: a very long page title stays on one line, inside the page's edge and clear of the switch (cut at the edge)",
+};
 const wordsLeave = {
   eval: `(async()=>{${sleep}${Q}${press("My climb")};await sleep(1500);const o=['.map-heading','.map-caption'].map(s=>+getComputedStyle(q(s)).opacity);${press("Overview")};await sleep(1800);const b=['.map-heading','.map-caption'].map(s=>+getComputedStyle(q(s)).opacity);return JSON.stringify({inClimb:o,backInOverview:b,ok:o.every(x=>x<0.05)&&b.every(x=>x===1)})})()`,
   label: "the title block and the mountain's label leave in My climb and come back in the overview",
 };
 
 // ---- the phones ----
+// Each bead's touch target (the button, 44 px): the share of it that is on the screen and outside the dock, and the share of it where a touch lands on the bead
+// itself (a neighbour's target may lie over part of it: the beads are closer than 44 px on a small stage, and the one lower on the screen is on top). All nine must be
+// whole on the screen outside the dock and own part of their target; the pairs whose targets overlap are counted and reported.
+const REACH = `const area=a=>Math.max(0,a.r-a.l)*Math.max(0,a.b-a.t);const pinsEls=qa('.map-pin'),tg=pinsEls.map(R);
+const own=pinsEls.map((p,i)=>{const r=tg[i],vis={l:Math.max(0,r.l),t:Math.max(0,r.t),r:Math.min(W,r.r),b:Math.min(H,r.b)},x={l:Math.max(vis.l,dock.l),t:Math.max(vis.t,dock.t),r:Math.min(vis.r,dock.r),b:Math.min(vis.b,dock.b)};
+let hits=0,n=0;for(let a=0;a<11;a++)for(let b=0;b<11;b++){const px=r.l+(a+.5)*r.w/11,py=r.t+(b+.5)*r.h/11;n++;if(px<0||py<0||px>=W||py>=H)continue;const e=document.elementFromPoint(px,py);if(e&&p.contains(e))hits++}
+const c=document.elementFromPoint(r.l+r.w/2,r.t+r.h/2);return {outside:(area(vis)-area(x))/(r.w*r.h),hit:hits/n,centre:!!c&&p.contains(c)}});
+let pairs=0,worst=0;for(let i=0;i<tg.length;i++)for(let j=i+1;j<tg.length;j++){const a=area({l:Math.max(tg[i].l,tg[j].l),t:Math.max(tg[i].t,tg[j].t),r:Math.min(tg[i].r,tg[j].r),b:Math.min(tg[i].b,tg[j].b)});if(a>0){pairs++;worst=Math.max(worst,a/(tg[i].w*tg[i].h))}}
+const reachInfo={beads:pinsEls.length,minOutsideShare:+Math.min(...own.map(o=>o.outside)).toFixed(3),minOwnShare:+Math.min(...own.map(o=>o.hit)).toFixed(2),centresOnOwnBead:own.filter(o=>o.centre).length,overlappingPairs:pairs,mostOverlapped:+worst.toFixed(2)};
+reachInfo.ok=reachInfo.beads===9&&reachInfo.minOutsideShare>=0.995&&reachInfo.minOwnShare>=0.15;`;
+
 const layout = (tag, sizeName) => ({
   eval: `(async()=>{${sleep}${ready}${R}${INK}${Q}const W=innerWidth,H=innerHeight,dockEl=q('[data-dock-glass]'),dock=R(dockEl);
 const heading=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),title=q('.map-title'),tr=R(title);
@@ -53,6 +96,7 @@ const inside=r=>r.l>=0&&r.t>=0&&r.r<=W&&r.b<=H;
 const beads=qa('.map-pin .map-bead').map(b=>{const r=R(b);return {x:r.l+r.w/2,y:r.t+r.h/2,rad:r.w/2}});
 const under=beads.filter(b=>texts.some(t=>hit({l:b.x-b.rad,t:b.y-b.rad,r:b.x+b.rad,b:b.y+b.rad},t))).length;
 const sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});
+${REACH}
 const fs=parseFloat(getComputedStyle(title).fontSize);const phone=W<700;
 const fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;
 const corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b));
@@ -64,10 +108,10 @@ const readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);
 const trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);
 const o={size:[W,H],dock:[dock.l,dock.t,dock.r,dock.b].map(Math.round),heading:inside(heading),caption:inside(cap),switch:inside(sw),
 clearOfDock:[heading,cap,sw].every(r=>!hit(r,dock)),titleLines:Math.round(tr.h/fs*10)/10,titleSize:fs,switchUnderTitle:W<500?sw.t>=tr.b-1:null,switchClearOfTitle:!hit(sw,tr),
-beadsUnderWords:under,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};
-o.ok=o.heading&&o.caption&&o.switch&&o.clearOfDock&&(!phone||o.titleLines<=1.3)&&o.switchClearOfTitle&&(W>=500||o.switchUnderTitle)&&under===0&&o.hitAreas&&corners.every(n=>n>0)&&squares.every(n=>n>0)&&readoutInk>0&&underDock===0&&underWords.every(n=>n===0)&&trailInk>0;
+beadsUnderWords:under,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),reach:reachInfo,corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};
+o.ok=o.heading&&o.caption&&o.switch&&o.clearOfDock&&(!phone||o.titleLines<=1.3)&&o.switchClearOfTitle&&(W>=500||o.switchUnderTitle)&&under===0&&o.hitAreas&&reachInfo.ok&&corners.every(n=>n>0)&&squares.every(n=>n>0)&&readoutInk>0&&underDock===0&&underWords.every(n=>n===0)&&trailInk>0;
 return JSON.stringify(o)})()`,
-  label: `${sizeName}, overview: the words inside the screen and clear of the dock, one line of title on a phone, no bead under a line of the words, 44 px targets, the frame's marks present and clear of the dock and the words (${tag})`,
+  label: `${sizeName}, overview: the words inside the screen and clear of the dock, one line of title on a phone, no bead under a line of the words, 44 px targets, all nine beads whole on the screen outside the dock and reachable, the frame's marks present and clear of the dock and the words (${tag})`,
 });
 const climbLayout = (sizeName) => ({
   eval: `(async()=>{${sleep}${R}${INK}${Q}${press("My climb")};await sleep(5200);const W=innerWidth,H=innerHeight,dock=R(q('[data-dock-glass]')),fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;
@@ -155,16 +199,21 @@ return JSON.stringify({before:x0,after:settled,distinctPlaces:distinct,opacityBe
 ];
 
 // ---- the weight of a first load ----
-const weightEval = (label) => ({
+const weightEval = (label, want) => ({
   eval: `(()=>{const n=performance.getEntriesByType('navigation')[0];const res=performance.getEntriesByType('resource').filter(r=>r.name.startsWith(location.origin));const kb=x=>+(x/1024).toFixed(1);const sum=a=>kb(a.reduce((s,r)=>s+(r.transferSize||0),0));const t=u=>res.filter(r=>u.test(r.name));
-return JSON.stringify({document:kb(n.transferSize),js:sum(t(/\\.js(\\?|$)/)),css:sum(t(/\\.css(\\?|$)/)),images:sum(t(/\\.(webp|png|jpg)(\\?|$)/)),imageList:t(/\\.(webp|png|jpg)(\\?|$)/).map(r=>[r.name.replace(location.origin,''),kb(r.transferSize)]),totalSameOrigin:kb(n.transferSize+res.reduce((s,r)=>s+(r.transferSize||0),0)),requests:res.length+1,ok:true})})()`,
+const img=document.querySelector('.map-plane img'),pre=[...document.querySelectorAll('link[rel=preload][as=image]')].filter(l=>!l.media||matchMedia(l.media).matches).map(l=>l.getAttribute('href'));
+const relief=t(/\\/mars\\/relief/)[0],heights=t(/heights\\.png/)[0];
+const o={document:kb(n.transferSize),js:sum(t(/\\.js(\\?|$)/)),css:sum(t(/\\.css(\\?|$)/)),images:sum(t(/\\.(webp|png|jpg)(\\?|$)/)),imageList:t(/\\.(webp|png|jpg)(\\?|$)/).map(r=>[r.name.replace(location.origin,''),kb(r.transferSize),Math.round(r.startTime),Math.round(r.responseEnd)]),totalSameOrigin:kb(n.transferSize+res.reduce((s,r)=>s+(r.transferSize||0),0)),requests:res.length+1,
+pictureShown:img?img.currentSrc.replace(location.origin,''):null,preloadedForThisScreen:pre,reliefBytes:relief?kb(relief.transferSize):null,heightsBytes:heights?kb(heights.transferSize):null,heightsStartedAfterPicture:!!heights&&!!relief&&heights.startTime>=relief.responseEnd-1,
+bytesBeforeHeights:kb(n.transferSize+res.filter(r=>!heights||r.startTime<heights.startTime).reduce((s,r)=>s+(r.transferSize||0),0))};
+o.ok=o.pictureShown==='${want}'&&pre.length===1&&pre[0]==='${want}'&&!pre.some(h=>/heights/.test(h))&&o.heightsStartedAfterPicture;return JSON.stringify(o)})()`,
   label,
 });
 const weight = [
   { size: [1440, 900], dpr: 1, reduce: false, nocache: true, go: "{{BASE}}/experience", wait: 7000 },
-  weightEval("first load of /experience at 1440 x 900 (7 s, cache off): same-origin bytes on the wire"),
+  weightEval("first load of /experience at 1440 x 900 (7 s, cache off): same-origin bytes on the wire; the desktop picture is the one shown and preloaded, the heights are not preloaded and start after the picture", "/mars/relief.webp"),
   { size: [390, 844], dpr: 2, mobile: true, touch: true, nocache: true, go: "{{BASE}}/experience", wait: 7000 },
-  weightEval("first load of /experience at 390 x 844 (7 s, cache off): same-origin bytes on the wire"),
+  weightEval("first load of /experience at 390 x 844 (7 s, cache off): same-origin bytes on the wire; the phone picture is the one shown and preloaded, the heights are not preloaded and start after the picture", "/mars/relief-phone.webp"),
   { nocache: false },
 ];
 
@@ -182,11 +231,12 @@ return JSON.stringify({northInOverview:north,northInClimb:northIn,corners,readou
 ];
 
 export const chartSteps = [
-  ...words(1440, 900, 1, false),
+  ...words(1440, 900, 1, false, true),
   wordsLeave,
   ...words(820, 1180, 1, false),
-  ...words(390, 844, 2, true),
+  ...words(390, 844, 2, true, true),
   ...words(320, 568, 2, true),
+  titleGuard,
   ...chart,
   ...phoneRun(1440, 900, 1, false, "desktop"),
   ...phoneRun(820, 1180, 1, false, "tablet"),

@@ -1,15 +1,16 @@
 import { json, type HeadersFunction, type LinksFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import ExperiencePage from "../components/experience/experience-page";
-import { HEIGHTS_SRC, RELIEF_SRC } from "../components/experience/experience-map";
+import { PHONE_MEDIA, RELIEF_PHONE_SRC, RELIEF_SRC, ROOMY_MEDIA } from "../components/experience/experience-map";
 import WorkShell from "../components/work/work-shell";
 import { getExperiencePageContent } from "../content/loaders.server";
 
-// The toned picture (670 KB) is the map's first paint and the height picture (124 KB) is read into the night map once the
-// page change is over, so both are asked for from the HTML (and, through Remix's prefetch, when the dock row's link is hovered).
+// The toned picture is the map's first paint, so it is asked for from the HTML (and, through Remix's prefetch, when the dock row's
+// link is hovered): the smaller one on a phone, the other elsewhere (the same media query as the picture's own `<source>`). The height
+// picture is not preloaded: it is read into the night map at idle once the page change is over, since only My climb needs it.
 export const links: LinksFunction = () => [
-  { rel: "preload", as: "image", href: RELIEF_SRC, type: "image/webp" },
-  { rel: "preload", as: "image", href: HEIGHTS_SRC, type: "image/png" },
+  { rel: "preload", as: "image", href: RELIEF_PHONE_SRC, type: "image/webp", media: PHONE_MEDIA },
+  { rel: "preload", as: "image", href: RELIEF_SRC, type: "image/webp", media: ROOMY_MEDIA },
 ];
 
 export const meta: MetaFunction = () => [

@@ -4,6 +4,7 @@
 // transform that puts the flat picture exactly where `project` puts the ground (height 0).
 import { PICTURE } from "./frame";
 import { HEIGHT, liftOf } from "./heights";
+import { DOCK_GAP, WORDS_GAP, overlaps, type Box, type KeepOut } from "./keep-out";
 import { lerp, smooth } from "./map-math";
 import { trailAt, type TrailPoint } from "./trail";
 
@@ -108,3 +109,118 @@ export function planeTransform(v: View): string {
 /** How opaque the flat picture is (it fades as the night comes). */
 export const pictureOpacity = (night: number) => 1 - smooth(0.12, 0.85, night);
 
+/** Where the overview looks and how much it is zoomed: the picture's own framing (`OVERVIEW`), or the one `fitOverview` found. */
+export type Look = { ax: number; ay: number; s: number };
+/** A point the overview must keep on the screen: a place on the map, and the room round it on the screen (a bead's touch target, the line's width), in pixels. */
+export type FitPoint = { x: number; y: number; pad: number };
+
+/** The points to keep: each bead (with its touch target's half size round it) and every fourth point of each line of the trail (with the line's reach). */
+export function overviewPoints(beads: readonly { x: number; y: number }[], lines: readonly (readonly { x: number; y: number }[])[], beadPad: number, linePad: number): FitPoint[] {
+  return [
+    ...beads.map((p) => ({ x: p.x, y: p.y, pad: beadPad })),
+    ...lines.flatMap((line) => line.filter((_, i) => i % 4 === 0).map((p) => ({ x: p.x, y: p.y, pad: linePad }))),
+  ];
+}
+
+/** The room left at the stage's edges, in pixels. */
+export const FIT_GUTTER = 12;
+/** The search: each zoom is this share of the one before (or one over it, zooming in), up to this many times the picture's zoom or down to this share of it; the look-at point moves in steps of this many map units. */
+export const FIT_ZOOM_STEP = 0.96;
+export const FIT_ZOOM_MOST = 1.6;
+export const FIT_ZOOM_LEAST = 0.45;
+export const FIT_MOVE_STEP = 8;
+
+/** At k = 0 the view is plain scaling (no tilt, no turn): where a map point is on the stage for a look. */
+export const overviewAt = (look: Look, stage: Stage, x: number, y: number): [number, number] => {
+  const S = Math.max(stage.w / PICTURE.w, stage.h / PICTURE.h) * look.s;
+
+  return [stage.w / 2 + S * (x - look.ax), stage.h / 2 + S * (y - look.ay)];
+};
+
+export const sameLook = (a: Look, b: Look): boolean => a.ax === b.ax && a.ay === b.ay && a.s === b.s;
+
+/** The framing is eased toward the fitted one at this rate per second, and is there when this near (in map units; the zoom counts 200 times). */
+export const GLIDE_RATE = 9;
+export const GLIDE_NEAR = 0.05;
+
+/** One step of `dt` seconds from the framing `from` toward `to`: a soft ease (the same share of what is left each moment, whatever the frame rate), the framing itself once it is near. */
+export function glideTo(from: Look, to: Look, dt: number): Look {
+  if (Math.abs(from.ax - to.ax) + Math.abs(from.ay - to.ay) + 200 * Math.abs(from.s - to.s) < GLIDE_NEAR) return { ax: to.ax, ay: to.ay, s: to.s };
+
+  const f = 1 - Math.exp(-GLIDE_RATE * Math.max(0, dt));
+
+  return { ax: from.ax + (to.ax - from.ax) * f, ay: from.ay + (to.ay - from.ay) * f, s: from.s + (to.s - from.s) * f };
+}
+
+/** The values from `lo` to `hi` that the search tries for one axis: `at` itself (kept in range), then steps away from it, and the two ends. */
+const along = (at: number, lo: number, hi: number): number[] => {
+  const out = [Math.min(hi, Math.max(lo, at)), lo, hi];
+
+  for (let d = FIT_MOVE_STEP; at - d >= lo || at + d <= hi; d += FIT_MOVE_STEP) {
+    if (at - d >= lo) out.push(at - d);
+    if (at + d <= hi) out.push(at + d);
+  }
+
+  return out;
+};
+
+/** The zooms the search tries, nearest the picture's first: out and in a step at a time while the picture still covers the stage (a zoom of 1 or more), then further out. */
+function zoomsFrom(base: number): number[] {
+  const out = [base];
+  const into: number[] = [];
+  const away: number[] = [];
+
+  for (let s = base * FIT_ZOOM_STEP; s >= 1; s *= FIT_ZOOM_STEP) away.push(s);
+  for (let s = base / FIT_ZOOM_STEP; s <= base * FIT_ZOOM_MOST; s /= FIT_ZOOM_STEP) into.push(s);
+  for (let i = 0; i < Math.max(away.length, into.length); i++) out.push(...[away[i], into[i]].filter((s) => s !== undefined));
+  for (let s = (away.at(-1) ?? base) * FIT_ZOOM_STEP; s >= base * FIT_ZOOM_LEAST; s *= FIT_ZOOM_STEP) out.push(s);
+
+  return out;
+}
+
+/**
+ * The overview's framing for a stage (Ruling R104). The picture's own (`base`) where the whole trail and its beads (`points`) already sit
+ * inside the stage less its gutters, clear of the page's words and the dock (`keep`); otherwise the nearest framing where they do: the
+ * zoom kept and the look-at point moved the least, and only when no move is enough the zoom changed a step at a time (out or in while the
+ * picture still covers the stage; further out last). While the zoom is at least 1 the look-at point stays where the picture still covers
+ * the stage. Returns `base` when nothing fits.
+ */
+export function fitOverview(base: Look, points: readonly FitPoint[], stage: Stage, keep: KeepOut): Look {
+  const bounds: Box = { l: FIT_GUTTER, t: FIT_GUTTER, r: stage.w - FIT_GUTTER, b: stage.h - FIT_GUTTER };
+  const grow = (b: Box, g: number): Box => ({ l: b.l - g, t: b.t - g, r: b.r + g, b: b.b + g });
+  const blocks = [...keep.words.map((b) => grow(b, WORDS_GAP)), ...(keep.dock ? [grow(keep.dock, DOCK_GAP)] : [])];
+  const fits = (look: Look): boolean =>
+    points.every((p) => {
+      const [x, y] = overviewAt(look, stage, p.x, p.y);
+      const box: Box = { l: x - p.pad, t: y - p.pad, r: x + p.pad, b: y + p.pad };
+
+      return box.l >= bounds.l && box.t >= bounds.t && box.r <= bounds.r && box.b <= bounds.b && !blocks.some((b) => overlaps(box, b));
+    });
+
+  if (stage.w <= 0 || stage.h <= 0 || points.length === 0 || fits(base)) return base;
+
+  const cover = Math.max(stage.w / PICTURE.w, stage.h / PICTURE.h);
+
+  for (const s of zoomsFrom(base.s)) {
+    const S = cover * s;
+    const covers = s >= 1;
+    const [x0, x1] = covers ? [stage.w / (2 * S), PICTURE.w - stage.w / (2 * S)] : [0, PICTURE.w];
+    const [y0, y1] = covers ? [stage.h / (2 * S), PICTURE.h - stage.h / (2 * S)] : [0, PICTURE.h];
+    let best: Look | null = null;
+    let far = Infinity;
+
+    for (const ax of along(base.ax, x0, x1)) {
+      for (const ay of along(base.ay, y0, y1)) {
+        const d = Math.hypot(ax - base.ax, ay - base.ay);
+
+        if (d < far && fits({ ax, ay, s })) {
+          best = { ax, ay, s };
+          far = d;
+        }
+      }
+    }
+    if (best !== null) return best;
+  }
+
+  return base;
+}

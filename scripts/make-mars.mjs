@@ -1,15 +1,18 @@
 #!/usr/bin/env node
-// Builds the two Mars pictures of the experience map (spec 9.1, 10) from NASA Mars Trek tiles. Run with `yarn mars`.
+// Builds the Mars pictures of the experience map (spec 9.1, 10) from NASA Mars Trek tiles. Run with `yarn mars`.
 //
 //   public/mars/relief.webp   Viking MDIM 2.1 colour mosaic (level 6) for FRAME, 40 by 26 degrees, 2800 by 1820,
 //                             toned grey first, then one orange multiplied over (scripts/mars-tone.mjs).
+//   public/mars/relief-phone.webp  the same picture at 2000 by 1300 for a phone (a narrow or a short screen: the page picks it with
+//                             a media query, Ruling R105), well under the other's size.
 //   public/mars/heights.png   MOLA height map (level 5) for HEIGHTS, 64 by 41.6 degrees, 1000 by 650,
 //                             8 bit grey, blurred by 1 px.
 //
 // Tiles are fetched a few at a time with a generic user agent, retried with backoff and cached in MARS_CACHE
 // (default .cache/mars), so a rerun fetches nothing that is already there. (The round 6 tile pyramid, public/mars/0 to 4,
 // its manifest and the mosaic are gone.)
-// Env: MARS_CACHE, MARS_QUALITY (WebP quality, default 80), MARS_LIMIT_KB (relief size limit, default 700).
+// Env: MARS_CACHE, MARS_QUALITY (WebP quality, default 80), MARS_LIMIT_KB (relief size limit, default 700), MARS_PHONE_LIMIT_KB (the
+// phone picture's, default 360). Each picture takes the highest quality (steps of 2) that fits its limit.
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,6 +25,7 @@ const outDir = path.join(root, "public/mars");
 const cacheDir = path.resolve(process.env.MARS_CACHE ?? path.join(root, ".cache/mars"));
 const QUALITY = Number(process.env.MARS_QUALITY ?? 80);
 const LIMIT = Number(process.env.MARS_LIMIT_KB ?? 700) * 1024;
+const PHONE_LIMIT = Number(process.env.MARS_PHONE_LIMIT_KB ?? 360) * 1024;
 
 const BASE = "https://trek.nasa.gov/tiles/Mars/EQ";
 const USER_AGENT = "Mozilla/5.0 (compatible; map-tile-fetch)";
@@ -30,6 +34,7 @@ const ATTEMPTS = 5;
 const TILE = 256;
 
 const RELIEF = { layer: "Mars_Viking_MDIM21_ClrMosaic_global_232m", ext: "jpg", level: 6, size: [2800, 1820] };
+const RELIEF_PHONE = { file: "relief-phone.webp", size: [2000, 1300], limit: PHONE_LIMIT };
 const DEM = { layer: "Mars_MGS_MOLA_DEM_mosaic_global_463m_8", ext: "png", level: 5, size: [1000, 650] };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -98,12 +103,9 @@ async function stitch(src, frame) {
   return sharp(block).extract({ left, top, width, height });
 }
 
-async function relief() {
-  const [w, h] = RELIEF.size;
-  const { data } = await (await stitch(RELIEF, FRAME))
-    .resize(w, h, { kernel: "lanczos3", fit: "fill" })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+/** The toned picture at `size`, written as `file` at the highest quality (steps of 2) that fits under `limit` bytes. */
+async function toned(base, { file, size: [w, h], limit }) {
+  const { data } = await base.clone().resize(w, h, { kernel: "lanczos3", fit: "fill" }).raw().toBuffer({ resolveWithObject: true });
   const lut = toneLut();
   const rgb = Buffer.allocUnsafe(w * h * 3);
   for (let i = 0; i < w * h; i++) {
@@ -113,16 +115,22 @@ async function relief() {
     rgb[i * 3 + 2] = lut[g + 2];
   }
   const img = () => sharp(rgb, { raw: { width: w, height: h, channels: 3 } });
-  // the highest quality (steps of 2) that fits under the size limit
   let out;
   let q = Math.max(QUALITY, 30);
   for (; q >= 30; q -= 2) {
     out = await img().webp({ quality: q, effort: 6, smartSubsample: true }).toBuffer();
-    if (out.length <= LIMIT) break;
+    if (out.length <= limit) break;
   }
-  if (out.length > LIMIT) throw new Error(`relief.webp is ${out.length} bytes at quality ${q + 2}, over the limit`);
-  await writeFile(path.join(outDir, "relief.webp"), out);
-  console.log(`public/mars/relief.webp ${w}x${h}, quality ${q}, ${(out.length / 1024).toFixed(0)} KiB`);
+  if (out.length > limit) throw new Error(`${file} is ${out.length} bytes at quality ${q + 2}, over the limit`);
+  await writeFile(path.join(outDir, file), out);
+  console.log(`public/mars/${file} ${w}x${h}, quality ${q}, ${(out.length / 1024).toFixed(0)} KiB`);
+}
+
+async function relief() {
+  const base = await stitch(RELIEF, FRAME);
+
+  await toned(base, { file: "relief.webp", size: RELIEF.size, limit: LIMIT });
+  await toned(base, RELIEF_PHONE);
 }
 
 async function heights() {

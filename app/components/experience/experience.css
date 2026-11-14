@@ -94,6 +94,7 @@
   .map-title {
     max-width: none;
     white-space: nowrap; /* one line down to 320 px wide ("MY EXPERIENCE" at 34 px is about 270 px), so the switch can sit under it */
+    overflow-x: clip; /* a title too long for the line is cut at the page's edge, it never runs off the screen or into the switch (the glow above and below is not cut) */
   }
   /* above the dock, with a line's room between them for the readout (the chart's frame sits on top of the dock on a phone) */
   .map-caption {

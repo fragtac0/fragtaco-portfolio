@@ -59,14 +59,15 @@ cameraHeight:mono(rows,2,dir),tilt:mono(rows,3,dir),zoom:mono(rows,7,dir),target
   label,
 });
 
-const overviewChecks = (label) => ({
+// `fitted`: a phone, where the engine frames the overview to fit the whole trail (R104), so the summit is not where the preview puts it and the CSS's first place is not the engine's.
+const overviewChecks = (label, fitted = false) => ({
   eval: `(async()=>{${sleep}${rect}const p=${PAGE},st=${STAGE},pl=${PLANE};for(let i=0;i<40&&st.dataset.terrain!=='ready';i++)await sleep(100);
 const a=R(pl),W=innerWidth,H=innerHeight,img=pl.querySelector('img');const inline=pl.style.cssText;pl.style.cssText='';const b=R(pl);pl.style.cssText=inline;
 const S=Math.max(W/1000,H/650)*1.1,summitX=a.l+500*S*1.0,mid=W/2;
 return JSON.stringify({engine:p.dataset.engine,mode:p.dataset.mode,terrain:st.dataset.terrain,covers:a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,image:[img.naturalWidth,img.naturalHeight,img.complete],
 summitRight:Math.round(summitX-mid),summitOk:Math.abs(summitX-mid-30*S)<1.5,cssFirstPlace:{dl:+(a.l-b.l).toFixed(2),dt:+(a.t-b.t).toFixed(2),dr:+(a.r-b.r).toFixed(2),db:+(a.b-b.b).toFixed(2)},
 cssSame:[a.l-b.l,a.t-b.t,a.r-b.r,a.b-b.b].every(x=>Math.abs(x)<0.5),switch:[...document.querySelectorAll('.map-mode-button')].map(x=>x.getAttribute('aria-pressed')),
-fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:p.dataset.engine==='on'&&st.dataset.terrain==='ready'&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H&&img.naturalWidth>0&&Math.abs(summitX-mid-30*S)<1.5&&[a.l-b.l,a.t-b.t,a.r-b.r,a.b-b.b].every(x=>Math.abs(x)<0.5)})})()`,
+fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:p.dataset.engine==='on'&&st.dataset.terrain==='ready'&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H&&img.naturalWidth>0&&(${fitted}||(Math.abs(summitX-mid-30*S)<1.5&&[a.l-b.l,a.t-b.t,a.r-b.r,a.b-b.b].every(x=>Math.abs(x)<0.5)))})})()`,
   label,
 });
 const settled = (mode, label) => ({
@@ -110,7 +111,7 @@ ok:seen.size===1&&+pl.style.opacity===0&&+t.style.opacity===1&&end<1200&&ops.som
 
 const phone = [
   { size: [390, 844], dpr: 3, mobile: true, touch: true, reduce: false, go: "{{BASE}}/experience", wait: 3000 },
-  overviewChecks("the overview on a phone (390 x 844)"),
+  overviewChecks("the overview on a phone (390 x 844): the picture covers the stage (the framing is fitted to the trail, so the summit is not at the preview's place)", true),
   { shot: "r53-overview-390x844-warm" },
   { shot: "r53-overview-390x844" },
   { tap: switchTo("My climb") },
@@ -179,9 +180,9 @@ const coverage = (tag) => ({
 for(let i=0;i<9;i++){P[i].click();await sleep(i===0?4200:3000);const c=card.getBoundingClientRect(),op=+getComputedStyle(card).opacity,txt=card.querySelector('[data-on]').textContent.slice(0,22);
 const cur=P.map((p,k)=>{const r=p.querySelector('.map-bead').getBoundingClientRect();return {k,x:r.x+r.width/2,y:r.y+r.height/2,op:+getComputedStyle(p).opacity}});
 const under=cur.filter(q=>q.x>c.left&&q.x<c.right&&q.y>c.top&&q.y<c.bottom);
-res.push({i:i+1,cardOpacity:op,rect:[c.left,c.top,c.right,c.bottom].map(Math.round),under:under.map(q=>[q.k+1,+q.op.toFixed(2)]),fullStrengthUnder:under.filter(q=>q.k!==i&&q.op>0.3).map(q=>q.k+1),ownUnder:under.some(q=>q.k===i),inside:c.left>=0&&c.top>=0&&c.right<=innerWidth&&c.bottom<=innerHeight,text:txt})}
-return JSON.stringify({res:res.map(r=>JSON.stringify(r)),ok:res.every(r=>r.cardOpacity===1&&r.fullStrengthUnder.length===0&&r.inside)})})()`,
-  label: `${tag}: for each milestone the card is shown, inside the screen, and no other bead under it is at full strength`,
+res.push({i:i+1,cardOpacity:op,rect:[c.left,c.top,c.right,c.bottom].map(Math.round),under:under.map(q=>[q.k+1,+q.op.toFixed(2)]),fullStrengthUnder:under.filter(q=>q.k!==i&&q.op>0.3).map(q=>q.k+1),ownUnder:under.some(q=>q.k===i),inside:c.left>=0&&c.top>=0&&c.right<=innerWidth&&c.bottom<=innerHeight,aboveDock:c.bottom<=document.querySelector('[data-dock-glass]').getBoundingClientRect().top+0.5,text:txt})}
+return JSON.stringify({res:res.map(r=>JSON.stringify(r)),ok:res.every(r=>r.cardOpacity===1&&r.fullStrengthUnder.length===0&&r.inside&&r.aboveDock)})})()`,
+  label: `${tag}: for each milestone the card is shown, inside the screen and above the dock, and no other bead under it is at full strength`,
 });
 const gapsInClimb = (tag, limit) => ({
   eval: `(async()=>{${sleep}${PINS}const g=[];let last=performance.now(),run=true;const f=n=>{g.push(n-last);last=n;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);
@@ -223,6 +224,11 @@ const taskEighteen = [
   ...toClimb([390, 844], 3, true).slice(0, 1),
   { eval: `(async()=>{${sleep}for(let i=0;i<40&&${STAGE}.dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);${press("My climb")};await sleep(5200);return 'in'})()` },
   coverage("390 x 844"),
+  // R104 / Task 19 fix round: the nine cards on the smallest and the shortest screens
+  ...toClimb([320, 568], 2, true),
+  coverage("320 x 568"),
+  ...toClimb([844, 390], 2, true),
+  coverage("844 x 390"),
   ...toClimb([1440, 900], 2, false), gapsInClimb("1440 x 900, dpr 2", 20),
   ...toClimb([1440, 900], 2, false, 4), gapsInClimb("CPU 4x slower, 1440 x 900, dpr 2", 34),
   ...pressInOverview,
@@ -310,7 +316,7 @@ writeFileSync(
     [
       ...fallback("nocanvas", `if(location.search==='?nocanvas'){HTMLCanvasElement.prototype.getContext=function(){return null}}`, "no canvas: the picture and the list, no switch"),
       ...fallback("savedata", `if(location.search==='?savedata'){Object.defineProperty(navigator,'connection',{value:{saveData:true}})}`, "less data: the picture and the list, no switch"),
-      ...failing("nopicture", "relief.webp", "the picture fails: the list, no picture, no switch", "!img"),
+      ...failing("nopicture", "/mars/relief", "the picture fails: the list, no picture, no switch", "!img"),
       ...failing("noheights", "heights.png", "the heights fail: the list, the picture stays, no switch", "!!img&&img.naturalWidth>0"),
     ],
     null,

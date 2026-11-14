@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createChartState } from "./chart-state";
 import { makeField } from "./heights";
-import { type KeepOut } from "./keep-out";
+import { WORDS_GAP, type KeepOut } from "./keep-out";
 import { testCanvas } from "./test-canvas";
 import { lowerTrail, sampleTrail, type Point } from "./trail";
 import { OVERVIEW, viewOf, type Stage } from "./view";
@@ -11,7 +11,8 @@ const trail = sampleTrail(lowerTrail(ROUTE, [500, 325]), 200);
 const cam = { ...OVERVIEW, trail };
 const phone: Stage = { w: 390, h: 844 };
 const overview = viewOf(cam, 0, 1, phone);
-const flatField = () => makeField(new Array(80 * 52).fill(100), 80, 52, 0);
+/** Level in the west half of the heights (the plain), climbing in the east half, so the ground rises under part of the grid. */
+const ramp = () => makeField(Array.from({ length: 80 * 52 }, (_, i) => Math.max(0, (i % 80) - 40) * 6), 80, 52, 0);
 
 describe("the chart state", () => {
   it("draws the frame at the stage's foot until it is told where the dock is", () => {
@@ -64,17 +65,56 @@ describe("the chart state", () => {
     expect(blocked.words.map((w) => w.text)).not.toContain("150 km");
   });
 
-  it("draws the grid and the overview's marks on the trail's canvas, the rows taking the heights once they are read", () => {
+  it("draws the grid and the overview's marks on the trail's canvas (the overview's marks only at the overview)", () => {
     const state = createChartState();
     const { c, strokes } = testCanvas();
 
-    state.under(c, overview, 1);
+    state.under(c, overview, phone, 1);
 
-    const withoutHeights = strokes.length;
+    const withMarks = strokes.length;
+    const bare = testCanvas();
 
-    expect(withoutHeights).toBeGreaterThan(40);
-    state.setHeights(flatField());
-    state.under(c, overview, 0);
-    expect(strokes.length - withoutHeights).toBeLessThan(withoutHeights); // the overview's marks were left out at 0
+    state.under(bare.c, overview, phone, 0);
+    expect(withMarks).toBeGreaterThan(40);
+    expect(withMarks - bare.strokes.length).toBe(3); // two rings and the summit's triangle
+  });
+
+  it("makes the grid's rows take the heights once they are read: raised in My climb, still flat in the overview", () => {
+    const state = createChartState();
+    const climb = viewOf(cam, 1, 0.5, phone);
+    const ys = (v: typeof climb) => {
+      const { c, strokes } = testCanvas();
+
+      state.under(c, v, phone, 0);
+
+      return strokes.flatMap((s) => s.points.map((p) => p[1]));
+    };
+    const [climbBefore, overviewBefore] = [ys(climb), ys(overview)];
+
+    state.setHeights(ramp());
+    const [climbAfter, overviewAfter] = [ys(climb), ys(overview)];
+    const moved = climbAfter.map((y, i) => Math.abs(y - climbBefore[i]));
+
+    expect(Math.max(...moved)).toBeGreaterThan(20); // a line over the high ground is lifted by tens of pixels
+    expect(overviewAfter).toEqual(overviewBefore); // flat at the overview whatever the heights
+  });
+
+  it("leaves the rings and the grid's crosses bare where the page's words are, and the grid's lines as they were", () => {
+    const state = createChartState();
+    const words = { l: 100, t: 300, r: 300, b: 360 };
+    const open = testCanvas();
+    const bare = testCanvas();
+
+    state.under(open.c, overview, phone, 1);
+    state.setKeepOut({ words: [words], dock: null }, cam, phone, []);
+    state.under(bare.c, overview, phone, 1);
+    expect(open.clips).toHaveLength(0);
+    expect(bare.clips.length).toBeGreaterThan(0);
+    for (const clip of bare.clips) {
+      expect(clip.rule).toBe("evenodd");
+      expect(clip.rects).toContainEqual([words.l - WORDS_GAP, words.t - WORDS_GAP, words.r - words.l + 2 * WORDS_GAP, words.b - words.t + 2 * WORDS_GAP]);
+    }
+    expect(bare.balanced()).toBe(true); // every save has its restore
+    expect(bare.strokes).toHaveLength(open.strokes.length);
   });
 });

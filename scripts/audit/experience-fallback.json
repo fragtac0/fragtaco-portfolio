@@ -42,7 +42,7 @@
   "nocache": true,
   "intercept": [
    {
-    "match": "relief.webp",
+    "match": "/mars/relief",
     "fail": "Failed"
    }
   ],

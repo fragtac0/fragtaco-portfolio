@@ -8,14 +8,25 @@ import { FRAME_FONT } from "./frame-layer";
 import { DOCK_SELECTOR, WORDS_SELECTOR, readKeepOut } from "./keep-out";
 import MilestonePins from "./milestone-pins";
 import MomentCard, { cardView } from "./moment-card";
+import { whenIdle } from "../../utils/idle";
 import { loadTerrain } from "./terrain-canvas";
 import type { TrailPoint } from "./trail";
 import { OVERVIEW } from "./view";
 import "./map.css";
 
-/** The relief picture and the heights, as the route preloads them. */
+/**
+ * The relief picture (a smaller one for a phone: a narrow screen, or a short one that is not wide, a phone held sideways) and the heights. The route preloads the
+ * picture (the one for the screen, by the same media query); the heights are not preloaded: they are fetched at idle once the page change
+ * is over, since only My climb draws from them.
+ */
 export const RELIEF_SRC = "/mars/relief.webp";
+export const RELIEF_PHONE_SRC = "/mars/relief-phone.webp";
+export const PHONE_MEDIA = "(max-width: 700px), (max-height: 520px) and (max-width: 960px)";
+/** The rest: the other side of `PHONE_MEDIA` (a short desktop window, wider than any phone held sideways, still gets the large picture). */
+export const ROOMY_MEDIA = "(min-width: 701px) and (min-height: 521px), (min-width: 961px)";
 export const HEIGHTS_SRC = "/mars/heights.png";
+/** The longest the heights wait for an idle moment after the engine starts, in milliseconds. */
+export const HEIGHTS_IDLE_MS = 800;
 
 /** `fetchpriority` as an attribute: React 18.3 does not know the camel case prop (the painting does the same). */
 const HIGH = { fetchpriority: "high" } as Record<string, string>;
@@ -150,20 +161,24 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     document.fonts?.load(FRAME_FONT).then(() => {
       if (!gone) e.redraw();
     }, () => {});
-    loadTerrain(HEIGHTS_SRC).then(
-      (t) => {
-        if (gone) return;
-        e.setTerrain(t);
-        el.dataset.terrain = "ready";
-        live.current.onReady();
-      },
-      () => {
-        if (!gone) live.current.onFailHeights();
-      },
-    );
+    // the heights are read at idle once the engine is up (the picture is already there; only My climb draws from them)
+    const cancelIdle = whenIdle(() => {
+      loadTerrain(HEIGHTS_SRC).then(
+        (t) => {
+          if (gone) return;
+          e.setTerrain(t);
+          el.dataset.terrain = "ready";
+          live.current.onReady();
+        },
+        () => {
+          if (!gone) live.current.onFailHeights();
+        },
+      );
+    }, HEIGHTS_IDLE_MS);
 
     return () => {
       gone = true;
+      cancelIdle();
       engine.current = null;
       e.destroy();
       controller.destroy();
@@ -201,7 +216,10 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
       >
         <div ref={plane} className="map-plane">
           {showPicture ? (
-            <img ref={picture} src={RELIEF_SRC} alt="" width={PICTURE.w} height={PICTURE.h} draggable={false} decoding="async" {...HIGH} onError={onFailPicture} />
+            <picture>
+              <source media={PHONE_MEDIA} srcSet={RELIEF_PHONE_SRC} type="image/webp" />
+              <img ref={picture} src={RELIEF_SRC} alt="" width={PICTURE.w} height={PICTURE.h} draggable={false} decoding="async" {...HIGH} onError={onFailPicture} />
+            </picture>
           ) : null}
         </div>
         <div ref={night} className="map-night" />

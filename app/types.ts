@@ -187,19 +187,6 @@ export interface ExperienceMoment {
   icon: ExperienceIcon;
 }
 
-export interface ExperiencePlace {
-  id: string;
-  name: string;
-  lon: number;
-  lat: number;
-  line: string;
-  sources: string[];
-  /** Where the name sits, in screen pixels from the feature. */
-  label?: { dx: number; dy: number };
-  /** The label sits on the cliff trace at this bearing from the summit (degrees clockwise from east). */
-  cliffBearing?: number;
-}
-
 export interface ExperienceFact {
   id: string;
   text: string;
@@ -214,12 +201,11 @@ export interface SiteExperience {
   /** The words of the map's controls: the Overview and My climb switch, and the "of" in a card's "3 of 9". */
   ui: { overview: string; climb: string; of: string };
   caption: { title: string; line: string; /** The fact shown with the caption (its height and width). */ factId: string; credit: string };
-  /** Hand-placed points of the route, in order (Task 19 places them on the picture). */
+  /** Hand-placed points of the route, in order (the map's trail runs through them). */
   route: { lon: number; lat: number }[];
   /** The cliff round the mountain (Olympus Rupes), traced by the Gazetteer as a closed ring. */
   cliff: { source: string; points: { lon: number; lat: number }[] };
   /** The summit craters' outer extent in degrees (Olympus Paterae). */
   rim: { north: number; south: number; east: number; west: number; source: string };
-  places: ExperiencePlace[];
   facts: ExperienceFact[];
 }
