@@ -81,6 +81,8 @@ export const BookSchema = z.object({
     .refine((p) => !p.includes(".."), "The path must not climb out of public/")
     .optional(),
   style: z.enum(["plain", "band", "block"]),
+  /** The spine design this book wears: a key of `SERIES` (spine-series.ts). Defaults to the book's own id; a book with no design gets the series' plain style. */
+  series: z.string().min(1).optional(),
   note: z.string().min(1),
 });
 

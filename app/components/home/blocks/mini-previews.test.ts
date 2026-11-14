@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { SiteBook } from "../../../types";
-import { fitMiniShelf, miniShelfScale, inkOn, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
+import { drawingWidth } from "../reading/spine-paint";
+import { SERIES } from "../reading/spine-series";
+import { MINI_SCALE, fitMiniShelf, miniShelfScale, miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 
 const book = (over: Partial<SiteBook>): SiteBook => ({
   id: "b",
@@ -16,31 +18,25 @@ const book = (over: Partial<SiteBook>): SiteBook => ({
   ...over,
 });
 
-describe("inkOn", () => {
-  it("picks dark ink on a light spine and light ink on a dark one", () => {
-    expect(inkOn("#f0e6d0")).toBe("#17120d");
-    expect(inkOn("#1b1b1b")).toBe("#f6f0e2");
-  });
-  it("switches at luminance 0.56", () => {
-    // 0.299 r + 0.587 g + 0.114 b over 255: mid grey (#8f8f8f = 143) is 0.561
-    expect(inkOn("#8f8f8f")).toBe("#17120d");
-    expect(inkOn("#8e8e8e")).toBe("#f6f0e2");
-  });
-});
-
 describe("miniSpine", () => {
-  it("sizes the spine from pages and height", () => {
+  it("is the series' own spine at the small scale: the width from pages, the height from the trim", () => {
     const s = miniSpine(book({ pages: 400, heightIn: 9 }));
-    expect(s.width).toBe(Math.round(14 + 400 * 0.055));
-    expect(s.width).toBe(36);
+    expect(s.width).toBe(Math.round(drawingWidth(400) * MINI_SCALE));
+    expect(s.width).toBe(26);
     expect(s.height).toBe(189);
+    expect(miniSpine(book({ pages: 2000 })).width).toBe(Math.round(72 * MINI_SCALE));
+    expect(miniSpine(book({ pages: 10 })).width).toBe(Math.round(32 * MINI_SCALE));
   });
-  it("carries the spine colour, its ink and the band flag", () => {
-    const s = miniSpine(book({ color: "#101010", style: "band" }));
-    expect(s.background).toBe("#101010");
-    expect(s.ink).toBe("#f6f0e2");
-    expect(s.band).toBe(true);
-    expect(miniSpine(book({ style: "block" })).band).toBe(false);
+  it("stands the design's cloth, or the plain style from the book's colour", () => {
+    expect(miniSpine(book({ id: "story" })).background).toBe(SERIES.story.cloth);
+    expect(miniSpine(book({ id: "no-design", color: "#101010" })).background).toBe("#101010");
+  });
+  it("keeps the shape of the spine the 3D shelf shows (width over height within a quarter)", () => {
+    for (const b of [book({ pages: 146, heightIn: 8.5 }), book({ pages: 466, heightIn: 9.5 }), book({ pages: 176, heightIn: 11 })]) {
+      const s = miniSpine(b);
+      const real = (0.035 + b.pages * 0.00048) / (b.heightIn * 0.17);
+      expect(Math.abs(s.width / s.height / real - 1)).toBeLessThan(0.25);
+    }
   });
 });
 

@@ -94,6 +94,12 @@ describe("BooksSectionSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("accepts a book with or without a spine design and rejects an empty name", () => {
+    expect("series" in validBook).toBe(false);
+    expect(BooksSectionSchema.safeParse({ items: [{ ...validBook, series: "story" }] }).success).toBe(true);
+    expect(BooksSectionSchema.safeParse({ items: [{ ...validBook, series: "" }] }).success).toBe(false);
+  });
+
   it("accepts a book without a spine picture and one with a path under public/", () => {
     expect("spine" in validBook).toBe(false);
     for (const spine of ["/books/story-spine.webp", "/books/a_b-1/c.JPG"]) {

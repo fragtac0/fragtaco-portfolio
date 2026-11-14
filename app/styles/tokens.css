@@ -65,6 +65,18 @@
   --head-pad-top: clamp(28px, 4vw, 56px);
   --head-pad-x: clamp(24px, 4.5vw, 72px);
 
+  /* the small glass pill of a layer or a wall (round 7, spec 6 and 8.1): the Close and Back button and the round close of an open video.
+     The dock's glass (46% of --glass-rgb with a lit top edge) a little denser, since it sits over pictures, with a blur behind it
+     and a thin outline; one place so the three stay the same (close-button.css, watching.css). */
+  --pill-bg:
+    linear-gradient(180deg, rgba(255, 236, 214, 0.16), rgba(255, 236, 214, 0.04) 42%, rgba(0, 0, 0, 0.14)),
+    rgb(var(--glass-rgb) / 0.62);
+  --pill-edge:
+    0 0 0 1px rgb(var(--ink-rgb) / 0.16), inset 0 1px 0 rgb(var(--ink-rgb) / 0.22), 0 8px 18px -8px rgba(0, 0, 0, 0.7);
+  --pill-blur: blur(20px) saturate(1.2);
+  --pill-h: 34px; /* the pill's height, and the round close's width and height */
+  --pill-h-touch: 44px; /* on touch screens: the finger's target (R88) */
+
   /* the dock's idle labels (the active one is 100%) */
   --dock-idle: 0.85;
 

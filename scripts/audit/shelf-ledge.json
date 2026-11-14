@@ -1,0 +1,244 @@
+[
+ {
+  "go": "about:blank"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "if(!window.__dotsPatched){window.__dotsPatched=1;window.__dots=0;try{const o=CanvasRenderingContext2D.prototype.clearRect;CanvasRenderingContext2D.prototype.clearRect=function(){if(this.canvas&&this.canvas.className==='dot-field')window.__dots++;return o.apply(this,arguments)}}catch(e){}}",
+  "go": "{{BASE}}/#reading",
+  "wait": 3500
+ },
+ {
+  "shot": "r7-ledge-1440x900-warm"
+ },
+ {
+  "shot": "r7-ledge-1440x900"
+ },
+ {
+  "eval": "(()=>{const d=document.querySelector('.home-layer .dot-field'),c=document.querySelector('.shelf-host canvas.shelf-canvas');if(!d||!c)return {dots:!!d,canvas:!!c};const x=d.getContext('2d').getImageData(0,0,d.width,d.height).data;let lit=0,max=0;for(let i=3;i<x.length;i+=4){if(x[i]){lit++;if(x[i]>max)max=x[i]}}const bottom=d.getBoundingClientRect().bottom;return {dotCss:[d.clientWidth,d.clientHeight],dotPx:[d.width,d.height],litShare:+(lit/(x.length/4)).toFixed(3),maxAlpha:max,maxAlphaIs:+(max/255).toFixed(3),dotBottom:Math.round(bottom),baseRow:+c.dataset.baseRow,ledgeTopVar:getComputedStyle(c.closest('.shelf-scene')).getPropertyValue('--ledge-top'),dotsBehindCanvas:d.compareDocumentPosition(c)&Node.DOCUMENT_POSITION_FOLLOWING?true:false,pointerEvents:getComputedStyle(d).pointerEvents}})()",
+  "label": "1440x900: dot canvas fills the stage down to the ledge top, behind the shelf canvas, no pointer events"
+ },
+ {
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<3000)requestAnimationFrame(f);else{g.shift();r({n:g.length,worstMs:+Math.max(...g).toFixed(1),over20:g.filter(x=>x>20).length,over34:g.filter(x=>x>34).length,avgMs:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(1)})}}requestAnimationFrame(f)})",
+  "label": "1440x900: frames with the shelf idle (dots redrawing): worst gap, frames over 20 ms and 34 ms"
+ },
+ {
+  "eval": "new Promise(r=>{const a=window.__dots,t=performance.now();setTimeout(()=>{const dt=(performance.now()-t)/1000;r({seconds:+dt.toFixed(2),redraws:window.__dots-a,perSecond:+((window.__dots-a)/dt).toFixed(1)})},2000)})",
+  "label": "1440x900: dot redraws per second while the shelf is open (about 20)"
+ },
+ {
+  "eval": "(()=>{window.__h=((()=>{const d=document.querySelector('.home-layer .dot-field');const x=d.getContext('2d').getImageData(0,0,d.width,d.height).data;let h=0;for(let i=3;i<x.length;i+=4)h=(h*31+x[i])|0;return h})());return window.__h})()",
+  "label": "1440x900: dot picture hash"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const d=document.querySelector('.home-layer .dot-field');const x=d.getContext('2d').getImageData(0,0,d.width,d.height).data;let h=0;for(let i=3;i<x.length;i+=4)h=(h*31+x[i])|0;return h})()",
+  "label": "1440x900: dot picture hash 6 s later (differs: the swell moves)"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1500
+ },
+ {
+  "eval": "new Promise(r=>{const a=window.__dots;setTimeout(()=>r({layerOpen:!!document.querySelector('.home-layer.on'),redrawsIn1s:window.__dots-a}),1000)})",
+  "label": "1440x900: after Esc the loop has stopped (redrawsIn1s 0, or 1 for the still frame the closing layer may draw)"
+ },
+ {
+  "go": "about:blank"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "if(!window.__dotsPatched){window.__dotsPatched=1;window.__dots=0;try{const o=CanvasRenderingContext2D.prototype.clearRect;CanvasRenderingContext2D.prototype.clearRect=function(){if(this.canvas&&this.canvas.className==='dot-field')window.__dots++;return o.apply(this,arguments)}}catch(e){}}",
+  "go": "{{BASE}}/#reading",
+  "wait": 3500
+ },
+ {
+  "shot": "r7-ledge-390x844-warm"
+ },
+ {
+  "shot": "r7-ledge-390x844"
+ },
+ {
+  "eval": "(()=>{const d=document.querySelector('.home-layer .dot-field'),c=document.querySelector('.shelf-host canvas.shelf-canvas');if(!d||!c)return {dots:!!d,canvas:!!c};const x=d.getContext('2d').getImageData(0,0,d.width,d.height).data;let lit=0,max=0;for(let i=3;i<x.length;i+=4){if(x[i]){lit++;if(x[i]>max)max=x[i]}}const bottom=d.getBoundingClientRect().bottom;return {dotCss:[d.clientWidth,d.clientHeight],dotPx:[d.width,d.height],litShare:+(lit/(x.length/4)).toFixed(3),maxAlpha:max,maxAlphaIs:+(max/255).toFixed(3),dotBottom:Math.round(bottom),baseRow:+c.dataset.baseRow,ledgeTopVar:getComputedStyle(c.closest('.shelf-scene')).getPropertyValue('--ledge-top'),dotsBehindCanvas:d.compareDocumentPosition(c)&Node.DOCUMENT_POSITION_FOLLOWING?true:false,pointerEvents:getComputedStyle(d).pointerEvents}})()",
+  "label": "390x844: dot canvas fills the stage down to the ledge top, behind the shelf canvas, no pointer events"
+ },
+ {
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<3000)requestAnimationFrame(f);else{g.shift();r({n:g.length,worstMs:+Math.max(...g).toFixed(1),over20:g.filter(x=>x>20).length,over34:g.filter(x=>x>34).length,avgMs:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(1)})}}requestAnimationFrame(f)})",
+  "label": "390x844: frames with the shelf idle (dots redrawing): worst gap, frames over 20 ms and 34 ms"
+ },
+ {
+  "eval": "new Promise(r=>{const a=window.__dots,t=performance.now();setTimeout(()=>{const dt=(performance.now()-t)/1000;r({seconds:+dt.toFixed(2),redraws:window.__dots-a,perSecond:+((window.__dots-a)/dt).toFixed(1)})},2000)})",
+  "label": "390x844: dot redraws per second while the shelf is open (about 20)"
+ },
+ {
+  "eval": "(()=>{window.__h=((()=>{const d=document.querySelector('.home-layer .dot-field');const x=d.getContext('2d').getImageData(0,0,d.width,d.height).data;let h=0;for(let i=3;i<x.length;i+=4)h=(h*31+x[i])|0;return h})());return window.__h})()",
+  "label": "390x844: dot picture hash"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const d=document.querySelector('.home-layer .dot-field');const x=d.getContext('2d').getImageData(0,0,d.width,d.height).data;let h=0;for(let i=3;i<x.length;i+=4)h=(h*31+x[i])|0;return h})()",
+  "label": "390x844: dot picture hash 6 s later (differs: the swell moves)"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1500
+ },
+ {
+  "eval": "new Promise(r=>{const a=window.__dots;setTimeout(()=>r({layerOpen:!!document.querySelector('.home-layer.on'),redrawsIn1s:window.__dots-a}),1000)})",
+  "label": "390x844: after Esc the loop has stopped (redrawsIn1s 0, or 1 for the still frame the closing layer may draw)"
+ },
+ {
+  "go": "about:blank"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": true,
+  "init": "if(!window.__dotsPatched){window.__dotsPatched=1;window.__dots=0;try{const o=CanvasRenderingContext2D.prototype.clearRect;CanvasRenderingContext2D.prototype.clearRect=function(){if(this.canvas&&this.canvas.className==='dot-field')window.__dots++;return o.apply(this,arguments)}}catch(e){}}",
+  "go": "{{BASE}}/#reading",
+  "wait": 3500
+ },
+ {
+  "shot": "r7-ledge-1440x900-reduced-warm"
+ },
+ {
+  "shot": "r7-ledge-1440x900-reduced"
+ },
+ {
+  "eval": "(()=>{const d=document.querySelector('.home-layer .dot-field'),c=document.querySelector('.shelf-host canvas.shelf-canvas');if(!d||!c)return {dots:!!d,canvas:!!c};const x=d.getContext('2d').getImageData(0,0,d.width,d.height).data;let lit=0,max=0;for(let i=3;i<x.length;i+=4){if(x[i]){lit++;if(x[i]>max)max=x[i]}}const bottom=d.getBoundingClientRect().bottom;return {dotCss:[d.clientWidth,d.clientHeight],dotPx:[d.width,d.height],litShare:+(lit/(x.length/4)).toFixed(3),maxAlpha:max,maxAlphaIs:+(max/255).toFixed(3),dotBottom:Math.round(bottom),baseRow:+c.dataset.baseRow,ledgeTopVar:getComputedStyle(c.closest('.shelf-scene')).getPropertyValue('--ledge-top'),dotsBehindCanvas:d.compareDocumentPosition(c)&Node.DOCUMENT_POSITION_FOLLOWING?true:false,pointerEvents:getComputedStyle(d).pointerEvents}})()",
+  "label": "1440x900-reduced: dot canvas fills the stage down to the ledge top, behind the shelf canvas, no pointer events"
+ },
+ {
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<3000)requestAnimationFrame(f);else{g.shift();r({n:g.length,worstMs:+Math.max(...g).toFixed(1),over20:g.filter(x=>x>20).length,over34:g.filter(x=>x>34).length,avgMs:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(1)})}}requestAnimationFrame(f)})",
+  "label": "1440x900-reduced: frames with the shelf open and the dot field held still: worst gap, frames over 20 ms and 34 ms"
+ },
+ {
+  "eval": "new Promise(r=>{const a=window.__dots,t=performance.now();setTimeout(()=>{const dt=(performance.now()-t)/1000;r({seconds:+dt.toFixed(2),redraws:window.__dots-a,perSecond:+((window.__dots-a)/dt).toFixed(1)})},2000)})",
+  "label": "1440x900-reduced: dot redraws per second while the shelf is open (0: painted once, no loop)"
+ },
+ {
+  "eval": "(()=>{window.__h=((()=>{const d=document.querySelector('.home-layer .dot-field');const x=d.getContext('2d').getImageData(0,0,d.width,d.height).data;let h=0;for(let i=3;i<x.length;i+=4)h=(h*31+x[i])|0;return h})());return window.__h})()",
+  "label": "1440x900-reduced: dot picture hash"
+ },
+ {
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const d=document.querySelector('.home-layer .dot-field');const x=d.getContext('2d').getImageData(0,0,d.width,d.height).data;let h=0;for(let i=3;i<x.length;i+=4)h=(h*31+x[i])|0;return h})()",
+  "label": "1440x900-reduced: dot picture hash 6 s later (the same: the field is held still under reduced motion)"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1500
+ },
+ {
+  "eval": "new Promise(r=>{const a=window.__dots;setTimeout(()=>r({layerOpen:!!document.querySelector('.home-layer.on'),redrawsIn1s:window.__dots-a}),1000)})",
+  "label": "1440x900-reduced: after Esc nothing is redrawn (redrawsIn1s 0)"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false
+ },
+ {
+  "go": "about:blank"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 2500
+ },
+ {
+  "eval": "new Promise(res=>{const b=document.querySelector('#blkRead');b.scrollIntoView({block:'center'});document.querySelectorAll('.home-blocks .mw').forEach(e=>e.style.visibility='hidden');setTimeout(()=>res(1),1200)})",
+  "label": "1440x900: the reading block scrolled to the middle (the watching block's thumbnails hidden for the picture)"
+ },
+ {
+  "shot": "r7-ledge-block-1440x900-warm"
+ },
+ {
+  "shot": "r7-ledge-block-1440x900"
+ },
+ {
+  "eval": "(()=>{const b=document.querySelector('#blkRead').getBoundingClientRect(),row=document.querySelector('.ms-row').getBoundingClientRect(),l=document.querySelector('.ms-ledge').getBoundingClientRect(),art=document.querySelector('.ms').getBoundingClientRect(),sp=[...document.querySelectorAll('.ms-sp')].map(e=>e.getBoundingClientRect());const f=getComputedStyle(document.querySelector('.ms-row')).getPropertyValue('--ms-fit');return {fit:+(+f).toFixed(3),blockW:Math.round(b.width),rowW:Math.round(row.width),rowShare:+(row.width/b.width).toFixed(3),rowInsideBlock:row.left>=b.left&&row.right<=b.right,ledge:[Math.round(l.left-b.left),Math.round(l.right-b.left),Math.round(l.height)],ledgeInsideBlock:l.left>=b.left-0.5&&l.right<=b.right+0.5,feetToLedgeTop:Math.round(l.top-row.bottom),spineWidths:[Math.min(...sp.map(r=>r.width)).toFixed(1),Math.max(...sp.map(r=>r.width)).toFixed(1)],ledgePaths:document.querySelectorAll('.ms-ledge path').length}})()",
+  "label": "1440x900: the block's small shelf and its ledge, inside the block, spines at least this wide"
+ },
+ {
+  "go": "about:blank"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 2500
+ },
+ {
+  "eval": "new Promise(res=>{const b=document.querySelector('#blkRead');b.scrollIntoView({block:'center'});document.querySelectorAll('.home-blocks .mw').forEach(e=>e.style.visibility='hidden');setTimeout(()=>res(1),1200)})",
+  "label": "390x844: the reading block scrolled to the middle (the watching block's thumbnails hidden for the picture)"
+ },
+ {
+  "shot": "r7-ledge-block-390x844-warm"
+ },
+ {
+  "shot": "r7-ledge-block-390x844"
+ },
+ {
+  "eval": "(()=>{const b=document.querySelector('#blkRead').getBoundingClientRect(),row=document.querySelector('.ms-row').getBoundingClientRect(),l=document.querySelector('.ms-ledge').getBoundingClientRect(),art=document.querySelector('.ms').getBoundingClientRect(),sp=[...document.querySelectorAll('.ms-sp')].map(e=>e.getBoundingClientRect());const f=getComputedStyle(document.querySelector('.ms-row')).getPropertyValue('--ms-fit');return {fit:+(+f).toFixed(3),blockW:Math.round(b.width),rowW:Math.round(row.width),rowShare:+(row.width/b.width).toFixed(3),rowInsideBlock:row.left>=b.left&&row.right<=b.right,ledge:[Math.round(l.left-b.left),Math.round(l.right-b.left),Math.round(l.height)],ledgeInsideBlock:l.left>=b.left-0.5&&l.right<=b.right+0.5,feetToLedgeTop:Math.round(l.top-row.bottom),spineWidths:[Math.min(...sp.map(r=>r.width)).toFixed(1),Math.max(...sp.map(r=>r.width)).toFixed(1)],ledgePaths:document.querySelectorAll('.ms-ledge path').length}})()",
+  "label": "390x844: the block's small shelf and its ledge, inside the block, spines at least this wide"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false
+ }
+]

@@ -1,11 +1,14 @@
 import type { SiteBook } from "~/types";
+import { bookLook } from "./spine-series";
 
 /**
  * The shelf's painters: every texture is drawn on a 2D canvas, so the books need no image files.
  * Ported from the `Shelf` module of docs/redesign/mockups/home-v4.html (coverCanvas, backCanvas,
- * topCanvas, foreCanvas, softRectCanvas). The spine is no longer painted here: see spine-draw.ts.
- * Client only: every function creates a canvas. Only the generated cover (no Open Library image)
- * writes text, in Lora 500 and IBM Plex Mono 500, which the engine waits for (`loadShelfFonts`).
+ * topCanvas, foreCanvas, softRectCanvas). The spine is not painted here: see spine-paint.ts. Every
+ * other face of a book takes the spine's cloth (and the generated cover its foil for type), `bookLook`, so a
+ * book's faces agree (R90). Client only: every function creates a canvas. Only the generated cover (no
+ * Open Library image) writes text, in Lora 500 and IBM Plex Mono 500, which the engine waits for
+ * (`loadShelfFonts`, capped when the layer waits) and paints the cover again if they come late.
  */
 
 const mk = (w: number, h: number): HTMLCanvasElement => {
@@ -20,18 +23,7 @@ const ctx2d = (c: HTMLCanvasElement): CanvasRenderingContext2D => {
   return x;
 };
 
-type PaintBook = Pick<SiteBook, "title" | "author" | "aspect" | "color">;
-
-const rgbOf = (h: string): [number, number, number] => [
-  parseInt(h.slice(1, 3), 16),
-  parseInt(h.slice(3, 5), 16),
-  parseInt(h.slice(5, 7), 16),
-];
-/** Perceived brightness 0..1 of a `#rrggbb` colour. */
-const lum = (h: string): number => {
-  const [r, g, b] = rgbOf(h);
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-};
+type PaintBook = Pick<SiteBook, "id" | "series" | "title" | "author" | "aspect" | "color">;
 
 /** A 128 px tile of white noise, painted once and reused as the grain. */
 let NOISE: HTMLCanvasElement | null = null;
@@ -105,10 +97,11 @@ export function coverCanvas(
     }
     x.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
   } else {
-    x.fillStyle = d.color;
+    const look = bookLook(d);
+    x.fillStyle = look.cloth;
     x.fillRect(0, 0, cw, ch);
     grain(x, cw, ch, 0.12);
-    x.fillStyle = lum(d.color) > 0.56 ? "#17120d" : "#f6f0e2";
+    x.fillStyle = look.foil;
     x.textAlign = "left";
     x.textBaseline = "top";
     fitText(x, d.title, (s) => `500 ${s}px Lora`, cw * 0.8, 58);
@@ -146,7 +139,7 @@ export function coverCanvas(
 export function backCanvas(d: PaintBook): HTMLCanvasElement {
   const c = mk(256, 384);
   const x = ctx2d(c);
-  x.fillStyle = d.color;
+  x.fillStyle = bookLook(d).cloth;
   x.fillRect(0, 0, 256, 384);
   grain(x, 256, 384, 0.14);
   const g = x.createLinearGradient(0, 0, 256, 384);
@@ -173,7 +166,7 @@ export function topCanvas(d: PaintBook): HTMLCanvasElement {
   g.addColorStop(1, "rgba(0,0,0,.1)");
   x.fillStyle = g;
   x.fillRect(0, 0, 512, 96);
-  x.fillStyle = d.color;
+  x.fillStyle = bookLook(d).cloth;
   x.fillRect(0, 0, 512, 7);
   x.fillRect(0, 89, 512, 7);
   x.fillRect(0, 0, 14, 96);
@@ -204,7 +197,7 @@ export function foreCanvas(d: PaintBook): HTMLCanvasElement {
   v.addColorStop(1, "rgba(0,0,0,.22)");
   x.fillStyle = v;
   x.fillRect(0, 0, 128, 1024);
-  x.fillStyle = d.color;
+  x.fillStyle = bookLook(d).cloth;
   x.fillRect(0, 0, 8, 1024);
   x.fillRect(120, 0, 8, 1024);
   return c;

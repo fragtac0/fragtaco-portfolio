@@ -1,0 +1,1190 @@
+[
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "go": "{{BASE}}/#watching",
+  "wait": 5000,
+  "eval": "({canvas:!!document.querySelector('.wall-host canvas'),head:!!document.querySelector('.xp-head')})",
+  "label": "1440x900: the wall is up"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1440x900-rest-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1440x900 rest: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1440x900-rest"
+ },
+ {
+  "wheel": [
+   720,
+   450,
+   -2000,
+   -2000,
+   28
+  ]
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1440x900-pulled-up-left-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1440x900 pulled-up-left: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1440x900-pulled-up-left"
+ },
+ {
+  "wheel": [
+   720,
+   450,
+   4000,
+   0,
+   14
+  ]
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1440x900-then-pulled-right-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1440x900 then-pulled-right: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1440x900-then-pulled-right"
+ },
+ {
+  "wheel": [
+   720,
+   450,
+   0,
+   4000,
+   14
+  ]
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1440x900-then-pulled-down-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1440x900 then-pulled-down: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1440x900-then-pulled-down"
+ },
+ {
+  "wheel": [
+   720,
+   450,
+   -4000,
+   0,
+   14
+  ]
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1440x900-then-pulled-left-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1440x900 then-pulled-left: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1440x900-then-pulled-left"
+ },
+ {
+  "eval": "(()=>{window.scrollTo(0,0);return 1})()"
+ },
+ {
+  "click": [
+   720,
+   450
+  ],
+  "wait": 1300
+ },
+ {
+  "eval": "({open:getComputedStyle(document.querySelector('.vov')).display, x:!!document.querySelector('.vov .x')})",
+  "label": "1440x900: a video open"
+ },
+ {
+  "contrast": [
+   {
+    "name": "round close (x, ink 92%, over its glass)",
+    "selector": ".home-layer .vov .x",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1440x900: the open video's round close"
+ },
+ {
+  "shot": "local-edges-1440x900-open"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1024,
+   768
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "go": "{{BASE}}/#watching",
+  "wait": 5000,
+  "eval": "({canvas:!!document.querySelector('.wall-host canvas'),head:!!document.querySelector('.xp-head')})",
+  "label": "1024x768: the wall is up"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1024x768-rest-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1024x768 rest: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1024x768-rest"
+ },
+ {
+  "wheel": [
+   512,
+   384,
+   -2000,
+   -2000,
+   28
+  ]
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1024x768-pulled-up-left-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1024x768 pulled-up-left: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1024x768-pulled-up-left"
+ },
+ {
+  "wheel": [
+   512,
+   384,
+   4000,
+   0,
+   14
+  ]
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1024x768-then-pulled-right-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1024x768 then-pulled-right: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1024x768-then-pulled-right"
+ },
+ {
+  "wheel": [
+   512,
+   384,
+   0,
+   4000,
+   14
+  ]
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1024x768-then-pulled-down-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1024x768 then-pulled-down: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1024x768-then-pulled-down"
+ },
+ {
+  "wheel": [
+   512,
+   384,
+   -4000,
+   0,
+   14
+  ]
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-1024x768-then-pulled-left-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   },
+   {
+    "name": "Esc key chip (ink 72%, over its glass)",
+    "selector": ".home-layer .xp-close kbd",
+    "ink": [
+     253,
+     252,
+     230,
+     0.72
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1024x768 then-pulled-left: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-1024x768-then-pulled-left"
+ },
+ {
+  "eval": "(()=>{window.scrollTo(0,0);return 1})()"
+ },
+ {
+  "click": [
+   512,
+   384
+  ],
+  "wait": 1300
+ },
+ {
+  "eval": "({open:getComputedStyle(document.querySelector('.vov')).display, x:!!document.querySelector('.vov .x')})",
+  "label": "1024x768: a video open"
+ },
+ {
+  "contrast": [
+   {
+    "name": "round close (x, ink 92%, over its glass)",
+    "selector": ".home-layer .vov .x",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1024x768: the open video's round close"
+ },
+ {
+  "shot": "local-edges-1024x768-open"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "cpu": 1,
+  "go": "{{BASE}}/#watching",
+  "wait": 5000,
+  "eval": "({canvas:!!document.querySelector('.wall-host canvas'),head:!!document.querySelector('.xp-head')})",
+  "label": "390x844: the wall is up"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-390x844-rest-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "390x844 rest: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-390x844-rest"
+ },
+ {
+  "drag": [
+   60,
+   120,
+   340,
+   800,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   60,
+   120,
+   340,
+   800,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   60,
+   120,
+   340,
+   800,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   60,
+   120,
+   340,
+   800,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-390x844-pulled-up-left-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "390x844 pulled-up-left: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-390x844-pulled-up-left"
+ },
+ {
+  "drag": [
+   330,
+   120,
+   50,
+   800,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   330,
+   120,
+   50,
+   800,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   330,
+   120,
+   50,
+   800,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   330,
+   120,
+   50,
+   800,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-390x844-then-pulled-right-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "390x844 then-pulled-right: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-390x844-then-pulled-right"
+ },
+ {
+  "drag": [
+   330,
+   780,
+   50,
+   80,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   330,
+   780,
+   50,
+   80,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   330,
+   780,
+   50,
+   80,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   330,
+   780,
+   50,
+   80,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-390x844-then-pulled-down-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "390x844 then-pulled-down: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-390x844-then-pulled-down"
+ },
+ {
+  "drag": [
+   50,
+   780,
+   340,
+   120,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   50,
+   780,
+   340,
+   120,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   50,
+   780,
+   340,
+   120,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "drag": [
+   50,
+   780,
+   340,
+   120,
+   12
+  ],
+  "wait": 150
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(r,1800))",
+  "label": "settle"
+ },
+ {
+  "shot": "local-edges-390x844-then-pulled-left-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%, the quietest)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word (ink 92%, over its glass)",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "390x844 then-pulled-left: contrast of the heading and the Close pill over the picture behind them"
+ },
+ {
+  "shot": "local-edges-390x844-then-pulled-left"
+ },
+ {
+  "eval": "(()=>{window.scrollTo(0,0);return 1})()"
+ },
+ {
+  "tap": [
+   195,
+   422
+  ],
+  "wait": 1300
+ },
+ {
+  "eval": "({open:getComputedStyle(document.querySelector('.vov')).display, x:!!document.querySelector('.vov .x')})",
+  "label": "390x844: a video open"
+ },
+ {
+  "contrast": [
+   {
+    "name": "round close (x, ink 92%, over its glass)",
+    "selector": ".home-layer .vov .x",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "390x844: the open video's round close"
+ },
+ {
+  "shot": "local-edges-390x844-open"
+ }
+]

@@ -59,6 +59,8 @@ export interface SiteBook {
   /** A picture of the real spine, a path served from `public/` (for example `/books/story-spine.webp`). Optional. */
   spine?: string;
   style: BookStyle;
+  /** The spine design this book wears (a key of the series, spine-series.ts); defaults to its own id. */
+  series?: string;
   note: string;
 }
 

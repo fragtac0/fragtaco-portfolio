@@ -53,7 +53,7 @@
  },
  {
   "eval": "__sf(3000)",
-  "label": "1440x900 wall drift"
+  "label": "1440x900 wall at rest (the block floats)"
  },
  {
   "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const r=c.getBoundingClientRect();const p=__sf(2500);for(let i=0;i<60;i++){c.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:r.left+r.width*(0.1+0.8*i/60),clientY:r.top+r.height*(0.3+0.4*(i%7)/7),pointerType:'mouse',isPrimary:true}));await new Promise(q=>setTimeout(q,30))}return p})()",
@@ -134,7 +134,7 @@
  },
  {
   "eval": "__sf(3000)",
-  "label": "390x844 wall drift"
+  "label": "390x844 wall at rest (the block floats)"
  },
  {
   "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const r=c.getBoundingClientRect();const p=__sf(2500);for(let i=0;i<60;i++){c.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:r.left+r.width*(0.1+0.8*i/60),clientY:r.top+r.height*(0.3+0.4*(i%7)/7),pointerType:'mouse',isPrimary:true}));await new Promise(q=>setTimeout(q,30))}return p})()",

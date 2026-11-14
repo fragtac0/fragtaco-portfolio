@@ -8,39 +8,33 @@ import type { ShelfEngine } from "./shelf-engine-types";
 import { createAnimate, poseBooks } from "./shelf-pose";
 import { createMarkerSync } from "./shelf-hud";
 import { fitShelf, readCovers } from "./shelf-fit";
-import { buildShelfScene, loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
+import { loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
+import { Aborted, abortable, buildShelf } from "./shelf-build";
+import { createFontCap, createSpineFonts, type SpineFonts } from "./shelf-spine-fonts";
 import { loadSpinePhotos, retintSpine, stepSpineFades } from "./shelf-spines";
 import { spineColours } from "./spine-styles";
 import { clamp, flick, initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
 
 /**
- * The reading shelf: 14 books in one row on a line, seen face on and drawn with three.js. Ported
- * from the `Shelf` module of docs/redesign/mockups/home-v4.html (slow drop-in with fade, springs for
- * hover, open and fade, covers uploaded outside the entrance); since R44.3 the camera is
- * orthographic and the row is unlit, so no side of a book shows and the colours are true.
+ * The reading shelf: 14 books in one row on a line, seen face on and drawn with three.js (ported from
+ * the `Shelf` module of docs/redesign/mockups/home-v4.html; since R44.3 the camera is orthographic and
+ * the row unlit, so the colours are true). Shadows are not a shadow map: a lifted book has a soft
+ * shadow on the ground behind it. Opening a book lifts it and turns it to its cover (620 ms) while the
+ * row dims to 70% and the note shows beside it (shelf-open.ts, shelf-lift.ts).
  *
- * three.js is only ever loaded with `import("three")`, inside `prepare()`, so it is its own chunk.
- * The engine owns its canvas: `prepare()` builds the whole scene in idle time while no layer is
- * mounted, so the layer opens onto a warm scene; once the layer is open and waiting, `setUrgent()`
- * makes the same steps run back to back (about 8 ms a frame) while the layer shows the block's picture.
- * `mount()` puts the canvas into the layer and wires the overlays, `unmount()` takes it out again
- * but keeps the GL scene for an instant re-open, and `dispose()` (when the home page goes away)
- * frees everything. A lost graphics context makes `hasFailed()` true and calls `onLost` listeners.
+ * three.js is only loaded with `import("three")` (shelf-build.ts), its own chunk. The engine owns its
+ * canvas: `prepare()` builds the scene in idle time while no layer is mounted, so the layer opens onto
+ * a warm scene; once the layer is open and waiting, `setUrgent()` runs the same steps back to back
+ * (about 8 ms a frame), and the wait for the fonts is capped from `mount()` (R89). `mount()` puts the canvas into the layer,
+ * `unmount()` takes it out but keeps the GL scene for an instant re-open, `dispose()` frees everything.
+ * A lost graphics context makes `hasFailed()` true and calls `onLost` listeners.
  *
- * Shadows are not a shadow map: a lifted book has a soft shadow on the ground behind it, animated
- * with the book every frame. Opening a book lifts it straight up and turns it to its cover (620 ms)
- * while the row stays put and dims to 70%; the note shows beside it (shelf-open.ts, shelf-lift.ts).
- *
- * The per-frame book poses are shelf-pose.ts, the open-book path is shelf-open.ts, the real covers
- * shelf-covers.ts, the scene shelf-scene.ts, the sizing shelf-fit.ts, the position marker
- * shelf-hud.ts and the listeners (keyboard, drag, wheel) shelf-input.ts; this file keeps the state,
- * the frame (including the flick after a drag) and the lifecycle.
+ * The poses are shelf-pose.ts, the open-book path shelf-open.ts, the real covers shelf-covers.ts, the
+ * scene shelf-scene.ts, the sizing shelf-fit.ts, the marker shelf-hud.ts, the listeners shelf-input.ts;
+ * this file keeps the state, the frame (including the flick after a drag) and the lifecycle.
  */
 
 export type { ShelfEls, ShelfEngine };
-
-/** Thrown inside `build()` when the engine is disposed part-way through. */
-class Aborted extends Error {}
 
 const STAGE_LABEL = "Bookshelf. Use left and right arrows to browse, Enter to open.";
 
@@ -106,6 +100,9 @@ export function createShelf(
     },
   });
   let stopPhotos: (() => void) | null = null;
+  // the spine faces: painted after they load (capped once the layer waits), again when one arrives late (shelf-spine-fonts.ts)
+  let fonts: SpineFonts | null = null;
+  const fontCap = createFontCap();
 
   // interaction state
   const st: ShelfState = {
@@ -143,27 +140,20 @@ export function createShelf(
   const { closeBook, setNote } = openBookPath;
 
   // ---- building (idle time before the layer is opened, short urgent slices once it waits)
+  const run = abortable((steps) => slicer.run(steps), () => disposed); // a disposed engine ends a build at its next step
 
-  async function build(): Promise<ShelfScene> {
-    const T = await import("three");
-    await loadShelfFonts();
-    if (disposed) throw new Aborted();
-    // the scene is built in steps the slicer spreads out; a disposed engine ends the build at the next one
-    const run = (steps: Array<() => void>) =>
-      slicer.run(
-        steps.map((step) => () => {
-          if (disposed) throw new Aborted();
-          step();
-        }),
-      );
-    return buildShelfScene(
-      T,
-      canvas,
-      books,
-      run,
-      (tex, d) => covers.load(tex, d),
-      (tex, d) => covers.repaint(tex, d),
-    );
+  function build(): Promise<ShelfScene> {
+    if (disposed) return Promise.reject(new Aborted());
+    // the faces load while three.js does; the first paint waits for them up to the cap (shelf-spine-fonts.ts)
+    fonts = createSpineFonts(books, {
+      repainted: () => {
+        st.dirty = true;
+      },
+      cap: fontCap.reached,
+      also: loadShelfFonts(),
+      alsoLate: () => gl?.books.forEach((b) => covers.repaintGenerated(b.coverTex, b.d)), // the interface faces came late: only generated covers draw them
+    });
+    return buildShelf(canvas, books, { disposed: () => disposed, fonts, run, covers });
   }
 
   // ---- sizing (shelf-fit.ts)
@@ -246,6 +236,7 @@ export function createShelf(
           return;
         }
         gl = g;
+        fonts?.scene(g.books, run);
         covers.wake();
         // a book with a picture of its spine shows that instead (none does yet)
         stopPhotos = loadSpinePhotos(g.books, {
@@ -256,7 +247,10 @@ export function createShelf(
         });
       })
       .catch((err: unknown) => {
-        if (err instanceof Aborted) return;
+        if (err instanceof Aborted) {
+          fonts?.stop(); // disposed part-way: the font watch has no scene to repaint
+          return;
+        }
         failed = true;
         console.warn("The shelf could not start.", err);
       });
@@ -275,6 +269,7 @@ export function createShelf(
 
   function unmount() {
     stop();
+    fontCap.waiting(false);
     listeners?.abort();
     listeners = null;
     canvas.remove();
@@ -287,6 +282,7 @@ export function createShelf(
     mount(next) {
       if (els) unmount();
       els = next;
+      fontCap.waiting(true); // someone waits for the shelf now: the font wait is capped from here
       next.host.appendChild(canvas);
       st.fitW = 0; // a new mount refits: the marker and camera limits are for this stage
       setNote(false);
@@ -327,7 +323,10 @@ export function createShelf(
     hasOpen: () => !!st.opened,
     hasFailed: () => failed || lost.lost(),
     onLost: lost.subscribe,
-    setUrgent: (on) => slicer.setUrgent(on),
+    setUrgent(on) {
+      slicer.setUrgent(on);
+      fontCap.urgent(on); // the layer has opened onto the shelf: the font wait gets its shorter leg (R89)
+    },
     closeBook: () => closeBook(true),
     focusNext,
     openFocused,
@@ -338,6 +337,8 @@ export function createShelf(
       disposed = true;
       covers.clear();
       stopPhotos?.();
+      fonts?.stop();
+      fontCap.stop();
       gl?.dispose();
       gl = null;
     },

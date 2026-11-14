@@ -1,6 +1,5 @@
 import type * as THREE from "three";
 import type { SiteBook } from "~/types";
-import { CREAM, LINE_ALPHA } from "../../../styles/tokens";
 import {
   backCanvas,
   coverCanvas,
@@ -8,7 +7,9 @@ import {
   softRectCanvas,
   topCanvas,
 } from "./shelf-canvases";
+import { ledgeHeight } from "./ledge";
 import { addShelfLights } from "./shelf-light";
+import { createLedge } from "./shelf-ledge";
 import { FRONT, SHELF_GAP, RENDER_DPR_MAX, WALLZ, bookSize, coverNeedsRepaint, coverPixels, flatFrame, headGuess } from "./shelf-math";
 import { newBag, type Book, type ShelfScene } from "./shelf-scene-types";
 import { createSpineFace, resizeSpines, spinePixels, MAX_DPR } from "./shelf-spines";
@@ -208,20 +209,12 @@ export async function buildShelfScene(
       b.baseQ.copy(qUp);
       x += b.T + gap;
     });
-    const line = new T.Mesh(
-      unit,
-      track(
-        new T.MeshBasicMaterial({
-          color: CREAM,
-          transparent: true,
-          opacity: LINE_ALPHA,
-          depthWrite: false,
-          toneMapped: false,
-        }),
-      ),
-    );
-    line.position.z = WALLZ;
-    scene.add(line);
+    // the rock ledge the books stand on, drawn at the size the stage is most likely to be; the fit redraws it if it is not
+    const ledge = createLedge(T, WALLZ, unit, track);
+    const ledgeAt = (reachPx: number, stageH: number, baseRow: number, scale: number) =>
+      ledge.fit(reachPx, ledgeHeight(stageH, baseRow), scale, Math.min(window.devicePixelRatio || 1, RENDER_DPR_MAX));
+    ledgeAt(guess.reach * guess.scale, window.innerHeight, guess.baseRow, guess.scale);
+    scene.add(ledge.mesh);
 
     // compile and upload now, so opening the shelf does not stall on its first frame, but in
     // small slices: the shader compile on its own, then a few textures at a time
@@ -259,7 +252,8 @@ export async function buildShelfScene(
       scene,
       camera,
       books: list,
-      line,
+      ledge: ledge.mesh,
+      fitLedge: ledgeAt,
       span,
       scale: 1,
       maxX: 0,

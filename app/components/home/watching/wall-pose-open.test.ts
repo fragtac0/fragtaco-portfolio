@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { layoutTiles, tileSize } from "./wall-math";
+import { blockPlan, centredPan, sizeOfPlan } from "./wall-block";
+import { layoutTiles } from "./wall-math";
 import { choiceLayout, countOverlaps, picturesSettled } from "./wall-choice";
 import { createPose, type PoseChoice, type PoseInput } from "./wall-pose";
-import { chosenRect, crosses, SPREAD_DIM, SPREAD_SCALE, textZone } from "./wall-spread";
+import { cameraPan, chosenRect, crosses, easeInOut, SPREAD_DIM, SPREAD_SCALE, textZone } from "./wall-spread";
 import type { Tile } from "./wall-types";
 
-/** The pose while a video is chosen (spec 7, "Click"): the wall opens around it. */
+/** The pose while a video is chosen (spec 8.1, the click): the wall opens around it. */
 
 const videos = [{ channel: "A" }, { channel: "B" }, { channel: "A" }, { channel: "A" }];
-const size = tileSize(1440);
+// the block's own tiles at 1440 by 900: half of round 6's, so the chosen video (round 6's size) is twice a tile
+const size = sizeOfPlan(blockPlan(109, 1440, 900));
 
 const tile = (key: string, idx: number): Tile => {
   const [cx, cy] = key.split(",").map(Number);
@@ -49,7 +51,7 @@ describe("createPose with a chosen video", () => {
     key: "2,2",
     live: true,
     rect,
-    zone: textZone(rect),
+    zone: textZone(rect, vw),
     halfDiag: Math.hypot(vw / 2, vh / 2),
     ...over,
   });
@@ -139,7 +141,7 @@ describe("createPose with a chosen video", () => {
     const pose = createPose(videos);
     const list = wall();
     run(pose, list, choice(), 1);
-    const z = textZone(rect);
+    const z = textZone(rect, vw);
     const faded = list.filter((t) => t.fade < 0.01);
     expect(faded.length).toBeGreaterThan(0);
     for (const t of list) {
@@ -228,16 +230,17 @@ describe("no two visible tiles overlap once the wall is open", () => {
     [1440, 900],
     [2560, 1440],
   ];
-  const vids = Array.from({ length: 51 }, (_, i) => ({ channel: `c${i % 9}` }));
+  const vids = Array.from({ length: 109 }, (_, i) => ({ channel: `c${i % 9}` }));
   it.each(SIZES)("at %i by %i, whichever tile is chosen and however the wall has drifted", (vw, vh) => {
-    const sz = tileSize(vw);
+    const plan = blockPlan(vids.length, vw, vh);
+    const sz = sizeOfPlan(plan);
+    const [cx0, cy0] = centredPan(plan, vw, vh);
     const { rect, zone } = choiceLayout(vw, vh);
-    for (const [pan, t] of [
-      [0, 0],
-      [137, 31],
-      [511, 90],
-    ]) {
-      const base = layoutTiles({ panX: pan, panY: pan / 3, vw, vh, pitchX: sz.pitchX, pitchY: sz.pitchY, t, count: vids.length });
+    const place = { x: rect.x + rect.w / 2, y: rect.y + rect.h / 2 };
+    for (const pan of [0, 137, 311]) {
+      const start = { x: cx0 + pan, y: cy0 + pan / 3 };
+      const view = { viewX: start.x, viewY: start.y, vw, vh, plan, count: vids.length };
+      const base = layoutTiles(view);
       const near = [...base].sort(
         (a, b) =>
           Math.hypot(a.x - vw / 2, a.y - vh / 2) - Math.hypot(b.x - vw / 2, b.y - vh / 2),
@@ -245,11 +248,25 @@ describe("no two visible tiles overlap once the wall is open", () => {
       // the tile nearest the middle, one at the far corner and one in between
       for (const pick of [near[0], near[Math.floor(near.length / 2)], near[near.length - 1]]) {
         const pose = createPose(vids);
-        const list = layoutTiles({ panX: pan, panY: pan / 3, vw, vh, pitchX: sz.pitchX, pitchY: sz.pitchY, t, count: vids.length }).map(
-          (l): Tile => ({ ...l, f: 0, e: 0, c: 0, dim: 1, fade: 1, cx: 0, cy: 0, w: 0, h: 0, rad: 0 }),
-        );
-        const c: PoseChoice = { key: pick.key, live: true, rect, zone, halfDiag: Math.hypot(vw / 2, vh / 2) };
-        for (let i = 0; i < 90; i++) {
+        const end = cameraPan({ idx: pick.idx, plan, place, vw, vh });
+        const c: PoseChoice = {
+          key: pick.key,
+          live: true,
+          rect,
+          zone,
+          halfDiag: Math.hypot(vw / 2, vh / 2),
+          shift: { x: 0, y: 0 },
+        };
+        // the camera travels from the drifted pan to the tile's, the tiles laid out afresh each frame
+        let list: Tile[] = [];
+        const FRAMES = 40;
+        for (let i = 0; i < FRAMES + 50; i++) {
+          const e = easeInOut(Math.min(1, i / FRAMES));
+          const v = { x: start.x + (end.x - start.x) * e, y: start.y + (end.y - start.y) * e };
+          list = layoutTiles({ ...view, viewX: v.x, viewY: v.y, also: [start, end] }).map(
+            (l): Tile => ({ ...l, f: 0, e: 0, c: 0, dim: 1, fade: 1, cx: 0, cy: 0, w: 0, h: 0, rad: 0 }),
+          );
+          c.shift = { x: v.x - end.x, y: v.y - end.y };
           pose.apply(list, { dt: 0.016, size: sz, hoverKey: c.key, point: null, focusIdx: pick.idx, reduced: false, choice: c });
         }
         const others = list.filter((l) => l.key !== pick.key && l.fade >= 0.02);
@@ -262,6 +279,11 @@ describe("no two visible tiles overlap once the wall is open", () => {
           expect(crosses(box(others[i]), zone)).toBe(false);
         }
         expect(countOverlaps(list, c)).toBe(0);
+        // the chosen tile ends on the chosen place and the picture's size
+        const chosen = list.find((l) => l.key === pick.key) as Tile;
+        expect(chosen.cx).toBeCloseTo(place.x, 3);
+        expect(chosen.cy).toBeCloseTo(place.y, 3);
+        expect(chosen.w).toBeCloseTo(rect.w, 3);
       }
     }
   });

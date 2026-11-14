@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
+import file from "../../../../content/site/videos.json";
+import { blockPlan, sizeOfPlan } from "./wall-block";
 import {
-  SPEED,
   atlasLayout,
   cellUv,
-  columnOffset,
   hitTile,
   layoutTiles,
   thumbUrl,
@@ -25,24 +25,9 @@ describe("tileSize", () => {
   it("shows about two columns on small screens", () => {
     expect(tileSize(375).cw).toBeCloseTo(174.4, 1);
   });
-});
 
-describe("columnOffset", () => {
-  it("drifts every column at the same speed, odd ones backward at 0.72 of it (the speed before R36)", () => {
-    expect(SPEED).toBe(7);
-    expect(columnOffset(10, 0)).toBeCloseTo(10 * SPEED);
-    expect(columnOffset(10, 2)).toBeCloseTo(10 * SPEED + 2 * 53);
-    expect(columnOffset(10, 1)).toBeCloseTo(-10 * SPEED * 0.72 + 53);
-    expect(columnOffset(10, -1)).toBeCloseTo(-10 * SPEED * 0.72 - 53);
-  });
-
-  it("moves alternate columns in opposite directions at one rate per kind", () => {
-    const rate = (cx: number) => columnOffset(20, cx) - columnOffset(10, cx);
-    expect(rate(0)).toBeGreaterThan(0);
-    expect(rate(1)).toBeLessThan(0);
-    expect(rate(2)).toBeCloseTo(rate(0));
-    expect(rate(-3)).toBeCloseTo(rate(1));
-    expect(rate(1) / rate(0)).toBeCloseTo(-0.72, 10);
+  it("is round 6's size, which the wall's tiles (blockPlan) are about half of", () => {
+    expect(blockPlan(109, 1440, 900).tileW).toBeCloseTo(tileSize(1440).cw / 2, 1);
   });
 });
 
@@ -70,6 +55,15 @@ describe("atlasLayout", () => {
     const a = atlasLayout(57, false);
     expect(a.ah).toBe(4096);
     expect(a.cells).toHaveLength(57);
+  });
+
+  it("holds every video of videos.json at both cell sizes (a re-sync past the capacity must raise it first)", () => {
+    const n = (file.items as unknown[]).length;
+    for (const small of [false, true]) {
+      const a = atlasLayout(n, small);
+      expect(a.capacity, `videos.json has ${n} videos; the atlas holds ${a.capacity}`).toBeGreaterThanOrEqual(n);
+      expect(a.cells).toHaveLength(n);
+    }
   });
 
   it("caps the atlas at the largest texture that holds whole rows", () => {
@@ -127,50 +121,82 @@ describe("thumbUrl", () => {
 });
 
 describe("layoutTiles", () => {
-  const size = tileSize(1440);
-  const base = {
-    vw: 1440,
-    vh: 800,
-    pitchX: size.pitchX,
-    pitchY: size.pitchY,
-    count: 53,
-  };
+  const vw = 1440;
+  const vh = 800;
+  const plan = blockPlan(109, vw, vh);
+  const size = sizeOfPlan(plan);
+  const base = { vw, vh, plan, count: 109 };
 
-  it("returns only valid video indices", () => {
-    for (const [panX, panY, t] of [
-      [0, 0, 0],
-      [-5000, 7000, 123],
-      [123456, -98765, 9999],
+  it("returns only valid video indices, each tile of the grid once", () => {
+    for (const [viewX, viewY] of [
+      [0, 0],
+      [-5000, 7000],
+      [123456, -98765],
+      [200, 100],
     ]) {
-      const tiles = layoutTiles({ ...base, panX, panY, t });
-      expect(tiles.length).toBeGreaterThan(0);
+      const tiles = layoutTiles({ ...base, viewX, viewY });
       for (const tl of tiles) {
         expect(Number.isInteger(tl.idx)).toBe(true);
         expect(tl.idx).toBeGreaterThanOrEqual(0);
-        expect(tl.idx).toBeLessThan(53);
+        expect(tl.idx).toBeLessThan(109);
       }
+      expect(new Set(tiles.map((tl) => tl.key)).size).toBe(tiles.length);
+      expect(new Set(tiles.map((tl) => tl.idx)).size).toBe(tiles.length);
     }
   });
 
-  it("covers the viewport", () => {
-    const tiles = layoutTiles({ ...base, panX: 311, panY: 207, t: 4.2 });
-    for (let x = 0; x <= base.vw; x += 37) {
-      for (let y = 0; y <= base.vh; y += 29) {
+  it("also lays out the tiles in sight from other views (the camera's), at the positions of the view it is given", () => {
+    const here = { x: 100, y: 80 };
+    const there = { x: 700, y: 400 };
+    const only = layoutTiles({ ...base, vw: 400, vh: 300, viewX: here.x, viewY: here.y });
+    const both = layoutTiles({ ...base, vw: 400, vh: 300, viewX: here.x, viewY: here.y, also: [there] });
+    expect(both.length).toBeGreaterThan(only.length);
+    // every tile in sight from either view is there, and its place is for the view asked for
+    const seen = layoutTiles({ ...base, vw: 400, vh: 300, viewX: there.x, viewY: there.y });
+    const keys = new Set(both.map((t) => t.key));
+    for (const t of [...only, ...seen]) expect(keys.has(t.key)).toBe(true);
+    for (const t of both) {
+      const [cx, cy] = t.key.split(",").map(Number);
+      expect(t.x).toBeCloseTo(cx * size.pitchX - here.x, 6);
+      expect(t.y).toBeCloseTo(cy * size.pitchY - here.y, 6);
+    }
+    expect(layoutTiles({ ...base, vw: 400, vh: 300, viewX: here.x, viewY: here.y, also: [] })).toEqual(only);
+  });
+
+  it("lays the videos out in reading order: tile (cx, cy) is video cy * cols + cx", () => {
+    const all = layoutTiles({ ...base, viewX: -vw, viewY: -vh, vw: plan.width + 2 * vw, vh: plan.height + 2 * vh });
+    expect(all).toHaveLength(109);
+    for (const tl of all) {
+      const [cx, cy] = tl.key.split(",").map(Number);
+      expect(tl.idx).toBe(cy * plan.cols + cx);
+      expect(tl.x).toBeCloseTo(cx * size.pitchX + vw, 6);
+      expect(tl.y).toBeCloseTo(cy * size.pitchY + vh, 6);
+    }
+  });
+
+  it("covers the viewport where the block does, and nothing beyond the block (no wrap)", () => {
+    const tiles = layoutTiles({ ...base, viewX: 111, viewY: 57 });
+    for (let x = 0; x <= vw; x += 37) {
+      for (let y = 0; y <= vh; y += 29) {
+        const bx = x + 111;
+        const by = y + 57;
+        const inBlock = bx < plan.width && by < plan.height;
         const hit = tiles.some(
-          (tl) =>
-            x >= tl.x &&
-            x < tl.x + size.pitchX &&
-            y >= tl.y &&
-            y < tl.y + size.pitchY,
+          (tl) => x >= tl.x && x < tl.x + size.pitchX && y >= tl.y && y < tl.y + size.pitchY,
         );
-        expect(hit).toBe(true);
+        if (inBlock && (Math.floor(by / size.pitchY) * plan.cols + Math.floor(bx / size.pitchX)) < 109) {
+          expect(hit).toBe(true);
+        }
       }
     }
+    const far = layoutTiles({ ...base, viewX: plan.width + 10, viewY: 0 });
+    expect(far.length).toBeLessThanOrEqual(plan.rows * 2);
+    for (const tl of far) expect(tl.x).toBeLessThan(vw + size.pitchX);
   });
 
-  it("keeps a key bound to the same video across frames", () => {
-    const a = layoutTiles({ ...base, panX: 0, panY: 0, t: 1 });
-    const b = layoutTiles({ ...base, panX: 90, panY: 40, t: 2.5 });
+  it("keeps a key bound to the same video however the view moves", () => {
+    const a = layoutTiles({ ...base, viewX: 0, viewY: 0 });
+    const b = layoutTiles({ ...base, viewX: 90, viewY: 40 });
     const byKey = new Map(a.map((tl) => [tl.key, tl.idx]));
     let shared = 0;
     for (const tl of b) {
@@ -183,58 +209,21 @@ describe("layoutTiles", () => {
     expect(shared).toBeGreaterThan(0);
   });
 
-  it("wraps each column over only its own videos", () => {
-    const tiles = layoutTiles({
-      ...base,
-      panX: 0,
-      panY: 0,
-      t: 0,
-      vh: 20000,
-    });
-    for (const tl of tiles) {
-      const cx = Number(tl.key.split(",")[0]);
-      const c = ((cx % 8) + 8) % 8;
-      expect(tl.idx % 8).toBe(c);
-    }
+  it("holds every video once and leaves the empty end of the last row empty", () => {
+    const small = blockPlan(7, 1440, 800);
+    const all = layoutTiles({ viewX: 0, viewY: 0, vw: 20000, vh: 20000, plan: small, count: 7 });
+    expect(all.map((tl) => tl.idx).sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5, 6]);
   });
-});
 
-describe("layoutTiles with few videos", () => {
-  it("skips columns that have no video", () => {
-    const size = tileSize(1440);
-    const tiles = layoutTiles({
-      panX: 0,
-      panY: 0,
-      vw: 1440,
-      vh: 800,
-      pitchX: size.pitchX,
-      pitchY: size.pitchY,
-      t: 0,
-      count: 3,
-    });
-    expect(tiles.length).toBeGreaterThan(0);
-    for (const tl of tiles) {
-      expect(tl.idx).toBeGreaterThanOrEqual(0);
-      expect(tl.idx).toBeLessThan(3);
-      const cx = Number(tl.key.split(",")[0]);
-      expect(((cx % 8) + 8) % 8).toBeLessThan(3);
-    }
-    expect(new Set(tiles.map((tl) => tl.idx))).toEqual(new Set([0, 1, 2]));
+  it("is empty for no videos", () => {
+    expect(layoutTiles({ ...base, viewX: 0, viewY: 0, count: 0 })).toEqual([]);
   });
 });
 
 describe("hitTile", () => {
-  const size = tileSize(1440);
-  const tiles = layoutTiles({
-    panX: 0,
-    panY: 0,
-    vw: 1440,
-    vh: 800,
-    pitchX: size.pitchX,
-    pitchY: size.pitchY,
-    t: 0,
-    count: 53,
-  });
+  const plan = blockPlan(109, 1440, 800);
+  const size = sizeOfPlan(plan);
+  const tiles = layoutTiles({ viewX: 0, viewY: 0, vw: 1440, vh: 800, plan, count: 109 });
 
   it("finds the tile under the pointer", () => {
     const tl = tiles[Math.floor(tiles.length / 2)];
@@ -244,16 +233,7 @@ describe("hitTile", () => {
   });
 
   it("resolves a point in a gap to the nearer neighbour, never null", () => {
-    const moving = layoutTiles({
-      panX: 0,
-      panY: 0,
-      vw: 1440,
-      vh: 800,
-      pitchX: size.pitchX,
-      pitchY: size.pitchY,
-      t: 7.3,
-      count: 53,
-    });
+    const moving = layoutTiles({ viewX: 13.3, viewY: 7.9, vw: 1440, vh: 800, plan, count: 109 });
     const tl = moving.find(
       (t) => t.x > 200 && t.x < 800 && t.y > 100 && t.y < 500,
     );

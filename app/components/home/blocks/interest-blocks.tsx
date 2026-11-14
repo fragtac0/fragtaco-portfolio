@@ -1,12 +1,14 @@
-import { memo, useMemo, useRef, type CSSProperties } from "react";
+import { memo, useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
 import { inertProps } from "../../../utils/inert";
 import { countLabel } from "../../../utils/count-label";
 import type { SiteBook, SiteVideo } from "../../../types";
 import EclipseGround from "../../ground/eclipse-ground";
 import type { LayerKind } from "../layer/layer-state";
 import "./blocks.css";
+import MiniLedge from "./mini-ledge";
 import { miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
 import { useMiniFit } from "./use-mini-fit";
+import { useMiniSpines } from "./use-mini-spines";
 import { useNear } from "./use-near";
 
 /** The ids the layer and the deep link find the blocks by (mockup: blkRead, blkWatch). */
@@ -35,7 +37,16 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
     () => [["reading", readRef], ["watching", watchRef]] as const,
     [],
   );
-  useNear(blocks, onNear);
+  // the shelf block coming near also lets its small spines load their faces (use-mini-spines.ts)
+  const [shelfNear, setShelfNear] = useState(false);
+  const onNearBlock = useCallback(
+    (kind: LayerKind) => {
+      if (kind === "reading") setShelfNear(true);
+      onNear(kind);
+    },
+    [onNear],
+  );
+  useNear(blocks, onNearBlock);
 
   const columns = miniWallColumns(videos);
   const spines = useMemo(() => books.map(miniSpine), [books]);
@@ -43,6 +54,7 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
   const shelfRowRef = useRef<HTMLDivElement>(null);
   const fitSpines = useMemo(() => spines.map((s) => ({ w: s.width, h: s.height })), [spines]);
   useMiniFit(shelfArtRef, shelfRowRef, fitSpines);
+  useMiniSpines(shelfArtRef, shelfRowRef, books, spines, shelfNear);
 
   return (
     <section
@@ -70,25 +82,24 @@ function InterestBlocks({ books, videos, onOpen, onNear, blocked = false, covere
               </span>
             </div>
             <div ref={shelfArtRef} className="blk-art ms" aria-hidden="true">
-              <div className="ms-plank" />
+              <MiniLedge />
               <div ref={shelfRowRef} className="ms-row">
                 {books.map((book, i) => {
                   const s = spines[i];
                   return (
                     <div
                       key={book.id}
-                      className={s.band ? "ms-sp band" : "ms-sp"}
+                      className="ms-sp"
                       style={
                         {
                           "--i": i,
                           width: s.width,
                           height: s.height,
                           backgroundColor: s.background,
-                          color: s.ink,
                         } as CSSProperties
                       }
                     >
-                      <span>{book.title}</span>
+                      <canvas data-spine={i} />
                     </div>
                   );
                 })}

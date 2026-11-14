@@ -1,0 +1,56 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "nocache": true,
+  "intercept": [
+   {
+    "match": "family=Archivo",
+    "delay": 7500
+   }
+  ],
+  "go": "{{BASE}}/",
+  "wait": 3300
+ },
+ {
+  "eval": "(()=>{document.querySelector('.blk-hit[data-xp=reading]').click();return {link:document.querySelector('link[data-spine-fonts]').media}})()",
+  "label": "open the shelf 3.3 s in, the spine faces' stylesheet held back 7.5 s (a late face: the link is still media=print)"
+ },
+ {
+  "wait": 900
+ },
+ {
+  "shot": "r52-4-late-warm"
+ },
+ {
+  "shot": "r52-4-late-fonts-fallback"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');return {canvas:!!c,drawn:document.querySelector('.home-layer').className,spineFamilies:[...document.fonts].filter(f=>['Archivo','Bodoni Moda','Unbounded'].includes(f.family)&&f.status==='loaded').length,link:document.querySelector('link[data-spine-fonts]').media}})()",
+  "label": "the shelf is up and no spine face has loaded (spineFamilies 0): the spines are in the fallback faces"
+ },
+ {
+  "eval": "(()=>{window.__g=[];window.__arr=[];document.fonts.addEventListener('loadingdone',()=>window.__arr.push(Math.round(performance.now())));let l=performance.now();const f=n=>{window.__g.push([Math.round(n),Math.round((n-l)*10)/10]);l=n;if(!window.__gStop)requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording frame gaps'})()",
+  "label": "a frame recorder starts on the open shelf, before the faces arrive"
+ },
+ {
+  "eval": "new Promise(r=>{const t0=performance.now();const q=()=>{const n=[...document.fonts].filter(f=>f.family==='Bodoni Moda'&&f.status==='loaded').length;if(n>0||performance.now()-t0>9000)r({bodoniLoaded:n,ms:Math.round(performance.now()-t0)});else setTimeout(q,100)};q()})",
+  "label": "the faces arrive late; the repaint follows (the next shot is the same picture as the normal paint, r52-4-spines-1440x900)"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "shot": "r52-4-late-warm2"
+ },
+ {
+  "shot": "r52-4-spines-1440x900"
+ },
+ {
+  "eval": "(()=>{window.__gStop=true;const g=window.__g;const arr=window.__arr;const t0=arr[0];const win=g.filter(r=>r[0]>=t0-100&&r[0]<=t0+1500);const gaps=win.slice(1).map(r=>r[1]);return {loadingdoneEvents:arr.length,firstArrivalAt:t0,framesInWindow:win.length,maxGapMs:Math.max(...gaps),framesOver20:gaps.filter(x=>x>20).length,framesOver34:gaps.filter(x=>x>34).length}})()",
+  "label": "frame gaps from 100 ms before the first late face to 1.5 s after it (the sliced repaint, 3 spines a step; must stay under 34 ms)"
+ }
+]

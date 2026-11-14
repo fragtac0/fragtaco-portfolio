@@ -160,7 +160,6 @@ function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: Watch
         ) : (
           <>
             <div ref={hostRef} className="wall-host" />
-            <div className="wall-vig" />
             <div ref={chipRef} className="chip" aria-live="polite">
               <b />
               <span />
@@ -168,7 +167,7 @@ function WatchingScene({ engine, videos, picks, active, onDrawn, gaveUp }: Watch
             <ul className="sr-only" aria-label="Videos on the wall">
               {videos.map((v) => (
                 <li key={v.id}>
-                  {/* reachable by a screen reader's links list, not 51 stops for the Tab key */}
+                  {/* reachable by a screen reader's links list, not 109 stops for the Tab key */}
                   <a
                     href={`https://www.youtube.com/watch?v=${v.id}`}
                     target="_blank"

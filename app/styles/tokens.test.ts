@@ -4,7 +4,6 @@ import {
   ACCENT,
   CREAM,
   GROUND,
-  LINE_ALPHA,
   SURFACE_1,
   channels,
   glslVec3,
@@ -20,8 +19,6 @@ describe("tokens.ts", () => {
     expect(token("--surface-1")).toBe(SURFACE_1);
     expect(token("--accent")).toBe(ACCENT);
     expect(token("--cream")).toBe(CREAM);
-    // --line is the cream at LINE_ALPHA
-    expect(/--line:\s*rgba\(253, 252, 230, ([0-9.]+)\);/.exec(css)?.[1]).toBe(String(LINE_ALPHA));
   });
 
   it("gives the ink's channel triple, the cream", () => {

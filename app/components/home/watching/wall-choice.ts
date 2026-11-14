@@ -5,7 +5,8 @@ import type { Tile, WallState } from "./wall-types";
 /**
  * The chosen video's place on the wall, in flat wall coordinates, for the pose: where it goes
  * (`chosenRect`) and where the text block stands (`textZone`). Worked out again only when the
- * screen's size changes; the object returned is reused, so a frame allocates nothing.
+ * screen's size changes; the object returned is reused, so a frame allocates nothing. The camera
+ * writes `shift` into it each frame.
  */
 
 /** The phone layout starts below this width (as `tileSize` in wall-math.ts). */
@@ -16,7 +17,7 @@ export type ChoiceLayout = { rect: Rect; zone: Rect };
 /** The chosen video's box and its text block's for a screen, the same one the detail view uses. */
 export function choiceLayout(vw: number, vh: number): ChoiceLayout {
   const rect = chosenRect(vw, vh, vw < NARROW);
-  return { rect, zone: textZone(rect) };
+  return { rect, zone: textZone(rect, vw) };
 }
 
 export function createChoiceLayout(): (st: WallState) => PoseChoice | null {
@@ -29,7 +30,14 @@ export function createChoiceLayout(): (st: WallState) => PoseChoice | null {
     if (!out || sig !== at) {
       at = sig;
       const l = choiceLayout(st.vw, st.vh);
-      out = { key: c.key, live: c.live, rect: l.rect, zone: l.zone, halfDiag: Math.hypot(st.vw / 2, st.vh / 2) };
+      out = {
+        key: c.key,
+        live: c.live,
+        rect: l.rect,
+        zone: l.zone,
+        halfDiag: Math.hypot(st.vw / 2, st.vh / 2),
+        shift: out?.shift ?? { x: 0, y: 0 },
+      };
     }
     out.key = c.key;
     out.live = c.live;
@@ -78,4 +86,12 @@ export function picturesSettled(
     if (at > latest) latest = at;
   }
   return now - latest > settleMs;
+}
+
+/**
+ * Whether `thaw` waits for the camera before letting go of the choice: only when the loop is running, a video is still
+ * chosen, the camera has distance left to go, and the close was not instant.
+ */
+export function thawWaits(o: { instant?: boolean; running: boolean; chosen: boolean; settled: boolean }): boolean {
+  return !o.instant && o.running && o.chosen && !o.settled;
 }

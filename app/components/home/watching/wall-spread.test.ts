@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { blockPlan } from "./wall-block";
 import { tileSize } from "./wall-math";
 import {
   chosenRect,
@@ -12,6 +13,7 @@ import {
   stepToward,
   textZone,
   PUSH_MAX,
+  TEXT_MIN_W,
   PUSH_SLOPE,
   SPREAD_DIM,
   SPREAD_SCALE,
@@ -113,23 +115,30 @@ describe("chosenRect and textZone", () => {
     expect(r.x + r.w / 2).toBeCloseTo(vw / 2, 9);
     expect(r.y + r.h / 2).toBeLessThanOrEqual(vh / 2);
     // the text block fits under it
-    const z = textZone(r);
+    const z = textZone(r, vw);
     expect(z.y).toBeGreaterThan(r.y + r.h);
     expect(z.y + z.h).toBeLessThanOrEqual(vh);
-    expect(z.x).toBe(r.x);
-    expect(z.w).toBe(r.w);
+    // centred under the video, as wide as it or `TEXT_MIN_W`, and always on the screen
+    expect(z.x + z.w / 2).toBeCloseTo(r.x + r.w / 2, 9);
+    expect(z.w).toBeGreaterThanOrEqual(Math.min(r.w, vw - 32));
+    expect(z.w).toBeCloseTo(Math.min(Math.max(r.w, TEXT_MIN_W), vw - 32), 9);
+    expect(z.x).toBeGreaterThanOrEqual(16 - 1e-9);
+    expect(z.x + z.w).toBeLessThanOrEqual(vw - 16 + 1e-9);
   });
 
-  it("is about twice a tile, at most 52% of the width, and 86% when narrow", () => {
+  it("is round 6's tile size (about twice a tile of the block), at most 52% of the width and 86% when narrow", () => {
     const wide = chosenRect(1440, 900, false);
-    expect(wide.w).toBeCloseTo(2 * tileSize(1440).cw, 6);
+    expect(wide.w).toBeCloseTo(tileSize(1440).cw, 6);
+    expect(wide.w).toBeCloseTo(2 * blockPlan(109, 1440, 900).tileW, 0);
     expect(wide.w).toBeLessThanOrEqual(1440 * 0.52);
     const mid = chosenRect(1024, 768, false);
+    expect(mid.w).toBeCloseTo(tileSize(1024).cw, 6);
     expect(mid.w).toBeLessThanOrEqual(1024 * 0.52 + 1e-9);
     const phone = chosenRect(390, 844, true);
-    expect(phone.w).toBeCloseTo(390 * 0.86, 6);
+    expect(phone.w).toBeCloseTo(tileSize(390).cw, 6);
+    expect(phone.w).toBeLessThanOrEqual(390 * 0.86);
     const small = chosenRect(320, 568, true);
-    expect(small.w).toBeCloseTo(320 * 0.86, 6);
+    expect(small.w).toBeCloseTo(tileSize(320).cw, 6);
   });
 
   it("shrinks on a short screen so the text still has room", () => {
@@ -143,7 +152,7 @@ describe("chosenRect and textZone", () => {
 
   it.each(SIZES)("is not moved by the fish-eye at %i by %i (the video under half a pixel)", (vw, vh) => {
     const r = chosenRect(vw, vh, vw < 700);
-    const z = textZone(r);
+    const z = textZone(r, vw);
     const shift = (x: number, y: number) => {
       const [wx, wy] = edgeWarp(x, y, vw, vh);
       return Math.hypot(wx - x, wy - y);

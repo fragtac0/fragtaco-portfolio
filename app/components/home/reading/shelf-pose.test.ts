@@ -1,6 +1,5 @@
 import * as T from "three";
 import { describe, expect, it } from "vitest";
-import { LINE_ALPHA } from "../../../styles/tokens";
 import { createAnimate, poseBooks, type PoseInput } from "./shelf-pose";
 import { FRONT, OPEN_SECONDS, ROW_DIM } from "./shelf-math";
 import { newBag, type Book, type ShelfScene } from "./shelf-scene";
@@ -49,7 +48,7 @@ function scene(): ShelfScene {
     tmpQ2: new T.Quaternion(),
     yAxis: new T.Vector3(0, 1, 0),
     qOpen: new T.Quaternion().setFromAxisAngle(new T.Vector3(0, 1, 0), 0.3),
-    line: new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ transparent: true })),
+    ledge: new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ transparent: true })),
     lights: {
       set(mix: number) {
         const changed = mix !== (lightSet.at(-1) ?? 0);
@@ -96,7 +95,7 @@ describe("poseBooks: opening", () => {
       expect(b.mesh.material).toBe(b.mats);
       expect(b.wallSh.visible).toBe(false);
     }
-    expect(s.line.material.opacity).toBeCloseTo(LINE_ALPHA, 9);
+    expect(s.ledge.material.opacity).toBeCloseTo(1, 9);
   });
 
   it("rises straight up first: x stays, y grows, and it comes forward in depth", () => {
@@ -139,7 +138,7 @@ describe("poseBooks: opening", () => {
     run(s, OPEN_SECONDS + 0.05, 1);
     for (const i of [0, 2]) expect(s.books[i].mats[0].opacity).toBeCloseTo(ROW_DIM, 9);
     expect(s.books[1].mats[0].opacity).toBe(1);
-    expect(s.line.material.opacity).toBeCloseTo(LINE_ALPHA * ROW_DIM, 9);
+    expect(s.ledge.material.opacity).toBeCloseTo(ROW_DIM, 9);
   });
 
   it("lights the book as it rises: the light follows the lift from 0 to 1 and the wall shadow shows", () => {

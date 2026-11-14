@@ -75,15 +75,16 @@ function place(root: HTMLElement) {
 }
 
 /**
- * The video detail view (spec 7, "Click"). With the WebGL wall the wall does the showing: the
- * chosen tile travels to the middle and the others spread away (wall-pose.ts), and this layer
+ * The video detail view (spec 8.1, "the click"). With the WebGL wall the wall does the showing: the
+ * camera slides the wall so the chosen tile is in the middle (wall-camera.ts), it grows there and the
+ * others spread away (wall-pose.ts), and this layer
  * adds what DOM does better: the title, channel, subscribers, date and a "Watch on YouTube" link
  * under the video, a sharp picture that fades in over the tile once it has landed, the close
  * button, and a transparent cover that closes on a click outside. Without WebGL (the grid) it
  * also shows the picture itself, flying (FLIP) from the grid button over a dark backdrop.
  *
  * The same boxes (`choiceLayout`) place the picture and the text here and the tiles in the wall.
- * Opening chooses the tile; closing releases it (the tiles travel back, 320 ms) and thaws the wall
+ * Opening chooses the tile; closing releases it (the camera and the tiles go back, 320 ms) and thaws the wall
  * when that is over. With reduced motion nothing travels: the wall and this layer fade. The arrow
  * keys change the chosen video from the wall (the pick arrives again with a new video). Everything
  * is driven imperatively (classes and a transform), so nothing re-renders per frame. While closed
@@ -142,7 +143,7 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
       root.classList.remove("on");
       hide(root, true);
       settle(shot);
-      latest.current.wall.thaw();
+      latest.current.wall.thaw(instant);
       s.closing = false;
       s.key = null;
       latest.current.onClose();
@@ -267,7 +268,7 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
           <span className="ch">{video?.channel}</span>
           {subs ? <> <span>{subs}</span></> : null}
           {date ? <> <span>{date}</span></> : null}
-          {more > 0 ? <> <span>{more} more from this channel</span></> : null}
+          {more > 0 ? <> <span className="more">{more} more from this channel</span></> : null}
         </p>
         <a
           ref={watchRef}

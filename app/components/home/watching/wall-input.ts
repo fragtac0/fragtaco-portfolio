@@ -1,5 +1,6 @@
 import { isDrag, pressIsStale, startsPress } from "../reading/shelf-drag";
-import { columnOffset } from "./wall-math";
+import { stepTile } from "./wall-block";
+import { hitTile } from "./wall-math";
 import { nearestInDirection } from "./wall-spread";
 import type { Tile, WallCtx } from "./wall-types";
 import { edgeUnwarp, edgeWarp } from "./wall-warp";
@@ -110,13 +111,18 @@ export function createWallInput(
   const kbdKey = () => (st.kbd ? `${st.kbd.cx},${st.kbd.cy}` : null);
   const locked = () => st.choice !== null;
 
-  /** The topmost displaced tile under a point (the list is sorted, hovered last). */
+  /**
+   * The topmost displaced tile under a point (the list is sorted, hovered last); a point in the gap
+   * between tiles takes the tile whose cell it is in, as the hover does (the tiles are small, so a
+   * click a few pixels off must still open the video the pointer is on).
+   */
   const hitAt = (x: number, y: number): Tile | null => {
     for (let k = st.tiles.length - 1; k >= 0; k--) {
       const tl = st.tiles[k];
       if (Math.abs(x - tl.cx) <= tl.w / 2 && Math.abs(y - tl.cy) <= tl.h / 2) return tl;
     }
-    return null;
+    const key = hitTile(st.tiles, x, y, st.size);
+    return key === null ? null : (st.tiles.find((tl) => tl.key === key) ?? null);
   };
   /** A viewport point, in flat wall coordinates. */
   const toWall = (clientX: number, clientY: number) =>
@@ -172,7 +178,7 @@ export function createWallInput(
   function focusNext(dx: number, dy: number) {
     if (!ctx.running() || !st.tiles.length) return;
     if (st.choice) return moveChoice(dx, dy);
-    const { size, vw, vh, t } = st;
+    const { size, vw, vh } = st;
     if (!st.kbd) {
       // start from the tile nearest the middle of the view
       let best: Tile | null = null;
@@ -187,16 +193,9 @@ export function createWallInput(
       if (!best) return;
       const [cx, cy] = best.key.split(",").map(Number);
       st.kbd = { cx, cy };
-    } else if (dx) {
-      // the next column drifts on its own: take the tile nearest this one's height
-      const ncx = st.kbd.cx + Math.sign(dx);
-      const y = st.kbd.cy * size.pitchY - columnOffset(t, st.kbd.cx);
-      st.kbd = {
-        cx: ncx,
-        cy: Math.round((y + columnOffset(t, ncx)) / size.pitchY),
-      };
-    } else if (dy) {
-      st.kbd = { cx: st.kbd.cx, cy: st.kbd.cy + Math.sign(dy) };
+    } else {
+      // one tile along the block's grid; at its edge (or the empty end of the last row) it stays
+      st.kbd = stepTile(st.plan, ctx.count(), st.kbd.cx, st.kbd.cy, dx, dy);
     }
     mouse.inside = false; // the keyboard leads until the pointer moves again
   }

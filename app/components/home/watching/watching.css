@@ -1,4 +1,4 @@
-/* the video wall (mockup: #wall, .wall-vig, .chip) */
+/* the video wall (mockup: #wall, .chip); its dark edges are drawn by the second pass (wall-warp-pass.ts) */
 .home-layer .wall-scene,
 .home-layer .wall-main,
 .home-layer .wall-host,
@@ -16,14 +16,6 @@
 .home-layer .wall-canvas:focus-visible {
   outline: 2px solid var(--cream);
   outline-offset: -6px;
-}
-.home-layer .wall-vig {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--ground) 82%, transparent), var(--ground-clear) 130px),
-    radial-gradient(120% 95% at 50% 50%, var(--ground-clear) 58%, color-mix(in srgb, var(--ground) 72%, transparent) 100%);
 }
 .home-layer .chip {
   position: absolute;
@@ -60,8 +52,8 @@
   color: var(--ink-3);
 }
 
-/* the detail view of a chosen video (spec 7, "Click"; video-detail.tsx). The wall stays drawn under
-   it, spread and dimmed. --sx, --sy, --sw place the picture and --zx .. --zh the text block, from
+/* the detail view of a chosen video (spec 8.1, "the click"; video-detail.tsx). The wall stays drawn under
+   it, spread and dimmed; the camera has moved the chosen tile here. --sx, --sy, --sw place the picture and --zx .. --zh the text block, from
    the same boxes the wall uses (wall-spread.ts), set on .vov by the component. */
 .home-layer .vov {
   position: fixed;
@@ -126,7 +118,8 @@
   min-height: var(--zh);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   gap: 8px;
 }
 .home-layer .vtext h3 {
@@ -145,6 +138,7 @@
   margin: 0 0 4px;
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 2px 0;
   font-size: var(--t-meta);
   line-height: 1.4;
@@ -153,6 +147,13 @@
 .home-layer .vmeta span + span::before {
   content: "\00b7";
   margin: 0 8px;
+}
+/* the channel's other videos are a line of their own, so a wrapped line never starts with a dot */
+.home-layer .vmeta .more {
+  flex-basis: 100%;
+}
+.home-layer .vmeta .more::before {
+  content: none;
 }
 .home-layer .vmeta .ch {
   color: var(--cream);
@@ -188,20 +189,25 @@
     opacity 0.35s ease 0.2s,
     transform 0.6s var(--ease) 0.2s;
 }
+/* the round close, in the place the layer's Close pill has (the header steps aside while a video is open), in the same glass */
 .home-layer .vov .x {
   position: absolute;
-  top: 18px;
-  right: 22px;
-  width: 44px;
-  height: 44px;
+  top: var(--head-pad-top);
+  right: var(--head-pad-x);
+  width: var(--pill-h);
+  height: var(--pill-h);
+  padding: 0;
   border-radius: 999px;
   border: 0;
-  outline: 1px solid rgba(245, 239, 230, 0.22);
-  background: rgba(0, 0, 0, 0.3);
-  color: inherit;
+  background: var(--pill-bg);
+  box-shadow: var(--pill-edge);
+  -webkit-backdrop-filter: var(--pill-blur);
+  backdrop-filter: var(--pill-blur);
+  color: var(--ink-1);
   font: inherit;
   cursor: pointer;
   font-size: var(--t-lead);
+  line-height: 1;
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -209,7 +215,18 @@
   opacity: 1;
 }
 
+@media (hover: none) {
+  .home-layer .vov .x {
+    width: var(--pill-h-touch);
+    height: var(--pill-h-touch);
+  }
+}
+
 @media (max-width: 699.98px) {
+  .home-layer .vov .x {
+    top: 20px;
+    right: 20px;
+  }
   .home-layer .vtext {
     gap: 6px;
   }

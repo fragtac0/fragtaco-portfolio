@@ -125,8 +125,6 @@ export const TALL_MIN = 0.7;
 export const BASE_AT = 0.9;
 /** Room kept under the line for the position marker (it sits 15 px under the line and is 2 px tall), in CSS pixels (a small stage lifts the line to leave it). */
 export const BOTTOM_PX = 40;
-/** The hairline the books stand on, in CSS pixels. */
-export const LINE_PX = 1;
 /** The painted cover's widest and narrowest width in pixels (`coverPixels`). */
 export const COVER_PX_MAX = 1024;
 export const COVER_PX_MIN = 256;

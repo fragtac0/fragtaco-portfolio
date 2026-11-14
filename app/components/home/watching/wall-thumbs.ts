@@ -30,6 +30,8 @@ export function createThumbs(
   atlas: Atlas,
   videos: SiteVideo[],
   running: () => boolean,
+  /** The order to start loading in (video indices, the ones nearest the wall's middle first); index order when left out. */
+  order?: readonly number[],
 ): Thumbs {
   const g = gl;
   const a = atlas;
@@ -141,7 +143,9 @@ export function createThumbs(
     });
   }
 
-  for (let i = 0; i < a.cells.length; i++) void loadThumb(i);
+  for (const i of order ?? Array.from({ length: a.cells.length }, (_, n) => n)) {
+    if (i >= 0 && i < a.cells.length) void loadThumb(i);
+  }
 
   return {
     pumpFrame,
