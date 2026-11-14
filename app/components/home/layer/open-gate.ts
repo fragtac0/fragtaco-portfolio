@@ -1,4 +1,4 @@
-import type { LayerKind } from "./layer-state";
+import type { LayerKind, LayerPhase } from "./layer-state";
 
 /** How ready a box's scene is: still being made, drawn into its box, or unable to draw (the box shows its flat preview). */
 export type SceneStatus = "pending" | "ready" | "plain";
@@ -62,4 +62,25 @@ export function createOpenGate(deps: OpenGateDeps): OpenGate {
       waiting = null;
     },
   };
+}
+
+/**
+ * The kind whose layer shows the plain grid for the opening a click starts: the one whose scene was not ready (pending) and would
+ * not wait. A scene that is plain for good (no WebGL, a failed scene, a lost context) is not "given up": it has its own status.
+ */
+export function giveUpFor(kind: LayerKind, plain: boolean, status: SceneStatus): LayerKind | null {
+  return plain && status !== "plain" ? kind : null;
+}
+
+/**
+ * Whether `kind`'s layer shows the plain grid because it gave up on 3D (`gaveUp` is the kind that did, or null). A give-up lasts
+ * one opening: once the layer is closed it is over, and the box holds its live scene again. It never marks a scene as failed.
+ */
+export function isGaveUp(
+  gaveUp: LayerKind | null,
+  kind: LayerKind,
+  layerKind: LayerKind | null,
+  phase: LayerPhase,
+): boolean {
+  return gaveUp === kind && layerKind === kind && phase !== "closed";
 }

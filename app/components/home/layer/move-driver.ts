@@ -1,6 +1,6 @@
 import { setSceneInBox } from "./box-scene";
 import { windowSize, type DockOptions, type FrameOptions } from "./frame-box";
-import { frameAt, type Frame } from "./frame-math";
+import { frameAt, gluedScale, type Frame } from "./frame-math";
 import {
   BOX_RADIUS,
   OPEN_MS,
@@ -45,9 +45,12 @@ export type DriverParts = {
   shade: HTMLElement;
   head: HTMLElement | null;
   sink: HTMLElement | null;
-  /** Null when the scene has no engine to draw (the plain grid). */
-  engine: FramedEngine | null;
-  /** Reduced motion: no growing frame; the open page fades in and out over `REDUCED_FADE_MS`. */
+  /**
+   * The scene's engine as it is now: null when the scene has none to draw (the plain grid). Read on every frame, so a scene that
+   * loses its context or gives up while the layer lives goes on as the plain grid from the next frame.
+   */
+  engine: () => FramedEngine | null;
+  /** Reduced motion: no growing frame; the page dips through dark (`REDUCED_FADE_MS`: the black rises over the page, then the open page fades in) and back. */
   reduced: boolean;
   /** An open video is put away as a closing begins. */
   closeDetail: () => void;
@@ -69,7 +72,8 @@ type At = "box" | "move" | "open";
 const GEOMETRY = ["left", "top", "width", "height", "border-radius"] as const;
 
 export function createMoveDriver(parts: DriverParts): MoveDriver {
-  const { scene, stage, sink, shade, root, head, engine, reduced } = parts;
+  const { scene, stage, sink, shade, root, head, reduced } = parts;
+  const engine = () => parts.engine();
   const ms = reduced ? REDUCED_FADE_MS : OPEN_MS;
   let at: At = "box";
   let move: Move | null = null;
@@ -106,19 +110,22 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     sink.style.transformOrigin = `50% ${window.scrollY + vh / 2 - docTop}px`;
   }
 
-  function writeScene(f: Frame, radius: number) {
+  function writeScene(f: Frame, radius: number, plain = false) {
     const s = scene.style;
     s.left = `${f.left}px`;
     s.top = `${f.top}px`;
     s.width = `${f.width}px`;
     s.height = `${f.height}px`;
     s.borderRadius = `${radius}px`;
+    // the plain grid is laid out for the whole window and glued to the frame like a picture: scaled evenly until it covers it (layer.css)
+    if (plain) {
+      const [vw, vh] = windowSize();
+      s.setProperty("--glue", String(gluedScale(f, vw, vh)));
+    }
   }
   function clearScene() {
     for (const p of GEOMETRY) scene.style.removeProperty(p);
-    scene.style.removeProperty("--vw");
-    scene.style.removeProperty("--vh");
-    scene.style.removeProperty("--inner-alpha");
+    for (const p of ["--vw", "--vh", "--glue", "opacity"]) scene.style.removeProperty(p);
   }
 
   /** Puts the scene on the stage as a growing frame (`at` is the data the stylesheet reads: the box, a move, the open page). */
@@ -131,7 +138,7 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
       return;
     }
     scene.dataset.at = to;
-    if (f) writeScene(f, radius);
+    if (f) writeScene(f, radius, !engine());
     if (to === "move") {
       // the plain grid is laid out for the whole window while the frame grows round it (layer.css)
       const [vw, vh] = windowSize();
@@ -141,14 +148,44 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     if (scene.parentElement !== stage) stage.appendChild(scene);
   }
 
+  /** Reduced motion: the scene is in the layer (the open page's place), not in its box. */
+  let carried = false;
+
+  /**
+   * Reduced motion, a dip through dark at `t` (the move's position, 0 the box, 1 the open page): over the first half the black rises
+   * over the home page while the scene stays in its box (it never shows an empty box beside a lit page); at the half the scene is
+   * carried to the layer, under the black, and the open page fades in over the second half. Closing is the same backwards.
+   */
+  function dip(t: number) {
+    shade.style.opacity = String(Math.min(1, 2 * t));
+    const inner = Math.max(0, 2 * t - 1);
+    const want = t >= 0.5;
+    if (want !== carried) {
+      carried = want;
+      const eng = engine();
+      const [vw, vh] = windowSize();
+      if (want) {
+        const there = () => carry("open");
+        if (eng) eng.setFrame({ left: 0, top: 0, width: vw, height: vh }, { place: false, onApplied: there });
+        else there();
+      } else {
+        box = measure();
+        const here = () => carry("box");
+        if (eng) eng.setFrame({ left: 0, top: 0, width: box.width, height: box.height }, { place: false, onApplied: here });
+        else here();
+      }
+    }
+    if (carried) scene.style.opacity = inner >= 1 ? "" : String(inner);
+    if (head) {
+      head.style.opacity = String(inner);
+      head.style.visibility = inner > 0 ? "visible" : "hidden";
+    }
+  }
+
   /** What shows at `e` (0 the box, 1 the window) besides the frame itself. `t` is the move's position before the ease. */
   function showAt(e: number, t: number) {
     if (reduced) {
-      root.style.opacity = String(t);
-      if (head) {
-        head.style.opacity = String(t);
-        head.style.visibility = t > 0 ? "" : "hidden";
-      }
+      dip(t);
       return;
     }
     const { scale, shade: dim } = sinkAt(e);
@@ -158,9 +195,8 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     const a = chromeAlpha(e);
     if (head) {
       head.style.opacity = String(a);
-      head.style.visibility = a > 0 ? "" : "hidden";
+      head.style.visibility = a > 0 ? "visible" : "hidden";
     }
-    scene.style.setProperty("--inner-alpha", String(a));
   }
 
   /** Draws the frame at `e`: the engine is asked for its size, and the scene's element follows in the frame the engine draws. */
@@ -170,13 +206,14 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     const [vw, vh] = windowSize();
     const f = frameAt(box, vw, vh, e);
     const r = radiusAt(e);
-    if (engine) {
-      engine.setFrame(
+    const eng = engine();
+    if (eng) {
+      eng.setFrame(
         { left: 0, top: 0, width: f.width, height: f.height },
         { place: false, onApplied: () => writeScene(f, r) },
       );
     } else {
-      writeScene(f, r);
+      writeScene(f, r, true);
     }
   }
 
@@ -192,19 +229,17 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     at = "move";
     headFollows(true);
     sunk = 1;
+    shade.style.opacity = "0";
+    if (reduced) {
+      // no growing frame: the scene stays in its box while the black rises over the page (`dip`)
+      carried = false;
+      box = measure();
+      return;
+    }
     if (sink) {
       docTop = sink.getBoundingClientRect().top + window.scrollY;
       setOrigin();
       sink.style.willChange = "transform";
-    }
-    shade.style.opacity = "0";
-    if (reduced) {
-      // no growing frame: the open page is where it will stay, and the layer fades in over the home page
-      root.style.opacity = "0";
-      carry("open");
-      engine?.setFrame(null);
-      engine?.setDocked(false);
-      return;
     }
     box = measure();
     if (head) head.style.visibility = "hidden";
@@ -216,37 +251,39 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     const [vw, vh] = windowSize();
     at = "move";
     headFollows(true);
-    engine?.setDocked(true); // no input; an open book is put away
+    engine()?.setDocked(true); // no input; an open book is put away
     parts.closeDetail();
-    if (reduced) return;
+    if (reduced) {
+      carried = true;
+      return;
+    }
     setOrigin();
     box = measure();
     const whole: Frame = { left: 0, top: 0, width: vw, height: vh };
     carry("move", whole, 0);
-    engine?.setFrame({ left: 0, top: 0, width: vw, height: vh }, { place: false });
+    engine()?.setFrame({ left: 0, top: 0, width: vw, height: vh }, { place: false });
   }
 
-  /** The layer and its chrome are whole: what the move wrote is taken back (reduced motion keeps its layer at 1: the stylesheet starts it at 0). */
+  /** The layer and its chrome are whole: what the move wrote is taken back, and the stylesheet decides again (a hidden header while a video is open). */
   function settleChrome() {
     headFollows(false);
     head?.style.removeProperty("opacity");
     head?.style.removeProperty("visibility");
-    if (reduced) root.style.opacity = "1";
-    else root.style.removeProperty("opacity");
   }
 
   function finishOpen() {
     at = "open";
     move = null;
+    carried = true;
+    const eng = engine();
     const settle = () => {
       scene.dataset.at = "open";
       clearScene();
     };
-    if (engine) engine.setFrame(null, { onApplied: settle });
+    if (eng) eng.setFrame(null, { onApplied: settle });
     else settle();
-    engine?.setDocked(false);
+    eng?.setDocked(false);
     if (sink) sink.style.willChange = "";
-    // the chrome and the layer are whole: their own styles (a hidden header while a video is open) take over again
     settleChrome();
     root.classList.add("ready");
     parts.done(1);
@@ -255,6 +292,7 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
   function finishClose() {
     at = "box";
     move = null;
+    carried = false;
     root.classList.remove("ready");
     if (sink) {
       sink.style.transform = "";
@@ -263,15 +301,15 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     }
     sunk = 1;
     shade.style.opacity = "0";
-    root.style.opacity = "";
     if (head) {
       head.style.opacity = "0";
       head.style.visibility = "hidden";
     }
     const back = reduced ? measure() : box;
     carry("box");
-    engine?.setFrame({ left: 0, top: 0, width: back.width, height: back.height }, { place: false });
-    engine?.setDocked(true);
+    const eng = engine();
+    eng?.setFrame({ left: 0, top: 0, width: back.width, height: back.height }, { place: false });
+    eng?.setDocked(true);
     parts.done(0);
   }
 
@@ -296,14 +334,16 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
         if (at === "box") {
           if (instant) {
             at = "open";
+            carried = true;
             if (sink) {
               docTop = sink.getBoundingClientRect().top + window.scrollY;
               setOrigin();
             }
             carry("open");
             showAt(1, 1);
-            engine?.setFrame(null);
-            engine?.setDocked(false);
+            const eng = engine();
+            eng?.setFrame(null);
+            eng?.setDocked(false);
             settleChrome();
             root.classList.add("ready");
             parts.done(1);

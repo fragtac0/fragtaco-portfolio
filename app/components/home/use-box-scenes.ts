@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { BLOCK_ID } from "./blocks/interest-blocks";
 import { makeScene } from "./layer/box-scene";
 import type { LayerKind, LayerState } from "./layer/layer-state";
-import { createOpenGate, type SceneStatus } from "./layer/open-gate";
+import { createOpenGate, giveUpFor, isGaveUp, type SceneStatus } from "./layer/open-gate";
 import type { ShelfEngine } from "./reading/shelf-engine";
 import type { WallEngine } from "./watching/wall-types";
 
@@ -37,7 +37,9 @@ export function useBoxScenes(
     reading: "pending",
     watching: "pending",
   });
-  const [gaveUp, setGaveUp] = useState<PerKind<boolean>>({ reading: false, watching: false });
+  // The kind whose click would not wait (or whose layer waited too long for a scene that had not drawn): its layer shows the plain
+  // grid for this one opening (`gaveUp`, below). A failed scene or a lost context is another thing: it stays plain (`status`).
+  const [gaveUpKind, setGaveUpKind] = useState<LayerKind | null>(null);
   const statusRef = useRef(status);
   const gateRef = useRef<ReturnType<typeof createOpenGate> | null>(null);
 
@@ -75,8 +77,7 @@ export function useBoxScenes(
       open: (kind, plain) => {
         const block = document.getElementById(BLOCK_ID[kind]);
         if (!block) return;
-        if (plain && statusRef.current[kind] !== "plain")
-          setGaveUp((g) => ({ ...g, [kind]: true }));
+        setGaveUpKind(giveUpFor(kind, plain, statusRef.current[kind]));
         latestOpen.current(kind, block);
       },
       press: (kind, on) => {
@@ -99,9 +100,24 @@ export function useBoxScenes(
   useEffect(() => {
     const kind = layer.kind;
     if (!kind || layer.phase !== "open" || status[kind] !== "pending") return;
-    const t = window.setTimeout(() => setGaveUp((g) => ({ ...g, [kind]: true })), SCENE_GIVE_UP_MS);
+    const t = window.setTimeout(() => setGaveUpKind(kind), SCENE_GIVE_UP_MS);
     return () => window.clearTimeout(t);
   }, [layer.kind, layer.phase, status]);
+  // a give-up lasts one opening: once the layer is gone the box holds its live scene again
+  const layerClosed = layer.phase === "closed";
+  if (layerClosed && gaveUpKind !== null) setGaveUpKind(null);
+  const gaveUp = useMemo<PerKind<boolean>>(() => {
+    const one = (kind: LayerKind) => isGaveUp(gaveUpKind, kind, layer.kind, layer.phase);
+    return { reading: one("reading"), watching: one("watching") };
+  }, [gaveUpKind, layer.kind, layer.phase]);
+  // the scene shows the plain grid for this opening: the stylesheet lays the grid out for the window and glues it to the frame
+  useLayoutEffect(() => {
+    if (!homes) return;
+    for (const kind of KINDS) {
+      if (statusRef.current[kind] === "plain") continue;
+      homes[kind].toggleAttribute("data-plain", gaveUp[kind]);
+    }
+  }, [homes, gaveUp]);
 
   // which boxes are on screen, and whether the tab is visible
   const [seen, setSeen] = useState<PerKind<boolean>>({ reading: false, watching: false });
@@ -132,9 +148,11 @@ export function useBoxScenes(
     document.addEventListener("visibilitychange", on);
     return () => document.removeEventListener("visibilitychange", on);
   }, []);
-  const layerClosed = layer.phase === "closed";
+  // A box's scene runs while its box is on screen and the tab is visible; an open layer's scene runs for as long as the layer is open.
+  // Hiding the tab must not restart the open scene (an engine's start puts its open book, its open video and its pan back to the
+  // beginning): a hidden tab already stops the animation frames, which is all "the loop stops" asks for.
   const run = useMemo<PerKind<boolean>>(() => {
-    const one = (kind: LayerKind) => tabVisible && (layerClosed ? seen[kind] : layer.kind === kind);
+    const one = (kind: LayerKind) => (layerClosed ? tabVisible && seen[kind] : layer.kind === kind);
     return { reading: one("reading"), watching: one("watching") };
   }, [tabVisible, layerClosed, layer.kind, seen]);
 

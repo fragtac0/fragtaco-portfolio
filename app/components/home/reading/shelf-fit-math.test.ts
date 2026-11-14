@@ -3,6 +3,7 @@ import {
   bookSize,
   flatFit,
   flatFrame,
+  settleHead,
   HEAD_GAP,
   headGuess,
   markerShown,
@@ -37,7 +38,10 @@ const HEAD: Record<string, number> = {
   "820x1180": 120,
   "844x390": 120,
   "1024x768": 120,
+  "1280x720": 126,
+  "1366x768": 132,
   "1440x900": 134,
+  "1920x1080": 137,
   "2560x1440": 137,
 };
 const headAt = (vw: number, vh: number) => HEAD[`${vw}x${vh}`];
@@ -103,7 +107,7 @@ describe("flatFit", () => {
 });
 
 /** The six Review Focus sizes and a landscape phone. */
-const ALL_SIZES: Array<[number, number]> = [...SIZES, [844, 390]];
+const ALL_SIZES: Array<[number, number]> = [...SIZES, [844, 390], [1280, 720], [1366, 768], [1920, 1080]];
 
 describe("flatFrame", () => {
   it("puts the books' feet at 90% of the height", () => {
@@ -166,6 +170,14 @@ describe("flatFrame", () => {
     for (const [vw, vh] of ALL_SIZES) expect(headGuess(vw), `${vw} by ${vh}`).toBe(headAt(vw, vh));
     expect(headGuess(1280)).toBe(126); // 51.2 + 25.8 + 10 + 16.9 + 22 = 125.9
     expect(headGuess(699)).toBe(120);
+  });
+  it("settles the measured header on the guess when they differ by no more than a pixel (the box and the open page are one fit)", () => {
+    expect(settleHead(132, 131)).toBe(131);
+    expect(settleHead(131, 132)).toBe(132);
+    expect(settleHead(134, 134)).toBe(134);
+    // a header that really is taller (a wrapped title) is not hidden
+    expect(settleHead(160, 134)).toBe(160);
+    expect(settleHead(120, 134)).toBe(120);
   });
   for (const [vw, vh] of ALL_SIZES) {
     it(`${vw} by ${vh}: the pan range stops the row's ends inside the edges and covers the reach`, () => {

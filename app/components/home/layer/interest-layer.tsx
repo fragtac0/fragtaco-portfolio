@@ -92,7 +92,7 @@ export default function InterestLayer({
         shade,
         head: headRef.current,
         sink: sinkRef.current,
-        engine: latest.current.engine,
+        engine: () => latest.current.engine,
         reduced: reducedMotion(),
         closeDetail: () => {
           if (latest.current.kind) latest.current.closeDetail(latest.current.kind);
@@ -194,7 +194,6 @@ export default function InterestLayer({
         className={`xp-head${kind === "watching" ? " xp-head--wall" : ""}${
           headerHidden ? " hidden" : ""
         }`}
-        style={{ visibility: "hidden", opacity: 0 }}
         {...inertProps(headerHidden)}
       >
         <div className="xp-titles">

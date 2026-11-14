@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { READY_WAIT_MS, createOpenGate, type SceneStatus } from "./open-gate";
+import { READY_WAIT_MS, createOpenGate, giveUpFor, isGaveUp, type SceneStatus } from "./open-gate";
 import type { LayerKind } from "./layer-state";
 
 /** A clock the test turns by hand. */
@@ -116,5 +116,49 @@ describe("the open gate (a click on a box whose scene may not be ready)", () => 
     log.length = 0;
     gate.request("reading");
     expect(log).toEqual(["open reading"]);
+  });
+});
+
+describe("a give-up lasts one opening", () => {
+  it("a click that would not wait gives up for that kind; a plain scene is not a give-up", () => {
+    expect(giveUpFor("reading", true, "pending")).toBe("reading");
+    expect(giveUpFor("watching", true, "ready")).toBe("watching");
+    expect(giveUpFor("reading", true, "plain")).toBeNull();
+    expect(giveUpFor("reading", false, "ready")).toBeNull();
+  });
+
+  it("shows the plain grid while its layer is open or moving, and not before or after", () => {
+    expect(isGaveUp("reading", "reading", "reading", "growing")).toBe(true);
+    expect(isGaveUp("reading", "reading", "reading", "open")).toBe(true);
+    expect(isGaveUp("reading", "reading", "reading", "shrinking")).toBe(true);
+    // the layer is gone: the box holds its live scene again, even though the kind is still remembered
+    expect(isGaveUp("reading", "reading", "reading", "closed")).toBe(false);
+    expect(isGaveUp("reading", "reading", null, "closed")).toBe(false);
+  });
+
+  it("never reaches the other box, or the same box in a later opening of the other kind", () => {
+    expect(isGaveUp("reading", "watching", "watching", "open")).toBe(false);
+    expect(isGaveUp("reading", "reading", "watching", "open")).toBe(false);
+    expect(isGaveUp(null, "reading", "reading", "open")).toBe(false);
+  });
+
+  it("a click before the scene is ready opens plain once; after it has drawn, the next click opens live", () => {
+    const status: Record<LayerKind, SceneStatus> = { reading: "pending", watching: "pending" };
+    let gave: LayerKind | null = null;
+    let fire: (() => void) | null = null;
+    const gate = createOpenGate({
+      status: (k) => status[k],
+      open: (k, plain) => void (gave = giveUpFor(k, plain, status[k])),
+      press: () => {},
+      setTimer: (fn) => ((fire = fn), 1),
+      clearTimer: () => void (fire = null),
+    });
+    gate.request("reading");
+    (fire as (() => void) | null)?.(); // the wait is over, the scene is still pending
+    expect(isGaveUp(gave, "reading", "reading", "open")).toBe(true);
+    expect(isGaveUp(gave, "reading", "reading", "closed")).toBe(false); // closed: the box is live again
+    status.reading = "ready"; // the scene finished while the plain grid showed
+    gate.request("reading");
+    expect(gave).toBeNull();
   });
 });

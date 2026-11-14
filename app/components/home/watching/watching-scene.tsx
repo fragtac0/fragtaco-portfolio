@@ -22,7 +22,7 @@ type WatchingSceneProps = {
   onDrawn: () => void;
   /** The wall cannot draw (no WebGL, a failed start or a lost context): the box shows its flat preview instead. */
   onPlain: () => void;
-  /** The layer waited too long for a click on a box whose scene was not ready: switch to the plain grid and stay on it. */
+  /** This opening gave up on 3D (a click that would not wait for a scene that was not ready, or a layer open too long on one): the plain grid shows until the layer is gone, then the box holds the live scene again. */
   gaveUp: boolean;
 };
 
@@ -34,7 +34,7 @@ type WatchingSceneProps = {
  * uses to close an open video before the layer. While a video is open the wall behind it stays drawn (spread and dimmed) but
  * is `inert`, and the layer's own header is hidden (through the layer context). While its box is on screen the engine prepares
  * urgently. `onDrawn` is called when the wall's first frame is drawn. A lost graphics context, a failed start, or a click that
- * waited for a scene that was not ready (`gaveUp`) switches to the plain grid for good (`onPlain`; shown while the layer is open).
+ * switches to the plain grid for good (`onPlain`; shown while the layer is open); a layer that gave up on a scene that was not ready (`gaveUp`) shows the grid for that one opening.
  */
 function WatchingScene({
   engine,
@@ -65,20 +65,17 @@ function WatchingScene({
   useEffect(() => {
     drawn.current = onDrawn;
   });
-  // The first frame has been drawn: a late `gaveUp` is then ignored, and a first frame that comes
-  // after the grid has taken over is ignored too (`live` in the start effect), so the view never
-  // flips back from the grid to the 3D scene.
-  const drew = useRef(false);
-  useEffect(() => {
-    if (gaveUp && !drew.current) setFallback(true);
-  }, [gaveUp]);
+  // The plain grid shows when the wall cannot draw (`fallback`, for good) or this opening gave up on it (`gaveUp`, for one opening):
+  // the wall is then stopped and taken out of the DOM, so a first frame that comes late is never drawn and the view does not
+  // flip back from the grid to the 3D scene within the opening. The scene is made again when the layer is gone.
+  const grid = fallback || gaveUp;
 
   // The box is on screen: do not yield to idle time while the wall is prepared.
   useEffect(() => {
-    if (fallback || !engine || !run) return;
+    if (grid || !engine || !run) return;
     engine.setUrgent(true);
     return () => engine.setUrgent(false);
-  }, [engine, run, fallback]);
+  }, [engine, run, grid]);
 
   // the wall cannot draw: the box shows its flat preview
   const plain = useRef(onPlain);
@@ -96,7 +93,7 @@ function WatchingScene({
       isVideoOpen: () => detailRef.current?.isOpen() ?? false,
       closeVideo: () => detailRef.current?.close(),
     });
-    if (fallback || !engine || !host || !chip) return unregister;
+    if (grid || !engine || !host || !chip) return unregister;
     engine.mount({ host, chip });
     const unsubscribe = picks.subscribe((p) => setPick(p));
     const unlost = engine.onLost(() => setFallback(true));
@@ -106,18 +103,16 @@ function WatchingScene({
       unregister();
       engine.unmount();
     };
-  }, [engine, picks, registerSceneHooks, fallback]);
+  }, [engine, picks, registerSceneHooks, grid]);
 
   useEffect(() => {
-    if (fallback || !engine || !run) return;
+    if (grid || !engine || !run) return;
     let live = true;
     // the wall could not start (no context, a failed shader): show the grid instead
     void engine
       .start({
         onFirstFrame: () => {
-          if (!live) return;
-          drew.current = true;
-          drawn.current();
+          if (live) drawn.current();
         },
       })
       .then(() => {
@@ -131,7 +126,7 @@ function WatchingScene({
       live = false;
       engine.stop();
     };
-  }, [engine, run, fallback]);
+  }, [engine, run, grid]);
 
   // While a video is open the wall is inert and the layer's header is hidden (and inert), so Tab
   // stays on the detail view; when it has closed they wake up and focus goes back to the wall stage.
@@ -142,7 +137,7 @@ function WatchingScene({
     else main?.removeAttribute("inert");
     setHeaderHidden(open);
     if (!open && wasOpen.current) {
-      const back = fallback
+      const back = grid
         ? sceneRef.current?.querySelector<HTMLElement>(
             `[data-key="${CSS.escape(lastKey.current ?? "")}"]`,
           )
@@ -154,7 +149,7 @@ function WatchingScene({
       main?.removeAttribute("inert");
       setHeaderHidden(false);
     };
-  }, [open, fallback, setHeaderHidden]);
+  }, [open, grid, setHeaderHidden]);
 
   // The scene stays alive in its box when the layer is closed: a video still open then is put away, and the wall's choice with it.
   const [prevLayerOpen, setPrevLayerOpen] = useState(layerOpen);
@@ -174,7 +169,7 @@ function WatchingScene({
   return (
     <div ref={sceneRef} className="wall-scene" data-open={open ? "true" : undefined}>
       <div ref={mainRef} className="wall-main">
-        {fallback ? (
+        {grid ? (
           layerOpen ? (
             <WatchingFallback
               videos={videos}
@@ -209,13 +204,13 @@ function WatchingScene({
           </>
         )}
       </div>
-      {fallback || engine ? (
+      {grid || engine ? (
         <VideoDetail
           ref={detailRef}
           video={video}
           fromRect={pick?.rect ?? null}
           tileKey={pick?.key ?? null}
-          wall={fallback || !engine ? gridWall : engine}
+          wall={grid || !engine ? gridWall : engine}
           more={more}
           onClose={() => setPick(null)}
         />

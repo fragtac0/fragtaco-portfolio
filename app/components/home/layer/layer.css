@@ -52,16 +52,18 @@
   z-index: 1;
   border-radius: 0;
 }
-/* the plain grid (no 3D scene) is laid out for the whole window, kept at its size while the frame grows round it, and fades in with the chrome */
+/* the plain grid (no 3D scene) is laid out for the whole window and glued to the frame like the scene's picture: centred, scaled evenly
+   until it covers the frame (--glue, written by the move driver), at full opacity from the first frame, so the frame is never empty */
 .box-scene[data-plain][data-at="move"] > :not(.tex) {
   position: absolute;
+  inset: auto;
   left: 50%;
   top: 50%;
-  inset: auto;
   width: var(--vw);
   height: var(--vh);
-  transform: translate(-50%, -50%);
-  opacity: var(--inner-alpha, 0);
+  transform: translate(-50%, -50%) scale(var(--glue, 1));
+  transform-origin: 50% 50%;
+  opacity: 1;
   transition: none;
 }
 .home-layer .display {
@@ -125,6 +127,11 @@
 .home-layer .xp-head > * {
   pointer-events: auto;
 }
+/* the chrome is hidden until the move shows it (the driver writes its opacity and visibility on every frame of the move; a layer that opens at once is ready at once) */
+.home-layer:not(.ready) .xp-head {
+  visibility: hidden;
+  opacity: 0;
+}
 /* an open video has its own Close: the layer's header steps aside, and cannot be reached (it is inert) */
 .home-layer .xp-head {
   transition:
@@ -181,12 +188,6 @@ html.locked body {
   .home-layer *::before,
   .home-layer *::after {
     transition-duration: 0.01ms !important;
-  }
-  /* no growing frame: the open page fades in and out over 200 ms, written by the move driver; it starts at 0 so the first frame
-     is never at full opacity (and no transition of its own smooths the driver's writes) */
-  .home-layer {
-    opacity: 0;
-    transition: none !important;
   }
 }
 

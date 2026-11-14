@@ -121,7 +121,7 @@ html.intro .home-blocks {
   margin-top: clamp(14px, 2vw, 26px);
   border-radius: 14px; /* BOX_RADIUS in layer/open-move.ts */
   overflow: hidden;
-  background: #0c0b0a;
+  background: var(--ground);
   pointer-events: none;
   transition: opacity 0.2s;
 }

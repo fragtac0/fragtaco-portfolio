@@ -163,6 +163,15 @@ export function headGuess(vw: number): number {
 }
 
 /**
+ * The header's bottom to fit the shelf under: the measured one, unless it is the guess to within a pixel (a fraction the guess
+ * rounds the other way at some widths), in which case the guess. The box fits with the guess (it has no header) and the open page
+ * fits with this, so the picture does not change by a pixel between the box and the move's first frame at any width.
+ */
+export function settleHead(measured: number, guess: number): number {
+  return Math.abs(measured - guess) <= 1 ? guess : measured;
+}
+
+/**
  * How large the flat, face-on row is: `scale` is CSS pixels per world unit. The tallest spine fills
  * at most 78% of the height (and never more than `room`, the pixels between the header and the
  * line, so it never runs into the header) and the row at most 88% of the width; when the width

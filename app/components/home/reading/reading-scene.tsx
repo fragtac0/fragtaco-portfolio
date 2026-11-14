@@ -21,7 +21,7 @@ type ReadingSceneProps = {
   onDrawn: () => void;
   /** The shelf cannot draw (no WebGL2, a failed start or a lost context): the box shows its flat preview instead. */
   onPlain: () => void;
-  /** The layer waited too long for a click on a box whose scene was not ready: switch to the plain grid and stay on it. */
+  /** This opening gave up on 3D (a click that would not wait for a scene that was not ready, or a layer open too long on one): the plain grid shows until the layer is gone, then the box holds the live scene again. */
   gaveUp: boolean;
 };
 
@@ -31,7 +31,7 @@ type ReadingSceneProps = {
  * the note through the elements it is handed; this component only provides them, starts and stops the engine with `run`, and
  * registers the hooks Esc uses to close an open book before the layer. While its box is on screen the engine prepares urgently.
  * `onDrawn` is called when the shelf's first frame is drawn (the books stand in place at once); with no 3D shelf (no WebGL2, a
- * failed start, a lost context, or `gaveUp`) `onPlain` is called and the plain grid is shown, but only while the layer is open.
+ * failed start or a lost context) `onPlain` is called and the plain grid is shown, but only while the layer is open; `gaveUp` shows the grid for one opening and calls nothing.
  */
 function ReadingScene({
   engine,
@@ -58,20 +58,17 @@ function ReadingScene({
   useEffect(() => {
     drawn.current = onDrawn;
   });
-  // The first frame has been drawn: a late `gaveUp` is then ignored, and a first frame that comes
-  // after the grid has taken over is ignored too (`live` in the start effect), so the view never
-  // flips back from the grid to the 3D scene.
-  const drew = useRef(false);
-  useEffect(() => {
-    if (gaveUp && !drew.current) setFallback(true);
-  }, [gaveUp]);
+  // The plain grid shows when the shelf cannot draw (`fallback`, for good) or this opening gave up on it (`gaveUp`, for one opening):
+  // the shelf is then stopped and taken out of the DOM, so a first frame that comes late is never drawn and the view does not
+  // flip back from the grid to the 3D scene within the opening. The scene is made again when the layer is gone.
+  const grid = fallback || gaveUp;
 
   // The box is on screen: do not yield to idle time while the shelf is prepared.
   useEffect(() => {
-    if (fallback || !engine || !run) return;
+    if (grid || !engine || !run) return;
     engine.setUrgent(true);
     return () => engine.setUrgent(false);
-  }, [engine, run, fallback]);
+  }, [engine, run, grid]);
 
   // the shelf cannot draw: the box shows its flat preview
   const plain = useRef(onPlain);
@@ -83,7 +80,7 @@ function ReadingScene({
   }, [fallback]);
 
   useEffect(() => {
-    if (fallback) return;
+    if (grid) return;
     const host = hostRef.current;
     const info = infoRef.current;
     if (!engine || !host || !info) return;
@@ -106,17 +103,15 @@ function ReadingScene({
       unregister();
       engine.unmount();
     };
-  }, [engine, registerSceneHooks, fallback]);
+  }, [engine, registerSceneHooks, grid]);
 
   useEffect(() => {
-    if (fallback || !engine || !run) return;
+    if (grid || !engine || !run) return;
     let live = true;
     void engine
       .start({
         onFirstFrame: () => {
-          if (!live) return;
-          drew.current = true;
-          drawn.current();
+          if (live) drawn.current();
         },
       })
       .then(() => {
@@ -130,13 +125,13 @@ function ReadingScene({
       live = false;
       engine.stop();
     };
-  }, [engine, run, fallback]);
+  }, [engine, run, grid]);
 
   // the dot field behind the row moves only while the layer is open and still (and the tab visible): in the box and during the
   // move it is held where its first picture drew it, so nothing in the picture changes between the box and the move; a still frame is drawn at once
-  useDotField(dotsRef, settled && !fallback);
+  useDotField(dotsRef, settled && !grid);
 
-  if (fallback) return open ? <ReadingFallback books={books} /> : null;
+  if (grid) return open ? <ReadingFallback books={books} /> : null;
 
   return (
     <div ref={stageRef} className="shelf-scene">

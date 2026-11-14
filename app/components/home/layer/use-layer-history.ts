@@ -8,6 +8,7 @@ import {
   type RefObject,
 } from "react";
 import { BLOCK_ID } from "../blocks/interest-blocks";
+import { createBackTracker } from "./back-tracker";
 import type { HeroHandle } from "../hero/hero";
 import type { LayerControl, LayerSceneHooks } from "./layer-context";
 import {
@@ -55,9 +56,8 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
   // the layer was opened with no move (a deep link or a hard load that starts open)
   const [layerInstant, setLayerInstant] = useState(false);
   // `history.back()` has been called and its popstate has not arrived yet; a click that turns the closing round in that time
-  // pushes its entry when the pop has arrived (`reopenRef`)
-  const backPendingRef = useRef(false);
-  const reopenRef = useRef<LayerKind | null>(null);
+  // pushes its entry when the pop has arrived, and a Close in that time drops it (layer/back-tracker.ts)
+  const backRef = useRef(createBackTracker());
   const sceneHooks = useRef<Partial<Record<LayerKind, LayerSceneHooks>>>({});
   // Set by a scene through the layer context; the layer is the one that hides its own header.
   const [headerHidden, setHeaderHidden] = useState(false);
@@ -73,8 +73,8 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
       setLayerInstant(!!opts?.instant && !turning);
       setLayerOpen(true);
       if (opts?.push !== false) {
-        if (turning && backPendingRef.current) {
-          reopenRef.current = kind;
+        if (turning && backRef.current.turned(kind)) {
+          // its entry is pushed when the pop has arrived
         } else {
           window.history.pushState(nextHistoryState(window.history.state, kind), "", "#" + kind);
           pushedRef.current = true;
@@ -90,10 +90,11 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
     const phase = layerRef.current.phase;
     if (phase !== "growing" && phase !== "open") return;
     dispatchLayer({ type: "close" });
+    backRef.current.closed(); // a turn's entry that was still waiting for the pop is not wanted any more
     if (pushedRef.current) {
       // leave the entry the layer pushed; the popstate that follows finds the layer already shrinking
       pushedRef.current = false;
-      backPendingRef.current = true;
+      backRef.current.backCalled();
       window.history.back();
     } else {
       // a deep link owns no entry of its own: just drop the hash (the query string stays)
@@ -156,11 +157,9 @@ export function useLayerHistory({ heroRef, setLayerOpen }: Options) {
   // a move onto /#reading or /#watching (Forward) opens it.
   useEffect(() => {
     const onPop = () => {
-      backPendingRef.current = false;
       pushedRef.current = false;
       // the closing was turned round before this pop arrived: the entry the click wanted is pushed now, and the layer stays
-      const again = reopenRef.current;
-      reopenRef.current = null;
+      const again = backRef.current.popped();
       if (again && layerRef.current.phase !== "closed") {
         window.history.pushState(nextHistoryState(window.history.state, again), "", "#" + again);
         pushedRef.current = true;
