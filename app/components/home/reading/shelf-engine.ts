@@ -151,7 +151,7 @@ export function createShelf(
       },
       cap: fontCap.reached,
       also: loadShelfFonts(),
-      alsoLate: () => gl?.books.forEach((b) => covers.repaint(b.coverTex, b.d)), // the interface faces came late
+      alsoLate: () => gl?.books.forEach((b) => covers.repaintGenerated(b.coverTex, b.d)), // the interface faces came late: only generated covers draw them
     });
     return buildShelf(canvas, books, { disposed: () => disposed, fonts, run, covers });
   }
@@ -323,7 +323,10 @@ export function createShelf(
     hasOpen: () => !!st.opened,
     hasFailed: () => failed || lost.lost(),
     onLost: lost.subscribe,
-    setUrgent: (on) => slicer.setUrgent(on),
+    setUrgent(on) {
+      slicer.setUrgent(on);
+      fontCap.urgent(on); // the layer has opened onto the shelf: the font wait gets its shorter leg (R89)
+    },
     closeBook: () => closeBook(true),
     focusNext,
     openFocused,

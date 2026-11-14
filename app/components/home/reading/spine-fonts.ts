@@ -13,6 +13,8 @@ import { seriesFaces, type SeriesDesign } from "./spine-series";
 export const FONT_WAIT_MS = 2500;
 /** The longest it waits once the layer is open and waiting for the shelf (R89): the layer gives up on 3D at 1.5 s. */
 export const OPEN_FONT_WAIT_MS = 1000;
+/** ...and never past this long after the layer has opened onto the shelf (the end of the grow; at once under reduced motion), which leaves the build about 1 s of the give-up (R89). */
+export const OPEN_FONT_LEG_MS = 500;
 
 /** The distinct faces the designs name (each as a CSS font shorthand). Pure. */
 export function facesOf(designs: readonly SeriesDesign[]): string[] {

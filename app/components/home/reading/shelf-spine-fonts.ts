@@ -1,55 +1,91 @@
 import type { SiteBook } from "~/types";
 import { firstColours, lateSpines, repaintSpines, spineText, type SpineBook } from "./shelf-spines";
-import { OPEN_FONT_WAIT_MS, spineFontsReady, watchSpineFonts } from "./spine-fonts";
+import { OPEN_FONT_LEG_MS, OPEN_FONT_WAIT_MS, spineFontsReady, watchSpineFonts } from "./spine-fonts";
+import type { RunSteps } from "./shelf-scene";
 import { designFor } from "./spine-series";
 
 /**
  * The font wait of the shelf's build, and the repaint when a face comes late (R89). The first paint
  * waits for the spine faces (`spineFontsReady`, 2.5 s at most) and for whatever else the caller adds
- * (`also`: the interface faces the generated covers use). Once the layer has opened onto the shelf
- * (`FontCap.waiting`, from the moment the canvas is mounted into it) the wait is cut to about 1 s, so
- * a slow font never costs the 3D shelf the layer's give-up: the spines are painted in what has loaded.
+ * (`also`: the interface faces the generated covers use). Once the layer waits for the shelf
+ * (`FontCap.waiting`, from the moment the canvas is mounted into it) the wait is cut: 1 s after the
+ * mount, or 500 ms after the layer opens (`FontCap.urgent`, the end of the grow; at once under reduced
+ * motion), whichever is first (`fontCapDeadline`). So a slow font never costs the 3D shelf the layer's
+ * give-up, 1.5 s after it opens: the spines are painted in what has loaded.
  * A face that comes after that paints again only the spines that were drawn without it (each spine
  * remembers the faces it lacked, `SpineFace.missing`), a few at a time through the engine's slicer,
- * and the generated covers too when `also` was cut short. Client only.
+ * and the generated covers that have no real cover too when `also` was cut short. Client only.
  */
 
 /** Spines painted per step of a late repaint, as in the build. */
 const REPAINT_PER_STEP = 3;
 
 export type FontCap = {
-  /** Resolves `ms` after the layer first waits for the shelf; once resolved it stays so. */
+  /** Resolves when the cap's deadline passes (`fontCapDeadline`); once resolved it stays so. */
   reached: Promise<void>;
   /** The layer is (not) waiting for the shelf: the clock runs while it is, and starts over if it was left. */
   waiting(on: boolean): void;
+  /** The layer is open (not growing) and waits for the shelf: starts the shorter leg, `OPEN_FONT_LEG_MS`. */
+  urgent(on: boolean): void;
   stop(): void;
 };
 
-export function createFontCap(ms = OPEN_FONT_WAIT_MS): FontCap {
+/**
+ * When the cap ends, as a clock reading (pure). `mountAt` is when the canvas was mounted into the layer
+ * (the start of the grow), `openAt` when the layer opened onto it (the end of the grow; the same moment
+ * under reduced motion, which has no grow), `null` while that has not come. The wait ends at the earlier
+ * of `mountAt + mountMs` and `openAt + openMs`: the layer gives up on 3D `SCENE_GIVE_UP_MS` after it
+ * opens, and the build still has to run after the cap, so the open leg leaves it about a second of that
+ * (R89). With a grow the mount leg is the shorter (the open comes 680 ms after the mount); with none the
+ * open leg is. `null` when the layer is not waiting yet.
+ */
+export function fontCapDeadline(
+  mountAt: number | null,
+  openAt: number | null,
+  mountMs = OPEN_FONT_WAIT_MS,
+  openMs = OPEN_FONT_LEG_MS,
+): number | null {
+  if (mountAt === null) return null;
+  const a = mountAt + mountMs;
+  return openAt === null ? a : Math.min(a, openAt + openMs);
+}
+
+export function createFontCap(mountMs = OPEN_FONT_WAIT_MS, openMs = OPEN_FONT_LEG_MS): FontCap {
   let timer = 0;
   let done = false;
   let resolve: () => void = () => undefined;
   const reached = new Promise<void>((r) => (resolve = r));
+  let mountAt: number | null = null;
+  let openAt: number | null = null;
+  let isUrgent = false;
   const stop = () => {
     window.clearTimeout(timer);
     timer = 0;
   };
+  const arm = () => {
+    stop();
+    const at = done ? null : fontCapDeadline(mountAt, openAt, mountMs, openMs);
+    if (at === null) return;
+    timer = window.setTimeout(() => {
+      done = true;
+      resolve();
+    }, Math.max(0, at - performance.now()));
+  };
   return {
     reached,
     waiting(on) {
-      stop();
-      if (!on || done) return;
-      timer = window.setTimeout(() => {
-        done = true;
-        resolve();
-      }, ms);
+      mountAt = on ? performance.now() : null;
+      openAt = on && isUrgent ? mountAt : null;
+      arm();
+    },
+    urgent(on) {
+      isUrgent = on;
+      openAt = on && mountAt !== null ? (openAt ?? performance.now()) : null;
+      arm();
     },
     stop,
   };
 }
-
-/** Runs steps one after another, spread over time (the engine's slicer). */
-export type RunSteps = (steps: Array<() => void>) => Promise<void>;
 
 export type SpineFonts = {
   /** Resolves when the spine faces (and `also`) have loaded, or the wait has run out: build after it. */

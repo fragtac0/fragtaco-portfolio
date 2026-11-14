@@ -35,6 +35,8 @@ export type CoverQueueDeps = {
 export type CoverQueue = {
   /** Paints `tex` again at the book's current `pixels`: from its real cover if that has arrived, else the generated one. */
   repaint(tex: THREE.CanvasTexture, d: SiteBook): void;
+  /** `repaint` for a book with no real cover (painted or on its way): only the generated cover draws text in the interface faces. */
+  repaintGenerated(tex: THREE.CanvasTexture, d: SiteBook): void;
   /** A decoded cover is ready to be painted onto `tex`. */
   add(tex: THREE.CanvasTexture, d: SiteBook, img: HTMLImageElement): void;
   /** Starts the download for a book's cover and queues it once decoded. */
@@ -108,17 +110,24 @@ export function createCoverQueue(deps: CoverQueueDeps): CoverQueue {
     schedulePainter();
   };
 
+  const repaint: CoverQueue["repaint"] = (tex, d) => {
+    // a real cover still waiting to be painted will be painted at the new size anyway
+    if (jobs.some((j) => j.tex === tex && !j.again)) return;
+    // one job per book: an older one for this texture (painted or not) is at the wrong size by now
+    for (let i = jobs.length - 1; i >= 0; i--) if (jobs[i].tex === tex && jobs[i].again) jobs.splice(i, 1);
+    for (let i = pend.length - 1; i >= 0; i--) if (pend[i][0] === tex) pend.splice(i, 1);
+    jobs.push({ tex, d, img: null, again: true });
+    schedulePainter();
+  };
+
   return {
     add,
 
-    repaint(tex, d) {
-      // a real cover still waiting to be painted will be painted at the new size anyway
-      if (jobs.some((j) => j.tex === tex && !j.again)) return;
-      // one job per book: an older one for this texture (painted or not) is at the wrong size by now
-      for (let i = jobs.length - 1; i >= 0; i--) if (jobs[i].tex === tex && jobs[i].again) jobs.splice(i, 1);
-      for (let i = pend.length - 1; i >= 0; i--) if (pend[i][0] === tex) pend.splice(i, 1);
-      jobs.push({ tex, d, img: null, again: true });
-      schedulePainter();
+    repaint,
+
+    repaintGenerated(tex, d) {
+      if (kept.has(d.id)) return; // a real cover is on the book: nothing of it is drawn in our faces
+      repaint(tex, d);
     },
 
     load(tex, d) {

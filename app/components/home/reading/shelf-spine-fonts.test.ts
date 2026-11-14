@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SiteBook } from "~/types";
-import { OPEN_FONT_WAIT_MS, FONT_WAIT_MS, familyOfFace } from "./spine-fonts";
-import { createFontCap, createSpineFonts } from "./shelf-spine-fonts";
+import { OPEN_FONT_LEG_MS, OPEN_FONT_WAIT_MS, FONT_WAIT_MS, familyOfFace } from "./spine-fonts";
+import { createFontCap, createSpineFonts, fontCapDeadline } from "./shelf-spine-fonts";
 import { createSpineFace, lateSpines, type SpineBook } from "./shelf-spines";
 import { FakePath2D, recordingCtx } from "./spine-test-ctx";
 
@@ -237,6 +237,31 @@ describe("the wait for the faces (R89)", () => {
   });
 });
 
+describe("fontCapDeadline", () => {
+  it("is the earlier of the mount leg and the open leg", () => {
+    expect(fontCapDeadline(null, null)).toBeNull(); // nothing waits for the shelf yet
+    expect(fontCapDeadline(100, null)).toBe(100 + OPEN_FONT_WAIT_MS); // growing: the mount leg
+    // with a grow the layer opens 680 ms after the mount: the mount leg is the shorter
+    expect(fontCapDeadline(0, 680)).toBe(OPEN_FONT_WAIT_MS);
+    // with none (reduced motion) it opens at the mount: the open leg is
+    expect(fontCapDeadline(0, 0)).toBe(OPEN_FONT_LEG_MS);
+    expect(fontCapDeadline(200, 230)).toBe(230 + OPEN_FONT_LEG_MS);
+  });
+
+  it("always leaves the build about a second before the layer's give-up (1.5 s after it opens)", () => {
+    const giveUp = 1500;
+    for (const grow of [0, 300, 680, 900]) {
+      const at = fontCapDeadline(0, grow) as number;
+      expect(giveUp + grow - at).toBeGreaterThanOrEqual(1000);
+    }
+  });
+
+  it("takes the legs as arguments", () => {
+    expect(fontCapDeadline(0, 100, 400, 50)).toBe(150);
+    expect(fontCapDeadline(0, 500, 400, 50)).toBe(400);
+  });
+});
+
 describe("createFontCap", () => {
   it("runs while the layer waits, starts over if it was left, and stays reached", async () => {
     page([]);
@@ -256,5 +281,78 @@ describe("createFontCap", () => {
     cap.waiting(false);
     cap.waiting(true);
     cap.stop();
+  });
+
+  it("with a grow, ends 1 s after the mount (the open comes 680 ms later and its leg is longer)", async () => {
+    page([]);
+    const cap = createFontCap();
+    let reached = false;
+    void cap.reached.then(() => (reached = true));
+    cap.waiting(true);
+    await vi.advanceTimersByTimeAsync(680);
+    cap.urgent(true);
+    await vi.advanceTimersByTimeAsync(OPEN_FONT_WAIT_MS - 680 - 1);
+    expect(reached).toBe(false);
+    await vi.advanceTimersByTimeAsync(2);
+    expect(reached).toBe(true);
+    cap.stop();
+  });
+
+  it("with no grow (reduced motion), ends 500 ms after the open, in either order of the two calls", async () => {
+    page([]);
+    for (const urgentFirst of [false, true]) {
+      const cap = createFontCap();
+      let reached = false;
+      void cap.reached.then(() => (reached = true));
+      if (urgentFirst) {
+        cap.urgent(true);
+        cap.waiting(true);
+      } else {
+        cap.waiting(true);
+        cap.urgent(true);
+      }
+      await vi.advanceTimersByTimeAsync(OPEN_FONT_LEG_MS - 1);
+      expect(reached).toBe(false);
+      await vi.advanceTimersByTimeAsync(2);
+      expect(reached).toBe(true);
+      cap.stop();
+    }
+  });
+
+  it("an open that came while the cap ran shortens it, but leaving the layer starts both legs over", async () => {
+    page([]);
+    const cap = createFontCap();
+    let reached = false;
+    void cap.reached.then(() => (reached = true));
+    cap.waiting(true);
+    await vi.advanceTimersByTimeAsync(300);
+    cap.urgent(true); // open at 300: ends at 800
+    await vi.advanceTimersByTimeAsync(400);
+    cap.waiting(false); // left at 700
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(reached).toBe(false);
+    cap.waiting(true); // back, still open: a new mount, open at once
+    await vi.advanceTimersByTimeAsync(OPEN_FONT_LEG_MS - 1);
+    expect(reached).toBe(false);
+    await vi.advanceTimersByTimeAsync(2);
+    expect(reached).toBe(true);
+    cap.stop();
+  });
+
+  it("cuts a build held by a font that never comes, 500 ms after the open under reduced motion", async () => {
+    page(["Bodoni Moda"]); // never loads
+    const cap = createFontCap();
+    const fonts = createSpineFonts([story], {
+      repainted: vi.fn(),
+      cap: cap.reached,
+      also: new Promise(() => undefined),
+    });
+    let ready = false;
+    void fonts.ready.then(() => (ready = true));
+    cap.waiting(true);
+    cap.urgent(true);
+    await vi.advanceTimersByTimeAsync(OPEN_FONT_LEG_MS + 5);
+    expect(ready).toBe(true);
+    fonts.stop();
   });
 });
