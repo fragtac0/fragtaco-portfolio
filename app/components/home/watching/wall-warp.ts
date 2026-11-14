@@ -57,9 +57,10 @@ export function edgeUnwarp(x: number, y: number, vw: number, vh: number): [numbe
  * pixel (x, y) alone, exactly zero inside the middle of the screen (the radial ones inside
  * `*_INNER` of the half-diagonal, the sides' fade inside `EDGE_DARK_INNER` of the half-width and the
  * half-height) and bounded by its maximum at the corners. The same constants build the shader in
- * wall-warp-pass.ts. The heading (top left) and the Esc pill (top right) sit in the top band, which
- * is darkened further (`HEAD_DARK`) so their text reads over any picture (4.5 to 1, measured in
- * scripts/audit/wall.json). Pure.
+ * wall-warp-pass.ts (wall-warp-pass.test.ts checks its source carries them). The heading (top left) and the Esc
+ * pill (top right) sit in the top band, which is darkened further (`HEAD_DARK`) so their text reads over any
+ * picture (4.5 to 1: a unit test over a white picture, and measured over the real frames by
+ * scripts/audit/wall-edges.json). Pure.
  */
 
 /** The blur starts at this share of the half-diagonal and reaches `BLUR_MAX_PX` (a spread of five taps) at the corners. */

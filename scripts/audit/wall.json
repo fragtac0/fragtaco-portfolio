@@ -365,7 +365,7 @@
   "label": "arrows-to-the-edge-then-stay"
  },
  {
-  "eval": "(()=>{const e=document.activeElement;const d=document.querySelector('.vov');return {tag:e&&e.tagName,cls:e&&e.className,text:(e&&e.textContent||'').slice(0,24),inDetail:!!(e&&d&&d.contains(e)),inLayer:!!(e&&e.closest('.home-layer')),isBody:e===document.body,detailInert:d?d.hasAttribute('inert'):null}})()",
+  "eval": "(()=>{const e=document.activeElement;const d=document.querySelector('.vov');return {tag:e&&e.tagName,cls:e&&e.className,text:(e&&e.textContent||'').slice(0,24),inDetail:!!(e&&d&&d.contains(e)),inLayer:!!(e&&e.closest('.home-layer')),isBody:e===document.body,detailInert:d?d.hasAttribute('inert'):null,ok:!!(e&&d&&d.contains(e))}})()",
   "label": "R52.3 focus after the arrow keys: it stays on the open video's Watch link (the swap does not move it), in the detail, not on the body"
  },
  {
@@ -376,7 +376,7 @@
   "label": "close-esc"
  },
  {
-  "eval": "(()=>{const e=document.activeElement;const d=document.querySelector('.vov');return {tag:e&&e.tagName,cls:e&&e.className,text:(e&&e.textContent||'').slice(0,24),inDetail:!!(e&&d&&d.contains(e)),inLayer:!!(e&&e.closest('.home-layer')),isBody:e===document.body,detailInert:d?d.hasAttribute('inert'):null}})()",
+  "eval": "(()=>{const e=document.activeElement;const d=document.querySelector('.vov');return {tag:e&&e.tagName,cls:e&&e.className,text:(e&&e.textContent||'').slice(0,24),inDetail:!!(e&&d&&d.contains(e)),inLayer:!!(e&&e.closest('.home-layer')),isBody:e===document.body,detailInert:d?d.hasAttribute('inert'):null,ok:!!(e&&e.closest('.home-layer'))&&e!==document.body}})()",
   "label": "R52.3 focus after Esc (the detail has closed): read where it is (in the layer, not lost to the body)"
  },
  {

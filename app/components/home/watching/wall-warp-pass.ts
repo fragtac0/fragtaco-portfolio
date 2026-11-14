@@ -14,11 +14,18 @@ import {
 } from "./wall-warp";
 
 /**
- * The second pass of the wall (spec 7). The tiles are drawn flat into a texture a little larger
+ * The second pass of the wall (spec 7, and 8.1 for the edges). The tiles are drawn flat into a texture a little larger
  * than the screen (`warpMargin` CSS pixels on every side, so the screen's corners can be filled
  * after the pull), and this pass draws that texture to the canvas through the barrel warp. For
  * each screen pixel the shader finds the flat wall point that shows there (the same fixed-point
  * inverse as `edgeUnwarp` in wall-warp.ts, from the same constants) and reads it.
+ *
+ * After the warp the pass draws the edges, all of them zero in the middle of the screen (the same functions and constants as
+ * `edgeBlur`, `edgeFringe` and `edgeDark` in wall-warp.ts; wall-warp-pass.test.ts checks the source carries them): a dark fade
+ * on the four sides and over the heading's band, and where the blur or the fringe is above 0 (from 60% of the half-diagonal, about
+ * 40% of the screen's pixels) five taps (the middle at 0.36 and four diagonals at 0.16) of which only the middle one is read
+ * three times, red and blue displaced along the radius: 7 reads there (3 for the fringe, 4 plain), the single read of the
+ * unblurred picture everywhere else. A 3 px fringe under a 4.5 px blur cannot be told from one on every tap.
  *
  * The texture lives on unit 1 only while this pass runs, so the atlas on unit 0 (wall-thumbs.ts)
  * is never disturbed.
@@ -37,11 +44,12 @@ const GROUND = `${channels(GROUND_HEX).map((v) => f(v / 255)).join(",")},1.`;
 
 const VS = `attribute vec2 p;uniform vec2 uRes;varying vec2 vS;
   void main(){vS=p*uRes;gl_Position=vec4(p.x*2.-1.,1.-p.y*2.,0.,1.);}`;
-const FS = `precision highp float;varying vec2 vS;
+export const FS = `precision highp float;varying vec2 vS;
   uniform sampler2D uTex;uniform vec2 uRes;uniform float uMargin;
   float shiftOf(float r){float u=clamp((r-${f(WARP_INNER)})/${f(1 - WARP_INNER)},0.,1.);return ${f(WARP_MAX)}*u*u*(3.-2.*u);}
   vec2 tc(vec2 p){vec2 t=(p+uMargin)/(uRes+2.*uMargin);return vec2(t.x,1.-t.y);}
-  vec4 fr(vec2 p,vec2 f){vec4 g=texture2D(uTex,tc(p));return vec4(texture2D(uTex,tc(p+f)).r,g.g,texture2D(uTex,tc(p-f)).b,g.a);}
+  vec4 rd(vec2 p){return texture2D(uTex,tc(p));}
+  vec4 fr(vec2 p,vec2 f){vec4 g=rd(p);return vec4(rd(p+f).r,g.g,rd(p-f).b,g.a);}
   void main(){
     vec2 c=uRes*.5;float hd=length(c);vec2 d=vS-c;float R=length(d)/hd;
     vec2 w=vS;
@@ -52,8 +60,8 @@ const FS = `precision highp float;varying vec2 vS;
     if(bl+fg>0.){
       vec2 f=R>.00001?d/(R*hd)*fg:vec2(0.);
       float o=bl*.7071;
-      col=fr(w,f)*.36+.16*(fr(w+vec2(o,o),f)+fr(w+vec2(-o,o),f)+fr(w+vec2(o,-o),f)+fr(w+vec2(-o,-o),f));
-    }else col=texture2D(uTex,tc(w));
+      col=fr(w,f)*.36+.16*(rd(w+vec2(o,o))+rd(w+vec2(-o,o))+rd(w+vec2(o,-o))+rd(w+vec2(-o,-o)));
+    }else col=rd(w);
     float sx=${f(EDGE_DARK_SIDE)}*smoothstep(${f(EDGE_DARK_INNER)},1.,abs(vS.x-c.x)/c.x);
     float sy=${f(EDGE_DARK_SIDE)}*smoothstep(${f(EDGE_DARK_INNER)},1.,abs(vS.y-c.y)/c.y);
     float band=min(${f(HEAD_BAND_PX)},uRes.y*.25);

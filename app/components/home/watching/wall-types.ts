@@ -45,8 +45,11 @@ export type WallEngine = {
   freeze(key?: string): void;
   /** The close begins: the tiles travel back (the choice is held until `thaw`). */
   release(): void;
-  /** The close is over: the choice is forgotten and the wall drifts on. */
-  thaw(): void;
+  /**
+   * The close is over: the choice is forgotten and the wall drifts on, once the camera has arrived (at once when `instant`,
+   * a close that skipped its animation).
+   */
+  thaw(instant?: boolean): void;
   /** The tile's current rectangle in viewport coordinates, or null when it is not in view. */
   rectOf(key: string): DOMRect | null;
   /** Move the keyboard focus one tile: (1, 0) right, (0, 1) down. */

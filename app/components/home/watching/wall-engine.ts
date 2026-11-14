@@ -4,7 +4,7 @@ import { watchContextLost } from "../context-lost";
 import { frameSize, readCanvas, sizeBuffer } from "./wall-canvas";
 import { drawTiles } from "./wall-draw";
 import { createWallGl, type WallGl } from "./wall-gl";
-import { countOverlaps, countUnderText, createChoiceLayout, picturesSettled } from "./wall-choice";
+import { countOverlaps, countUnderText, createChoiceLayout, picturesSettled, thawWaits } from "./wall-choice";
 import { createCamera } from "./wall-camera";
 import { createChip, createProbe } from "./wall-hud";
 import { focusOf } from "./wall-focus";
@@ -313,9 +313,10 @@ export function createWall(
     release() {
       if (st.choice) st.choice.live = false;
     },
-    thaw() {
-      // with the loop running the camera may still be on its way (a long frame, a slow device): wait for it
-      if (running && st.choice && !camera.settled()) thawing = true;
+    thaw(instant) {
+      // with the loop running the camera may still be on its way (a long frame, a slow device): wait for it,
+      // unless the close was instant (a resize): then nothing is left to wait for
+      if (thawWaits({ instant, running, chosen: !!st.choice, settled: camera.settled() })) thawing = true;
       else letGo();
     },
     rectOf: input.rectOf,

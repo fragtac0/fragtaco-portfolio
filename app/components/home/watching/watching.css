@@ -194,8 +194,8 @@
   position: absolute;
   top: var(--head-pad-top);
   right: var(--head-pad-x);
-  width: 34px;
-  height: 34px;
+  width: var(--pill-h);
+  height: var(--pill-h);
   padding: 0;
   border-radius: 999px;
   border: 0;
@@ -217,8 +217,8 @@
 
 @media (hover: none) {
   .home-layer .vov .x {
-    width: 40px;
-    height: 40px;
+    width: var(--pill-h-touch);
+    height: var(--pill-h-touch);
   }
 }
 

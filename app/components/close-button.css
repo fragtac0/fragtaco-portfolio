@@ -6,7 +6,7 @@
  */
 .xp-close {
   box-sizing: border-box;
-  height: 34px;
+  height: var(--pill-h);
   padding: 0 8px 0 14px;
   border-radius: 999px;
   border: 0;
@@ -42,7 +42,7 @@
 /* touch devices have no Esc key, and a finger needs the larger target */
 @media (hover: none) {
   .xp-close {
-    height: 40px;
+    height: var(--pill-h-touch);
     padding: 0 16px;
   }
   .xp-close kbd {

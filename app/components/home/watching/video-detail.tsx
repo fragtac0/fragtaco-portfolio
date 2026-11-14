@@ -143,7 +143,7 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
       root.classList.remove("on");
       hide(root, true);
       settle(shot);
-      latest.current.wall.thaw();
+      latest.current.wall.thaw(instant);
       s.closing = false;
       s.key = null;
       latest.current.onClose();

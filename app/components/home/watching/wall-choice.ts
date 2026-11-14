@@ -87,3 +87,11 @@ export function picturesSettled(
   }
   return now - latest > settleMs;
 }
+
+/**
+ * Whether `thaw` waits for the camera before letting go of the choice: only when the loop is running, a video is still
+ * chosen, the camera has distance left to go, and the close was not instant.
+ */
+export function thawWaits(o: { instant?: boolean; running: boolean; chosen: boolean; settled: boolean }): boolean {
+  return !o.instant && o.running && o.chosen && !o.settled;
+}

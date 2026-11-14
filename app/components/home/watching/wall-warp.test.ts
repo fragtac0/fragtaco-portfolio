@@ -195,9 +195,8 @@ describe("the edges: blur, colour fringe and dark fade", () => {
         for (const k of [0, 0.3, Math.min(BLUR_INNER, FRINGE_INNER) - 0.01]) {
           const x = vw / 2 + Math.cos(rad) * k * hd;
           const y = vh / 2 + Math.sin(rad) * k * hd;
-          // (exactly zero; at the very radius where they start, a rounding of 1e-30 is the same thing)
-          expect(edgeBlur(x, y, vw, vh)).toBeCloseTo(0, 12);
-          expect(edgeFringe(x, y, vw, vh)).toBeCloseTo(0, 12);
+          expect(edgeBlur(x, y, vw, vh)).toBe(0);
+          expect(edgeFringe(x, y, vw, vh)).toBe(0);
         }
       }
       // the dark fade: the middle 62% of the width and of the height, below the top band
@@ -298,14 +297,30 @@ describe("the edges: blur, colour fringe and dark fade", () => {
     }
   });
 
-  it("leaves the quietest text (cream at 62%) over even a pure white picture at 4.5 to 1 or better, in the top band", () => {
+  it("leaves the quietest text (cream at 62%) over even a pure white picture at 4.5 to 1 or better, wherever the count stands", () => {
     // the fade is a mix toward the ground in the shader's own (sRGB) numbers; text is then laid over it
     const hex = (v: readonly number[]) => `#${v.map((c) => Math.round(c).toString(16).padStart(2, "0")).join("")}`;
     const ground = channels(GROUND);
     const cream = channels(CREAM);
-    const d = edgeDark(300, 90, 1440, 900); // behind the heading's count
-    const bg = ground.map((g) => 255 * (1 - d) + g * d);
-    const ink = cream.map((c, i) => c * 0.62 + bg[i] * 0.38);
-    expect(contrast(hex(ink), hex(bg))).toBeGreaterThanOrEqual(4.5);
+    // The count's box, from layer.css: the header's padding (the phone's 20 px under 700 px wide, else --head-pad-top and
+    // --head-pad-x), then the title (--t-title, taken at line-height 1 to put the count lowest), a 10 px gap and one 13 px
+    // line at 1.3. It is at most 200 px wide (the real "109 videos" is under 90): the sweep covers that box with room.
+    for (const [vw, vh] of [...sizes, [1024, 768] as [number, number]]) {
+      const narrow = vw < 700;
+      const padTop = narrow ? 20 : Math.min(56, Math.max(28, vw * 0.04));
+      const padX = narrow ? 20 : Math.min(72, Math.max(24, vw * 0.045));
+      const title = Math.min(38, Math.max(24, vw * 0.024));
+      const top = padTop + title + 10;
+      let worst = Infinity;
+      for (let y = top; y <= top + 13 * 1.3; y += 1) {
+        for (let x = padX; x <= padX + 200; x += 5) {
+          const d = edgeDark(x, y, vw, vh);
+          const bg = ground.map((g) => 255 * (1 - d) + g * d);
+          const ink = cream.map((c, i) => c * 0.62 + bg[i] * 0.38);
+          worst = Math.min(worst, contrast(hex(ink), hex(bg)));
+        }
+      }
+      expect(worst, `${vw}x${vh}`).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });

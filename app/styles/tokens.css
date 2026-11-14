@@ -74,6 +74,8 @@
   --pill-edge:
     0 0 0 1px rgb(var(--ink-rgb) / 0.16), inset 0 1px 0 rgb(var(--ink-rgb) / 0.22), 0 8px 18px -8px rgba(0, 0, 0, 0.7);
   --pill-blur: blur(20px) saturate(1.2);
+  --pill-h: 34px; /* the pill's height, and the round close's width and height */
+  --pill-h-touch: 44px; /* on touch screens: the finger's target (R88) */
 
   /* the dock's idle labels (the active one is 100%) */
   --dock-idle: 0.85;

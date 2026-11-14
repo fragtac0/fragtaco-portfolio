@@ -268,7 +268,10 @@ export default function InterestLayer({
       aria-modal="true"
       aria-labelledby="home-layer-title"
     >
-      <header className={headerHidden ? "xp-head hidden" : "xp-head"} {...inertProps(headerHidden)}>
+      <header
+        className={`xp-head${kind === "watching" ? " xp-head--wall" : ""}${headerHidden ? " hidden" : ""}`}
+        {...inertProps(headerHidden)}
+      >
         <div className="xp-titles">
           <h2 className="display" id="home-layer-title">
             {title}

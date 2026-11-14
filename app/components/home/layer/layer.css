@@ -53,6 +53,20 @@
     var(--ground-clear) 100%
   );
 }
+/* On the video wall the picture is already darkened at the top by the wall's own second pass (wall-warp-pass.ts: the
+   heading's band, 4.5 to 1 for the quietest ink over a white picture, from the fade alone), so its strip is lighter: the
+   spec's "enough that the heading reads, not more", and the top row of videos shows. The shelf keeps the full strip. */
+.home-layer .xp-head--wall::before {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ground) 55%, transparent) 0%,
+    color-mix(in srgb, var(--ground) 50%, transparent) 30%,
+    color-mix(in srgb, var(--ground) 38%, transparent) 52%,
+    color-mix(in srgb, var(--ground) 22%, transparent) 72%,
+    color-mix(in srgb, var(--ground) 9%, transparent) 88%,
+    var(--ground-clear) 100%
+  );
+}
 .home-layer .xp-head > * {
   pointer-events: auto;
 }
