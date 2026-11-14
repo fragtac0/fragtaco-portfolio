@@ -19,7 +19,7 @@ import MomentMarker from "./moment-marker";
 import { placePoint } from "./places";
 import PlacesLayer from "./places-layer";
 import RouteLayer from "./route-layer";
-import { CLIFF_SPAN, FIT_RING_SHARE, type View } from "./view";
+import { CLIFF_SPAN, FIT_RING_SHARE, type View } from "./view-legacy";
 import "./experience.css";
 import "./map-layers.css";
 import "./map-cards.css";

@@ -168,6 +168,18 @@ export interface SiteWork {
   clients: WorkClient[];
 }
 
+/** The icon of a milestone's bead on the map (Phosphor, fill weight; the names are the ones of spec 9.3). */
+export type ExperienceIcon =
+  | "gear"
+  | "scissors"
+  | "graduation-cap"
+  | "megaphone"
+  | "video-camera"
+  | "film-slate"
+  | "microphone"
+  | "paper-plane"
+  | "hiker";
+
 export interface ExperienceMoment {
   id: string;
   /** `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or `now` (the last moment only). */
@@ -178,6 +190,8 @@ export interface ExperienceMoment {
   /** The part of the title shown struck through. */
   struck?: string;
   line: string;
+  /** The icon on the milestone's bead. */
+  icon: ExperienceIcon;
 }
 
 export interface ExperiencePlace {
@@ -201,7 +215,8 @@ export interface ExperienceFact {
 
 export interface SiteExperience {
   frame: { centre: { lon: number; lat: number }; spanDeg: number };
-  heading: { title: string; text: string };
+  /** `text` is the round 6 paragraph (Task 19 removes it); `description` is the one quiet line under the title. */
+  heading: { title: string; text: string; description: string };
   moments: ExperienceMoment[];
   /** The words of the map's controls: the Journey and Places switch, the heading's More and Less. */
   ui: { journey: string; places: string; more: string; less: string };

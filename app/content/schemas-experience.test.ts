@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { ManifestSchema, extentRadius, fractionDistance, frameOf, meanRadius, pointInRing } from "../components/experience/geo";
-import { CLIFF_SPAN } from "../components/experience/view";
+import { CLIFF_SPAN } from "../components/experience/view-legacy";
 import type { SiteExperience } from "../types";
 import { ExperienceSchema } from "./schemas";
 
@@ -44,9 +44,24 @@ describe("experience.json", () => {
       ["Dec 2025", "Went freelance", "Left Bharat in Germany to edit full time for myself."],
       ["Now", "Freelance creative editor", "Still climbing."],
     ]);
-    expect(page.caption.title).toBe("Olympus Mons, Mars");
+    expect(page.heading.description).toBe("Engineer, then editor, then producer, now freelance. Still climbing.");
+    expect(page.caption.title).toBe("Olympus Mons");
     expect(page.caption.line).toBe("The tallest mountain known in the solar system.");
     expect(page.caption.credit).toBe("Image: NASA / JPL-Caltech / USGS / Arizona State University");
+  });
+
+  it("gives each moment its icon, in the order of spec 9.3", () => {
+    expect(page.moments.map((m) => m.icon)).toEqual([
+      "gear",
+      "scissors",
+      "graduation-cap",
+      "megaphone",
+      "video-camera",
+      "film-slate",
+      "microphone",
+      "paper-plane",
+      "hiker",
+    ]);
   });
 
   it("strikes through IIT in the first title only", () => {
@@ -117,6 +132,20 @@ describe("ExperienceSchema", () => {
     fails(bad);
     bad.moments[1].date = "Feb 2021";
     fails(bad);
+  });
+
+  it("needs an icon from the nine on every moment and a description", () => {
+    const missing = clone() as unknown as { moments: { icon?: string }[] };
+    delete missing.moments[0].icon;
+    fails(missing);
+
+    const unknown = clone() as unknown as { moments: { icon: string }[] };
+    unknown.moments[0].icon = "rocket";
+    fails(unknown);
+
+    const bare = clone() as unknown as { heading: { description?: string } };
+    delete bare.heading.description;
+    fails(bare);
   });
 
   it("needs the struck part to be in the title and ids to be unique", () => {

@@ -3,7 +3,7 @@
 //
 // Screen positions given to these (px, py) are CSS pixels from the screen's centre, as `zoomAbout` takes them.
 import type { Manifest } from "./geo";
-import { clampView, EXPLORE_MIN, fitScale, fitView, MAX_SCALE, zoomAbout, type View } from "./view";
+import { clampView, EXPLORE_MIN, fitScale, fitView, MAX_SCALE, zoomAbout, type View } from "./view-legacy";
 
 type Size = Pick<Manifest, "size">;
 

@@ -3,7 +3,7 @@
 // `public/mars/{z}/{x}_{y}.webp`: level z is a square of 2^z by 2^z tiles of `tile` px; the top level
 // (`levels - 1`) is `size` px across, and each level below has half the pixels of the one above.
 import type { Manifest } from "./geo";
-import type { View } from "./view";
+import type { View } from "./view-legacy";
 
 export type Tile = {
   z: number;

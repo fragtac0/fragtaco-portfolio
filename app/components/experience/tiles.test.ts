@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { levelFor, tilePath, tilesFor } from "./tiles";
-import { MAX_SCALE, clampView, fitScale, fitView, type View } from "./view";
+import { MAX_SCALE, clampView, fitScale, fitView, type View } from "./view-legacy";
 
 const m = { levels: 5, size: 8192, tile: 512 };
 const SCREENS: [number, number][] = [[1440, 900], [390, 844], [2560, 1440], [320, 568]];

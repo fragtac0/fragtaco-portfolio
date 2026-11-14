@@ -7,7 +7,7 @@ import { edgeBands, EDGE_STOPS, planDraw } from "./draw-plan";
 import type { Manifest } from "./geo";
 import { createTileCache } from "./tile-cache";
 import { tilesFor, type Tile } from "./tiles";
-import { clampView, exploreScale, FLY_MS, fitScale, fitView, flyTo, type View } from "./view";
+import { clampView, exploreScale, FLY_MS, fitScale, fitView, flyTo, type View } from "./view-legacy";
 
 export type MapOptions = {
   /** Reduced motion: every move is instant. */

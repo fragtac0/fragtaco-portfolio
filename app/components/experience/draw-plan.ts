@@ -7,7 +7,7 @@
 // picture ends (the overview of a wide or tall screen) shows no hard edge.
 import type { Manifest } from "./geo";
 import type { Tile } from "./tiles";
-import type { View } from "./view";
+import type { View } from "./view-legacy";
 
 export type Piece = {
   /** The tile file to draw from. */

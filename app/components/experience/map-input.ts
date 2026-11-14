@@ -8,7 +8,7 @@ import {
   arrowStep, DRAG_SLOP, isArrow, isDoubleTap, keyAction, modeOf, panView, pinchEnd, pinchView, stepAction, wheelAction,
   wheelFactor, ZOOM_STEP, type Action, type Mode, type Tap,
 } from "./map-input-math";
-import { fitScale, fitView, FLY_MS, FOCUS_ZOOM, MAX_SCALE, type View } from "./view";
+import { fitScale, fitView, FLY_MS, FOCUS_ZOOM, MAX_SCALE, type View } from "./view-legacy";
 
 export type MapState = { mode: Mode; canIn: boolean; canOut: boolean };
 

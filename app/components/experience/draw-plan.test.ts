@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { edgeBands, EDGE_BAND, EDGE_OUTSET, EDGE_STOPS, pictureRect, planDraw } from "./draw-plan";
-import { fitView } from "./view";
+import { fitView } from "./view-legacy";
 import type { Tile } from "./tiles";
 
 const tile = (z: number, x: number, y: number, left: number, top: number, size: number): Tile => ({ z, x, y, left, top, size });

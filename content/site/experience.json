@@ -1,18 +1,18 @@
 {
   "frame": { "centre": { "lon": 226.795, "lat": 18.366 }, "spanDeg": 14 },
-  "heading": { "title": "My experience", "text": "I trained as an engineer in Mumbai, took a part-time editing job in 2021 and never went back. Five years at Bharat in Germany took me from cutting shorts to running content and producing. Since December 2025 I edit full time as a freelancer. Still climbing." },
+  "heading": { "title": "My experience", "description": "Engineer, then editor, then producer, now freelance. Still climbing.", "text": "I trained as an engineer in Mumbai, took a part-time editing job in 2021 and never went back. Five years at Bharat in Germany took me from cutting shorts to running content and producing. Since December 2025 I edit full time as a freelancer. Still climbing." },
   "moments": [
-    { "id": "vesit", "date": "2017", "label": "2017", "title": "IIT Engineering at VESIT, Mumbai", "struck": "IIT", "line": "Plan A did not happen. Plan B was four years of engineering." },
-    { "id": "first-job", "date": "2021-02", "label": "Feb 2021", "title": "First editing job", "line": "Part-time short form editor at Bharat in Germany, while finishing the degree." },
-    { "id": "graduated", "date": "2021-06", "label": "Jun 2021", "title": "Graduated, went full time", "line": "The degree was done. Editing became the job." },
-    { "id": "social-manager", "date": "2022-01", "label": "Jan 2022", "title": "Social media manager", "line": "From cutting the videos to running the channels they went out on." },
-    { "id": "own-videos", "date": "2022-09", "label": "Sep 2022", "title": "Started making my own", "line": "YouTube videos and Reels, from the idea to the upload." },
-    { "id": "head", "date": "2023-01", "label": "Jan 2023", "title": "Head of Content and Producer", "line": "Responsible for what got made and how." },
-    { "id": "embassy", "date": "2024-06", "label": "Jun 2024", "title": "Interview at the German Embassy", "line": "Interviewed the embassy's spokesperson, at the embassy." },
-    { "id": "freelance", "date": "2025-12", "label": "Dec 2025", "title": "Went freelance", "line": "Left Bharat in Germany to edit full time for myself." },
-    { "id": "now", "date": "now", "label": "Now", "title": "Freelance creative editor", "line": "Still climbing." }
+    { "id": "vesit", "date": "2017", "label": "2017", "title": "IIT Engineering at VESIT, Mumbai", "struck": "IIT", "line": "Plan A did not happen. Plan B was four years of engineering.", "icon": "gear" },
+    { "id": "first-job", "date": "2021-02", "label": "Feb 2021", "title": "First editing job", "line": "Part-time short form editor at Bharat in Germany, while finishing the degree.", "icon": "scissors" },
+    { "id": "graduated", "date": "2021-06", "label": "Jun 2021", "title": "Graduated, went full time", "line": "The degree was done. Editing became the job.", "icon": "graduation-cap" },
+    { "id": "social-manager", "date": "2022-01", "label": "Jan 2022", "title": "Social media manager", "line": "From cutting the videos to running the channels they went out on.", "icon": "megaphone" },
+    { "id": "own-videos", "date": "2022-09", "label": "Sep 2022", "title": "Started making my own", "line": "YouTube videos and Reels, from the idea to the upload.", "icon": "video-camera" },
+    { "id": "head", "date": "2023-01", "label": "Jan 2023", "title": "Head of Content and Producer", "line": "Responsible for what got made and how.", "icon": "film-slate" },
+    { "id": "embassy", "date": "2024-06", "label": "Jun 2024", "title": "Interview at the German Embassy", "line": "Interviewed the embassy's spokesperson, at the embassy.", "icon": "microphone" },
+    { "id": "freelance", "date": "2025-12", "label": "Dec 2025", "title": "Went freelance", "line": "Left Bharat in Germany to edit full time for myself.", "icon": "paper-plane" },
+    { "id": "now", "date": "now", "label": "Now", "title": "Freelance creative editor", "line": "Still climbing.", "icon": "hiker" }
   ],
-  "caption": { "title": "Olympus Mons, Mars", "line": "The tallest mountain known in the solar system.", "factId": "height-width", "credit": "Image: NASA / JPL-Caltech / USGS / Arizona State University" },
+  "caption": { "title": "Olympus Mons", "line": "The tallest mountain known in the solar system.", "factId": "height-width", "credit": "Image: NASA / JPL-Caltech / USGS / Arizona State University" },
   "ui": { "journey": "Journey", "places": "Places", "more": "More", "less": "Less" },
   "route": [
     { "lon": 232.374, "lat": 18.181 },

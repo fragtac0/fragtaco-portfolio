@@ -31,6 +31,9 @@ const sortKey = (date: string) => {
   return date.length === 4 ? `${date}-01-01` : date.length === 7 ? `${date}-01` : date;
 };
 
+/** The nine icons of the milestones' beads (spec 9.3). */
+export const MOMENT_ICONS = ["gear", "scissors", "graduation-cap", "megaphone", "video-camera", "film-slate", "microphone", "paper-plane", "hiker"] as const;
+
 const MomentSchema = z.object({
   id: text,
   date: MomentDateSchema,
@@ -38,6 +41,7 @@ const MomentSchema = z.object({
   title: text,
   struck: text.optional(),
   line: text,
+  icon: z.enum(MOMENT_ICONS),
 });
 
 const PlaceSchema = z.object({
@@ -70,7 +74,7 @@ function collectDashes(value: unknown, path: (string | number)[], found: (string
 export const ExperienceSchema = z
   .object({
     frame: z.object({ centre: LonLatSchema, spanDeg: z.number().positive() }),
-    heading: z.object({ title: text, text }),
+    heading: z.object({ title: text, text, description: text }),
     moments: z.array(MomentSchema).min(2).refine(hasUniqueIds, uniqueIds),
     caption: z.object({ title: text, line: text, factId: text, credit: text }),
     /** The few words of the map's own controls. */

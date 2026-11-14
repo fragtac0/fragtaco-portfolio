@@ -3,7 +3,7 @@ import {
   arrowStep, enterAt, isArrow, isDoubleTap, keyAction, modeOf, panView, pinchEnd, pinchView, stepAction, wheelAction,
   wheelFactor, DOUBLE_TAP_MS, PAN_SPEED, ZOOM_STEP,
 } from "./map-input-math";
-import { EXPLORE_MIN, fitScale, fitView, MAX_SCALE, type View } from "./view";
+import { EXPLORE_MIN, fitScale, fitView, MAX_SCALE, type View } from "./view-legacy";
 
 const M = { size: 8192 };
 const VW = 1440;
