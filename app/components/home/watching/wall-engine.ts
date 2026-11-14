@@ -6,8 +6,9 @@ import { createWallGl, type WallGl } from "./wall-gl";
 import { countOverlaps, countUnderText, createChoiceLayout, picturesSettled } from "./wall-choice";
 import { createChip, createProbe } from "./wall-hud";
 import { attachWallInput, createWallInput } from "./wall-input";
-import { atlasLayout, cellUv, hitTile, layoutTiles, tileSize, type Atlas } from "./wall-math";
-import { createMotion } from "./wall-motion";
+import { blockPlan, centredPan, loadOrder, sizeOfPlan } from "./wall-block";
+import { atlasLayout, cellUv, hitTile, layoutTiles, type Atlas } from "./wall-math";
+import { applyView, createMotion } from "./wall-motion";
 import { createPose } from "./wall-pose";
 import { createThumbs, type Thumbs } from "./wall-thumbs";
 import {
@@ -19,9 +20,10 @@ import {
 } from "./wall-types";
 
 /**
- * The video wall: every thumbnail on one large, slowly drifting, flat surface, drawn with raw
- * WebGL1 (spec 7). Ported from the `Wall` module of docs/redesign/mockups/home-v4.html. All tiles
- * are one size and one brightness; alternate columns drift the opposite way. Hover is proximity
+ * The video wall: every thumbnail on one finite block of small tiles in a fixed shuffled order, drawn
+ * flat with raw WebGL1 (spec 7, 8.1). Ported from the `Wall` module of docs/redesign/mockups/home-v4.html.
+ * All tiles are one size and one brightness; the block floats a few pixels at rest, is moved by the
+ * pointer, and stops softly at its edges (wall-block.ts: nothing wraps). Hover is proximity
  * only (wall-proximity.ts): tiles near the pointer grow a little and ease away from it, with a
  * faint orange glow under the focused one, no lift and no dimming. The focused video's channel
  * keeps a hairline edge, and thumbnails arrive with a fade. The wall is drawn to a texture and
@@ -108,7 +110,13 @@ export function createWall(
           const a = atlasLayout(videos.length, window.innerWidth < 700);
           atlas = a;
           uvs = a.cells.map((_, i) => cellUv(i, a));
-          thumbs = createThumbs(wgl.gl, a, videos, () => running);
+          thumbs = createThumbs(
+            wgl.gl,
+            a,
+            videos,
+            () => running,
+            loadOrder(blockPlan(a.cells.length, window.innerWidth, window.innerHeight), a.cells.length),
+          );
         },
         () => {
           if (disposed || !wgl) return;
@@ -132,7 +140,16 @@ export function createWall(
     const r = canvas.getBoundingClientRect();
     st.ox = r.left;
     st.oy = r.top;
-    st.size = tileSize(st.vw);
+    const count = atlas?.cells.length ?? videos.length;
+    const plan = blockPlan(count, st.vw, st.vh);
+    // a different block (a first run, a resize that changed its grid): stand it in the middle of the screen
+    const shape = (p: typeof plan) => `${p.cols}x${p.rows}@${p.tileW}`;
+    const reshaped = shape(plan) !== shape(st.plan);
+    st.plan = plan;
+    st.size = sizeOfPlan(plan);
+    if (reshaped) [pan.x, pan.y] = centredPan(plan, st.vw, st.vh);
+    probe("block", `${plan.cols}x${plan.rows}:${Math.round(plan.width)}x${Math.round(plan.height)}`);
+    applyView(st, !REDUCE);
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const W = Math.round(st.vw * dpr);
     const H = Math.round(st.vh * dpr);
@@ -142,7 +159,7 @@ export function createWall(
     }
   }
 
-  const ctx: WallCtx = { canvas, st, running: () => running };
+  const ctx: WallCtx = { canvas, st, running: () => running, count: () => atlas?.cells.length ?? videos.length };
   const input = createWallInput(ctx, opts.onPick, sizes);
 
   // ---- the frame
@@ -153,18 +170,16 @@ export function createWall(
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     const { vw, vh, size } = st;
-    const { cw, ch, pitchX, pitchY } = size;
+    const { cw, ch, pitchX } = size;
     const choosing = st.choice !== null;
     const hovering = FINE && mouse.inside && !st.dragging && !choosing;
     motion.step(dt, hovering);
     const list = layoutTiles({
-      panX: pan.x,
-      panY: pan.y,
+      viewX: st.view.x,
+      viewY: st.view.y,
       vw,
       vh,
-      pitchX,
-      pitchY,
-      t: st.t,
+      plan: st.plan,
       count: atlas.cells.length,
     }) as Tile[];
     if (st.choice) {
@@ -226,6 +241,7 @@ export function createWall(
     chip.place(els?.chip, list, echo.size);
     probe("echo", String(echo.size));
     probe("chosen", st.choice?.key ?? "");
+    if (canvas.dataset.watchView) probe("view", `${Math.round(st.view.x)},${Math.round(st.view.y)}`);
     probe("under", choice ? String(countUnderText(list, choice)) : "0");
     probe("overlaps", choice ? String(countOverlaps(list, choice)) : "0");
     const cur = st.dragging ? "grabbing" : st.hoverKey ? "pointer" : "grab";

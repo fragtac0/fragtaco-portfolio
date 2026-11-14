@@ -1,4 +1,5 @@
-import { tileSize, type LayoutTile, type TileSize } from "./wall-math";
+import { blockPlan, sizeOfPlan, type BlockPlan } from "./wall-block";
+import type { LayoutTile, TileSize } from "./wall-math";
 
 /** The types and shared state of the video wall (the engine, its input and its drawing). */
 
@@ -76,17 +77,22 @@ export type Tile = LayoutTile & {
 export type WallState = {
   /** The wall's clock, seconds (it stops advancing under reduced motion). */
   t: number;
+  /** The block's shape for this screen, and the tile size it stands for. */
+  plan: BlockPlan;
   size: TileSize;
   /** Canvas size, and its offset in the viewport. The tiles live in this flat space; the fish-eye is applied when they are shown. */
   vw: number;
   vh: number;
   ox: number;
   oy: number;
+  /** Where the wall has been pulled to, block space (the screen's top-left corner). It may sit up to 80 px past an edge; `view` is what shows. */
   pan: { x: number; y: number };
+  /** What the screen shows: `pan` through the soft stop, plus the few pixels the block floats at rest. */
+  view: { x: number; y: number };
   vel: { x: number; y: number };
   /** The pointer in flat wall coordinates (already through `edgeUnwarp`). */
   mouse: { x: number; y: number; inside: boolean };
-  /** The tile the keyboard highlight is on, as its column and row indices. */
+  /** The tile the keyboard highlight is on, as its column and row in the block. */
   kbd: { cx: number; cy: number } | null;
   down: { id: number; x: number; y: number; lx: number; ly: number; ts: number } | null;
   dragging: boolean;
@@ -102,12 +108,14 @@ export type WallState = {
 
 export const createWallState = (): WallState => ({
   t: 0,
-  size: tileSize(1280),
+  plan: blockPlan(0, 1280, 800),
+  size: sizeOfPlan(blockPlan(0, 1280, 800)),
   vw: 0,
   vh: 0,
   ox: 0,
   oy: 0,
   pan: { x: 0, y: 0 },
+  view: { x: 0, y: 0 },
   vel: { x: 0, y: 0 },
   mouse: { x: 0, y: 0, inside: false },
   kbd: null,
@@ -123,4 +131,6 @@ export type WallCtx = {
   canvas: HTMLCanvasElement;
   st: WallState;
   running: () => boolean;
+  /** How many videos the wall holds (the atlas's cells). */
+  count: () => number;
 };

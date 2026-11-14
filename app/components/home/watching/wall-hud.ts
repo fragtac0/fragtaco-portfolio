@@ -58,11 +58,13 @@ export function createChip(videos: readonly SiteVideo[], st: WallState): Chip {
  * `data-echo`: how many other videos the focused channel has on the wall. `data-chosen`: the key of
  * the chosen video (empty when none). `data-under`: how many visible tiles stand in the chosen
  * video's text block, and `data-overlaps` how many pairs of visible tiles overlap (both must be 0
- * once the wall is open).
+ * once the wall is open). `data-block`: the block's grid and size (`10x11:1472x963`, set when the screen's size
+ * gives it a new shape). `data-view`: the block-space position the screen shows (`x,y`, rounded), written
+ * only while `data-watch-view` is set on the canvas (the audit sets it), since it changes every frame.
  */
 export function createProbe(canvas: HTMLElement) {
   const last: Record<string, string> = {};
-  return (name: "echo" | "chosen" | "under" | "overlaps", value: string) => {
+  return (name: "echo" | "chosen" | "under" | "overlaps" | "block" | "view", value: string) => {
     if (last[name] === value) return;
     last[name] = value;
     canvas.dataset[name] = value;

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { blockPlan, centredPan, sizeOfPlan } from "./wall-block";
 import { layoutTiles, tileSize } from "./wall-math";
 import { choiceLayout, countOverlaps, picturesSettled } from "./wall-choice";
 import { createPose, type PoseChoice, type PoseInput } from "./wall-pose";
@@ -228,16 +229,15 @@ describe("no two visible tiles overlap once the wall is open", () => {
     [1440, 900],
     [2560, 1440],
   ];
-  const vids = Array.from({ length: 51 }, (_, i) => ({ channel: `c${i % 9}` }));
+  const vids = Array.from({ length: 109 }, (_, i) => ({ channel: `c${i % 9}` }));
   it.each(SIZES)("at %i by %i, whichever tile is chosen and however the wall has drifted", (vw, vh) => {
-    const sz = tileSize(vw);
+    const plan = blockPlan(vids.length, vw, vh);
+    const sz = sizeOfPlan(plan);
+    const [cx0, cy0] = centredPan(plan, vw, vh);
     const { rect, zone } = choiceLayout(vw, vh);
-    for (const [pan, t] of [
-      [0, 0],
-      [137, 31],
-      [511, 90],
-    ]) {
-      const base = layoutTiles({ panX: pan, panY: pan / 3, vw, vh, pitchX: sz.pitchX, pitchY: sz.pitchY, t, count: vids.length });
+    for (const pan of [0, 137, 311]) {
+      const view = { viewX: cx0 + pan, viewY: cy0 + pan / 3, vw, vh, plan, count: vids.length };
+      const base = layoutTiles(view);
       const near = [...base].sort(
         (a, b) =>
           Math.hypot(a.x - vw / 2, a.y - vh / 2) - Math.hypot(b.x - vw / 2, b.y - vh / 2),
@@ -245,7 +245,7 @@ describe("no two visible tiles overlap once the wall is open", () => {
       // the tile nearest the middle, one at the far corner and one in between
       for (const pick of [near[0], near[Math.floor(near.length / 2)], near[near.length - 1]]) {
         const pose = createPose(vids);
-        const list = layoutTiles({ panX: pan, panY: pan / 3, vw, vh, pitchX: sz.pitchX, pitchY: sz.pitchY, t, count: vids.length }).map(
+        const list = layoutTiles(view).map(
           (l): Tile => ({ ...l, f: 0, e: 0, c: 0, dim: 1, fade: 1, cx: 0, cy: 0, w: 0, h: 0, rad: 0 }),
         );
         const c: PoseChoice = { key: pick.key, live: true, rect, zone, halfDiag: Math.hypot(vw / 2, vh / 2) };

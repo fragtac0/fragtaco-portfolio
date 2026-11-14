@@ -15,17 +15,17 @@
  },
  {
   "move": [
-   1400,
-   850
+   1300,
+   800
   ],
   "wait": 600,
   "eval": "new Promise(r=>{const t0=performance.now();const c=document.querySelector('.wall-scene .chip');const i=setInterval(()=>{if(c.classList.contains('on')||performance.now()-t0>3000){clearInterval(i);r([c.classList.contains('on'),c.querySelector('b').textContent.slice(0,50)])}},50)})",
-  "label": "corner-chip"
+  "label": "corner-chip (R52.1: the block is finite, so the very corner of the screen can be ground; this is the tile nearest it)"
  },
  {
   "click": [
-   1400,
-   850
+   1300,
+   800
   ],
   "wait": 300,
   "eval": "[document.querySelector('.vov h3')?.textContent === document.querySelector('.wall-scene .chip b').textContent]",
@@ -39,9 +39,13 @@
   "label": "corner-detail-closed"
  },
  {
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){performance.now()-t0>=1500?r(document.querySelector('.wall-host canvas').dataset.chosen===''):requestAnimationFrame(f)})()})",
+  "label": "settled (the close has ended: no chosen tile)"
+ },
+ {
   "move": [
-   10,
-   10
+   60,
+   300
   ],
   "wait": 300,
   "eval": "new Promise(r=>{const t0=performance.now();const c=document.querySelector('.wall-scene .chip');const i=setInterval(()=>{if(c.classList.contains('on')||performance.now()-t0>3000){clearInterval(i);r([c.classList.contains('on'),c.querySelector('b').textContent.slice(0,50)])}},50)})",
@@ -49,8 +53,8 @@
  },
  {
   "click": [
-   10,
-   10
+   60,
+   300
   ],
   "wait": 300,
   "eval": "[document.querySelector('.vov h3')?.textContent === document.querySelector('.wall-scene .chip b').textContent, getComputedStyle(document.querySelector('.vov')).display]",
@@ -62,6 +66,10 @@
   "wait": 100,
   "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{if(getComputedStyle(document.querySelector('.vov')).display==='none'||performance.now()-t0>3000){clearInterval(i);r(getComputedStyle(document.querySelector('.vov')).display)}},50)})",
   "label": "top-left-detail-closed"
+ },
+ {
+  "eval": "new Promise(r=>{const t0=performance.now();(function f(){performance.now()-t0>=1500?r(document.querySelector('.wall-host canvas').dataset.chosen===''):requestAnimationFrame(f)})()})",
+  "label": "settled (the close has ended: no chosen tile)"
  },
  {
   "move": [
@@ -77,8 +85,8 @@
  },
  {
   "move": [
-   1380,
-   60
+   1300,
+   170
   ],
   "wait": 900,
   "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
@@ -119,6 +127,38 @@
  {
   "eval": "getComputedStyle(document.querySelector(\".vov\")).visibility",
   "label": "detail-after-esc"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");c.dataset.watchView=\"1\";await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const [vx,vy]=c.dataset.view.split(\",\").map(Number);return{block:c.dataset.block,view:c.dataset.view,W:+m[3],H:+m[4],vx,vy,vw:innerWidth,vh:innerHeight}})()",
+  "label": "block-shape (R52.1: grid, size and where the screen is in the block, at 1440 by 900)"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dispatchEvent(new PointerEvent('pointerleave'));c.dataset.watchView='1';await new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=1500?r():requestAnimationFrame(f)})()});const seen=[];const t0=performance.now();await new Promise(r=>(function f(){seen.push(c.dataset.view);performance.now()-t0>=6000?r():requestAnimationFrame(f)})());const xs=seen.map(v=>+v.split(',')[0]),ys=seen.map(v=>+v.split(',')[1]);return{samples:seen.length,spreadX:Math.max(...xs)-Math.min(...xs),spreadY:Math.max(...ys)-Math.min(...ys)}})()",
+  "label": "rests-floating (R52.1: with the pointer off the wall the block floats a few pixels over 6 s: a spread of 2 to 9 px each way, no more)"
+ },
+ {
+  "wheel": [
+   720,
+   450,
+   2000,
+   2000,
+   14
+  ],
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");c.dataset.watchView=\"1\";await new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=1600?r():requestAnimationFrame(f)})()});const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const [vx,vy]=c.dataset.view.split(\",\").map(Number);const W=+m[3],H=+m[4],vw=innerWidth,vh=innerHeight;return{view:c.dataset.view,rightEdgeOnScreen:W-vx,bottomEdgeOnScreen:H-vy,leftEdgeOnScreen:-vx,topEdgeOnScreen:-vy,middleThirdX:[Math.round(vw/3),Math.round(2*vw/3)],middleThirdY:[Math.round(vh/3),Math.round(2*vh/3)],edgeStaysOutOfTheMiddleThird:W-vx>=2*vw/3-1&&W-vx<=W&&H-vy>=2*vh/3-1}})()",
+  "label": "pulled hard down and right: the block's far edges stay out of the screen's middle third"
+ },
+ {
+  "wheel": [
+   720,
+   450,
+   -2000,
+   -2000,
+   28
+  ],
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");c.dataset.watchView=\"1\";await new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=1600?r():requestAnimationFrame(f)})()});const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const [vx,vy]=c.dataset.view.split(\",\").map(Number);const W=+m[3],H=+m[4],vw=innerWidth,vh=innerHeight;return{view:c.dataset.view,rightEdgeOnScreen:W-vx,bottomEdgeOnScreen:H-vy,leftEdgeOnScreen:-vx,topEdgeOnScreen:-vy,middleThirdX:[Math.round(vw/3),Math.round(2*vw/3)],middleThirdY:[Math.round(vh/3),Math.round(2*vh/3)],edgeStaysOutOfTheMiddleThird:-vx<=vw/3+1&&-vy<=vh/3+1}})()",
+  "label": "pulled hard up and left: the block's near edges stay out of the screen's middle third"
  },
  {
   "move": [
@@ -281,6 +321,200 @@
   "wait": 300
  },
  {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "cpu": 1,
+  "go": "{{BASE}}/#watching",
+  "wait": 4500
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-wall-320x568-rest"
+ },
+ {
+  "shot": "local-r52-wall-320x568-rest2"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(400);const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4],vw=innerWidth,vh=innerHeight;const out={block:c.dataset.block,vw,vh,rest:c.dataset.view,coversBothWays:W>vw&&H>vh};for(const [name,sx,sy] of [['pulledDownRight',1,1],['pulledUpLeft',-1,-1]]){for(let i=0;i<30;i++){c.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaX:sx*800,deltaY:sy*800}));await wait(16)}await wait(1500);const [vx,vy]=c.dataset.view.split(',').map(Number);out[name]={view:c.dataset.view,ok:sx>0?(W-vx>=2*vw/3-1&&H-vy>=2*vh/3-1):(-vx<=vw/3+1&&-vy<=vh/3+1)}}return out})()",
+  "label": "R52.1 320x568: block covers the screen both ways where the count allows, and the edges stop outside the middle third"
+ },
+ {
+  "shot": "local-r52-wall-320x568-pulled-up-left"
+ },
+ {
+  "shot": "local-r52-wall-320x568-pulled-up-left2"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   844,
+   390
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "cpu": 1,
+  "go": "{{BASE}}/#watching",
+  "wait": 4500
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-wall-844x390-rest"
+ },
+ {
+  "shot": "local-r52-wall-844x390-rest2"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(400);const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4],vw=innerWidth,vh=innerHeight;const out={block:c.dataset.block,vw,vh,rest:c.dataset.view,coversBothWays:W>vw&&H>vh};for(const [name,sx,sy] of [['pulledDownRight',1,1],['pulledUpLeft',-1,-1]]){for(let i=0;i<30;i++){c.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaX:sx*800,deltaY:sy*800}));await wait(16)}await wait(1500);const [vx,vy]=c.dataset.view.split(',').map(Number);out[name]={view:c.dataset.view,ok:sx>0?(W-vx>=2*vw/3-1&&H-vy>=2*vh/3-1):(-vx<=vw/3+1&&-vy<=vh/3+1)}}return out})()",
+  "label": "R52.1 844x390: block covers the screen both ways where the count allows, and the edges stop outside the middle third"
+ },
+ {
+  "shot": "local-r52-wall-844x390-pulled-up-left"
+ },
+ {
+  "shot": "local-r52-wall-844x390-pulled-up-left2"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   820,
+   1180
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "cpu": 1,
+  "go": "{{BASE}}/#watching",
+  "wait": 4500
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-wall-820x1180-rest"
+ },
+ {
+  "shot": "local-r52-wall-820x1180-rest2"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(400);const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4],vw=innerWidth,vh=innerHeight;const out={block:c.dataset.block,vw,vh,rest:c.dataset.view,coversBothWays:W>vw&&H>vh};for(const [name,sx,sy] of [['pulledDownRight',1,1],['pulledUpLeft',-1,-1]]){for(let i=0;i<30;i++){c.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaX:sx*800,deltaY:sy*800}));await wait(16)}await wait(1500);const [vx,vy]=c.dataset.view.split(',').map(Number);out[name]={view:c.dataset.view,ok:sx>0?(W-vx>=2*vw/3-1&&H-vy>=2*vh/3-1):(-vx<=vw/3+1&&-vy<=vh/3+1)}}return out})()",
+  "label": "R52.1 820x1180: block covers the screen both ways where the count allows, and the edges stop outside the middle third"
+ },
+ {
+  "shot": "local-r52-wall-820x1180-pulled-up-left"
+ },
+ {
+  "shot": "local-r52-wall-820x1180-pulled-up-left2"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "go": "{{BASE}}/#watching",
+  "wait": 4500
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-wall-1440x900-rest"
+ },
+ {
+  "shot": "local-r52-wall-1440x900-rest2"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(400);const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4],vw=innerWidth,vh=innerHeight;const out={block:c.dataset.block,vw,vh,rest:c.dataset.view,coversBothWays:W>vw&&H>vh};for(const [name,sx,sy] of [['pulledDownRight',1,1],['pulledUpLeft',-1,-1]]){for(let i=0;i<30;i++){c.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaX:sx*800,deltaY:sy*800}));await wait(16)}await wait(1500);const [vx,vy]=c.dataset.view.split(',').map(Number);out[name]={view:c.dataset.view,ok:sx>0?(W-vx>=2*vw/3-1&&H-vy>=2*vh/3-1):(-vx<=vw/3+1&&-vy<=vh/3+1)}}return out})()",
+  "label": "R52.1 1440x900: block covers the screen both ways where the count allows, and the edges stop outside the middle third"
+ },
+ {
+  "shot": "local-r52-wall-1440x900-pulled-up-left"
+ },
+ {
+  "shot": "local-r52-wall-1440x900-pulled-up-left2"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "cpu": 1,
+  "go": "{{BASE}}/#watching",
+  "wait": 4000,
+  "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");const g=[];let l=performance.now(),run=true;const f=n=>{g.push(n-l);l=n;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);const ev=(t,x,y,b)=>c.dispatchEvent(new PointerEvent(t,{bubbles:true,pointerId:7,isPrimary:true,pointerType:\"mouse\",button:0,buttons:b,clientX:x,clientY:y}));const sleep=ms=>new Promise(q=>setTimeout(q,ms));ev(\"pointermove\",700,450,0);ev(\"pointerdown\",700,450,1);for(let i=0;i<70;i++){ev(\"pointermove\",700+Math.sin(i/6)*300,450+Math.cos(i/9)*200,1);await sleep(16)}ev(\"pointerup\",700,450,0);for(let i=0;i<60;i++){c.dispatchEvent(new WheelEvent(\"wheel\",{bubbles:true,cancelable:true,deltaX:Math.sin(i/5)*60,deltaY:Math.cos(i/7)*60}));await sleep(16)}await sleep(400);run=false;g.shift();g.sort((a,b)=>a-b);return{n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length}})()",
+  "label": "frames-panning (R52.1, 1440x900, dpr 2: a drag and the wheel moving the block; no frame over 20 ms)"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "cpu": 4,
+  "go": "{{BASE}}/#watching",
+  "wait": 4000,
+  "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");const g=[];let l=performance.now(),run=true;const f=n=>{g.push(n-l);l=n;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);const ev=(t,x,y,b)=>c.dispatchEvent(new PointerEvent(t,{bubbles:true,pointerId:7,isPrimary:true,pointerType:\"mouse\",button:0,buttons:b,clientX:x,clientY:y}));const sleep=ms=>new Promise(q=>setTimeout(q,ms));ev(\"pointermove\",700,450,0);ev(\"pointerdown\",700,450,1);for(let i=0;i<70;i++){ev(\"pointermove\",700+Math.sin(i/6)*300,450+Math.cos(i/9)*200,1);await sleep(16)}ev(\"pointerup\",700,450,0);for(let i=0;i<60;i++){c.dispatchEvent(new WheelEvent(\"wheel\",{bubbles:true,cancelable:true,deltaX:Math.sin(i/5)*60,deltaY:Math.cos(i/7)*60}));await sleep(16)}await sleep(400);run=false;g.shift();g.sort((a,b)=>a-b);return{n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length}})()",
+  "label": "frames-panning-cpu4 (R52.1, 1440x900, dpr 2, CPU 4 times slower)"
+ },
+ {
+  "cpu": 1,
+  "dpr": 1,
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
   "reduce": true,
   "go": "{{BASE}}/#watching",
   "wait": 4000
@@ -307,6 +541,10 @@
   "wait": 100,
   "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
   "label": "reduced-close"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
  },
  {
   "go": "about:blank",

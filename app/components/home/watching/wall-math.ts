@@ -1,20 +1,17 @@
 import type { SiteVideo } from "~/types";
+import { sizeOfPlan, type BlockPlan } from "./wall-block";
 
 /**
- * Pure maths for the video wall: tile sizes, the drifting column layout, the
+ * Pure maths for the video wall: tile sizes, the finite block's layout, the
  * thumbnail atlas, hover hit-testing and the arrival fade. No DOM, no WebGL.
- * Ported from the `Wall` module of docs/redesign/mockups/home-v4.html.
+ * Ported from the `Wall` module of docs/redesign/mockups/home-v4.html; the
+ * block's shape and soft edges are wall-block.ts.
  */
 
-/** Pixels a column drifts per second. */
-export const SPEED = 7;
 /** Number of cells per atlas row. */
 export const ATLAS_COLS = 8;
-/** Columns of videos on the wall; every column wraps over its own videos. */
-export const WALL_COLS = 8;
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
-const mod = (a: number, n: number) => ((a % n) + n) % n;
 
 export type TileSize = {
   cw: number;
@@ -24,19 +21,15 @@ export type TileSize = {
   pitchY: number;
 };
 
+/**
+ * Round 6's tile size at a screen width. The wall's own tiles are about half of it (`blockPlan` in
+ * wall-block.ts); this is what a chosen video's box is still measured against.
+ */
 export function tileSize(vw: number): TileSize {
   const cw = vw < 700 ? vw / 2.15 : clamp(vw / 5.2, 230, 380);
   const ch = (cw * 9) / 16;
   const gap = Math.round(cw * 0.075);
   return { cw, ch, gap, pitchX: cw + gap, pitchY: ch + gap };
-}
-
-/**
- * Vertical offset of a column. Every column drifts at the same speed, and alternate (odd) columns
- * the other way, at 72% of it (the speed the wall had before R36's depth planes, commit c0a0b30^).
- */
-export function columnOffset(t: number, cx: number): number {
-  return t * SPEED * (mod(cx, 2) ? -0.72 : 1) + cx * 53;
 }
 
 /**
@@ -141,38 +134,33 @@ export function thumbUrl(
 
 export type LayoutTile = { key: string; idx: number; x: number; y: number };
 
-/** Every tile in view, plus a one-pitch margin for tiles pushed in from the edge. */
+/**
+ * Every tile of the block in view, plus a one-pitch margin for tiles pushed in from the edge. Tile
+ * (`cx`, `cy`) holds video `cy * cols + cx` (none past `count`), and its key is "cx,cy". `viewX` and
+ * `viewY` are the block-space position of the screen's top-left corner. The block is finite: nothing
+ * is drawn beyond its edges.
+ */
 export function layoutTiles(p: {
-  panX: number;
-  panY: number;
+  viewX: number;
+  viewY: number;
   vw: number;
   vh: number;
-  pitchX: number;
-  pitchY: number;
-  t: number;
+  plan: Pick<BlockPlan, "cols" | "rows" | "tileW" | "tileH" | "gap">;
   count: number;
 }): LayoutTile[] {
-  const { panX, panY, vw, vh, pitchX, pitchY, t, count } = p;
-  const cols = WALL_COLS;
+  const { viewX, viewY, vw, vh, plan, count } = p;
+  const { pitchX, pitchY } = sizeOfPlan(plan);
   const out: LayoutTile[] = [];
-  if (count <= 0) return out;
-  const m = pitchX;
-  const c1 = Math.floor((panX + vw + m) / pitchX);
-  for (let cx = Math.floor((panX - m) / pitchX); cx <= c1; cx++) {
-    const off = columnOffset(t, cx);
-    const c = mod(cx, cols);
-    // with fewer videos than columns, the spare columns stay empty
-    if (c >= count) continue;
-    // a column holds videos c, c + cols, c + 2 * cols, ... below `count`
-    const lenc = Math.max(1, Math.floor((count - 1 - c) / cols) + 1);
-    const y1 = Math.floor((panY + off + vh + m) / pitchY);
-    for (let cy = Math.floor((panY + off - m) / pitchY); cy <= y1; cy++) {
-      out.push({
-        key: `${cx},${cy}`,
-        idx: c + cols * mod(cy, lenc),
-        x: cx * pitchX - panX,
-        y: cy * pitchY - panY - off,
-      });
+  if (count <= 0 || plan.cols <= 0 || plan.rows <= 0) return out;
+  const c0 = Math.max(0, Math.floor((viewX - pitchX) / pitchX));
+  const c1 = Math.min(plan.cols - 1, Math.floor((viewX + vw + pitchX) / pitchX));
+  const r0 = Math.max(0, Math.floor((viewY - pitchY) / pitchY));
+  const r1 = Math.min(plan.rows - 1, Math.floor((viewY + vh + pitchY) / pitchY));
+  for (let cy = r0; cy <= r1; cy++) {
+    for (let cx = c0; cx <= c1; cx++) {
+      const idx = cy * plan.cols + cx;
+      if (idx >= count) continue; // the empty end of the last row
+      out.push({ key: `${cx},${cy}`, idx, x: cx * pitchX - viewX, y: cy * pitchY - viewY });
     }
   }
   return out;

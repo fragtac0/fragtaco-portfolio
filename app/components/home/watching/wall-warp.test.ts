@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { layoutTiles, hitTile, tileSize } from "./wall-math";
+import { blockPlan, centredPan, sizeOfPlan } from "./wall-block";
+import { layoutTiles, hitTile } from "./wall-math";
 import { WARP_INNER, WARP_MAX, edgeUnwarp, edgeWarp, warpMargin, warpShift } from "./wall-warp";
 
 const sizes: Array<[number, number]> = [
@@ -116,17 +117,11 @@ describe("a click at a warped corner", () => {
   it("hits the tile drawn there", () => {
     const vw = 1440;
     const vh = 900;
-    const size = tileSize(vw);
-    const tiles = layoutTiles({
-      panX: 37,
-      panY: 12,
-      vw,
-      vh,
-      pitchX: size.pitchX,
-      pitchY: size.pitchY,
-      t: 0,
-      count: 51,
-    });
+    // a block bigger than the screen, the view in the middle of it
+    const plan = blockPlan(400, vw, vh);
+    const size = sizeOfPlan(plan);
+    const [px, py] = centredPan(plan, vw, vh);
+    const tiles = layoutTiles({ viewX: px + 37, viewY: py + 12, vw, vh, plan, count: 400 });
     // every tile that shows on screen: click where its warped centre is, get that tile back
     let checked = 0;
     let corner = 0;
@@ -145,17 +140,10 @@ describe("a click at a warped corner", () => {
   it("takes the tile at the very corner of the screen", () => {
     const vw = 1440;
     const vh = 900;
-    const size = tileSize(vw);
-    const tiles = layoutTiles({
-      panX: 0,
-      panY: 0,
-      vw,
-      vh,
-      pitchX: size.pitchX,
-      pitchY: size.pitchY,
-      t: 0,
-      count: 51,
-    });
+    const plan = blockPlan(400, vw, vh);
+    const size = sizeOfPlan(plan);
+    const [px, py] = centredPan(plan, vw, vh);
+    const tiles = layoutTiles({ viewX: px, viewY: py, vw, vh, plan, count: 400 });
     for (const [sx, sy] of [
       [2, 2],
       [vw - 2, 2],

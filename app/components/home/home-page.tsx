@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { getHomePageContent } from "../../content/loaders.server";
 import SiteNav from "../site-nav";
 import InterestBlocks from "./blocks/interest-blocks";
@@ -12,6 +12,7 @@ import { layerFromHash, type LayerKind } from "./layer/layer-state";
 import { useLayerHistory } from "./layer/use-layer-history";
 import ReadingScene from "./reading/reading-scene";
 import { useSceneEngines } from "./use-scene-engines";
+import { wallOrder } from "./watching/wall-block";
 import WatchingScene from "./watching/watching-scene";
 
 /** What the home route's loader sends, which is exactly what the page takes. */
@@ -32,10 +33,13 @@ export default function HomePage({
   heroPaintings,
   firstPaintingId,
   books,
-  videos,
+  videos: playlist,
   navigationItems,
   socialLinks,
 }: HomePageProps) {
+  // the playlist, shuffled once with a fixed seed: the wall, its plain grid and the block's preview all
+  // show this order, so it is the same on every visit and on the server
+  const videos = useMemo(() => wallOrder(playlist), [playlist]);
   const heroRef = useRef<HeroHandle>(null);
   const [nav, dispatchNav] = useReducer(navReducer, "hidden");
   // The gesture gate: the cards hook keeps heroVisible current; a later task sets layerOpen.
