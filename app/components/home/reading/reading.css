@@ -44,6 +44,10 @@
 :is(.home-layer, .box-scene) .shelf-marker.off {
   opacity: 0;
 }
+/* in the home box and while it opens the scene is a small picture of the page: the marker is not part of it, and fades in once the page is open */
+.box-scene:not([data-at="open"]) .shelf-marker {
+  opacity: 0;
+}
 :is(.home-layer, .box-scene) .shelf-marker[hidden] {
   display: none;
 }

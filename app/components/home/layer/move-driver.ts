@@ -130,11 +130,14 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
       parts.slot?.appendChild(scene);
       return;
     }
-    const [vw, vh] = windowSize();
     scene.dataset.at = to;
     if (f) writeScene(f, radius);
-    scene.style.setProperty("--vw", `${vw}px`);
-    scene.style.setProperty("--vh", `${vh}px`);
+    if (to === "move") {
+      // the plain grid is laid out for the whole window while the frame grows round it (layer.css)
+      const [vw, vh] = windowSize();
+      scene.style.setProperty("--vw", `${vw}px`);
+      scene.style.setProperty("--vh", `${vh}px`);
+    }
     if (scene.parentElement !== stage) stage.appendChild(scene);
   }
 

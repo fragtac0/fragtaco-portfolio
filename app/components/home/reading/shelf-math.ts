@@ -151,14 +151,15 @@ export const HEAD_GAP = 8;
 /**
  * The header's height before it has been measured (`headerBottom`), worked out from layer.css: a
  * 120 px minimum, or its top padding (20 px under 700 px wide, else 4% of the width from 28 to 56),
- * the title (`--t-title`: 2.4% of the width from 24 to 38 px, line height 0.84), 8 px, the 13 px
- * meta line (19.5 px) and 22 px under it. It matches the measured header to the pixel at 1440 and
- * 2560 wide, so the first fit of a mount rarely has to repaint the spines.
+ * the title (`--t-title`: 2.4% of the width from 24 to 38 px, line height 0.84), the 10 px gap, the 13 px
+ * meta line (line height 1.3, 16.9 px) and 22 px under it. It matches the measured header to the pixel
+ * at 1440 and 2560 wide (round 7 follow-ups, Task 25: the shelf in a home box is fitted with this guess, as
+ * there is no header there, and the open page's fit must be the same picture, so the move has no jump at its end).
  */
 export function headGuess(vw: number): number {
   const pad = vw < 700 ? 20 : clamp(0.04 * vw, 28, 56);
   const title = 0.84 * clamp(0.024 * vw, 24, 38);
-  return Math.max(120, Math.ceil(pad + title + 8 + 19.5 + 22));
+  return Math.max(120, Math.ceil(pad + title + 10 + 16.9 + 22));
 }
 
 /**

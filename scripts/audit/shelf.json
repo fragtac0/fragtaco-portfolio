@@ -669,15 +669,14 @@
   "wait": 6000
  },
  {
-  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
-  "wait": 3500,
-  "label": "1440x900: scroll to the block"
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "1440x900:: scroll to the block (and wait for its scene to draw into the box: how long)"
  },
  {
   "film": {
    "ms": 2600,
-   "rect": "#blkRead",
-   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
    "flat": 3,
    "share": 1.01,
    "keep": "local-reading-1440x900-open",
@@ -693,11 +692,11 @@
     1800
    ]
   },
-  "label": "R49.2 shelf open, 1440x900: no frame is the plain ground"
+  "label": "R49.2 shelf open, 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
-  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityWhenDrawn:i<0?null:a[i][2],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0})})()",
-  "label": "shelf open, 1440x900: the picture stays until the scene has drawn (stage hidden before, poster opaque before, dissolving after)"
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
  },
  {
   "wait": 1500
@@ -705,7 +704,7 @@
  {
   "film": {
    "ms": 2000,
-   "rect": "#blkRead",
+   "rect": "#blkRead .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
    "flat": 3,
    "share": 1.01,
@@ -720,7 +719,11 @@
     1000
    ]
   },
-  "label": "R49.2 shelf close, 1440x900: no frame is the plain ground"
+  "label": "R49.2 shelf close, 1440x900:: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
  },
  {
   "size": [
@@ -737,18 +740,17 @@
   "wait": 6000
  },
  {
-  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
-  "wait": 3500,
-  "label": "1440x900, cpu x6 (a cold scene): scroll to the block"
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "cpu x6 1440x900 (a cold scene):: scroll to the block (and wait for its scene to draw into the box: how long)"
  },
  {
   "film": {
    "ms": 2600,
-   "rect": "#blkRead",
-   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-1440x900, cpu x6 (a cold scene)-open",
+   "keep": "local-reading-cpu-x6-1440x900-(a-cold-scene)-open",
    "ats": [
     0,
     100,
@@ -761,11 +763,11 @@
     1800
    ]
   },
-  "label": "R49.2 shelf open, 1440x900, cpu x6 (a cold scene): no frame is the plain ground"
+  "label": "R49.2 shelf open, cpu x6 1440x900 (a cold scene):: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
-  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityWhenDrawn:i<0?null:a[i][2],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0})})()",
-  "label": "shelf open, 1440x900, cpu x6 (a cold scene): the picture stays until the scene has drawn (stage hidden before, poster opaque before, dissolving after)"
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, cpu x6 1440x900 (a cold scene):: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
  },
  {
   "wait": 1500
@@ -773,11 +775,11 @@
  {
   "film": {
    "ms": 2000,
-   "rect": "#blkRead",
+   "rect": "#blkRead .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-1440x900, cpu x6 (a cold scene)-close",
+   "keep": "local-reading-cpu-x6-1440x900-(a-cold-scene)-close",
    "ats": [
     0,
     150,
@@ -788,7 +790,11 @@
     1000
    ]
   },
-  "label": "R49.2 shelf close, 1440x900, cpu x6 (a cold scene): no frame is the plain ground"
+  "label": "R49.2 shelf close, cpu x6 1440x900 (a cold scene):: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, cpu x6 1440x900 (a cold scene):: the scene is back in its box, focus on the block's button, the home page unsunk"
  },
  {
   "size": [
@@ -805,18 +811,17 @@
   "wait": 6000
  },
  {
-  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
-  "wait": 3500,
-  "label": "390x844 phone: scroll to the block"
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "390x844 phone:: scroll to the block (and wait for its scene to draw into the box: how long)"
  },
  {
   "film": {
    "ms": 2600,
-   "rect": "#blkRead",
-   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-390x844 phone-open",
+   "keep": "local-reading-390x844-phone-open",
    "ats": [
     0,
     100,
@@ -829,11 +834,11 @@
     1800
    ]
   },
-  "label": "R49.2 shelf open, 390x844 phone: no frame is the plain ground"
+  "label": "R49.2 shelf open, 390x844 phone:: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
-  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityWhenDrawn:i<0?null:a[i][2],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0})})()",
-  "label": "shelf open, 390x844 phone: the picture stays until the scene has drawn (stage hidden before, poster opaque before, dissolving after)"
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, 390x844 phone:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
  },
  {
   "wait": 1500
@@ -841,11 +846,11 @@
  {
   "film": {
    "ms": 2000,
-   "rect": "#blkRead",
+   "rect": "#blkRead .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-390x844 phone-close",
+   "keep": "local-reading-390x844-phone-close",
    "ats": [
     0,
     150,
@@ -856,7 +861,11 @@
     1000
    ]
   },
-  "label": "R49.2 shelf close, 390x844 phone: no frame is the plain ground"
+  "label": "R49.2 shelf close, 390x844 phone:: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, 390x844 phone:: the scene is back in its box, focus on the block's button, the home page unsunk"
  },
  {
   "size": [
@@ -873,18 +882,17 @@
   "wait": 6000
  },
  {
-  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
-  "wait": 3500,
-  "label": "1440x900 reduced motion: scroll to the block"
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "reduced motion 1440x900:: scroll to the block (and wait for its scene to draw into the box: how long)"
  },
  {
   "film": {
    "ms": 2600,
-   "rect": "#blkRead",
-   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-1440x900 reduced motion-open",
+   "keep": "local-reading-reduced-motion-1440x900-open",
    "ats": [
     0,
     100,
@@ -897,11 +905,11 @@
     1800
    ]
   },
-  "label": "R49.2 shelf open, 1440x900 reduced motion: no frame is the plain ground"
+  "label": "R49.2 shelf open, reduced motion 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
-  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityWhenDrawn:i<0?null:a[i][2],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0})})()",
-  "label": "shelf open, 1440x900 reduced motion: the picture stays until the scene has drawn (stage hidden before, poster opaque before, dissolving after)"
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, reduced motion 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
  },
  {
   "wait": 1500
@@ -909,11 +917,11 @@
  {
   "film": {
    "ms": 2000,
-   "rect": "#blkRead",
+   "rect": "#blkRead .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-1440x900 reduced motion-close",
+   "keep": "local-reading-reduced-motion-1440x900-close",
    "ats": [
     0,
     150,
@@ -924,7 +932,11 @@
     1000
    ]
   },
-  "label": "R49.2 shelf close, 1440x900 reduced motion: no frame is the plain ground"
+  "label": "R49.2 shelf close, reduced motion 1440x900:: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, reduced motion 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
  },
  {
   "size": [
@@ -936,23 +948,22 @@
   "touch": false,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');}catch(e){}",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
   "go": "{{BASE}}/?nogl=1",
   "wait": 6000
  },
  {
-  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
-  "wait": 3500,
-  "label": "?nogl=1 shelf: scroll to the block"
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "nogl 1440x900:: scroll to the block (and wait for its scene to draw into the box: how long)"
  },
  {
   "film": {
    "ms": 2600,
-   "rect": "#blkRead",
-   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-nogl-open",
+   "keep": "local-reading-nogl-1440x900-open",
    "ats": [
     0,
     250,
@@ -963,23 +974,23 @@
     1800
    ]
   },
-  "label": "R49.2b shelf open with ?nogl=1 (poster, then the plain grid at open): no frame is the plain ground"
+  "label": "R49.2 shelf open, nogl 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
-  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0,grid:!!(l&&l.querySelector('.fb-grid')),canvas:!!(l&&l.querySelector('canvas')),ready:!!(l&&l.classList.contains('ready')),posterEmpty:!(document.querySelector('.layer-poster')||{}).firstChild})})()",
-  "label": "R49.2b shelf open with ?nogl=1 (poster, then the plain grid at open): no frame is the plain ground (read)"
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, nogl 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
  },
  {
-  "wait": 1000
+  "wait": 1500
  },
  {
   "film": {
    "ms": 2000,
-   "rect": "#blkRead",
+   "rect": "#blkRead .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-nogl-close",
+   "keep": "local-reading-nogl-1440x900-close",
    "ats": [
     0,
     150,
@@ -990,7 +1001,11 @@
     1000
    ]
   },
-  "label": "R49.2b shelf close with ?nogl=1 (the grid shrinks): no frame is the plain ground"
+  "label": "R49.2 shelf close, nogl 1440x900:: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, nogl 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
  },
  {
   "size": [
@@ -1007,18 +1022,17 @@
   "wait": 6000
  },
  {
-  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
-  "wait": 3500,
-  "label": "R49.2b shelf stalled for ever (prepare never finishes): poster, then the plain grid, no bare frame: scroll to the block"
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "stall-hang 1440x900:: scroll to the block (and wait for its scene to draw into the box: how long)"
  },
  {
   "film": {
    "ms": 4500,
-   "rect": "#blkRead",
-   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-stall-hang-open",
+   "keep": "local-reading-stall-hang-1440x900-open",
    "ats": [
     0,
     400,
@@ -1032,23 +1046,23 @@
     4000
    ]
   },
-  "label": "R49.2b shelf stalled for ever (prepare never finishes): poster, then the plain grid, no bare frame"
+  "label": "R49.2 shelf open, stall-hang 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
-  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0,grid:!!(l&&l.querySelector('.fb-grid')),canvas:!!(l&&l.querySelector('canvas')),ready:!!(l&&l.classList.contains('ready')),posterEmpty:!(document.querySelector('.layer-poster')||{}).firstChild})})()",
-  "label": "R49.2b shelf stalled for ever (prepare never finishes): poster, then the plain grid, no bare frame (read: grid shown, no 3D canvas, drawnAtMs about 680 + 1500)"
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, stall-hang 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
  },
  {
-  "wait": 1000
+  "wait": 1500
  },
  {
   "film": {
    "ms": 2000,
-   "rect": "#blkRead",
+   "rect": "#blkRead .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-stall-hang-close",
+   "keep": "local-reading-stall-hang-1440x900-close",
    "ats": [
     0,
     150,
@@ -1059,7 +1073,11 @@
     1000
    ]
   },
-  "label": "R49.2b shelf stalled for ever (prepare never finishes): poster, then the plain grid, no bare frame close: no frame is the plain ground"
+  "label": "R49.2 shelf close, stall-hang 1440x900:: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, stall-hang 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
  },
  {
   "size": [
@@ -1076,18 +1094,17 @@
   "wait": 6000
  },
  {
-  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
-  "wait": 3500,
-  "label": "R49.2b shelf stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame: scroll to the block"
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "stall-late 1440x900:: scroll to the block (and wait for its scene to draw into the box: how long)"
  },
  {
   "film": {
    "ms": 4500,
-   "rect": "#blkRead",
-   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const p=document.querySelector('.layer-poster');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,p?+(+getComputedStyle(p).opacity).toFixed(2):null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-stall-late-open",
+   "keep": "local-reading-stall-late-1440x900-open",
    "ats": [
     0,
     400,
@@ -1101,37 +1118,30 @@
     4000
    ]
   },
-  "label": "R49.2b shelf stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame"
+  "label": "R49.2 shelf open, stall-late 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
  },
  {
-  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');return JSON.stringify({samples:a.length,drawnAtMs:i<0?null:a[i][0],posterOpacityBefore:a.slice(0,Math.max(i,0)).every(r=>r[2]===null||r[2]===1),stageHiddenBefore:i>0,grid:!!(l&&l.querySelector('.fb-grid')),canvas:!!(l&&l.querySelector('canvas')),ready:!!(l&&l.classList.contains('ready')),posterEmpty:!(document.querySelector('.layer-poster')||{}).firstChild})})()",
-  "label": "R49.2b shelf stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame (read: grid shown, no 3D canvas, drawnAtMs about 680 + 1500)"
- },
- {
-  "wait": 3000
- },
- {
-  "eval": "JSON.stringify({sincePageStartMs:Math.round(performance.now()),gridStill:!!document.querySelector('.home-layer .fb-grid'),canvas:!!document.querySelector('.home-layer canvas')})",
-  "label": "R49.2b shelf stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame: the late first frame came and the view did not flip back (grid still, no canvas)"
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, stall-late 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
  },
  {
   "wait": 5000
  },
  {
-  "eval": "JSON.stringify({sincePageStartMs:Math.round(performance.now()),gridStill:!!document.querySelector('.home-layer .fb-grid'),canvas:!!document.querySelector('.home-layer canvas')})",
-  "label": "R49.2b shelf stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame: the late first frame came and the view did not flip back (grid still, no canvas) (again, 5 s later, past 12.5 s plus the time the preparation was asked for)"
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf stall-late 1440x900:: five seconds on, the view is still the plain grid with no canvas (the late scene does not flip it back)"
  },
  {
-  "wait": 1000
+  "wait": 1500
  },
  {
   "film": {
    "ms": 2000,
-   "rect": "#blkRead",
+   "rect": "#blkRead .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
    "flat": 3,
    "share": 1.01,
-   "keep": "local-reading-stall-late-close",
+   "keep": "local-reading-stall-late-1440x900-close",
    "ats": [
     0,
     150,
@@ -1142,7 +1152,11 @@
     1000
    ]
   },
-  "label": "R49.2b shelf stalled past the give-up (prepare finishes about 800 ms after the grid took over, 12.5 s after the page started): grid stays, no bare frame close: no frame is the plain ground"
+  "label": "R49.2 shelf close, stall-late 1440x900:: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, stall-late 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
  },
  {
   "size": [
@@ -1154,60 +1168,8 @@
   "touch": false,
   "reduce": false,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-stall','hang')}catch(e){}",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.removeItem('ft:debug-stall')}catch(e){}",
   "go": "{{BASE}}/",
-  "wait": 6000
- },
- {
-  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
-  "wait": 3500,
-  "label": "R49.2b shelf resize while the picture stands in: scroll to the block"
- },
- {
-  "eval": "(()=>{document.querySelector('[data-xp=reading]').click();return new Promise(r=>{const t=performance.now();const f=()=>performance.now()-t>800?r(1):requestAnimationFrame(f);f()})})()",
-  "label": "open (stalled), 0.8 s in"
- },
- {
-  "eval": "(()=>{const r=document.querySelector('.layer-poster').getBoundingClientRect();return JSON.stringify({vw:innerWidth,vh:innerHeight,left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom),covers:r.left<=0.5&&r.top<=0.5&&r.right>=innerWidth-0.5&&r.bottom>=innerHeight-0.5,hasPicture:!!document.querySelector('.layer-poster').firstChild})})()",
-  "label": "R49.2b shelf resize while the picture stands in: at 1440 by 900 the picture covers the screen"
- },
- {
-  "size": [
-   900,
-   700
-  ],
-  "dpr": 1,
-  "mobile": false,
-  "touch": false
- },
- {
-  "eval": "new Promise(r=>{const t=performance.now();const f=()=>performance.now()-t>300?r(1):requestAnimationFrame(f);f()}).then(()=>(()=>{const r=document.querySelector('.layer-poster').getBoundingClientRect();return JSON.stringify({vw:innerWidth,vh:innerHeight,left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom),covers:r.left<=0.5&&r.top<=0.5&&r.right>=innerWidth-0.5&&r.bottom>=innerHeight-0.5,hasPicture:!!document.querySelector('.layer-poster').firstChild})})())",
-  "label": "R49.2b shelf resize while the picture stands in: after resizing to 900 by 700 it covers the screen"
- },
- {
-  "size": [
-   420,
-   860
-  ],
-  "dpr": 1,
-  "mobile": false,
-  "touch": false
- },
- {
-  "eval": "new Promise(r=>{const t=performance.now();const f=()=>performance.now()-t>300?r(1):requestAnimationFrame(f);f()}).then(()=>(()=>{const r=document.querySelector('.layer-poster').getBoundingClientRect();return JSON.stringify({vw:innerWidth,vh:innerHeight,left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom),covers:r.left<=0.5&&r.top<=0.5&&r.right>=innerWidth-0.5&&r.bottom>=innerHeight-0.5,hasPicture:!!document.querySelector('.layer-poster').firstChild})})())",
-  "label": "R49.2b shelf resize while the picture stands in: after resizing to 420 by 860 it covers the screen"
- },
- {
-  "size": [
-   2200,
-   1300
-  ],
-  "dpr": 1,
-  "mobile": false,
-  "touch": false
- },
- {
-  "eval": "new Promise(r=>{const t=performance.now();const f=()=>performance.now()-t>300?r(1):requestAnimationFrame(f);f()}).then(()=>(()=>{const r=document.querySelector('.layer-poster').getBoundingClientRect();return JSON.stringify({vw:innerWidth,vh:innerHeight,left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom),covers:r.left<=0.5&&r.top<=0.5&&r.right>=innerWidth-0.5&&r.bottom>=innerHeight-0.5,hasPicture:!!document.querySelector('.layer-poster').firstChild})})())",
-  "label": "R49.2b shelf resize while the picture stands in: after resizing to 2200 by 1300 (larger than the screen it opened on, where a stale pose would leave bare strips) it covers the screen"
+  "wait": 500
  }
 ]

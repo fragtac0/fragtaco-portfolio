@@ -37,8 +37,8 @@ const HEAD: Record<string, number> = {
   "820x1180": 120,
   "844x390": 120,
   "1024x768": 120,
-  "1440x900": 135,
-  "2560x1440": 138,
+  "1440x900": 134,
+  "2560x1440": 137,
 };
 const headAt = (vw: number, vh: number) => HEAD[`${vw}x${vh}`];
 
@@ -164,7 +164,7 @@ describe("flatFrame", () => {
   });
   it("guesses the header's height before it is measured, as measured at the review sizes", () => {
     for (const [vw, vh] of ALL_SIZES) expect(headGuess(vw), `${vw} by ${vh}`).toBe(headAt(vw, vh));
-    expect(headGuess(1280)).toBe(127); // 51.2 + 25.8 + 8 + 19.5 + 22 = 126.5
+    expect(headGuess(1280)).toBe(126); // 51.2 + 25.8 + 10 + 16.9 + 22 = 125.9
     expect(headGuess(699)).toBe(120);
   });
   for (const [vw, vh] of ALL_SIZES) {

@@ -37,7 +37,7 @@ await new Promise(r => ws.addEventListener("open", r, { once: true }));
 let id = 0; const pending = new Map();
 const requested = []; // every request the page made since the last `requests` step
 const castFrames = []; // screencast frames of the `film` step: every frame the compositor produced, not one in a while
-ws.addEventListener("message", e => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } else if (m.method === "Network.requestWillBeSent") requested.push(m.params.request.url); else if (m.method === "Fetch.requestPaused") answerPaused(m.params); else if (m.method === "Page.screencastFrame") { castFrames.push({ t: performance.now(), data: m.params.data }); ws.send(JSON.stringify({ id: ++id, method: "Page.screencastFrameAck", params: { sessionId: m.params.sessionId } })); } });
+ws.addEventListener("message", e => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } else if (m.method === "Network.requestWillBeSent") requested.push(m.params.request.url); else if (m.method === "Fetch.requestPaused") answerPaused(m.params); else if (m.method === "Page.screencastFrame") { castFrames.push({ t: performance.now(), ts: (m.params.metadata?.timestamp ?? 0) * 1000, data: m.params.data }); ws.send(JSON.stringify({ id: ++id, method: "Page.screencastFrameAck", params: { sessionId: m.params.sessionId } })); } });
 // A call the page never answers (a step that waits for something that did not happen, a throttled tab) used to stall the whole run for ever:
 // it now gives up after CDP_TIMEOUT_MS (default 180 s), says so on stderr and goes on, with `{ error: { message: "timeout" } }` for an answer.
 const SEND_TIMEOUT = Number(process.env.CDP_TIMEOUT_MS ?? 180000);
@@ -125,7 +125,7 @@ async function runFilm(f, label) {
   const dark = f.dark ?? 20, share = f.share ?? 0.75;
   castFrames.length = 0;
   if (f.tiles) await send("Page.bringToFront"); // a long film of a slow load must not be throttled as a background page
-  await send("Page.startScreencast", { format: "jpeg", quality: 40, everyNthFrame: 1 });
+  await send("Page.startScreencast", { format: "jpeg", quality: f.quality ?? 40, everyNthFrame: 1 });
   const t0 = performance.now();
   if (f.eval) void send("Runtime.evaluate", { expression: f.eval, awaitPromise: true, returnByValue: true });
   await sleep(f.ms);
@@ -138,6 +138,8 @@ async function runFilm(f, label) {
     box = r.result?.result?.value ?? null;
   }
   for (const fr of frames) { const v = (await send("Runtime.evaluate", { expression: FILM_LUMA(fr.data, dark, box), awaitPromise: true, returnByValue: true })).result?.result?.value ?? [1, 0]; rows.push({ at: Math.round(fr.t - t0), share: +v[0].toFixed(2), mean: +v[1].toFixed(1), std: +(v[2] ?? 99).toFixed(2), data: fr.data }); }
+  // `analyze`: a function's source, run in the page on every frame in turn as `(b64, { at, ts })` (`ts`: the frame's own time in ms since the epoch, the page's `performance.timeOrigin + performance.now()` clock), awaited, in order; it keeps what it finds in the page (R55.2: the box-open film reads each frame against what the page recorded on its own frames)
+  if (f.analyze) for (const [i, fr] of frames.entries()) await send("Runtime.evaluate", { expression: `(${f.analyze})(${JSON.stringify(fr.data)}, ${JSON.stringify({ at: rows[i].at, ts: fr.ts, i })})`, awaitPromise: true, returnByValue: true });
   // `tiles`: a video wall's tiles showing in each frame (see TILE_SAMPLES: each frame against the same page with the wall hidden); the frames where the wall is blank after it has been seen are the gap this catches
   let tileReport;
   if (f.tiles) {
