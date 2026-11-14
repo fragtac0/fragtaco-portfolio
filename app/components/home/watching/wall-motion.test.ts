@@ -191,6 +191,7 @@ describe("createMotion under reduced motion", () => {
     st.vel.x = 500;
     m.step(1 / 60, false);
     expect(st.pan.x).toBeCloseTo(x1 - SOFT_EDGE, 6);
+    expect(st.vel.x).toBe(0); // the pull at the limit stopped the momentum
   });
 
   it("has no float: the view is the soft-stopped pan, and the clock stands still", () => {

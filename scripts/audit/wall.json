@@ -7,7 +7,7 @@
   "go": "{{BASE}}/#watching",
   "wait": 4000,
   "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<3000)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)})",
-  "label": "frames-drift"
+  "label": "frames-rest (R52.2 carry-over: the block at rest floats a few pixels, nothing drifts; 3 s of frames)"
  },
  {
   "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");const r=c.getBoundingClientRect();const p=new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<2500)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)});for(let i=0;i<60;i++){c.dispatchEvent(new PointerEvent(\"pointermove\",{bubbles:true,clientX:r.left+r.width*(0.1+0.8*i/60),clientY:r.top+r.height*(0.3+0.4*(i%7)/7),pointerType:\"mouse\"}));await new Promise(q=>setTimeout(q,30))}return p})()",
@@ -159,6 +159,155 @@
   "wait": 100,
   "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");c.dataset.watchView=\"1\";await new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=1600?r():requestAnimationFrame(f)})()});const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const [vx,vy]=c.dataset.view.split(\",\").map(Number);const W=+m[3],H=+m[4],vw=innerWidth,vh=innerHeight;return{view:c.dataset.view,rightEdgeOnScreen:W-vx,bottomEdgeOnScreen:H-vy,leftEdgeOnScreen:-vx,topEdgeOnScreen:-vy,middleThirdX:[Math.round(vw/3),Math.round(2*vw/3)],middleThirdY:[Math.round(vh/3),Math.round(2*vh/3)],edgeStaysOutOfTheMiddleThird:-vx<=vw/3+1&&-vy<=vh/3+1}})()",
   "label": "pulled hard up and left: the block's near edges stay out of the screen's middle third"
+ },
+ {
+  "move": [
+   720,
+   450
+  ],
+  "wait": 300
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 camera: the view before a middle tile is clicked (the pointer is on the wall, so the float has settled)"
+ },
+ {
+  "click": [
+   720,
+   450
+  ],
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1300);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.moved;return r})()",
+  "label": "R52.2 camera, middle tile: the wall slid (moved), the chosen tile is on the picture's place at its size (onPlace), the view stays in the block's range, nothing under the text, no overlaps (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-middle-open"
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39,
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1000);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.changedChoice&&r.moved;return r})()",
+  "label": "R52.2 camera, arrow right: the choice moved, the camera followed (moved), the new tile is on the place (ok)"
+ },
+ {
+  "key": "ArrowDown",
+  "vk": 40,
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1000);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.changedChoice&&r.moved;return r})()",
+  "label": "R52.2 camera, arrow down: the choice moved, the camera followed (moved), the new tile is on the place (ok)"
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37,
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1000);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.changedChoice&&r.moved;return r})()",
+  "label": "R52.2 camera, arrow left: the choice moved, the camera followed (moved), the new tile is on the place (ok)"
+ },
+ {
+  "key": "ArrowUp",
+  "vk": 38,
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1000);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.changedChoice&&r.moved;return r})()",
+  "label": "R52.2 camera, arrow up: the choice moved, the camera followed (moved), the new tile is on the place (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-arrows"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const t0=performance.now();while(getComputedStyle(document.querySelector('.vov')).display!=='none'&&performance.now()-t0<3000)await new Promise(r=>requestAnimationFrame(r));const ms=Math.round(performance.now()-t0);const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const v=c.dataset.view.split(',').map(Number);const v0=(window.__v0||'').split(',').map(Number);const back=Math.abs(v[0]-v0[0])<=9&&Math.abs(v[1]-v0[1])<=9;return {closedInMs:ms,view:c.dataset.view,before:window.__v0,chosen:c.dataset.chosen,ok:c.dataset.chosen===''&&back}})()",
+  "label": "R52.2 camera, close (Esc): the pan comes back to where it was before the click, within the float (ok)"
+ },
+ {
+  "wheel": [
+   720,
+   450,
+   2000,
+   2000,
+   14
+  ],
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1600);return c.dataset.view})()",
+  "label": "R52.2 camera: the wall pulled to its bottom-right corner, settled"
+ },
+ {
+  "move": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);const i=109-1;const col=i%cols,row=Math.floor(i/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 300
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 camera: the view before the bottom-right corner tile is clicked"
+ },
+ {
+  "click": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);const i=109-1;const col=i%cols,row=Math.floor(i/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1300);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.moved;return r})()",
+  "label": "R52.2 camera, bottom-right corner tile: the block's edge keeps the camera short, the tile covers the rest and lands on the picture's place at its size (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-corner-open"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const t0=performance.now();while(getComputedStyle(document.querySelector('.vov')).display!=='none'&&performance.now()-t0<3000)await new Promise(r=>requestAnimationFrame(r));const ms=Math.round(performance.now()-t0);const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const v=c.dataset.view.split(',').map(Number);const v0=(window.__v0||'').split(',').map(Number);const back=Math.abs(v[0]-v0[0])<=9&&Math.abs(v[1]-v0[1])<=9;return {closedInMs:ms,view:c.dataset.view,before:window.__v0,chosen:c.dataset.chosen,ok:c.dataset.chosen===''&&back}})()",
+  "label": "R52.2 camera, close after the bottom-right corner tile: the pan is back (ok)"
+ },
+ {
+  "wheel": [
+   720,
+   450,
+   -2000,
+   -2000,
+   28
+  ],
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1600);return c.dataset.view})()",
+  "label": "R52.2 camera: the wall pulled to its top-left corner, settled"
+ },
+ {
+  "move": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);const i=0;const col=i%cols,row=Math.floor(i/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 300
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 camera: the view before the top-left corner tile is clicked"
+ },
+ {
+  "click": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);const i=0;const col=i%cols,row=Math.floor(i/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1300);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.moved;return r})()",
+  "label": "R52.2 camera, top-left corner tile: the block's edge keeps the camera short, the tile covers the rest and lands on the picture's place at its size (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-topleft-open"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const t0=performance.now();while(getComputedStyle(document.querySelector('.vov')).display!=='none'&&performance.now()-t0<3000)await new Promise(r=>requestAnimationFrame(r));const ms=Math.round(performance.now()-t0);const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const v=c.dataset.view.split(',').map(Number);const v0=(window.__v0||'').split(',').map(Number);const back=Math.abs(v[0]-v0[0])<=9&&Math.abs(v[1]-v0[1])<=9;return {closedInMs:ms,view:c.dataset.view,before:window.__v0,chosen:c.dataset.chosen,ok:c.dataset.chosen===''&&back}})()",
+  "label": "R52.2 camera, close after the top-left corner tile: the pan is back (ok)"
  },
  {
   "move": [
@@ -352,6 +501,52 @@
   "shot": "local-r52-wall-320x568-pulled-up-left"
  },
  {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 camera 320x568: the view before the top-left corner tile is tapped"
+ },
+ {
+  "tap": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);const best=0;const col=best%cols,row=Math.floor(best/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1300);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.moved;return r})()",
+  "label": "R52.2 camera 320x568, top-left corner tile: the wall slid, the tile is on the picture's place at its size, the text is on the screen under it, nothing overlaps (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-320x568-corner-open"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelector('.vov .x').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const t0=performance.now();while(getComputedStyle(document.querySelector('.vov')).display!=='none'&&performance.now()-t0<3000)await new Promise(r=>requestAnimationFrame(r));const ms=Math.round(performance.now()-t0);const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const v=c.dataset.view.split(',').map(Number);const v0=(window.__v0||'').split(',').map(Number);const back=Math.abs(v[0]-v0[0])<=9&&Math.abs(v[1]-v0[1])<=9;return {closedInMs:ms,view:c.dataset.view,before:window.__v0,chosen:c.dataset.chosen,ok:c.dataset.chosen===''&&back}})()",
+  "label": "R52.2 camera 320x568, close (top-left corner tile): the pan is back (ok)"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 camera 320x568: the view before the tile nearest the middle is tapped"
+ },
+ {
+  "tap": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);let best=0,bd=1e9;for(let i=0;i<109;i++){const col=i%cols,row=Math.floor(i/cols);const x=col*(tw+gap)+tw/2-vx,y=row*(th+gap)+th/2-vy;const dd=Math.hypot(x-innerWidth/2,y-innerHeight/2);if(dd<bd){bd=dd;best=i}}const col=best%cols,row=Math.floor(best/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1300);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.moved;return r})()",
+  "label": "R52.2 camera 320x568, tile nearest the middle: the wall slid, the tile is on the picture's place at its size, the text is on the screen under it, nothing overlaps (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-320x568-middle-open"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelector('.vov .x').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const t0=performance.now();while(getComputedStyle(document.querySelector('.vov')).display!=='none'&&performance.now()-t0<3000)await new Promise(r=>requestAnimationFrame(r));const ms=Math.round(performance.now()-t0);const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const v=c.dataset.view.split(',').map(Number);const v0=(window.__v0||'').split(',').map(Number);const back=Math.abs(v[0]-v0[0])<=9&&Math.abs(v[1]-v0[1])<=9;return {closedInMs:ms,view:c.dataset.view,before:window.__v0,chosen:c.dataset.chosen,ok:c.dataset.chosen===''&&back}})()",
+  "label": "R52.2 camera 320x568, close (tile nearest the middle): the pan is back (ok)"
+ },
+ {
   "go": "about:blank",
   "wait": 300
  },
@@ -387,6 +582,52 @@
   "shot": "local-r52-wall-844x390-pulled-up-left"
  },
  {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 camera 844x390: the view before the top-left corner tile is tapped"
+ },
+ {
+  "tap": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);const best=0;const col=best%cols,row=Math.floor(best/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1300);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.moved;return r})()",
+  "label": "R52.2 camera 844x390, top-left corner tile: the wall slid, the tile is on the picture's place at its size, the text is on the screen under it, nothing overlaps (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-844x390-corner-open"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelector('.vov .x').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const t0=performance.now();while(getComputedStyle(document.querySelector('.vov')).display!=='none'&&performance.now()-t0<3000)await new Promise(r=>requestAnimationFrame(r));const ms=Math.round(performance.now()-t0);const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const v=c.dataset.view.split(',').map(Number);const v0=(window.__v0||'').split(',').map(Number);const back=Math.abs(v[0]-v0[0])<=9&&Math.abs(v[1]-v0[1])<=9;return {closedInMs:ms,view:c.dataset.view,before:window.__v0,chosen:c.dataset.chosen,ok:c.dataset.chosen===''&&back}})()",
+  "label": "R52.2 camera 844x390, close (top-left corner tile): the pan is back (ok)"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 camera 844x390: the view before the tile nearest the middle is tapped"
+ },
+ {
+  "tap": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);let best=0,bd=1e9;for(let i=0;i<109;i++){const col=i%cols,row=Math.floor(i/cols);const x=col*(tw+gap)+tw/2-vx,y=row*(th+gap)+th/2-vy;const dd=Math.hypot(x-innerWidth/2,y-innerHeight/2);if(dd<bd){bd=dd;best=i}}const col=best%cols,row=Math.floor(best/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1300);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.moved;return r})()",
+  "label": "R52.2 camera 844x390, tile nearest the middle: the wall slid, the tile is on the picture's place at its size, the text is on the screen under it, nothing overlaps (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-844x390-middle-open"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelector('.vov .x').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const t0=performance.now();while(getComputedStyle(document.querySelector('.vov')).display!=='none'&&performance.now()-t0<3000)await new Promise(r=>requestAnimationFrame(r));const ms=Math.round(performance.now()-t0);const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const v=c.dataset.view.split(',').map(Number);const v0=(window.__v0||'').split(',').map(Number);const back=Math.abs(v[0]-v0[0])<=9&&Math.abs(v[1]-v0[1])<=9;return {closedInMs:ms,view:c.dataset.view,before:window.__v0,chosen:c.dataset.chosen,ok:c.dataset.chosen===''&&back}})()",
+  "label": "R52.2 camera 844x390, close (tile nearest the middle): the pan is back (ok)"
+ },
+ {
   "go": "about:blank",
   "wait": 300
  },
@@ -420,6 +661,52 @@
  },
  {
   "shot": "local-r52-wall-820x1180-pulled-up-left"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 camera 820x1180: the view before the top-left corner tile is tapped"
+ },
+ {
+  "tap": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);const best=0;const col=best%cols,row=Math.floor(best/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1300);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.moved;return r})()",
+  "label": "R52.2 camera 820x1180, top-left corner tile: the wall slid, the tile is on the picture's place at its size, the text is on the screen under it, nothing overlaps (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-820x1180-corner-open"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelector('.vov .x').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const t0=performance.now();while(getComputedStyle(document.querySelector('.vov')).display!=='none'&&performance.now()-t0<3000)await new Promise(r=>requestAnimationFrame(r));const ms=Math.round(performance.now()-t0);const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const v=c.dataset.view.split(',').map(Number);const v0=(window.__v0||'').split(',').map(Number);const back=Math.abs(v[0]-v0[0])<=9&&Math.abs(v[1]-v0[1])<=9;return {closedInMs:ms,view:c.dataset.view,before:window.__v0,chosen:c.dataset.chosen,ok:c.dataset.chosen===''&&back}})()",
+  "label": "R52.2 camera 820x1180, close (top-left corner tile): the pan is back (ok)"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 camera 820x1180: the view before the tile nearest the middle is tapped"
+ },
+ {
+  "tap": "(()=>{const c=document.querySelector('.wall-host canvas');const m=c.dataset.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const cols=+m[1],rows=+m[2],W=+m[3],H=+m[4];const tw0=W/(cols*1.075);const gap=Math.ceil(0.075*tw0);const tw=(W-(cols-1)*gap)/cols;const th=tw*9/16;const [vx,vy]=c.dataset.view.split(',').map(Number);let best=0,bd=1e9;for(let i=0;i<109;i++){const col=i%cols,row=Math.floor(i/cols);const x=col*(tw+gap)+tw/2-vx,y=row*(th+gap)+th/2-vy;const dd=Math.hypot(x-innerWidth/2,y-innerHeight/2);if(dd<bd){bd=dd;best=i}}const col=best%cols,row=Math.floor(best/cols);return [Math.round(col*(tw+gap)+tw/2-vx),Math.round(row*(th+gap)+th/2-vy)]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(1300);const d=c.dataset;const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=d.chosenAt.split(',').map(Number);const [vx,vy]=d.view.split(',').map(Number);const m=d.block.match(/^(\\d+)x(\\d+):(\\d+)x(\\d+)$/);const W=+m[3],H=+m[4];const scx=s.x+s.width/2,scy=s.y+s.height/2;const prev=window.__cam||{};const onPlace=Math.abs(ax-scx)<=1.5&&Math.abs(ay-scy)<=1.5&&Math.abs(aw-s.width)<=1.5;const inRange=vx>=-innerWidth/3-1&&vx<=W-2*innerWidth/3+1&&vy>=-innerHeight/3-1&&vy<=H-2*innerHeight/3+1;const z=document.querySelector('.vtext').getBoundingClientRect();const r={chosen:d.chosen,view:d.view,chosenAt:d.chosenAt,shot:[scx,scy,s.width].map(Math.round),text:[z.x,z.y,z.width,z.height].map(Math.round),onPlace,inRange,under:d.under,overlaps:d.overlaps,moved:prev.view!==undefined&&prev.view!==d.view,changedChoice:prev.chosen!==undefined&&prev.chosen!==d.chosen};window.__cam={view:d.view,chosen:d.chosen};r.ok=onPlace&&inRange&&d.under==='0'&&d.overlaps==='0'&&z.top>=s.bottom&&z.bottom<=innerHeight+1&&r.moved;return r})()",
+  "label": "R52.2 camera 820x1180, tile nearest the middle: the wall slid, the tile is on the picture's place at its size, the text is on the screen under it, nothing overlaps (ok)"
+ },
+ {
+  "eval": "new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))",
+  "label": "flush"
+ },
+ {
+  "shot": "local-r52-camera-820x1180-middle-open"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelector('.vov .x').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()",
+  "wait": 100,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const t0=performance.now();while(getComputedStyle(document.querySelector('.vov')).display!=='none'&&performance.now()-t0<3000)await new Promise(r=>requestAnimationFrame(r));const ms=Math.round(performance.now()-t0);const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const v=c.dataset.view.split(',').map(Number);const v0=(window.__v0||'').split(',').map(Number);const back=Math.abs(v[0]-v0[0])<=9&&Math.abs(v[1]-v0[1])<=9;return {closedInMs:ms,view:c.dataset.view,before:window.__v0,chosen:c.dataset.chosen,ok:c.dataset.chosen===''&&back}})()",
+  "label": "R52.2 camera 820x1180, close (tile nearest the middle): the pan is back (ok)"
  },
  {
   "go": "about:blank",
@@ -473,6 +760,10 @@
   "label": "frames-panning (R52.1, 1440x900, dpr 2: a drag and the wheel moving the block; no frame over 20 ms)"
  },
  {
+  "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");const g=[];let l=performance.now(),run=true;const f=n=>{g.push(n-l);l=n;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);const ev=(t,x,y,b)=>c.dispatchEvent(new PointerEvent(t,{bubbles:true,pointerId:7,isPrimary:true,pointerType:\"mouse\",button:0,buttons:b,clientX:x,clientY:y}));const sleep=ms=>new Promise(q=>setTimeout(q,ms));const key=k=>window.dispatchEvent(new KeyboardEvent(\"keydown\",{key:k,bubbles:true}));const open=async(x,y)=>{ev(\"pointermove\",x,y,0);await sleep(250);ev(\"pointerdown\",x,y,1);ev(\"pointerup\",x,y,0);await sleep(900)};const shut=async()=>{document.querySelector(\".vov .x\").click();await sleep(700)};await open(720,450);for(const k of [\"ArrowRight\",\"ArrowDown\",\"ArrowLeft\",\"ArrowUp\"]){key(k);await sleep(600)}await shut();await open(1300,800);await shut();await open(60,150);await shut();await sleep(200);run=false;g.shift();g.sort((a,b)=>a-b);return{n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length,over34:g.filter(x=>x>34).length}})()",
+  "label": "frames-camera (R52.2, 1440x900, dpr 2: a middle tile opened, the four arrows, closed, a bottom-right and a top-left tile opened and closed; no frame over 20 ms)"
+ },
+ {
   "go": "about:blank",
   "wait": 300
  },
@@ -487,6 +778,10 @@
   "wait": 4000,
   "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");const g=[];let l=performance.now(),run=true;const f=n=>{g.push(n-l);l=n;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);const ev=(t,x,y,b)=>c.dispatchEvent(new PointerEvent(t,{bubbles:true,pointerId:7,isPrimary:true,pointerType:\"mouse\",button:0,buttons:b,clientX:x,clientY:y}));const sleep=ms=>new Promise(q=>setTimeout(q,ms));ev(\"pointermove\",700,450,0);ev(\"pointerdown\",700,450,1);for(let i=0;i<70;i++){ev(\"pointermove\",700+Math.sin(i/6)*300,450+Math.cos(i/9)*200,1);await sleep(16)}ev(\"pointerup\",700,450,0);for(let i=0;i<60;i++){c.dispatchEvent(new WheelEvent(\"wheel\",{bubbles:true,cancelable:true,deltaX:Math.sin(i/5)*60,deltaY:Math.cos(i/7)*60}));await sleep(16)}await sleep(400);run=false;g.shift();g.sort((a,b)=>a-b);return{n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length}})()",
   "label": "frames-panning-cpu4 (R52.1, 1440x900, dpr 2, CPU 4 times slower)"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector(\".wall-host canvas\");const g=[];let l=performance.now(),run=true;const f=n=>{g.push(n-l);l=n;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);const ev=(t,x,y,b)=>c.dispatchEvent(new PointerEvent(t,{bubbles:true,pointerId:7,isPrimary:true,pointerType:\"mouse\",button:0,buttons:b,clientX:x,clientY:y}));const sleep=ms=>new Promise(q=>setTimeout(q,ms));const key=k=>window.dispatchEvent(new KeyboardEvent(\"keydown\",{key:k,bubbles:true}));const open=async(x,y)=>{ev(\"pointermove\",x,y,0);await sleep(250);ev(\"pointerdown\",x,y,1);ev(\"pointerup\",x,y,0);await sleep(900)};const shut=async()=>{document.querySelector(\".vov .x\").click();await sleep(700)};await open(720,450);for(const k of [\"ArrowRight\",\"ArrowDown\",\"ArrowLeft\",\"ArrowUp\"]){key(k);await sleep(600)}await shut();await open(1300,800);await shut();await open(60,150);await shut();await sleep(200);run=false;g.shift();g.sort((a,b)=>a-b);return{n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length,over34:g.filter(x=>x>34).length}})()",
+  "label": "frames-camera-cpu4 (R52.2, 1440x900, dpr 2, CPU 4 times slower: the same run)"
  },
  {
   "cpu": 1,
@@ -521,6 +816,33 @@
   "wait": 100,
   "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
   "label": "reduced-close"
+ },
+ {
+  "move": [
+   600,
+   300
+  ],
+  "wait": 300
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');c.dataset.watchView='1';const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(900);window.__v0=c.dataset.view;window.__cam={view:c.dataset.view};return {view:c.dataset.view}})()",
+  "label": "R52.2 reduced motion: the view before the click"
+ },
+ {
+  "click": [
+   600,
+   300
+  ],
+  "wait": 0,
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const v0=window.__v0;const t0=performance.now();const op=[];const vt=document.querySelector('.vtext');while(performance.now()-t0<900){op.push(+(+getComputedStyle(vt).opacity).toFixed(2));await new Promise(r=>requestAnimationFrame(r))}const s=document.querySelector('.vov .shot').getBoundingClientRect();const [ax,ay,aw]=c.dataset.chosenAt.split(',').map(Number);const out={view:c.dataset.view,before:v0,textOpacity:[op[0],op[Math.floor(op.length/2)],op[op.length-1]],chosenAt:c.dataset.chosenAt,shot:[s.x+s.width/2,s.y+s.height/2,s.width].map(Math.round)};out.ok=c.dataset.view===v0&&op[op.length-1]===1&&op[0]<1&&Math.abs(ax-(s.x+s.width/2))<=1.5&&Math.abs(ay-(s.y+s.height/2))<=1.5&&c.dataset.overlaps==='0';return out})()",
+  "label": "R52.2 reduced motion: the camera does not travel (the view is the one before the click), the chosen picture and its text fade in over the wall at the place, nothing overlaps (ok)"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const t0=performance.now();const i=setInterval(()=>{const d=getComputedStyle(document.querySelector('.vov')).display;if(d==='none'||performance.now()-t0>3000){clearInterval(i);r([d,Math.round(performance.now()-t0),document.querySelector('.wall-host canvas').dataset.chosen])}},20)})",
+  "label": "R52.2 reduced motion: closed again"
  },
  {
   "go": "about:blank",
@@ -622,7 +944,7 @@
   "wait": 200
  },
  {
-  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const now={block:c.dataset.block,kbd:c.dataset.kbd,hasTiles:+c.dataset.block.split(':')[0].split('x')[0]>0};const was=window.__rot;window.__rot=was||now;return was?{was,now,gridChanged:was.block.split(':')[0]!==now.block.split(':')[0],ok:was.kbd!==''&&was.kbd===now.kbd}:{first:now,ok:now.kbd!==''}})()",
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const now={block:c.dataset.block,kbd:c.dataset.kbd,hasTiles:+c.dataset.block.split(':')[0].split('x')[0]>0};const was=window.__rot;window.__rot=was||now;return was?{was,now,gridChanged:was.block.split(':')[0]!==now.block.split(':')[0],ok:was.kbd!==''&&was.kbd===now.kbd&&was.block.split(':')[0]!==now.block.split(':')[0]}:{first:now,ok:now.kbd!==''}})()",
   "label": "R52.1b rotate: the keyboard's tile at 844x390 (first read)"
  },
  {
@@ -636,7 +958,7 @@
   "dpr": 3
  },
  {
-  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const now={block:c.dataset.block,kbd:c.dataset.kbd,hasTiles:+c.dataset.block.split(':')[0].split('x')[0]>0};const was=window.__rot;window.__rot=was||now;return was?{was,now,gridChanged:was.block.split(':')[0]!==now.block.split(':')[0],ok:was.kbd!==''&&was.kbd===now.kbd}:{first:now,ok:now.kbd!==''}})()",
+  "eval": "(async()=>{const c=document.querySelector('.wall-host canvas');const wait=ms=>new Promise(r=>{const t=performance.now();(function f(){performance.now()-t>=ms?r():requestAnimationFrame(f)})()});await wait(700);const now={block:c.dataset.block,kbd:c.dataset.kbd,hasTiles:+c.dataset.block.split(':')[0].split('x')[0]>0};const was=window.__rot;window.__rot=was||now;return was?{was,now,gridChanged:was.block.split(':')[0]!==now.block.split(':')[0],ok:was.kbd!==''&&was.kbd===now.kbd&&was.block.split(':')[0]!==now.block.split(':')[0]}:{first:now,ok:now.kbd!==''}})()",
   "label": "R52.1b rotate: turned back to 390x844 (the grid changed again): the keyboard's tile is still the same video (ok)"
  },
  {

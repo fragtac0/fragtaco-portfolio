@@ -147,15 +147,27 @@ export function layoutTiles(p: {
   vh: number;
   plan: Pick<BlockPlan, "cols" | "rows" | "tileW" | "tileH" | "gap">;
   count: number;
+  /** Other views (block-space positions of the screen's corner) the tiles in sight of are laid out as well, as while the camera travels. */
+  also?: ReadonlyArray<{ x: number; y: number }>;
 }): LayoutTile[] {
-  const { viewX, viewY, vw, vh, plan, count } = p;
+  const { viewX, viewY, vw, vh, plan, count, also } = p;
   const { pitchX, pitchY } = sizeOfPlan(plan);
   const out: LayoutTile[] = [];
   if (count <= 0 || plan.cols <= 0 || plan.rows <= 0) return out;
-  const c0 = Math.max(0, Math.floor((viewX - pitchX) / pitchX));
-  const c1 = Math.min(plan.cols - 1, Math.floor((viewX + vw + pitchX) / pitchX));
-  const r0 = Math.max(0, Math.floor((viewY - pitchY) / pitchY));
-  const r1 = Math.min(plan.rows - 1, Math.floor((viewY + vh + pitchY) / pitchY));
+  let xa = viewX;
+  let xb = viewX;
+  let ya = viewY;
+  let yb = viewY;
+  for (const v of also ?? []) {
+    xa = Math.min(xa, v.x);
+    xb = Math.max(xb, v.x);
+    ya = Math.min(ya, v.y);
+    yb = Math.max(yb, v.y);
+  }
+  const c0 = Math.max(0, Math.floor((xa - pitchX) / pitchX));
+  const c1 = Math.min(plan.cols - 1, Math.floor((xb + vw + pitchX) / pitchX));
+  const r0 = Math.max(0, Math.floor((ya - pitchY) / pitchY));
+  const r1 = Math.min(plan.rows - 1, Math.floor((yb + vh + pitchY) / pitchY));
   for (let cy = r0; cy <= r1; cy++) {
     for (let cx = c0; cx <= c1; cx++) {
       const idx = cy * plan.cols + cx;

@@ -62,10 +62,12 @@ export function createChip(videos: readonly SiteVideo[], st: WallState): Chip {
  * gives it a new shape). `data-view`: the block-space position the screen shows (`x,y`, rounded), written
  * only while `data-watch-view` is set on the canvas (the audit sets it), since it changes every frame.
  * `data-kbd`: the video the keyboard's tile holds (its index in the wall's order; empty when none).
+ * `data-chosen-at`: where the chosen tile shows, `centre x,centre y,width` in px (rounded), written
+ * only while `data-watch-view` is set, like `data-view`.
  */
 export function createProbe(canvas: HTMLElement) {
   const last: Record<string, string> = {};
-  return (name: "echo" | "chosen" | "under" | "overlaps" | "block" | "view" | "kbd", value: string) => {
+  return (name: "echo" | "chosen" | "under" | "overlaps" | "block" | "view" | "kbd" | "chosenAt", value: string) => {
     if (last[name] === value) return;
     last[name] = value;
     canvas.dataset[name] = value;

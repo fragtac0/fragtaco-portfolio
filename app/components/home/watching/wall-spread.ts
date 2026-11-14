@@ -1,13 +1,16 @@
+import { panRange, type BlockPlan } from "./wall-block";
 import { tileSize } from "./wall-math";
 
 /**
- * What a click does to the wall (spec 7, "Click"). The chosen video travels to `chosenRect`, a
- * little above the middle and about twice its size, with its text under it (`textZone`). The other
- * tiles move away from the middle of that rectangle (`spread`: up to 140 px for the nearest, none
- * beyond 60% of the half-diagonal), shrink to 92% and dim to 55%. `hiddenTiles` says which of them
- * fade out instead: the ones in the text block's way, the ones more than 5% behind the chosen video
- * and, so that no two visible tiles ever overlap, the nearer of any two that still do. The pose and
- * the engine use these; everything here is pure.
+ * What a click does to the wall (spec 8.1). The camera moves: the wall slides (`cameraPan`) so the
+ * chosen tile's centre comes to `chosenRect`'s, a little above the middle, and the tile grows there
+ * to about twice its size (round 6's tile size), with its text under it (`textZone`). The tile does
+ * not travel across the wall (only the little the block's edge keeps the camera from, for a tile in a
+ * corner). The other tiles move away from the middle of that rectangle (`spread`: up to 140 px for
+ * the nearest, none beyond 60% of the half-diagonal), shrink to 92% and dim to 55%. `hiddenTiles`
+ * says which of them fade out instead: the ones in the text block's way, the ones more than 5%
+ * behind the chosen video and, so that no two visible tiles ever overlap, the nearer of any two that
+ * still do. The pose, the camera and the engine use these; everything here is pure.
  */
 
 /** How long the wall takes to open and to close, ms (spec 7); reduced motion fades over `FADE_MS`. */
@@ -85,14 +88,15 @@ export function spread(p: {
 }
 
 /**
- * Where the chosen video sits: about twice a tile, at most 52% of the width (86% when narrow),
- * centred a little above the middle, 16 by 9. It is made smaller when the screen is short, so at
- * least 170 px stay under it for the text (and a margin above it for the close button).
+ * Where the chosen video sits: round 6's tile size (about twice a tile of the block), at most 52% of
+ * the width (86% when narrow), centred a little above the middle, 16 by 9. It is made smaller when
+ * the screen is short, so at least 170 px stay under it for the text (and a margin above it for the
+ * close button).
  */
 export function chosenRect(vw: number, vh: number, narrow: boolean): Rect {
   const top = Math.min(64, vh * 0.1);
   const room = Math.min(TEXT_ROOM, vh * 0.42);
-  let w = Math.min(2 * tileSize(vw).cw, vw * (narrow ? 0.86 : 0.52));
+  let w = Math.min(tileSize(vw).cw, vw * (narrow ? 0.86 : 0.52));
   const hMax = Math.max(40, vh - top - room);
   if ((w * 9) / 16 > hMax) w = (hMax * 16) / 9;
   const h = (w * 9) / 16;
@@ -100,9 +104,44 @@ export function chosenRect(vw: number, vh: number, narrow: boolean): Rect {
   return { x: (vw - w) / 2, y: cy - h / 2, w, h };
 }
 
-/** The text block's box: under the chosen video, as wide as it is. Nothing may stand in it. */
-export function textZone(rect: Rect): Rect {
-  return { x: rect.x, y: rect.y + rect.h + TEXT_GAP, w: rect.w, h: TEXT_H };
+/** The text block is at least this wide, px (a title needs more room than a small video has), and keeps this much from the screen's sides. */
+export const TEXT_MIN_W = 360;
+const TEXT_MARGIN = 16;
+
+/**
+ * The text block's box: under the chosen video and centred on it, as wide as the video or
+ * `TEXT_MIN_W`, whichever is more (never wider than the screen less its margins). Nothing may stand in it.
+ */
+export function textZone(rect: Rect, vw: number): Rect {
+  const w = Math.max(0, Math.min(Math.max(rect.w, TEXT_MIN_W), vw - 2 * TEXT_MARGIN));
+  const x = clamp(rect.x + rect.w / 2 - w / 2, TEXT_MARGIN, Math.max(TEXT_MARGIN, vw - TEXT_MARGIN - w));
+  return { x, y: rect.y + rect.h + TEXT_GAP, w, h: TEXT_H };
+}
+
+/**
+ * Where the camera goes for the tile at video index `idx`: the pan (block space, the screen's top-left
+ * corner) that brings the tile's centre to `place`, a point on the screen. The pan stays inside the
+ * block's range (`panRange`, the rule `clampPan` keeps: the block's edge never passes the screen's
+ * middle third), so a tile near a corner of the block comes as near to `place` as the range allows
+ * and the rest of the way is the tile's own (`Tile` residual in wall-pose.ts). A block too small for a
+ * range stays where it is.
+ */
+export function cameraPan(p: {
+  idx: number;
+  plan: Pick<BlockPlan, "cols" | "tileW" | "tileH" | "gap" | "width" | "height">;
+  place: { x: number; y: number };
+  vw: number;
+  vh: number;
+}): { x: number; y: number } {
+  const { idx, plan, place, vw, vh } = p;
+  if (!(plan.cols > 0)) return { x: 0, y: 0 };
+  const cx = idx % plan.cols;
+  const cy = Math.floor(idx / plan.cols);
+  const x = cx * (plan.tileW + plan.gap) + plan.tileW / 2 - place.x;
+  const y = cy * (plan.tileH + plan.gap) + plan.tileH / 2 - place.y;
+  const [x0, x1] = panRange(plan.width, vw);
+  const [y0, y1] = panRange(plan.height, vh);
+  return { x: clamp(x, x0, x1), y: clamp(y, y0, y1) };
 }
 
 /** Whether two rectangles overlap, `pad` px of air counted around the second. */

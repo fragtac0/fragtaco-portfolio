@@ -145,6 +145,24 @@ describe("layoutTiles", () => {
     }
   });
 
+  it("also lays out the tiles in sight from other views (the camera's), at the positions of the view it is given", () => {
+    const here = { x: 100, y: 80 };
+    const there = { x: 700, y: 400 };
+    const only = layoutTiles({ ...base, vw: 400, vh: 300, viewX: here.x, viewY: here.y });
+    const both = layoutTiles({ ...base, vw: 400, vh: 300, viewX: here.x, viewY: here.y, also: [there] });
+    expect(both.length).toBeGreaterThan(only.length);
+    // every tile in sight from either view is there, and its place is for the view asked for
+    const seen = layoutTiles({ ...base, vw: 400, vh: 300, viewX: there.x, viewY: there.y });
+    const keys = new Set(both.map((t) => t.key));
+    for (const t of [...only, ...seen]) expect(keys.has(t.key)).toBe(true);
+    for (const t of both) {
+      const [cx, cy] = t.key.split(",").map(Number);
+      expect(t.x).toBeCloseTo(cx * size.pitchX - here.x, 6);
+      expect(t.y).toBeCloseTo(cy * size.pitchY - here.y, 6);
+    }
+    expect(layoutTiles({ ...base, vw: 400, vh: 300, viewX: here.x, viewY: here.y, also: [] })).toEqual(only);
+  });
+
   it("lays the videos out in reading order: tile (cx, cy) is video cy * cols + cx", () => {
     const all = layoutTiles({ ...base, viewX: -vw, viewY: -vh, vw: plan.width + 2 * vw, vh: plan.height + 2 * vh });
     expect(all).toHaveLength(109);

@@ -60,8 +60,8 @@
   color: var(--ink-3);
 }
 
-/* the detail view of a chosen video (spec 7, "Click"; video-detail.tsx). The wall stays drawn under
-   it, spread and dimmed. --sx, --sy, --sw place the picture and --zx .. --zh the text block, from
+/* the detail view of a chosen video (spec 8.1, "the click"; video-detail.tsx). The wall stays drawn under
+   it, spread and dimmed; the camera has moved the chosen tile here. --sx, --sy, --sw place the picture and --zx .. --zh the text block, from
    the same boxes the wall uses (wall-spread.ts), set on .vov by the component. */
 .home-layer .vov {
   position: fixed;
@@ -126,7 +126,8 @@
   min-height: var(--zh);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   gap: 8px;
 }
 .home-layer .vtext h3 {
@@ -145,6 +146,7 @@
   margin: 0 0 4px;
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 2px 0;
   font-size: var(--t-meta);
   line-height: 1.4;
@@ -153,6 +155,13 @@
 .home-layer .vmeta span + span::before {
   content: "\00b7";
   margin: 0 8px;
+}
+/* the channel's other videos are a line of their own, so a wrapped line never starts with a dot */
+.home-layer .vmeta .more {
+  flex-basis: 100%;
+}
+.home-layer .vmeta .more::before {
+  content: none;
 }
 .home-layer .vmeta .ch {
   color: var(--cream);

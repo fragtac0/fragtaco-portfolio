@@ -1,11 +1,11 @@
 import { echoSet, type TileSize } from "./wall-math";
+import { hiddenCache } from "./wall-hidden";
 import { proximity } from "./wall-proximity";
 import {
   CLOSE_MS,
   easeInOut,
   FADE_MS,
   OPEN_MS,
-  hiddenTiles,
   spread,
   SPREAD_DIM,
   SPREAD_SCALE,
@@ -21,13 +21,15 @@ import type { Tile } from "./wall-types";
  * tile (it drives the glow and the chip), and the channel echo of the focused video. The tiles are
  * then sorted so the focused one is drawn last.
  *
- * While a video is chosen (`choice`, spec 7 "Click") the wall opens: the chosen tile travels to
- * `choice.rect` and grows to fit it, and the others move away from its middle, shrink and dim
+ * While a video is chosen (`choice`, spec 8.1 "click") the wall opens: the camera (wall-camera.ts)
+ * slides the wall so the chosen tile comes to `choice.rect`'s middle, so the tile itself only
+ * grows to fit the rect (and, for a tile the block's edge keeps the camera from centring, covers the
+ * little that is left, its `res`). The others move away from the rect's middle, shrink and dim
  * (`spread`), the ones from the focused channel staying bright. A tile that would stand in the text
- * block's way, mostly behind the chosen video or on top of another tile fades out (`hiddenTiles`),
- * so no two visible tiles overlap. With reduced
- * motion nothing travels: the chosen video fades in at its place while its tile fades out, the
- * others only dim, and the ones in the way fade.
+ * block's way, mostly behind the chosen video or on top of another tile fades out (`hiddenTiles`,
+ * judged from where the tiles will rest once the camera has arrived, `choice.shift` away), so no two
+ * visible tiles overlap. With reduced motion nothing travels (no camera): the chosen video fades in at
+ * its place while its tile fades out, the others only dim, and the ones in the way fade.
  */
 
 /** The chosen video's resting place and the text block's, in flat wall coordinates. */
@@ -39,10 +41,18 @@ export type PoseChoice = {
   zone: Rect;
   /** The screen's half-diagonal, which the spread's reach is measured against. */
   halfDiag: number;
+  /**
+   * How far every tile still has to move on the screen to its resting place once the camera has
+   * arrived (the view now, less the view then; 0 with no camera, as under reduced motion). Absent: 0.
+   */
+  shift?: { x: number; y: number };
 };
 
 /** The chosen video's corner radius, px (a tile's is 12). */
 const RAD_BIG = 20;
+const NO_SHIFT = { x: 0, y: 0 };
+/** The camera is counted as still when every tile is this near its resting place, px. */
+const SHIFT_EPS = 0.05;
 
 export type PoseInput = {
   dt: number;
@@ -91,53 +101,6 @@ export function sortForDraw<T extends { f: number; c?: number }>(tiles: T[]): T[
   return tiles.sort((a, b) => drawRank(a.f, a.c) - drawRank(b.f, b.c));
 }
 
-/** The tiles that fade out around a chosen video, judged from where they will rest once the wall is open. */
-function hiddenFor(list: readonly Tile[], choice: PoseChoice, size: TileSize, reduced: boolean) {
-  const { cw, ch } = size;
-  const k = reduced ? 1 : SPREAD_SCALE;
-  const mx = choice.rect.x + choice.rect.w / 2;
-  const my = choice.rect.y + choice.rect.h / 2;
-  const boxes: Array<Rect & { key: string }> = [];
-  for (const tl of list) {
-    if (tl.key === choice.key) continue;
-    const end = spread({
-      x: tl.x + cw / 2,
-      y: tl.y + ch / 2,
-      cx: mx,
-      cy: my,
-      halfDiag: choice.halfDiag,
-      open: reduced ? 0 : 1,
-    });
-    boxes.push({ key: tl.key, x: end.x - (cw * k) / 2, y: end.y - (ch * k) / 2, w: cw * k, h: ch * k });
-  }
-  return hiddenTiles(boxes, choice.rect, choice.zone);
-}
-
-/**
- * `hiddenFor` remembered while its inputs hold (a wall that is open and still asks every frame with the
- * same choice, size and tile positions): the choice, the size, the mode and every tile's position.
- */
-function hiddenCache() {
-  let sig = "";
-  let pos = new Float64Array(0);
-  let set: Set<string> = new Set();
-  return (list: readonly Tile[], choice: PoseChoice, size: TileSize, reduced: boolean): Set<string> => {
-    const { rect: r, zone: z } = choice;
-    const next = `${choice.key}|${r.x},${r.y},${r.w},${r.h}|${z.x},${z.y},${z.w},${z.h}|${choice.halfDiag}|${size.cw}x${size.ch}|${reduced}|${list.length}`;
-    let same = next === sig && pos.length === list.length * 2;
-    for (let i = 0; same && i < list.length; i++) same = pos[2 * i] === list[i].x && pos[2 * i + 1] === list[i].y;
-    if (same) return set;
-    sig = next;
-    pos = new Float64Array(list.length * 2);
-    list.forEach((tl, i) => {
-      pos[2 * i] = tl.x;
-      pos[2 * i + 1] = tl.y;
-    });
-    set = hiddenFor(list, choice, size, reduced);
-    return set;
-  };
-}
-
 export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
   const hiddenOf = hiddenCache();
   const fstate = new Map<string, number>();
@@ -151,7 +114,14 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
   // the wall's opening (0 closed to 1 open) and how far each tile is the chosen one; both linear
   // here and eased where they are used
   let open = 0;
+  let lastKey = "";
+  let startOpen = 0;
   const travelled = new Map<string, number>();
+  // what the tile that is (or was, while it travels back) the chosen one still has to cover on top of
+  // the camera's travel, and how far each tile is hidden (eased, so a tile hidden or shown again when
+  // the choice moves fades instead of popping)
+  const resOf = new Map<string, { x: number; y: number }>();
+  const hideOf = new Map<string, number>();
   // set while anything is still easing during an `apply`
   let easing = false;
   let still = false;
@@ -190,27 +160,36 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
       dt: number;
       secs: number;
       hidden: ReadonlySet<string>;
+      shift: { x: number; y: number };
+      /** How open the wall was when the choice last changed: the chosen tile is pushed no more than this, so a tile chosen as the wall first opens is never pushed. */
+      startOpen: number;
       ghosts: Tile[];
       kept: Set<string>;
     },
   ) {
     const { cx, cy, cw, th } = o.base;
     const { choice, rc, eo, reduced } = o;
-    const sp = spread({ x: cx, y: cy, cx: rc.x, cy: rc.y, halfDiag: choice.halfDiag, open: reduced ? 0 : eo });
+    const chosen = choice.live && tl.key === choice.key;
+    const push = reduced ? 0 : chosen ? Math.min(eo, o.startOpen) : eo;
+    const sp = spread({ x: cx, y: cy, cx: rc.x, cy: rc.y, halfDiag: choice.halfDiag, open: push });
+    const scale = reduced ? 1 : 1 - (1 - SPREAD_SCALE) * eo;
     const dim = 1 - (1 - SPREAD_DIM) * eo;
     tl.cx = sp.x;
     tl.cy = sp.y;
-    tl.w = cw * sp.scale;
-    tl.h = th * sp.scale;
-    tl.rad = 12 * sp.scale;
+    tl.w = cw * scale;
+    tl.h = th * scale;
+    tl.rad = 12 * scale;
     tl.dim = dim + (1 - dim) * tl.e; // the channel's other videos stay bright
-    tl.fade = o.hidden.has(tl.key) ? 1 - eo : 1;
+    tl.fade = 1 - ease(hideOf, tl.key, o.hidden.has(tl.key) ? 1 : 0, o.reduced ? 1 : Math.min(1, o.dt * 14)) * eo;
     const was = travelled.get(tl.key) || 0;
-    const v = stepToward(was, choice.live && tl.key === choice.key ? 1 : 0, o.dt, o.secs);
+    const v = stepToward(was, chosen ? 1 : 0, o.dt, o.secs);
     if (v !== was) easing = true;
     if (v <= 0) return;
     travelled.set(tl.key, v);
     o.kept.add(tl.key);
+    // the camera brings the tile to the rect's middle; `res` is what it could not (the block's edge)
+    if (chosen) resOf.set(tl.key, { x: rc.x - (cx + o.shift.x), y: rc.y - (cy + o.shift.y) });
+    const res = resOf.get(tl.key) ?? { x: rc.x - (cx + o.shift.x), y: rc.y - (cy + o.shift.y) };
     const c = easeInOut(v);
     tl.c = c;
     tl.dim += (1 - tl.dim) * c;
@@ -223,8 +202,8 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
       tl.h = choice.rect.h;
     } else {
       tl.fade += (1 - tl.fade) * c;
-      tl.cx += (rc.x - tl.cx) * c;
-      tl.cy += (rc.y - tl.cy) * c;
+      tl.cx += (cx + res.x - tl.cx) * c;
+      tl.cy += (cy + res.y - tl.cy) * c;
       tl.w += (choice.rect.w - tl.w) * c;
       tl.h += (choice.rect.h - tl.h) * c;
     }
@@ -265,6 +244,13 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
       const ghosts: Tile[] = [];
       const kept = new Set<string>();
       const hidden = choice ? hiddenOf(list, choice, p.size, p.reduced) : null;
+      if (!choice) lastKey = "";
+      else if (choice.key !== lastKey) {
+        lastKey = choice.key;
+        startOpen = eo;
+      }
+      const shift = choice?.shift ?? NO_SHIFT;
+      if (!p.reduced && (Math.abs(shift.x) > SHIFT_EPS || Math.abs(shift.y) > SHIFT_EPS)) easing = true;
       for (const tl of list) {
         const f = ease(fstate, tl.key, tl.key === p.hoverKey ? 1 : 0, kf);
         const wantEcho = echoNow.has(tl.idx) ? 1 : 0;
@@ -293,12 +279,15 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
           dt: p.dt,
           secs,
           hidden: hidden ?? new Set(),
+          shift: p.reduced ? NO_SHIFT : shift,
+          startOpen,
           ghosts,
           kept,
         });
       }
       for (const k of travelled.keys()) if (!kept.has(k)) travelled.delete(k);
-      for (const m of [fstate, estate]) for (const k of m.keys()) if (!seen.has(k)) m.delete(k);
+      for (const k of resOf.keys()) if (!kept.has(k)) resOf.delete(k);
+      for (const m of [fstate, estate, hideOf]) for (const k of m.keys()) if (!seen.has(k)) m.delete(k);
       sortForDraw(list);
       still = !!choice && choice.live && open >= 1 && !easing && near === 0;
       return ghosts;
@@ -307,6 +296,10 @@ export function createPose(videos: ReadonlyArray<{ channel: string }>): Pose {
       fstate.clear();
       estate.clear();
       travelled.clear();
+      resOf.clear();
+      hideOf.clear();
+      lastKey = "";
+      startOpen = 0;
       near = 0;
       open = 0;
       still = false;

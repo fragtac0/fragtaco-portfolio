@@ -5,6 +5,7 @@ import { frameSize, readCanvas, sizeBuffer } from "./wall-canvas";
 import { drawTiles } from "./wall-draw";
 import { createWallGl, type WallGl } from "./wall-gl";
 import { countOverlaps, countUnderText, createChoiceLayout, picturesSettled } from "./wall-choice";
+import { createCamera } from "./wall-camera";
 import { createChip, createProbe } from "./wall-hud";
 import { focusOf } from "./wall-focus";
 import { attachWallInput, createWallInput } from "./wall-input";
@@ -91,6 +92,7 @@ export function createWall(
   let cursor = "";
   const pose = createPose(videos);
   const motion = createMotion(st, REDUCE);
+  const camera = createCamera(st, REDUCE);
   const choiceOf = createChoiceLayout();
   const chip = createChip(videos, st);
   const probe = createProbe(canvas);
@@ -154,6 +156,7 @@ export function createWall(
     const choosing = st.choice !== null;
     const hovering = FINE && mouse.inside && !st.dragging && !choosing;
     motion.step(dt, hovering);
+    camera.step(dt);
     const list = layoutTiles({
       viewX: st.view.x,
       viewY: st.view.y,
@@ -161,10 +164,12 @@ export function createWall(
       vh,
       plan: st.plan,
       count: atlas.cells.length,
+      also: camera.views(),
     }) as Tile[];
     const { ft, point } = focusOf(st, list, hovering);
     const focusIdx = ft ? ft.idx : null;
     const choice = choiceOf(st);
+    if (choice?.shift) camera.shiftInto(choice.shift);
     const ghosts = pose.apply(list, {
       dt,
       size,
@@ -204,7 +209,11 @@ export function createWall(
     probe("echo", String(echo.size));
     probe("chosen", st.choice?.key ?? "");
     probe("kbd", st.kbd ? String(st.kbd.cy * st.plan.cols + st.kbd.cx) : "");
-    if (canvas.dataset.watchView) probe("view", `${Math.round(st.view.x)},${Math.round(st.view.y)}`);
+    if (canvas.dataset.watchView) {
+      probe("view", `${Math.round(st.view.x)},${Math.round(st.view.y)}`);
+      const at = st.choice ? list.find((tl) => tl.key === st.choice?.key) : undefined;
+      probe("chosenAt", at ? `${Math.round(at.cx)},${Math.round(at.cy)},${Math.round(at.w)}` : "");
+    }
     probe("under", choice ? String(countUnderText(list, choice)) : "0");
     probe("overlaps", choice ? String(countOverlaps(list, choice)) : "0");
     const cur = st.dragging ? "grabbing" : st.hoverKey ? "pointer" : "grab";
