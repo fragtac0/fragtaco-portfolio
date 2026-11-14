@@ -616,3 +616,31 @@ Eighth preview: `docs/redesign/round7-preview-8/index.html`. Both titles are set
 - "My experience" is the biggest, with a small description under it. "Olympus Mons" and the rest are smaller.
 
 Ninth preview: `docs/redesign/round7-preview-9/index.html`. Title 34 to 64 px in full cream; description 12.5 px at 70%; the name of the mountain 13 px, letter-spaced, in warm light orange (#ffc9a3); its line 11 px at 56%.
+
+### Feedback during the round 7 build (2026-11-14)
+
+Given while the build was at task 10 of 21, after Aditya looked at the build running on his machine. To be done after the tasks already planned, as extra tasks of round 7.
+
+**What he asked**
+
+1. The shelf and wall opening on the home page is still bad: "we see a preview of the wall but that fades away into something else. It still looks jarring." From the click to the open page it has to be seamless. His idea: load the page inside the box on the home page itself and expand that to full screen. He wants a preview first.
+2. The page change: 2.5 s (it was 3.5 s). The travelling edge should be wider and refracted. "The one in preview and the one on the screen right now is very different so fix that." At the moment "it just feels like a weird thing".
+3. The thumbnails on the portfolio page should be larger so the empty space is used. Remove the warp from the long form and short form walls, which he still saw.
+4. Keep git properly updated as documentation. Once the site is final there will be a Markdown case study of what every round did and how the site evolved.
+
+**What I found**
+
+- The opening: task 4 (R49.2) grows a copy of the home block and then dissolves it into the 3D scene. The copy is a different picture from the scene (flat CSS spines and drifting columns against 3D books and a WebGL wall), so the dissolve is the jarring part. It cannot be tuned away; the box and the scene have to be the same picture.
+- The page change: the build (R50.1) has a soft edge of about the same width as the preview (7% against 9%), but its edge wanders 3% where the preview wanders about 17%, its bend is 22 px with no colour split and only in Chromium browsers, and it draws a thin bright ring (a 0.6% core at up to 70%) where the preview has a soft glint. That thin ring is what reads as "a weird thing". Both the preview and the build also sit still for the first part of the time before anything shows; at 2.5 s that dead time would be about a third of the change.
+- The portfolio thumbnails are 108 by 60 px (long form) and 60 by 108 px (short form) on a 1440 by 900 screen.
+- The warp: it was removed in task 10 (R51.2, committed 13 Nov 18:42). I checked the running build: the long form wall is a flat grid. He most likely saw a build from before that commit. The same check showed the wall staying blank for 8 to 11 s on a hard load, which is the open finding of task 10's review.
+
+**Tenth preview:** `docs/redesign/round7-preview-10/index.html`
+
+- Opening: the box on the home page holds the live scene from the start, and opening only changes the frame around it. Three choices of what the box shows (the whole open page in miniature, which is his idea; half way; real size seen through the box), three lengths (0.7, 1.0, 1.4 s), and the home page behind either sinking back and dimming or staying as it is. Closing is the same move backwards.
+- Page change: 2.5 s, radial from the centre, with three edge widths (9%, 15%, 22% of the travel) and three strengths of refraction with a colour split. The front now starts just out of sight and ends as the last corner clears, so there is no dead time at either end.
+
+**My calls**
+
+- The larger portfolio thumbnails and the page change's new numbers become build tasks once he has picked from the preview; the opening is redesigned only after he approves a direction.
+- The case study is written when the site is final, from this log, `changes-2026-11.md`, the specs and plans, the build ledgers and the PRs. Nothing extra is needed now beyond keeping those complete.
