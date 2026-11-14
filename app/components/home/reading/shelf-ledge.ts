@@ -35,6 +35,10 @@ export function createLedge(
   mesh.visible = false; // until the first fit has drawn it
   let w = 0;
   let h = 0;
+  // one canvas and one texture for the life of the ledge: a new size redraws the same canvas and has the
+  // texture's storage made again, so nothing piles up in `track` as the window is resized
+  let canvas: HTMLCanvasElement | null = null;
+  let tex: THREE.CanvasTexture | null = null;
   return {
     mesh,
     fit(reachPx, heightPx, scale, dpr) {
@@ -45,23 +49,26 @@ export function createLedge(
       const cw = Math.max(2, Math.min(MAX_TEX_W, Math.round(reachPx * dpr)));
       const ch = Math.max(2, Math.round(heightPx * dpr));
       if (cw === w && ch === h) return;
+      canvas ??= document.createElement("canvas");
+      canvas.width = cw;
+      canvas.height = ch;
+      const x = canvas.getContext("2d");
+      if (!x) return;
       w = cw;
       h = ch;
-      const c = document.createElement("canvas");
-      c.width = cw;
-      c.height = ch;
-      const x = c.getContext("2d");
-      if (!x) return;
       drawLedge(x, reachPx, heightPx, cw / reachPx, ch / heightPx);
-      // a texture cannot change size once it is uploaded: a new one replaces it
-      const old = material.map;
-      const tex = track(new T.CanvasTexture(c));
-      tex.colorSpace = T.SRGBColorSpace;
-      tex.generateMipmaps = false;
-      tex.minFilter = T.LinearFilter;
-      material.map = tex;
-      material.needsUpdate = true;
-      old?.dispose();
+      if (!tex) {
+        tex = track(new T.CanvasTexture(canvas));
+        tex.colorSpace = T.SRGBColorSpace;
+        tex.generateMipmaps = false;
+        tex.minFilter = T.LinearFilter;
+        material.map = tex;
+        material.needsUpdate = true;
+      } else {
+        // a texture cannot change size once it is uploaded: free its storage, so the next upload makes it again
+        tex.dispose();
+        tex.needsUpdate = true;
+      }
     },
   };
 }

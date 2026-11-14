@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   DOT_ALPHA_MAX,
   DOT_ALPHA_MIN,
@@ -33,12 +33,21 @@ describe("dotAt", () => {
     expect(a.size > b.size).toBe(a.alpha > b.alpha);
   });
 
-  it("swells slowly: a dot changes by under 6% of its range in a second", () => {
-    for (const [x, y] of [[10, 10], [500, 300], [1200, 800]]) {
-      const a = dotAt(x, y, 5).alpha;
-      const b = dotAt(x, y, 6).alpha;
-      expect(Math.abs(a - b)).toBeLessThan(0.06 * (DOT_ALPHA_MAX - DOT_ALPHA_MIN));
+  it("swells slowly: no dot changes by more than 8.5% of its range in a second, anywhere", () => {
+    // the fastest the strength can move: 0.27 * 0.2 + 0.23 * 0.13 = 0.0839 of the range per second
+    let worst = 0;
+    for (let x = 3.5; x < 1500; x += 41) {
+      for (let y = 3.5; y < 900; y += 37) {
+        for (const t of [0, 3.3, 11, 29.5, 100, 4000]) {
+          const a = dotAt(x, y, t).alpha;
+          const b = dotAt(x, y, t + 1).alpha;
+          worst = Math.max(worst, Math.abs(a - b) / (DOT_ALPHA_MAX - DOT_ALPHA_MIN));
+        }
+      }
     }
+    expect(worst).toBeLessThanOrEqual(0.085);
+    // and the sweep is not vacuous: somewhere it does move at close to that rate
+    expect(worst).toBeGreaterThan(0.04);
   });
 
   it("is moving: the same dot looks different half a minute apart", () => {
@@ -46,16 +55,27 @@ describe("dotAt", () => {
   });
 });
 
-/** A 2D context that only records what paintDots asks of it. */
+/** Path2D is not in Node: a stand-in that keeps the rectangles added to it. */
+class FakePath2D {
+  rects: number[][] = [];
+  rect(x: number, y: number, w: number, h: number) {
+    this.rects.push([x, y, w, h]);
+  }
+}
+
+/** A 2D context that only records what paintDots asks of it: each fill with its colour and the rectangles of its path. */
 function recorder() {
   const rects: number[][] = [];
   const fills: string[] = [];
+  const fillRects: number[][][] = [];
   let style = "";
   const ctx = {
     clearRect: () => {},
-    beginPath: () => {},
-    rect: (x: number, y: number, w: number, h: number) => rects.push([x, y, w, h]),
-    fill: () => fills.push(style),
+    fill: (path: FakePath2D) => {
+      fills.push(style);
+      fillRects.push(path.rects);
+      rects.push(...path.rects);
+    },
     set fillStyle(v: string) {
       style = v;
     },
@@ -63,10 +83,17 @@ function recorder() {
       return style;
     },
   };
-  return { ctx: ctx as unknown as CanvasRenderingContext2D, rects, fills };
+  return { ctx: ctx as unknown as CanvasRenderingContext2D, rects, fills, fillRects };
 }
 
 describe("paintDots", () => {
+  beforeEach(() => {
+    vi.stubGlobal("Path2D", FakePath2D);
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("puts one dot on every 7 px cell, inside the area, in at most 16 fills", () => {
     const { ctx, rects, fills } = recorder();
     paintDots(ctx, 700, 350, 3);
@@ -96,5 +123,23 @@ describe("paintDots", () => {
     const small = recorder();
     paintDots(small.ctx, 20, 20, 0);
     expect(small.rects).toHaveLength(3 * 3);
+  });
+
+  it("paints each dot with the rule dotAt gives (to one of 16 steps), and a fill is one colour and one size", () => {
+    const { ctx, fills, fillRects } = recorder();
+    paintDots(ctx, 350, 210, 12.5);
+    const step = (DOT_SIZE_MAX - DOT_SIZE_MIN) / 15;
+    fillRects.forEach((rs, n) => {
+      const alpha = Number(/,([\d.]+)\)$/.exec(fills[n])?.[1]);
+      for (const [x, y, w] of rs) {
+        const d = dotAt(x + w / 2, y + w / 2, 12.5);
+        expect(Math.abs(w - d.size)).toBeLessThanOrEqual(step / 2 + 1e-9);
+        expect(w).toBeCloseTo(rs[0][2], 9);
+        // the colour is the one the size asks for (alpha is written to three places)
+        const f = (w - DOT_SIZE_MIN) / (DOT_SIZE_MAX - DOT_SIZE_MIN);
+        expect(alpha).toBeCloseTo(DOT_ALPHA_MIN + (DOT_ALPHA_MAX - DOT_ALPHA_MIN) * f, 3);
+      }
+    });
+    expect(fills.every((f) => f.startsWith("rgba(253,252,230,"))).toBe(true);
   });
 });

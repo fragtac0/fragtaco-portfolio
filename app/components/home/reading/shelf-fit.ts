@@ -55,7 +55,7 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   gl.fitLedge(f.reach * f.scale, h, f.baseRow, f.scale);
   placeMarker(els.marker, f.baseRow + Math.max(8, ledgeH - 8));
   // the dot field behind the row (a sibling of the host in the stage) stops at the ledge's top (reading.css `.dot-field`)
-  els.host.parentElement?.style.setProperty("--ledge-top", `${f.baseRow}px`);
+  els.stage?.style.setProperty("--ledge-top", `${f.baseRow}px`);
   // read by scripts/audit/shelf.json: the tallest spine's share of the height, the row's of the width, the feet's row
   canvas.dataset.tall = ((f.scale * tallest) / h).toFixed(4);
   canvas.dataset.row = ((f.scale * span) / w).toFixed(4);

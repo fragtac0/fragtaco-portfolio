@@ -30,6 +30,7 @@ type ReadingSceneProps = {
  */
 function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingSceneProps) {
   const { registerSceneHooks } = useLayerControl();
+  const stageRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<HTMLCanvasElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
@@ -66,6 +67,7 @@ function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingScenePr
     if (!engine || !host || !info) return;
     engine.mount({
       host,
+      stage: stageRef.current ?? undefined,
       info,
       marker: markerRef.current ?? undefined,
       status: statusRef.current ?? undefined,
@@ -118,7 +120,7 @@ function ReadingScene({ engine, books, active, onDrawn, gaveUp }: ReadingScenePr
   if (fallback) return <ReadingFallback books={books} />;
 
   return (
-    <div className="shelf-scene">
+    <div ref={stageRef} className="shelf-scene">
       <canvas ref={dotsRef} className="dot-field" aria-hidden="true" />
       <div ref={hostRef} className="shelf-host" />
       <div ref={infoRef} className="book-info">

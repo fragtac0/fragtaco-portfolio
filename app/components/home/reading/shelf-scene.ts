@@ -212,7 +212,7 @@ export async function buildShelfScene(
     // the rock ledge the books stand on, drawn at the size the stage is most likely to be; the fit redraws it if it is not
     const ledge = createLedge(T, WALLZ, unit, track);
     const ledgeAt = (reachPx: number, stageH: number, baseRow: number, scale: number) =>
-      ledge.fit(reachPx, ledgeHeight(stageH, baseRow), scale, dpr());
+      ledge.fit(reachPx, ledgeHeight(stageH, baseRow), scale, Math.min(window.devicePixelRatio || 1, RENDER_DPR_MAX));
     ledgeAt(guess.reach * guess.scale, window.innerHeight, guess.baseRow, guess.scale);
     scene.add(ledge.mesh);
 

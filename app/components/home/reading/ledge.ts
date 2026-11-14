@@ -10,7 +10,7 @@ import { channels, CREAM } from "../../../styles/tokens";
 
 /** The ledge's height in the preview's own units, and the most it is given on screen (CSS pixels). */
 export const LEDGE_H = 74;
-export const LEDGE_LINES = 10;
+const LEDGE_LINES = 10;
 /** The lines are 7.4 units apart, the first 1 unit under the top. */
 const LINE_GAP = 7.4;
 /** Points on a line are about this far apart along x. */
@@ -75,7 +75,7 @@ export function ledgeHeight(stageH: number, baseRow: number): number {
 }
 
 /** Both ends fade over this share of the width, so the ledge does not stop in a hard edge. */
-export const LEDGE_FADE = 0.06;
+const LEDGE_FADE = 0.06;
 
 /**
  * Draws the ledge onto a canvas of `cssW` by `cssH` CSS pixels, drawn at `sx` and `sy` device pixels per

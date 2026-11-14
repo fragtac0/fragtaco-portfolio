@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { ledgeHeight, ledgeLines, ledgeStroke, LEDGE_H, LEDGE_LINES } from "./ledge";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { drawLedge, ledgeHeight, ledgeLines, ledgeStroke, LEDGE_H } from "./ledge";
 
 /** The y values and x values of a path made of M and L points. */
 function points(d: string): { x: number; y: number }[] {
@@ -12,8 +12,7 @@ function points(d: string): { x: number; y: number }[] {
 describe("ledgeLines", () => {
   it("makes ten lines, top to bottom", () => {
     const lines = ledgeLines(1000);
-    expect(lines).toHaveLength(LEDGE_LINES);
-    expect(LEDGE_LINES).toBe(10);
+    expect(lines).toHaveLength(10);
     for (let i = 1; i < lines.length; i++) expect(lines[i].y).toBeGreaterThan(lines[i - 1].y);
     expect(lines[0].y).toBeCloseTo(1, 9);
   });
@@ -98,5 +97,84 @@ describe("ledgeHeight", () => {
     expect(ledgeHeight(390, 350)).toBe(40);
     expect(ledgeHeight(500, 500)).toBe(0);
     expect(ledgeHeight(500, 560)).toBe(0);
+  });
+});
+
+/** Path2D is not in Node: a stand-in that keeps the path text. */
+class FakePath2D {
+  constructor(readonly d: string) {}
+}
+
+/** A 2D context that records the order of what drawLedge asks of it. */
+function recorder() {
+  const ops: string[] = [];
+  const strokes: { color: string; width: number; d: string }[] = [];
+  const stops: [number, string][] = [];
+  const fillRects: number[][] = [];
+  const state = { strokeStyle: "", lineWidth: 0, composite: "source-over" };
+  const ctx = {
+    setTransform: (...a: number[]) => ops.push(`transform ${a.join(",")}`),
+    clearRect: () => ops.push("clear"),
+    lineJoin: "",
+    set strokeStyle(v: string) {
+      state.strokeStyle = v;
+    },
+    set lineWidth(v: number) {
+      state.lineWidth = v;
+    },
+    stroke: (p: FakePath2D) => {
+      ops.push("stroke");
+      strokes.push({ color: state.strokeStyle, width: state.lineWidth, d: p.d });
+    },
+    createLinearGradient: (...a: number[]) => {
+      ops.push(`gradient ${a.join(",")}`);
+      return { addColorStop: (at: number, c: string) => stops.push([at, c]) };
+    },
+    set globalCompositeOperation(v: string) {
+      state.composite = v;
+      ops.push(`composite ${v}`);
+    },
+    set fillStyle(_v: unknown) {},
+    fillRect: (...a: number[]) => {
+      ops.push(`fillRect@${state.composite}`);
+      fillRects.push(a);
+    },
+  };
+  return { ctx: ctx as unknown as CanvasRenderingContext2D, ops, strokes, stops, fillRects };
+}
+
+describe("drawLedge", () => {
+  beforeEach(() => {
+    vi.stubGlobal("Path2D", FakePath2D);
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("strokes the ten lines with ledgeStroke's colours and widths, fades the ends, and leaves the transform reset", () => {
+    const r = recorder();
+    drawLedge(r.ctx, 1000, 74, 2, 2);
+    const lines = ledgeLines(1000, 0, 74);
+    expect(r.strokes).toHaveLength(10);
+    r.strokes.forEach((st, i) => {
+      expect(st.color).toBe(ledgeStroke(lines[i]).color);
+      expect(st.width).toBe(ledgeStroke(lines[i]).width);
+      expect(st.d).toBe(lines[i].d);
+    });
+    // scaled to device pixels first, the whole canvas cleared, then the strokes
+    expect(r.ops[0]).toBe("transform 2,0,0,2,0,0");
+    expect(r.ops[1]).toBe("clear");
+    expect(r.ops.slice(2, 12)).toEqual(Array(10).fill("stroke"));
+    // then the fade: a gradient across the width, destination-in, one fill of the whole box
+    expect(r.ops.slice(12)).toEqual([
+      "gradient 0,0,1000,0",
+      "composite destination-in",
+      "fillRect@destination-in",
+      "composite source-over",
+      "transform 1,0,0,1,0,0",
+    ]);
+    expect(r.fillRects).toEqual([[0, 0, 1000, 74]]);
+    expect(r.stops.map(([at]) => at)).toEqual([0, 0.06, 0.94, 1]);
+    expect(r.stops.map(([, c]) => c)).toEqual(["rgba(0,0,0,0)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,0)"]);
   });
 });

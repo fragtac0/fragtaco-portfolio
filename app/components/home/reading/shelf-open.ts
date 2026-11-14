@@ -12,6 +12,8 @@ import type { Book, ShelfScene } from "./shelf-scene";
 export type ShelfEls = {
   /** The canvas goes in here. */
   host: HTMLElement;
+  /** The stage the host is in (the dot field is its other child): the fit sets `--ledge-top` on it. */
+  stage?: HTMLElement;
   /** The note card: `h3`, `.by`, `.note` and a `button`. */
   info: HTMLElement;
   /** The position marker under the line: a track with one thumb child (`.shelf-marker`). */
