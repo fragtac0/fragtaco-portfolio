@@ -698,3 +698,31 @@ He looked at the R54 build (the 2.5 s page change with the wide, refracted edge)
 | The bend on the arriving page | Half strength (the page being left keeps the full bend and the fringe) |
 
 These become tasks 27 and 28: `docs/superpowers/specs/2026-11-15-round7-change-arrival-design.md`, `docs/superpowers/plans/2026-11-15-round7-change-arrival.md`. They reverse two earlier rulings: R75 (the wall arrives after the reveal) and task 5's rule that the dock's second row is in neither picture.
+
+### Feedback on two half-built previews (2026-11-16, during the build)
+
+The build had stopped for most of a day and he looked at the two local builds as they stood: port 5180 (lane A at R56.1: the new page change and the larger thumbnails, without the finished arrival and without the live home boxes) and port 5181 (lane B at R55.3b: the live home boxes, on the old page change). He wrote:
+
+"shadow behind the nav bar is very weird. Long form and short form videos load up with a delay and bring back the slight chromatic aberration in the page animations. when I click on my experience - the nav bar for those three abruptly goes down and then comes back up, that is wrong. the book shelves and YT shelves still open weird and the books need to be properly visible with the stems, those details are missing." He attached a crop of the dock on the portfolio page with a dark box behind it. Asked where the fringe was missing, he added: "on 5181 - it's the bad transition - it should be proper with chromatic aberration and 2.25 secs".
+
+**What I found**
+
+| His point | Cause | What happens |
+|---|---|---|
+| The shadow behind the dock | My cut-out of R54.2b (R117): the video rings are masked in a box round the dock's glass, clear down to the foot of the screen, with an 8 px feather. It reads as a dark box. | The cut-out goes; thumbnails pass under the dock's glass (his choice). Task 29. |
+| The walls load with a delay | R75: the wall arrived after the reveal. | Already task 28 (the arriving page is finished before the reveal). |
+| The fringe is gone, "the bad transition" | Port 5181 is lane B's branch, cut from R53: it still has the old page change. On port 5180 the fringe is there (photographed, pushes of 145, 112 and 80 px for red, green and blue). | Nothing lost: the join brings the new change to the one build. The length goes from 2.5 s to 2.25 s (his number). Task 29. |
+| The dock drops and comes back on My experience | Task 5's rule: the second row closed for every change and opened after it. | Already task 28 (the dock keeps its row). |
+| The boxes "still open weird" | He gave no preference when asked what looks wrong. Port 5180 still has the old opening with the poster; the one-move opening is only on port 5181. | No change to the move. He checks it on the joined build. |
+| The books "with the stems" | On port 5181 the box shows the shelf scaled to cover the box: the books are cut off at the foot and the ledge is outside the box. The spec's 6.1 asked for the whole row on the ledge. | The box shows every book whole, standing on the ledge. My reading of "stems" (he gave no preference when asked). Task 30. |
+
+**His choices (2026-11-16)**
+
+| Question | Answer |
+|---|---|
+| Thumbnails near the dock | Pass under the glass |
+| What looks wrong in the opening | No preference |
+| What "stems" means | No preference |
+| Where the fringe was missing | On port 5181; and the change should run 2.25 s |
+
+These become tasks 29 and 30: `docs/superpowers/specs/2026-11-16-round7-second-look-design.md`, `docs/superpowers/plans/2026-11-16-round7-second-look.md`. Task 29 reverses R117 and R118 (the keep-out round the dock) and the 2.5 s of the follow-ups spec.
