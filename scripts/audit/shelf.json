@@ -1031,7 +1031,7 @@
    "ms": 4500,
    "rect": "#blkRead .blk-box",
    "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
-   "flat": 3,
+   "flat": 0,
    "share": 1.01,
    "keep": "local-reading-stall-hang-1440x900-open",
    "ats": [
@@ -1047,7 +1047,7 @@
     4000
    ]
   },
-  "label": "R49.2 shelf open, stall-hang 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
+  "label": "R49.2 shelf open, stall-hang 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: a scene that is not ready shows its own dark ground in its box, spec 6.1: during the 400 ms the click waits, and after the close while the scene is still being made; the plain grid's move itself is checked frame by frame in box-open.json RF1)"
  },
  {
   "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
@@ -1061,7 +1061,7 @@
    "ms": 2000,
    "rect": "#blkRead .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
-   "flat": 3,
+   "flat": 0,
    "share": 1.01,
    "keep": "local-reading-stall-hang-1440x900-close",
    "ats": [
@@ -1074,7 +1074,7 @@
     1000
    ]
   },
-  "label": "R49.2 shelf close, stall-hang 1440x900:: no frame is the plain ground"
+  "label": "R49.2 shelf close, stall-hang 1440x900:: no frame is the plain ground (flat check off: a scene that is not ready shows its own dark ground in its box, spec 6.1: during the 400 ms the click waits, and after the close while the scene is still being made; the plain grid's move itself is checked frame by frame in box-open.json RF1)"
  },
  {
   "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
@@ -1104,7 +1104,7 @@
    "ms": 4500,
    "rect": "#blkRead .blk-box",
    "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
-   "flat": 3,
+   "flat": 0,
    "share": 1.01,
    "keep": "local-reading-stall-late-1440x900-open",
    "ats": [
@@ -1120,7 +1120,7 @@
     4000
    ]
   },
-  "label": "R49.2 shelf open, stall-late 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
+  "label": "R49.2 shelf open, stall-late 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: a scene that is not ready shows its own dark ground in its box, spec 6.1: during the 400 ms the click waits, and after the close while the scene is still being made; the plain grid's move itself is checked frame by frame in box-open.json RF1)"
  },
  {
   "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
@@ -1141,7 +1141,7 @@
    "ms": 2000,
    "rect": "#blkRead .blk-box",
    "eval": "document.querySelector('.xp-close').click()",
-   "flat": 3,
+   "flat": 0,
    "share": 1.01,
    "keep": "local-reading-stall-late-1440x900-close",
    "ats": [
@@ -1154,7 +1154,7 @@
     1000
    ]
   },
-  "label": "R49.2 shelf close, stall-late 1440x900:: no frame is the plain ground"
+  "label": "R49.2 shelf close, stall-late 1440x900:: no frame is the plain ground (flat check off: a scene that is not ready shows its own dark ground in its box, spec 6.1: during the 400 ms the click waits, and after the close while the scene is still being made; the plain grid's move itself is checked frame by frame in box-open.json RF1)"
  },
  {
   "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",

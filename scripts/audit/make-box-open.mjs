@@ -28,7 +28,8 @@ for (const s of sizes)
   for (const [name, b] of Object.entries(BOX)) {
     const tag = `${s.name} ${name}`,
       keep = `local-box-${s.name}-${name}`;
-    push(load(s), toBlock(b, `${tag}: scroll to the box`));
+    // the wall's thumbnails come from the network and arrive over the first seconds: a wall of grey placeholders is flat to the eye of the empty-frame check, so the wall's box is given time to fill
+    push(load(s), toBlock(b, `${tag}: scroll to the box`), ...(name === "wall" ? [{ wait: 6000 }] : []));
     push({
       eval: `(()=>{const sc=document.querySelector('.box-scene[data-kind=${b.kind}]');const blk=document.getElementById('${b.id}');const r=sc.getBoundingClientRect();window.__boBox={left:r.left,top:r.top,width:r.width,height:r.height};window.__boCanvas=sc.querySelector('canvas');
       return JSON.stringify({box:Object.values(window.__boBox).map(Math.round),inBox:sc.parentElement.className==='blk-live',drawn:sc.hasAttribute('data-drawn'),plain:sc.hasAttribute('data-plain'),live:blk.hasAttribute('data-live'),canvases:sc.querySelectorAll('canvas').length,inert:sc.hasAttribute('inert'),ariaHidden:sc.getAttribute('aria-hidden'),sceneOpacity:getComputedStyle(sc.firstElementChild.nextElementSibling).opacity,boxIsDarkUntilDrawn:getComputedStyle(blk.querySelector('.blk-box')).backgroundColor})})()`,

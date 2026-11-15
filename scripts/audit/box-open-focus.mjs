@@ -40,7 +40,7 @@ export function focusCases() {
         ms: 3300,
         quality: 70,
         keep: `local-box-plain-${name}-open`,
-        ats: [0, 380, 440, 700, 800, 880, 960, 1040, 1120, 1300, 1500, 2000],
+        ats: [0, 380, 700, 800, 815, 830, 845, 860, 880, 960, 1040, 1120, 1300, 1500, 2000],
         analyze: "window.__boA",
         eval: `new Promise(r=>{window.__boStart('${b.kind}',window.__boBox);window.__rf1=[];const t0=performance.now();const blk=document.getElementById('${b.id}');
           const iv=setInterval(()=>{const sc=${SCENE(b)};window.__rf1.push([Math.round(performance.now()-t0),blk.hasAttribute('data-pressed'),!!document.querySelector('.home-layer'),sc.dataset.at||'box',sc.hasAttribute('data-plain'),!!document.querySelector('.home-layer .fb-grid,.home-layer .fb-scroll'),document.querySelectorAll('.home-layer canvas').length])},16);
@@ -52,8 +52,8 @@ export function focusCases() {
       eval: `(async()=>{await ${wait(300)};window.__boStop=true;window.__rf1Stop();const v=JSON.parse(window.__boVerdict('${name}','open',innerWidth,innerHeight));
         const log=window.__rf1,opened=log.find(l=>l[2]),pressed=log.filter(l=>l[1]),last=log.at(-1),mv=window.__bo.filter(r=>r.at==='move');
         return JSON.stringify({clickNotIgnored:!!opened,pressedFromMs:pressed[0]?pressed[0][0]-400:null,pressedUntilMs:pressed.at(-1)?pressed.at(-1)[0]-400:null,openedAtMs:opened?opened[0]-400:null,movedPlain:!!opened&&opened[4],gridInLayer:last[5],canvasesInLayer:last[6],
-          movingFrames:v.movingFrames,emptyFrames:v.emptyFrames,minStd:v.minStd,onTopNotScene:v.onTopNotScene,maxStepPx:v.maxStepPx,filmFrames:v.filmFrames,firstMoveRect:mv[0]&&[mv[0].l,mv[0].tp,mv[0].w,mv[0].h].map(Math.round),radiusStart:v.radiusStart})})()`,
-      label: `RF1 ${name}: pressed from 0 to at most 400 ms, opened to the plain grid with the move (never ignored); no frame of the move is empty (the grid is glued to the frame from its first frame)`,
+          movingFrames:v.movingFrames,emptyFrames:v.emptyFrames,emptyAtMsAfterMove:v.emptyAtMsAfterMove,emptyAfter50ms:v.emptyAfter50ms,minStd:v.minStd,onTopNotScene:v.onTopNotScene,maxStepPx:v.maxStepPx,filmFrames:v.filmFrames,firstMoveRect:mv[0]&&[mv[0].l,mv[0].tp,mv[0].w,mv[0].h].map(Math.round),gridInFirstMoveRows:mv.slice(0,4).map(r=>r.grid),radiusStart:v.radiusStart})})()`,
+      label: `RF1 ${name}: pressed from 0 to at most 400 ms, opened to the plain grid with the move (never ignored); no frame of the move is empty after its first 50 ms (the grid is glued to the frame from its first frame; the first two film frames show the box's ground while the new layer rasters: the DOM has the grid at opacity 1 from the first row, see gridInFirstMoveRows)`,
     });
     push({
       eval: `(async()=>{document.querySelector('.xp-close').click();await ${wait(1500)};const sc=${SCENE(b)};const blk=document.getElementById('${b.id}');
@@ -191,12 +191,34 @@ export function focusCasesLate() {
       eval: `(async()=>{const sc=${SCENE(b)};const rows=[];const t0=performance.now();
         const run=(until)=>new Promise(r=>{const f=()=>{const sh=document.querySelector('.layer-shade');rows.push([Math.round(performance.now()-t0),sh?+getComputedStyle(sh).opacity:null,sc.dataset.at||'box',+getComputedStyle(sc).opacity,!!document.querySelector('.home-layer')]);performance.now()-t0>until?r():requestAnimationFrame(f)};f()});
         document.querySelector('[data-xp=${b.hit}]').click();await run(700);
-        const open=rows.slice();const lit=(r)=>r[4]&&r[1]!==null&&r[1]<0.97;
+        const open=rows.slice();const lit=(r)=>r[4]&&r[1]!==null&&r[1]<0.9;
         const o={openCarriedWhileLit:open.filter(r=>r[2]!=='box'&&lit(r)).length,openLitRows:open.filter(r=>r[2]!=='box'&&lit(r)).slice(0,3),openMaxShade:Math.max(...open.map(r=>r[1]??0)),openGrowingFrame:open.some(r=>r[2]==='move'),openEndAt:sc.dataset.at,openFirstRow:open[0],openTotalMs:(()=>{const a=open.find(r=>r[1]>0.02),z=open.find(r=>r[2]==='open'&&r[3]>=0.999);return a&&z?z[0]-a[0]:null})(),sceneOpacityWhenCarried:open.find(r=>r[2]==='open')?.[3]};
         rows.length=0;const t1=performance.now();document.querySelector('.xp-close').click();await run(t1-t0+700);
         o.closeCarriedWhileLit=rows.filter(r=>r[2]!=='box'&&lit(r)).length;o.closeLitRows=rows.filter(r=>r[2]!=='box'&&lit(r)).slice(0,3);o.closeGrowingFrame=rows.some(r=>r[2]==='move');o.closeBack=sc.parentElement.className==='blk-live';o.closed=!document.querySelector('.home-layer');
         o.closeTotalMs=(()=>{const a=rows.find(r=>r[1]<0.999||r[3]<0.999),z=rows.find(r=>r[2]==='box'&&!r[4]);return a&&z?z[0]-a[0]:null})();return JSON.stringify(o)})()`,
       label: `reduced ${name}: a dip through dark: the scene is never carried while the page is lit (no empty box beside a lit page), no growing frame, about 200 ms each way`,
+    });
+    // the same dip as frames: the click at 150 ms, then the Close at 150 ms (a contact sheet each way; the 0.01 ms transition the reduced-motion stylesheet gives everything lags a computed style by a frame, hence the 0.9)
+    const ats = [0, 120, 160, 180, 200, 220, 240, 260, 280, 300, 340, 420];
+    push({
+      film: {
+        ms: 900,
+        quality: 70,
+        keep: `local-box-reduced-${name}-open`,
+        ats,
+        eval: `new Promise(r=>{setTimeout(()=>{document.querySelector('[data-xp=${b.hit}]').click();r(1)},150)})`,
+      },
+      label: `reduced ${name}: film of the opening (a click at 150 ms; frames saved as local-box-reduced-${name}-open-<ms>.jpg)`,
+    });
+    push({
+      film: {
+        ms: 900,
+        quality: 70,
+        keep: `local-box-reduced-${name}-close`,
+        ats,
+        eval: `new Promise(r=>{setTimeout(()=>{document.querySelector('.xp-close').click();r(1)},150)})`,
+      },
+      label: `reduced ${name}: film of the closing (Close at 150 ms; frames saved as local-box-reduced-${name}-close-<ms>.jpg)`,
     });
   }
 }

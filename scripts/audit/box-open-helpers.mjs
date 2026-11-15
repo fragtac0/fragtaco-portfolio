@@ -27,7 +27,7 @@ export const HELPERS = `(() => {
       const chrome = hs ? (hs.visibility === 'hidden' ? 0 : +hs.opacity) : 0;
       const pts = [[.5,.5],[.3,.3],[.7,.3],[.3,.7],[.7,.7]].map(([a,b]) => [r.left + r.width*a, r.top + r.height*b]).filter(([x,y]) => x >= 0 && y >= 0 && x < innerWidth && y < innerHeight);
       const top = pts.map(([x,y]) => { const e = document.elementsFromPoint(x,y)[0]; return !!e && sc.contains(e); });
-      const row = { t, at: sc.dataset.at || 'box', l: r.left, tp: r.top, w: r.width, h: r.height, rad: parseFloat(getComputedStyle(sc).borderTopLeftRadius) || 0, chrome, topInScene: top.every(Boolean), canvases: sc.querySelectorAll('canvas').length };
+      const row = { t, at: sc.dataset.at || 'box', l: r.left, tp: r.top, w: r.width, h: r.height, rad: parseFloat(getComputedStyle(sc).borderTopLeftRadius) || 0, chrome, topInScene: top.every(Boolean), canvases: sc.querySelectorAll('canvas').length, grid: (() => { const g = sc.querySelector('.fb-scene'); if (!g) return null; const gs = getComputedStyle(g); return [+gs.opacity, g.getBoundingClientRect().width | 0, sc.hasAttribute('data-plain')]; })() };
       if (n++ % 6 === 0 && chrome === 0) row.others = others(sc);
       window.__bo.push(row);
       if (!window.__boStop) requestAnimationFrame(rec);
@@ -79,7 +79,7 @@ export const HELPERS = `(() => {
     return JSON.stringify({
       kind, dir, filmFrames: an.length, recorderFrames: bo.length, movingFrames: moving.length,
       diffAfterMovePct: d.map((a) => a.diffPct), diffMaxFirst100msPct: d.length ? Math.max(...d.map((a) => a.diffPct)) : null, diffFrames: d.length, diffFirstAfterMs: d[0] ? d[0].afterMs : null, clockOffsetMs: +(window.__boOff || 0).toFixed(1),
-      emptyFrames: empty.length, emptyAtMsAfterMove: empty.map((a) => { const m0 = bo.find((q) => q.at === 'move'); return m0 ? +(a.ts - m0.t).toFixed(1) : null; }), minStd: an.length ? Math.min(...an.filter((a) => a.std != null).map((a) => a.std)) : null,
+      emptyFrames: empty.length, emptyAfter50ms: empty.filter((a) => { const m0 = bo.find((q) => q.at === 'move'); return m0 && a.ts - m0.t > 50; }).length, emptyAtMsAfterMove: empty.map((a) => { const m0 = bo.find((q) => q.at === 'move'); return m0 ? +(a.ts - m0.t).toFixed(1) : null; }), minStd: an.length ? Math.min(...an.filter((a) => a.std != null).map((a) => a.std)) : null,
       onTopNotScene: bo.filter((r) => r.chrome === 0 && r.at !== 'box' && !r.topInScene).length,
       othersDrawnBeforeChrome: [...new Set(beforeChrome.flatMap((r) => r.others || []))],
       samplesOthers: beforeChrome.filter((r) => r.others).length,

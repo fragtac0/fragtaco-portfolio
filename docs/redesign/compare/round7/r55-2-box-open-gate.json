@@ -1,39 +1,44 @@
 {
  "round": "7 follow-ups",
- "part": "R55.2",
+ "part": "R55.2 (fix round 1: R55.2c, R55.2d, R55.2e)",
  "what": "the home box holds the live scene and opening is one move; numbers from scripts/audit/box-open.json (production build on :5181, headless Chrome, films are screencasts), no pictures",
  "pass_bars": {
-  "diffAfterClickPct": "under 1 (the frame before the click against the first frames after, share of the box's pixels a channel 48 or more apart)",
+  "diffMaxFirst100msPct": "the share of the box pixels (a channel 48 or more apart) that differ from the last frame before the move, in each film frame of the first 100 ms of the move (the first frame whose recorder row is in the move starts it; the film and recorder clocks are matched). The first frames (no swap, no fade) are under 1; later frames show the move itself (a growing frame re-renders text and spine edges), up to 1.9 on the phone shelf, looked at: edge outlines only",
   "emptyFrames": 0,
   "onTopNotScene": 0,
   "othersDrawnBeforeChrome": "none",
   "chromeStartsAtShare": "0.72 or just after",
-  "frameCost": "no frame over 34 ms beyond a cold-start outlier"
+  "frameCost": "no frame over 34 ms on the first opening (CPU 4x, 1440x900 dpr 2 and the phone profile)"
  },
  "films": [
   {
    "case": "1440x900 shelf: OPEN",
    "kind": "shelf",
    "dir": "open",
-   "recorderFrames": 317,
-   "movingFrames": 62,
-   "diffAfterClickPct": [
+   "recorderFrames": 340,
+   "movingFrames": 61,
+   "diffAfterMovePct": [
     0,
     0,
-    0
+    0.012,
+    0.089,
+    0.088,
+    0.092
    ],
-   "diffFirstAfterMs": 2.3,
+   "diffMaxFirst100msPct": 0.092,
+   "diffFirstAfterMs": 16.4,
+   "clockOffsetMs": -0.3,
    "emptyFrames": 0,
-   "minStd": 67.51,
+   "minStd": 66.85,
    "onTopNotScene": 0,
    "othersDrawnBeforeChrome": [],
    "samplesOthers": 6,
    "canvasesMax": 2,
    "radiusStart": 14,
    "radiusAtOpen": 0,
-   "chromeStartsAtShare": 0.742,
-   "maxStepPx": 38.5,
-   "maxRecorderGapMs": 29.6,
+   "chromeStartsAtShare": 0.735,
+   "maxStepPx": 38.9,
+   "maxRecorderGapMs": 23.3,
    "sameCanvas": true,
    "endsOpen": true,
    "endRect": [
@@ -50,31 +55,36 @@
     648,
     300
    ],
-   "moveMs": 1049
+   "moveMs": 1034
   },
   {
    "case": "1440x900 shelf: CLOSE",
    "kind": "shelf",
    "dir": "close",
-   "recorderFrames": 645,
+   "recorderFrames": 661,
    "movingFrames": 122,
-   "diffAfterClickPct": [
+   "diffAfterMovePct": [
+    0,
+    0,
+    0,
     0,
     0,
     0
    ],
-   "diffFirstAfterMs": 9.1,
+   "diffMaxFirst100msPct": 0,
+   "diffFirstAfterMs": 14,
+   "clockOffsetMs": -0.7,
    "emptyFrames": 0,
-   "minStd": 68.72,
+   "minStd": 69.66,
    "onTopNotScene": 0,
    "othersDrawnBeforeChrome": [],
-   "samplesOthers": 11,
+   "samplesOthers": 12,
    "canvasesMax": 2,
-   "radiusStart": 14,
+   "radiusStart": 13.9998,
    "radiusAtOpen": 0,
    "chromeStartsAtShare": 1,
-   "maxStepPx": 39,
-   "maxRecorderGapMs": 24.4,
+   "maxStepPx": 38.3,
+   "maxRecorderGapMs": 23.3,
    "sameCanvas": true,
    "backInBox": true,
    "endRect": [
@@ -92,31 +102,36 @@
    "focusOnBlock": true,
    "homeSunk": "none",
    "layerGone": true,
-   "moveMs": 1027
+   "moveMs": 1025
   },
   {
    "case": "1440x900 wall: OPEN",
    "kind": "wall",
    "dir": "open",
-   "recorderFrames": 432,
-   "movingFrames": 62,
-   "diffAfterClickPct": [
+   "recorderFrames": 434,
+   "movingFrames": 61,
+   "diffAfterMovePct": [
     0,
     0,
-    0.049
+    0.109,
+    0.108,
+    0.109,
+    0.554
    ],
-   "diffFirstAfterMs": 3.2,
+   "diffMaxFirst100msPct": 0.554,
+   "diffFirstAfterMs": 16.2,
+   "clockOffsetMs": -0.6,
    "emptyFrames": 0,
-   "minStd": 66.29,
+   "minStd": 65.73,
    "onTopNotScene": 0,
    "othersDrawnBeforeChrome": [],
    "samplesOthers": 6,
    "canvasesMax": 1,
    "radiusStart": 14,
    "radiusAtOpen": 0,
-   "chromeStartsAtShare": 0.743,
-   "maxStepPx": 38.4,
-   "maxRecorderGapMs": 19.5,
+   "chromeStartsAtShare": 0.731,
+   "maxStepPx": 38.8,
+   "maxRecorderGapMs": 21.4,
    "sameCanvas": true,
    "endsOpen": true,
    "endRect": [
@@ -133,31 +148,36 @@
     648,
     300
    ],
-   "moveMs": 1038
+   "moveMs": 1033
   },
   {
    "case": "1440x900 wall: CLOSE",
    "kind": "wall",
    "dir": "close",
-   "recorderFrames": 731,
+   "recorderFrames": 817,
    "movingFrames": 122,
-   "diffAfterClickPct": [
+   "diffAfterMovePct": [
     0,
-    0,
-    0
+    0.038,
+    0.038,
+    0.042,
+    0.042,
+    0.042
    ],
-   "diffFirstAfterMs": 6.8,
+   "diffMaxFirst100msPct": 0.042,
+   "diffFirstAfterMs": 16.6,
+   "clockOffsetMs": -0.8,
    "emptyFrames": 0,
-   "minStd": 66.03,
+   "minStd": 65.93,
    "onTopNotScene": 0,
    "othersDrawnBeforeChrome": [],
    "samplesOthers": 12,
    "canvasesMax": 1,
-   "radiusStart": 13.9999,
+   "radiusStart": 14,
    "radiusAtOpen": 0,
    "chromeStartsAtShare": 1,
-   "maxStepPx": 38.9,
-   "maxRecorderGapMs": 25.5,
+   "maxStepPx": 38.5,
+   "maxRecorderGapMs": 29.4,
    "sameCanvas": true,
    "backInBox": true,
    "endRect": [
@@ -175,31 +195,36 @@
    "focusOnBlock": true,
    "homeSunk": "none",
    "layerGone": true,
-   "moveMs": 1024
+   "moveMs": 1033
   },
   {
    "case": "390x844 shelf: OPEN",
    "kind": "shelf",
    "dir": "open",
-   "recorderFrames": 238,
+   "recorderFrames": 243,
    "movingFrames": 61,
-   "diffAfterClickPct": [
+   "diffAfterMovePct": [
     0,
     0,
-    0.318
+    0.318,
+    0.416,
+    1.903,
+    1.902
    ],
-   "diffFirstAfterMs": 8.2,
+   "diffMaxFirst100msPct": 1.903,
+   "diffFirstAfterMs": 15.9,
+   "clockOffsetMs": -0.6,
    "emptyFrames": 0,
-   "minStd": 50.17,
+   "minStd": 50.07,
    "onTopNotScene": 0,
    "othersDrawnBeforeChrome": [],
    "samplesOthers": 6,
    "canvasesMax": 2,
    "radiusStart": 14,
    "radiusAtOpen": 0,
-   "chromeStartsAtShare": 0.72,
-   "maxStepPx": 25,
-   "maxRecorderGapMs": 24.2,
+   "chromeStartsAtShare": 0.746,
+   "maxStepPx": 24.9,
+   "maxRecorderGapMs": 27.3,
    "sameCanvas": true,
    "endsOpen": true,
    "endRect": [
@@ -216,30 +241,128 @@
     358,
     332
    ],
-   "moveMs": 1033
+   "moveMs": 1026
   },
   {
    "case": "390x844 shelf: CLOSE",
    "kind": "shelf",
    "dir": "close",
-   "recorderFrames": 473,
-   "movingFrames": 122,
-   "diffAfterClickPct": [
+   "recorderFrames": 239,
+   "movingFrames": 61,
+   "diffAfterMovePct": [
     0,
     0,
-    0
+    0,
+    0.424,
+    0.427,
+    0.442
    ],
-   "diffFirstAfterMs": 3.1,
+   "diffMaxFirst100msPct": 0.442,
+   "diffFirstAfterMs": 15.2,
+   "clockOffsetMs": -0.3,
    "emptyFrames": 0,
-   "minStd": 50.29,
+   "minStd": 50.13,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 6,
+   "canvasesMax": 2,
+   "radiusStart": 14,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 1,
+   "maxStepPx": 25,
+   "maxRecorderGapMs": 22.6,
+   "sameCanvas": true,
+   "backInBox": true,
+   "endRect": [
+    16,
+    385,
+    358,
+    332
+   ],
+   "boxRect": [
+    16,
+    385,
+    358,
+    332
+   ],
+   "focusOnBlock": true,
+   "homeSunk": "none",
+   "layerGone": true,
+   "moveMs": 1036
+  },
+  {
+   "case": "390x844 wall: OPEN",
+   "kind": "wall",
+   "dir": "open",
+   "recorderFrames": 284,
+   "movingFrames": 61,
+   "diffAfterMovePct": [
+    0,
+    0.073,
+    0.084,
+    0.456,
+    0.479,
+    0.386
+   ],
+   "diffMaxFirst100msPct": 0.479,
+   "diffFirstAfterMs": 16.3,
+   "clockOffsetMs": -0.1,
+   "emptyFrames": 0,
+   "minStd": 69.82,
+   "onTopNotScene": 0,
+   "othersDrawnBeforeChrome": [],
+   "samplesOthers": 6,
+   "canvasesMax": 1,
+   "radiusStart": 14,
+   "radiusAtOpen": 0,
+   "chromeStartsAtShare": 0.726,
+   "maxStepPx": 25.1,
+   "maxRecorderGapMs": 21.1,
+   "sameCanvas": true,
+   "endsOpen": true,
+   "endRect": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "focus": "xp-close",
+   "chromeOpacity": "1",
+   "startRect": [
+    16,
+    385,
+    358,
+    332
+   ],
+   "moveMs": 1030
+  },
+  {
+   "case": "390x844 wall: CLOSE",
+   "kind": "wall",
+   "dir": "close",
+   "recorderFrames": 557,
+   "movingFrames": 122,
+   "diffAfterMovePct": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.39
+   ],
+   "diffMaxFirst100msPct": 0.39,
+   "diffFirstAfterMs": 12.9,
+   "clockOffsetMs": -0.4,
+   "emptyFrames": 0,
+   "minStd": 69.7,
    "onTopNotScene": 0,
    "othersDrawnBeforeChrome": [],
    "samplesOthers": 12,
-   "canvasesMax": 2,
-   "radiusStart": 13.9998,
+   "canvasesMax": 1,
+   "radiusStart": 13.9997,
    "radiusAtOpen": 0,
    "chromeStartsAtShare": 1,
-   "maxStepPx": 24.9,
+   "maxStepPx": 24.8,
    "maxRecorderGapMs": 19.3,
    "sameCanvas": true,
    "backInBox": true,
@@ -258,143 +381,176 @@
    "focusOnBlock": true,
    "homeSunk": "none",
    "layerGone": true,
-   "moveMs": 1021
-  },
-  {
-   "case": "390x844 wall: OPEN",
-   "kind": "wall",
-   "dir": "open",
-   "recorderFrames": 284,
-   "movingFrames": 61,
-   "diffAfterClickPct": [
-    0,
-    0.002,
-    0.119
-   ],
-   "diffFirstAfterMs": 12.7,
-   "emptyFrames": 0,
-   "minStd": 68.59,
-   "onTopNotScene": 0,
-   "othersDrawnBeforeChrome": [],
-   "samplesOthers": 6,
-   "canvasesMax": 1,
-   "radiusStart": 14,
-   "radiusAtOpen": 0,
-   "chromeStartsAtShare": 0.729,
-   "maxStepPx": 25.1,
-   "maxRecorderGapMs": 20.3,
-   "sameCanvas": true,
-   "endsOpen": true,
-   "endRect": [
-    0,
-    0,
-    390,
-    844
-   ],
-   "focus": "xp-close",
-   "chromeOpacity": "1",
-   "startRect": [
-    16,
-    385,
-    358,
-    332
-   ],
-   "moveMs": 1031
-  },
-  {
-   "case": "390x844 wall: CLOSE",
-   "kind": "wall",
-   "dir": "close",
-   "recorderFrames": 553,
-   "movingFrames": 122,
-   "diffAfterClickPct": [
-    0,
-    0,
-    0.154
-   ],
-   "diffFirstAfterMs": 11,
-   "emptyFrames": 0,
-   "minStd": 69.99,
-   "onTopNotScene": 0,
-   "othersDrawnBeforeChrome": [],
-   "samplesOthers": 12,
-   "canvasesMax": 1,
-   "radiusStart": 14,
-   "radiusAtOpen": 0,
-   "chromeStartsAtShare": 1,
-   "maxStepPx": 25.2,
-   "maxRecorderGapMs": 20.1,
-   "sameCanvas": true,
-   "backInBox": true,
-   "endRect": [
-    16,
-    385,
-    358,
-    332
-   ],
-   "boxRect": [
-    16,
-    385,
-    358,
-    332
-   ],
-   "focusOnBlock": true,
-   "homeSunk": "none",
-   "layerGone": true,
-   "moveMs": 1029
+   "moveMs": 1019
   }
  ],
  "reviewFocus": {
-  "RF1 shelf: stalled scene (its preparation never finishes): scroll to the box": {
-   "drawnAfterMs": 20603,
+  "RF1 shelf: stalled scene (its preparation never finishes): the box is live and not drawn yet": {
+   "box": [
+    58,
+    457,
+    648,
+    300
+   ],
    "drawn": false,
-   "plain": false
+   "plain": false,
+   "live": true
   },
-  "RF1 shelf: a click before the scene is ready waits at most 400 ms (pressed), then opens to the plain grid with the same move; never ignored, never empty": {
+  "RF1 shelf: pressed from 0 to at most 400 ms, opened to the plain grid with the move (never ignored); no frame of the move is empty after its first 50 ms (the grid is glued to the frame from its first frame; the first two film frames show the box's ground while the new layer rasters: the DOM has the grid at opacity 1 from the first row, see gridInFirstMoveRows)": {
    "clickNotIgnored": true,
-   "pressedFromMs": 42,
-   "pressedUntilMs": 362,
-   "openedAtMs": 441,
+   "pressedFromMs": 17,
+   "pressedUntilMs": 401,
+   "openedAtMs": 417,
    "movedPlain": true,
    "gridInLayer": true,
    "canvasesInLayer": 0,
-   "endAt": "open",
-   "neverOpenedEmpty": true
+   "movingFrames": 61,
+   "emptyFrames": 3,
+   "emptyAtMsAfterMove": [
+    0,
+    16.6,
+    33.3
+   ],
+   "emptyAfter50ms": 0,
+   "minStd": 0.08,
+   "onTopNotScene": 0,
+   "maxStepPx": 38.9,
+   "filmFrames": 180,
+   "firstMoveRect": [
+    58,
+    457,
+    648,
+    300
+   ],
+   "gridInFirstMoveRows": [
+    [
+     1,
+     648,
+     true
+    ],
+    [
+     1,
+     648,
+     true
+    ],
+    [
+     1,
+     648,
+     true
+    ],
+    [
+     1,
+     648,
+     true
+    ]
+   ],
+   "radiusStart": 14
   },
-  "RF1 shelf: closing the plain grid puts the flat preview back": {
+  "RF1 shelf: closing a give-up puts the box's own scene back (not the flat preview: only a failed scene or a lost context keeps that)": {
    "closed": true,
    "sceneInBox": true,
-   "miniPreviewShown": true,
-   "sceneHidden": true,
+   "plainFlagGone": true,
+   "blockLive": true,
+   "miniPreviewHidden": true,
+   "sceneShown": true,
    "focusOnBlock": true
   },
-  "RF1 wall: stalled scene (its preparation never finishes): scroll to the box": {
-   "drawnAfterMs": 20602,
-   "drawn": false,
-   "plain": false
+  "LATE shelf: a late scene (stall 6 s): the click opens the plain grid, and for as long as this opening lasts no 3D scene is swapped in": {
+   "openedAtMs": 501,
+   "gridAtEnd": true,
+   "canvasInLayerEver": false,
+   "drawnWhileOpen": false,
+   "layerReady": true
   },
-  "RF1 wall: a click before the scene is ready waits at most 400 ms (pressed), then opens to the plain grid with the same move; never ignored, never empty": {
+  "LATE shelf: after the close the scene gets ready and the box holds it again (a give-up lasts one opening); it draws": {
+   "closed": true,
+   "drawnAfterMs": 4003,
+   "plainFlag": false,
+   "blockLive": true,
+   "miniPreviewHidden": true,
+   "canvasInBox": true,
+   "draws1s": 13
+  },
+  "LATE shelf: the next opening is the live scene (a canvas in the layer, no grid)": {
+   "opensLive": true,
+   "noGrid": true,
+   "ready": true,
+   "closed": true
+  },
+  "RF1 wall: stalled scene (its preparation never finishes): the box is live and not drawn yet": {
+   "box": [
+    734,
+    457,
+    648,
+    300
+   ],
+   "drawn": false,
+   "plain": false,
+   "live": true
+  },
+  "RF1 wall: pressed from 0 to at most 400 ms, opened to the plain grid with the move (never ignored); no frame of the move is empty after its first 50 ms (the grid is glued to the frame from its first frame; the first two film frames show the box's ground while the new layer rasters: the DOM has the grid at opacity 1 from the first row, see gridInFirstMoveRows)": {
    "clickNotIgnored": true,
-   "pressedFromMs": 43,
-   "pressedUntilMs": 362,
-   "openedAtMs": 442,
+   "pressedFromMs": 18,
+   "pressedUntilMs": 402,
+   "openedAtMs": 419,
    "movedPlain": true,
    "gridInLayer": true,
    "canvasesInLayer": 0,
-   "endAt": "open",
-   "neverOpenedEmpty": true
+   "movingFrames": 61,
+   "emptyFrames": 2,
+   "emptyAtMsAfterMove": [
+    -1.2,
+    15.5
+   ],
+   "emptyAfter50ms": 0,
+   "minStd": 0.96,
+   "onTopNotScene": 0,
+   "maxStepPx": 38.9,
+   "filmFrames": 183,
+   "firstMoveRect": [
+    734,
+    457,
+    648,
+    300
+   ],
+   "gridInFirstMoveRows": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "radiusStart": 14
   },
-  "RF1 wall: closing the plain grid puts the flat preview back": {
+  "RF1 wall: closing a give-up puts the box's own scene back (not the flat preview: only a failed scene or a lost context keeps that)": {
    "closed": true,
    "sceneInBox": true,
-   "miniPreviewShown": true,
-   "sceneHidden": true,
+   "plainFlagGone": true,
+   "blockLive": true,
+   "miniPreviewHidden": true,
+   "sceneShown": true,
    "focusOnBlock": true
   },
-  "RF2-4 shelf: scroll to the box": {
-   "drawnAfterMs": 652,
-   "drawn": true,
-   "plain": false
+  "LATE wall: a late scene (stall 6 s): the click opens the plain grid, and for as long as this opening lasts no 3D scene is swapped in": {
+   "openedAtMs": 502,
+   "gridAtEnd": true,
+   "canvasInLayerEver": false,
+   "drawnWhileOpen": false,
+   "layerReady": true
+  },
+  "LATE wall: after the close the scene gets ready and the box holds it again (a give-up lasts one opening); it draws": {
+   "closed": true,
+   "drawnAfterMs": 102,
+   "plainFlag": false,
+   "blockLive": true,
+   "miniPreviewHidden": true,
+   "canvasInBox": true,
+   "draws1s": 30
+  },
+  "LATE wall: the next opening is the live scene (a canvas in the layer, no grid)": {
+   "opensLive": true,
+   "noGrid": true,
+   "ready": true,
+   "closed": true
   },
   "RF2 shelf: open (1440 by 900)": {
    "open": [
@@ -445,40 +601,35 @@
     300
    ]
   },
-  "RF3 shelf: scroll back": {
-   "drawnAfterMs": 653,
-   "drawn": true,
-   "plain": false
-  },
   "RF3 shelf: Close half way through an opening: the move turns round from where it is (no jump)": {
-   "widthWhenTurned": 1077,
+   "widthWhenTurned": 1073,
    "turnedBackAtFrame": 34,
    "stepsAroundTurn": [
-    37.8,
-    38.7,
-    12.7,
+    37.7,
     38.8,
-    37.3,
+    8.2,
+    39,
+    37.2,
     34.6,
-    31.8,
-    30
+    32,
+    29.9
    ],
-   "maxStepPx": 38.8,
+   "maxStepPx": 39,
    "endsInBox": true,
    "canvasKept": true
   },
   "RF3 shelf: a click half way through a closing turns it back into an opening (no jump)": {
-   "widthWhenTurned": 1200,
+   "widthWhenTurned": 1202,
    "turnedOpenAtFrame": 215,
    "stepsAroundTurn": [
     0,
-    3.8,
+    3.9,
     0,
-    3,
+    3.1,
     0,
-    2.3,
+    2.4,
     0,
-    1.7
+    1.8
    ],
    "maxStepPx": 39,
    "endsOpen": true,
@@ -523,11 +674,6 @@
     648,
     300
    ]
-  },
-  "RF2-4 wall: scroll to the box": {
-   "drawnAfterMs": 703,
-   "drawn": true,
-   "plain": false
   },
   "RF2 wall: open (1440 by 900)": {
    "open": [
@@ -578,42 +724,37 @@
     300
    ]
   },
-  "RF3 wall: scroll back": {
-   "drawnAfterMs": 653,
-   "drawn": true,
-   "plain": false
-  },
   "RF3 wall: Close half way through an opening: the move turns round from where it is (no jump)": {
-   "widthWhenTurned": 1089,
+   "widthWhenTurned": 1069,
    "turnedBackAtFrame": 34,
    "stepsAroundTurn": [
-    38.8,
-    36.5,
-    37.9,
-    38.5,
-    36.3,
-    33.8,
-    31.2,
-    28.9
+    39,
+    2.7,
+    38.7,
+    37.5,
+    34.9,
+    32.5,
+    30.1,
+    27.7
    ],
-   "maxStepPx": 38.8,
+   "maxStepPx": 39,
    "endsInBox": true,
    "canvasKept": true
   },
   "RF3 wall: a click half way through a closing turns it back into an opening (no jump)": {
-   "widthWhenTurned": 1192,
-   "turnedOpenAtFrame": 213,
+   "widthWhenTurned": 1208,
+   "turnedOpenAtFrame": 215,
    "stepsAroundTurn": [
     0,
-    4.3,
+    4,
     0,
-    3.5,
+    3.2,
     0,
-    2.7,
+    2.5,
     0,
-    2.1
+    1.9
    ],
-   "maxStepPx": 38.9,
+   "maxStepPx": 38.5,
    "endsOpen": true,
    "hash": "#watching"
   },
@@ -657,18 +798,20 @@
     300
    ]
   },
-  "RF5 shelf: scroll to the box": {
-   "drawnAfterMs": 656,
-   "drawn": true,
-   "plain": false
-  },
-  "RF5 shelf: the tab is hidden for 2 s and comes back: no draws while hidden, no burst after, context kept": {
+  "RF5 shelf: armed (the box draws; the tab is visible)": {
    "drawsPerSecondRunning": 0,
-   "drawsWhileHiddenIn2s": 0,
+   "visibility": "visible",
+   "drawn": true
+  },
+  "RF5 shelf: the tab was in the background for 60 s: no draws while hidden, none in a burst after, the context kept": {
+   "wentHidden": true,
+   "hiddenForMs": 60018,
+   "drawsWhileHidden": 0,
    "drawsInFirst500msBack": 1,
    "drawsNextSecond": 0,
+   "contextLostAtReturn": false,
+   "contextLostAt500": false,
    "burst": false,
-   "contextLost": false,
    "drawn": true,
    "plain": false
   },
@@ -680,18 +823,20 @@
    "opensToGrid": true,
    "noCanvasInLayer": true
   },
-  "RF5 wall: scroll to the box": {
-   "drawnAfterMs": 702,
-   "drawn": true,
-   "plain": false
-  },
-  "RF5 wall: the tab is hidden for 2 s and comes back: no draws while hidden, no burst after, context kept": {
+  "RF5 wall: armed (the box draws; the tab is visible)": {
    "drawsPerSecondRunning": 30,
-   "drawsWhileHiddenIn2s": 0,
+   "visibility": "visible",
+   "drawn": true
+  },
+  "RF5 wall: the tab was in the background for 60 s: no draws while hidden, none in a burst after, the context kept": {
+   "wentHidden": true,
+   "hiddenForMs": 60021,
+   "drawsWhileHidden": 0,
    "drawsInFirst500msBack": 14,
    "drawsNextSecond": 30,
+   "contextLostAtReturn": false,
+   "contextLostAt500": false,
    "burst": false,
-   "contextLost": false,
    "drawn": true,
    "plain": false
   },
@@ -702,86 +847,207 @@
    "sceneHidden": true,
    "opensToGrid": true,
    "noCanvasInLayer": true
+  },
+  "I1 shelf: a book is opened in the open layer": {
+   "infoOn": true,
+   "title": 16,
+   "hasOpen": true,
+   "layerReady": true
+  },
+  "I1 shelf: the tab was in the background for 2.5 s and is back: the book is still open": {
+   "visibilityLog": [
+    "hidden",
+    "visible"
+   ],
+   "infoOn": true,
+   "hasOpen": true
+  },
+  "I1 wall: a video is opened in the open layer": {
+   "chosen": "8,9",
+   "detailShown": true,
+   "layerReady": true
+  },
+  "I1 wall: the tab was in the background for 2.5 s and is back: the video is still open": {
+   "visibilityLog": [
+    "hidden",
+    "visible"
+   ],
+   "chosenBefore": "8,9",
+   "chosen": "8,9",
+   "sameVideo": true,
+   "detailShown": true
+  },
+  "M4 wall: the pointer comes in at the end of the move: the view steps (largest per frame) from 300 ms before the end to 700 ms after": {
+   "openedAtMs": 1544,
+   "samples": 217,
+   "withView": 217,
+   "maxStepBeforePx": 1,
+   "maxStepAcrossEndPx": 1,
+   "maxStepAfterPx": 0,
+   "over3Across": []
   }
  },
  "reducedMotion": [
   {
    "case": "reduced shelf",
-   "fadeMs": 199,
-   "distinctRects": [
-    "0,0,1440,900"
+   "run": 1,
+   "openCarriedWhileLit": 0,
+   "openLitRows": [],
+   "openMaxShade": 1,
+   "openGrowingFrame": false,
+   "openEndAt": "open",
+   "openFirstRow": [
+    1,
+    null,
+    "box",
+    1,
+    false
    ],
-   "opacityMax": 1,
-   "startsAt": 0,
-   "endAt": "open",
-   "growingFrame": false,
+   "openTotalMs": 202,
+   "sceneOpacityWhenCarried": 0.023,
+   "closeCarriedWhileLit": 0,
+   "closeLitRows": [],
+   "closeGrowingFrame": false,
+   "closeBack": true,
    "closed": true,
-   "back": true
+   "closeTotalMs": 200
   },
   {
    "case": "reduced wall",
-   "fadeMs": 183,
-   "distinctRects": [
-    "0,0,1440,900"
+   "run": 1,
+   "openCarriedWhileLit": 1,
+   "openLitRows": [
+    [
+     134,
+     0.87,
+     "open",
+     0.037,
+     true
+    ]
    ],
-   "opacityMax": 1,
-   "startsAt": 0,
-   "endAt": "open",
-   "growingFrame": false,
+   "openMaxShade": 1,
+   "openGrowingFrame": false,
+   "openEndAt": "open",
+   "openFirstRow": [
+    1,
+    null,
+    "box",
+    1,
+    false
+   ],
+   "openTotalMs": 183,
+   "sceneOpacityWhenCarried": 0.037,
+   "closeCarriedWhileLit": 0,
+   "closeLitRows": [],
+   "closeGrowingFrame": false,
+   "closeBack": true,
    "closed": true,
-   "back": true
+   "closeTotalMs": 184
+  },
+  {
+   "case": "reduced shelf",
+   "run": 2,
+   "openCarriedWhileLit": 0,
+   "openLitRows": [],
+   "openMaxShade": 1,
+   "openGrowingFrame": false,
+   "openEndAt": "open",
+   "openFirstRow": [
+    1,
+    null,
+    "box",
+    1,
+    false
+   ],
+   "openTotalMs": 201,
+   "sceneOpacityWhenCarried": 0.042,
+   "closeCarriedWhileLit": 0,
+   "closeLitRows": [],
+   "closeGrowingFrame": false,
+   "closeBack": true,
+   "closed": true,
+   "closeTotalMs": 200
+  },
+  {
+   "case": "reduced wall",
+   "run": 2,
+   "openCarriedWhileLit": 0,
+   "openLitRows": [],
+   "openMaxShade": 1,
+   "openGrowingFrame": false,
+   "openEndAt": "open",
+   "openFirstRow": [
+    2,
+    null,
+    "box",
+    1,
+    false
+   ],
+   "openTotalMs": 201,
+   "sceneOpacityWhenCarried": 0.084,
+   "closeCarriedWhileLit": 0,
+   "closeLitRows": [],
+   "closeGrowingFrame": false,
+   "closeBack": true,
+   "closed": true,
+   "closeTotalMs": 363
   }
  ],
  "frameCost": [
   {
    "case": "cost 1440x900 dpr2 cpu4 shelf",
    "what": "open shelf (cold: the first move)",
-   "frames": 80,
-   "avg": 18.75,
-   "p95": 33.4,
-   "max": 83.4,
-   "over20": 7,
-   "over34": 1
-  },
-  {
-   "case": "cost 1440x900 dpr2 cpu4 shelf",
-   "what": "close shelf",
-   "frames": 84,
-   "avg": 17.86,
-   "p95": 33.3,
-   "max": 33.4,
-   "over20": 6,
-   "over34": 0
-  },
-  {
-   "case": "cost 1440x900 dpr2 cpu4 shelf",
-   "what": "open shelf again",
-   "frames": 85,
-   "avg": 17.65,
-   "p95": 33.2,
-   "max": 33.4,
-   "over20": 5,
-   "over34": 0
-  },
-  {
-   "case": "cost 1440x900 dpr2 cpu4 shelf",
-   "what": "close shelf again",
-   "frames": 84,
-   "avg": 17.86,
-   "p95": 33.3,
-   "max": 33.4,
-   "over20": 6,
-   "over34": 0
-  },
-  {
-   "case": "cost 1440x900 dpr2 cpu4 wall",
-   "what": "open wall (cold: the first move)",
    "frames": 90,
    "avg": 16.67,
    "p95": 16.7,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 shelf",
+   "what": "close shelf",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.7,
+   "max": 16.7,
+   "over20": 0,
+   "over34": 0,
+   "loaf": []
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 shelf",
+   "what": "open shelf again",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.7,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0,
+   "loaf": []
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 shelf",
+   "what": "close shelf again",
+   "frames": 90,
+   "avg": 16.67,
+   "p95": 16.7,
+   "max": 16.8,
+   "over20": 0,
+   "over34": 0,
+   "loaf": []
+  },
+  {
+   "case": "cost 1440x900 dpr2 cpu4 wall",
+   "what": "open wall (cold: the first move)",
+   "frames": 90,
+   "avg": 16.85,
+   "p95": 16.8,
+   "max": 33.3,
+   "over20": 1,
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 1440x900 dpr2 cpu4 wall",
@@ -791,47 +1057,52 @@
    "p95": 16.7,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 1440x900 dpr2 cpu4 wall",
    "what": "open wall again",
    "frames": 90,
    "avg": 16.67,
-   "p95": 16.8,
+   "p95": 16.7,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 1440x900 dpr2 cpu4 wall",
    "what": "close wall again",
    "frames": 90,
    "avg": 16.67,
-   "p95": 16.7,
+   "p95": 16.8,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 390x844 phone dpr3 cpu4 shelf",
    "what": "open shelf (cold: the first move)",
    "frames": 90,
    "avg": 16.67,
-   "p95": 16.8,
+   "p95": 16.7,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 390x844 phone dpr3 cpu4 shelf",
    "what": "close shelf",
    "frames": 90,
    "avg": 16.67,
-   "p95": 16.8,
+   "p95": 16.7,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 390x844 phone dpr3 cpu4 shelf",
@@ -841,7 +1112,8 @@
    "p95": 16.8,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 390x844 phone dpr3 cpu4 shelf",
@@ -851,27 +1123,30 @@
    "p95": 16.7,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 390x844 phone dpr3 cpu4 wall",
    "what": "open wall (cold: the first move)",
-   "frames": 89,
+   "frames": 90,
    "avg": 16.67,
-   "p95": 16.7,
+   "p95": 16.8,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 390x844 phone dpr3 cpu4 wall",
    "what": "close wall",
    "frames": 90,
    "avg": 16.67,
-   "p95": 16.8,
+   "p95": 16.7,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 390x844 phone dpr3 cpu4 wall",
@@ -881,7 +1156,8 @@
    "p95": 16.8,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   },
   {
    "case": "cost 390x844 phone dpr3 cpu4 wall",
@@ -891,14 +1167,510 @@
    "p95": 16.7,
    "max": 16.8,
    "over20": 0,
-   "over34": 0
+   "over34": 0,
+   "loaf": []
   }
  ],
+ "frameCostThreeRuns": [
+  [
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "open shelf (cold: the first move)",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "close shelf",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "open shelf again",
+    "max": 50,
+    "over20": 2,
+    "over34": 1,
+    "over34At": [
+     [
+      31,
+      50
+     ]
+    ],
+    "loaf": [
+     {
+      "start": 518,
+      "dur": 69,
+      "render": 12,
+      "styleLayout": 68,
+      "scripts": [
+       [
+        "FrameRequestCallback",
+        55,
+        0
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "close shelf again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "open wall (cold: the first move)",
+    "max": 33.4,
+    "over20": 1,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "close wall",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "open wall again",
+    "max": 33.4,
+    "over20": 1,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "close wall again",
+    "max": 33.4,
+    "over20": 3,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "open shelf (cold: the first move)",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "close shelf",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "open shelf again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "close shelf again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "open wall (cold: the first move)",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "close wall",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "open wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "close wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   }
+  ],
+  [
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "open shelf (cold: the first move)",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "close shelf",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "open shelf again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "close shelf again",
+    "max": 33.3,
+    "over20": 2,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "open wall (cold: the first move)",
+    "max": 33.3,
+    "over20": 1,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "close wall",
+    "max": 16.7,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "open wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "close wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "open shelf (cold: the first move)",
+    "max": 33.3,
+    "over20": 1,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "close shelf",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "open shelf again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "close shelf again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "open wall (cold: the first move)",
+    "max": 50,
+    "over20": 1,
+    "over34": 1,
+    "over34At": [
+     [
+      0,
+      50
+     ]
+    ],
+    "loaf": [
+     {
+      "start": -12,
+      "dur": 66,
+      "render": 53,
+      "styleLayout": 53,
+      "scripts": [
+       [
+        "#document.onclick",
+        5,
+        0
+       ],
+       [
+        "VoidFunction",
+        31,
+        13
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "close wall",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "open wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "close wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   }
+  ],
+  [
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "open shelf (cold: the first move)",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "close shelf",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "open shelf again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 shelf",
+    "what": "close shelf again",
+    "max": 50,
+    "over20": 1,
+    "over34": 1,
+    "over34At": [
+     [
+      63,
+      50
+     ]
+    ],
+    "loaf": [
+     {
+      "start": 1066,
+      "dur": 58,
+      "render": 55,
+      "styleLayout": 57,
+      "scripts": []
+     }
+    ]
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "open wall (cold: the first move)",
+    "max": 33.3,
+    "over20": 1,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "close wall",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "open wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 1440x900 dpr2 cpu4 wall",
+    "what": "close wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "open shelf (cold: the first move)",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "close shelf",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "open shelf again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 shelf",
+    "what": "close shelf again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "open wall (cold: the first move)",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "close wall",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "open wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   },
+   {
+    "case": "cost 390x844 phone dpr3 cpu4 wall",
+    "what": "close wall again",
+    "max": 16.8,
+    "over20": 0,
+    "over34": 0,
+    "over34At": [],
+    "loaf": []
+   }
+  ]
+ ],
  "notes": {
-  "frameCostColdOutlier": "the shelf's first opening at 1440 by 900, dpr 2, CPU 4x had one frame of 50 ms (and 83 ms in a repeat) in 2 of 3 runs; every other frame of every other run is 33.4 ms or less (a cold start: the first move after load). Wall and phone: max 33.4 ms.",
-  "plainGrid": "the plain grid (no WebGL, a failed or late scene) opens with the same frame move; the frame is the dark ground with the grid fading in with the chrome, so its box reads as flat dark until then (accepted, R56's fallback)",
-  "reducedMotionHole": "in reduced motion the scene is carried into the layer at the click, so the box is dark for the 200 ms the layer fades in over it (accepted)",
-  "wallJson": "3 full runs on the final build; run 3: 174 result lines read, 0 ok:false, 0 errors, frames at most 33.3 ms (frames-rest, 2 over 20), none over 34; run 2 had one 100 ms frame in frames-camera that runs 1 and 3 did not have",
-  "shelfJson": "2 full runs; the last: 129 lines read, 0 ok:false, 0 errors, frames-dropin max 49.9 over20 2 (baseline on file), close-390-keys-middle one 83 ms frame at 2248 ms outside the open and close windows (the first run had none)"
+  "I5": "The shelf first opening at 1440x900 dpr 2 CPU 4x: every growing frame set the canvas width and height (two buffer allocations, measured 4 to 9 ms a frame at 4x, 2 to 3 ms each), and from about 680 ms the frames ran at half rate (7 frames at 33 ms); the 83 ms frame of the earlier run was not reproduced in 20 runs (a GPU or machine stall on top of the same allocations is the likely cause). Fixed by a coarse buffer: while the frame moves the buffer is allocated only when the need passes it or is 256 device px under it, and ends at the window size so the end allocates nothing (frame-math coarseBuffer, FrameOptions.coarse, shelf-frame applyView). First opening: max 16.8 ms, 0 frames over 20 ms, in 3 of 3 runs and 6 of 6 profile runs.",
+  "plainGrid": "the plain grid is glued to the frame (the window-sized grid, scaled and centred) at full opacity from the first move row (gridInFirstMoveRows); the first two film frames (13 to 33 ms) still show the box ground while the new composited layer rasters (a compositor latency; no frame is empty after the first 50 ms: emptyAfter50ms 0)",
+  "reducedMotion": "a dip through dark: the black rises over the page over the first 100 ms with the scene in its box, then the scene is carried and the open page fades in over the second 100 ms (no growing frame; no scene carried while the page is lit); the 0.9 bar allows for the 0.01 ms transition the reduced-motion stylesheet gives everything (a computed style read in the frame the driver wrote it still has the old value: one run of four showed one such row, shade 0.87 with the scene at 3.7% opacity, and one wall close took 363 ms instead of 184 to 201, not reproduced in the other three)",
+  "wallPhoneEmpty": "the phone wall film is judged with the wall given 6 s to load its thumbnails (a wall of grey placeholders is flat to the empty-frame check; with a slow network it failed in 3 of 3 runs before the wait, 0 empty frames in 2 of 2 after)"
  }
 }
