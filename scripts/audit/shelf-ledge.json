@@ -184,7 +184,7 @@
   "touch": false,
   "reduce": false,
   "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
-  "go": "{{BASE}}/",
+  "go": "{{BASE}}/?nogl=1",
   "wait": 2500
  },
  {
@@ -214,7 +214,7 @@
   "touch": true,
   "reduce": false,
   "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
-  "go": "{{BASE}}/",
+  "go": "{{BASE}}/?nogl=1",
   "wait": 2500
  },
  {

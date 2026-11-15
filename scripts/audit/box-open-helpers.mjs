@@ -27,7 +27,7 @@ export const HELPERS = `(() => {
       const chrome = hs ? (hs.visibility === 'hidden' ? 0 : +hs.opacity) : 0;
       const pts = [[.5,.5],[.3,.3],[.7,.3],[.3,.7],[.7,.7]].map(([a,b]) => [r.left + r.width*a, r.top + r.height*b]).filter(([x,y]) => x >= 0 && y >= 0 && x < innerWidth && y < innerHeight);
       const top = pts.map(([x,y]) => { const e = document.elementsFromPoint(x,y)[0]; return !!e && sc.contains(e); });
-      const row = { t, at: sc.dataset.at || 'box', l: r.left, tp: r.top, w: r.width, h: r.height, rad: parseFloat(getComputedStyle(sc).borderTopLeftRadius) || 0, chrome, topInScene: top.every(Boolean), canvases: sc.querySelectorAll('canvas').length, grid: (() => { const g = sc.querySelector('.fb-scene'); if (!g) return null; const gs = getComputedStyle(g); return [+gs.opacity, g.getBoundingClientRect().width | 0, sc.hasAttribute('data-plain')]; })() };
+      const row = { t, at: sc.dataset.at || 'box', l: r.left, tp: r.top, w: r.width, h: r.height, rad: parseFloat(getComputedStyle(sc).borderTopLeftRadius) || 0, chrome, topInScene: top.every(Boolean), canvases: sc.querySelectorAll('canvas').length, grid: (() => { const g = sc.querySelector('.fb-scene') || sc.querySelector('.fb-scroll'); if (!g) return null; const gs = getComputedStyle(g); return [+gs.opacity, g.getBoundingClientRect().width | 0, sc.hasAttribute('data-plain')]; })() };
       if (n++ % 6 === 0 && chrome === 0) row.others = others(sc);
       window.__bo.push(row);
       if (!window.__boStop) requestAnimationFrame(rec);

@@ -57,7 +57,7 @@ export function focusCases() {
     });
     push({
       eval: `(async()=>{document.querySelector('.xp-close').click();await ${wait(1500)};const sc=${SCENE(b)};const blk=document.getElementById('${b.id}');
-        return JSON.stringify({closed:!document.querySelector('.home-layer'),sceneInBox:sc.parentElement.className==='blk-live',plainFlagGone:!sc.hasAttribute('data-plain'),blockLive:blk.hasAttribute('data-live'),miniPreviewHidden:getComputedStyle(blk.querySelector('.blk-art')).visibility!=='visible',sceneShown:getComputedStyle(blk.querySelector('.blk-live')).display!=='none',focusOnBlock:document.activeElement.dataset.xp==='${b.hit}'})})()`,
+        return JSON.stringify({closed:!document.querySelector('.home-layer'),sceneInBox:sc.parentElement.className==='blk-live',plainFlagGone:!sc.hasAttribute('data-plain'),blockLive:blk.hasAttribute('data-live'),miniPreviewHidden:!blk.querySelector('.blk-art'),sceneShown:getComputedStyle(blk.querySelector('.blk-live')).display!=='none',focusOnBlock:document.activeElement.dataset.xp==='${b.hit}'})})()`,
       label: `RF1 ${name}: closing a give-up puts the box's own scene back (not the flat preview: only a failed scene or a lost context keeps that)`,
     });
 
@@ -81,7 +81,7 @@ export function focusCases() {
       eval: `(async()=>{document.querySelector('.xp-close').click();await ${wait(1500)};const t0=performance.now();const sc=${SCENE(b)};const blk=document.getElementById('${b.id}');
         await new Promise(r=>{const i=setInterval(()=>{if(sc.hasAttribute('data-drawn')||performance.now()-t0>25000){clearInterval(i);r(1)}},100)});
         const cv=sc.querySelector('canvas');const d0=window.__draws['${name}'];await ${wait(1000)};
-        return JSON.stringify({closed:!document.querySelector('.home-layer'),drawnAfterMs:Math.round(performance.now()-t0)-1000,plainFlag:sc.hasAttribute('data-plain'),blockLive:blk.hasAttribute('data-live'),miniPreviewHidden:getComputedStyle(blk.querySelector('.blk-art')).visibility!=='visible',canvasInBox:!!cv&&sc.parentElement.className==='blk-live',draws1s:window.__draws['${name}']-d0})})()`,
+        return JSON.stringify({closed:!document.querySelector('.home-layer'),drawnAfterMs:Math.round(performance.now()-t0)-1000,plainFlag:sc.hasAttribute('data-plain'),blockLive:blk.hasAttribute('data-live'),miniPreviewHidden:!blk.querySelector('.blk-art'),canvasInBox:!!cv&&sc.parentElement.className==='blk-live',draws1s:window.__draws['${name}']-d0})})()`,
       label: `LATE ${name}: after the close the scene gets ready and the box holds it again (a give-up lasts one opening); it draws`,
     });
     push({
