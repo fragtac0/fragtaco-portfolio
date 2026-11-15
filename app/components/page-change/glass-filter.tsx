@@ -4,25 +4,29 @@
  * moves their pieces each frame.
  *
  * As in the tenth preview, each picture is pushed on its own: the old page by the push at its place and the new page by minus
- * the push, before the soft mask mixes them (CSS applies a filter before a mask), and each colour is pushed by its own share
- * (`SPLIT`: red furthest, blue least) so the rim of the glass shows a fringe. So each filter makes the displacement map (a
- * neutral grey with the active tile of the bend's pictures laid over it: the tiles are separate images, all in the filter,
- * and only the active one has a size), damps it to neutral towards the screen's edges (the vignette, glass-vignette.ts: a
- * displacement filter reads nothing from outside the picture, so a push there would cut the page off along the edge), pushes the
- * picture three times, keeps one colour of each push and adds them. `color-interpolation-filters` is sRGB so grey stays exactly neutral.
+ * the push (and, R56, by half of it: `BEND_NEW`), before the soft mask mixes them (CSS applies a filter before a mask), and each colour
+ * is pushed by its own share (`SPLIT`: red furthest, blue least) so the rim of the glass shows a fringe. So each filter makes the
+ * displacement map, damps it to neutral towards the screen's edges (the vignette, glass-vignette.ts: a displacement filter reads nothing
+ * from outside the picture, so a push there would cut the page off along the edge), pushes the picture three times, keeps one colour of
+ * each push and adds them. `color-interpolation-filters` is sRGB so grey stays exactly neutral.
+ *
+ * R56: the map is ONE picture per filter: one `feImage` whose source is swapped to the tile for the front when the front moves on to the
+ * next (glass-prepare.ts makes the tiles, glass-run.ts moves and sizes the picture each frame; a tile reaches past the screen's farthest
+ * corner). It used to be 23 pictures in each filter, one in use at a time, all of them walked every frame: about two thirds of the
+ * bend's cost. (One sheet of all the tiles with the picture sized to the sheet and moved so that one tile is over the screen cost more,
+ * not less: a picture many screens wide is drawn at that size.) A filter has no neutral base under the map: it is only ever on while the
+ * map is sized and the vignette is made for this screen (glass-run.ts does not switch the bend on otherwise).
  */
-import { BEND_TILES } from "./glass-field";
-
 export const GLASS_IDS = {
   old: "ft-glass-old",
   new: "ft-glass-new",
 } as const;
 export type GlassFilterId = (typeof GLASS_IDS)[keyof typeof GLASS_IDS];
 
-/** The ids of the pieces of a filter: its tile images, and its three pushes (red, green, blue). */
-export const tileId = (filter: GlassFilterId, index: number) => `${filter}-tile-${index}`;
+/** The ids of the pieces of a filter: its map picture, and its three pushes (red, green, blue). */
+export const mapId = (filter: GlassFilterId) => `${filter}-map`;
 export const pushId = (filter: GlassFilterId, channel: "r" | "g" | "b") => `${filter}-push-${channel}`;
-/** The id of a filter's vignette image (sized to the screen once glass-prepare.ts has made it; with no size it damps nothing). */
+/** The id of a filter's vignette image (sized to the screen once glass-prepare.ts has made it). */
 export const vignetteId = (filter: GlassFilterId) => `${filter}-vignette`;
 
 /** One colour of a pushed picture: the others zeroed (alpha kept). */
@@ -36,22 +40,8 @@ const CHANNELS = ["r", "g", "b"] as const;
 function Bend({ id }: { id: GlassFilterId }) {
   return (
     <filter id={id} x="0" y="0" width="1" height="1" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
-      <feFlood floodColor="#808080" result="neutral" />
-      {BEND_TILES.map((_, i) => (
-        <feImage key={i} id={tileId(id, i)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result={`tile${i}`} />
-      ))}
-      <feMerge result="raw">
-        <feMergeNode in="neutral" />
-        {BEND_TILES.map((_, i) => (
-          <feMergeNode key={i} in={`tile${i}`} />
-        ))}
-      </feMerge>
-      <feFlood floodColor="#ffffff" result="white" />
-      <feImage id={vignetteId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="vignette" />
-      <feMerge result="damp">
-        <feMergeNode in="white" />
-        <feMergeNode in="vignette" />
-      </feMerge>
+      <feImage id={mapId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="raw" />
+      <feImage id={vignetteId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="damp" />
       {/* raw * damp - damp / 2 + 1 / 2: the push times the vignette about the neutral grey */}
       <feComposite in="raw" in2="damp" operator="arithmetic" k1="1" k2="0" k3="-0.5" k4="0.5" result="map" />
       {CHANNELS.map((c) => (

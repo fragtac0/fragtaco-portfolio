@@ -33,6 +33,14 @@ export function bendPxFor(viewportHeight: number): number {
  */
 export const WARP = 0.12;
 
+/**
+ * R56: the share of the push each picture gets. The page being left keeps the whole bend (and its colour split); the page arriving
+ * is pushed by half of it (spec 4: at the full push it slid the new page's content inward by up to 5.7% of the screen's height and
+ * back as the edge passed). The colour split keeps its proportions, as all three colours are scaled alike.
+ */
+export const BEND_OLD = 1;
+export const BEND_NEW = 0.5;
+
 /** The colour split: the rim of the glass pushes red this many times as far as green, and blue this many times. */
 export const SPLIT = { r: 1.29, g: 1, b: 0.71 } as const;
 

@@ -1,7 +1,9 @@
 /**
  * Makes the glass front's pictures, in idle time, once per page load (follow-ups spec 4; the tiles are explained in glass-field.ts):
- * sheets of tiles for the new page's mask, the glow and the shade, the bend's tiles (put into the SVG filters of glass-filter.tsx),
- * and the vignette that damps the bend towards the screen's edges (glass-vignette.ts, made again when the screen changes size).
+ * sheets of tiles for the new page's mask, the glow and the shade, the bend's sheet (one picture in each SVG filter of
+ * glass-filter.tsx, R56), and the vignette that damps the bend towards the screen's edges (glass-vignette.ts, made again when the
+ * screen changes size). Then `warmGlass` runs the bend's filters once where nobody sees them, so the first change after a load does no
+ * first-time work (R56, spec 4).
  *
  * The work is done a tile at a time with a gap between (so none is a long task) and it stops while a change runs (the marks on
  * <html> say so), so it can never land inside the 2.5 s of a reveal; most important first: the glow and shade gradients (only
@@ -11,48 +13,22 @@
  * changes) or the visitor prefers reduced motion (the change is a 120 ms fade).
  */
 import { glowGradient, glowTilePixels, maskTilePixels, shadeGradient, shadeTilePixels } from "./glass-edge";
-import { GLASS_IDS, tileId, vignetteId } from "./glass-filter";
+import { GLASS_IDS, mapId, vignetteId } from "./glass-filter";
 import { BEND_TILES, sheetLayout, tileCell, TILES } from "./glass-field";
 import { bendPxFor, isChromium } from "./glass-math";
 import { bendTilePixels } from "./glass-texture";
+import { calm, mark, ready, SHEET_COLS } from "./glass-state";
 import { maxPush, vignettePixels, vignetteSize } from "./glass-vignette";
+import { warmGlass } from "./glass-warm";
 
-/** Tiles per row on the sheets, and each tile's size in pixels: the mask's and the shade's soft edge needs little, the glow's narrow glint more. */
-export const SHEET_COLS = 7;
+// the same names, as before the split (glass-run.ts reads them from here)
+export { ready, SHEET_COLS, warmGlass };
+
+/** Each tile's size in pixels: the mask's and the shade's soft edge needs little, the glow's narrow glint more. */
 const MASK_N = 128;
 const GLOW_N = 192;
 const SHADE_N = 128;
 const BEND_N = 128;
-/** How long to wait between two pieces of work, and how often to look again while a change runs. */
-const GAP_MS = 20;
-const CHANGE_POLL_MS = 100;
-
-/**
- * What exists. `sheets`: the three rules' declarations the tick writes (the CSS rules are added once the pictures are made).
- * `bend`: the bend's tiles are in the filters. `vignette`: the screen size (CSS px) the filters' vignette was made for.
- */
-export const ready: {
-  sheets: { mask: CSSStyleDeclaration; glow: CSSStyleDeclaration; shade: CSSStyleDeclaration } | null;
-  bend: boolean;
-  vignette: { w: number; h: number } | null;
-} = { sheets: null, bend: false, vignette: null };
-
-const sleep = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
-const changeRunning = () => "changeKind" in document.documentElement.dataset;
-/** A pause between two pieces of work, and for as long as a change runs. */
-async function calm() {
-  await sleep(GAP_MS);
-  while (changeRunning()) await sleep(CHANGE_POLL_MS);
-}
-
-const mark = (name: string) => {
-  try {
-    performance.mark(name);
-  } catch {
-    /* no marks */
-  }
-};
-
 const canvasOf = (w: number, h: number) => {
   const canvas = document.createElement("canvas");
   canvas.width = w;
@@ -70,7 +46,10 @@ const warm = (url: string) => {
   const img = new Image();
   img.src = url;
   void img.decode().catch(() => undefined);
+  return img;
 };
+/** Pictures kept for the page's life, so the browser keeps them decoded. */
+const kept: HTMLImageElement[] = [];
 
 /** Draws a tile for each front radius on one sheet, `perChunk` tiles at a time with a calm gap between; returns the sheet's address. */
 async function makeSheet(radii: readonly number[], n: number, tile: (n: number, front: number) => Uint8ClampedArray<ArrayBuffer>, perChunk: number) {
@@ -141,6 +120,7 @@ async function makeVignette(w: number, h: number): Promise<boolean> {
   return true;
 }
 
+
 let remaking = false;
 /** Makes the vignette again for this screen's size (a window that was resized, a phone turned): not while a change runs, and one at a time. */
 export async function refreshVignette(): Promise<void> {
@@ -150,7 +130,13 @@ export async function refreshVignette(): Promise<void> {
     await calm();
     const w = window.innerWidth;
     const h = window.innerHeight;
-    if (ready.vignette?.w !== w || ready.vignette.h !== h) await makeVignette(w, h);
+    if (ready.vignette?.w !== w || ready.vignette.h !== h) {
+      ready.warm = false; // a new size: the filters have first-time work to do again
+      if (await makeVignette(w, h)) {
+        remaking = false;
+        void warmGlass();
+      }
+    }
   } catch {
     /* the bend stays off for this size */
   } finally {
@@ -181,6 +167,7 @@ export function prepareGlass(): void {
       const rules = Array.from(sheet?.cssRules ?? []).filter((r): r is CSSStyleRule => "style" in r);
       if (rules.length === 3) {
         ready.sheets = { mask: rules[0].style, glow: rules[1].style, shade: rules[2].style };
+        ready.sheetUrls = { mask, glow, shade };
         mark("glass-sheets-ready");
       }
     } catch {
@@ -190,20 +177,19 @@ export function prepareGlass(): void {
     try {
       await calm();
       if (!(await makeVignette(window.innerWidth, window.innerHeight))) throw new Error("the bend's filter is not in the page");
-      for (let k = 0; k < BEND_TILES.length; k += 2) {
-        for (let i = k; i < Math.min(BEND_TILES.length, k + 2); i++) {
-          const { canvas, ctx } = canvasOf(BEND_N, BEND_N);
-          ctx.putImageData(new ImageData(bendTilePixels(BEND_N, BEND_TILES[i]), BEND_N, BEND_N), 0, 0);
-          const url = await toBlobUrl(canvas);
-          for (const f of [GLASS_IDS.old, GLASS_IDS.new]) {
-            const el = document.getElementById(tileId(f, i));
-            if (!el) throw new Error("the bend's filter is not in the page");
-            el.setAttribute("href", url);
-          }
-          warm(url);
-        }
-        await calm();
+      // the bend's tiles, a picture each: each filter has one map picture whose source is the tile for the front (glass-run.ts). Data
+      // addresses, so that swapping the source from one tile to the next is done in the frame that asks for it (a blob address is fetched
+      // asynchronously, and a frame without its map would show the page pushed by half the scale), and kept (`kept`) so they stay in the cache.
+      if (!document.getElementById(mapId(GLASS_IDS.old)) || !document.getElementById(mapId(GLASS_IDS.new))) throw new Error("the bend's filter is not in the page");
+      const tiles: string[] = [];
+      for (let i = 0; i < BEND_TILES.length; i++) {
+        const { canvas, ctx } = canvasOf(BEND_N, BEND_N);
+        ctx.putImageData(new ImageData(bendTilePixels(BEND_N, BEND_TILES[i]), BEND_N, BEND_N), 0, 0);
+        tiles.push(canvas.toDataURL("image/png"));
+        if (i % 2 === 1) await calm();
       }
+      for (const url of tiles) kept.push(warm(url));
+      ready.bendTiles = tiles;
       ready.bend = true;
       mark("glass-bend-ready");
       let timer = 0;
@@ -211,6 +197,7 @@ export function prepareGlass(): void {
         window.clearTimeout(timer);
         timer = window.setTimeout(() => void refreshVignette(), 250);
       });
+      await warmGlass();
     } catch {
       /* no bend */
     }

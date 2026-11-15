@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  BEND_NEW,
+  BEND_OLD,
   bendAt,
   bendPxFor,
   bendProfile,
@@ -213,5 +215,12 @@ describe("judgeGlass", () => {
   });
   it("never falls back just because the animation has not advanced (a paused or throttled page)", () => {
     expect(judgeGlass({ ...seen, timeMs: 0, frames: 500 })).toBe("wait");
+  });
+});
+
+describe("BEND_NEW (R56)", () => {
+  it("the arriving page gets half of the push; the page being left has all of it", () => {
+    expect(BEND_NEW).toBe(0.5);
+    expect(BEND_OLD).toBe(1);
   });
 });

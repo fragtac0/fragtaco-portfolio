@@ -61,6 +61,6 @@
  },
  {
   "label": "the radial change with its sheets step failed: gradient reveal ('-' for live) and the bend on",
-  "eval": "(async()=>{const styles=[...document.querySelectorAll('style[data-glass-sheets]')].length;const glow=[...document.querySelectorAll('style[data-glass-glow]')].length;const bendHref=!!document.getElementById('ft-glass-old-tile-0')?.getAttribute('href');const a=await __watch('/work');return JSON.stringify({sheetStyles:styles,glowStyle:glow,bendMap:bendHref,radial:a.slice(0,400)})})()"
+  "eval": "(async()=>{const styles=[...document.querySelectorAll('style[data-glass-sheets]')].length;const glow=[...document.querySelectorAll('style[data-glass-glow]')].length;const bendHref=!!document.getElementById('ft-glass-old-map')?.getAttribute('href');const a=await __watch('/work');return JSON.stringify({sheetStyles:styles,glowStyle:glow,bendMap:bendHref,radial:a.slice(0,400)})})()"
  }
 ]

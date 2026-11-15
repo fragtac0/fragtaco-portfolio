@@ -4,21 +4,38 @@
  * The reveal needs nothing from scripts while the front is small: glass.css animates `--glass-p` (the eased progress) with a
  * CSS animation on the pseudo-elements that use it and draws a circle with a soft edge from that one number. This module moves
  * the pictures that glass-prepare.ts has made with the front, once per frame (the tile nearest the front, scaled onto it; a few CSS
- * declarations and SVG attributes written, no React state), and it checks that the CSS animation really runs (`judgeGlass`, frame
+ * declarations and SVG attributes written, no React state: one map picture and three pushes in each bend filter, R56), and it checks that the CSS animation really runs (`judgeGlass`, frame
  * by frame: the animation is listed, advances and has progress). If anything fails, or the check does not see it run (a browser
  * that does not animate a registered custom property on these pseudo-elements, one without `CSS.registerProperty`),
  * `data-glass-fallback` goes on <html> and glass.css gives the plain UA crossfade instead, so a change never hangs on a hidden
  * new page.
  */
 import type { ChangePlan } from "../../lib/page-change";
-import { GLASS_IDS, pushId, tileId, type GlassFilterId } from "./glass-filter";
-import { BEND_TILES, HALF, pickBendTile, pickTile, sheetLayout, tileCell, TILES } from "./glass-field";
-import { bendPxFor, frontAt, judgeGlass, SPLIT } from "./glass-math";
+import { GLASS_IDS, mapId, pushId, type GlassFilterId } from "./glass-filter";
+import { HALF, pickBendTile, pickTile, sheetLayout, tileCell, TILES } from "./glass-field";
+import { createGuard, createSession } from "./glass-guard";
+import { BEND_NEW, BEND_OLD, bendPxFor, frontAt, judgeGlass, SPLIT } from "./glass-math";
 import { ready, refreshVignette, SHEET_COLS } from "./glass-prepare";
 import { BEND_MAX } from "./glass-texture";
 
-const setAttrs = (el: Element, attrs: Record<string, number>) => {
-  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v.toFixed(2));
+/** Sets an attribute only when it changes (a write to an SVG filter's attribute makes the filter be walked again). */
+const setAttr = (el: Element | null, name: string, value: string) => {
+  if (el && el.getAttribute(name) !== value) el.setAttribute(name, value);
+};
+
+/** The tab's rule about the bend (glass-guard.ts): made once, on the first change; a reload of the tab clears an earlier `off`. */
+let session: ReturnType<typeof createSession> | undefined;
+const bendSession = () => {
+  if (session) return session;
+  let storage: Storage | null = null;
+  let reloaded = false;
+  try {
+    storage = window.sessionStorage;
+    reloaded = (performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined)?.type === "reload";
+  } catch {
+    /* no storage */
+  }
+  return (session = createSession(storage, { reloaded }));
 };
 
 /** The CSS animation that runs `--glass-p`, if the browser lists it (its clock is the best one for the pictures and the bend). */
@@ -30,17 +47,17 @@ function findGlassAnimation(): Animation | undefined {
   }
 }
 
-/** The pieces of one bend filter the tick moves: its tile images and its three pushes (red, green, blue). */
+/** The pieces of one bend filter the tick moves: its map picture and its three pushes (red, green, blue). */
 interface BendFilter {
-  tiles: Array<Element | null>;
+  map: Element | null;
   pushes: Array<Element | null>;
-  /** The push's direction: +1 for the old page, -1 for the new. */
-  sign: 1 | -1;
+  /** The push's direction and share: +1 and `BEND_OLD` for the old page, -1 and `BEND_NEW` (half) for the new. */
+  sign: number;
 }
-const bendFilter = (id: GlassFilterId, sign: 1 | -1): BendFilter => ({
-  tiles: BEND_TILES.map((_, i) => document.getElementById(tileId(id, i))),
+const bendFilter = (id: GlassFilterId, sign: 1 | -1, share: number): BendFilter => ({
+  map: document.getElementById(mapId(id)),
   pushes: (["r", "g", "b"] as const).map((c) => document.getElementById(pushId(id, c))),
-  sign,
+  sign: sign * share,
 });
 const SPLITS = [SPLIT.r, SPLIT.g, SPLIT.b] as const;
 
@@ -64,9 +81,20 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
   const clearBend = () => {
     for (const f of filters) {
       for (const p of f.pushes) p?.setAttribute("scale", "0");
-      for (const tile of f.tiles) tile?.setAttribute("width", "0");
+      f.map?.setAttribute("width", "0");
     }
   };
+  /** The guard's drop (four slow frames in a row): the bend is off for the rest of this change; the edge, glow and shade carry on. */
+  const dropBend = () => {
+    delete html.dataset.glass;
+    clearBend();
+    filters = [];
+    bendSession().trip();
+  };
+  const guard = createGuard();
+  let lastTs = 0;
+  /** The index of the bend tile that is the map's source now (-1: none yet). */
+  let tileShown = -1;
   const unmark = () => {
     delete html.dataset.glass;
     delete html.dataset.glassLive;
@@ -128,9 +156,13 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
   };
 
   /** One frame of the pictures and the bend: from the animation's own clock, the front, the tile nearest it, and where to put it. */
-  const tick = () => {
+  const tick = (ts: number = performance.now()) => {
     if (stopped) return;
     frame = requestAnimationFrame(tick);
+    if (filters.length) {
+      if (lastTs && guard.frame(ts - lastTs) === "drop") dropBend();
+      lastTs = ts;
+    }
     const anim = glassClock();
     const now = typeof anim?.currentTime === "number" ? anim.currentTime : performance.now() - t0;
     const f = frontAt(Math.min(1, now / plan.ms), plan);
@@ -156,16 +188,23 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
       }
     }
     if (filters.length) {
+      // the one map picture of each filter: the tile for the front (its source swapped when the front moves on to the next tile) laid over
+      // the screen (a tile reaches past the farthest corner), and the three pushes
       const peak = bendPxFor(plan.vh) * f.bend;
       const bp = pickBendTile(f.radius / far);
       const side = 2 * HALF * far * bp.scale;
+      const geometry = {
+        x: (plan.origin.x - side / 2).toFixed(1),
+        y: (plan.origin.y - side / 2).toFixed(1),
+        width: side.toFixed(1),
+        height: side.toFixed(1),
+      };
+      const swap = bp.index !== tileShown;
+      tileShown = bp.index;
       for (const filter of filters) {
-        filter.tiles.forEach((tile, i) => {
-          if (!tile) return;
-          if (i === bp.index) setAttrs(tile, { x: plan.origin.x - side / 2, y: plan.origin.y - side / 2, width: side, height: side });
-          else if (tile.getAttribute("width") !== "0") tile.setAttribute("width", "0");
-        });
-        filter.pushes.forEach((p, c) => p?.setAttribute("scale", (filter.sign * 2 * BEND_MAX * peak * SPLITS[c]).toFixed(2)));
+        if (swap) filter.map?.setAttribute("href", ready.bendTiles[bp.index]);
+        for (const [name, value] of Object.entries(geometry)) setAttr(filter.map, name, value);
+        filter.pushes.forEach((p, c) => setAttr(p, "scale", (filter.sign * 2 * BEND_MAX * peak * SPLITS[c]).toFixed(2)));
       }
     }
   };
@@ -176,11 +215,13 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
     try {
       if (typeof CSS === "undefined" || !("registerProperty" in CSS)) return fallback();
       watch = requestAnimationFrame(look);
-      // the bend needs its tiles and a vignette made for this screen's size (a screen that was resized since: no bend this time, and a new vignette)
-      const bend = ready.bend && ready.vignette?.w === plan.vw && ready.vignette.h === plan.vh;
-      if (ready.bend && !bend) void refreshVignette();
+      // the bend needs its sheet, a vignette made for this screen's size and the warm-up done for it (a screen that was resized since, or a
+      // change before the warm-up: no bend this time, and a new vignette), and a tab whose guard has not switched it off (two changes tripped it)
+      const sized = ready.bend && ready.vignette?.w === plan.vw && ready.vignette.h === plan.vh;
+      if (ready.bend && !sized) void refreshVignette();
+      const bend = sized && ready.warm && !bendSession().off();
       if (bend) {
-        filters = [bendFilter(GLASS_IDS.old, 1), bendFilter(GLASS_IDS.new, -1)];
+        filters = [bendFilter(GLASS_IDS.old, 1, BEND_OLD), bendFilter(GLASS_IDS.new, -1, BEND_NEW)];
         html.dataset.glass = "bend";
       }
       if (ready.sheets || bend) {
