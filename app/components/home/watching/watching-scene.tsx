@@ -9,6 +9,9 @@ import type { WallEngine } from "./wall-types";
 import { echoSet } from "./wall-math";
 import WatchingFallback, { gridWall } from "./watching-fallback";
 
+/** How long the wall's start waits after its box comes on screen (about three frames), so it does not share a frame with the shelf's. */
+const START_STAGGER_MS = 50;
+
 type WatchingSceneProps = {
   /** Null on the server and until HomePage has created it on the client. */
   engine: WallEngine | null;
@@ -108,22 +111,27 @@ function WatchingScene({
   useEffect(() => {
     if (grid || !engine || !run) return;
     let live = true;
-    // the wall could not start (no context, a failed shader): show the grid instead
-    void engine
-      .start({
-        onFirstFrame: () => {
-          if (live) drawn.current();
-        },
-      })
-      .then(() => {
-        if (live && engine.hasFailed()) setFallback(true);
-      })
-      // a step of the scene's set-up threw: the plain grid takes over, never an unhandled rejection
-      .catch(() => {
-        if (live) setFallback(true);
-      });
+    // the wall starts a few frames after its box comes on screen: the shelf's box comes on screen with it, and the two restarts and
+    // first draws in one frame cost more than the 34 ms gate at 4 times slower CPU
+    const timer = window.setTimeout(() => {
+      // the wall could not start (no context, a failed shader): show the grid instead
+      void engine
+        .start({
+          onFirstFrame: () => {
+            if (live) drawn.current();
+          },
+        })
+        .then(() => {
+          if (live && engine.hasFailed()) setFallback(true);
+        })
+        // a step of the scene's set-up threw: the plain grid takes over, never an unhandled rejection
+        .catch(() => {
+          if (live) setFallback(true);
+        });
+    }, START_STAGGER_MS);
     return () => {
       live = false;
+      window.clearTimeout(timer);
       engine.stop();
     };
   }, [engine, run, grid]);

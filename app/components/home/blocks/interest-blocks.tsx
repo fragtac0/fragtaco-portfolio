@@ -1,22 +1,12 @@
-import {
-  memo,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
+import { memo, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { inertProps } from "../../../utils/inert";
 import { countLabel } from "../../../utils/count-label";
 import type { SiteBook, SiteVideo } from "../../../types";
 import EclipseGround from "../../ground/eclipse-ground";
 import type { LayerKind } from "../layer/layer-state";
 import "./blocks.css";
-import MiniLedge from "./mini-ledge";
-import { miniSpine, miniThumbUrl, miniWallColumns } from "./mini-previews";
-import { useMiniFit } from "./use-mini-fit";
-import { useMiniSpines } from "./use-mini-spines";
+import MiniShelf from "./mini-shelf";
+import MiniWall from "./mini-wall";
 import { useNear } from "./use-near";
 
 /** The ids the layer and the deep link find the blocks by (mockup: blkRead, blkWatch). */
@@ -32,7 +22,7 @@ type InterestBlocksProps = {
   onOpen: (kind: LayerKind) => void;
   /** Each scene's own element (null on the server): it stands in its block's box, drawn live (layer/box-scene.ts). */
   homes: Record<LayerKind, HTMLElement> | null;
-  /** The box shows its live scene (WebGL, not failed); false: the flat mini preview is the box's picture. */
+  /** The box shows its live scene (WebGL, not failed); false: the flat mini preview (mini-shelf.tsx, mini-wall.tsx) is the box's picture, and only then is it mounted. */
   live: Record<LayerKind, boolean>;
   /** Fires once per kind, in idle time, when its block comes within 240 px of the viewport. */
   onNear: (kind: LayerKind) => void;
@@ -62,7 +52,7 @@ function InterestBlocks({
       ] as const,
     [],
   );
-  // the shelf block coming near also lets its small spines load their faces (use-mini-spines.ts)
+  // the shelf block coming near also lets its small spines (the flat picture, mini-shelf.tsx) load their faces
   const [shelfNear, setShelfNear] = useState(false);
   const onNearBlock = useCallback(
     (kind: LayerKind) => {
@@ -81,14 +71,6 @@ function InterestBlocks({
       if (slot && !homes[kind].parentElement) slot.appendChild(homes[kind]);
     }
   }, [homes, blocks]);
-
-  const columns = miniWallColumns(videos);
-  const spines = useMemo(() => books.map(miniSpine), [books]);
-  const shelfArtRef = useRef<HTMLDivElement>(null);
-  const shelfRowRef = useRef<HTMLDivElement>(null);
-  const fitSpines = useMemo(() => spines.map((s) => ({ w: s.width, h: s.height })), [spines]);
-  useMiniFit(shelfArtRef, shelfRowRef, fitSpines);
-  useMiniSpines(shelfArtRef, shelfRowRef, books, spines, shelfNear);
 
   return (
     <section
@@ -121,30 +103,7 @@ function InterestBlocks({
               </span>
             </div>
             <div className="blk-box">
-              <div ref={shelfArtRef} className="blk-art ms" aria-hidden="true">
-                <MiniLedge />
-                <div ref={shelfRowRef} className="ms-row">
-                  {books.map((book, i) => {
-                    const s = spines[i];
-                    return (
-                      <div
-                        key={book.id}
-                        className="ms-sp"
-                        style={
-                          {
-                            "--i": i,
-                            width: s.width,
-                            height: s.height,
-                            backgroundColor: s.background,
-                          } as CSSProperties
-                        }
-                      >
-                        <canvas data-spine={i} />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              {!live.reading && <MiniShelf books={books} near={shelfNear} />}
               <div className="blk-live" />
             </div>
             <button
@@ -176,23 +135,7 @@ function InterestBlocks({
               </span>
             </div>
             <div className="blk-box">
-              <div className="blk-art mw" aria-hidden="true">
-                <div className="mw-cols">
-                  {columns.map((ids, c) => (
-                    <div key={c} className="mw-col">
-                      {[...ids, ...ids].map((id, k) => (
-                        <img
-                          key={k}
-                          src={miniThumbUrl(id)}
-                          alt=""
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {!live.watching && <MiniWall videos={videos} />}
               <div className="blk-live" />
             </div>
             <button

@@ -6,8 +6,8 @@ const LINES = ledgeLines(W, 0).map((line) => ({ d: line.d, ...ledgeStroke(line) 
 
 /**
  * The rock ledge under the home block's small shelf: the same ten lines as the 3D shelf's
- * (reading/ledge.ts), drawn as SVG so the layer poster, a copy of this block, shows it too. It grows
- * into the layer's ledge when the shelf opens. Not interactive and hidden from assistive technology.
+ * (reading/ledge.ts), drawn as SVG under the flat picture of the shelf (mini-shelf.tsx), the box's picture
+ * without WebGL. Not interactive and hidden from assistive technology.
  */
 export default function MiniLedge() {
   return (
