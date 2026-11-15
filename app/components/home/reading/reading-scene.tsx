@@ -129,7 +129,7 @@ function ReadingScene({
 
   // the dot field behind the row moves only while the layer is open and still (and the tab visible): in the box and during the
   // move it is held where its first picture drew it, so nothing in the picture changes between the box and the move; a still frame is drawn at once
-  useDotField(dotsRef, settled && !grid);
+  useDotField(dotsRef, settled && !grid, !grid);
 
   if (grid) return open ? <ReadingFallback books={books} /> : null;
 

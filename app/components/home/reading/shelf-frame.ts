@@ -12,6 +12,9 @@ import { newBag, type ShelfScene } from "./shelf-scene";
  * is placed by the same maths (`placeDots`).
  */
 
+/** A hair added to a whole device pixel count before it is divided by the ratio, so three's `floor(size * ratio)` never lands one short. */
+const BUFFER_EPS = 0.01;
+
 /** The size the row is fitted to: the canvas's own when nothing is framed, else the window. */
 export function stageSize(canvas: HTMLCanvasElement, box: FrameBox): [number, number] {
   return box.frame() ? windowSize() : [canvas.clientWidth, canvas.clientHeight];
@@ -28,17 +31,23 @@ export function applyView(ctx: ShelfCtx, gl: ShelfScene, vw: number, vh: number)
   let ch = f ? f.height : vh;
   // a moving frame (the box opening or closing) keeps its drawing buffer larger than it is, allocated every few frames and not at every one
   // (`coarseBuffer`); the picture is drawn into the whole buffer and the canvas shows it at the frame's size, so its geometry is the frame's
+  const pr = gl.renderer.getPixelRatio();
   if (f && ctx.box.coarse()) {
-    const pr = gl.renderer.getPixelRatio();
+    // the buffer the window itself gets is `floor(vw * pr)` (three's setSize floors): that is the most a move's buffer ever is, so the end
+    // of the opening (the window's own size) is the very buffer it already holds, also where `vw * pr` is not whole (dpr 1.75 at 1366 or 390)
     const held = gl.renderer.domElement;
-    cw = coarseBuffer(cw * pr, held.width, COARSE_STEP, vw * pr) / pr;
-    ch = coarseBuffer(ch * pr, held.height, COARSE_STEP, vh * pr) / pr;
+    const capW = Math.floor(vw * pr);
+    const capH = Math.floor(vh * pr);
+    // `+ BUFFER_EPS` keeps a whole number of device pixels whole through the division by the ratio and three's multiplication and floor
+    cw = (coarseBuffer(Math.min(cw * pr, capW), held.width, COARSE_STEP, capW) + BUFFER_EPS) / pr;
+    ch = (coarseBuffer(Math.min(ch * pr, capH), held.height, COARSE_STEP, capH) + BUFFER_EPS) / pr;
   }
   const key = `${cw}x${ch}|${sub.x},${sub.y},${sub.w},${sub.h}|${vw}x${vh}`;
   if (key === ctx.st.viewKey) return;
   ctx.st.viewKey = key;
-  // the buffer is allocated only when its size changes (a coarse frame often leaves it as it is)
-  const size = `${cw}x${ch}`; // a new pixel ratio clears it (syncRatio)
+  // the buffer is allocated only when its size in device pixels changes (a coarse frame often leaves it as it is; the end of a move
+  // that lands on the window's own buffer leaves it too); a new pixel ratio clears it (syncRatio)
+  const size = `${Math.floor(cw * pr)}x${Math.floor(ch * pr)}`;
   if (size !== ctx.st.sizeKey) {
     ctx.st.sizeKey = size;
     gl.renderer.setSize(cw, ch, false);

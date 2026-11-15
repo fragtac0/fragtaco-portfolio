@@ -50,10 +50,11 @@ export function createLedge(
       const ch = Math.max(2, Math.round(heightPx * dpr));
       if (cw === w && ch === h) return;
       canvas ??= document.createElement("canvas");
-      canvas.width = cw;
-      canvas.height = ch;
+      // the context first: a canvas that gives none is left at its size, so the next fit does not allocate it again
       const x = canvas.getContext("2d");
       if (!x) return;
+      canvas.width = cw;
+      canvas.height = ch;
       w = cw;
       h = ch;
       drawLedge(x, reachPx, heightPx, cw / reachPx, ch / heightPx);

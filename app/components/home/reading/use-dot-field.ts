@@ -15,15 +15,19 @@ const REDUCED = "(prefers-reduced-motion: reduce)";
  * loop, about 20 redraws a second while `running` and the tab is visible. Under reduced motion there
  * is no loop: the field is painted once and held still, and a change of the preference is followed
  * (the loop starts or stops at once). No React state is touched per frame.
+ *
+ * `present` is whether the canvas is in the page: the scene replaces it with the plain grid (a fallback, a give-up) and brings a new
+ * canvas element back when the grid goes, so the sizing effect starts again for each element and never watches a detached one.
  */
-export function useDotField(ref: RefObject<HTMLCanvasElement>, running: boolean): void {
+export function useDotField(ref: RefObject<HTMLCanvasElement>, running: boolean, present = true): void {
   // the sizing effect's painter, for the loop effect (null while there is no canvas)
   const paint = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const canvas = ref.current;
-    const c = canvas?.getContext("2d");
-    if (!canvas || !c) return;
+    if (!present || !canvas) return;
+    const c = canvas.getContext("2d");
+    if (!c) return;
     let key = "";
     let w = 0;
     let h = 0;
@@ -62,7 +66,7 @@ export function useDotField(ref: RefObject<HTMLCanvasElement>, running: boolean)
       ro.disconnect();
       dprQuery?.removeEventListener("change", onDpr);
     };
-  }, [ref]);
+  }, [ref, present]);
 
   useEffect(() => {
     const reduced = window.matchMedia(REDUCED);

@@ -26,6 +26,10 @@ export type FrameOptions = {
    * place and size (for example the canvas fills its home box and scrolls with the page, with no per-scroll work): the box writes
    * nothing to the canvas's style, takes only the frame's SIZE (the picture is computed from it) and a move of the frame is nothing.
    * Switching between the two at the same size changes the style only, never the picture.
+   *
+   * Not supported: an undocked scene with `place: false`. An unplaced frame does not follow where the canvas is: a move of it is nothing,
+   * and the wall's pointer mapping (`st.ox`, `st.oy`) keeps the frame's corner from the last resize, so a scene that answers the pointer
+   * would map it from a stale place. Use it while docked (no pointer input), and give an undocked scene a placed frame or none.
    */
   place?: boolean;
   /**

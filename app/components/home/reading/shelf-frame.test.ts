@@ -132,6 +132,39 @@ describe("the shelf's buffer while a frame moves (coarse)", () => {
   });
 });
 
+describe("the end of a moving frame at a pixel ratio that is not whole (Task 25 re-review N1)", () => {
+  // dpr 1.75 at 1366 and 390 wide: the window's own buffer is floor(vw * 1.75) = 2390 and 682, not the ceil of the same
+  it.each([
+    [1366, 768],
+    [390, 844],
+  ])("lands on the window's own buffer at %i by %i, so the end allocates nothing", (vw, vh) => {
+    const ratio = 1.75;
+    const { ctx, gl, calls, box } = setup(
+      { left: 0, top: 0, width: vw / 2, height: vh / 2 },
+      { place: false, coarse: true },
+      ratio,
+    );
+    applyView(ctx, gl, vw, vh);
+    for (let e = 0.55; e <= 1.0001; e += 0.05) {
+      box.request(
+        { left: 0, top: 0, width: vw * Math.min(1, e), height: vh * Math.min(1, e) },
+        { place: false, coarse: true },
+      );
+      box.commit();
+      applyView(ctx, gl, vw, vh);
+      expect(gl.renderer.domElement.width).toBeLessThanOrEqual(Math.floor(vw * ratio));
+    }
+    // the moving frame covers the window: its buffer is the window's
+    expect(gl.renderer.domElement.width).toBe(Math.floor(vw * ratio));
+    expect(gl.renderer.domElement.height).toBe(Math.floor(vh * ratio));
+    const sizes = calls.filter((c) => c[0] === "setSize").length;
+    box.request(null);
+    box.commit();
+    applyView(ctx, gl, vw, vh);
+    expect(calls.filter((c) => c[0] === "setSize").length).toBe(sizes);
+  });
+});
+
 describe("the dot field in a frame", () => {
   it("is placed fixed at the picture's corner, scaled and cut to the frame", () => {
     const { el, props } = fakeEl();
