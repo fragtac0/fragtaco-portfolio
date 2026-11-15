@@ -48,12 +48,51 @@ Two more of his points (the walls arriving late, the dock dropping and coming ba
 - The wall's box is unchanged.
 - Check: from the engine's own projected boxes, at 1440 by 900, 1366 by 768 and 390 by 844: every book and the ledge's line are inside the box's frame. The box-open films are made again.
 
-## 7. Order
+## 7. My experience: where the words sit (task 31)
 
-Task 29 runs in lane A after task 28, on `r7/r56-arrival`. Task 30 runs in lane B after task 26, on `r7/r55-live-boxes`. The join waits for both.
+Source: his third message of 2026-11-16 (`docs/redesign/feedback-log.md`, "Feedback after the second look").
 
-## 8. For Aditya to check
+- On a wide screen (at least 900 px wide and wider than it is high) the title block sits to the left of the mountain and the mountain's block to the right, both centred on the summit's row.
+  - Left: "MY EXPERIENCE" with its description under it, as now, at the left gutter. Its right edge stays at least 24 px clear of the mountain's scarp at its rows; the title shrinks toward 34 px to keep that, never below.
+  - Right: "OLYMPUS MONS", its line, the figures and the credit, set flush right at the right gutter, at most 32 characters wide. It stays at least 32 px clear of every milestone, of the trail and of the mode switch; if the first milestone is in the way the block moves up or down the least it needs.
+- The chart's labels keep out of both blocks as they keep out of the words today.
+- A narrow or upright screen keeps today's places (title top left, the mountain's block lower left). My call: there is no room beside the mountain.
+- In My climb both blocks leave, as now. The order of importance of the words (spec 9.6 of the first round 7 spec) and their sizes stay.
+
+## 8. My experience: the entrance (task 31)
+
+He wants the words to arrive as the page change completes, and the path to trace itself. This is one made entrance for the page, and the one exception to task 28's rule that nothing appears after the reveal: the picture, the chart, the frame, the dock and the switch are finished before the reveal as task 28 says; the words, the trail and the milestones come in on a clock.
+
+Times are counted from the start of the reveal (T is its length, 2250 ms):
+
+| What | Starts | How |
+|---|---|---|
+| "MY EXPERIENCE" | 0.70 T | Letter by letter from the left: each letter fades in and rises 6 px over 300 ms, 28 ms after the one before |
+| Its description | 120 ms after the title starts | Fades in and rises 8 px over 400 ms |
+| "OLYMPUS MONS" | 240 ms after the title starts | Letter by letter, as the title, 22 ms apart |
+| Its lines | 360 ms after the title starts | Fade in and rise 8 px over 400 ms, 60 ms apart |
+| The trail | When the reveal ends | Draws itself from the first milestone to "now" over 2200 ms, eased in and out, with a small bright head at its tip |
+| Each milestone | When the trail's tip reaches its foot | Its bead fades in and grows from 0.6 to 1 over 260 ms |
+| "Now" | When the trail arrives | Turns orange; the radar starts |
+| The dotted way ahead | 100 ms after the trail arrives | Its dots appear in order toward the summit over 600 ms |
+
+- Before their time the words, the trail and the milestones are not shown at all (not dimmed).
+- Only opacity and transform move. Nothing in the entrance changes the layout.
+- A click or a key press on a milestone, on the switch or on the page during the entrance finishes it at once: everything is shown and the action is taken. A milestone that has focus is shown.
+- If the map's drawing is not ready when the reveal ends, the trail starts when it is; the words do not wait for it.
+- A first load or a deep link plays the same entrance, counted from the moment the picture is shown.
+- Coming back from My climb to the overview does not replay it: the words fade in as today and the trail is there.
+- Reduced motion: no letters, no drawing; everything fades in together over 200 ms when the reveal ends.
+- Without the map (no canvas, less data, a failed picture) the words still enter; there is no trail.
+- Check: a film of the change from the portfolio page at 1440 by 900 and 390 by 844 with pictures at 0.6 T, 0.8 T, T, T + 1100 ms and T + 3200 ms: no words at 0.6 T, the title partly in at 0.8 T, the trail half drawn at T + 1100 ms with only the milestones behind its tip, everything at T + 3200 ms. No layout shift from the start of the reveal to T + 4 s. Task 28's arrival check for this page leaves the words, the trail and the milestones out of its comparison and is otherwise unchanged.
+
+## 9. Order
+
+Tasks 29 and 31 run in lane A after task 28, on `r7/r56-arrival`. Task 30 runs in lane B after task 26, on `r7/r55-live-boxes`. The join waits for both.
+
+## 10. For Aditya to check
 
 - The dock on the portfolio page with thumbnails passing under it.
 - The 2.25 s change with its fringe, on the joined build.
 - The opening of both boxes on the joined build: he said they still open oddly but not how.
+- My experience: the two blocks beside the mountain on his own screen, the words arriving with the change, and the trail drawing itself.

@@ -726,3 +726,17 @@ The build had stopped for most of a day and he looked at the two local builds as
 | Where the fringe was missing | On port 5181; and the change should run 2.25 s |
 
 These become tasks 29 and 30: `docs/superpowers/specs/2026-11-16-round7-second-look-design.md`, `docs/superpowers/plans/2026-11-16-round7-second-look.md`. Task 29 reverses R117 and R118 (the keep-out round the dock) and the 2.5 s of the follow-ups spec.
+
+### Feedback after the second look (2026-11-16, later the same night)
+
+He wrote: "shelves are so far good to go. fix the transitions in pages, fix the nav bar issues, the issues on the long form and short form pages. also on the my experience page the text for My Experience can be in the middle to the left of the mountain with the sub line below and the text for Olympus Mons can be on the right in the middle of the screen. it should also appear as the transition completes and not just be there silent - also add a good tracing animation for when the page opens for the path traveled."
+
+| His point | What happens |
+|---|---|
+| The shelves are good to go | Nothing new. Task 30 (whole books on the ledge in the reading box) stays as told to him. |
+| The page transitions, the dock, the long form and short form pages | Tasks 27 to 29, already running: the new change with its fringe at 2.25 s on the one joined build, the dock keeping its row and losing its cut-out, the walls in place before the reveal. |
+| My experience: the title to the left of the mountain at mid height with its line under it; Olympus Mons on the right at mid height | Task 31. On a wide screen the two blocks sit either side of the mountain on the summit's row. A narrow or upright screen has no room beside the mountain and keeps today's places (my call). |
+| The words should appear as the transition completes, not be there silently | Task 31. The words come in letter by letter as the reveal finishes. This is a made entrance and an exception to the rule of task 28 that nothing appears after the reveal. |
+| A tracing animation for the path travelled when the page opens | Task 31. The trail draws itself from the first milestone to "now", each milestone arriving as the line reaches it, then the dotted way ahead. |
+
+The timings and the look of the entrance and the trace are mine; he asked for "a good tracing animation" and left the rest open. Spec and plan: sections 9 to 11 and task 31 of `docs/superpowers/specs/2026-11-16-round7-second-look-design.md` and `docs/superpowers/plans/2026-11-16-round7-second-look.md`.

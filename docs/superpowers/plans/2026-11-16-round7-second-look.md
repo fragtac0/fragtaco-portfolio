@@ -1,4 +1,4 @@
-# Round 7: second look (tasks 29 and 30): implementation plan
+# Round 7: second look (tasks 29 to 31): implementation plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task by task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -65,8 +65,34 @@
 - [ ] The box-open films again (to `compare/local/`); the frame-cost numbers of task 26 again under the lock if the framing changed what is drawn.
 - [ ] Commit `R55.3c` (or the next free letter).
 
+### Task 31: My experience: the words beside the mountain, their entrance, the trail tracing itself
+
+Lane A, after task 29, on `r7/r56-arrival`. Spec sections 7 and 8.
+
+**Files:**
+- Modify: `app/components/experience/experience.css`, `experience-page.tsx`, `experience-map.tsx`, `heading-block.tsx`, `map-caption.tsx`, `milestone-pins.tsx`, `map.css`, `trail-layer.ts` + test, `climb-engine.ts` (only to pass the trace's share to the trail's drawing), `keep-out.ts` + test (if the words' boxes change how the chart keeps out), `app/lib/arrival.ts` users on this page (task 28), `scripts/audit/experience.json`, `scripts/audit/arrival.json` or `make-arrival.mjs` (the exception of spec 8), `scripts/audit/README.md`, `docs/redesign/changes-2026-11.md`
+- Create: `app/components/experience/entrance.ts` + test (pure timings), `app/components/experience/split-letters.tsx` (letters for the entrance, one accessible name), `scripts/audit/experience-entrance.json`
+
+**Interfaces:**
+- `entrance.ts`, pure:
+  - `ENTRANCE = { titleAt: 0.7, letterMs: 300, titleGapMs: 28, labelGapMs: 22, descAfterMs: 120, labelAfterMs: 240, linesAfterMs: 360, lineMs: 400, lineGapMs: 60, traceMs: 2200, beadMs: 260, aheadAfterMs: 100, aheadMs: 600, reducedMs: 200 }`.
+  - `traceShare(ms: number): number`: the share of the trail drawn `ms` after the trace began (0 to 1, eased in and out, clamped).
+  - `beadDelay(share: number): number`: the ms after the trace began at which the tip reaches a milestone at this share of the trail (the inverse of `traceShare`).
+- `drawTrail` in `trail-layer.ts` gains the share of the first trail to draw and the share of the way ahead to draw (both 1 by default, so every existing caller is unchanged) and draws the bright head at the tip while the share is under 1.
+- The page reads the reveal's start and length from `app/lib/page-change.ts` and `GLASS.ms`; no literal 2250.
+
+- [ ] Tests first: `entrance.test.ts` (`traceShare` is 0 at 0, 1 at `traceMs`, monotonic; `beadDelay(traceShare(x))` is `x` within 1 ms for x from 0 to `traceMs` in steps of 100; `beadDelay` of the last milestone is `traceMs`); `trail-layer.test.ts` (at share 0.5 the stroked path ends at the point half way along the trail's length, and the way ahead is not drawn; at 1 and 1 the drawing equals today's); a test that the title's letters carry one accessible name ("My experience" read once, the letters hidden from assistive technology).
+- [ ] The layout of spec 7: the two blocks on the summit's row on a wide screen, today's places otherwise; the clearances measured from the frame maths, not guessed.
+- [ ] The entrance of spec 8 for the words, on the reveal's clock; before their time they are not shown.
+- [ ] The trace: the trail by its share, each milestone at `beadDelay` of its share, "now" and the radar at the end, then the way ahead.
+- [ ] Finishing at once on a click or a key; focus shows a milestone; first load; coming back from My climb; reduced motion; no map.
+- [ ] `experience-entrance.json`: spec 8's film and pictures at the two sizes (to `compare/local/` if any picture shows a thumbnail; the map alone may go to `docs/redesign/compare/round7/`), the layout-shift count, the clearances of spec 7 at 1440 by 900, 1280 by 720, 1024 by 768 and 900 by 600, today's places at 390 by 844 and 844 by 390.
+- [ ] Task 28's arrival check for this page leaves the words, the trail and the milestones out; `experience.json` follows the new places.
+- [ ] Under the lock: `experience.json`, `experience-entrance.json`, the arrival audit, `page-change.json`.
+- [ ] Commit `R56.6` (code) and the rows in R56's part docs.
+
 ---
 
 ## After these tasks
 
-The join waits for the ledger lines "A: Task 29: complete" and "B: Task 30: complete". The comparison page of task 21 shows the dock without its cut-out and the reading box with whole books.
+The join waits for the ledger lines "A: Task 31: complete" (task 29 before it) and "B: Task 30: complete". The comparison page of task 21 shows the dock without its cut-out, the reading box with whole books, and the experience page with its words beside the mountain.
