@@ -295,5 +295,267 @@
   "r56-change-beside-r54.jpg": "20, 35, 50, 65 and 80% of experience to home, R54 left, R56 right (the arriving painting is picked at random per load, so it differs between the columns)",
   "r56-change-old-page-r54-r56.jpg": "the page being left alone (the arriving page's picture hidden) at 35, 50 and 65%: R54, R56 and their difference times 8; the difference is image noise, no bend difference"
  },
- "old_page_difference": "with the arriving picture hidden, R54 against R56 at 20, 35, 50, 65 and 80%: mean absolute luma difference 0.70 to 0.82 on a 0 to 255 scale (the noise floor at 20% is 0.70), 0.0 to 0.07% of pixels differ by more than 16"
+ "old_page_difference": "with the arriving picture hidden, R54 against R56 at 20, 35, 50, 65 and 80%: mean absolute luma difference 0.70 to 0.82 on a 0 to 255 scale (the noise floor at 20% is 0.70), 0.0 to 0.07% of pixels differ by more than 16",
+ "fix_round_r56_1b": {
+  "what": "R56.1b, the fix round after the review of R56.1: the CrGpuMain question, the gate again at both sizes with the new build, and the notes on the cold first change",
+  "date": "2026-11-15",
+  "build": "R56.1b: R56.1 plus the warm-up loop that re-checks the vignette, the sheet hosts of the warm-up drawn in a 3 px square (no longer full-screen at 1% opacity), the revoked vignette address, pushScale and the comment fixes",
+  "gpu_main_thread_question": {
+   "asked": "in the review of R56.1: gpuMainMs (busy time of the top-level tasks on GPU Process/CrGpuMain) went from 629/584/697 (R54) to 916/851/2547 (R56.1) at 1920x1080@1, 2547 of a 2563 ms window in the third run",
+   "answer": "It is waiting, not work, and it is not a texture upload or a decode. make-glass-cost.mjs now names the slices behind the number (self time by name, gpuMainTop, split into waits and work as gpuMainWaitMs and gpuMainWorkMs; --gpu-detail adds the GPU service and ANGLE categories). On both builds the thread spends its time in two waits: CALayerTreeCoordinator::ApplyBackpressure::Metal (the thread blocked, polling every millisecond, until the display hands it a drawable; it grows when the display is busy or the machine is loaded: 23 to 1,669 ms in the same build) and IOSurfaceImageBacking::WaitForCommandsToBeScheduled::Dawn (waiting for the renderer compositor to have scheduled its commands; 44 to 1,585 ms, the larger on R54 whose renderer compositor is slower). What it works at is the same in both builds: SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass about 90 to 116 ms, RasterDecoderImpl::DoEndRasterCHROMIUM::Flush about 50 ms, SubmitToGPU about 80 to 96 ms, and graphite DrawAtlas::recordUploads 11 ms (the only upload slice; the 23 href swaps per filter leave no slice of their own, no image decode is on the thread). Work (self time less the waits): R56.1b 228 to 256 ms at both sizes in 6 runs; R54 173 to 283 ms in 6 runs. The toplevel sum in gpuMainMs also counts a task and the thread-controller task around it twice (the self time is half of it), which is why one run showed nearly the whole window.",
+   "so": "nothing was reduced: there is no per-swap upload or decode to remove. The gate stays on the two compositor threads. A display that is busy (After Effects at 170% CPU and a WindowServer at 60% during these runs) lengthens the backpressure wait in either build; a dropped frame count above 0 together with a long ApplyBackpressure is the machine, and the gate is for a quiet one.",
+   "runs_with_slices_R56_1b": {
+    "1512x982@2": {
+     "rendererCompositorMs": [
+      305,
+      295,
+      287
+     ],
+     "vizCompositorMs": [
+      204,
+      217,
+      190
+     ],
+     "dropped": [
+      0,
+      0,
+      0
+     ],
+     "gpuMainMs": [
+      667,
+      601,
+      671
+     ],
+     "gpuMainSelfMs": [
+      336,
+      303,
+      339
+     ],
+     "gpuMainWaitMs": [
+      99,
+      47,
+      100
+     ],
+     "gpuMainWorkMs": [
+      237,
+      256,
+      239
+     ]
+    },
+    "1920x1080@1": {
+     "rendererCompositorMs": [
+      376,
+      354,
+      353
+     ],
+     "vizCompositorMs": [
+      260,
+      250,
+      244
+     ],
+     "dropped": [
+      0,
+      0,
+      0
+     ],
+     "gpuMainMs": [
+      2588,
+      1096,
+      977
+     ],
+     "gpuMainSelfMs": [
+      1297,
+      551,
+      491
+     ],
+     "gpuMainWaitMs": [
+      1066,
+      315,
+      263
+     ],
+     "gpuMainWorkMs": [
+      230,
+      236,
+      228
+     ]
+    }
+   },
+   "runs_with_slices_R54": {
+    "1512x982@2": {
+     "rendererCompositorMs": [
+      1052,
+      1388,
+      820
+     ],
+     "vizCompositorMs": [
+      686,
+      822,
+      467
+     ],
+     "dropped": [
+      0,
+      0,
+      67
+     ],
+     "gpuMainMs": [
+      712,
+      1150,
+      5058
+     ],
+     "gpuMainSelfMs": [
+      358,
+      578,
+      2531
+     ],
+     "gpuMainWaitMs": [
+      89,
+      295,
+      2358
+     ],
+     "gpuMainWorkMs": [
+      270,
+      283,
+      173
+     ]
+    },
+    "1920x1080@1": {
+     "rendererCompositorMs": [
+      904,
+      998,
+      914
+     ],
+     "vizCompositorMs": [
+      636,
+      636,
+      580
+     ],
+     "dropped": [
+      37,
+      18,
+      51
+     ],
+     "gpuMainMs": [
+      5018,
+      4993,
+      5110
+     ],
+     "gpuMainSelfMs": [
+      2511,
+      2499,
+      2558
+     ],
+     "gpuMainWaitMs": [
+      2305,
+      2273,
+      2358
+     ],
+     "gpuMainWorkMs": [
+      207,
+      226,
+      199
+     ]
+    }
+   },
+   "earlier_slice_runs_1920x1080@1": {
+    "R56.1_3_runs": "toplevel 4394/3075/1969, ApplyBackpressure::Metal 1681/1019/554 ms, WaitForCommandsToBeScheduled 252/285/204 ms, FinishPaintRenderPass 104/87/89 ms, DoEndRasterCHROMIUM::Flush 56/54/51 ms; renderer compositor 445/426/370, display compositor 293/241/232, dropped 3/1/2 (loaded machine)",
+    "R54_3_runs": "toplevel 4854/3408/5058, WaitForCommandsToBeScheduled 1369/909/1485 ms, ApplyBackpressure::Metal 790/518/797 ms, FinishPaintRenderPass 120/116/116 ms, DoEndRasterCHROMIUM::Flush 48/51/47 ms; renderer compositor 1349/1359/1110, display compositor 806/822/729, dropped 4/10/15 (loaded machine)",
+    "gpu_detail_runs": "2 runs each with --gpu-detail: the same names; graphite addRenderPass, TaskList::addCommands, SubmitToGPU and DrawAtlas::recordUploads are 10 to 96 ms each; nothing is named as an image decode or a texture upload of the bend tiles"
+   }
+  },
+  "gate_again_r56_1b": {
+   "note": "3 runs at each size on the committed build of this round, under the gate lock; the machine was not quiet (load average 7 to 10, After Effects at about 170% CPU) and all six runs pass with no dropped frame",
+   "1512x982@2": {
+    "pass": true,
+    "rendererCompositorMs": [
+     305,
+     295,
+     287
+    ],
+    "vizCompositorMs": [
+     204,
+     217,
+     190
+    ],
+    "dropped": [
+     0,
+     0,
+     0
+    ],
+    "gpuMainMs": [
+     667,
+     601,
+     671
+    ],
+    "gpuMainSelfMs": [
+     336,
+     303,
+     339
+    ],
+    "gpuMainWaitMs": [
+     99,
+     47,
+     100
+    ],
+    "gpuMainWorkMs": [
+     237,
+     256,
+     239
+    ]
+   },
+   "1920x1080@1": {
+    "pass": true,
+    "rendererCompositorMs": [
+     376,
+     354,
+     353
+    ],
+    "vizCompositorMs": [
+     260,
+     250,
+     244
+    ],
+    "dropped": [
+     0,
+     0,
+     0
+    ],
+    "gpuMainMs": [
+     2588,
+     1096,
+     977
+    ],
+    "gpuMainSelfMs": [
+     1297,
+     551,
+     491
+    ],
+    "gpuMainWaitMs": [
+     1066,
+     315,
+     263
+    ],
+    "gpuMainWorkMs": [
+     230,
+     236,
+     228
+    ]
+   },
+   "r54_same_session": "R54 on the same machine in the same hour: 1512x982@2 renderer compositor 1052/1388/820, display 686/822/467, dropped 0/0/67; 1920x1080@1 904/998/914, 636/636/580, dropped 37/18/51 (loaded machine: more drops than in the first baseline above)"
+  },
+  "long_frame_133ms": {
+   "asked": "the 133 ms frame at 2311 ms in the first change of page-change-hook.json run 1 of R56.1: name its long-animation-frame script, or say it had none",
+   "answer": "its entry was not kept: the run was summarised to the frame gaps only and the raw output of the run was not saved, so its script cannot be named. It did not come back in 11 runs of page-change-hook.json on this build (all first changes: 10 clean, 1 with a cluster of 50 to 83 ms frames at 1154 to 1604 ms into the change). The loaf entries of that cluster, which is the same kind of frame, name the page, not the glass: MessagePort.onmessage (React scheduler, components chunk) 6 to 85 ms in a frame (the new page being rendered, up to 24 ms of it forced style and layout), page timers (_index chunk) 24 to 31 ms and FrameRequestCallback of the page-change chunk (the glass tick) 6 to 14 ms; no frame is the glass tick alone. The page-mount cost is task 28's.",
+   "runs": "page-change-hook.json 11 runs: first change over 34 ms in 1 run; the other four changes of each run clean in all 11"
+  },
+  "cold_first_change_again": {
+   "page_change_json_3_runs": "first change: run 1 one frame of 100 ms at 303 ms (the machine was loaded: the same run had 6 and 8 slow frames in its next two changes, the guard dropped the bend in the second, and the tab ran the last two without it), run 2 one frame of 50 ms at 504 ms, run 3 clean (max 33.4). The R33 gate of \"no frame over 34 ms in the first change\" is therefore not met in 2 of these 3 runs, on a machine under load; the same first change with the build as committed (fe51bca) in interleaved A/B runs: 2 of 4 had a slow frame (83 and 50 ms at about 260 ms), the new build 1 of 4 (50 ms at 272 ms), so the change does not make it worse. All of them are the new page's mount (page-change task 28's hold), not the bend.",
+   "a_b_first_change": "4 interleaved pairs, steps page-change.json up to the first change; new build 0 1 0 0 slow frames, fe51bca 0 2 0 1 (frames over 34 ms in the first change)",
+   "page_change_json_second_3_runs": "a second set of 3 cold runs, taken later the same hour: first change max 33.3, 33.3 and 16.8 ms, none over 34 ms; all 15 changes of the set clean except two single 50 ms frames in the Back and Forward changes of the third run (1166 ms and 263 ms in). So the gate \"no frame over 34 ms in the first change after a load\" holds in 3 of 3 runs in this set and 1 of 3 in the first (loaded machine), 4 of 6 in all; it is not guaranteed, because of the page mount (task 28)."
+  },
+  "warm_hosts": {
+   "before": "the three sheet hosts were full-screen at 1% opacity for about 23 frames (a masked black disc, a plus-lighter ring and a shade over the home page)",
+   "now": "each is a 3 px square in the top left corner at 1% opacity, with the tile laid so that its middle is under it; the two filter hosts hold nothing (their output is transparent whatever their opacity). The gate passes with it (above) and the first change after a load is no worse (A/B above), so it stays."
+  },
+  "blink_check": "glass-warm.json E: a film of a whole change to /work (every frame the compositor makes: 203 and 204 frames in two runs) has no frame that differs from both neighbours while they agree (blinkFrames empty, largest frame-to-frame step 7.1 and 6.8 luma levels on the 48 by 30 cells); step F is the control, the same film with one frame of the old page's map picture taken away: blinkFrames lists it (steps 29 and 27 to 29, the neighbours 1 to 5 apart)"
+ }
 }

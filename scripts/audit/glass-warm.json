@@ -5,12 +5,12 @@
    900
   ],
   "dpr": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__rec={frames:0,bendDuringChange:0,warmHostDuringChange:0,changeFrames:0,bendByChange:[],warmMarks:0};\n{const tick=()=>{const d=document.documentElement&&document.documentElement.dataset;if(d){const k=!!d.changeKind;if(k){__rec.changeFrames++;if(d.glass==='bend')__rec.bendDuringChange++;if('glassLive' in d)__rec.liveDuringChange=(__rec.liveDuringChange||0)+1;if(document.querySelector('[data-glass-warm]'))__rec.warmHostDuringChange++}}__rec.frames++;requestAnimationFrame(tick)};requestAnimationFrame(tick)}\nwindow.__wait=(f,ms)=>new Promise(r=>{const t0=performance.now();const iv=setInterval(()=>{let v;try{v=f()}catch(e){v=false}if(v||performance.now()-t0>ms){clearInterval(iv);r(!!v)}},25)});\nwindow.__settledP=()=>__wait(()=>!document.documentElement.dataset.changeKind,9000);\nwindow.__change=async(to)=>{await __wait(()=>typeof window.__ftChange==='function',8000);const b0=__rec.bendDuringChange,c0=__rec.changeFrames,l00=__rec.liveDuringChange||0;const warmBefore=performance.getEntriesByName('glass-warm').length;window.__ftChange(to);await __wait(()=>document.documentElement.dataset.changeKind,2000);const ended=await __settledP();return {to,warmMarksAtStart:warmBefore,liveFrames:(__rec.liveDuringChange||0)-l00,session:sessionStorage.getItem('ft-glass-bend'),bendFrames:__rec.bendDuringChange-b0,changeFrames:__rec.changeFrames-c0,ended,path:location.pathname}};\nwindow.__state=()=>{const f=id=>document.getElementById(id);const pushes=['r','g','b'].flatMap(c=>['ft-glass-old','ft-glass-new'].map(i=>f(i+'-push-'+c)?.getAttribute('scale')));return {warmMarks:performance.getEntriesByName('glass-warm').length,vignetteMarks:performance.getEntriesByName('glass-vignette-ready').length,warmHostsNow:document.querySelectorAll('[data-glass-warm]').length,warmHostDuringChange:__rec.warmHostDuringChange,mapWidths:['ft-glass-old','ft-glass-new'].map(i=>f(i+'-map')?.getAttribute('width')),pushes,vignetteWidth:f('ft-glass-old-vignette')?.getAttribute('width'),innerWidth,dataGlass:document.documentElement.dataset.glass??null,changeKind:document.documentElement.dataset.changeKind??null}};\nwindow.__slow=(on)=>{window.__slowOn=on;if(!on)return;let n=0;const f=()=>{if(document.documentElement.dataset.changeKind&&n<14){const t=performance.now();while(performance.now()-t<40);n++}if(window.__slowOn)requestAnimationFrame(f)};requestAnimationFrame(f)};",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__rec={frames:0,bendDuringChange:0,warmHostDuringChange:0,changeFrames:0,bendByChange:[],warmMarks:0};\n{const tick=()=>{const d=document.documentElement&&document.documentElement.dataset;if(d){const k=!!d.changeKind;if(k){__rec.changeFrames++;if(d.glass==='bend')__rec.bendDuringChange++;if('glassLive' in d)__rec.liveDuringChange=(__rec.liveDuringChange||0)+1;if(document.querySelector('[data-glass-warm]'))__rec.warmHostDuringChange++}}__rec.frames++;requestAnimationFrame(tick)};requestAnimationFrame(tick)}\nwindow.__wait=(f,ms)=>new Promise(r=>{const t0=performance.now();const iv=setInterval(()=>{let v;try{v=f()}catch(e){v=false}if(v||performance.now()-t0>ms){clearInterval(iv);r(!!v)}},25)});\nwindow.__settledP=()=>__wait(()=>!document.documentElement.dataset.changeKind,9000);\nwindow.__change=async(to)=>{await __wait(()=>typeof window.__ftChange==='function',8000);const b0=__rec.bendDuringChange,c0=__rec.changeFrames,l00=__rec.liveDuringChange||0;const warmBefore=performance.getEntriesByName('glass-warm').length;const readyBefore=performance.getEntriesByName('glass-bend-ready').length;window.__ftChange(to);await __wait(()=>document.documentElement.dataset.changeKind,2000);const ended=await __settledP();return {to,bendReadyMarksAtStart:readyBefore,warmMarksAtStart:warmBefore,liveFrames:(__rec.liveDuringChange||0)-l00,session:sessionStorage.getItem('ft-glass-bend'),bendFrames:__rec.bendDuringChange-b0,changeFrames:__rec.changeFrames-c0,ended,path:location.pathname}};\nwindow.__state=()=>{const f=id=>document.getElementById(id);const pushes=['r','g','b'].flatMap(c=>['ft-glass-old','ft-glass-new'].map(i=>f(i+'-push-'+c)?.getAttribute('scale')));return {warmMarks:performance.getEntriesByName('glass-warm').length,vignetteMarks:performance.getEntriesByName('glass-vignette-ready').length,warmHostsNow:document.querySelectorAll('[data-glass-warm]').length,warmHostDuringChange:__rec.warmHostDuringChange,mapWidths:['ft-glass-old','ft-glass-new'].map(i=>f(i+'-map')?.getAttribute('width')),pushes,vignetteWidth:f('ft-glass-old-vignette')?.getAttribute('width'),innerWidth,dataGlass:document.documentElement.dataset.glass??null,changeKind:document.documentElement.dataset.changeKind??null}};\nwindow.__slow=(on)=>{window.__slowOn=on;if(!on)return;let n=0;const f=()=>{if(document.documentElement.dataset.changeKind&&n<14){const t=performance.now();while(performance.now()-t<40);n++}if(window.__slowOn)requestAnimationFrame(f)};requestAnimationFrame(f)};",
   "go": "{{BASE}}/",
   "wait": 300
  },
  {
-  "label": "A: a change before glass-warm (the bend is not used: no frame with data-glass, the change ends, the pushes are 0)",
+  "label": "A: a change 300 ms after the load, before glass-warm (bendReadyMarksAtStart says whether glass-bend-ready had come: when it is 0 this step shows only that no bend runs before the bend is ready, and step C is the one that has the bend ready and not warm): no frame with data-glass, the change ends, the pushes are 0",
   "eval": "__change('/work')"
  },
  {
@@ -79,6 +79,26 @@
  {
   "label": "C: the next change has the bend",
   "eval": "__change('/')"
+ },
+ {
+  "label": "E: the filters have no neutral base under the map, so a frame whose map picture did not apply would push the page by half the scale: a film of a whole change to /work (every frame the compositor makes) has no frame that differs from both neighbours while they agree (`blinkFrames` empty, `blinkMaxStep` is the scale of the steps)",
+  "film": {
+   "ms": 3400,
+   "eval": "__change('/work')",
+   "blink": true
+  }
+ },
+ {
+  "label": "E: after the film: the change ended, and it had the bend",
+  "eval": "__state()"
+ },
+ {
+  "label": "F: control for E's detector: the same film back to /, with one frame of the old page's map picture taken away (width 0) a second in: `blinkFrames` must list it (ok false is expected here)",
+  "film": {
+   "ms": 3400,
+   "eval": "(async()=>{const kick=async()=>{await __wait(()=>document.documentElement.dataset.glass==='bend',4000);await new Promise(r=>setTimeout(r,900));const m=document.getElementById('ft-glass-old-map');requestAnimationFrame(()=>{m.setAttribute('width','0')})};const [r]=await Promise.all([__change('/'),kick()]);return r})()",
+   "blink": true
+  }
  },
  {
   "label": "D: the guard. Reload and wait for the warm-up",

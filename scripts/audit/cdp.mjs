@@ -6,7 +6,9 @@
 // darker than #2a2826, the share of orange-hued pixels and the average colour on a grid; see PIXEL_SAMPLER below),
 // film ({ms, dark?, share?, rect?, keep?, at?} + label: the page runs `eval` first when given, then every frame the compositor produces for `ms` is photographed (a screencast); each is
 // reduced to 48 by 30 cells (over the `rect` selector's box, read once the film is over, e.g. "#hero"; the whole frame without it) and a frame counts as bare when `share` (0.75) or more of its cells are darker than luma `dark` (20); prints the frame count, the longest gap between frames, `darkShareMax` (the largest share of dark cells in any frame), the box measured, the
-// bare frames and `ok` (`flat`: a frame whose cells' luma spread is under that also counts as bare, a plain ground; `ats`: saves the frames nearest those times as <keep>-<ms>.jpg; `series`: prints [ms, spread, mean] of every frame); `keep` saves the darkest frame as <keep>.jpg and, with `at` (ms after the start), the frame nearest that time as <keep>-at.jpg; see FILM_LUMA below). "{{BASE}}" in a steps file is replaced by $BASE.
+// bare frames and `ok` (`blink: true` also reduces every frame to 48 by 30 luma cells and looks for the signature of ONE frame that is wrong between two that agree (R56.1b: a bend map that did not
+// apply in its frame): frame i is a blink when the cells' mean absolute difference to i-1 and to i+1 are each at least `blinkMin` (3 luma levels) and at least `blinkRatio` (2) times the difference
+// between i-1 and i+1; `blinkFrames` lists them, and `ok` needs none; `blinkMaxStep` is the largest frame-to-frame difference seen, for a sense of the scale); `flat`: a frame whose cells' luma spread is under that also counts as bare, a plain ground; `ats`: saves the frames nearest those times as <keep>-<ms>.jpg; `series`: prints [ms, spread, mean] of every frame); `keep` saves the darkest frame as <keep>.jpg and, with `at` (ms after the start), the frame nearest that time as <keep>-at.jpg; see FILM_LUMA below). "{{BASE}}" in a steps file is replaced by $BASE.
 import { spawn } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
@@ -86,6 +88,10 @@ const PIXEL_SAMPLER = (b64, cols, rows) => `(async()=>{
 const FILM_LUMA = (b64, dark, box) => `(async()=>{const b=await createImageBitmap(await (await fetch("data:image/jpeg;base64,${b64}")).blob());const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
   const bx=${JSON.stringify(box ?? null)},k=b.width/innerWidth;if(bx)x.drawImage(b,bx.x*k,bx.y*k,bx.w*k,bx.h*k,0,0,48,30);else x.drawImage(b,0,0,48,30);
   const d=x.getImageData(0,0,48,30).data;let under=0,sum=0,sq=0;for(let i=0;i<d.length;i+=4){const l=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2];sum+=l;sq+=l*l;if(l<${dark})under++}const m=sum/1440;return [under/1440,m,Math.sqrt(Math.max(0,sq/1440-m*m))]})()`;
+// Runs inside the page on a JPEG frame: its 48 by 30 luma cells (over `box`, or the whole frame), as a JSON array. Used by the `film` step's `blink` check.
+const FILM_CELLS = (b64, box) => `(async()=>{const b=await createImageBitmap(await (await fetch("data:image/jpeg;base64,${b64}")).blob());const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
+  const bx=${JSON.stringify(box ?? null)},k=b.width/innerWidth;if(bx)x.drawImage(b,bx.x*k,bx.y*k,bx.w*k,bx.h*k,0,0,48,30);else x.drawImage(b,0,0,48,30);
+  const d=x.getImageData(0,0,48,30).data,o=[];for(let i=0;i<d.length;i+=4)o.push(Math.round(0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2]));return JSON.stringify(o)})()`;
 // Runs inside the page on a JPEG frame of a video wall: the luma at a 7 by 5 grid of points in the middle 70% of every tile (`g` is the wall's
 // grid, data-grid). runFilm compares each frame with a reference frame taken before any tile is on screen: a tile is showing when it differs
 // from the ground behind it (the ground is a glow, not flat, so the spread inside a tile cannot tell a tile from the ground).
@@ -137,7 +143,18 @@ async function runFilm(f, label) {
     const r = await send("Runtime.evaluate", { expression: `(()=>{const e=document.querySelector(${JSON.stringify(f.rect)});if(!e)return null;const r=e.getBoundingClientRect();const x=Math.max(0,r.left),y=Math.max(0,r.top),w=Math.min(innerWidth,r.right)-x,h=Math.min(innerHeight,r.bottom)-y;return w>0&&h>0?{x,y,w,h}:null})()`, returnByValue: true });
     box = r.result?.result?.value ?? null;
   }
-  for (const fr of frames) { const v = (await send("Runtime.evaluate", { expression: FILM_LUMA(fr.data, dark, box), awaitPromise: true, returnByValue: true })).result?.result?.value ?? [1, 0]; rows.push({ at: Math.round(fr.t - t0), share: +v[0].toFixed(2), mean: +v[1].toFixed(1), std: +(v[2] ?? 99).toFixed(2), data: fr.data }); }
+  const cellsOf = async (data) => JSON.parse((await send("Runtime.evaluate", { expression: FILM_CELLS(data, box), awaitPromise: true, returnByValue: true })).result?.result?.value ?? "[]");
+  for (const fr of frames) { const v = (await send("Runtime.evaluate", { expression: FILM_LUMA(fr.data, dark, box), awaitPromise: true, returnByValue: true })).result?.result?.value ?? [1, 0]; rows.push({ at: Math.round(fr.t - t0), share: +v[0].toFixed(2), mean: +v[1].toFixed(1), std: +(v[2] ?? 99).toFixed(2), data: fr.data, ...(f.blink ? { cells: await cellsOf(fr.data) } : {}) }); }
+  let blinkFrames = [], blinkMaxStep = 0;
+  if (f.blink && rows.length > 2) {
+    const mad = (p, q) => { let t = 0; for (let i = 0; i < p.length; i++) t += Math.abs(p[i] - q[i]); return t / p.length; };
+    const min = f.blinkMin ?? 3, ratio = f.blinkRatio ?? 2;
+    for (let i = 1; i < rows.length - 1; i++) {
+      const before = mad(rows[i - 1].cells, rows[i].cells), after = mad(rows[i].cells, rows[i + 1].cells), skip = mad(rows[i - 1].cells, rows[i + 1].cells);
+      blinkMaxStep = Math.max(blinkMaxStep, before);
+      if (before >= min && after >= min && before >= ratio * skip && after >= ratio * skip) blinkFrames.push([rows[i].at, +before.toFixed(1), +after.toFixed(1), +skip.toFixed(1)]);
+    }
+  }
   // `tiles`: a video wall's tiles showing in each frame (see TILE_SAMPLES: each frame against the same page with the wall hidden); the frames where the wall is blank after it has been seen are the gap this catches
   let tileReport;
   if (f.tiles) {
@@ -163,7 +180,7 @@ async function runFilm(f, label) {
   if (f.keep && rows.length) { const worst = rows.reduce((a, b) => (b.share > a.share ? b : a)); writeFileSync(`${outDir}/${f.keep}.jpg`, Buffer.from(worst.data, "base64")); }
   if (f.keep && f.at != null && rows.length) { const near = rows.reduce((a, b) => (Math.abs(b.at - f.at) < Math.abs(a.at - f.at) ? b : a)); writeFileSync(`${outDir}/${f.keep}-at.jpg`, Buffer.from(near.data, "base64")); }
   if (f.keep && f.ats) for (const a of f.ats) { const near = rows.reduce((p, b) => (Math.abs(b.at - a) < Math.abs(p.at - a) ? b : p)); writeFileSync(`${outDir}/${f.keep}-${String(a).padStart(4, "0")}.jpg`, Buffer.from(near.data, "base64")); }
-  console.log(JSON.stringify({ step: label ?? "film", stdMin: rows.length ? Math.min(...rows.map(r => r.std)) : null, stdSeries: f.series ? rows.map(r => [r.at, r.std, r.mean]) : undefined, frames: rows.length, longestGapMs: gap, firstMs: rows[0]?.at, lastMs: rows.at(-1)?.at, darkShareMax: rows.length ? Math.max(...rows.map(r => r.share)) : null, box: box ? [Math.round(box.x), Math.round(box.y), Math.round(box.w), Math.round(box.h)] : (f.rect ? "not found: whole frame" : "whole frame"), bareFrames: bare.map(r => [r.at, r.share, r.mean, r.std]), ok: rows.length > 5 && bare.length === 0, ...(tileReport ? { tileReport } : {}) }));
+  console.log(JSON.stringify({ step: label ?? "film", stdMin: rows.length ? Math.min(...rows.map(r => r.std)) : null, stdSeries: f.series ? rows.map(r => [r.at, r.std, r.mean]) : undefined, frames: rows.length, longestGapMs: gap, firstMs: rows[0]?.at, lastMs: rows.at(-1)?.at, darkShareMax: rows.length ? Math.max(...rows.map(r => r.share)) : null, box: box ? [Math.round(box.x), Math.round(box.y), Math.round(box.w), Math.round(box.h)] : (f.rect ? "not found: whole frame" : "whole frame"), bareFrames: bare.map(r => [r.at, r.share, r.mean, r.std]), ok: rows.length > 5 && bare.length === 0 && blinkFrames.length === 0, ...(f.blink ? { blinkFrames, blinkMaxStep: +blinkMaxStep.toFixed(1) } : {}), ...(tileReport ? { tileReport } : {}) }));
 }
 for (const s of steps) {
   if (s.size) await send("Emulation.setDeviceMetricsOverride", { width: s.size[0], height: s.size[1], deviceScaleFactor: s.dpr ?? 1, mobile: !!s.mobile });

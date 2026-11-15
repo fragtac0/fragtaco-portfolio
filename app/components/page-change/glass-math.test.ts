@@ -15,6 +15,7 @@ import {
   glowAt,
   isChromium,
   judgeGlass,
+  pushScale,
   SIGHT_FRAMES,
   SPAN,
   SPLIT,
@@ -222,5 +223,27 @@ describe("BEND_NEW (R56)", () => {
   it("the arriving page gets half of the push; the page being left has all of it", () => {
     expect(BEND_NEW).toBe(0.5);
     expect(BEND_OLD).toBe(1);
+  });
+});
+
+describe("pushScale (R56)", () => {
+  const peak = 2 * 1.1 * 40; // any push in px
+  it("the arriving filter's scales are BEND_NEW times the old one's, with the opposite sign, for every colour", () => {
+    for (const split of [SPLIT.r, SPLIT.g, SPLIT.b]) {
+      const old = pushScale(1, BEND_OLD, peak, split);
+      const arriving = pushScale(-1, BEND_NEW, peak, split);
+      expect(arriving).toBeCloseTo(-BEND_NEW * old, 10);
+    }
+  });
+  it("keeps the colour split's proportions in both filters", () => {
+    for (const [sign, share] of [[1, BEND_OLD], [-1, BEND_NEW]] as const) {
+      const [r, g, b] = [SPLIT.r, SPLIT.g, SPLIT.b].map((k) => pushScale(sign, share, peak, k));
+      expect(r / g).toBeCloseTo(SPLIT.r / SPLIT.g, 10);
+      expect(b / g).toBeCloseTo(SPLIT.b / SPLIT.g, 10);
+    }
+  });
+  it("is nothing when the push is nothing", () => {
+    expect(pushScale(1, BEND_OLD, 0, SPLIT.r) + 0).toBe(0);
+    expect(Math.abs(pushScale(-1, BEND_NEW, 0, SPLIT.r))).toBe(0);
   });
 });

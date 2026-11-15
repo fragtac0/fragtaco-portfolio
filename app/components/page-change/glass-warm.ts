@@ -5,7 +5,10 @@
 import { GLASS_IDS, mapId, pushId } from "./glass-filter";
 import { HALF, sheetLayout, TILES, tileCell } from "./glass-field";
 import { calm, changeRunning, mark, ready, SHEET_COLS } from "./glass-state";
+import { warmLoop, type WarmSize } from "./glass-warm-loop";
 
+/** The side of the square in the screen's corner the sheets are drawn in during the warm-up, in CSS px. */
+const CORNER = 3;
 /** How long to wait for one frame of the warm-up before giving up on it. */
 const WARM_FRAME_TIMEOUT_MS = 400;
 const nextFrame = () =>
@@ -22,27 +25,30 @@ let warming = false;
  * Runs both bend filters once where nobody sees it (R56, spec 4), so the first change after a load does no first-time work (the shaders,
  * the bend's tiles' and the vignette's upload to the GPU, each tile's first use as the map): two full-screen elements with nothing in
  * them, each with a filter, nearly clear (opacity 0.01 so the browser does not skip them), the map put through every tile in turn
- * (a frame each) and the pushes set as in a change; and the three sheets (mask, glow, shade) drawn once the same way; then everything put back. Called after `glass-bend-ready` and again after the vignette is remade for a new screen size; marks
- * `glass-warm` and sets `ready.warm`. Never while a change runs: it waits for the marks on <html> to go, and a change that starts in the
- * middle of it (it runs without the bend: `ready.warm` is still false) stops it and it starts again afterwards. In a hidden tab it
- * waits until the tab shows again (a hidden tab draws no frames to warm).
+ * (a frame each) and the pushes set as in a change; and the three sheets (mask, glow, shade) drawn once the same way; then everything
+ * put back. Called after `glass-bend-ready` and again after the vignette is remade for a new screen size; marks `glass-warm` and sets
+ * `ready.warm`. Never while a change runs: it waits for the marks on <html> to go, and a change that starts in the middle of it (it
+ * runs without the bend: `ready.warm` is still false) stops it and it starts again afterwards. A vignette that is remade while a
+ * warm-up runs makes that warm-up not count (`warmLoop`). In a hidden tab it waits until the tab shows again (a hidden tab draws no
+ * frames to warm).
  */
 export async function warmGlass(): Promise<void> {
   if (warming || ready.warm || !ready.bend || !ready.vignette || typeof document === "undefined") return;
   warming = true;
   try {
-    for (let attempt = 0; attempt < 20 && !ready.warm; attempt++) {
-      await calm();
-      if (document.hidden) {
-        await new Promise<void>((resolve) => document.addEventListener("visibilitychange", () => resolve(), { once: true }));
-        continue;
-      }
-      if (!ready.vignette || ready.vignette.w !== window.innerWidth || ready.vignette.h !== window.innerHeight) break; // resized meanwhile: the remake warms
-      if (await warmOnce()) {
+    await warmLoop({
+      calm,
+      hidden: () => document.hidden,
+      untilVisible: () => new Promise<void>((resolve) => document.addEventListener("visibilitychange", () => resolve(), { once: true })),
+      vignette: () => ready.vignette,
+      screen: () => ({ w: window.innerWidth, h: window.innerHeight }),
+      warmOnce,
+      isWarm: () => ready.warm,
+      markWarm: () => {
         ready.warm = true;
         mark("glass-warm");
-      }
-    }
+      },
+    });
   } catch {
     /* the bend is not used without the warm-up: ready.warm stays false */
   } finally {
@@ -51,8 +57,7 @@ export async function warmGlass(): Promise<void> {
 }
 
 /** One warm-up: true when it ran its frames and no change started during it. */
-async function warmOnce(): Promise<boolean> {
-  const { w, h } = ready.vignette ?? { w: window.innerWidth, h: window.innerHeight };
+async function warmOnce({ w, h }: WarmSize): Promise<boolean> {
   const side = 2 * HALF * Math.hypot(w / 2, h / 2);
   const filters = [GLASS_IDS.old, GLASS_IDS.new] as const;
   const hosts = filters.map((f) => {
@@ -63,18 +68,20 @@ async function warmOnce(): Promise<boolean> {
     document.body.appendChild(el);
     return el;
   });
-  // the three sheets too (the mask, the glow, the shade): their first draw, with the tile in the middle of the ladder laid over the screen
+  // the three sheets too (the mask, the glow, the shade): their first draw, with the tile in the middle of the ladder laid so that its middle
+  // is under a 3 px square in the screen's corner (what is drawn is that square at 1% opacity: nobody can see it; the pictures are what is
+  // warmed, and they are drawn whole)
   if (ready.sheetUrls) {
     const { cols, rows } = sheetLayout(TILES.length, SHEET_COLS);
     const mid = Math.floor(TILES.length / 2);
     const { col, row } = tileCell(mid, cols);
     const size = `${(cols * side).toFixed(1)}px ${(rows * side).toFixed(1)}px`;
-    const position = `${(w / 2 - side / 2 - col * side).toFixed(1)}px ${(h / 2 - side / 2 - row * side).toFixed(1)}px`;
+    const position = `${(CORNER / 2 - side / 2 - col * side).toFixed(1)}px ${(CORNER / 2 - side / 2 - row * side).toFixed(1)}px`;
     const draw = (extra: string) => {
       const el = document.createElement("div");
       el.dataset.glassWarm = "";
       el.setAttribute("aria-hidden", "true");
-      el.style.cssText = `position:fixed;inset:0;pointer-events:none;opacity:0.01;background-repeat:no-repeat;${extra}`;
+      el.style.cssText = `position:fixed;left:0;top:0;width:${CORNER}px;height:${CORNER}px;pointer-events:none;opacity:0.01;background-repeat:no-repeat;${extra}`;
       document.body.appendChild(el);
       hosts.push(el);
     };

@@ -14,7 +14,7 @@ import type { ChangePlan } from "../../lib/page-change";
 import { GLASS_IDS, mapId, pushId, type GlassFilterId } from "./glass-filter";
 import { HALF, pickBendTile, pickTile, sheetLayout, tileCell, TILES } from "./glass-field";
 import { createGuard, createSession } from "./glass-guard";
-import { BEND_NEW, BEND_OLD, bendPxFor, frontAt, judgeGlass, SPLIT } from "./glass-math";
+import { BEND_NEW, BEND_OLD, bendPxFor, frontAt, judgeGlass, pushScale, SPLIT } from "./glass-math";
 import { ready, refreshVignette, SHEET_COLS } from "./glass-prepare";
 import { BEND_MAX } from "./glass-texture";
 
@@ -51,13 +51,16 @@ function findGlassAnimation(): Animation | undefined {
 interface BendFilter {
   map: Element | null;
   pushes: Array<Element | null>;
-  /** The push's direction and share: +1 and `BEND_OLD` for the old page, -1 and `BEND_NEW` (half) for the new. */
-  sign: number;
+  /** The push's direction: +1 for the old page, -1 for the new. */
+  sign: 1 | -1;
+  /** The filter's share of the push: `BEND_OLD` for the old page, `BEND_NEW` (half) for the new. */
+  share: number;
 }
 const bendFilter = (id: GlassFilterId, sign: 1 | -1, share: number): BendFilter => ({
   map: document.getElementById(mapId(id)),
   pushes: (["r", "g", "b"] as const).map((c) => document.getElementById(pushId(id, c))),
-  sign: sign * share,
+  sign,
+  share,
 });
 const SPLITS = [SPLIT.r, SPLIT.g, SPLIT.b] as const;
 
@@ -190,7 +193,7 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
     if (filters.length) {
       // the one map picture of each filter: the tile for the front (its source swapped when the front moves on to the next tile) laid over
       // the screen (a tile reaches past the farthest corner), and the three pushes
-      const peak = bendPxFor(plan.vh) * f.bend;
+      const peak = 2 * BEND_MAX * bendPxFor(plan.vh) * f.bend;
       const bp = pickBendTile(f.radius / far);
       const side = 2 * HALF * far * bp.scale;
       const geometry = {
@@ -204,7 +207,7 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
       for (const filter of filters) {
         if (swap) filter.map?.setAttribute("href", ready.bendTiles[bp.index]);
         for (const [name, value] of Object.entries(geometry)) setAttr(filter.map, name, value);
-        filter.pushes.forEach((p, c) => setAttr(p, "scale", (filter.sign * 2 * BEND_MAX * peak * SPLITS[c]).toFixed(2)));
+        filter.pushes.forEach((p, c) => setAttr(p, "scale", pushScale(filter.sign, filter.share, peak, SPLITS[c]).toFixed(2)));
       }
     }
   };

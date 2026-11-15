@@ -45,6 +45,14 @@ export const BEND_NEW = 0.5;
 export const SPLIT = { r: 1.29, g: 1, b: 0.71 } as const;
 
 /**
+ * One colour's displacement scale in one bend filter: the push's direction (`sign`: +1 for the page being left, -1 for the page
+ * arriving), the filter's share of the push (`BEND_OLD` or `BEND_NEW`), the push at this moment in px (`peak`: the bend's peak times its
+ * profile, times the map's own range) and the colour's share of it (`SPLIT`). One place for the arithmetic, so that the arriving
+ * filter's scales are `BEND_NEW` times the old one's whatever else changes.
+ */
+export const pushScale = (sign: 1 | -1, share: number, peak: number, split: number) => sign * share * peak * split;
+
+/**
  * The change's easing: the painting's own (`sweep` in home/hero/paint-engine.ts and the round 7 preview, ease in and out
  * cubic), as the CSS curve that matches it. The same four numbers as `GLASS_EASING` below.
  */

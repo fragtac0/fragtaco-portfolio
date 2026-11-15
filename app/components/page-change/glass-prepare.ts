@@ -1,7 +1,7 @@
 /**
  * Makes the glass front's pictures, in idle time, once per page load (follow-ups spec 4; the tiles are explained in glass-field.ts):
- * sheets of tiles for the new page's mask, the glow and the shade, the bend's sheet (one picture in each SVG filter of
- * glass-filter.tsx, R56), and the vignette that damps the bend towards the screen's edges (glass-vignette.ts, made again when the
+ * sheets of tiles for the new page's mask, the glow and the shade, the bend's tiles (data addresses; each SVG filter of
+ * glass-filter.tsx has one map picture whose source glass-run.ts swaps to the tile for the front, R56), and the vignette that damps the bend towards the screen's edges (glass-vignette.ts, made again when the
  * screen changes size). Then `warmGlass` runs the bend's filters once where nobody sees them, so the first change after a load does no
  * first-time work (R56, spec 4).
  *
@@ -101,6 +101,9 @@ function injectGradients(): void {
   }
 }
 
+/** The address of the vignette picture in the filters now (a blob address; revoked when a new one takes its place). */
+let vignetteUrl: string | null = null;
+
 /** Makes the vignette for a screen `w` by `h` and gives it to both bend filters. Returns whether it is in. */
 async function makeVignette(w: number, h: number): Promise<boolean> {
   const size = vignetteSize(w, h);
@@ -109,17 +112,22 @@ async function makeVignette(w: number, h: number): Promise<boolean> {
   const url = await toBlobUrl(canvas);
   for (const f of [GLASS_IDS.old, GLASS_IDS.new]) {
     const el = document.getElementById(vignetteId(f));
-    if (!el) return false;
+    if (!el) {
+      URL.revokeObjectURL(url);
+      return false;
+    }
     el.setAttribute("href", url);
     el.setAttribute("width", String(w));
     el.setAttribute("height", String(h));
   }
   warm(url);
+  // a remake for a new screen size: the earlier picture's address is let go (no filter uses it any more)
+  if (vignetteUrl) URL.revokeObjectURL(vignetteUrl);
+  vignetteUrl = url;
   ready.vignette = { w, h };
   mark("glass-vignette-ready");
   return true;
 }
-
 
 let remaking = false;
 /** Makes the vignette again for this screen's size (a window that was resized, a phone turned): not while a change runs, and one at a time. */

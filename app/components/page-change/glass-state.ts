@@ -11,7 +11,7 @@ const CHANGE_POLL_MS = 100;
 
 /**
  * What exists. `sheets`: the three rules' declarations the tick writes (the CSS rules are added once the pictures are made).
- * `bend`: the bend's sheet is in the filters. `vignette`: the screen size (CSS px) the filters' vignette was made for.
+ * `bend`: the bend's tiles are made (`bendTiles`) and the filters have their map pictures. `vignette`: the screen size (CSS px) the filters' vignette was made for.
  * `warm`: the filters have been run once for this screen's size (`warmGlass`); a change that starts before it runs without the bend.
  */
 export const ready: {

@@ -37,7 +37,9 @@ type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
 /**
  * The tab's rule about the bend. `trip()` is called when a change's guard dropped the bend; the second time (in this page load), and
- * `off()` from then on, says the bend stays off, and the same is kept in sessionStorage (`BEND_KEY`) so the tab's later pages know. With
+ * `off()` from then on, says the bend stays off, and the same is kept in sessionStorage (`BEND_KEY`) so the tab's later pages know. Trips are
+ * counted per page load, in memory: one trip, then a hard navigation (a new page load), then one more do not add up (the count starts again; the
+ * spec's "two changes of a tab" is read as two in one load, as an SPA's changes are), and `off` already in the storage is kept across loads. With
  * `reloaded` (the page was reloaded) an earlier `off` is cleared: the spec switches it off until the tab is reloaded. Storage that
  * throws, or none, never breaks it: the rule then lives in memory.
  */
