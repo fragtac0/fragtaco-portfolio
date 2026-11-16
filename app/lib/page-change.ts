@@ -4,10 +4,15 @@
  * itself once the destination's data is loaded (so the old page stays live during the network round trip
  * and the transition's update step holds only the React commit); this module captures that transition,
  * so it holds the transition's own promises and can tell the rest of the app when the change is over
- * (`usePageSettled`). Heavy work on the arriving page (starting WebGL, decoding the ring pictures,
- * starting the ring motion) waits for that, so it never lands inside the transition.
+ * (`usePageSettled`). Heavy work on the arriving page (starting WebGL, starting the ring motion) waits for that, so
+ * it never lands inside the transition.
  *
- * Every change is the same reveal (round 7 spec 4): radial from the centre of the screen, 3.5 s, whatever the two pages
+ * The arriving page is finished before it is uncovered (round 7 change-arrival spec 5.1): when the pictures are up, the
+ * reveal's animations are held at their first frame (`data-change-hold` on <html>, page-transition.css) until every part
+ * the page gave to `holdFor` (arrival.ts) has settled or the cap has passed (500 ms, 300 ms for the reduced-motion fade),
+ * so the screen shows the page being left, held still, and the reveal then runs as it always did, over a page that is done.
+ *
+ * Every change is the same reveal (round 7 spec 4): radial from the centre of the screen, 2.25 s (`GLASS.ms`), whatever the two pages
  * are and whatever was clicked. While it runs the browser shows pictures of the two pages and nothing under them can be
  * used, so the first press or key press during one finishes it (`finishChange`, wired by change-finish.ts).
  *
@@ -17,12 +22,18 @@
  * when the transition finishes, is skipped, or fails. Back and Forward (`watchHistory`) live in history-change.ts.
  */
 import type { NavigateFunction } from "@remix-run/react";
-import { GLASS, glassVars } from "../components/page-change/glass-math";
+import { glassVars } from "../components/page-change/glass-math";
 import { startGlass } from "../components/page-change/glass-run";
+import { planNow, type ChangePlan } from "./change-plan";
+import { endArrival, HOLD_MS, HOLD_REDUCED_MS, resetArrival, whenArrivalReady } from "./arrival";
 import { focusAfterFinish, focusInDock, restoreDockFocus } from "./dock-focus";
 import {
+  beginReveal,
   captureNextTransition,
   commitCount,
+  endReveal,
+  skipReveal,
+  startReveal,
   isPageSettled,
   nextCommit,
   onCommit,
@@ -31,46 +42,8 @@ import {
   type ViewTransitionLike,
 } from "./change-state";
 
-export { isPageSettled, pageCommitted, subscribeSettled } from "./change-state";
-
-export type ChangeKind = "radial" | "fade";
-export interface Point {
-  x: number;
-  y: number;
-}
-export interface ChangePlan {
-  kind: ChangeKind | "none";
-  origin: Point;
-  /** Distance from the origin to the farthest corner of the screen. */
-  radius: number;
-  ms: number;
-}
-
-/** The two lengths: the radial reveal (spec 4, 3500 ms) and the reduced-motion fade (120 ms). */
-const MS: Record<ChangeKind, number> = { radial: GLASS.ms, fade: 120 };
-
-/** What the screen is like: whether the browser can run View Transitions, reduced motion, and the viewport. */
-export interface ChangeEnv {
-  supported: boolean;
-  reduced: boolean;
-  vw: number;
-  vh: number;
-}
-
-/**
- * Pure: what a change looks like on this screen. The same for every pair of pages (`from` and `to` are the addresses; they
- * are named so a call says what it is for, and the reveal does not depend on them): radial from the centre of the screen,
- * 3500 ms, or the 120 ms fade under reduced motion. No View Transitions support gives `none` (the page just changes).
- */
-export function planChange(from: string, to: string, env: ChangeEnv): ChangePlan {
-  void from;
-  void to;
-  const origin = { x: env.vw / 2, y: env.vh / 2 };
-  const radius = Math.hypot(origin.x, origin.y);
-  if (!env.supported) return { kind: "none", origin, radius, ms: 0 };
-  const kind: ChangeKind = env.reduced ? "fade" : "radial";
-  return { kind, origin, radius, ms: MS[kind] };
-}
+export { getReveal, isPageSettled, pageCommitted, subscribeReveal, subscribeSettled, type Reveal } from "./change-state";
+export { isRadialChange, planChange, planNow, type ChangeEnv, type ChangeKind, type ChangePlan, type Point } from "./change-plan";
 
 /**
  * Runs `fn` `quietMs` after the page is settled (that long after the change is over; at once plus the wait
@@ -124,6 +97,8 @@ function mark(html: HTMLElement, plan: ChangePlan) {
 }
 function unmark(html: HTMLElement) {
   delete html.dataset.changeKind;
+  delete html.dataset.changeHold;
+  delete html.dataset.arrivalLate;
   for (const name of ["--change-x", "--change-y", "--change-r", "--change-ms", ...Object.keys(glassVars())]) html.style.removeProperty(name);
 }
 
@@ -153,6 +128,8 @@ export function open(plan: ChangePlan) {
       if (current === entry) {
         current = null;
         unmark(html);
+        endArrival();
+        endReveal(performance.now());
         setBusy(false);
       }
       resolve();
@@ -162,6 +139,7 @@ export function open(plan: ChangePlan) {
     done,
     finish() {
       finishing = true;
+      skipReveal();
       try {
         transition?.skipTransition();
       } catch {
@@ -170,6 +148,7 @@ export function open(plan: ChangePlan) {
     },
     showing: () => transition !== null && !finishing,
     stop() {
+      if (current === entry) skipReveal(); // a newer change begins its own reveal (its own beginReveal follows)
       cleanup();
       try {
         transition?.skipTransition();
@@ -181,6 +160,8 @@ export function open(plan: ChangePlan) {
   };
   current = entry;
   mark(html, plan);
+  resetArrival();
+  beginReveal(plan.ms);
   setBusy(true);
   failsafe = window.setTimeout(over, FAILSAFE_MS);
   return {
@@ -194,11 +175,48 @@ export function open(plan: ChangePlan) {
       t.ready.catch(() => undefined);
       t.updateCallbackDone.catch(() => undefined);
       t.finished.then(over, over);
-      cleanups.push(startGlass(t, plan)); // the glass front, from the transition's `ready`; stopped with the change
+      // the glass front starts when the hold is over (it has nothing to draw while the reveal stands at its first frame)
+      cleanups.push(startGlass({ ready: holdReveal(html, t, plan, cleanups) }, plan)); // stopped with the change
     },
   };
 }
 export type Change = ReturnType<typeof open>;
+
+/** A named moment in the performance timeline, for the audit; nothing where there is no timeline. */
+const stamp = (name: string) => {
+  try {
+    performance.mark(name);
+  } catch {
+    /* no performance timeline */
+  }
+};
+
+/**
+ * Holds the reveal's animations at their first frame from the moment the transition exists (the pseudo-elements are made
+ * paused: page-transition.css) until the arriving page is ready or the cap has passed, and resolves then, so the glass
+ * starts. A press, a newer change or the end of the change takes the hold off at once and leaves nothing waiting. A part
+ * still pending at the cap is named in `data-arrival-late` (the pages fade it in themselves: `arrivalLate`).
+ */
+function holdReveal(html: HTMLElement, t: ViewTransitionLike, plan: ChangePlan, cleanups: Array<() => void>): Promise<void> {
+  const control = new AbortController();
+  html.dataset.changeHold = "";
+  cleanups.push(() => {
+    control.abort();
+    delete html.dataset.changeHold;
+  });
+  return t.ready
+    .then(() => {
+      stamp("arrival-hold"); // for the audit (scripts/audit/make-arrival.mjs): the hold's start and end
+      return whenArrivalReady(plan.kind === "fade" ? HOLD_REDUCED_MS : HOLD_MS, control.signal);
+    })
+    .then(({ late }) => {
+      if (control.signal.aborted) return; // the change is over or replaced: the marks are not this hold's any more
+      stamp("arrival-go");
+      startReveal(performance.now()); // the arriving page times its own entrance to this (use-entrance.ts)
+      if (late.length > 0) html.dataset.arrivalLate = late.join(" ");
+      delete html.dataset.changeHold;
+    });
+}
 
 /**
  * The router will make the view transition itself (once the destination's loaders are done, with the
@@ -232,21 +250,6 @@ export function startOwnTransition(c: Change) {
     void update().then(c.over, c.over);
   }
 }
-
-const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-export const planNow = (from: string, to: string) =>
-  planChange(from, to, {
-    supported: "startViewTransition" in document,
-    reduced: reduced(),
-    vw: window.innerWidth,
-    vh: window.innerHeight,
-  });
-
-/**
- * True while the radial reveal is the change that is running (the mark on <html>), false for the reduced-motion fade, no
- * transition at all, and when nothing is changing. For work that is only worth its cost under the 3.5 s reveal.
- */
-export const isRadialChange = () => typeof document !== "undefined" && document.documentElement.dataset.changeKind === "radial";
 
 /** True while the browser is showing the two pictures of a change (nothing under them can be used, so a press finishes it). */
 export const isChangeShowing = () => current?.showing() ?? false;

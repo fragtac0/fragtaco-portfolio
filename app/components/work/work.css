@@ -1,10 +1,8 @@
 /*
  * The work page. A fixed stage (no page scroll): the Eclipse ground (in the layout), the intro in the middle, a ring of tool icons and up to four rings of videos
- * turning round it, bigger than the screen on purpose (the outer rings run off the edges; ring-math.ts
- * says where they go). Rotation is CSS only:
- * each ring `ul` turns by `work-spin`, each item turns back by `work-unspin` so it stays upright, and
- * nothing here runs per frame in JavaScript. Only transform-type properties and opacity animate.
- * Type, ink and layers come from app/styles/tokens.css. Spec: docs/superpowers/specs/2026-11-11-round6-design.md, 6.2.
+ * turning round it, bigger than the screen on purpose (the outer rings run off the edges; ring-math.ts says where they go). Rotation is CSS only:
+ * each ring `ul` turns by `work-spin`, each item turns back by `work-unspin` so it stays upright, and nothing here runs per frame in JavaScript.
+ * Only transform-type properties and opacity animate. Type, ink and layers come from app/styles/tokens.css. Spec: docs/superpowers/specs/2026-11-11-round6-design.md, 6.2.
  */
 .work-page {
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -19,12 +17,14 @@
 .work-stage {
   position: absolute;
   inset: 0;
-  /* The stack ring's radius and icon, the same rule as stackRadius() in ring-math.ts, so the intro can be
-     sized to sit inside it without waiting for any script. */
-  --stack-icon: 60px;
-  --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 34px));
-  /* what is left inside the stack ring's icons, less a margin */
-  --intro-r: calc(var(--stack-r) - var(--stack-icon) / 2 - 14px);
+  /* The stack ring's radius and icon, the same rule as stackRadius() in ring-math.ts (the ring is 8 px out where the icons grew
+     from 60 to 76, so the title keeps its round 6 room), so the intro can be sized to sit inside it without waiting for any script. */
+  --stack-icon: 76px;
+  --stack-grow: 8px;
+  --stack-r: min(calc(max(190px, 24vh) + var(--stack-grow)), 42vw, calc(50vw - 42px));
+  /* what is left inside the stack ring's icons, less a margin (INTRO_GAP in ring-math.ts) */
+  --intro-gap: 14px;
+  --intro-r: calc(var(--stack-r) - var(--stack-icon) / 2 - var(--intro-gap));
 }
 .work-intro {
   position: absolute;
@@ -93,10 +93,12 @@
 .work-page[data-arrival="change"] .work-intro {
   animation: none;
 }
-/* ...and stand still while it runs (data-still, until it is over): no moving layers to raster during the reveal; then all turn together. */
+/* ...and stand still while it runs (data-still, until it is over): the animations are made but paused, so the rings are the same layers, rastered the same way,
+   in the reveal as at rest (without them the hand-over to the live page redraws every item's edges, a pixel off); then all turn together, from standstill
+   (work-page.tsx eases their rate in). */
 .work-page[data-still] .work-ring,
 .work-page[data-still] .work-item-turn {
-  animation: none;
+  animation-play-state: paused;
 }
 @keyframes work-spin {
   from { rotate: 0deg; }
@@ -186,6 +188,11 @@
 .work-cover img[data-ready] {
   opacity: 1;
 }
+/* while a change holds its reveal (page-transition.css) a picture that has loaded is simply there, not half way through its fade */
+html[data-change-hold] .work-cover img,
+.work-cover img[data-late] {
+  transition: none; /* a picture that comes after the reveal fades by arrival-dom.ts fadeLate alone (200 ms), not twice */
+}
 .work-cover {
   border-radius: clamp(8px, calc(var(--h) * 0.1), 16px);
   box-shadow: 0 0 0 1px var(--line), 0 8px 22px rgba(0, 0, 0, 0.4);
@@ -263,13 +270,13 @@
 }
 
 /* ---------- phones ---------- */
-/* Item sizes and ring radii come from ring-math at every size (a phone gets two video rings, tablets three).
-   Under 700 px the stack icons are 52 px and the intro is the title and one short line, with a dark halo so
-   a passing item never mutes it. */
+/* Item sizes and ring radii come from ring-math at every size (a phone gets one video ring of large tiles, a laptop two).
+   Under 700 px the stack icons are 52 px and the intro is the title and one short line, with a dark halo so a passing item never mutes it. */
 @media (max-width: 699.98px) {
   .work-stage {
     --stack-icon: 52px;
-    --stack-r: min(max(190px, 24vh), 42vw, calc(50vw - 30px));
+    --stack-grow: 0px;
+    --stack-r: min(calc(max(190px, 24vh) + var(--stack-grow)), 42vw, calc(50vw - 30px));
   }
   .work-text {
     max-width: 15ch; /* narrow enough to sit inside the stack ring */

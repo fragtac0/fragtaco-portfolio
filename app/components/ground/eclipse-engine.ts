@@ -8,6 +8,7 @@
  * `createEclipseEngine` returns null where WebGL is not there or a shader does not compile (the still picture
  * stays). A lost context is final: `onLost` is called once and the owner takes the canvas away. Client only.
  */
+import { easeInRate } from "../../lib/ease-in";
 import { ECLIPSE, START_CLOCK, advanceClock, canvasSize, frameDue, type Placement } from "./eclipse-look";
 import { FRAGMENT_SRC, TRIANGLE, VERTEX_SRC } from "./eclipse-shader";
 
@@ -89,6 +90,8 @@ export function createEclipseEngine(canvas: HTMLCanvasElement, options: EngineOp
   let placement = options.placement;
   let clock = START_CLOCK;
   let last = 0;
+  // when the loop (re)started: the ground's drift eases in from standstill over EASE_IN_MS (round 7 change-arrival spec 5.3), so it never starts abruptly
+  let runFrom = 0;
   let raf = 0;
   let running = false;
   let dead = false;
@@ -125,10 +128,11 @@ export function createEclipseEngine(canvas: HTMLCanvasElement, options: EngineOp
     raf = requestAnimationFrame(tick);
     if (last === 0) {
       last = now;
+      runFrom = now;
       return;
     }
     if (!frameDue(now, last)) return;
-    clock = advanceClock(clock, now - last);
+    clock = advanceClock(clock, (now - last) * easeInRate(now - runFrom));
     last = now;
     draw();
   };

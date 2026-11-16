@@ -1,5 +1,5 @@
 import type { FocusEvent, PointerEvent } from "react";
-import { coverUrl } from "../../content/work-media";
+import { HQ_PICTURE_WIDTH, coverUrl } from "../../content/work-media";
 import { shapeCover } from "./cover-image";
 import { labelSide } from "./ring-layout";
 import type { RingEntry } from "./ring-entries";
@@ -85,6 +85,8 @@ export default function WorkItem({ entry, ring, place, lazy = false }: WorkItemP
     const v = entry.item;
     label = v.title;
     id = v.id;
+    // a tile wider, in the screen's own pixels, than `hqdefault` is gets the larger thumbnail (the rings only exist once the page is live, so the pixel ratio is there)
+    const sharp = !entry.tall && place.width * window.devicePixelRatio > HQ_PICTURE_WIDTH;
     face = (
       <a
         className="work-item-face work-cover"
@@ -95,7 +97,7 @@ export default function WorkItem({ entry, ring, place, lazy = false }: WorkItemP
       >
         <img
           ref={(img) => shapeCover(img, v.id, entry.tall)}
-          src={coverUrl(v, entry.tall)}
+          src={coverUrl(v, entry.tall, sharp)}
           width={width}
           height={height}
           alt=""

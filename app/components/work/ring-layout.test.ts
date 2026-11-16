@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { introLine, labelSide, layoutRings, mountedIn } from "./ring-layout";
+import { BEFORE } from "./ring-before.fixture";
+import { coverage } from "./ring-coverage";
+import { introLine, labelSide, layoutRings } from "./ring-layout";
 import { clear, ringCapacity, ringPlan } from "./ring-math";
 
 const WORK = { stack: 8, long: 35, short: 35 };
@@ -7,18 +9,40 @@ const WORK = { stack: 8, long: 35, short: 35 };
 const REAL = { stack: 8, long: 21, short: 35 };
 /** The seven sizes the ring audit photographs (scripts/audit/make-rings.mjs). */
 const AUDIT_SIZES: [number, number][] = [[1440, 900], [1920, 1080], [820, 1180], [390, 844], [375, 667], [568, 320], [320, 568]];
+/** The nine sizes the ring audit measures. */
+const ALL_AUDIT_SIZES: [number, number][] = [...AUDIT_SIZES, [1024, 768], [2560, 1440]];
+
+describe("layoutRings without a cut-out round the dock (R56.4)", () => {
+  it("has, at every audit size, tiles no smaller and no fewer than at 4621443, the last commit with the cut-out", () => {
+    for (const [vw, vh] of ALL_AUDIT_SIZES) {
+      const before = BEFORE[`${vw}x${vh}`];
+      const layout = layoutRings(REAL, vw, vh);
+      const video = layout.rings.filter((r) => r.kind !== "stack");
+      expect(layout.L, `${vw}x${vh} L`).toBeGreaterThanOrEqual(before.L);
+      expect(video.reduce((n, r) => n + r.slots.length, 0), `${vw}x${vh} tiles`).toBeGreaterThanOrEqual(before.tiles);
+      for (const r of video) expect(Math.max(r.size.w, r.size.h), `${vw}x${vh} ${r.id}`).toBeGreaterThanOrEqual(before.L);
+    }
+  });
+
+  it("counts the coverage of that layout without a mask, and it is no less than before", () => {
+    for (const [vw, vh] of ALL_AUDIT_SIZES) {
+      expect(coverage(layoutRings(REAL, vw, vh), vw, vh), `${vw}x${vh}`).toBeGreaterThanOrEqual(BEFORE[`${vw}x${vh}`].full - 1e-6);
+    }
+  });
+
+  it("does not depend on a dock: a fifth argument (the old dock box) changes nothing, the layout is a function of the counts, the size and the order", () => {
+    expect(layoutRings(REAL, 1440, 900)).toEqual(layoutRings(REAL, 1440, 900, "alternating"));
+    const extra = layoutRings as (...a: unknown[]) => unknown;
+    expect(extra(REAL, 1440, 900, "alternating", { l: 500, t: 780, r: 940, b: 880 })).toEqual(layoutRings(REAL, 1440, 900, "alternating"));
+  });
+});
 
 describe("layoutRings", () => {
   it("draws the stack ring and the video rings inside to outside, for the real content on a laptop", () => {
     const { rings } = layoutRings(WORK, 1440, 900);
-    expect(rings.map((r) => `${r.id}:${r.slots.length}`)).toEqual([
-      "stack:8",
-      "long-1:13",
-      "short-1:14",
-      "long-2:22",
-      "short-2:21",
-    ]);
-    expect(rings.map((r) => r.order)).toEqual([0, 1, 2, 3, 4]);
+    // R54.2: larger tiles, so two video rings (a laptop), not four
+    expect(rings.map((r) => `${r.id}:${r.slots.length}`)).toEqual(["stack:8", "long-1:10", "short-1:16"]);
+    expect(rings.map((r) => r.order)).toEqual([0, 1, 2]);
   });
 
   it("keeps every ring and every neighbour clear for the real counts (8, 21, 35) at the seven audit sizes", () => {
@@ -40,9 +64,9 @@ describe("layoutRings", () => {
     }
   });
 
-  it("shows all 21 long form videos in the rings on a laptop and a desktop", () => {
-    expect(layoutRings(REAL, 1440, 900).hidden.long).toBe(0);
-    expect(layoutRings(REAL, 1920, 1080).hidden.long).toBe(0);
+  it("leaves the videos that fit in no ring to the walls: 11 long form on a laptop, none of them on a wide screen", () => {
+    expect(layoutRings(REAL, 1440, 900).hidden).toEqual({ long: 11, short: 19 });
+    expect(layoutRings(REAL, 2560, 1440).hidden.long).toBe(0);
   });
 
   it("is the ring plan: radii, sizes, periods and directions come from ringPlan", () => {
@@ -94,8 +118,8 @@ describe("layoutRings", () => {
   });
 
   it("can be asked for the paired order", () => {
-    const { rings } = layoutRings(WORK, 1440, 900, "paired");
-    expect(rings.filter((r) => r.kind !== "stack").map((r) => r.kind)).toEqual(["long", "long", "short", "short"]);
+    const { rings } = layoutRings(WORK, 2560, 1440, "paired");
+    expect(rings.filter((r) => r.kind !== "stack").map((r) => r.kind)).toEqual(["long", "long", "short"]);
   });
 
   it("copes with a screen of no size", () => {
@@ -127,21 +151,5 @@ describe("introLine", () => {
   it("falls back to the text when it starts with a break, and copes with nothing", () => {
     expect(introLine(", odd")).toBe(", odd");
     expect(introLine("")).toBe("");
-  });
-});
-
-describe("mountedIn", () => {
-  it("counts a ring's items that are in when `shown` items are, rings counted inside to outside", () => {
-    expect(mountedIn(0, 0, 8)).toBe(0);
-    expect(mountedIn(5, 0, 8)).toBe(5);
-    expect(mountedIn(8, 0, 8)).toBe(8);
-    expect(mountedIn(11, 8, 13)).toBe(3);
-    expect(mountedIn(8, 8, 13)).toBe(0);
-    expect(mountedIn(100, 8, 13)).toBe(13);
-  });
-
-  it("is everything when shown is infinite, and nothing for a ring that has not begun", () => {
-    expect(mountedIn(Infinity, 20, 14)).toBe(14);
-    expect(mountedIn(3, 20, 14)).toBe(0);
   });
 });

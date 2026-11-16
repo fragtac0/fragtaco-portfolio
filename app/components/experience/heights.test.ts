@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HEIGHT, blur3, liftOf, makeField, normalise, sampleHeight, setHeights, type HeightField } from "./heights";
+import { HEIGHT, blur3, fieldSteps, liftOf, makeField, normalise, sampleHeight, setHeights, type HeightField } from "./heights";
 
 /** A cone of grey, 255 at its peak, falling to 0 at `radius` cells, on a w by h grid (peak in the middle cell). */
 function cone(w: number, h: number, radius: number): Uint8Array {
@@ -76,6 +76,51 @@ describe("makeField", () => {
     expect(grey[7 * 15 + 7]).toBe(255);
     expect(f.data[7 * 15 + 7]).toBeLessThan(255 / 10);
     expect(f.hi).toBeLessThan(255 / 10);
+  });
+});
+
+describe("fieldSteps", () => {
+  /** Grey from a fixed pseudo-random sequence (a ridge and noise: many equal values, a long tail). */
+  function noisy(w: number, h: number): Uint8Array {
+    const grey = new Uint8Array(w * h);
+    let seed = 12345;
+
+    for (let i = 0; i < grey.length; i++) {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      grey[i] = ((seed >> 8) % 60) + (i % w > w / 2 ? 90 : 0) + (Math.floor(i / w) === 7 ? 100 : 0);
+    }
+
+    return grey;
+  }
+  const run = (grey: ArrayLike<number>, w: number, h: number, r?: number) => {
+    const made = fieldSteps(grey, w, h, r);
+
+    made.steps.forEach((step) => step());
+
+    return made.field();
+  };
+
+  it("makes exactly the field makeField makes, step by step (the same blur, plain, summit and floor)", () => {
+    for (const [w, h, grey] of [[80, 52, noisy(80, 52)], [37, 29, noisy(37, 29)], [80, 52, cone(80, 52, 30)]] as const) {
+      const want = makeField(grey, w, h);
+      const got = run(grey, w, h);
+
+      expect(got.base).toBe(want.base);
+      expect(got.hi).toBe(want.hi);
+      expect(got.lo).toBe(want.lo);
+      expect(Array.from(got.data)).toEqual(Array.from(want.data));
+    }
+  });
+
+  it("is the same on a flat field and at radius 0", () => {
+    const flat = new Uint8Array(20 * 10).fill(9);
+
+    expect(run(flat, 20, 10)).toEqual(makeField(flat, 20, 10));
+    expect(run(noisy(30, 20), 30, 20, 0).base).toBe(makeField(noisy(30, 20), 30, 20, 0).base);
+  });
+
+  it("is made of many small steps (none of them more than a band of the field)", () => {
+    expect(fieldSteps(cone(80, 52, 30), 80, 52).steps.length).toBeGreaterThan(100);
   });
 });
 

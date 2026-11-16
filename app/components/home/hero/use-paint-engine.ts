@@ -34,8 +34,11 @@ export function usePaintEngine({ rootRef, hostRef, engineRef, parkedRef, blurRef
     canvas.setAttribute("aria-hidden", "true");
     // An opaque context is black until its first draw: with a still frame up, keep the canvas out of sight
     // until it holds the painting (below), so the still is never covered by the bare black.
-    const still = host.querySelector<HTMLElement>(".paint-still");
-    if (still && !still.hidden) canvas.style.visibility = "hidden";
+    // the page's first picture(s): the remembered painting, or the blurred placeholder with the sharp painting over it
+    const stills = () => [...host.querySelectorAll<HTMLElement>(".paint-still")];
+    let stillsHidden = false;
+    const stillUp = () => !stillsHidden && stills().some((el) => !el.hidden);
+    if (stillUp()) canvas.style.visibility = "hidden";
     host.appendChild(canvas);
     let engine = hasWebGL() ? createPaint(canvas, { reducedMotion: reduced }) : null;
     if (engine) {
@@ -73,7 +76,7 @@ export function usePaintEngine({ rootRef, hostRef, engineRef, parkedRef, blurRef
         active: paint.busy() || paint.moving(),
         sinceLastDraw: now - lastDraw,
         // the still is the page's only picture until the engine has one: never cover it with the bare ground
-        holdForPicture: !!still && !still.hidden && !paint.hasPicture(),
+        holdForPicture: stillUp() && !paint.hasPicture(),
       });
       if (step === "park") {
         paint.pause(now);
@@ -85,9 +88,10 @@ export function usePaintEngine({ rootRef, hostRef, engineRef, parkedRef, blurRef
       paint.draw(now);
       // the painting is on the canvas: show it, and the still frame it replaces can go a frame later (hidden,
       // not removed: React owns it)
-      if (still && !still.hidden && paint.hasPicture()) {
+      if (stillUp() && paint.hasPicture()) {
         canvas.style.visibility = "";
-        requestAnimationFrame(() => (still.hidden = true));
+        stillsHidden = true; // the engine's picture is up: nothing looks for a still again
+        requestAnimationFrame(() => stills().forEach((el) => (el.hidden = true)));
       }
     });
 

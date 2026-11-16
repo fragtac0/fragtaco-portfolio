@@ -44,16 +44,20 @@ export function isMissingCover(src: string, naturalWidth: number): boolean {
   }
 }
 
+/** The picture width in pixels of YouTube's `hqdefault` (480 by 360, the 16 by 9 picture 480 wide): a tile wider than this on the screen's pixels wants `sddefault` (640 by 480). */
+export const HQ_PICTURE_WIDTH = 480;
+
 /**
  * The picture for a work item: the file's own cover, else the YouTube thumbnail (`tall` for the
- * portrait cut), else local placeholder art made from the item's id (9 by 16 when `tall`). No picture is stored,
- * and the placeholder needs no network.
+ * portrait cut; `sharp` asks for the larger `sddefault` of a landscape one, for a tile wider than `hqdefault` is at the
+ * screen's pixels, and the page falls back to `hqdefault` where a video has none, `cover-image.ts`), else local placeholder
+ * art made from the item's id (9 by 16 when `tall`). No picture is stored, and the placeholder needs no network.
  */
-export function coverUrl(video: WorkVideo, tall: boolean): string {
+export function coverUrl(video: WorkVideo, tall: boolean, sharp = false): string {
   if (video.cover) return video.cover;
 
   const id = video.source === "youtube" ? youtubeId(video.url) : null;
-  if (id) return `https://i.ytimg.com/vi/${id}/${tall ? "oar2" : "hqdefault"}.jpg`;
+  if (id) return `https://i.ytimg.com/vi/${id}/${tall ? "oar2" : sharp ? "sddefault" : "hqdefault"}.jpg`;
 
   return placeholderArt(video.id, tall);
 }

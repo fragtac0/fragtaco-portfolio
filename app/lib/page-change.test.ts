@@ -1,5 +1,6 @@
 import type { NavigateFunction } from "@remix-run/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { holdFor } from "./arrival";
 import { watchHistory, type RouterLike } from "./history-change";
 import { afterSettled, changePage, endChange, finishChange, isChangeRunning, isChangeShowing, isPageSettled, isRadialChange, pageCommitted, planChange, subscribeSettled } from "./page-change";
 
@@ -14,14 +15,16 @@ describe("planChange", () => {
     expect(plan.ms).toBe(0);
   });
 
-  it("is the same radial 3500 ms reveal from the centre for every pair of pages, the two walls included", () => {
+  it("is the same radial 2250 ms reveal from the centre for every pair of pages, the two walls included", () => {
     for (const from of PAGES) {
       for (const to of PAGES) {
         expect(planChange(from, to, scr)).toEqual({
           kind: "radial",
-          ms: 3500,
+          ms: 2250,
           origin: { x: 720, y: 450 },
           radius: Math.hypot(720, 450),
+          vw: 1440,
+          vh: 900,
         });
       }
     }
@@ -39,7 +42,7 @@ describe("planChange", () => {
   });
 
   it("has no linear kinds", () => {
-    expect(Object.keys(planChange("/work/long-form", "/work/short-form", scr)).sort()).toEqual(["kind", "ms", "origin", "radius"]);
+    expect(Object.keys(planChange("/work/long-form", "/work/short-form", scr)).sort()).toEqual(["kind", "ms", "origin", "radius", "vh", "vw"]);
   });
 });
 
@@ -143,10 +146,10 @@ describe("changePage", () => {
     // the centre of the screen, whatever was clicked
     expect(env.props.get("--change-x")).toBe("720px");
     expect(env.props.get("--change-y")).toBe("450px");
-    expect(env.props.get("--change-ms")).toBe("3500ms");
+    expect(env.props.get("--change-ms")).toBe("2250ms");
     expect(env.props.has("--change-w")).toBe(false);
     // the glass numbers glass.css reads, from glass-math.ts
-    expect(env.props.get("--change-band")).toBe("0.07");
+    expect(env.props.get("--change-band")).toBe("0.15");
     expect(env.props.get("--change-ease")).toBe("cubic-bezier(0.65, 0, 0.35, 1)");
     expect(isPageSettled()).toBe(false);
     r.dataArrives();
@@ -520,6 +523,22 @@ describe("watchHistory", () => {
     w.stop();
   });
 
+  it("R59: a click's change that commits its own page a frame after a Back does not end the hold on the router's transition for the Back", async () => {
+    const w = setup();
+    const r = w.router("/timeline");
+    void changePage(r.navigate, "/timeline"); // the change is about to commit /timeline
+    w.pop("/experience"); // Back, a frame before that
+    pageCommitted("/timeline"); // the click's own page commits after all: the hold must stay
+    // the router has its data for the history target, with a transition of its own: still skipped, not run as a crossfade
+    w.dataArrives("/experience", { currentLocation: {}, nextLocation: {} });
+    w.routerStartsTransition();
+    expect(w.transitions.at(-1)?.skipped).toBe(true);
+    expect(w.html.dataset.changeKind).toBeUndefined();
+    await tick();
+    expect(isPageSettled()).toBe(true);
+    w.stop();
+  });
+
   it("a popstate with no change running keeps the radial change", () => {
     const w = setup();
     w.pop("/");
@@ -584,5 +603,128 @@ describe("afterSettled", () => {
     expect(fn).not.toHaveBeenCalled();
     await sleep(80);
     expect(fn).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("the hold (the arriving page is finished before the reveal)", () => {
+  const never = () => new Promise<void>(() => {});
+  // fake timers (the cap is a timer): a test moves the clock by hand, so no assertion depends on how loaded the machine is
+  const adv = (ms: number) => vi.advanceTimersByTimeAsync(ms);
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("holds the reveal from the moment the pictures are up, and lets it go as soon as the page is ready", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    let ready = () => {};
+    const hold = holdFor("rings", new Promise<void>((resolve) => (ready = resolve)));
+    expect(env.html.dataset.changeHold).toBeUndefined(); // the old page is live while the data loads: nothing to hold yet
+    r.dataArrives();
+    expect(env.html.dataset.changeHold).toBe("");
+    await adv(60);
+    expect(env.html.dataset.changeHold).toBe(""); // not ready, not at the cap: the reveal has not started
+    ready();
+    await adv(0);
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    expect(env.html.dataset.arrivalLate).toBeUndefined();
+    expect(hold?.late).toBe(false); // it was ready when the reveal began: not late
+    env.transitions[0].finish();
+    await done;
+  });
+
+  it("starts the reveal at the cap with what is missing, which is named for the pages to fade in", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    const painting = holdFor("painting", never());
+    holdFor("ground", Promise.resolve());
+    r.dataArrives();
+    await adv(499);
+    expect(env.html.dataset.changeHold).toBe("");
+    expect(painting?.late).toBe(false);
+    await adv(1); // 500 ms after the pictures are up
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    expect(env.html.dataset.arrivalLate).toBe("painting");
+    expect(painting?.late).toBe(true); // and it stays late after the change is over: the page fades it in whenever it comes
+    env.transitions[0].finish();
+    await done;
+    expect(env.html.dataset.arrivalLate).toBeUndefined();
+    expect(painting?.late).toBe(true);
+  });
+
+  it("does not hold a change whose page gives nothing to wait for", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    r.dataArrives();
+    await adv(0);
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    env.transitions[0].finish();
+    await done;
+  });
+
+  it("a press (finishChange) during the hold ends the change at once and leaves nothing held", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    const wall = holdFor("wall", never());
+    r.dataArrives();
+    await adv(0);
+    expect(env.html.dataset.changeHold).toBe("");
+    expect(isChangeShowing()).toBe(true);
+    finishChange();
+    await done;
+    expect(env.transitions[0].skipped).toBe(true);
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    expect(env.html.dataset.changeKind).toBeUndefined();
+    expect(isPageSettled()).toBe(true);
+    await adv(0); // the aborted wait marks what it left pending
+    expect(wall?.late).toBe(true); // the reveal went ahead without it: when it comes it fades
+    expect(holdFor("anything", never())).toBeNull(); // nothing is recording, nothing can be held
+    await adv(560); // the cap passes with no effect on the next change
+    expect(env.html.dataset.arrivalLate).toBeUndefined();
+  });
+
+  it("a newer change takes over the hold: the first one's cap does not mark the second", async () => {
+    const env = fakeEnvironment();
+    const r1 = env.router("/work");
+    const first = changePage(r1.navigate, "/work");
+    holdFor("old page", never());
+    r1.dataArrives();
+    await adv(0);
+    const r2 = env.router("/work/long-form");
+    const second = changePage(r2.navigate, "/work/long-form");
+    await first;
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    const fresh = holdFor("new page", never()); // the first one's wait was aborted: it did not mark the second one's reveal as begun, so this is recorded
+    expect(fresh).not.toBeNull();
+    r2.dataArrives();
+    await adv(100);
+    expect(env.html.dataset.changeHold).toBe("");
+    expect(fresh?.late).toBe(false);
+    env.transitions[1].finish();
+    await second;
+  });
+
+  it("the reduced-motion fade waits at most 300 ms", async () => {
+    const env = fakeEnvironment();
+    vi.stubGlobal("window", { ...(globalThis as { window: object }).window, matchMedia: () => ({ matches: true }) });
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    expect(env.html.dataset.changeKind).toBe("fade");
+    holdFor("rings", never());
+    r.dataArrives();
+    await adv(299);
+    expect(env.html.dataset.changeHold).toBe("");
+    await adv(1);
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    env.transitions[0].finish();
+    await done;
   });
 });

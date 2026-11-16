@@ -11,6 +11,8 @@ type Options = Pick<HeroRuntime, "rootRef" | "engineRef" | "dataRef"> & {
   onReadyRef: MutableRefObject<() => void>;
   /** False while a page change is running (see usePageArrived): the engine does not exist yet. */
   settled: boolean;
+  /** The page came in through a change with the first painting's words already in its first frame: they are not held back and faded in later. */
+  captionUp?: boolean;
 };
 
 // counts effect runs, so a cleanup can tell an unmount from StrictMode's immediate re-run
@@ -30,7 +32,7 @@ let effectRuns = 0;
  * The lock never outlasts INTRO_LOCK_MS on the head clock (the head script's failsafe); a bundle
  * that joins after that takes the skipped form (see joinLoader).
  */
-export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef, settled }: Options) {
+export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef, settled, captionUp = false }: Options) {
   // StrictMode runs the effect twice: ready fires once per component lifetime.
   const readyFiredRef = useRef(false);
 
@@ -126,7 +128,7 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef, s
       fireReady();
       // the final look and the dock are in place for the page change's picture; the painting follows with the engine
       if (!paint || !cycle) return;
-      cycle.holdWords();
+      if (!captionUp) cycle.holdWords();
       const recalled = cycle.recalled();
       if (recalled) {
         // coming back from another page: the last painting, with no network (its still frame is on screen
@@ -252,5 +254,5 @@ export function useLoader({ rootRef, engineRef, dataRef, cycleRef, onReadyRef, s
         delete window.__introT0;
       }, 0);
     };
-  }, [rootRef, engineRef, dataRef, cycleRef, onReadyRef, settled]);
+  }, [rootRef, engineRef, dataRef, cycleRef, onReadyRef, settled, captionUp]);
 }

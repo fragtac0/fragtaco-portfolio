@@ -1,17 +1,24 @@
 import { describe, expect, it } from "vitest";
 import {
+  BEND_NEW,
+  BEND_OLD,
   bendAt,
+  bendPxFor,
+  bendProfile,
   easeGlass,
+  FRONT_CLEAR,
+  FRONT_START,
   frontAt,
   GLASS,
   GLASS_EASING,
   glassVars,
+  glowAt,
   isChromium,
   judgeGlass,
-  OPAQUE,
-  REACH,
+  pushScale,
   SIGHT_FRAMES,
-  TRAVEL,
+  SPAN,
+  SPLIT,
   UNCOVERED_AT,
   WARP,
 } from "./glass-math";
@@ -19,9 +26,57 @@ import {
 const radial = { radius: 1000 };
 
 describe("GLASS", () => {
-  it("holds the spec's numbers", () => {
-    expect(GLASS).toEqual({ ms: 3500, band: 0.07, bendPx: 22 });
+  it("holds the follow-up spec's numbers (4) with the second look's length (spec 5): 2.25 s, a 15% band, a bend of 5.7% of the height capped at 64 px, a 12% wander, a colour split", () => {
+    expect(GLASS).toEqual({ ms: 2250, band: 0.15, bendShare: 0.057, bendMaxPx: 64 });
+    expect(WARP).toBe(0.12);
+    expect(SPLIT).toEqual({ r: 1.29, g: 1, b: 0.71 });
+    expect(UNCOVERED_AT).toBe(0.95);
     expect(GLASS_EASING).toBe("cubic-bezier(0.65, 0, 0.35, 1)");
+  });
+});
+
+describe("bendPxFor", () => {
+  it("is 5.7% of the viewport's height, rounded, and never more than 64 px", () => {
+    expect(bendPxFor(900)).toBe(51);
+    expect(bendPxFor(844)).toBe(48);
+    expect(bendPxFor(2000)).toBe(64);
+    expect(bendPxFor(1125)).toBe(64);
+    expect(bendPxFor(0)).toBe(0);
+  });
+});
+
+describe("bendProfile", () => {
+  it("is 1 at the front, and the push changes side with x (the lens): larger outside, smaller inside", () => {
+    expect(bendProfile(0)).toBe(1);
+    expect(bendProfile(0.3)).toBeGreaterThan(1);
+    expect(bendProfile(-0.3)).toBeLessThan(1);
+    expect(bendProfile(0.5)).toBeGreaterThan(bendProfile(-0.5));
+    // the lens term is odd in x, the bell term even
+    const bell = (x: number) => Math.exp(-1.6 * x * x);
+    for (const x of [0.2, 0.7, 1.3]) expect(bendProfile(x) + bendProfile(-x)).toBeCloseTo(2 * bell(x), 9);
+  });
+  it("is the tenth preview's push: (exp(-1.6 x^2) * 0.03 + x * exp(-0.9 x^2) * 0.022) / 0.03", () => {
+    for (const x of [-2, -1, -0.3, 0.3, 1, 2]) {
+      expect(bendProfile(x)).toBeCloseTo((Math.exp(-1.6 * x * x) * 0.03 + x * Math.exp(-0.9 * x * x) * 0.022) / 0.03, 12);
+    }
+  });
+  it("is under 0.02 beyond three half-bands, both sides", () => {
+    for (const x of [3, 3.5, 5, -3, -3.5, -5]) expect(Math.abs(bendProfile(x))).toBeLessThan(0.02);
+  });
+});
+
+describe("glowAt", () => {
+  it("is 0.16 at the front and about 0.05 at the outer rim (0.9 half-bands out), and gone far away", () => {
+    expect(Math.abs(glowAt(0) - 0.16)).toBeLessThan(1e-6);
+    expect(glowAt(0.9)).toBeGreaterThan(0.05);
+    expect(glowAt(0.9)).toBeLessThan(0.06);
+    expect(glowAt(-2)).toBeLessThan(0.001);
+    expect(glowAt(3)).toBeLessThan(0.001);
+  });
+  it("is the tenth preview's glint: 0.16 exp(-30 x^2) + 0.05 exp(-14 (x - 0.9)^2)", () => {
+    for (const x of [-1, -0.2, 0.1, 0.5, 0.9, 1.4]) {
+      expect(glowAt(x)).toBeCloseTo(0.16 * Math.exp(-30 * x * x) + 0.05 * Math.exp(-14 * (x - 0.9) ** 2), 12);
+    }
   });
 });
 
@@ -49,44 +104,49 @@ describe("easeGlass", () => {
 });
 
 describe("bendAt", () => {
-  it("rises to 1 by 15%, holds, and falls to 0 from 80%", () => {
+  it("starts while the front is still behind the middle (p 0.05), reaches 1 by 0.15, holds, and falls to 0 from 0.93", () => {
     expect(bendAt(0)).toBe(0);
+    expect(bendAt(0.05)).toBe(0);
     expect(bendAt(0.15)).toBe(1);
     expect(bendAt(0.5)).toBe(1);
-    expect(bendAt(0.8)).toBe(1);
+    expect(bendAt(0.93)).toBe(1);
     expect(bendAt(1)).toBe(0);
-    expect(bendAt(0.07)).toBeGreaterThan(0);
-    expect(bendAt(0.07)).toBeLessThan(1);
-    expect(bendAt(0.9)).toBeGreaterThan(0);
-    expect(bendAt(0.9)).toBeLessThan(1);
+    expect(bendAt(0.1)).toBeGreaterThan(0);
+    expect(bendAt(0.1)).toBeLessThan(1);
+    expect(bendAt(0.97)).toBeGreaterThan(0);
+    expect(bendAt(0.97)).toBeLessThan(1);
   });
 });
 
 describe("frontAt", () => {
-  it("starts the front at the origin and ends it past the farthest corner, with the bend 0 at both ends", () => {
+  it("starts a band behind the origin (R109), so the outer soft edge is just at it: none of the new page on the screen at t = 0, and no lead-in beyond that", () => {
     const start = frontAt(0, radial);
-    expect(start.radius).toBe(0);
+    expect(start.radius).toBeCloseTo(-GLASS.band * radial.radius, 9);
+    expect(start.opening).toBeCloseTo(0, 9);
     expect(start.bend).toBe(0);
-    const end = frontAt(1, radial);
-    // the soft, wandering edge has uncovered the farthest corner by the end, with room to spare
-    expect(end.radius * OPAQUE).toBeGreaterThan(radial.radius);
-    expect(end.bend).toBe(0);
+    expect(FRONT_START).toBe(-GLASS.band);
   });
-  it("uncovers the farthest corner at about 0.95 of the time, not at 0.7 (R62)", () => {
-    // the first moment the new page is at least 98% visible at the farthest corner, with the wander at its worst
-    const uncoveredAtT = () => {
-      for (let t = 0; t <= 1; t += 0.001) if (frontAt(t, radial).radius * OPAQUE >= radial.radius) return t;
-      return 1;
-    };
-    expect(uncoveredAtT()).toBeGreaterThan(UNCOVERED_AT - 0.01);
-    expect(uncoveredAtT()).toBeLessThan(UNCOVERED_AT + 0.01);
+  it("has opened at least 2% of the farthest-corner distance by 20% of the time (the drawn share is tested in glass-field.test.ts)", () => {
+    expect(frontAt(0.2, radial).opening).toBeGreaterThanOrEqual(0.02 * radial.radius);
+    expect(frontAt(0.1, radial).opening).toBeGreaterThan(0);
+  });
+  it("has the screen clear at 0.95 of the time, to the wander's worst, and not before (R62)", () => {
+    // the farthest corner is fully the new page once the front's middle is a band past it and its wander (12% of the front's radius) is at its worst
+    const clear = ((1 + GLASS.band) / (1 - WARP)) * radial.radius;
+    expect(FRONT_CLEAR).toBeCloseTo((1 + GLASS.band) / (1 - WARP), 9);
+    expect(FRONT_CLEAR - WARP * FRONT_CLEAR - GLASS.band).toBeCloseTo(1, 9);
+    expect(frontAt(UNCOVERED_AT, radial).radius).toBeCloseTo(clear, 6);
+    expect(frontAt(UNCOVERED_AT - 0.02, radial).radius).toBeLessThan(clear);
+    expect(frontAt(0.8, radial).radius).toBeLessThan(clear);
     // the same on every screen: the front scales with the radius
-    expect(frontAt(UNCOVERED_AT, { radius: 400 }).radius * OPAQUE).toBeCloseTo(400, 0);
-    // and the screen is still not clear at 0.8 (the old page would have shown through a corner)
-    expect(frontAt(0.8, radial).radius * OPAQUE).toBeLessThan(radial.radius);
+    expect(frontAt(UNCOVERED_AT, { radius: 400 }).radius).toBeCloseTo(FRONT_CLEAR * 400, 6);
+    // it keeps going to the end of the change, a little past
+    expect(frontAt(1, radial).radius).toBeGreaterThanOrEqual(clear);
+    expect(frontAt(1, radial).bend).toBe(0);
+    expect(SPAN).toBeGreaterThan(FRONT_CLEAR - FRONT_START);
   });
   it("grows the radius and never shrinks it", () => {
-    let last = -1;
+    let last = -Infinity;
     for (let t = 0; t <= 1; t += 0.05) {
       const f = frontAt(t, radial);
       expect(f.radius).toBeGreaterThanOrEqual(last);
@@ -95,7 +155,7 @@ describe("frontAt", () => {
   });
   it("has the bend at full strength while the front crosses the screen", () => {
     expect(frontAt(0.5, radial).bend).toBe(1);
-    expect(frontAt(0.4, radial).bend).toBe(1);
+    expect(frontAt(0.6, radial).bend).toBe(1);
   });
 });
 
@@ -104,19 +164,15 @@ describe("glassVars", () => {
     const v = glassVars();
     expect(v["--change-band"]).toBe(String(GLASS.band));
     expect(v["--change-warp"]).toBe(String(WARP));
-    const lead = GLASS.band + WARP;
-    expect(Number(v["--change-lead"])).toBeCloseTo(lead, 6);
-    expect(v["--change-span"]).toBeUndefined();
-    expect(Number(v["--change-travel"])).toBeCloseTo(TRAVEL, 6);
-    expect(Number(v["--change-reach"])).toBeCloseTo(1 + REACH * GLASS.band, 6);
+    expect(Number(v["--change-start"])).toBeCloseTo(FRONT_START, 6);
+    expect(Number(v["--change-span"])).toBeCloseTo(SPAN, 6);
     expect(v["--change-ease"]).toBe(GLASS_EASING);
   });
-  it("agrees with frontAt: the radius at the end is the farthest corner times the travel", () => {
+  it("agrees with frontAt: the radius is the start plus the span times the eased progress, in farthest-corner distances", () => {
     const v = glassVars();
-    expect(frontAt(1, radial).radius).toBeCloseTo(radial.radius * Number(v["--change-travel"]), 1);
-    // the front's middle goes only a little past the corner (the travel is about 1.03 farthest-corner distances)
-    expect(TRAVEL).toBeGreaterThan(1);
-    expect(TRAVEL).toBeLessThan(1.1);
+    for (const t of [0, 0.3, 0.7, 1]) {
+      expect(frontAt(t, radial).radius).toBeCloseTo(radial.radius * (Number(v["--change-start"]) + Number(v["--change-span"]) * easeGlass(t)), 3);
+    }
   });
 });
 
@@ -160,5 +216,34 @@ describe("judgeGlass", () => {
   });
   it("never falls back just because the animation has not advanced (a paused or throttled page)", () => {
     expect(judgeGlass({ ...seen, timeMs: 0, frames: 500 })).toBe("wait");
+  });
+});
+
+describe("BEND_NEW (R56)", () => {
+  it("the arriving page gets half of the push; the page being left has all of it", () => {
+    expect(BEND_NEW).toBe(0.5);
+    expect(BEND_OLD).toBe(1);
+  });
+});
+
+describe("pushScale (R56)", () => {
+  const peak = 2 * 1.1 * 40; // any push in px
+  it("the arriving filter's scales are BEND_NEW times the old one's, with the opposite sign, for every colour", () => {
+    for (const split of [SPLIT.r, SPLIT.g, SPLIT.b]) {
+      const old = pushScale(1, BEND_OLD, peak, split);
+      const arriving = pushScale(-1, BEND_NEW, peak, split);
+      expect(arriving).toBeCloseTo(-BEND_NEW * old, 10);
+    }
+  });
+  it("keeps the colour split's proportions in both filters", () => {
+    for (const [sign, share] of [[1, BEND_OLD], [-1, BEND_NEW]] as const) {
+      const [r, g, b] = [SPLIT.r, SPLIT.g, SPLIT.b].map((k) => pushScale(sign, share, peak, k));
+      expect(r / g).toBeCloseTo(SPLIT.r / SPLIT.g, 10);
+      expect(b / g).toBeCloseTo(SPLIT.b / SPLIT.g, 10);
+    }
+  });
+  it("is nothing when the push is nothing", () => {
+    expect(pushScale(1, BEND_OLD, 0, SPLIT.r) + 0).toBe(0);
+    expect(Math.abs(pushScale(-1, BEND_NEW, 0, SPLIT.r))).toBe(0);
   });
 });

@@ -28,7 +28,7 @@ import {
   HOVER_GROW,
   NUDGE_HOLD_MS,
   NUDGE_MAX_PX,
-  driftAt,
+  driftOffset,
   fitGrid,
   rubberBand,
   safeInsets,
@@ -57,6 +57,9 @@ type Parts = {
   /** Set once the gallery object exists: its destroy undoes everything, listeners included. */
   api?: Gallery;
 };
+
+/** An audit hook: when the page has an array in `window.__wallTrace`, every frame drawn writes a row [ms, x, y] (the wall's offset from the fit: drift and nudge) to it. */
+const wallTrace = () => (typeof window === "undefined" ? undefined : (window as unknown as { __wallTrace?: number[][] }).__wallTrace);
 
 /** Resolves to null (never rejects) when three, WebGL or the scene cannot start. */
 export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOptions): Promise<Gallery | null> {
@@ -153,8 +156,12 @@ function assemble(
   let drawnTold = false;
 
   const active = () => !destroyed && !lost && !hidden && onScreen;
+  // the drift eases in from standstill over EASE_IN_MS once the wall has started to draw (round 7 change-arrival spec 5.3): its first frame is where the plain links were
+  let driftFrom = Infinity;
   const offsetAt = (now: number): Pt => {
-    const d = reduced ? { x: 0, y: 0 } : driftAt((now - t0) / 1000);
+    // gallery-math.ts driftOffset: the first frame is where the plain links were, the drift's speed eases in, and the start offset is blended out over a
+    // quarter lap, so at rest the drift is centred on the fit (the layout's 6 px of drift and its 8 px gap hold)
+    const d = driftOffset(now, driftFrom, reduced);
     const n = rubberBand(pull, NUDGE_MAX_PX);
     return { x: d.x + n.x, y: d.y + n.y };
   };
@@ -180,6 +187,8 @@ function assemble(
     const uploaded = atlas.pump();
     if (!started) {
       const facts = {
+        // the links are the wall until this draws (a page that came in through a change): it must not start with a tile still on its art
+        whole: typeof opts.instant === "function" ? opts.instant() : opts.instant === true,
         pictures: atlas.uploaded(),
         count,
         settled: atlas.settled(),
@@ -191,6 +200,7 @@ function assemble(
         return;
       }
       started = true;
+      driftFrom = now;
       view.compile(renderer); // the shader links before the arrival's clock starts, not inside its first frame
       state.start(performance.now(), typeof opts.instant === "function" ? opts.instant() : opts.instant === true); // pictures that are in by now show whole; the rest fade in over their art
       canvas.dataset.startMs = String(Math.round(now - t0)); // for the audit: when the first frame was drawn, and with how many pictures
@@ -198,6 +208,8 @@ function assemble(
       dirty = true;
     }
     if (pointer) updateHover(off);
+    const tr = wallTrace();
+    if (tr && tr.length < 20000) tr.push([now, off.x, off.y]); // an audit hook (below): where the wall is drawn, frame by frame
     // the easing only runs while something eases, was asked for or arrived
     if (uploaded > 0 || dirty || stepBusy) stepBusy = state.step(dt, now, atlas.loadedAt);
     if (!stepBusy && !("arrived" in canvas.dataset)) canvas.dataset.arrived = ""; // the arrival is over and no picture is still fading in

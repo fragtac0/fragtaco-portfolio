@@ -50,6 +50,12 @@
   object-fit: cover;
   transition: opacity 300ms ease-out;
 }
+/* while a change holds its reveal (page-transition.css) a picture that has loaded is simply there: its 300 ms fade would be half done when the
+   reveal uncovers it. One that comes after the hold fades in as usual. */
+html[data-change-hold] .wall-tile img,
+.wall-tile img[data-late] {
+  transition: none; /* a picture that comes after the reveal fades by arrival-dom.ts fadeLate alone (200 ms), not twice */
+}
 /* once the page is running, a picture is shown when it has loaded (cover-image.ts); without scripts it just shows */
 .wall-stage[data-fit] .wall-tile img:not([data-ready]) {
   opacity: 0;

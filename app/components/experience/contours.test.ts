@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildLevels, fillOf, strokeOf, thresholdsOf, type Level } from "./contours";
+import { contours } from "d3-contour";
+import { buildLevels, fillOf, levelsOf, strokeOf, thresholdsOf, type Level } from "./contours";
 import { makeField } from "./heights";
 import { HEIGHT_FRAME } from "./frame";
 
@@ -121,5 +122,19 @@ describe("colours", () => {
     expect(strokeOf(0.45, false)).toBe("rgba(255, 190, 130, 0.7)");
     expect(strokeOf(1, false)).toBe("rgb(255, 118, 40)");
     expect(strokeOf(0.725, true)).toBe("rgba(255, 154, 85, 0.85)");
+  });
+});
+
+describe("levelsOf", () => {
+  it("gives the levels one at a time, the same as buildLevels, and the same rings as d3-contour's own thresholds", () => {
+    const found = levelsOf(field);
+
+    expect(found.count).toBe(levels.length);
+    for (const i of [0, 1, 40, found.count - 1]) expect(found.level(i)).toEqual(levels[i]);
+
+    const direct = contours().size([W, H]).smooth(true).thresholds(thresholdsOf(field))(field.data as unknown as number[]);
+
+    expect(direct).toHaveLength(found.count);
+    expect(direct[7].coordinates.flat().length).toBe(levels[7].rings.length);
   });
 });

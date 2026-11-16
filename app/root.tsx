@@ -16,7 +16,7 @@ import { preloadImage } from "./components/home/hero/painting-cycle";
 import { recallPainting } from "./components/home/hero/painting-memory";
 import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
 import GlassFilter from "./components/page-change/glass-filter";
-import { prepareGlassWhenIdle } from "./components/page-change/glass-run";
+import { prepareGlassWhenIdle } from "./components/page-change/glass-prepare";
 import { watchPresses } from "./lib/change-finish";
 import { watchHistory } from "./lib/history-change";
 import { changePage, finishChange, isPageSettled, pageCommitted } from "./lib/page-change";
@@ -99,7 +99,8 @@ export default function App() {
   useEffect(() => watchHistory(), []);
   // The first press or key press during a change finishes it (change-finish.ts).
   useEffect(() => watchPresses(), []);
-  // The glass front's bend needs two small pictures; make them once the first page is up.
+  // The glass front's pictures (tiles for its edge, glow and shade, and the bend's): made in idle time once the first page is up,
+  // and not at all under reduced motion or without View Transitions.
   useEffect(() => prepareGlassWhenIdle(), []);
   // A test hook for the audit scripts (set sessionStorage "ft:debug-change" to "1"): runs a page change.
   const navigate = useNavigate();
@@ -127,8 +128,9 @@ export default function App() {
 
   return (
     <>
-      {/* first in the page, so the change's line sits below the dock; see page-change/glass.css */}
-      <div data-glass-line aria-hidden="true" />
+      {/* first in the page, so the change's glow and shade sit below the dock (the shade over the glow); see page-change/glass.css */}
+      <div data-glass-glow aria-hidden="true" />
+      <div data-glass-shade aria-hidden="true" />
       <GlassFilter />
       <PageViewTracker />
       <Outlet />

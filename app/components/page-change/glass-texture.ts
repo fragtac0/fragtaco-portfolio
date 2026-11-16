@@ -1,94 +1,36 @@
 /**
- * The displacement maps for the glass front, as plain pixels (glass-run.ts turns them into pictures for
- * the SVG filter). Red and green carry the push (128 is none, 255 is the full push right or down, 0 the
- * full push left or up; the filter multiplies by `2 * bendPx`, so the strongest push is `bendPx`).
- * Blue is unused and alpha is opaque.
+ * The displacement tiles for the glass front's bend, as plain pixels (glass-run.ts turns them into pictures for the SVG
+ * filters). Red and green carry the push (128 is none, 255 is the full push right or down, 0 the full push left or up, with the
+ * full push being `BEND_MAX` of the peak); blue is unused and alpha is opaque.
  *
- * The push at the front is the glass's surface slope, as in the painting shader: the gradient of a
- * smooth noise (so the picture wobbles slightly differently along the front, which is what makes the
- * front irregular), plus a push along the front's normal that changes sign across the middle of the band
- * (so the rim magnifies, like the edge of a thick lens). Both die away outside the band.
+ * The push at each point is along the direction from the middle, as strong as `bendProfile` says at that distance from the front
+ * (the field is the wandering one of glass-field.ts, so the bend sits exactly on the edge the mask draws), and the filters
+ * multiply it by the peak in pixels (`bendPxFor`), by `SPLIT` for each colour, and by minus one for the page arriving.
  */
-import { GLASS, REACH } from "./glass-math";
+import { eachTilePixel } from "./glass-field";
+import { bendProfile } from "./glass-math";
 
-function hash(x: number, y: number): number {
-  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-  return s - Math.floor(s);
-}
+/** The most the profile reaches over its peak (1.08, at 0.22 half-bands outside the front): the push is stored over this. */
+export const BEND_MAX = 1.1;
 
-function valueNoise(x: number, y: number): number {
-  const ix = Math.floor(x);
-  const iy = Math.floor(y);
-  let fx = x - ix;
-  let fy = y - iy;
-  fx = fx * fx * (3 - 2 * fx);
-  fy = fy * fy * (3 - 2 * fy);
-  const a = hash(ix, iy);
-  const b = hash(ix + 1, iy);
-  const c = hash(ix, iy + 1);
-  const d = hash(ix + 1, iy + 1);
-  return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
-}
-
-/** Three octaves of smooth noise, 0..1. */
-export function fbm(x: number, y: number): number {
-  return (
-    valueNoise(x, y) * 0.55 +
-    valueNoise(x * 2.03 + 7.1, y * 2.03 + 7.1) * 0.3 +
-    valueNoise(x * 4.07 - 3.7, y * 4.07 - 3.7) * 0.15
-  );
-}
-
-/** Noise's slope, scaled so a typical value is about 0.4 of the full push (the noise gradient itself runs 1 to 3). */
-const SLOPE = 0.2;
-/** The normal push at its peak, relative to the full push. */
-const NORMAL = 0.5;
-
-function slope(x: number, y: number, freq: number): [number, number] {
-  const e = 0.02;
-  const c = fbm(x * freq, y * freq);
-  return [((fbm(x * freq + e, y * freq) - c) / e) * SLOPE, ((fbm(x * freq, y * freq + e) - c) / e) * SLOPE];
-}
-
-/** A Gaussian of the distance from the front's middle in half-bands, lowered so it is exactly 0 at the texture's edge (REACH). */
-const EDGE = Math.exp(-REACH * REACH * 0.5);
-function gateAt(z: number): number {
-  return Math.max(0, (Math.exp(-z * z * 0.5) - EDGE) / (1 - EDGE));
-}
-
-function pack(out: Uint8ClampedArray<ArrayBuffer>, i: number, vx: number, vy: number) {
-  const m = Math.hypot(vx, vy);
-  const k = m > 1 ? 1 / m : 1;
-  out[i] = 128 + 127 * vx * k;
-  out[i + 1] = 128 + 127 * vy * k;
-  out[i + 2] = 0;
-  out[i + 3] = 255;
-}
-
-/**
- * The ring map: a square of `n` pixels covering a circle of radius `(1 + REACH * band)` front radii,
- * so the front is at distance `1 / (1 + REACH * band)` of the half-size from the middle and the band
- * is `band / (1 + REACH * band)` wide. Stretched to a front of radius r, the band is `band * r` wide, the
- * same share of the radius at every moment.
- */
-export function ringPixels(n: number, band: number = GLASS.band): Uint8ClampedArray<ArrayBuffer> {
+/** The bend tile for a front of radius `front`. `n` pixels square. */
+export function bendTilePixels(n: number, front: number): Uint8ClampedArray<ArrayBuffer> {
   const out = new Uint8ClampedArray(n * n * 4);
-  const reach = 1 + REACH * band;
-  const front = 1 / reach;
-  const sigma = band / reach;
-  for (let y = 0; y < n; y++) {
-    for (let x = 0; x < n; x++) {
-      const dx = ((x + 0.5) / n) * 2 - 1;
-      const dy = ((y + 0.5) / n) * 2 - 1;
-      const d = Math.hypot(dx, dy);
-      const z = (d - front) / sigma;
-      const gate = gateAt(z);
-      const [sx, sy] = slope(dx, dy, 3.1);
-      const normal = z * gate * NORMAL;
-      const nx = d > 0 ? dx / d : 0;
-      const ny = d > 0 ? dy / d : 0;
-      pack(out, (y * n + x) * 4, sx * gate + nx * normal, sy * gate + ny * normal);
-    }
+  for (let i = 0; i < n * n; i++) {
+    out[i * 4] = 128;
+    out[i * 4 + 1] = 128;
+    out[i * 4 + 3] = 255;
   }
+  eachTilePixel(
+    n,
+    front,
+    (i, x, u, v) => {
+      const rho = Math.hypot(u, v) || 1;
+      const k = bendProfile(x) / BEND_MAX;
+      out[i] = 128 + (127 * k * u) / rho;
+      out[i + 1] = 128 + (127 * k * v) / rho;
+    },
+    3.2,
+  );
   return out;
 }

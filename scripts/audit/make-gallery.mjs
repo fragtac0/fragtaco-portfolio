@@ -15,6 +15,8 @@
 //    and under reduced motion (a fade, no stagger); frames of the arrival are photographed by a film,
 //  - the way back: the back button (same pill and place as the shelves' Close) is a tab stop, Enter goes to /work through the
 //    one radial change; Esc does too,
+//  - R56.2c: the hook `window.__wallTrace` (an array the engine writes [ms, x, y] to every frame it draws): the first frame's offset from the fit is under 0.5 px and the
+//    offset stays within 6 px on both axes, so the 8 px gap holds with the canvas drifted (`__driftCheck`),
 //  - frames: gaps between animation frames over 3 s of drifting and over 2.5 s of hovering across the wall (over20 must be 0),
 //  - real input: a real mouse move shows the caption of the tile under it, a real click (a real tap on the phone)
 //    opens it, the arrow keys move the focus (the engine's ring) and Enter opens that one,
@@ -74,6 +76,8 @@ const put=(img,v)=>{const m=pic(String(v));if(m&&slow)setTimeout(()=>d.set.call(
 Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:true,get(){return d.get.call(this)},set(v){put(this,v)}});
 const sa=Element.prototype.setAttribute;Element.prototype.setAttribute=function(n,v){if(this instanceof HTMLImageElement&&n==='src'){put(this,v);return}return sa.call(this,n,v)};
 new MutationObserver((ms)=>{for(const m of ms)for(const n of m.addedNodes){const imgs=n.nodeType===1?(n.tagName==='IMG'?[n]:[...n.querySelectorAll('img')]):[];for(const i of imgs){const s=i.getAttribute('src');if(s&&s.includes('i.ytimg.com'))i.src=s}}}).observe(document,{childList:true,subtree:true});
+window.__wallTrace=[];
+window.__driftCheck=()=>{const t=window.__wallTrace.filter((r)=>Math.abs(r[1])<1e6);if(!t.length)return {ok:false,rows:0};const first=t[0];let mx=0,my=0;for(const r of t){mx=Math.max(mx,Math.abs(r[1]));my=Math.max(my,Math.abs(r[2]))}const firstPx=Math.hypot(first[1],first[2]);return {rows:t.length,firstFrameOffsetPx:+firstPx.toFixed(3),maxAbsX:+mx.toFixed(2),maxAbsY:+my.toFixed(2),ok:firstPx<0.5&&mx<=6.01&&my<=6.01}};
 // WebGL refused for the "no WebGL" runs (a flag in sessionStorage, set and cleared by the steps)
 const gc=HTMLCanvasElement.prototype.getContext;
 HTMLCanvasElement.prototype.getContext=function(t,...a){if(sessionStorage.getItem('nogl')==='1'&&/webgl/.test(t))return null;return gc.call(this,t,...a)};
@@ -258,6 +262,8 @@ function wall(kind, size, opts = {}) {
   steps.push({ shot: `${tag}-warm` });
   steps.push({ shot: `r43-wall-${tag}` });
   steps.push(frames(`${tag}: frames while drifting`));
+  // R56.2c: the wall as drawn (the engine's own offset, every frame since its first): the first frame is where the plain links were, and the drift stays within its 6 px of the fit on both axes, so the 8 px gap holds with the canvas drifted
+  steps.push({ eval: "__driftCheck()", label: `${tag}: the drawn wall starts at the fit and drifts within 6 px of it` });
   steps.push(frames(`${tag}: frames while hovering`, true));
   steps.push({ eval: "document.querySelector('.wall-canvas').getBoundingClientRect().width+'x'+document.querySelector('.wall-canvas').getBoundingClientRect().height+' canvases='+document.querySelectorAll('.wall-canvas').length", label: `${tag}: canvas` });
   const pt = "(()=>{const g=__grid(),i=Math.floor(g.count/2),q=__rect(g,i);return __warp(q.x+q.w/2,q.y+q.h/2,g.vw,g.vh)})()";
@@ -381,10 +387,10 @@ const S320 = { name: "320", w: 320, h: 568, phone: true };
 // The dock row's links are clicked from inside the page (a real `click()` on the link: PageLink handles it like a pointer click),
 // since the steps file has fixed coordinates.
 const moveSteps = [
-  // R51.2: the wall's arrival runs after the 3.5 s reveal settles (so it is seen), never during it: the canvas is made after the change ends
+  // R56 (reversing R75 after a page change): the wall is there when the reveal starts, as the plain links with every picture in; the engine is made after the change ends and draws whole tiles (no arrival, nothing blank); the arrival (R51.2) stays for a first load
   { size: [1440, 900], dpr: 1, mobile: false, touch: false, reduce: false, go: "{{BASE}}/work?arrrec", wait: 1800 },
   { eval: "window.__chg={began:null,end:null};new MutationObserver(()=>{const k=document.documentElement.dataset.changeKind;if(k&&window.__chg.began===null)window.__chg.began=performance.now();if(!k&&window.__chg.began!==null&&window.__chg.end===null)window.__chg.end=performance.now()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-change-kind']});document.querySelector('[data-work-tab=\"/work/long-form\"]').click();setTimeout(()=>{window.__chg.linksShown=[...document.querySelectorAll('.wall-tile')].filter(a=>+getComputedStyle(a).opacity>0.05).length;window.__chg.canvases=document.querySelectorAll('.wall-canvas').length;window.__chg.tilesInPage=document.querySelectorAll('.wall-tile').length},1500);1", label: "reveal: click Long form from the rings" },
-  { eval: "new Promise(r=>{const t0=performance.now();const f=()=>{const c=document.querySelector('.wall-canvas');if(c&&c.dataset.arrived!==undefined&&window.__chg.end!==null){const a=window.__arr,abs=a.frames.map(x=>a.canvasAt+x[0]);r(JSON.stringify({changeMs:Math.round(window.__chg.end-window.__chg.began),at1500ms:{tilesInPage:window.__chg.tilesInPage,linksShown:window.__chg.linksShown,canvases:window.__chg.canvases},firstDrawAfterChangeEndMs:Math.round(a.canvasAt-window.__chg.end),drawsBeforeChangeEnd:abs.filter(t=>t<window.__chg.end).length,draws:a.frames.length,startMs:+c.dataset.startMs,startPictures:+c.dataset.startPictures,tilesWholeAtEnd:a.frames.at(-1)[1]}))}else if(performance.now()-t0>15000)r('timeout');else setTimeout(f,50)};f()})", label: "reveal: the wall arrives after the change ends, not during it" },
+  { eval: "new Promise(r=>{const t0=performance.now();const f=()=>{const c=document.querySelector('.wall-canvas');if(c&&c.dataset.arrived!==undefined&&window.__chg.end!==null){const a=window.__arr,abs=a.frames.map(x=>a.canvasAt+x[0]);r(JSON.stringify({changeMs:Math.round(window.__chg.end-window.__chg.began),at1500ms:{tilesInPage:window.__chg.tilesInPage,linksShown:window.__chg.linksShown,canvases:window.__chg.canvases},firstDrawAfterChangeEndMs:Math.round(a.canvasAt-window.__chg.end),drawsBeforeChangeEnd:abs.filter(t=>t<window.__chg.end).length,draws:a.frames.length,startMs:+c.dataset.startMs,startPictures:+c.dataset.startPictures,tilesWholeAtEnd:a.frames.at(-1)[1],ok:window.__chg.tilesInPage===window.__chg.linksShown&&window.__chg.canvases===0&&abs.filter(t=>t<window.__chg.end).length===0&&a.frames.at(-1)[1]===window.__chg.tilesInPage&&+c.dataset.startPictures===window.__chg.tilesInPage}))}else if(performance.now()-t0>15000)r('timeout');else setTimeout(f,50)};f()})", label: "reveal: the wall is the plain links, whole, while the change runs; the engine draws it whole after the change ends (no arrival)" },
   { size: [1440, 900], dpr: 1, mobile: false, touch: false, reduce: false, go: "{{BASE}}/work/long-form", wait: 1500 },
   LIVE("moves: long live"),
   { wait: 1500 },

@@ -318,6 +318,8 @@ None open. Asked after v3 and answered on 2026-11-02:
 - R51 portfolio and walls (round 7, part 4, Tasks 9 and 10): the work page reads "My portfolio" (the dock tab stays "work"); the eight app icons sit in opaque glass tiles; the rings show the real long form thumbnails and local placeholder art for short form (a missing YouTube picture falls back to the art), and they are already in the arriving page during the reveal (R60, R72). The two walls have no warp: one flat grid with the largest tile that keeps every video on screen, 8 px gaps, a short last row centred (R73); the tiles come in from the centre outward after the reveal settles (R75), always over their own art so no tile is ever an empty box; a slow or missing engine leaves the plain links on screen (R74, R77). The rings mark is replaced by a Back pill shared with the shelves' Close button.
 - R52 the shelves (round 7, part 5, Tasks 11 to 15): the YouTube wall is a finite block of small tiles (about half round 6's width, never under 96 px) in one fixed shuffled order, floating a few pixels at rest, panned as before and stopping softly before its edge reaches the middle third (R78 to R83); a click moves the camera so the chosen video comes to the middle and grows to round 6's tile size while the others push away, closing returns the camera, the arrow keys move it along, and reduced motion fades the choice in over the wall (R84 to R86). The wall's edges darken on all sides and blur, fringe and bend toward the corners, zero in the middle; both shelves have a calm heading strip with the title largest and the count quiet, and one small glass pill serves Close, Back and the video's close (R87, R88). The fourteen designed spines from the preview are painted on the 3D books and the home block's small shelf, after their faces load (at most about 1 s on opening) and again when a face arrives late; every face of a book takes its series cloth (R89 to R93). The books stand on a rock ledge of ten lines with a faint dot field behind them, held still under reduced motion (R94, R95).
 - R53 my experience (round 7, part 6, Tasks 16 to 19): /experience is the new Mars map ported from the ninth preview. The overview shows the toned Viking picture of Olympus Mons under a chart (a grid, 150 and 300 km rings, the summit mark) and its frame (corner marks, readout, north, degrees, scale bar), with the title in capitals, a one-line description and the caption; My climb tilts the camera over a contour map drawn from the MOLA heights, the grid runs over the mountain, and the trail climbs it with nine milestones as Phosphor beads, a radar on the current one and a glass card that never covers the beads and never changes its words while shown. One eased move carries the change (3.6 s in, 3.2 s out; a crossfade under reduced motion); the camera follows a spring and a dead zone; on phones the overview fits the whole trail clear of the words and the dock, and a tap on a bead's centre always opens that bead. The round 6 tile pyramid, its engine and the Places view are deleted; the phone's first load is 658 KB (round 6: 771) and the desktop's 966 KB (round 6: 2440) (rulings R96 to R108).
+- R54 the page change and the portfolio (round 7 follow-ups, part 1, Tasks 22 and 23): every page change is now 2.5 s with the tenth preview's wide, refracted edge: a 15% soft band the same width all the way, a wander of 12% of the front's radius in five or six turning lobes, a three-colour bend of 5.7% of the height (at most 64 px) on each picture, an additive cream glow and a slight shade, starting from the first frames with no hidden lead-in and damped at the screen's edges (rulings R109 to R114). The portfolio page's thumbnails are larger (200 px long side at 1440 by 900, icons 76 px), the rings are re-solved by the share of the screen that shows tiles (0.279 at 1440 by 900, up from 0.151), they stop short of the dock behind a soft keep-out, phones keep one ring of large tiles, and no screen size shows less than before (R117 to R122).
+- R56 the change's cost and the finished arrival (round 7, Tasks 27 to 29 and 31): the page change's bend uses one map picture per filter, half strength on the arriving page, a warm-up after load and a guard that drops the bend when frames run slow, so the change costs about a third of R54's on the compositor threads with the same look (ruling R114 aside); the reveal is held, at most 500 ms, until the arriving page reports it is finished, late parts fade in over 200 ms, resting motion eases in, the wall's drift starts where its links were, and the dock's second row keeps its state through a change. The change is now 2.25 s. The portfolio's thumbnails pass under the dock's glass (no cut-out; the dock a little denser, 0.61, and without its drop shadow so every label keeps 4.5 to 1, R123, R124), and a focused tile is turned clear of the dock. On My experience the title sits left of the mountain and the Olympus Mons block right, on the summit's row, the words arrive as the change completes and the trail traces itself after it.
 
 ## Round 5: final status (11 November 2026)
 
@@ -660,3 +662,98 @@ Given while the build was at task 10 of 21, after Aditya looked at the build run
 I looked into it: `docs/redesign/compare/round7/change-experience-to-home.jpg` and `compare/local/r51-reveal-50.jpg` show the built change as a thin bright ring, almost a perfect circle, with hardly any bend. The cause is the numbers and the line picture, not the browser. The fix and the other two changes are written up in `docs/superpowers/specs/2026-11-14-round7-followups-design.md` and planned as tasks 22 to 26 in `docs/superpowers/plans/2026-11-14-round7-followups.md`, to run after task 19.
 
 My call: the home page behind an opening box sinks back and dims (the preview's default).
+
+### Feedback on the page change as built (2026-11-15, during the build)
+
+He looked at the R54 build (the 2.5 s page change with the wide, refracted edge) on his own machine while the two build lanes were still running, and wrote: "The animation between pages is now lagging a lot and the page shifts in position once it loads. It should not happen if the animation is too heavy. Figure out and come to me with solutions. We can then decide ahead".
+
+**What I measured** (headless Chrome on his Mac, an M4 Pro, one warmed change from home to the portfolio page, thread time inside the 2.57 s of the change):
+
+| Version | Renderer's compositor thread | Display compositor thread |
+|---|---|---|
+| As built (bend on both pages, three colours) | about 1,000 ms | about 600 ms |
+| As built, but 3 map pictures in each filter instead of 24 (a cost probe, not a usable build) | about 350 ms | about 220 ms |
+| One-colour bend | about 430 ms | about 220 ms |
+| Bend on the page being left only | about 580 ms | about 320 ms |
+| One-colour bend on the page being left only | about 310 ms | about 150 ms |
+| No bend | 80 to 110 ms | 70 to 85 ms |
+
+- The cost is the same at 1512 by 982 at 2x and at 1920 by 1080 at 1x: it is bookkeeping per frame, not pixels. About two thirds of the bend's cost is the 24 map pictures each filter carries, of which one is in use at a time.
+- Warm, on a quiet machine, every frame was presented at 60 Hz. The first change after a page load had frames of 67 to 167 ms with no script running. He was watching while both lanes were building and auditing on the same machine, and his built-in display runs at 120 Hz, where the headroom is gone.
+- The frame gate missed it because it measures the gaps between animation frames in a headless browser at 60 Hz on a quiet machine.
+
+**The shifts** (five changes frozen 17 ms before their end at 1512 by 982 at 2x, photographed, ended, photographed at once and 0.7 s later):
+
+- The dock: after every change to a page with the second row, the dock is pictured with one row and grows about 50 px, 185 to 320 ms after the change ends. Between two pages that both have the row it shrinks during the change and opens again after it. This was task 5's design (the row is in neither picture).
+- The arriving page is not finished when it is uncovered. Portfolio to Long form: the reveal uncovers the heading and the ground only, and the 21 thumbnails arrive after it ends (ruling R75, recorded as his taste call). Portfolio to Home: the reveal uncovers the blurred placeholder, and the sharp painting and its caption come after. Home to Portfolio: the rings stand still through the reveal and start turning as it ends.
+- The bend pushes the arriving page inward by up to 5.7% of the viewport's height (about 56 px), and it slides back as the edge passes.
+- No jump at the hand-over from the picture to the live page: the frozen last frame and the live page line up in all five.
+
+**His choices (2026-11-15)**
+
+| Question | Answer |
+|---|---|
+| How to make the change lighter | Same look, leaner: one map picture in the filter, a warm-up after load, and the bend dropped if frames slip |
+| Which shifts he saw | All four offered: the dock, the page content sliding, thumbnails or tiles moving, the whole page jumping |
+| How the arriving page should behave | Finished before the reveal: the page being left stays on screen for a short moment while the new page gets ready, then the reveal uncovers a complete, still page |
+| The bend on the arriving page | Half strength (the page being left keeps the full bend and the fringe) |
+
+These become tasks 27 and 28: `docs/superpowers/specs/2026-11-15-round7-change-arrival-design.md`, `docs/superpowers/plans/2026-11-15-round7-change-arrival.md`. They reverse two earlier rulings: R75 (the wall arrives after the reveal) and task 5's rule that the dock's second row is in neither picture.
+
+### Feedback on two half-built previews (2026-11-16, during the build)
+
+The build had stopped for most of a day and he looked at the two local builds as they stood: port 5180 (lane A at R56.1: the new page change and the larger thumbnails, without the finished arrival and without the live home boxes) and port 5181 (lane B at R55.3b: the live home boxes, on the old page change). He wrote:
+
+"shadow behind the nav bar is very weird. Long form and short form videos load up with a delay and bring back the slight chromatic aberration in the page animations. when I click on my experience - the nav bar for those three abruptly goes down and then comes back up, that is wrong. the book shelves and YT shelves still open weird and the books need to be properly visible with the stems, those details are missing." He attached a crop of the dock on the portfolio page with a dark box behind it. Asked where the fringe was missing, he added: "on 5181 - it's the bad transition - it should be proper with chromatic aberration and 2.25 secs".
+
+**What I found**
+
+| His point | Cause | What happens |
+|---|---|---|
+| The shadow behind the dock | My cut-out of R54.2b (R117): the video rings are masked in a box round the dock's glass, clear down to the foot of the screen, with an 8 px feather. It reads as a dark box. | The cut-out goes; thumbnails pass under the dock's glass (his choice). Task 29. |
+| The walls load with a delay | R75: the wall arrived after the reveal. | Already task 28 (the arriving page is finished before the reveal). |
+| The fringe is gone, "the bad transition" | Port 5181 is lane B's branch, cut from R53: it still has the old page change. On port 5180 the fringe is there (photographed, pushes of 145, 112 and 80 px for red, green and blue). | Nothing lost: the join brings the new change to the one build. The length goes from 2.5 s to 2.25 s (his number). Task 29. |
+| The dock drops and comes back on My experience | Task 5's rule: the second row closed for every change and opened after it. | Already task 28 (the dock keeps its row). |
+| The boxes "still open weird" | He gave no preference when asked what looks wrong. Port 5180 still has the old opening with the poster; the one-move opening is only on port 5181. | No change to the move. He checks it on the joined build. |
+| The books "with the stems" | On port 5181 the box shows the shelf scaled to cover the box: the books are cut off at the foot and the ledge is outside the box. The spec's 6.1 asked for the whole row on the ledge. | The box shows every book whole, standing on the ledge. My reading of "stems" (he gave no preference when asked). Task 30. |
+
+**His choices (2026-11-16)**
+
+| Question | Answer |
+|---|---|
+| Thumbnails near the dock | Pass under the glass |
+| What looks wrong in the opening | No preference |
+| What "stems" means | No preference |
+| Where the fringe was missing | On port 5181; and the change should run 2.25 s |
+
+These become tasks 29 and 30: `docs/superpowers/specs/2026-11-16-round7-second-look-design.md`, `docs/superpowers/plans/2026-11-16-round7-second-look.md`. Task 29 reverses R117 and R118 (the keep-out round the dock) and the 2.5 s of the follow-ups spec.
+
+### Feedback after the second look (2026-11-16, later the same night)
+
+He wrote: "shelves are so far good to go. fix the transitions in pages, fix the nav bar issues, the issues on the long form and short form pages. also on the my experience page the text for My Experience can be in the middle to the left of the mountain with the sub line below and the text for Olympus Mons can be on the right in the middle of the screen. it should also appear as the transition completes and not just be there silent - also add a good tracing animation for when the page opens for the path traveled."
+
+| His point | What happens |
+|---|---|
+| The shelves are good to go | Nothing new. Task 30 (whole books on the ledge in the reading box) stays as told to him. |
+| The page transitions, the dock, the long form and short form pages | Tasks 27 to 29, already running: the new change with its fringe at 2.25 s on the one joined build, the dock keeping its row and losing its cut-out, the walls in place before the reveal. |
+| My experience: the title to the left of the mountain at mid height with its line under it; Olympus Mons on the right at mid height | Task 31. On a wide screen the two blocks sit either side of the mountain on the summit's row. A narrow or upright screen has no room beside the mountain and keeps today's places (my call). |
+| The words should appear as the transition completes, not be there silently | Task 31. The words come in letter by letter as the reveal finishes. This is a made entrance and an exception to the rule of task 28 that nothing appears after the reveal. |
+| A tracing animation for the path travelled when the page opens | Task 31. The trail draws itself from the first milestone to "now", each milestone arriving as the line reaches it, then the dotted way ahead. |
+
+The timings and the look of the entrance and the trace are mine; he asked for "a good tracing animation" and left the rest open. Spec and plan: sections 9 to 11 and task 31 of `docs/superpowers/specs/2026-11-16-round7-second-look-design.md` and `docs/superpowers/plans/2026-11-16-round7-second-look.md`.
+
+### Asked for after round 7: a modern web pass (2026-11-16, afternoon)
+
+While tasks 28 and 30 were building he wrote: "Modern Web Guidance. I have installed this skill - once you are done, make sure you: Modernize legacy code. Perform a security audit of my site and suggest improvements. Improve performance. Using that skill".
+
+| His point | What happens |
+|---|---|
+| Use the Modern Web Guidance skill | It is a plugin by Google Chrome in the plugin catalogue (skills `modern-web-guidance` and `chrome-extensions`). On 16 Nov it was listed but not switched on for the build session, so it could not be loaded. He was shown the card to switch it on. Nothing below starts until the skill can be read. |
+| "once you are done" | The pass starts after round 7 is handed back (after task 21), as its own round on a branch stacked on round 7's top branch. Round 7's tasks and order do not change. |
+| Modernize legacy code | Old patterns replaced by what the skill recommends, with the standing rule that polish must not change the look. What counts as legacy is read from the skill and the code, then listed for him before anything is changed. |
+| A security audit, with suggested improvements | A written report on the final build and its deployment settings, each finding with its evidence and a suggested fix. He asked for suggestions: no security change is made before he has picked from the report. |
+| Improve performance | Measured first on the final build (load, first picture, the weight of the scripts and pictures, the cost of the animations), then the changes, then measured again. |
+
+Process as before: Fable reads, asks and plans; Sonnet builds; Opus reviews once per task.
+
+Later the same evening he pasted the two install commands (`claude plugin marketplace add GoogleChrome/modern-web-guidance`, `claude plugin install modern-web-guidance@googlechrome`). The plugin is installed for his user at version 1.0.0 (commit 4dd9683). It holds two skills and their guides as text, with no hooks and no servers. The skill works through a command line tool fetched with `npx` (`search`, `retrieve`, and `legacy-scan` for a whole codebase); `legacy-scan` covers about a fifth of the guides, so the modernizing step also searches the guides by topic. The running build session does not list the skill until it is restarted, and it is not restarted while the build runs: the skill's text is read from its install folder.

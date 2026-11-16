@@ -1,0 +1,139 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__rec={frames:0,bendDuringChange:0,warmHostDuringChange:0,changeFrames:0,bendByChange:[],warmMarks:0};\n{const tick=()=>{const d=document.documentElement&&document.documentElement.dataset;if(d){const k=!!d.changeKind;if(k){__rec.changeFrames++;if(d.glass==='bend')__rec.bendDuringChange++;if('glassLive' in d)__rec.liveDuringChange=(__rec.liveDuringChange||0)+1;if(document.querySelector('[data-glass-warm]'))__rec.warmHostDuringChange++}}__rec.frames++;requestAnimationFrame(tick)};requestAnimationFrame(tick)}\nwindow.__wait=(f,ms)=>new Promise(r=>{const t0=performance.now();const iv=setInterval(()=>{let v;try{v=f()}catch(e){v=false}if(v||performance.now()-t0>ms){clearInterval(iv);r(!!v)}},25)});\nwindow.__settledP=()=>__wait(()=>!document.documentElement.dataset.changeKind,9000);\nwindow.__change=async(to)=>{await __wait(()=>typeof window.__ftChange==='function',8000);const b0=__rec.bendDuringChange,c0=__rec.changeFrames,l00=__rec.liveDuringChange||0;const warmBefore=performance.getEntriesByName('glass-warm').length;const readyBefore=performance.getEntriesByName('glass-bend-ready').length;window.__ftChange(to);await __wait(()=>document.documentElement.dataset.changeKind,2000);const ended=await __settledP();return {to,bendReadyMarksAtStart:readyBefore,warmMarksAtStart:warmBefore,liveFrames:(__rec.liveDuringChange||0)-l00,session:sessionStorage.getItem('ft-glass-bend'),bendFrames:__rec.bendDuringChange-b0,changeFrames:__rec.changeFrames-c0,ended,path:location.pathname}};\nwindow.__state=()=>{const f=id=>document.getElementById(id);const pushes=['r','g','b'].flatMap(c=>['ft-glass-old','ft-glass-new'].map(i=>f(i+'-push-'+c)?.getAttribute('scale')));return {warmMarks:performance.getEntriesByName('glass-warm').length,vignetteMarks:performance.getEntriesByName('glass-vignette-ready').length,warmHostsNow:document.querySelectorAll('[data-glass-warm]').length,warmHostDuringChange:__rec.warmHostDuringChange,mapWidths:['ft-glass-old','ft-glass-new'].map(i=>f(i+'-map')?.getAttribute('width')),pushes,vignetteWidth:f('ft-glass-old-vignette')?.getAttribute('width'),innerWidth,dataGlass:document.documentElement.dataset.glass??null,changeKind:document.documentElement.dataset.changeKind??null}};\nwindow.__slow=(on)=>{window.__slowOn=on;if(!on)return;let n=0;const f=()=>{if(document.documentElement.dataset.changeKind&&n<14){const t=performance.now();while(performance.now()-t<40);n++}if(window.__slowOn)requestAnimationFrame(f)};requestAnimationFrame(f)};",
+  "go": "{{BASE}}/",
+  "wait": 300
+ },
+ {
+  "label": "A: a change 300 ms after the load, before glass-warm (bendReadyMarksAtStart says whether glass-bend-ready had come: when it is 0 this step shows only that no bend runs before the bend is ready, and step C is the one that has the bend ready and not warm): no frame with data-glass, the change ends, the pushes are 0",
+  "eval": "__change('/work')"
+ },
+ {
+  "label": "A: state right after that change",
+  "eval": "__state()"
+ },
+ {
+  "label": "A: wait for glass-warm to come after the change (never during one)",
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=1,30000).then(ok=>({ok,state:__state()}))"
+ },
+ {
+  "label": "A: the next change has the bend (frames with data-glass)",
+  "eval": "__change('/')"
+ },
+ {
+  "label": "A: state",
+  "eval": "__state()"
+ },
+ {
+  "label": "B: resize the window (1100 by 800), then a change at once: no bend (the vignette is for the old size), the change ends",
+  "size": [
+   1100,
+   800
+  ],
+  "dpr": 1
+ },
+ {
+  "eval": "__change('/work')"
+ },
+ {
+  "label": "B: state right after",
+  "eval": "__state()"
+ },
+ {
+  "label": "B: wait for the vignette and the warm-up for the new size (second glass-warm mark)",
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=2,30000).then(ok=>({ok,state:__state()}))"
+ },
+ {
+  "label": "B: the next change has the bend again, on the new size",
+  "eval": "__change('/')"
+ },
+ {
+  "label": "B: final state (vignette width = innerWidth, no warm host left, pushes 0, no change on)",
+  "eval": "__state()"
+ },
+ {
+  "label": "errors",
+  "eval": "({warmHostDuringChange:__rec.warmHostDuringChange})"
+ },
+ {
+  "label": "C: reload; a change that starts in the middle of the warm-up (its element is in the page): no bend, the element is gone at once, the warm-up is done again after the change (a glass-warm mark later)",
+  "go": "{{BASE}}/",
+  "wait": 300
+ },
+ {
+  "eval": "__wait(()=>document.querySelector('[data-glass-warm]'),30000).then(async seen=>({seenWarmHost:seen,change:await __change('/work')}))"
+ },
+ {
+  "label": "C: state right after (no warm element, maps and pushes 0, the warm mark not yet or after)",
+  "eval": "__state()"
+ },
+ {
+  "label": "C: the warm-up runs again after the change and marks glass-warm",
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=1,30000).then(ok=>({ok,state:__state()}))"
+ },
+ {
+  "label": "C: the next change has the bend",
+  "eval": "__change('/')"
+ },
+ {
+  "label": "E: the filters have no neutral base under the map, so a frame whose map picture did not apply would push the page by half the scale: a film of a whole change to /work (every frame the compositor makes) has no frame that differs from both neighbours while they agree (`blinkFrames` empty, `blinkMaxStep` is the scale of the steps)",
+  "film": {
+   "ms": 3400,
+   "eval": "__change('/work')",
+   "blink": true
+  }
+ },
+ {
+  "label": "E: after the film: the change ended, and it had the bend",
+  "eval": "__state()"
+ },
+ {
+  "label": "F: control for E's detector: the same film back to /, with one frame of the old page's map picture taken away (width 0) a second in: `blinkFrames` must list it (ok false is expected here)",
+  "film": {
+   "ms": 3400,
+   "eval": "(async()=>{const kick=async()=>{await __wait(()=>document.documentElement.dataset.glass==='bend',4000);await new Promise(r=>setTimeout(r,900));const m=document.getElementById('ft-glass-old-map');requestAnimationFrame(()=>{m.setAttribute('width','0')})};const [r]=await Promise.all([__change('/'),kick()]);return r})()",
+   "blink": true
+  }
+ },
+ {
+  "label": "D: the guard. Reload and wait for the warm-up",
+  "go": "{{BASE}}/",
+  "wait": 300
+ },
+ {
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=1,30000)"
+ },
+ {
+  "label": "D1: a change whose frames take 40 ms for 14 frames: the bend is dropped after four slow frames in a row (few frames with data-glass, none after), the edge carries on (frames with data-glassLive), the change ends",
+  "eval": "(async()=>{__slow(true);const r=await __change('/work');__slow(false);return r})()"
+ },
+ {
+  "label": "D1: state (pushes 0, no data-glass, session not yet off: one trip)",
+  "eval": "__state().dataGlass===null?{state:__state(),session:sessionStorage.getItem('ft-glass-bend')}:'glass left on'"
+ },
+ {
+  "label": "D2: a second slow change in the same tab trips it again: ft-glass-bend is off afterwards",
+  "eval": "(async()=>{await __wait(()=>true,1500);__slow(true);const r=await __change('/');__slow(false);return {r,session:sessionStorage.getItem('ft-glass-bend')}})()"
+ },
+ {
+  "label": "D3: a later normal change runs without the bend (0 frames with data-glass) and with the edge (frames with data-glassLive)",
+  "eval": "__change('/work')"
+ },
+ {
+  "label": "D4: a reload of the tab clears the rule: the next change has the bend again",
+  "eval": "location.reload()",
+  "wait": 500
+ },
+ {
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=1,30000).then(()=>({session:sessionStorage.getItem('ft-glass-bend')}))"
+ },
+ {
+  "label": "D4: change after the reload",
+  "eval": "__change('/work')"
+ }
+]

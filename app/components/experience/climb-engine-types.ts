@@ -2,6 +2,7 @@
 // the engine itself.
 import type { XY } from "./card-slot";
 import type { Mode } from "./climb-change";
+import type { BeadEl } from "./entrance-driver";
 import type { KeepOut } from "./keep-out";
 import type { Terrain } from "./terrain-canvas";
 import type { TrailPoint } from "./trail";
@@ -11,8 +12,8 @@ import type { Stage } from "./view";
 export type StyleLike = { transform: string; opacity: string; width: string; height: string; visibility: string; zIndex: string; setProperty(name: string, value: string): void; removeProperty(name: string): unknown };
 export type Layer = { style: StyleLike };
 export type CanvasLayer = Layer & { width: number; height: number; getContext(kind: "2d"): CanvasRenderingContext2D | null };
-/** A bead's button: the engine reads `data-under` (a bead under the card) to leave it out of its neighbours' hit areas. */
-export type PinLayer = Layer & { hasAttribute(name: string): boolean };
+/** A bead's button: the engine reads `data-under` (a bead under the card) to leave it out of its neighbours' hit areas, and puts the entrance's attributes on it (entrance-driver.ts). */
+export type PinLayer = Layer & BeadEl & { hasAttribute(name: string): boolean };
 export type StageLayer = Layer & { classList: { toggle(name: string, force?: boolean): unknown } };
 
 /** The layers the engine moves: the stage (for `--night`), the plane holding the picture, the night's ground, the night map's canvas, the trail's, the radar's and the frame's canvases, and the beads (with the box that holds them). */
@@ -35,6 +36,10 @@ export type ClimbOptions = {
   onHeads?: (heads: XY[], stage: Stage) => void;
   /** A canvas could not give a 2D context: the map cannot be drawn. */
   onFail?: () => void;
+  /** The map is made before its entrance has played (spec 8: the trail, the beads and the radar are not shown until `startEntrance` and their time). Absent: they are shown. */
+  entrance?: boolean;
+  /** The entrance drew its last frame (the way ahead reached the summit; under reduced motion, the fade ended). Not told when it was finished early by `finishEntrance`. */
+  onEntranceEnd?: () => void;
   /** Every frame that moves: [time, k, screen y of the camera's look-at point, pitch, tx, ty, tz, zoom] (the audit's hook). */
   trace?: () => number[][] | undefined;
 };
@@ -52,6 +57,10 @@ export type ClimbEngine = {
   setKeepOut(keep: KeepOut): void;
   /** Draw again at the next frame (a font arrived: the chart's lettering). */
   redraw(): void;
+  /** The reveal ends at this time on the host's clock: the trail traces itself from then (or from the first frame after it), the beads and the radar after it. Only for a map made with `entrance`. */
+  startEntrance(at: number): void;
+  /** Show the whole entrance now: the trail, every bead, the way ahead and the radar. */
+  finishEntrance(): void;
   /** Where things stand (the page and the tests read it). */
   state(): { k: number; u: number; goal: number; index: number; mode: Mode; moving: boolean; ready: boolean };
   destroy(): void;

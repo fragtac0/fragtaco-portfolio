@@ -18,6 +18,51 @@ export const subscribeSettled = (listener: () => void) => {
 };
 export const isPageSettled = () => !busy;
 
+// ---- the reveal: where the running change's reveal is, for a page that times its own arrival to it (my experience's entrance, round 7 second look spec 8)
+
+/** "idle": no change; "hold": a change runs and its reveal has not started (the arriving page is being finished behind it); "run": the reveal is on; "over": the change ended. */
+export type RevealPhase = "idle" | "hold" | "run" | "over";
+export interface Reveal {
+  phase: RevealPhase;
+  /** `performance.now()` when the reveal started (the hold ended and the glass began); null before it. */
+  at: number | null;
+  /** The reveal's length in ms (2250, or the reduced-motion fade's 120). */
+  ms: number;
+  /** The change was ended early (a press, Back, a newer link) or never revealed: a page that was waiting for the reveal should show itself at once. */
+  skipped: boolean;
+}
+
+const IDLE: Reveal = { phase: "idle", at: null, ms: 0, skipped: false };
+let reveal: Reveal = IDLE;
+const revealListeners = new Set<() => void>();
+const setReveal = (next: Reveal) => {
+  reveal = next;
+  [...revealListeners].forEach((l) => l());
+};
+export const getReveal = (): Reveal => reveal;
+export const subscribeReveal = (listener: () => void) => {
+  revealListeners.add(listener);
+  return () => void revealListeners.delete(listener);
+};
+/** A change opens (page-change.ts `open`): its reveal waits for the arriving page. */
+export const beginReveal = (ms: number) => setReveal({ phase: "hold", at: null, ms, skipped: false });
+/** The hold is over and the glass starts. */
+export const startReveal = (at: number) => {
+  if (reveal.phase === "hold") setReveal({ ...reveal, phase: "run", at });
+};
+/** The change is being cut short (a press, Back, a newer change): the reveal does not run its length. */
+export const skipReveal = () => {
+  if (reveal.phase === "hold" || reveal.phase === "run") reveal = { ...reveal, skipped: true };
+};
+/** The change is over. A reveal that ran less than nine tenths of its length, or never started, was cut short. */
+export const endReveal = (now: number) => {
+  if (reveal.phase === "idle" || reveal.phase === "over") return;
+
+  const cut = reveal.skipped || reveal.at === null || now - reveal.at < reveal.ms * 0.9;
+
+  setReveal({ ...reveal, phase: "over", skipped: cut });
+};
+
 // ---- commits: the router tells us when the new page is in the DOM
 
 /** Longest a Back or Forward transition waits for the new page to commit, so it cannot hang. */

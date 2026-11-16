@@ -8,6 +8,8 @@
  * removed it): what the grid says is what is drawn and what the pointer hits, drift and nudge aside.
  */
 
+import { easeInRate, easeInTime } from "../../../lib/ease-in";
+
 export type Safe = { top: number; bottom: number; side: number };
 export type Pt = { x: number; y: number };
 export type Rect = { x: number; y: number; w: number; h: number };
@@ -154,6 +156,27 @@ export function tileAt(
 export function driftAt(tSeconds: number): Pt {
   const a = (2 * Math.PI * tSeconds) / DRIFT_PERIOD_S;
   return { x: DRIFT_RADIUS_PX * Math.sin(a), y: DRIFT_RADIUS_PX * Math.sin(2 * a + Math.PI / 2) };
+}
+
+/**
+ * How long the drift takes to settle onto its own centre after the wall starts to draw: a quarter lap. The path never passes through its centre (it starts
+ * 6 px off it), so a wall that must open exactly where the plain links were starts from its first point and lets that offset go slowly, as part of the motion.
+ */
+export const DRIFT_BLEND_MS = (DRIFT_PERIOD_S / 4) * 1000;
+
+/**
+ * Where the wall is drawn relative to the fit (the plain links), `now` ms on the clock `from` is on, `from` being the first frame drawn (Infinity before it).
+ * Round 7 change-arrival spec 5.3: 0 at `from` (the first frame is where the links were), the drift's speed eases in over EASE_IN_MS (its phase follows `easeInTime`, so
+ * nothing slides), and the offset the path has at its start is blended out over DRIFT_BLEND_MS, so from then on it is the drift itself, centred on the fit and within
+ * DRIFT_RADIUS_PX of it on each axis (the wall's layout budget: the 8 px gap holds). Reduced motion has no drift.
+ */
+export function driftOffset(now: number, from: number, reduced = false): Pt {
+  if (reduced) return { x: 0, y: 0 };
+  const elapsed = now - from;
+  const here = driftAt(easeInTime(elapsed) / 1000);
+  const start = driftAt(0);
+  const keep = 1 - easeInRate(elapsed, DRIFT_BLEND_MS); // the share of the start offset still held
+  return { x: here.x - start.x * keep, y: here.y - start.y * keep };
 }
 
 /** A soft limit: follows the pull for small ones and never passes `max`. */

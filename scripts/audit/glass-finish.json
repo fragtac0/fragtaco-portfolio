@@ -94,16 +94,12 @@
   "wait": 6000
  },
  {
-  "label": "D setup: main's class on the home page",
-  "eval": "((document.querySelector('main')||{}).className||'').split(' ')[0]"
- },
- {
   "label": "D: 1 s into a change to /work, press Back",
   "eval": "(async()=>{__ftChange('/work');const t0=performance.now();while(performance.now()-t0<1000)await __sleep(20);const a=document.getAnimations().find(a=>a.animationName==='glass-p');return JSON.stringify({showing:!!document.documentElement.dataset.changeKind,glassMs:a?Math.round(a.currentTime):null})})()"
  },
  {
   "label": "D: after Back (R59: no second reveal; the page before is live and settled within a few hundred ms; no radial change, no glass animation)",
-  "eval": "(async()=>{const h=document.documentElement;window.__kinds=[];let glass=0,seen=0;\n new MutationObserver(()=>{const k=h.dataset.changeKind;if(k)__kinds.push(k)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});\n const t0=performance.now();let settledMs=null;history.back();\n while(performance.now()-t0<2500){await __sleep(16);if(document.getAnimations().some(a=>a.animationName==='glass-p'))glass++;\n  if(settledMs===null&&location.pathname==='/'&&__ftSettled()&&!h.dataset.changeKind&&(document.querySelector('main')||{}).className.split(' ')[0]==='home-page')settledMs=Math.round(performance.now()-t0)}\n const m=((document.querySelector('main')||{}).className||'').split(' ')[0];\n return JSON.stringify({path:location.pathname,main:m,settledMs,kindsSeen:__kinds,glassAnimFrames:glass,kind:h.dataset.changeKind||null,settled:__ftSettled(),errs:__errs.length,\n  ok:location.pathname==='/'&&m==='home-page'&&settledMs!==null&&settledMs<=600&&__kinds.length===0&&glass===0&&!h.dataset.changeKind&&__ftSettled()&&__errs.length===0})})()"
+  "eval": "(async()=>{const h=document.documentElement;window.__kinds=[];let glass=0;\n new MutationObserver(()=>{const k=h.dataset.changeKind;if(k)__kinds.push(k)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});\n const t0=performance.now();let settledMs=null;history.back();\n while(performance.now()-t0<2500){await __sleep(16);if(document.getAnimations().some(a=>a.animationName==='glass-p'))glass++;\n  if(settledMs===null&&location.pathname==='/'&&__ftSettled()&&!h.dataset.changeKind&&(document.querySelector('main')||{}).className.split(' ')[0]==='home-page')settledMs=Math.round(performance.now()-t0)}\n const m=((document.querySelector('main')||{}).className||'').split(' ')[0];\n return JSON.stringify({path:location.pathname,main:m,settledMs,kindsSeen:__kinds,glassAnimFrames:glass,kind:h.dataset.changeKind||null,settled:__ftSettled(),errs:__errs.length,\n  ok:location.pathname==='/'&&m==='home-page'&&settledMs!==null&&settledMs<=600&&__kinds.length===0&&glass===0&&!h.dataset.changeKind&&__ftSettled()&&__errs.length===0})})()"
  },
  {
   "go": "{{BASE}}/",
