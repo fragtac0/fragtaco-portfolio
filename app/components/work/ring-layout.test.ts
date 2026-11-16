@@ -30,9 +30,10 @@ describe("layoutRings without a cut-out round the dock (R56.4)", () => {
     }
   });
 
-  it("is the same layout whatever else is on the screen: it takes the counts, the size and the order, nothing about the dock", () => {
-    expect(layoutRings.length).toBeLessThanOrEqual(4);
+  it("does not depend on a dock: a fifth argument (the old dock box) changes nothing, the layout is a function of the counts, the size and the order", () => {
     expect(layoutRings(REAL, 1440, 900)).toEqual(layoutRings(REAL, 1440, 900, "alternating"));
+    const extra = layoutRings as (...a: unknown[]) => unknown;
+    expect(extra(REAL, 1440, 900, "alternating", { l: 500, t: 780, r: 940, b: 880 })).toEqual(layoutRings(REAL, 1440, 900, "alternating"));
   });
 });
 

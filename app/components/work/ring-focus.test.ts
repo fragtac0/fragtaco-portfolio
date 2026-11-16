@@ -3,11 +3,14 @@ import {
   CLEAR_AT,
   MAX_MS,
   MOST_UNDER,
+  MAX_FRAME_MS,
   PEAK_RATE,
   RAMP_MS,
+  chooseWay,
   clearAtOnce,
   clearFromDock,
   needsClearing,
+  pressure,
   turnRate,
   underShare,
   type Box,
@@ -63,14 +66,18 @@ describe("turnRate", () => {
 });
 
 /** A tile that moves right by `pxPerMs` of ring time, and frames that a test steps by hand. */
-function world(startX: number, pxPerMs = 0.017, d: Box | null = dock) {
+function world(startX: number, pxPerMs = 0.017, d: Box | null = dock, labelW = 0) {
   let x = startX;
-  const turner: Turner & { advanced: number } = {
+  const turner: Turner & { advanced: number; moved: number } = {
     advanced: 0,
+    moved: 0,
     box: () => tile(x),
+    // a label on the tile's right, 14 px off, 30 tall at the tile's middle (as work.css draws it on the right side)
+    label: labelW ? () => ({ l: x + 214, t: 800 + 41, r: x + 214 + labelW, b: 800 + 71 }) : undefined,
     dock: () => d,
     advance(ms) {
-      this.advanced += ms;
+      this.advanced += Math.abs(ms);
+      this.moved += ms;
       x += ms * pxPerMs;
     },
   };
@@ -124,6 +131,7 @@ describe("clearFromDock", () => {
   it("starts gently: the first frame turns the ring by no more than a frame of its own time, and no frame jumps more than the peak allows", () => {
     const w = world(620);
     clearFromDock(w.turner, w.frames);
+    w.turner.advanced = 0; // what looking for the way out turned and put back does not count
     w.frames.tick(1000);
     expect(w.turner.advanced).toBe(0); // the first frame only sets the clock
     let last = 0;
@@ -160,13 +168,94 @@ describe("clearFromDock", () => {
   it("caps a long frame, so a busy tab does not throw the ring on", () => {
     const w = world(620);
     clearFromDock(w.turner, w.frames);
+    w.turner.advanced = 0;
     w.frames.tick(0);
     w.frames.tick(5000); // a 5 s frame
-    expect(w.turner.advanced).toBeLessThanOrEqual(50 * PEAK_RATE);
+    expect(w.turner.advanced).toBeLessThanOrEqual(MAX_FRAME_MS * PEAK_RATE);
+  });
+
+  it("counts the turn's time by the frames' own capped times: a tab that was hidden for a minute does not end the turn at once", () => {
+    const w = world(620, 0.002); // slow: the tile needs a long turn
+    clearFromDock(w.turner, w.frames);
+    w.frames.tick(0);
+    w.frames.tick(16);
+    w.frames.tick(60_000); // back after a minute: one capped frame, not 60 s of the turn
+    expect(w.frames.pending()).toBe(true);
+    w.frames.tick(60_016);
+    expect(w.frames.pending()).toBe(true);
+  });
+
+  it("takes the shorter way out when it is at most half the ring's own way (a tile that has just entered goes back the way it came)", () => {
+    const w = world(520); // the tile's left edge is 20 px in: 136 px back, 336 px on
+    clearFromDock(w.turner, w.frames);
+    let now = 0;
+    for (let i = 0; i < 2000 && w.frames.pending(); i++, now += 16.67) w.frames.tick(now);
+    expect(w.x()).toBeLessThan(520);
+    expect(underShare(tile(w.x()), dock)).toBeLessThanOrEqual(CLEAR_AT);
+    expect(w.turner.moved).toBeLessThan(0);
+  });
+
+  it("goes on the ring's own way when the other is not at most half as far", () => {
+    const w = world(620); // 236 px either way
+    clearFromDock(w.turner, w.frames);
+    let now = 0;
+    for (let i = 0; i < 2000 && w.frames.pending(); i++, now += 16.67) w.frames.tick(now);
+    expect(w.x()).toBeGreaterThan(620);
+    expect(w.turner.moved).toBeGreaterThan(0);
+  });
+
+  it("brings a tile whose label is under the dock clear, though the tile itself is not under it", () => {
+    const w = world(300, 0.017, dock, 120); // the tile ends at 500, the dock's edge; its label (514 to 634) is under the glass
+    expect(underShare(w.turner.box(), dock)).toBe(0);
+    expect(needsClearing(w.turner.box(), dock, w.turner.label?.() ?? null)).toBe(true);
+    let done = 0;
+    clearFromDock(w.turner, w.frames, () => done++);
+    let now = 0;
+    for (let i = 0; i < 2000 && w.frames.pending(); i++, now += 16.67) w.frames.tick(now);
+    expect(done).toBe(1);
+    const label = w.turner.label?.();
+    expect(label && underShare(label, dock)).toBe(0);
+    expect(w.turner.moved).toBeLessThan(0); // back, away from the dock
+  });
+
+  it("ignores a label that no turn can clear (it is wider than the way round), and leaves such a tile alone when it is not more than half under", () => {
+    const stuck = world(300, 0, dock, 120); // the ring does not move the tile at all
+    stuck.turner.label = () => ({ l: 600, t: 830, r: 700, b: 860 });
+    expect(chooseWay(stuck.turner, { stepMs: 400, maxSteps: 50 })).toBeNull();
+    clearFromDock(stuck.turner, stuck.frames);
+    expect(stuck.frames.pending()).toBe(false);
+  });
+
+  it("leaves the ring as it found it when it only looks for the way out", () => {
+    const w = world(520);
+    expect(chooseWay(w.turner, { stepMs: 400, maxSteps: 400 })).toEqual({ sign: -1, label: false });
+    expect(w.x()).toBeCloseTo(520, 6);
+  });
+});
+
+describe("pressure", () => {
+  it("is the tile's own share when the label is clear, and above CLEAR_AT while any of the label is under the dock", () => {
+    const labelClear: Box = { l: 100, t: 100, r: 200, b: 130 };
+    expect(pressure(tile(100), dock, labelClear)).toBe(0);
+    expect(pressure(tile(620), dock, labelClear)).toBeCloseTo(underShare(tile(620), dock), 9);
+    const labelIn: Box = { l: 490, t: 800, r: 590, b: 830 }; // 90 of its 100 px under
+    expect(pressure(tile(300), dock, labelIn)).toBeGreaterThan(CLEAR_AT);
+    const labelEdge: Box = { l: 400, t: 800, r: 501, b: 830 }; // 1 px of 101 under
+    expect(pressure(tile(300), dock, labelEdge)).toBeGreaterThan(CLEAR_AT);
+    expect(pressure(tile(300), dock, labelEdge)).toBeLessThan(pressure(tile(300), dock, labelIn));
   });
 });
 
 describe("clearAtOnce", () => {
+  it("does nothing for a tile that needs nothing, though some of it is under the dock (0.4 of it is under: not more than half)", () => {
+    const w = world(400, 0.017, dock); // 100 of 200 px in; the dock's foot cuts it: well under half
+    const share = underShare(w.turner.box(), dock);
+    expect(share).toBeGreaterThan(CLEAR_AT);
+    expect(share).toBeLessThan(MOST_UNDER);
+    expect(clearAtOnce(w.turner, 400, 400)).toBe(0);
+    expect(w.turner.advanced).toBe(0);
+    expect(w.x()).toBe(400);
+  });
   it("turns the ring in steps until the tile is clear, and reports the steps; none for a clear tile", () => {
     const w = world(620);
     const steps = clearAtOnce(w.turner, 400, 400);

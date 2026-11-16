@@ -14,7 +14,7 @@
   "label": "at-blocks"
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3800)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3550)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
   "label": "home-from-blocks"
  },
  {
@@ -25,7 +25,7 @@
   "label": "card-open"
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3800)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3550)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
   "label": "home-with-card"
  },
  {
@@ -46,14 +46,14 @@
   "wait": 1200
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/work\\\"]\").click(); new Promise(r=>setTimeout(r,3800)).then(()=>1)"
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/work\\\"]\").click(); new Promise(r=>setTimeout(r,3550)).then(()=>1)"
  },
  {
   "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
   "label": "work"
  },
  {
-  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3800)).then(()=>1)"
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3550)).then(()=>1)"
  },
  {
   "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",

@@ -89,8 +89,7 @@ describe("coverage of the plans (R54.2, spec 5)", () => {
     }
   });
 
-  it("counts a tile under the dock in full: coverage takes the plan and the screen, no keep-out", () => {
-    expect(coverage.length).toBe(3);
+  it("counts a tile under the dock in full: the same with a stray keep-out argument as without it", () => {
     // one tile on a ring of radius 400 round the middle of 1440 by 900: at a quarter of the turn it is at the foot of the screen, where the dock is
     const sum = Array.from({ length: COVERAGE_STEPS }, (_, k) => {
       const a = (k / COVERAGE_STEPS) * 2 * Math.PI;
@@ -100,7 +99,10 @@ describe("coverage of the plans (R54.2, spec 5)", () => {
       const h = Math.max(0, Math.min(cy + 56, 900) - Math.max(cy - 56, 0));
       return w * h;
     }).reduce((x, y) => x + y, 0);
-    expect(coverage(plan([ring("long", 400, 1, { w: 200, h: 112 })]), 1440, 900)).toBeCloseTo(sum / COVERAGE_STEPS / (1440 * 900), 9);
+    const one = plan([ring("long", 400, 1, { w: 200, h: 112 })]);
+    expect(coverage(one, 1440, 900)).toBeCloseTo(sum / COVERAGE_STEPS / (1440 * 900), 9);
+    const extra = coverage as (...a: unknown[]) => number;
+    expect(extra(one, 1440, 900, { l: 500, t: 780, r: 940, b: 880 })).toBe(coverage(one, 1440, 900));
   });
 
   it("covers at least 1.3 times what it covered at 390 by 844, and about twice at 1440 by 900 (the brief's numbers, with no mask to cost any of it)", () => {
