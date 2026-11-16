@@ -189,8 +189,9 @@
   opacity: 1;
 }
 /* while a change holds its reveal (page-transition.css) a picture that has loaded is simply there, not half way through its fade */
-html[data-change-hold] .work-cover img {
-  transition: none;
+html[data-change-hold] .work-cover img,
+.work-cover img[data-late] {
+  transition: none; /* a picture that comes after the reveal fades by arrival-dom.ts fadeLate alone (200 ms), not twice */
 }
 .work-cover {
   border-radius: clamp(8px, calc(var(--h) * 0.1), 16px);

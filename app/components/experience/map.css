@@ -194,10 +194,15 @@
 .map-mode-button:hover {
   color: var(--ink-1);
 }
-/* Not pressable until the map's heights are in (a second after the page is shown), but not dimmed for it: a page that came in through a change
-   is finished when it is uncovered, and a toggle that lit up after the change would be a change in the page (round 7 change-arrival spec 5.3). */
+/* Not pressable until the map's heights are in (a second after the page is shown), and quieter meanwhile on a first load. A page that came in
+   through a change is finished when it is uncovered, so its toggle is not dimmed (it would light up after the change: a change in the page, round 7
+   change-arrival spec 5.3); it is simply not pressable until the heights are in (the default cursor). */
 .map-mode-button:disabled {
+  opacity: 0.6;
   cursor: default;
+}
+.map-page[data-arrival="change"] .map-mode-button:disabled {
+  opacity: 1;
 }
 .map-mode-button[aria-pressed="true"] {
   background: rgb(var(--ink-rgb) / 0.92);

@@ -3,7 +3,7 @@
  * when that is pictures, and how a picture that comes after the cap fades in. Browser only (it reads images and
  * the screen); call it from a layout effect, never while rendering.
  */
-import { arrivalLate, holdFor, LATE_FADE_MS } from "./arrival";
+import { holdFor, LATE_FADE_MS, type Hold } from "./arrival";
 import { EASE_IN_MS, easeInRate } from "./ease-in";
 
 /**
@@ -22,9 +22,14 @@ export function imageReady(img: HTMLImageElement): Promise<void> {
   });
 }
 
-/** Fades an element in over `LATE_FADE_MS`, with nothing else moving (opacity only). For a part that came after the cap. */
+/**
+ * Fades an element in over `LATE_FADE_MS`, with nothing else moving (opacity only). For a part that came after the cap. This is
+ * the only fade a late part has: `data-late` switches off an opacity transition the part's own CSS has (the rings' and the wall's
+ * pictures fade in on `data-ready`), so the two never run together and the element never dips back when this one ends.
+ */
 export function fadeLate(el: Element): void {
   if (typeof el.animate !== "function") return;
+  (el as HTMLElement).dataset.late = "";
   el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: LATE_FADE_MS, easing: "ease-out" });
 }
 
@@ -35,14 +40,17 @@ export function inWindow(el: Element): boolean {
 }
 
 /**
- * Holds the reveal for these pictures (arrival.ts `holdFor`), and fades in any that is still not in when the reveal begins
- * (`fadeLate`). Does nothing when no change is waiting for this page.
+ * Holds the reveal for these pictures (arrival.ts `holdFor`), and fades in each that comes after the reveal began (`fadeLate`):
+ * the hold says whether it missed the reveal (`Hold.late`), so one that comes after the change has ended fades too. Does nothing
+ * when no change is waiting for this page. Returns the hold.
  */
-export function holdImages(label: string, images: Iterable<HTMLImageElement>, fade = true): void {
+export function holdImages(label: string, images: Iterable<HTMLImageElement>): Hold | null {
   const list = [...images];
   const ready = list.map(imageReady);
-  if (!holdFor(label, Promise.all(ready))) return;
-  if (fade) ready.forEach((promise, i) => void promise.then(() => arrivalLate() && fadeLate(list[i])));
+  const hold = holdFor(label, Promise.all(ready));
+  if (!hold) return null;
+  ready.forEach((promise, i) => void promise.then(() => hold.late && fadeLate(list[i])));
+  return hold;
 }
 
 /**

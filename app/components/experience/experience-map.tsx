@@ -11,7 +11,7 @@ import { DOCK_SELECTOR, WORDS_SELECTOR, readKeepOut } from "./keep-out";
 import MilestonePins from "./milestone-pins";
 import MomentCard, { cardView } from "./moment-card";
 import { whenIdle } from "../../utils/idle";
-import { loadTerrain } from "./terrain-canvas";
+import { loadTerrain, type Terrain } from "./terrain-canvas";
 import type { TrailPoint } from "./trail";
 import { OVERVIEW, PHONE_LOOK_MEDIA, PHONE_OVERVIEW } from "./view";
 import "./map.css";
@@ -98,6 +98,8 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
   const live = useRef({ mode, selected, reduced, onFailHeights, onReady });
   /** The state the engine was last told to go to, so the effect below speaks only when it has changed (and the engine just made already got it). */
   const told = useRef<{ mode: Mode; selected: number | null } | null>(null);
+  /** The heights once they are in. An engine made after that (its effect runs again) is given them as it starts, so a remade engine never lacks the terrain. */
+  const loaded = useRef<Terrain | null>(null);
   const setBox = useCallback((el: HTMLDivElement | null) => void (pinBox.current = el), []);
   const setPin = useCallback((i: number, el: HTMLButtonElement | null) => void (pins.current[i] = el), []);
 
@@ -178,6 +180,10 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     window.addEventListener("resize", measure);
     document.addEventListener("visibilitychange", onVisible);
     told.current = { mode: live.current.mode, selected: live.current.selected };
+    if (loaded.current) {
+      e.setTerrain(loaded.current);
+      el.dataset.terrain = "ready";
+    }
     e.go(live.current.mode, live.current.selected ?? undefined);
     // the chart's lettering is drawn in IBM Plex Mono: drawn again when it arrives
     document.fonts?.load(FRAME_FONT).then(() => {
@@ -199,13 +205,14 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
   // the heights are read at idle once the engine is up and the change is over (the picture is already there; only My climb draws from them)
   useEffect(() => {
     const el = stage.current;
-    if (!running || !heightsGo || !el || !engine.current) return;
+    if (!running || !heightsGo || !el || !engine.current || loaded.current) return;
     let gone = false;
     const cancelIdle = whenIdle(() => {
       loadTerrain(HEIGHTS_SRC).then(
         (t) => {
-          if (gone || !engine.current) return;
-          engine.current.setTerrain(t);
+          if (gone) return;
+          loaded.current = t;
+          engine.current?.setTerrain(t);
           el.dataset.terrain = "ready";
           live.current.onReady();
         },

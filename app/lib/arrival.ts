@@ -3,7 +3,8 @@
  * says what it needs before it may be seen (`holdFor`: the sharp painting, the ring pictures, the wall's tiles, the map's
  * picture, the ground's still); page-change.ts keeps the reveal at its first frame, the page being left held still, until all
  * of them have settled or the cap has passed (`whenArrivalReady`), whichever comes first. A part that comes after the cap
- * is late: the page fades it in over `LATE_FADE_MS` (`arrivalLate` says whether the reveal has begun) and moves nothing else.
+ * is late: the page fades it in over `LATE_FADE_MS` and moves nothing else. Lateness belongs to the hold (`holdFor` returns it),
+ * not to the change: a part that settles after the change has ended is still late, and still fades.
  * A first load and a deep link have no change, so nothing is recorded and nothing is held.
  *
  * Pure (no DOM, no React): the page's side of it, which is images, is in arrival-dom.ts.
@@ -40,42 +41,58 @@ export async function raceAll(items: Held[], capMs: number, sleep: (ms: number) 
 /** "idle": no change (nothing is recorded); "holding": a change has begun and the reveal has not; "revealed": it has. */
 type Phase = "idle" | "holding" | "revealed";
 let phase: Phase = "idle";
-let items: Held[] = [];
 
-/** Called when a change begins: forgets the last change's list and starts recording. */
+/**
+ * What `holdFor` gives back: one held thing. `late` becomes true when the reveal began while it was still pending, and stays
+ * true (the change may be over by the time the part comes: it still fades in, it never pops).
+ */
+export interface Hold {
+  readonly label: string;
+  readonly late: boolean;
+}
+interface Entry extends Held {
+  hold: { label: string; late: boolean };
+  settled: boolean;
+}
+let items: Entry[] = [];
+
+/** Called when a change begins: forgets the last change's list and starts recording. (A hold the last change gave keeps its own `late`.) */
 export function resetArrival(): void {
   items = [];
   phase = "holding";
 }
 
-/** Called when a change is over (however it ends): nothing is recorded or late until the next one. */
+/** Called when a change is over (however it ends): nothing is recorded until the next one. */
 export function endArrival(): void {
   items = [];
   phase = "idle";
 }
 
 /**
- * Called by a page that mounts during a change, once per thing the reveal should wait for. Does nothing when no change is
- * waiting for its page (a first load, or after the reveal has begun). Returns whether it was recorded.
+ * Called by a page that mounts during a change, once per thing the reveal should wait for. Returns null when no change is
+ * waiting for its page (a first load, or after the reveal has begun); otherwise the hold, whose `late` says whether this thing
+ * missed the reveal, whenever it settles.
  */
-export function holdFor(label: string, ready: Promise<unknown>): boolean {
-  if (phase !== "holding") return false;
-  items.push({ label, ready });
-  return true;
+export function holdFor(label: string, ready: Promise<unknown>): Hold | null {
+  if (phase !== "holding") return null;
+  const entry: Entry = { label, ready, hold: { label, late: false }, settled: false };
+  const done = () => void (entry.settled = true);
+  Promise.resolve(ready).then(done, done);
+  items.push(entry);
+  return entry.hold;
 }
-
-/** True once the reveal of the running change has begun: a part that settles now is late and fades in over `LATE_FADE_MS`. */
-export const arrivalLate = (): boolean => phase === "revealed";
 
 const realSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 /**
  * Resolves when everything given to `holdFor` since the change began has settled, or `capMs` after this call, whichever
  * comes first, with the labels still pending. Things given while it waits are waited for too (inside the same cap). An
- * `abort` (the change ended, or a press finished it) resolves it at once with nothing late. Marks the reveal as begun.
+ * `abort` (the change ended, or a press finished it) resolves it at once with nothing reported late. Marks the reveal as begun,
+ * and marks as late every hold still pending (however the wait ended: the reveal is going ahead without it).
  */
 export async function whenArrivalReady(capMs: number, signal?: AbortSignal): Promise<{ late: string[] }> {
   const deadline = performance.now() + capMs;
+  const mine = items; // a newer change replaces the list; this wait marks only its own
   const aborted = new Promise<{ late: string[] }>((resolve) => {
     if (!signal) return;
     if (signal.aborted) return resolve({ late: [] });
@@ -83,13 +100,14 @@ export async function whenArrivalReady(capMs: number, signal?: AbortSignal): Pro
   });
   const wait = async (): Promise<{ late: string[] }> => {
     for (;;) {
-      const batch = items.slice();
+      const batch = mine.slice();
       const result = await raceAll(batch, deadline - performance.now(), realSleep);
-      if (result.late.length > 0 || items.length === batch.length) return result;
+      if (result.late.length > 0 || mine.length === batch.length) return result;
     }
   };
   const result = await Promise.race([wait(), aborted]);
+  for (const entry of mine) if (!entry.settled) entry.hold.late = true;
   // an aborted wait belongs to a change that is over or replaced: it must not mark the next one's reveal as begun
-  if (phase === "holding" && !signal?.aborted) phase = "revealed";
+  if (phase === "holding" && mine === items && !signal?.aborted) phase = "revealed";
   return result;
 }

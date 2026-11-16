@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { GAP_PX, fitGrid, largestGrid, safeInsets, tileRect } from "./gallery-math";
+import { EASE_IN_MS } from "../../../lib/ease-in";
+import { DRIFT_BLEND_MS, DRIFT_PERIOD_S, DRIFT_RADIUS_PX, GAP_PX, driftAt, driftOffset, fitGrid, largestGrid, safeInsets, tileRect } from "./gallery-math";
 
 /** Review Focus: the same screen sizes as the rings' tests, with the odd ones (844 by 390, 820 by 1180). */
 const SIZES: [number, number][] = [
@@ -195,5 +196,79 @@ describe("largestGrid", () => {
     const none = largestGrid(40, 320, 200, 16 / 9, 8, { top: 150, bottom: 150, side: 20 });
     expect(Number.isFinite(none.tileW)).toBe(true);
     expect(none.tileW).toBeGreaterThan(0);
+  });
+});
+
+describe("driftOffset (the wall's resting drift, centred on the fit, starting where the plain links were)", () => {
+  const FROM = 4000;
+  const at = (ms: number) => driftOffset(FROM + ms, FROM);
+
+  it("is 0 at the start: the first frame is where the links were", () => {
+    expect(at(0)).toEqual({ x: 0, y: 0 });
+    expect(driftOffset(123, Infinity)).toEqual({ x: 0, y: 0 }); // not started yet
+    expect(driftOffset(FROM - 50, FROM)).toEqual({ x: 0, y: 0 });
+  });
+
+  it("is continuous: no frame at 60 Hz moves the wall by more than the drift's own speed allows (well under 1 px)", () => {
+    let prev = at(0);
+    let worst = 0;
+    for (let ms = 16; ms <= 2 * DRIFT_PERIOD_S * 1000; ms += 16) {
+      const d = at(ms);
+      worst = Math.max(worst, Math.hypot(d.x - prev.x, d.y - prev.y));
+      prev = d;
+    }
+    expect(worst).toBeLessThan(0.2);
+  });
+
+  it("does not slide in the first second (the speed eases in, the offset is not scaled in)", () => {
+    for (let ms = 0; ms <= EASE_IN_MS; ms += 50) {
+      const d = at(ms);
+      expect(Math.hypot(d.x, d.y)).toBeLessThan(0.5);
+    }
+  });
+
+  it("blends the start offset out over at least a quarter lap", () => {
+    expect(DRIFT_BLEND_MS).toBeGreaterThanOrEqual((DRIFT_PERIOD_S / 4) * 1000);
+  });
+
+  it("is within DRIFT_RADIUS_PX of the fit on each axis for the whole life of the wall, ramp included, and centred once the ramp is over", () => {
+    let minY = 0;
+    let maxY = 0;
+    let minX = 0;
+    let maxX = 0;
+    for (let ms = 0; ms <= 4 * DRIFT_PERIOD_S * 1000; ms += 25) {
+      const d = at(ms);
+      expect(Math.abs(d.x)).toBeLessThanOrEqual(DRIFT_RADIUS_PX + 1e-9);
+      expect(Math.abs(d.y)).toBeLessThanOrEqual(DRIFT_RADIUS_PX + 1e-9);
+      if (ms >= DRIFT_BLEND_MS + EASE_IN_MS) {
+        minX = Math.min(minX, d.x);
+        maxX = Math.max(maxX, d.x);
+        minY = Math.min(minY, d.y);
+        maxY = Math.max(maxY, d.y);
+      }
+    }
+    // after the ramp it is the drift itself: it uses both sides of the fit (not 0 to -12 on one side)
+    expect(maxX).toBeGreaterThan(DRIFT_RADIUS_PX - 0.5);
+    expect(minX).toBeLessThan(-(DRIFT_RADIUS_PX - 0.5));
+    expect(maxY).toBeGreaterThan(DRIFT_RADIUS_PX - 0.5);
+    expect(minY).toBeLessThan(-(DRIFT_RADIUS_PX - 0.5));
+  });
+
+  it("is exactly the drift's own path (shifted only by its time, from the ease-in) once the ramp is over", () => {
+    const ms = DRIFT_BLEND_MS + 7000;
+    const d = at(ms);
+    // the phase has run for ms minus what the ease-in lost (EASE_IN_MS / 2 of full speed)
+    const own = driftAt((ms - EASE_IN_MS / 2) / 1000);
+    expect(d.x).toBeCloseTo(own.x, 6);
+    expect(d.y).toBeCloseTo(own.y, 6);
+  });
+
+  it("leaves a gap of 8 px untouched: the wall's tiles stay clear of what the layout budgets for", () => {
+    // the budget the layout keeps (gallery.json: 6 px of drift allowed, an 8 px gap) is not used up by the start offset
+    expect(GAP_PX - DRIFT_RADIUS_PX).toBeGreaterThanOrEqual(2);
+  });
+
+  it("is 0 for reduced motion", () => {
+    expect(driftOffset(FROM + 9000, FROM, true)).toEqual({ x: 0, y: 0 });
   });
 });

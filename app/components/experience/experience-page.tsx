@@ -95,7 +95,7 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
   }, [engine, mode, selected, last, changeMode]);
 
   return (
-    <main className="map-page" data-mode={engine === "on" ? mode : "overview"} data-engine={engine} aria-label="Map of Olympus Mons, Mars">
+    <main className="map-page" data-arrival={byChange ? "change" : undefined} data-mode={engine === "on" ? mode : "overview"} data-engine={engine} aria-label="Map of Olympus Mons, Mars">
       <ExperienceMap
         trail={trail}
         moments={moments}

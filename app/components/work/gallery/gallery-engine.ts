@@ -20,7 +20,6 @@
  */
 
 import type * as THREE from "three";
-import { easeInTime } from "../../../lib/ease-in";
 import { watchContextLost } from "../../home/context-lost";
 import { createAtlas, type Atlas } from "./gallery-atlas";
 import { attachGalleryInput } from "./gallery-input";
@@ -29,7 +28,7 @@ import {
   HOVER_GROW,
   NUDGE_HOLD_MS,
   NUDGE_MAX_PX,
-  driftAt,
+  driftOffset,
   fitGrid,
   rubberBand,
   safeInsets,
@@ -58,6 +57,9 @@ type Parts = {
   /** Set once the gallery object exists: its destroy undoes everything, listeners included. */
   api?: Gallery;
 };
+
+/** An audit hook: when the page has an array in `window.__wallTrace`, every frame drawn writes a row [ms, x, y] (the wall's offset from the fit: drift and nudge) to it. */
+const wallTrace = () => (typeof window === "undefined" ? undefined : (window as unknown as { __wallTrace?: number[][] }).__wallTrace);
 
 /** Resolves to null (never rejects) when three, WebGL or the scene cannot start. */
 export async function createGallery(canvas: HTMLCanvasElement, opts: GalleryOptions): Promise<Gallery | null> {
@@ -157,11 +159,9 @@ function assemble(
   // the drift eases in from standstill over EASE_IN_MS once the wall has started to draw (round 7 change-arrival spec 5.3): its first frame is where the plain links were
   let driftFrom = Infinity;
   const offsetAt = (now: number): Pt => {
-    // the drift's phase starts from standstill and picks up its own speed over EASE_IN_MS (not scaled in as an offset: that would slide the whole wall by
-    // the drift's radius); measured from where it begins, so the first frame is where the plain links were
-    const here = reduced ? { x: 0, y: 0 } : driftAt(easeInTime(now - driftFrom) / 1000);
-    const origin = reduced ? here : driftAt(0);
-    const d = { x: here.x - origin.x, y: here.y - origin.y };
+    // gallery-math.ts driftOffset: the first frame is where the plain links were, the drift's speed eases in, and the start offset is blended out over a
+    // quarter lap, so at rest the drift is centred on the fit (the layout's 6 px of drift and its 8 px gap hold)
+    const d = driftOffset(now, driftFrom, reduced);
     const n = rubberBand(pull, NUDGE_MAX_PX);
     return { x: d.x + n.x, y: d.y + n.y };
   };
@@ -208,6 +208,8 @@ function assemble(
       dirty = true;
     }
     if (pointer) updateHover(off);
+    const tr = wallTrace();
+    if (tr && tr.length < 20000) tr.push([now, off.x, off.y]); // an audit hook (below): where the wall is drawn, frame by frame
     // the easing only runs while something eases, was asked for or arrived
     if (uploaded > 0 || dirty || stepBusy) stepBusy = state.step(dt, now, atlas.loadedAt);
     if (!stepBusy && !("arrived" in canvas.dataset)) canvas.dataset.arrived = ""; // the arrival is over and no picture is still fading in

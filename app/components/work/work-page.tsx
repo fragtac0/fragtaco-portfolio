@@ -33,12 +33,15 @@ export default function WorkPage({ work }: WorkPageProps) {
   const arrived = usePageArrived();
   const page = useRef<HTMLElement>(null);
   const eased = useRef(false);
+  const stopEase = useRef<(() => void) | null>(null);
   useIsoLayoutEffect(() => {
     const el = page.current;
     if (!byChange || !arrived || !el || eased.current) return;
     eased.current = true;
-    easeInPlayback(el.getAnimations({ subtree: true }).filter((a) => (a as CSSAnimation).animationName === "work-spin" || (a as CSSAnimation).animationName === "work-unspin"));
+    stopEase.current = easeInPlayback(el.getAnimations({ subtree: true }).filter((a) => (a as CSSAnimation).animationName === "work-spin" || (a as CSSAnimation).animationName === "work-unspin"));
   }, [byChange, arrived]);
+  // leaving the page mid-ramp ends the ramp (its frame loop and the rate it set)
+  useEffect(() => () => stopEase.current?.(), []);
 
   // Twenty or so tab stops sit in the rings before the dock: this link goes straight to the dock's row.
   const skipToRow = (event: MouseEvent<HTMLAnchorElement>) => {

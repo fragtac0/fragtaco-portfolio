@@ -1,7 +1,7 @@
-import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import type { SiteHeroPainting } from "../../../types";
-import { arrivalLate, holdFor } from "../../../lib/arrival";
+import { holdFor, type Hold } from "../../../lib/arrival";
 import { afterFrames, fadeLate } from "../../../lib/arrival-dom";
 import { isChangeRunning } from "../../../lib/page-change";
 import { usePageArrived } from "../../../lib/use-page-settled";
@@ -118,6 +118,15 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
   });
   // The sharp first painting, once it has loaded, over its blurred placeholder (a page that came in through a change with nothing remembered).
   const [sharpStill, setSharpStill] = useState<Still | null>(null);
+  // The reveal's hold on the sharp painting says whether it missed the reveal, however long after the change it comes (arrival.ts `Hold`)
+  const paintingHold = useRef<Hold | null>(null);
+  const faded = useRef(false);
+  // a stable ref callback (React calls an inline one again on every render: a re-render during the reveal would restart the fade): it fades the painting in once
+  const sharpRef = useCallback((img: HTMLImageElement | null) => {
+    if (!img || faded.current || !paintingHold.current?.late) return;
+    faded.current = true; // it came after the reveal began: it fades in over the placeholder
+    fadeLate(img);
+  }, []);
   // The caption is up in the page's first frame, with the words of the painting that is showing: it does not fade in after the change.
   const captionUp = byChange && still !== null;
 
@@ -142,7 +151,7 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
           flushSync(() => setSharpStill({ ...still, src: img.currentSrc || img.src, sharp: true }));
         })();
     // one frame more, so what the page's effects set in its first frame (the lockup's resting state, the cue) is painted too
-    holdFor("painting", done.then(() => afterFrames(1)));
+    paintingHold.current = holdFor("painting", done.then(() => afterFrames(1)));
   }, []);
 
   const viewRef = usePaintEngine({ ...runtime, hostRef, blurRef, settled: engineGo });
@@ -186,9 +195,7 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
           ) : null}
           {sharpStill ? (
             <img
-              ref={(img) => {
-                if (img && arrivalLate()) fadeLate(img); // it came after the reveal began: it fades in over the placeholder
-              }}
+              ref={sharpRef}
               className="paint-still"
               src={sharpStill.src}
               alt=""

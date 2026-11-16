@@ -1,6 +1,6 @@
 import type { NavigateFunction } from "@remix-run/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { arrivalLate, holdFor } from "./arrival";
+import { holdFor } from "./arrival";
 import { watchHistory, type RouterLike } from "./history-change";
 import { afterSettled, changePage, endChange, finishChange, isChangeRunning, isChangeShowing, isPageSettled, isRadialChange, pageCommitted, planChange, subscribeSettled } from "./page-change";
 
@@ -608,10 +608,13 @@ describe("afterSettled", () => {
 
 describe("the hold (the arriving page is finished before the reveal)", () => {
   const never = () => new Promise<void>(() => {});
+  // fake timers (the cap is a timer): a test moves the clock by hand, so no assertion depends on how loaded the machine is
+  const adv = (ms: number) => vi.advanceTimersByTimeAsync(ms);
   beforeEach(() => {
-    vi.useRealTimers();
+    vi.useFakeTimers();
   });
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
   });
 
@@ -620,17 +623,17 @@ describe("the hold (the arriving page is finished before the reveal)", () => {
     const r = env.router("/work");
     const done = changePage(r.navigate, "/work");
     let ready = () => {};
-    holdFor("rings", new Promise<void>((resolve) => (ready = resolve)));
+    const hold = holdFor("rings", new Promise<void>((resolve) => (ready = resolve)));
     expect(env.html.dataset.changeHold).toBeUndefined(); // the old page is live while the data loads: nothing to hold yet
     r.dataArrives();
     expect(env.html.dataset.changeHold).toBe("");
-    await sleep(60);
+    await adv(60);
     expect(env.html.dataset.changeHold).toBe(""); // not ready, not at the cap: the reveal has not started
     ready();
-    await tick();
+    await adv(0);
     expect(env.html.dataset.changeHold).toBeUndefined();
     expect(env.html.dataset.arrivalLate).toBeUndefined();
-    expect(arrivalLate()).toBe(true); // the reveal has begun: a part that comes now is late
+    expect(hold?.late).toBe(false); // it was ready when the reveal began: not late
     env.transitions[0].finish();
     await done;
   });
@@ -639,17 +642,20 @@ describe("the hold (the arriving page is finished before the reveal)", () => {
     const env = fakeEnvironment();
     const r = env.router("/work");
     const done = changePage(r.navigate, "/work");
-    holdFor("painting", never());
+    const painting = holdFor("painting", never());
     holdFor("ground", Promise.resolve());
     r.dataArrives();
-    await sleep(430);
+    await adv(499);
     expect(env.html.dataset.changeHold).toBe("");
-    await sleep(140); // 500 ms after the pictures are up
+    expect(painting?.late).toBe(false);
+    await adv(1); // 500 ms after the pictures are up
     expect(env.html.dataset.changeHold).toBeUndefined();
     expect(env.html.dataset.arrivalLate).toBe("painting");
+    expect(painting?.late).toBe(true); // and it stays late after the change is over: the page fades it in whenever it comes
     env.transitions[0].finish();
     await done;
     expect(env.html.dataset.arrivalLate).toBeUndefined();
+    expect(painting?.late).toBe(true);
   });
 
   it("does not hold a change whose page gives nothing to wait for", async () => {
@@ -657,7 +663,7 @@ describe("the hold (the arriving page is finished before the reveal)", () => {
     const r = env.router("/work");
     const done = changePage(r.navigate, "/work");
     r.dataArrives();
-    await tick();
+    await adv(0);
     expect(env.html.dataset.changeHold).toBeUndefined();
     env.transitions[0].finish();
     await done;
@@ -667,9 +673,9 @@ describe("the hold (the arriving page is finished before the reveal)", () => {
     const env = fakeEnvironment();
     const r = env.router("/work");
     const done = changePage(r.navigate, "/work");
-    holdFor("wall", never());
+    const wall = holdFor("wall", never());
     r.dataArrives();
-    await tick();
+    await adv(0);
     expect(env.html.dataset.changeHold).toBe("");
     expect(isChangeShowing()).toBe(true);
     finishChange();
@@ -678,9 +684,10 @@ describe("the hold (the arriving page is finished before the reveal)", () => {
     expect(env.html.dataset.changeHold).toBeUndefined();
     expect(env.html.dataset.changeKind).toBeUndefined();
     expect(isPageSettled()).toBe(true);
-    expect(arrivalLate()).toBe(false);
-    expect(holdFor("anything", never())).toBe(false); // nothing is recording, nothing can be held
-    await sleep(560); // the cap passes with no effect on the next change
+    await adv(0); // the aborted wait marks what it left pending
+    expect(wall?.late).toBe(true); // the reveal went ahead without it: when it comes it fades
+    expect(holdFor("anything", never())).toBeNull(); // nothing is recording, nothing can be held
+    await adv(560); // the cap passes with no effect on the next change
     expect(env.html.dataset.arrivalLate).toBeUndefined();
   });
 
@@ -690,16 +697,17 @@ describe("the hold (the arriving page is finished before the reveal)", () => {
     const first = changePage(r1.navigate, "/work");
     holdFor("old page", never());
     r1.dataArrives();
-    await tick();
+    await adv(0);
     const r2 = env.router("/work/long-form");
     const second = changePage(r2.navigate, "/work/long-form");
     await first;
     expect(env.html.dataset.changeHold).toBeUndefined();
-    expect(arrivalLate()).toBe(false); // the first one's wait was aborted: it did not mark the second one's reveal as begun
-    holdFor("new page", never());
+    const fresh = holdFor("new page", never()); // the first one's wait was aborted: it did not mark the second one's reveal as begun, so this is recorded
+    expect(fresh).not.toBeNull();
     r2.dataArrives();
-    await sleep(100);
+    await adv(100);
     expect(env.html.dataset.changeHold).toBe("");
+    expect(fresh?.late).toBe(false);
     env.transitions[1].finish();
     await second;
   });
@@ -712,9 +720,9 @@ describe("the hold (the arriving page is finished before the reveal)", () => {
     expect(env.html.dataset.changeKind).toBe("fade");
     holdFor("rings", never());
     r.dataArrives();
-    await sleep(240);
+    await adv(299);
     expect(env.html.dataset.changeHold).toBe("");
-    await sleep(110);
+    await adv(1);
     expect(env.html.dataset.changeHold).toBeUndefined();
     env.transitions[0].finish();
     await done;

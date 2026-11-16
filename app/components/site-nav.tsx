@@ -66,7 +66,7 @@ export default function SiteNav({
   const [dockReached, setDockReached] = useState(false);
   const reachDock = () => setDockReached(true);
   // The second row is there whenever the page has one: a page change leaves it alone (use-dock-row.ts).
-  const { glassRef, rowRef, navRef } = useDockRow(Boolean(upperRow));
+  const { rowRef } = useDockRow(Boolean(upperRow));
   const isHomePage = location.pathname === "/";
   // One row is a pill; two rows are a rounded panel, or the pill's ends would cut into the upper row.
   const shape = upperRow ? "rounded-[1.75rem]" : "rounded-full";
@@ -184,7 +184,6 @@ export default function SiteNav({
     >
       <div
         data-dock-glass
-        ref={glassRef}
         data-has-row={upperRow ? "" : undefined}
         onPointerEnter={reachDock}
         onPointerDown={reachDock}
@@ -210,7 +209,6 @@ export default function SiteNav({
         ) : null}
 
         <nav
-          ref={navRef}
           aria-label="Primary"
           className="relative flex max-w-full items-center justify-start gap-1 overflow-x-auto max-sm:[justify-content:safe_center] [-ms-overflow-style:none] [scrollbar-width:none] sm:justify-center sm:gap-1.5 sm:overflow-visible [&::-webkit-scrollbar]:hidden"
         >
