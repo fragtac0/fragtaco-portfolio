@@ -1,0 +1,465 @@
+{
+ "part": "R55 (Task 26 fix round, RB8): the hero painting change with a box on screen, the BASE side (6f98c1c, the commit before part R55)",
+ "note": "Pictures: none. The hero painting change is not part of R55 (RB8); for R55 the gate during the change is no worse than the base with a box on screen, measured side by side. This file holds the base side only (it does not depend on the head); Task 30 records the head side on its final framing with the same tool and compares (node scripts/audit/sum-home-scroll.mjs <head files> --base <the base outputs>). Timed runs held the shared gate lock. The machine was shared with lane A (it works, untimed, between the lock holds): not a quiet machine.",
+ "base": {
+  "commit": "6f98c1c",
+  "build": "production build in a scratch worktree (git worktree add <scratchpad>/r55-base 6f98c1c, yarn install --frozen-lockfile, yarn build), served on :5182, removed after these runs",
+  "boxSelector": ".blk-art",
+  "boxSelectorWhy": "the build before part R55 has the flat preview where the box is now, so the box is the flat preview .blk-art (the page has no .blk-box)"
+ },
+ "command": "BOX_SELECTOR=\".blk-art\" node scripts/audit/make-home-scroll.mjs --only <profile> --holds --out <file>; BASE=http://localhost:5182 node scripts/audit/cdp.mjs <file> <outdir outside the repo>; node scripts/audit/sum-home-scroll.mjs <the outputs>",
+ "method": "One fresh load per run (cache off), 3 runs per profile. Per run two 24 s holds, each with a recorder in the page reading every animation frame gap from the document start and the hero caption (it changes when a painting change starts; the changes come every ten seconds): `change, box on screen` holds the page where the lower part of the hero painting and the top 150 px of the box are on screen together (desktop: hero bottom at 345 px, box top at 750 px of 900; phone: 351 and 694 of 844), `change, no box` holds the page at 60 px (the box more than 240 px below the screen: the hero change by itself). A change window is the frames from 0.5 s before to 3.3 s after a change started; windows are the numbers that matter here, the whole hold is reported beside them.",
+ "profiles": {
+  "desktop-cpu4": "1440x900, dpr 2, CPU 4x slower",
+  "phone-cpu4": "390x844, dpr 2, touch, CPU 4x slower"
+ },
+ "results": {
+  "desktop-cpu4": {
+   "boxOnScreen": [
+    {
+     "run": 1,
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 345,
+     "boxTopPx": 750,
+     "changes": 3,
+     "windows": [
+      {
+       "startedAtMs": 967,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 10966,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 20966,
+       "frames": 211,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 669,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    },
+    {
+     "run": 2,
+     "frames": 1438,
+     "maxMs": 33.3,
+     "over20": 1,
+     "over34": 0,
+     "heroBottomPx": 345,
+     "boxTopPx": 750,
+     "changes": 3,
+     "windows": [
+      {
+       "startedAtMs": 700,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 10700,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 20699,
+       "frames": 226,
+       "worstMs": 33.3,
+       "over20": 1,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 684,
+     "windowWorstMs": 33.3,
+     "windowOver20": 1,
+     "windowOver34": 0
+    },
+    {
+     "run": 3,
+     "frames": 1438,
+     "maxMs": 33.3,
+     "over20": 1,
+     "over34": 0,
+     "heroBottomPx": 345,
+     "boxTopPx": 750,
+     "changes": 3,
+     "windows": [
+      {
+       "startedAtMs": 800,
+       "frames": 228,
+       "worstMs": 33.3,
+       "over20": 1,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 10800,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 20799,
+       "frames": 221,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 678,
+     "windowWorstMs": 33.3,
+     "windowOver20": 1,
+     "windowOver34": 0
+    }
+   ],
+   "noBox": [
+    {
+     "run": 1,
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 840,
+     "boxTopPx": 1245,
+     "changes": 2,
+     "windows": [
+      {
+       "startedAtMs": 5766,
+       "frames": 228,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 15766,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 457,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    },
+    {
+     "run": 2,
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 840,
+     "boxTopPx": 1245,
+     "changes": 2,
+     "windows": [
+      {
+       "startedAtMs": 5500,
+       "frames": 228,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 15499,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 457,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    },
+    {
+     "run": 3,
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 840,
+     "boxTopPx": 1245,
+     "changes": 2,
+     "windows": [
+      {
+       "startedAtMs": 5600,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 15599,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 458,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    }
+   ],
+   "summaryBoxOnScreen": {
+    "runs": 3,
+    "changesMeasured": 9,
+    "windowFrames": 2031,
+    "worstWindowFrameMs": 33.3,
+    "windowFramesOver34": 0,
+    "windowFramesOver20": 2
+   },
+   "summaryNoBox": {
+    "runs": 3,
+    "changesMeasured": 6,
+    "windowFrames": 1372,
+    "worstWindowFrameMs": 16.8,
+    "windowFramesOver34": 0,
+    "windowFramesOver20": 0
+   }
+  },
+  "phone-cpu4": {
+   "boxOnScreen": [
+    {
+     "run": 1,
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 351,
+     "boxTopPx": 694,
+     "changes": 3,
+     "windows": [
+      {
+       "startedAtMs": 800,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 10800,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 20799,
+       "frames": 222,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 680,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    },
+    {
+     "run": 2,
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 351,
+     "boxTopPx": 694,
+     "changes": 3,
+     "windows": [
+      {
+       "startedAtMs": 700,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 10700,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 20699,
+       "frames": 227,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 685,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    },
+    {
+     "run": 3,
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 351,
+     "boxTopPx": 694,
+     "changes": 3,
+     "windows": [
+      {
+       "startedAtMs": 667,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 10666,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 20666,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 687,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    }
+   ],
+   "noBox": [
+    {
+     "run": 1,
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 784,
+     "boxTopPx": 1127,
+     "changes": 2,
+     "windows": [
+      {
+       "startedAtMs": 5583,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 15583,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 458,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    },
+    {
+     "run": 2,
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 784,
+     "boxTopPx": 1127,
+     "changes": 2,
+     "windows": [
+      {
+       "startedAtMs": 5483,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 15483,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 458,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    },
+    {
+     "run": 3,
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "heroBottomPx": 784,
+     "boxTopPx": 1127,
+     "changes": 2,
+     "windows": [
+      {
+       "startedAtMs": 5450,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      },
+      {
+       "startedAtMs": 15449,
+       "frames": 229,
+       "worstMs": 16.8,
+       "over20": 0,
+       "over34": 0
+      }
+     ],
+     "windowFrames": 458,
+     "windowWorstMs": 16.8,
+     "windowOver20": 0,
+     "windowOver34": 0
+    }
+   ],
+   "summaryBoxOnScreen": {
+    "runs": 3,
+    "changesMeasured": 9,
+    "windowFrames": 2052,
+    "worstWindowFrameMs": 16.8,
+    "windowFramesOver34": 0,
+    "windowFramesOver20": 0
+   },
+   "summaryNoBox": {
+    "runs": 3,
+    "changesMeasured": 6,
+    "windowFrames": 1374,
+    "worstWindowFrameMs": 16.8,
+    "windowFramesOver34": 0,
+    "windowFramesOver20": 0
+   }
+  }
+ },
+ "reading": "On the base the hero painting change with the flat preview on screen shows no frame over 34 ms in 9 change windows per profile (3 runs): desktop worst 33.3 ms (2 frames over 20 ms), phone worst 16.8 ms; with no box near the screen desktop worst 16.8 ms, phone 16.8 ms. So the bar the head must meet for R55 is: no frame over 34 ms and a worst frame of at most 33.3 ms on desktop (16.8 ms on the phone) inside the hero change windows with a box on screen, with the same tool. The earlier review (Opus, 436d96c..1ebfe73) saw 50 to 83 ms frames in change windows in the base build too, in the full home-scroll runs (the change landing inside or just after the scroll passes, not in these held pages): that is the hero change own cost (RB8, a finding for Task 20), not R55 cost, and is not the bar here."
+}

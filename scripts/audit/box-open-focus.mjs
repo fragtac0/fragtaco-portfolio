@@ -57,8 +57,8 @@ export function focusCases() {
     });
     push({
       eval: `(async()=>{document.querySelector('.xp-close').click();await ${wait(1500)};const sc=${SCENE(b)};const blk=document.getElementById('${b.id}');
-        return JSON.stringify({closed:!document.querySelector('.home-layer'),sceneInBox:sc.parentElement.className==='blk-live',plainFlagGone:!sc.hasAttribute('data-plain'),blockLive:blk.hasAttribute('data-live'),miniPreviewHidden:!blk.querySelector('.blk-art'),sceneShown:getComputedStyle(blk.querySelector('.blk-live')).display!=='none',focusOnBlock:document.activeElement.dataset.xp==='${b.hit}'})})()`,
-      label: `RF1 ${name}: closing a give-up puts the box's own scene back (not the flat preview: only a failed scene or a lost context keeps that)`,
+        return JSON.stringify({closed:!document.querySelector('.home-layer'),sceneInBox:sc.parentElement.className==='blk-live',plainFlagGone:!sc.hasAttribute('data-plain'),blockLive:blk.hasAttribute('data-live'),miniPreviewHidden:!blk.querySelector('.blk-art'),sceneShown:getComputedStyle(blk.querySelector('.blk-live')).display!=='none',focusOnBlock:document.activeElement.dataset.xp==='${b.hit}',dotField:(()=>{const d=sc.querySelector('.dot-field');if(!d)return null;const x=d.getContext('2d').getImageData(0,0,Math.min(d.width,200),Math.min(d.height,200)).data;let a=0;for(let i=3;i<x.length;i+=4)a+=x[i];return {w:d.width,h:d.height,painted:a>0}})()})})()`,
+      label: `RF1 ${name}: closing a give-up puts the box's own scene back (not the flat preview: only a failed scene or a lost context keeps that); the reading box's dot field, a new canvas element after the plain grid, is sized and painted (dotField {w,h,painted: true}; the wall has none: null)`,
     });
 
     // ---- a scene that is only late (a stall of 6 s): it is not swapped in while the grid shows, and once it is ready the box holds it again

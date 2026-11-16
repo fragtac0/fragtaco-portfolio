@@ -1,5 +1,5 @@
 // Writes scripts/audit/box-open.json (R55.2, Task 25): the home box holds the live scene and opening it is one move, on the production build.
-// Run: node scripts/audit/make-box-open.mjs [--only cost] [--out <file>], then BASE=http://localhost:5181 node scripts/audit/cdp.mjs scripts/audit/box-open.json <outdir outside the repo>.
+// Run: node scripts/audit/make-box-open.mjs [--only cost|focus] [--out <file>], then BASE=http://localhost:5181 node scripts/audit/cdp.mjs scripts/audit/box-open.json <outdir outside the repo>.
 //
 // For each box (the shelf and the wall) at 1440 by 900 (dpr 1) and 390 by 844 (phone, dpr 2, touch), a 60 fps film (a screencast: every frame the
 // compositor makes) of opening by a click and of closing by Close, read frame by frame in the page against what the page recorded on its own
@@ -83,6 +83,7 @@ for (const s of sizes)
     });
   }
 
+const focusFrom = steps.length;
 focusCases(); // Review Focus 1: a click before the scene is ready (and a give-up lasts one opening)
 
 // ---- Review Focus 2 to 4 on each box at 1440 by 900
@@ -217,10 +218,14 @@ for (const c of cost)
     push({ cpu: 1 });
   }
 
-// `--only cost` writes just the frame-cost steps above (the gate of Task 26/30: about 4 minutes instead of 15); `--out <file>` writes to a file of its own
+// `--only cost` writes just the frame-cost steps above (the gate of Task 26/30: about 4 minutes instead of 15), `--only focus` just the Review Focus cases (RF1 to RF5, LATE, I1, M4, reduced motion: no plain-move films, no cost films; about 9 minutes); `--out <file>` writes to a file of its own; an unknown `--only` is an error
 const args = process.argv.slice(2);
-const onlyCost = args.includes("--only") && args[args.indexOf("--only") + 1] === "cost";
+const onlyArg = args.includes("--only") ? args[args.indexOf("--only") + 1] : null;
+if (onlyArg !== null && onlyArg !== "cost" && onlyArg !== "focus") {
+  console.error(`make-box-open.mjs: unknown --only value "${onlyArg}" (one of cost, focus)`);
+  process.exit(1);
+}
 const outFile = args.includes("--out") ? args[args.indexOf("--out") + 1] : new URL("./box-open.json", import.meta.url).pathname;
-const out = onlyCost ? steps.slice(costFrom) : steps;
+const out = onlyArg === "cost" ? steps.slice(costFrom) : onlyArg === "focus" ? steps.slice(focusFrom, costFrom) : steps;
 writeFileSync(outFile, JSON.stringify(out, null, 1) + "\n");
 console.log(`${outFile}: ${out.length} steps`);

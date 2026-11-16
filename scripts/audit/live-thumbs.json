@@ -1,0 +1,137 @@
+[
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "requests": {
+   "match": "mqdefault"
+  },
+  "label": "reset"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/",
+  "wait": 9000
+ },
+ {
+  "eval": "document.documentElement.scrollHeight-innerHeight",
+  "label": "1440x900 live visitor: how far the page scrolls"
+ },
+ {
+  "eval": "new Promise(r=>{scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'});setTimeout(()=>r(scrollY),4000)})",
+  "label": "1440x900 live visitor: scrolled to both boxes, 4 s"
+ },
+ {
+  "eval": "(()=>{const e=performance.getEntriesByType('resource').map(r=>r.name).filter(u=>u.includes('i.ytimg.com'));return JSON.stringify({liveBlocks:document.querySelectorAll('.block[data-live]').length,flatPreviews:document.querySelectorAll('.blk-art').length,miniSpines:document.querySelectorAll('.ms-sp').length,ytimgRequests:e.length,mqdefault:e.filter(u=>u.includes('mqdefault')).length,hqOrSd:e.filter(u=>/\\/(hq|sd|maxres)/.test(u)).length})})()",
+  "label": "1440x900 live visitor: state (a live visitor: liveBlocks 2, flatPreviews 0, mqdefault 0)"
+ },
+ {
+  "requests": {
+   "match": "mqdefault"
+  },
+  "label": "1440x900 live visitor: requests since the load (matching = the mqdefault thumbnails of the flat wall: expect none)"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "requests": {
+   "match": "mqdefault"
+  },
+  "label": "reset"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "nocache": true,
+  "net": {
+   "kbps": 1638,
+   "latency": 150
+  },
+  "cpu": 4,
+  "go": "{{BASE}}/",
+  "wait": 15000
+ },
+ {
+  "eval": "document.documentElement.scrollHeight-innerHeight",
+  "label": "390x844 live visitor: how far the page scrolls"
+ },
+ {
+  "eval": "new Promise(r=>{scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'});setTimeout(()=>r(scrollY),4000)})",
+  "label": "390x844 live visitor: scrolled to both boxes, 4 s"
+ },
+ {
+  "eval": "(()=>{const e=performance.getEntriesByType('resource').map(r=>r.name).filter(u=>u.includes('i.ytimg.com'));return JSON.stringify({liveBlocks:document.querySelectorAll('.block[data-live]').length,flatPreviews:document.querySelectorAll('.blk-art').length,miniSpines:document.querySelectorAll('.ms-sp').length,ytimgRequests:e.length,mqdefault:e.filter(u=>u.includes('mqdefault')).length,hqOrSd:e.filter(u=>/\\/(hq|sd|maxres)/.test(u)).length})})()",
+  "label": "390x844 live visitor: state (a live visitor: liveBlocks 2, flatPreviews 0, mqdefault 0)"
+ },
+ {
+  "requests": {
+   "match": "mqdefault"
+  },
+  "label": "390x844 live visitor: requests since the load (matching = the mqdefault thumbnails of the flat wall: expect none)"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "net": {
+   "kbps": 12288,
+   "latency": 40
+  },
+  "cpu": 1
+ },
+ {
+  "requests": {
+   "match": "mqdefault"
+  },
+  "label": "reset"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/?nogl=1",
+  "wait": 9000
+ },
+ {
+  "eval": "document.documentElement.scrollHeight-innerHeight",
+  "label": "1440x900 no WebGL (?nogl=1), the control: how far the page scrolls"
+ },
+ {
+  "eval": "new Promise(r=>{scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'});setTimeout(()=>r(scrollY),4000)})",
+  "label": "1440x900 no WebGL (?nogl=1), the control: scrolled to both boxes, 4 s"
+ },
+ {
+  "eval": "(()=>{const e=performance.getEntriesByType('resource').map(r=>r.name).filter(u=>u.includes('i.ytimg.com'));return JSON.stringify({liveBlocks:document.querySelectorAll('.block[data-live]').length,flatPreviews:document.querySelectorAll('.blk-art').length,miniSpines:document.querySelectorAll('.ms-sp').length,ytimgRequests:e.length,mqdefault:e.filter(u=>u.includes('mqdefault')).length,hqOrSd:e.filter(u=>/\\/(hq|sd|maxres)/.test(u)).length})})()",
+  "label": "1440x900 no WebGL (?nogl=1), the control: state (no WebGL, the control: liveBlocks 0, flatPreviews 2, mqdefault above 0)"
+ },
+ {
+  "requests": {
+   "match": "mqdefault"
+  },
+  "label": "1440x900 no WebGL (?nogl=1), the control: requests since the load (matching = the mqdefault thumbnails of the flat wall: expect some)"
+ }
+]

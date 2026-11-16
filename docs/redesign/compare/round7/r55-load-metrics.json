@@ -1,11 +1,11 @@
 {
- "part": "R55 (Task 26, lane B): the load of the home page, the commit before part R55 against the head",
- "note": "Pictures: none. Timed runs held the shared gate lock; the machine was shared with lane A (Task 28 builds and tests; the lock serialises timed runs, so no two timed runs overlapped, but lane A worked between them). Base and head were run alternately, run for run, on the same Chrome and profile settings, each run from a fresh profile with the cache off.",
+ "part": "R55 (Task 26, lane B; fix round): the load of the home page, the commit before part R55 against the head",
+ "note": "Pictures: none. Timed runs held the shared gate lock; the machine was shared with lane A (Task 28 builds and tests; the lock serialises timed runs, so no two timed runs overlapped, but lane A worked between them). Base and head were run alternately, run for run, on the same Chrome and profile settings, each run from a fresh profile with the cache off. Fix round (I3, RB9): the head was measured again after R55.3f (the flat previews mount only once the client has decided a box is not live): `head` is that new sample (build of R55.3g, 665e099, 3 runs, alternated run for run with a second base sample `baseAgain`, 16 Nov 16:20 to 16:26, the lock was free at each take); `headBeforeI3` is the first head sample (R55.3b build, where the server and hydration renders still mounted both flat previews), kept; `base` is the first base sample, run alternately with it.",
  "base": {
   "commit": "6f98c1c (the commit before part R55), production build in a scratch worktree, served on :5182"
  },
  "head": {
-  "commit": "R55.3d (eabbcae) plus the Task 26 measure.json fix, production build, served on :5181; app code is that of R55.3b (67da026)"
+  "commit": "R55.3g (665e099): the head after the fix round (R55.3f: a live visitor mounts no flat preview; R55.3g: the docked boxes arrival work ahead), production build, served on :5181. The first sample (`headBeforeI3`) was R55.3d (eabbcae) plus the measure.json fix, app code of R55.3b (67da026)"
  },
  "command": "BASE=http://localhost:<5182|5181> node scripts/audit/cdp.mjs scripts/audit/load-metrics.json <outdir>  (three runs each side, alternating); same for scripts/audit/measure.json",
  "loadMetrics": {
@@ -68,6 +68,110 @@
      }
     },
     "head": {
+     "runs": [
+      {
+       "lcpMs": 6204,
+       "cls": 0.001,
+       "fcpMs": 636,
+       "domContentLoadedMs": 617,
+       "transferKB": 1110,
+       "requests": 48
+      },
+      {
+       "lcpMs": 6356,
+       "cls": 0,
+       "fcpMs": 676,
+       "domContentLoadedMs": 657,
+       "transferKB": 1832,
+       "requests": 48
+      },
+      {
+       "lcpMs": 6516,
+       "cls": 0.002,
+       "fcpMs": 624,
+       "domContentLoadedMs": 604,
+       "transferKB": 1339,
+       "requests": 48
+      }
+     ],
+     "median": {
+      "lcpMs": 6356,
+      "cls": 0.001,
+      "fcpMs": 636,
+      "domContentLoadedMs": 617,
+      "transferKB": 1339,
+      "requests": 48
+     },
+     "min": {
+      "lcpMs": 6204,
+      "cls": 0,
+      "fcpMs": 624,
+      "domContentLoadedMs": 604,
+      "transferKB": 1110,
+      "requests": 48
+     },
+     "max": {
+      "lcpMs": 6516,
+      "cls": 0.002,
+      "fcpMs": 676,
+      "domContentLoadedMs": 657,
+      "transferKB": 1832,
+      "requests": 48
+     }
+    },
+    "baseAgain": {
+     "runs": [
+      {
+       "lcpMs": 6648,
+       "cls": 0.005,
+       "fcpMs": 640,
+       "domContentLoadedMs": 618,
+       "transferKB": 1919,
+       "requests": 60
+      },
+      {
+       "lcpMs": 6676,
+       "cls": 0,
+       "fcpMs": 764,
+       "domContentLoadedMs": 745,
+       "transferKB": 1229,
+       "requests": 60
+      },
+      {
+       "lcpMs": 6680,
+       "cls": 0,
+       "fcpMs": 648,
+       "domContentLoadedMs": 630,
+       "transferKB": 1212,
+       "requests": 60
+      }
+     ],
+     "median": {
+      "lcpMs": 6676,
+      "cls": 0,
+      "fcpMs": 648,
+      "domContentLoadedMs": 630,
+      "transferKB": 1229,
+      "requests": 60
+     },
+     "min": {
+      "lcpMs": 6648,
+      "cls": 0,
+      "fcpMs": 640,
+      "domContentLoadedMs": 618,
+      "transferKB": 1212,
+      "requests": 60
+     },
+     "max": {
+      "lcpMs": 6680,
+      "cls": 0.005,
+      "fcpMs": 764,
+      "domContentLoadedMs": 745,
+      "transferKB": 1919,
+      "requests": 60
+     }
+    },
+    "headBeforeI3": {
      "runs": [
       {
        "lcpMs": 6528,
@@ -176,6 +280,110 @@
     "head": {
      "runs": [
       {
+       "lcpMs": 548,
+       "cls": 0,
+       "fcpMs": 252,
+       "domContentLoadedMs": 243,
+       "transferKB": 8939,
+       "requests": 158
+      },
+      {
+       "lcpMs": 540,
+       "cls": 0,
+       "fcpMs": 240,
+       "domContentLoadedMs": 233,
+       "transferKB": 8340,
+       "requests": 158
+      },
+      {
+       "lcpMs": 576,
+       "cls": 0,
+       "fcpMs": 232,
+       "domContentLoadedMs": 229,
+       "transferKB": 8304,
+       "requests": 158
+      }
+     ],
+     "median": {
+      "lcpMs": 548,
+      "cls": 0,
+      "fcpMs": 240,
+      "domContentLoadedMs": 233,
+      "transferKB": 8340,
+      "requests": 158
+     },
+     "min": {
+      "lcpMs": 540,
+      "cls": 0,
+      "fcpMs": 232,
+      "domContentLoadedMs": 229,
+      "transferKB": 8304,
+      "requests": 158
+     },
+     "max": {
+      "lcpMs": 576,
+      "cls": 0,
+      "fcpMs": 252,
+      "domContentLoadedMs": 243,
+      "transferKB": 8939,
+      "requests": 158
+     }
+    },
+    "baseAgain": {
+     "runs": [
+      {
+       "lcpMs": 676,
+       "cls": 0.001,
+       "fcpMs": 260,
+       "domContentLoadedMs": 245,
+       "transferKB": 10401,
+       "requests": 174
+      },
+      {
+       "lcpMs": 656,
+       "cls": 0.002,
+       "fcpMs": 240,
+       "domContentLoadedMs": 230,
+       "transferKB": 8602,
+       "requests": 174
+      },
+      {
+       "lcpMs": 660,
+       "cls": 0.002,
+       "fcpMs": 240,
+       "domContentLoadedMs": 234,
+       "transferKB": 9240,
+       "requests": 173
+      }
+     ],
+     "median": {
+      "lcpMs": 660,
+      "cls": 0.002,
+      "fcpMs": 240,
+      "domContentLoadedMs": 234,
+      "transferKB": 9240,
+      "requests": 174
+     },
+     "min": {
+      "lcpMs": 656,
+      "cls": 0.001,
+      "fcpMs": 240,
+      "domContentLoadedMs": 230,
+      "transferKB": 8602,
+      "requests": 173
+     },
+     "max": {
+      "lcpMs": 676,
+      "cls": 0.002,
+      "fcpMs": 260,
+      "domContentLoadedMs": 245,
+      "transferKB": 10401,
+      "requests": 174
+     }
+    },
+    "headBeforeI3": {
+     "runs": [
+      {
        "lcpMs": 676,
        "cls": 0,
        "fcpMs": 212,
@@ -276,5 +484,6 @@
   },
   "firstTryWithTheOlderFile": "head, three runs: runs 1 and 3 clean; run 2 had frames of 300 ms (1440, scroll to the blocks), 150 ms (1440, open the reading layer) and 100 ms (390, close reading and open watching), the only frames over 20 ms in 6 runs of that file; base 0 of 3. Not reproduced in the 3 runs of the corrected file; the machine was shared at the time. Recorded here, not explained.",
   "reading": "With the corrected file: 24 steps per run, no frame over 20 ms, worst gap 16.8 ms, on both sides in all three runs."
- }
+ },
+ "reading": "Corrected after the fix round (the first reading credited the two fewer desktop requests to \"no flat preview for a live box\", which was not so: the server and hydration renders still mounted both flat previews, and a live visitor loaded the mini wall thumbnails, 14 at 1440x900 and 12 on the phone). Now a live visitor mounts none (box-picture.ts): the phone makes 48 requests against the base 60 and the desktop 158 against 173 to 174, the 12 (phone) to 16 (desktop) thumbnails (mqdefault) of the flat mini wall; scripts/audit/live-thumbs.json counts 0 flat-wall thumbnails for a live visitor at 1440x900 and on the phone (and 16 with ?nogl=1, the control). Timings, 3 runs each, alternated, a shared machine: first contentful paint 624 to 676 ms (head) against 640 to 764 ms (base, second sample; 628 to 632 in the first) on the phone and 232 to 252 against 240 to 260 on the desktop; DOM content loaded the same within about 40 ms; layout shift about 0; largest contentful paint 6204 to 6516 ms (head) against 6648 to 6680 ms (base second sample; 6404 to 6696 first) on the phone and 540 to 576 ms against 656 to 676 ms (second sample; 636 to 676 first) on the desktop. The first head sample showed the desktop largest contentful paint 30 to 50 ms later than the base (676 to 708 ms against 636 to 676 ms, every head run at or above every base run), which the review asked the record to state; it does not repeat after the fix (the head is now 80 to 130 ms earlier), so the likely reading is that the two flat previews mounting during hydration (and their images) cost the head that time, and no longer do; not traced further. Transfer is dominated by the random hero painting (8.3 to 10.4 MB on the desktop, 1.1 to 1.9 MB on the phone on both sides, ranges overlapping). One difference that remains by design: a visitor whose scene fails or has no WebGL now sees the dark ground for the few frames before the flat preview mounts, and the flat wall thumbnails load then, at network speed, instead of from the first paint."
 }

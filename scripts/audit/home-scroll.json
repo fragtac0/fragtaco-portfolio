@@ -10,12 +10,12 @@
   "reduce": false,
   "nocache": true,
   "cpu": 1,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){};(()=>{\n  if (window.__hs) return;\n  let g = [], on = false, last = 0, k = 0, txt = null; const changes = [];\n  const f = (n) => {\n    if (on && last) g.push([n, n - last, scrollY]);\n    last = n;\n    if (++k % 6 === 0) { const t = document.querySelector('#hero .caption .t'); const s = t ? t.textContent : null; if (txt !== null && s !== txt) changes.push(n); txt = s; }\n    requestAnimationFrame(f);\n  };\n  requestAnimationFrame(f);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  window.__hs = {\n    start() { g = []; changes.length = 0; on = true; last = 0; return 'started'; },\n    stop(label) {\n      on = false;\n      const t0 = g.length ? g[0][0] : 0, gaps = g.map((x) => x[1]), s = [...gaps].sort((a, b) => a - b);\n      const slow = (lim) => g.filter((x) => x[1] > lim).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]);\n      const ch = changes.map((c) => Math.round(c - t0));\n      const inSwap = g.filter((x) => ch.some((c) => x[0] - t0 >= c - 500 && x[0] - t0 <= c + 3300));\n      const sw = inSwap.map((x) => x[1]);\n      const out = g.filter((x) => !inSwap.includes(x)).map((x) => x[1]);\n      const scenes = [...document.querySelectorAll('.box-scene')].map((e) => ({ kind: e.dataset.kind, drawn: e.hasAttribute('data-drawn'), plain: e.hasAttribute('data-plain'), canvas: !!e.querySelector('canvas') }));\n      return { label, n: g.length, ms: Math.round(g.length ? g[g.length - 1][0] - t0 : 0), avg: r1(gaps.reduce((a, b) => a + b, 0) / Math.max(1, gaps.length)), p99: r1(s[Math.floor(s.length * 0.99)] || 0), max: r1(s[s.length - 1] || 0), over20: gaps.filter((x) => x > 20).length, over34: gaps.filter((x) => x > 34).length, over34At: slow(34), changesAtMs: ch, swapFrames: sw.length, swapMax: r1(Math.max(0, ...sw)), swapOver20: sw.filter((x) => x > 20).length, swapOver34: sw.filter((x) => x > 34).length, maxOutsideSwap: r1(Math.max(0, ...out)), over34OutsideSwap: out.filter((x) => x > 34).length, scenes };\n    },\n  };\n})();",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){};(()=>{\n  if (window.__hs) return;\n  let g = [], on = false, last = 0, k = 0, txt = null; const changes = [];\n  const draws = { shelf: { on: 0, off: 0 }, wall: { on: 0, off: 0 } }, seen = { shelf: false, wall: false };\n  const io = new IntersectionObserver((es) => { for (const e of es) seen[e.target.__hsKind] = e.isIntersecting; });\n  const watch = () => { for (const [kind, id] of [['shelf', 'blkRead'], ['wall', 'blkWatch']]) { const el = document.querySelector('#' + id + ' .blk-box'); if (el && !el.__hsKind) { el.__hsKind = kind; io.observe(el); } } };\n  for (const P of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) {\n    if (!P) continue;\n    for (const fn of ['drawElements', 'drawArrays']) {\n      const o = P.prototype[fn];\n      P.prototype[fn] = function (...a) {\n        if (on) { const c = this.canvas && this.canvas.classList; const kind = c ? (c.contains('shelf-canvas') ? 'shelf' : c.contains('wall-canvas') ? 'wall' : null) : null; if (kind) draws[kind][seen[kind] ? 'on' : 'off']++; }\n        return o.apply(this, a);\n      };\n    }\n  }\n  const f = (n) => {\n    if (on && last) g.push([n, n - last, scrollY]);\n    last = n;\n    if (++k % 6 === 0) { watch(); const t = document.querySelector('#hero .caption .t'); const s = t ? t.textContent : null; if (txt !== null && s !== txt) changes.push(n); txt = s; }\n    requestAnimationFrame(f);\n  };\n  requestAnimationFrame(f);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const stats = (a) => ({ n: a.length, max: r1(Math.max(0, ...a)), over20: a.filter((x) => x > 20).length, over34: a.filter((x) => x > 34).length });\n  window.__hs = {\n    start() { g = []; draws.shelf.on = draws.shelf.off = draws.wall.on = draws.wall.off = 0; on = true; last = 0; return 'started'; },\n    stop(label) {\n      on = false;\n      const t0 = g.length ? g[0][0] : 0, t1 = g.length ? g[g.length - 1][0] : 0, gaps = g.map((x) => x[1]), s = [...gaps].sort((a, b) => a - b);\n      const slow = (lim) => g.filter((x) => x[1] > lim).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]);\n      // one timeline of the changes for the whole page: a change that began just before the pass still has its window over the pass's first frames\n      const ch = changes.filter((c) => c >= t0 - 3300 && c <= t1 + 500);\n      const inWin = (x) => ch.some((c) => x[0] >= c - 500 && x[0] <= c + 3300);\n      const inSwap = g.filter(inWin);\n      const sw = inSwap.map((x) => x[1]);\n      const outFrames = g.filter((x) => !inWin(x));\n      const out = outFrames.map((x) => x[1]);\n      const scenes = [...document.querySelectorAll('.box-scene')].map((e) => ({ kind: e.dataset.kind, drawn: e.hasAttribute('data-drawn'), plain: e.hasAttribute('data-plain'), canvas: !!e.querySelector('canvas') }));\n      const windows = ch.map((c) => ({ at: Math.round(c - t0), ...stats(g.filter((x) => x[0] >= c - 500 && x[0] <= c + 3300).map((x) => x[1])) }));\n      return {\n        label, n: g.length, ms: Math.round(t1 - t0), avg: r1(gaps.reduce((a, b) => a + b, 0) / Math.max(1, gaps.length)), p99: r1(s[Math.floor(s.length * 0.99)] || 0), max: r1(s[s.length - 1] || 0),\n        over20: gaps.filter((x) => x > 20).length, over34: gaps.filter((x) => x > 34).length, over34At: slow(34),\n        changesAtMs: ch.map((c) => Math.round(c - t0)), windows,\n        swapFrames: sw.length, swapMax: r1(Math.max(0, ...sw)), swapOver20: sw.filter((x) => x > 20).length, swapOver34: sw.filter((x) => x > 34).length,\n        maxOutsideSwap: r1(Math.max(0, ...out)), over34OutsideSwap: out.filter((x) => x > 34).length,\n        over34OutsideSwapAt: outFrames.filter((x) => x[1] > 34).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]),\n        draws: JSON.parse(JSON.stringify(draws)), scenes,\n      };\n    },\n  };\n})();",
   "go": "{{BASE}}/",
   "wait": 9000
  },
  {
-  "eval": "({run:1,profile:'desktop-cpu1',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})",
+  "eval": "({run:1,profile:'desktop-cpu1',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
   "label": "desktop-cpu1 run 1: the page"
  },
  {
@@ -206,7 +206,7 @@
   "wait": 9000
  },
  {
-  "eval": "({run:2,profile:'desktop-cpu1',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})",
+  "eval": "({run:2,profile:'desktop-cpu1',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
   "label": "desktop-cpu1 run 2: the page"
  },
  {
@@ -397,7 +397,7 @@
   "wait": 9000
  },
  {
-  "eval": "({run:3,profile:'desktop-cpu1',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})",
+  "eval": "({run:3,profile:'desktop-cpu1',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
   "label": "desktop-cpu1 run 3: the page"
  },
  {
@@ -590,12 +590,12 @@
   "reduce": false,
   "nocache": true,
   "cpu": 4,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){};(()=>{\n  if (window.__hs) return;\n  let g = [], on = false, last = 0, k = 0, txt = null; const changes = [];\n  const f = (n) => {\n    if (on && last) g.push([n, n - last, scrollY]);\n    last = n;\n    if (++k % 6 === 0) { const t = document.querySelector('#hero .caption .t'); const s = t ? t.textContent : null; if (txt !== null && s !== txt) changes.push(n); txt = s; }\n    requestAnimationFrame(f);\n  };\n  requestAnimationFrame(f);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  window.__hs = {\n    start() { g = []; changes.length = 0; on = true; last = 0; return 'started'; },\n    stop(label) {\n      on = false;\n      const t0 = g.length ? g[0][0] : 0, gaps = g.map((x) => x[1]), s = [...gaps].sort((a, b) => a - b);\n      const slow = (lim) => g.filter((x) => x[1] > lim).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]);\n      const ch = changes.map((c) => Math.round(c - t0));\n      const inSwap = g.filter((x) => ch.some((c) => x[0] - t0 >= c - 500 && x[0] - t0 <= c + 3300));\n      const sw = inSwap.map((x) => x[1]);\n      const out = g.filter((x) => !inSwap.includes(x)).map((x) => x[1]);\n      const scenes = [...document.querySelectorAll('.box-scene')].map((e) => ({ kind: e.dataset.kind, drawn: e.hasAttribute('data-drawn'), plain: e.hasAttribute('data-plain'), canvas: !!e.querySelector('canvas') }));\n      return { label, n: g.length, ms: Math.round(g.length ? g[g.length - 1][0] - t0 : 0), avg: r1(gaps.reduce((a, b) => a + b, 0) / Math.max(1, gaps.length)), p99: r1(s[Math.floor(s.length * 0.99)] || 0), max: r1(s[s.length - 1] || 0), over20: gaps.filter((x) => x > 20).length, over34: gaps.filter((x) => x > 34).length, over34At: slow(34), changesAtMs: ch, swapFrames: sw.length, swapMax: r1(Math.max(0, ...sw)), swapOver20: sw.filter((x) => x > 20).length, swapOver34: sw.filter((x) => x > 34).length, maxOutsideSwap: r1(Math.max(0, ...out)), over34OutsideSwap: out.filter((x) => x > 34).length, scenes };\n    },\n  };\n})();",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){};(()=>{\n  if (window.__hs) return;\n  let g = [], on = false, last = 0, k = 0, txt = null; const changes = [];\n  const draws = { shelf: { on: 0, off: 0 }, wall: { on: 0, off: 0 } }, seen = { shelf: false, wall: false };\n  const io = new IntersectionObserver((es) => { for (const e of es) seen[e.target.__hsKind] = e.isIntersecting; });\n  const watch = () => { for (const [kind, id] of [['shelf', 'blkRead'], ['wall', 'blkWatch']]) { const el = document.querySelector('#' + id + ' .blk-box'); if (el && !el.__hsKind) { el.__hsKind = kind; io.observe(el); } } };\n  for (const P of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) {\n    if (!P) continue;\n    for (const fn of ['drawElements', 'drawArrays']) {\n      const o = P.prototype[fn];\n      P.prototype[fn] = function (...a) {\n        if (on) { const c = this.canvas && this.canvas.classList; const kind = c ? (c.contains('shelf-canvas') ? 'shelf' : c.contains('wall-canvas') ? 'wall' : null) : null; if (kind) draws[kind][seen[kind] ? 'on' : 'off']++; }\n        return o.apply(this, a);\n      };\n    }\n  }\n  const f = (n) => {\n    if (on && last) g.push([n, n - last, scrollY]);\n    last = n;\n    if (++k % 6 === 0) { watch(); const t = document.querySelector('#hero .caption .t'); const s = t ? t.textContent : null; if (txt !== null && s !== txt) changes.push(n); txt = s; }\n    requestAnimationFrame(f);\n  };\n  requestAnimationFrame(f);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const stats = (a) => ({ n: a.length, max: r1(Math.max(0, ...a)), over20: a.filter((x) => x > 20).length, over34: a.filter((x) => x > 34).length });\n  window.__hs = {\n    start() { g = []; draws.shelf.on = draws.shelf.off = draws.wall.on = draws.wall.off = 0; on = true; last = 0; return 'started'; },\n    stop(label) {\n      on = false;\n      const t0 = g.length ? g[0][0] : 0, t1 = g.length ? g[g.length - 1][0] : 0, gaps = g.map((x) => x[1]), s = [...gaps].sort((a, b) => a - b);\n      const slow = (lim) => g.filter((x) => x[1] > lim).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]);\n      // one timeline of the changes for the whole page: a change that began just before the pass still has its window over the pass's first frames\n      const ch = changes.filter((c) => c >= t0 - 3300 && c <= t1 + 500);\n      const inWin = (x) => ch.some((c) => x[0] >= c - 500 && x[0] <= c + 3300);\n      const inSwap = g.filter(inWin);\n      const sw = inSwap.map((x) => x[1]);\n      const outFrames = g.filter((x) => !inWin(x));\n      const out = outFrames.map((x) => x[1]);\n      const scenes = [...document.querySelectorAll('.box-scene')].map((e) => ({ kind: e.dataset.kind, drawn: e.hasAttribute('data-drawn'), plain: e.hasAttribute('data-plain'), canvas: !!e.querySelector('canvas') }));\n      const windows = ch.map((c) => ({ at: Math.round(c - t0), ...stats(g.filter((x) => x[0] >= c - 500 && x[0] <= c + 3300).map((x) => x[1])) }));\n      return {\n        label, n: g.length, ms: Math.round(t1 - t0), avg: r1(gaps.reduce((a, b) => a + b, 0) / Math.max(1, gaps.length)), p99: r1(s[Math.floor(s.length * 0.99)] || 0), max: r1(s[s.length - 1] || 0),\n        over20: gaps.filter((x) => x > 20).length, over34: gaps.filter((x) => x > 34).length, over34At: slow(34),\n        changesAtMs: ch.map((c) => Math.round(c - t0)), windows,\n        swapFrames: sw.length, swapMax: r1(Math.max(0, ...sw)), swapOver20: sw.filter((x) => x > 20).length, swapOver34: sw.filter((x) => x > 34).length,\n        maxOutsideSwap: r1(Math.max(0, ...out)), over34OutsideSwap: out.filter((x) => x > 34).length,\n        over34OutsideSwapAt: outFrames.filter((x) => x[1] > 34).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]),\n        draws: JSON.parse(JSON.stringify(draws)), scenes,\n      };\n    },\n  };\n})();",
   "go": "{{BASE}}/",
   "wait": 9000
  },
  {
-  "eval": "({run:1,profile:'desktop-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})",
+  "eval": "({run:1,profile:'desktop-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
   "label": "desktop-cpu4 run 1: the page"
  },
  {
@@ -786,7 +786,7 @@
   "wait": 9000
  },
  {
-  "eval": "({run:2,profile:'desktop-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})",
+  "eval": "({run:2,profile:'desktop-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
   "label": "desktop-cpu4 run 2: the page"
  },
  {
@@ -977,7 +977,7 @@
   "wait": 9000
  },
  {
-  "eval": "({run:3,profile:'desktop-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})",
+  "eval": "({run:3,profile:'desktop-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
   "label": "desktop-cpu4 run 3: the page"
  },
  {
@@ -1170,12 +1170,12 @@
   "reduce": false,
   "nocache": true,
   "cpu": 4,
-  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){};(()=>{\n  if (window.__hs) return;\n  let g = [], on = false, last = 0, k = 0, txt = null; const changes = [];\n  const f = (n) => {\n    if (on && last) g.push([n, n - last, scrollY]);\n    last = n;\n    if (++k % 6 === 0) { const t = document.querySelector('#hero .caption .t'); const s = t ? t.textContent : null; if (txt !== null && s !== txt) changes.push(n); txt = s; }\n    requestAnimationFrame(f);\n  };\n  requestAnimationFrame(f);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  window.__hs = {\n    start() { g = []; changes.length = 0; on = true; last = 0; return 'started'; },\n    stop(label) {\n      on = false;\n      const t0 = g.length ? g[0][0] : 0, gaps = g.map((x) => x[1]), s = [...gaps].sort((a, b) => a - b);\n      const slow = (lim) => g.filter((x) => x[1] > lim).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]);\n      const ch = changes.map((c) => Math.round(c - t0));\n      const inSwap = g.filter((x) => ch.some((c) => x[0] - t0 >= c - 500 && x[0] - t0 <= c + 3300));\n      const sw = inSwap.map((x) => x[1]);\n      const out = g.filter((x) => !inSwap.includes(x)).map((x) => x[1]);\n      const scenes = [...document.querySelectorAll('.box-scene')].map((e) => ({ kind: e.dataset.kind, drawn: e.hasAttribute('data-drawn'), plain: e.hasAttribute('data-plain'), canvas: !!e.querySelector('canvas') }));\n      return { label, n: g.length, ms: Math.round(g.length ? g[g.length - 1][0] - t0 : 0), avg: r1(gaps.reduce((a, b) => a + b, 0) / Math.max(1, gaps.length)), p99: r1(s[Math.floor(s.length * 0.99)] || 0), max: r1(s[s.length - 1] || 0), over20: gaps.filter((x) => x > 20).length, over34: gaps.filter((x) => x > 34).length, over34At: slow(34), changesAtMs: ch, swapFrames: sw.length, swapMax: r1(Math.max(0, ...sw)), swapOver20: sw.filter((x) => x > 20).length, swapOver34: sw.filter((x) => x > 34).length, maxOutsideSwap: r1(Math.max(0, ...out)), over34OutsideSwap: out.filter((x) => x > 34).length, scenes };\n    },\n  };\n})();",
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){};(()=>{\n  if (window.__hs) return;\n  let g = [], on = false, last = 0, k = 0, txt = null; const changes = [];\n  const draws = { shelf: { on: 0, off: 0 }, wall: { on: 0, off: 0 } }, seen = { shelf: false, wall: false };\n  const io = new IntersectionObserver((es) => { for (const e of es) seen[e.target.__hsKind] = e.isIntersecting; });\n  const watch = () => { for (const [kind, id] of [['shelf', 'blkRead'], ['wall', 'blkWatch']]) { const el = document.querySelector('#' + id + ' .blk-box'); if (el && !el.__hsKind) { el.__hsKind = kind; io.observe(el); } } };\n  for (const P of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) {\n    if (!P) continue;\n    for (const fn of ['drawElements', 'drawArrays']) {\n      const o = P.prototype[fn];\n      P.prototype[fn] = function (...a) {\n        if (on) { const c = this.canvas && this.canvas.classList; const kind = c ? (c.contains('shelf-canvas') ? 'shelf' : c.contains('wall-canvas') ? 'wall' : null) : null; if (kind) draws[kind][seen[kind] ? 'on' : 'off']++; }\n        return o.apply(this, a);\n      };\n    }\n  }\n  const f = (n) => {\n    if (on && last) g.push([n, n - last, scrollY]);\n    last = n;\n    if (++k % 6 === 0) { watch(); const t = document.querySelector('#hero .caption .t'); const s = t ? t.textContent : null; if (txt !== null && s !== txt) changes.push(n); txt = s; }\n    requestAnimationFrame(f);\n  };\n  requestAnimationFrame(f);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const stats = (a) => ({ n: a.length, max: r1(Math.max(0, ...a)), over20: a.filter((x) => x > 20).length, over34: a.filter((x) => x > 34).length });\n  window.__hs = {\n    start() { g = []; draws.shelf.on = draws.shelf.off = draws.wall.on = draws.wall.off = 0; on = true; last = 0; return 'started'; },\n    stop(label) {\n      on = false;\n      const t0 = g.length ? g[0][0] : 0, t1 = g.length ? g[g.length - 1][0] : 0, gaps = g.map((x) => x[1]), s = [...gaps].sort((a, b) => a - b);\n      const slow = (lim) => g.filter((x) => x[1] > lim).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]);\n      // one timeline of the changes for the whole page: a change that began just before the pass still has its window over the pass's first frames\n      const ch = changes.filter((c) => c >= t0 - 3300 && c <= t1 + 500);\n      const inWin = (x) => ch.some((c) => x[0] >= c - 500 && x[0] <= c + 3300);\n      const inSwap = g.filter(inWin);\n      const sw = inSwap.map((x) => x[1]);\n      const outFrames = g.filter((x) => !inWin(x));\n      const out = outFrames.map((x) => x[1]);\n      const scenes = [...document.querySelectorAll('.box-scene')].map((e) => ({ kind: e.dataset.kind, drawn: e.hasAttribute('data-drawn'), plain: e.hasAttribute('data-plain'), canvas: !!e.querySelector('canvas') }));\n      const windows = ch.map((c) => ({ at: Math.round(c - t0), ...stats(g.filter((x) => x[0] >= c - 500 && x[0] <= c + 3300).map((x) => x[1])) }));\n      return {\n        label, n: g.length, ms: Math.round(t1 - t0), avg: r1(gaps.reduce((a, b) => a + b, 0) / Math.max(1, gaps.length)), p99: r1(s[Math.floor(s.length * 0.99)] || 0), max: r1(s[s.length - 1] || 0),\n        over20: gaps.filter((x) => x > 20).length, over34: gaps.filter((x) => x > 34).length, over34At: slow(34),\n        changesAtMs: ch.map((c) => Math.round(c - t0)), windows,\n        swapFrames: sw.length, swapMax: r1(Math.max(0, ...sw)), swapOver20: sw.filter((x) => x > 20).length, swapOver34: sw.filter((x) => x > 34).length,\n        maxOutsideSwap: r1(Math.max(0, ...out)), over34OutsideSwap: out.filter((x) => x > 34).length,\n        over34OutsideSwapAt: outFrames.filter((x) => x[1] > 34).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]),\n        draws: JSON.parse(JSON.stringify(draws)), scenes,\n      };\n    },\n  };\n})();",
   "go": "{{BASE}}/",
   "wait": 9000
  },
  {
-  "eval": "({run:1,profile:'phone-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})",
+  "eval": "({run:1,profile:'phone-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
   "label": "phone-cpu4 run 1: the page"
  },
  {
@@ -1576,7 +1576,7 @@
   "wait": 9000
  },
  {
-  "eval": "({run:2,profile:'phone-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})",
+  "eval": "({run:2,profile:'phone-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
   "label": "phone-cpu4 run 2: the page"
  },
  {
@@ -1977,7 +1977,7 @@
   "wait": 9000
  },
  {
-  "eval": "({run:3,profile:'phone-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})",
+  "eval": "({run:3,profile:'phone-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
   "label": "phone-cpu4 run 3: the page"
  },
  {
@@ -2368,5 +2368,1215 @@
  {
   "eval": "Object.assign(__hs.stop('change, no box'), {heroBottom: Math.round(document.querySelector('#hero').getBoundingClientRect().bottom), boxTop: Math.round(document.querySelector('.blk-box').getBoundingClientRect().top)})",
   "label": "phone-cpu4 run 3 change, no box"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "nocache": true,
+  "cpu": 4,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){};(()=>{\n  if (window.__hs) return;\n  let g = [], on = false, last = 0, k = 0, txt = null; const changes = [];\n  const draws = { shelf: { on: 0, off: 0 }, wall: { on: 0, off: 0 } }, seen = { shelf: false, wall: false };\n  const io = new IntersectionObserver((es) => { for (const e of es) seen[e.target.__hsKind] = e.isIntersecting; });\n  const watch = () => { for (const [kind, id] of [['shelf', 'blkRead'], ['wall', 'blkWatch']]) { const el = document.querySelector('#' + id + ' .blk-box'); if (el && !el.__hsKind) { el.__hsKind = kind; io.observe(el); } } };\n  for (const P of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) {\n    if (!P) continue;\n    for (const fn of ['drawElements', 'drawArrays']) {\n      const o = P.prototype[fn];\n      P.prototype[fn] = function (...a) {\n        if (on) { const c = this.canvas && this.canvas.classList; const kind = c ? (c.contains('shelf-canvas') ? 'shelf' : c.contains('wall-canvas') ? 'wall' : null) : null; if (kind) draws[kind][seen[kind] ? 'on' : 'off']++; }\n        return o.apply(this, a);\n      };\n    }\n  }\n  const f = (n) => {\n    if (on && last) g.push([n, n - last, scrollY]);\n    last = n;\n    if (++k % 6 === 0) { watch(); const t = document.querySelector('#hero .caption .t'); const s = t ? t.textContent : null; if (txt !== null && s !== txt) changes.push(n); txt = s; }\n    requestAnimationFrame(f);\n  };\n  requestAnimationFrame(f);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const stats = (a) => ({ n: a.length, max: r1(Math.max(0, ...a)), over20: a.filter((x) => x > 20).length, over34: a.filter((x) => x > 34).length });\n  window.__hs = {\n    start() { g = []; draws.shelf.on = draws.shelf.off = draws.wall.on = draws.wall.off = 0; on = true; last = 0; return 'started'; },\n    stop(label) {\n      on = false;\n      const t0 = g.length ? g[0][0] : 0, t1 = g.length ? g[g.length - 1][0] : 0, gaps = g.map((x) => x[1]), s = [...gaps].sort((a, b) => a - b);\n      const slow = (lim) => g.filter((x) => x[1] > lim).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]);\n      // one timeline of the changes for the whole page: a change that began just before the pass still has its window over the pass's first frames\n      const ch = changes.filter((c) => c >= t0 - 3300 && c <= t1 + 500);\n      const inWin = (x) => ch.some((c) => x[0] >= c - 500 && x[0] <= c + 3300);\n      const inSwap = g.filter(inWin);\n      const sw = inSwap.map((x) => x[1]);\n      const outFrames = g.filter((x) => !inWin(x));\n      const out = outFrames.map((x) => x[1]);\n      const scenes = [...document.querySelectorAll('.box-scene')].map((e) => ({ kind: e.dataset.kind, drawn: e.hasAttribute('data-drawn'), plain: e.hasAttribute('data-plain'), canvas: !!e.querySelector('canvas') }));\n      const windows = ch.map((c) => ({ at: Math.round(c - t0), ...stats(g.filter((x) => x[0] >= c - 500 && x[0] <= c + 3300).map((x) => x[1])) }));\n      return {\n        label, n: g.length, ms: Math.round(t1 - t0), avg: r1(gaps.reduce((a, b) => a + b, 0) / Math.max(1, gaps.length)), p99: r1(s[Math.floor(s.length * 0.99)] || 0), max: r1(s[s.length - 1] || 0),\n        over20: gaps.filter((x) => x > 20).length, over34: gaps.filter((x) => x > 34).length, over34At: slow(34),\n        changesAtMs: ch.map((c) => Math.round(c - t0)), windows,\n        swapFrames: sw.length, swapMax: r1(Math.max(0, ...sw)), swapOver20: sw.filter((x) => x > 20).length, swapOver34: sw.filter((x) => x > 34).length,\n        maxOutsideSwap: r1(Math.max(0, ...out)), over34OutsideSwap: out.filter((x) => x > 34).length,\n        over34OutsideSwapAt: outFrames.filter((x) => x[1] > 34).slice(0, 12).map((x) => [Math.round(x[0] - t0), r1(x[1]), Math.round(x[2])]),\n        draws: JSON.parse(JSON.stringify(draws)), scenes,\n      };\n    },\n  };\n})();",
+  "go": "{{BASE}}/",
+  "wait": 9000
+ },
+ {
+  "eval": "({run:1,profile:'phone-dpr3-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
+  "label": "phone-dpr3-cpu4 run 1: the page"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 cold: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 1 cold: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 cold: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 1 cold: back to the hero"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 slow: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 1 slow: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 slow: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 1 slow: back to the hero"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 slow: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 1 slow: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 slow: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 1 slow: back to the hero"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 fast: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 1 fast: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 fast: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 1 fast: back to the hero"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 fast: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 1 fast: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 fast: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 1 fast: back to the hero"
+ },
+ {
+  "eval": "(()=>{const b=document.querySelector('.blk-box').getBoundingClientRect();const y=Math.round(scrollY+b.top-(innerHeight-150));scrollTo({top:y,behavior:'instant'});return {y}})()",
+  "label": "phone-dpr3-cpu4 run 1 change, box on screen: where the page is held"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 change, box on screen: start"
+ },
+ {
+  "wait": 24000
+ },
+ {
+  "eval": "Object.assign(__hs.stop('change, box on screen'), {heroBottom: Math.round(document.querySelector('#hero').getBoundingClientRect().bottom), boxTop: Math.round(document.querySelector('.blk-box').getBoundingClientRect().top)})",
+  "label": "phone-dpr3-cpu4 run 1 change, box on screen"
+ },
+ {
+  "eval": "(()=>{scrollTo({top:60,behavior:'instant'});return {y:scrollY}})()",
+  "label": "phone-dpr3-cpu4 run 1 change, no box: where the page is held"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 1 change, no box: start"
+ },
+ {
+  "wait": 24000
+ },
+ {
+  "eval": "Object.assign(__hs.stop('change, no box'), {heroBottom: Math.round(document.querySelector('#hero').getBoundingClientRect().bottom), boxTop: Math.round(document.querySelector('.blk-box').getBoundingClientRect().top)})",
+  "label": "phone-dpr3-cpu4 run 1 change, no box"
+ },
+ {
+  "go": "about:blank",
+  "wait": 500
+ },
+ {
+  "go": "{{BASE}}/",
+  "wait": 9000
+ },
+ {
+  "eval": "({run:2,profile:'phone-dpr3-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
+  "label": "phone-dpr3-cpu4 run 2: the page"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 cold: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 2 cold: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 cold: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 2 cold: back to the hero"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 slow: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 2 slow: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 slow: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 2 slow: back to the hero"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 slow: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 2 slow: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 slow: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 2 slow: back to the hero"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 fast: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 2 fast: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 fast: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 2 fast: back to the hero"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 fast: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 2 fast: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 fast: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 2 fast: back to the hero"
+ },
+ {
+  "eval": "(()=>{const b=document.querySelector('.blk-box').getBoundingClientRect();const y=Math.round(scrollY+b.top-(innerHeight-150));scrollTo({top:y,behavior:'instant'});return {y}})()",
+  "label": "phone-dpr3-cpu4 run 2 change, box on screen: where the page is held"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 change, box on screen: start"
+ },
+ {
+  "wait": 24000
+ },
+ {
+  "eval": "Object.assign(__hs.stop('change, box on screen'), {heroBottom: Math.round(document.querySelector('#hero').getBoundingClientRect().bottom), boxTop: Math.round(document.querySelector('.blk-box').getBoundingClientRect().top)})",
+  "label": "phone-dpr3-cpu4 run 2 change, box on screen"
+ },
+ {
+  "eval": "(()=>{scrollTo({top:60,behavior:'instant'});return {y:scrollY}})()",
+  "label": "phone-dpr3-cpu4 run 2 change, no box: where the page is held"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 2 change, no box: start"
+ },
+ {
+  "wait": 24000
+ },
+ {
+  "eval": "Object.assign(__hs.stop('change, no box'), {heroBottom: Math.round(document.querySelector('#hero').getBoundingClientRect().bottom), boxTop: Math.round(document.querySelector('.blk-box').getBoundingClientRect().top)})",
+  "label": "phone-dpr3-cpu4 run 2 change, no box"
+ },
+ {
+  "go": "about:blank",
+  "wait": 500
+ },
+ {
+  "go": "{{BASE}}/",
+  "wait": 9000
+ },
+ {
+  "eval": "({run:3,profile:'phone-dpr3-cpu4',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})",
+  "label": "phone-dpr3-cpu4 run 3: the page"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 cold: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 3 cold: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 cold: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 3 cold: back to the hero"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 slow: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 3 slow: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 slow: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 3 slow: back to the hero"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 slow: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 3 slow: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 slow: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),700,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 3 slow: back to the hero"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 fast: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 3 fast: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 fast: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 3 fast: back to the hero"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 fast: start"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.8,Math.max(1,Math.min(innerHeight*0.6,document.documentElement.scrollHeight-innerHeight-scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "eval": "__hs.stop('down and hold')",
+  "label": "phone-dpr3-cpu4 run 3 fast: down, with both boxes on screen at the end"
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 fast: start back"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "gesture": "(()=>[innerWidth/2,innerHeight*0.2,-Math.max(1,Math.min(innerHeight*0.6,scrollY)),2400,'touch'])()"
+ },
+ {
+  "wait": 1000
+ },
+ {
+  "eval": "__hs.stop('back up')",
+  "label": "phone-dpr3-cpu4 run 3 fast: back to the hero"
+ },
+ {
+  "eval": "(()=>{const b=document.querySelector('.blk-box').getBoundingClientRect();const y=Math.round(scrollY+b.top-(innerHeight-150));scrollTo({top:y,behavior:'instant'});return {y}})()",
+  "label": "phone-dpr3-cpu4 run 3 change, box on screen: where the page is held"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 change, box on screen: start"
+ },
+ {
+  "wait": 24000
+ },
+ {
+  "eval": "Object.assign(__hs.stop('change, box on screen'), {heroBottom: Math.round(document.querySelector('#hero').getBoundingClientRect().bottom), boxTop: Math.round(document.querySelector('.blk-box').getBoundingClientRect().top)})",
+  "label": "phone-dpr3-cpu4 run 3 change, box on screen"
+ },
+ {
+  "eval": "(()=>{scrollTo({top:60,behavior:'instant'});return {y:scrollY}})()",
+  "label": "phone-dpr3-cpu4 run 3 change, no box: where the page is held"
+ },
+ {
+  "wait": 1200
+ },
+ {
+  "eval": "__hs.start()",
+  "label": "phone-dpr3-cpu4 run 3 change, no box: start"
+ },
+ {
+  "wait": 24000
+ },
+ {
+  "eval": "Object.assign(__hs.stop('change, no box'), {heroBottom: Math.round(document.querySelector('#hero').getBoundingClientRect().bottom), boxTop: Math.round(document.querySelector('.blk-box').getBoundingClientRect().top)})",
+  "label": "phone-dpr3-cpu4 run 3 change, no box"
  }
 ]
