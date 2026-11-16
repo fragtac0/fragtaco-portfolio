@@ -80,6 +80,8 @@ const filmFrom = (profile, from, tag) => [
 const layoutAt = (w, h, wide) => [
   { size: [w, h], dpr: 1, mobile: false, touch: false, reduce: false, go: "{{BASE}}/experience", wait: 2500 },
   { label: `${wide ? "the words beside the mountain" : "today's places"} at ${w} x ${h}`, eval: CLEAR(cliff, wide) },
+  { shot: `warm-${w}x${h}` },
+  { shot: `r56-6-words-${w}x${h}` }, // the map has no thumbnails: these may be tracked (docs/redesign/compare/round7)
 ];
 
 const steps = [
@@ -143,9 +145,11 @@ function sheetSteps(out) {
     return { label, files };
   });
   const wide = 300;
+  const DESK_H = Math.round((wide * 900) / 1440);
+  const PHONE_H = Math.round((wide * 844) / 390);
   const cell = (file, name, h) => `<div style='position:relative;width:${wide}px;height:${h}px;background:#000'><img src='file://${out}/${file}' style='width:${wide}px;height:${h}px;object-fit:cover;display:block'><span style='position:absolute;left:4px;top:2px;background:#000a;color:#fff;padding:1px 4px;font:11px monospace'>${name}</span></div>`;
-  const rows = cells.map((c, i) => c.files.map((f, j) => cell(f, `${c.label}, ${NAMES[j] ?? ""}`, i < 2 ? Math.round((wide * 900) / 1440) : Math.round((wide * 844) / 390 / 2.2))).join("")).join("");
+  const rows = cells.map((c, i) => c.files.map((f, j) => cell(f, `${c.label}, ${NAMES[j] ?? ""}`, i < 2 ? DESK_H : PHONE_H)).join("")).join("");
   const html = `<body style='margin:0;background:#222;display:grid;grid-template-columns:repeat(5,${wide}px);gap:4px'>${rows}</body>`;
   writeFileSync(`${out}/sheet.html`, html);
-  return [{ size: [5 * (wide + 4), 1200], go: `file://${out}/sheet.html`, wait: 900, shot: "r56-6-entrance-sheet" }];
+  return [{ size: [5 * (wide + 4), 2 * (DESK_H + 4) + 2 * (PHONE_H + 4)], go: `file://${out}/sheet.html`, wait: 900, shot: "r56-6-entrance-sheet" }];
 }

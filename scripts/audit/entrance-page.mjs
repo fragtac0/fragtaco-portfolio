@@ -56,12 +56,15 @@ const o={
  frames:win.length,medianGapMs:+sorted[Math.floor(sorted.length/2)].toFixed(1),maxGapMs:+sorted.at(-1).toFixed(1),over20:win.filter(x=>x>20).length,over34:long34.length,over34Idle:long34.length-own34.length,over34Own:own34.length,over34Own_at:own34.map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),over34At:inWin.filter(x=>x[1]>34).map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),loaf:window.__loaf.filter(e=>e.s+e.d>=S.anchor&&e.s<=S.anchor+S.T+4000&&e.d>40).map(e=>({at:+(e.s-S.anchor).toFixed(0),d:+e.d.toFixed(0),b:+e.b.toFixed(0),sc:e.sc})),
  layoutShifts:shifts.length,layoutShiftSum:+shifts.reduce((a,e)=>a+e.v,0).toFixed(5),
 };
-o.ok=s6.title===0&&s6.label===0&&s6.desc<0.05&&s6.lines.every(x=>x<0.05)&&s6.pinsIn===0&&s6.cream===0
- &&s8.title>=1&&s8.title<s8.titleTotal&&s8.cream===0&&s8.pinsIn===0
- &&sT.title===sT.titleTotal&&sT.cream<0.03*s32.cream
- &&s11.share>0.35&&s11.share<0.65&&s11.pinsIn>=3&&s11.pinsIn<=5&&s11.orange===0
- &&s32.title===s32.titleTotal&&s32.label===s32.labelTotal&&s32.desc>0.95&&s32.lines.every(x=>x>0.95)&&s32.pinsIn===s32.pins&&s32.orange>0&&s32.cream>0
- &&shifts.length===0&&o.over34Own===0;
+o.checks={
+ nothingAt06:s6.title===0&&s6.label===0&&s6.desc<0.05&&s6.lines.every(x=>x<0.05)&&s6.pinsIn===0&&s6.cream===0,
+ titlePartlyAt08:s8.title>=1&&s8.title<s8.titleTotal&&s8.cream===0&&s8.pinsIn===0,
+ titleInAtTNoTrail:sT.title===sT.titleTotal&&sT.cream<0.03*s32.cream,
+ halfDrawnAtT1100:o.atT1100.share>0.35&&o.atT1100.share<0.65&&s11.pinsIn>=3&&s11.pinsIn<=5&&s11.orange===0,
+ everythingAtT3200:s32.title===s32.titleTotal&&s32.label===s32.labelTotal&&s32.desc>0.95&&s32.lines.every(x=>x>0.95)&&s32.pinsIn===s32.pins&&s32.orange>0&&s32.cream>0,
+ noLayoutShift:shifts.length===0,
+ noOwnFrameOver34:o.over34Own===0};
+o.ok=Object.values(o.checks).every(Boolean);
 return JSON.stringify(o)})()`;
 
 /** The layout of spec 7, read from the page once the entrance is over: where the two blocks are, and how clear of the cliff, the beads, the trail and the switch. */

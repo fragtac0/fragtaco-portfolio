@@ -2,7 +2,7 @@
 // words-layout.ts write, they hide a word before its time, they move nothing but opacity and transform, and they have a reduced-motion form.
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { entranceVars } from "./entrance";
+import { BEAD_FROM, ENTRANCE, entranceVars } from "./entrance";
 import { WIDE_MEDIA } from "./words-layout";
 import { DY_VAR, TITLE_VAR } from "./use-words-layout";
 
@@ -69,12 +69,13 @@ describe("the beads' entrance (cards.css)", () => {
   it("hides a bead until its time, shows it when it has the focus, and grows it from 0.6 over 260 ms", () => {
     expect(cards).toMatch(/\.map-pin\[data-wait\] \{\s*opacity: 0;/);
     expect(cards).toMatch(/\.map-pin\[data-wait\]:focus \{\s*opacity: 1;/);
-    expect(cards).toContain("scale(calc(var(--bs, 1) * 0.6))");
-    expect(cards).toMatch(/\.map-pin\[data-enter\] \{\s*transition-duration: 260ms;/);
+    expect(cards).toContain(`scale(calc(var(--bs, 1) * ${BEAD_FROM}))`);
+    expect(cards).toMatch(new RegExp(`\\.map-pin\\[data-enter\\] \\{\\s*transition-duration: ${ENTRANCE.beadMs}ms;`));
+    expect(cards).toContain(`transform ${ENTRANCE.beadMs}ms ease-out`);
   });
 
   it("has no transition for a bead shown at once, and 200 ms with no growth under reduced motion", () => {
     expect(cards).toMatch(/\[data-instant\][^{]*\{\s*transition: none;/);
-    expect(cards.slice(cards.indexOf("@media (prefers-reduced-motion: reduce)"))).toMatch(/\.map-pin\[data-enter\] \{\s*transition-duration: 200ms;/);
+    expect(cards.slice(cards.indexOf("@media (prefers-reduced-motion: reduce)"))).toMatch(new RegExp(`\\.map-pin\\[data-enter\\] \\{\\s*transition-duration: ${ENTRANCE.reducedMs}ms;`));
   });
 });
