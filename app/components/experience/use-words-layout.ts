@@ -36,8 +36,12 @@ export function applyWordsLayout(page: LayoutPage, cliff: WordsLayoutData["cliff
   const rect = page.getBoundingClientRect();
   const stage = { w: rect.width, h: rect.height };
 
-  page.style.removeProperty(TITLE_VAR); // the stylesheet's own size is the most the title can be
+  // Measure the blocks in the beside styles every time: the stylesheet's own size is the most the title can be, and the mountain's block is narrower
+  // (32 ch, right-aligned) beside the mountain than in its old place, so a veto left from the last layout (a screen that was narrow or upright) must be off
+  // while they are read. It is put back below if the layout vetoes again.
+  page.style.removeProperty(TITLE_VAR);
   page.style.removeProperty(DY_VAR);
+  delete page.dataset.words;
 
   const parts = page.parts();
   const titleMax = parts.titleSize();

@@ -6,16 +6,21 @@ import { SUMMIT_XY } from "./frame";
 import { BEAD_REACH, TRAIL_REACH, overlaps, type Box } from "./keep-out";
 import { overviewAt, type Look, type Stage } from "./view";
 
-/** A wide screen: at least 900 px wide and wider than it is high. The same words as the stylesheet's media query (experience.css), which places the blocks before the page has measured anything. */
-export const WIDE_MEDIA = "(min-width: 900px) and (min-aspect-ratio: 1001/1000)";
-export const isWide = (stage: Stage): boolean => stage.w >= 900 && stage.w > stage.h;
+/**
+ * A wide screen: at least 900 px wide and wider than it is high by a thousandth (`min-aspect-ratio: 1001/1000` takes the ratio itself, so a square or
+ * a hair wider is not wide). One rule on both sides: the stylesheet's media query (experience.css) places the blocks before the page has measured
+ * anything, and `isWide` is the same test on the page's size, written as the cross product so no rounding can make the two disagree.
+ */
+export const WIDE_MIN_WIDTH = 900;
+export const WIDE_RATIO = [1001, 1000] as const;
+export const WIDE_MEDIA = `(min-width: ${WIDE_MIN_WIDTH}px) and (min-aspect-ratio: ${WIDE_RATIO[0]}/${WIDE_RATIO[1]})`;
+export const isWide = (stage: Stage): boolean => stage.w >= WIDE_MIN_WIDTH && stage.w * WIDE_RATIO[1] >= stage.h * WIDE_RATIO[0];
 
 /** The title block's right edge stays this far from the mountain's cliff at its rows, in pixels; the title shrinks toward `TITLE_MIN` to keep that. */
 export const CLIFF_GAP = 24;
 export const TITLE_MIN = 34;
-/** The mountain's block stays this far from every bead, the trail and the switch, in pixels, and is at most this many characters wide. */
+/** The mountain's block stays this far from every bead, the trail and the switch, in pixels (its width, 32 ch at most, is the stylesheet's: experience.css). */
 export const MARK_GAP = 32;
-export const CAPTION_CHARS = 32;
 /** A bead's touch target is 44 px: its half, round the bead's centre, is what the mountain's block keeps clear of (then `MARK_GAP` more). */
 export const BEAD_HALF = 22;
 /** The room kept at the screen's edges, and between the mountain's block and the dock, in pixels. */
@@ -54,8 +59,9 @@ export type Measured = { w: number; h: number };
 /**
  * The title block: the largest title size from `max` down to `TITLE_MIN` (whole pixels) at which the block, centred on `row` with its left at
  * `left`, ends at least `CLIFF_GAP` short of the cliff's leftmost x over its rows (`cliffLeft(top, bottom)`) and stays inside the screen and clear of the
- * dock. Null when even `TITLE_MIN` does not fit (the page keeps the old places). A block that fits at a size fits at every smaller one (it only gets
- * smaller, inside the bigger one), so the size is found by halving the range: a handful of measures, each a layout of the page.
+ * dock. `max` itself (the stylesheet's size, not rounded) is tried first, and kept where it fits: the title shrinks only to keep the gap. Null when even
+ * `TITLE_MIN` does not fit (the page keeps the old places). A block that fits at a size fits at every smaller one (it only gets smaller, inside the bigger
+ * one), so below `max` the size is found by halving the range in whole pixels: a handful of measures, each a layout of the page.
  */
 export function fitTitle(
   measure: (size: number) => Measured,
@@ -69,11 +75,16 @@ export function fitTitle(
 
     return inScreen && clear ? { size, box } : null;
   };
+  const full = tried(at.max);
+
+  if (full !== null) return full;
+
   let best = tried(TITLE_MIN);
 
   if (best === null) return null;
 
-  let [lo, hi] = [TITLE_MIN, Math.floor(at.max)];
+  // `max` did not fit: the largest whole size below it that does
+  let [lo, hi] = [TITLE_MIN, Math.ceil(at.max) - 1];
 
   while (lo < hi) {
     const mid = Math.ceil((lo + hi) / 2);

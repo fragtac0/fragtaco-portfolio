@@ -16,10 +16,14 @@ const marks = {
   lines: [trail, ahead].map((l) => l.map((p) => [p.x, p.y] as const)),
 };
 
-/** A page with a heading whose box follows `--map-title-size` as a browser's would (the title at 6.1 em, the description 225 px), and a caption of 211 by 130. */
-function fakePage(w: number, h: number, max = 64) {
+/**
+ * A page with a heading whose box follows `--map-title-size` as a browser's would (the title at 6.1 em, the description 225 px), and a caption that is
+ * 211 by 130 beside the mountain (32 ch, right-aligned) and 415 by 78 in its old place (`data-words="old"`), as the stylesheet makes it. `words` is what
+ * `data-words` was before the layout (the last layout's veto).
+ */
+function fakePage(w: number, h: number, max = 64, words?: string) {
   const vars: Record<string, string> = {};
-  const dataset: Record<string, string | undefined> = {};
+  const dataset: Record<string, string | undefined> = words === undefined ? {} : { words };
   const size = () => parseFloat(vars[TITLE_VAR] ?? `${max}`);
   const page: LayoutPage = {
     getBoundingClientRect: () => ({ left: 0, top: 0, width: w, height: h }),
@@ -29,7 +33,7 @@ function fakePage(w: number, h: number, max = 64) {
     parts: () => ({
       heading: { getBoundingClientRect: () => ({ width: Math.max(6.1 * size(), 225), height: 2 * size() + 68 }) },
       titleSize: () => max,
-      caption: { getBoundingClientRect: () => ({ width: 211, height: 130 }) },
+      caption: { getBoundingClientRect: () => (dataset.words === "old" ? { width: 415, height: 78 } : { width: 211, height: 130 }) },
       switchBox: { l: w - 258, t: 28, r: w - 48, b: 72 },
       dock: { l: w / 2 - 223, t: h - 124, r: w / 2 + 223, b: h - 12 },
     }),
@@ -44,7 +48,7 @@ describe("applyWordsLayout", () => {
     const layout = applyWordsLayout(page, cliff, marks);
 
     expect(layout.beside).toBe(true);
-    expect(vars[TITLE_VAR]).toMatch(/^\d+px$/);
+    expect(vars[TITLE_VAR]).toMatch(/^\d+(\.\d+)?px$/);
     expect(parseFloat(vars[TITLE_VAR])).toBeLessThanOrEqual(41.4);
     expect(parseFloat(vars[DY_VAR])).toBeLessThan(0); // up, out of the first milestone's way
     expect(dataset.words).toBeUndefined();
@@ -80,5 +84,28 @@ describe("applyWordsLayout", () => {
       expect(vars[DY_VAR]).toBeUndefined();
       expect(dataset.words).toBe("old");
     }
+  });
+
+  it("measures the mountain's block in its beside styles whatever the last layout vetoed (a tablet turned sideways, a window made bigger)", () => {
+    // the sizes the review measured: after 820 by 1180 (upright: "old") the screen is 1180 by 820; after 960 by 540 (no room) it is 1280 by 800
+    for (const [w, h, max] of [[1180, 820, 64], [1024, 768, 43], [900, 600, 41.4], [1280, 800, 64]] as const) {
+      const fresh = fakePage(w, h, max);
+      const stale = fakePage(w, h, max, "old");
+      const want = applyWordsLayout(fresh.page, cliff, marks);
+      const got = applyWordsLayout(stale.page, cliff, marks);
+
+      expect(want.beside).toBe(true);
+      expect(got).toEqual(want); // the same layout as on a page that was never vetoed: the block was read 211 by 130, not 415 by 78
+      expect(stale.vars).toEqual(fresh.vars);
+      expect(stale.dataset.words).toBeUndefined();
+      if (got.beside) expect(got.caption.r - got.caption.l).toBe(211);
+    }
+  });
+
+  it("puts the veto back when the layout vetoes again, and not before the measure", () => {
+    const { page, dataset } = fakePage(820, 1180, 64, "old");
+
+    expect(applyWordsLayout(page, cliff, marks)).toEqual({ beside: false });
+    expect(dataset.words).toBe("old");
   });
 });

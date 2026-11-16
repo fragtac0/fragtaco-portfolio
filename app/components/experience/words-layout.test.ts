@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import experience from "../../../content/site/experience.json";
 import { SUMMIT_XY, xOf, yOf } from "./frame";
 import type { Box } from "./keep-out";
-import { CLIFF_GAP, MARK_GAP, TITLE_MIN, fitTitle, isWide, layoutWords, markBoxes, placeBlock, ringLeftWithin, summitRow, type Marks } from "./words-layout";
+import { CLIFF_GAP, MARK_GAP, TITLE_MIN, WIDE_MEDIA, fitTitle, isWide, layoutWords, markBoxes, placeBlock, ringLeftWithin, summitRow, type Marks } from "./words-layout";
 import { MILESTONE_SHARES, aheadTrail, lowerTrail, sampleTrail, trailAt } from "./trail";
 import { OVERVIEW, overviewAt, type Stage } from "./view";
 
@@ -72,6 +72,16 @@ describe("isWide", () => {
     expect(isWide({ w: 844, h: 390 })).toBe(false);
     expect(isWide({ w: 390, h: 844 })).toBe(false);
   });
+
+  it("agrees with the stylesheet's media query, which takes the ratio itself (a thousandth wider than square), at every size around the edge", () => {
+    expect(WIDE_MEDIA).toBe("(min-width: 900px) and (min-aspect-ratio: 1001/1000)");
+    // `min-aspect-ratio: 1001/1000` is w / h >= 1.001: 1200 by 1199 is wider than high but not by a thousandth, so the stylesheet keeps the old places
+    expect(isWide({ w: 1200, h: 1199 })).toBe(false);
+    expect(isWide({ w: 1000, h: 999 })).toBe(true); // 1001/1000 exactly
+    expect(isWide({ w: 1001, h: 1000 })).toBe(true);
+    expect(isWide({ w: 1000, h: 1000 })).toBe(false);
+    for (let h = 600; h <= 1300; h += 7) for (const w of [900, 901, 1000, 1200, 1500]) expect(isWide({ w, h })).toBe(w / h >= 1.001 - 1e-12);
+  });
 });
 
 describe("ringLeftWithin", () => {
@@ -104,6 +114,14 @@ describe("fitTitle", () => {
 
     expect(got?.size).toBe(Math.floor(((300 - 0) / 6.1)));
     expect(got?.box.r).toBeLessThanOrEqual(48 + 300);
+  });
+
+  it("keeps the stylesheet's size itself where it fits, not a rounded-down one", () => {
+    const got = fitTitle(measureTitle, { ...base, max: 58.88, cliffLeft: () => 5000 });
+
+    expect(got?.size).toBe(58.88);
+    // where it does not fit, the largest whole size below it that does
+    expect(fitTitle(measureTitle, { ...base, max: 58.88, cliffLeft: () => 48 + 300 + CLIFF_GAP })?.size).toBe(49);
   });
 
   it("keeps the biggest size when it fits, and never goes under TITLE_MIN", () => {

@@ -29,6 +29,9 @@ export const ENTRANCE = {
   reducedMs: 200,
 } as const;
 
+/** The words are shown by the stylesheet alone after this long if the script has not played the entrance (a script that failed, or never came), in milliseconds. */
+export const ENTRANCE_FAILSAFE_MS = 6000;
+
 /** The size a bead starts from, as a share of its size. */
 export const BEAD_FROM = 0.6;
 /** How far a letter rises and a line rises while they fade in, in pixels. */
@@ -93,19 +96,6 @@ export function entranceVars(T: number, lag: number): Record<string, string> {
     "--ent-line-rise": `${LINE_RISE_PX}px`,
     "--ent-reduced-ms": ms(ENTRANCE.reducedMs),
   };
-}
-
-/** When the last word has finished, in ms after the reveal started (a title of `titleLetters`, a label of `labelLetters`, `lines` lines). */
-export function wordsEnd(T: number, titleLetters: number, labelLetters: number, lines: number): number {
-  const t = wordTimes(T, lines);
-  const ends = [
-    t.title + (Math.max(0, titleLetters - 1)) * ENTRANCE.titleGapMs + ENTRANCE.letterMs,
-    t.desc + ENTRANCE.lineMs,
-    t.label + Math.max(0, labelLetters - 1) * ENTRANCE.labelGapMs + ENTRANCE.letterMs,
-    ...t.lines.map((s) => s + ENTRANCE.lineMs),
-  ];
-
-  return Math.max(...ends);
 }
 
 /** The whole entrance's length after the reveal started (the trace begins when the reveal ends): when the page may call it done. */

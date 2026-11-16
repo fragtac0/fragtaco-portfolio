@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MILESTONE_SHARES } from "./trail";
-import { ENTRANCE, TRACE_END_MS, aheadShare, beadDelay, entranceEnd, entranceVars, traceShare, wordTimes, wordsEnd } from "./entrance";
+import { ENTRANCE, TRACE_END_MS, aheadShare, beadDelay, entranceEnd, entranceVars, traceShare, wordTimes } from "./entrance";
 
 describe("ENTRANCE", () => {
   it("is the spec's table", () => {
@@ -98,10 +98,12 @@ describe("the words' times", () => {
   });
 
   it("all finish before the trace is over, at 2.25 s", () => {
-    const end = wordsEnd(2250, 13, 12, 3);
+    const t = wordTimes(2250, 3);
+    const end = t.lines[2] + ENTRANCE.lineMs; // the third line is the last thing to finish
 
     expect(end).toBeLessThan(entranceEnd(2250));
-    expect(end).toBeCloseTo(1575 + 360 + 2 * 60 + 400, 8); // the third line is the last thing to finish
+    expect(end).toBeCloseTo(1575 + 360 + 2 * 60 + 400, 8);
+    expect(t.title + 12 * ENTRANCE.titleGapMs + ENTRANCE.letterMs).toBeLessThan(end); // the title's 13 letters
   });
 
   it("the entrance ends a reveal plus the trace after it began", () => {
