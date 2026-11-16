@@ -255,6 +255,12 @@ describe("coarseBuffer", () => {
     expect(coarseBuffer(2850, 2880, 256, 2880)).toBe(2880);
     expect(coarseBuffer(3000, 2880, 256, 2880)).toBe(3000); // a need above the cap is still covered
   });
+  it("keeps a short buffer only while the need is below the cap, so the last frame of the move is drawn at the window's buffer", () => {
+    expect(coarseBuffer(1300, 1280, 256, 1300)).toBe(1300); // 1280 is within 2% of 1300, but 1300 is the cap's end
+    expect(coarseBuffer(1299, 1280, 256, 1300)).toBe(1280); // one device pixel short of the end, the short buffer is still kept
+    expect(coarseBuffer(1036, 1024, 256, 1036)).toBe(1036);
+    expect(coarseBuffer(1300, 1300, 256, 1300)).toBe(1300); // at the end with the window's buffer already held: nothing allocated
+  });
   it("starts from nothing at the next multiple, and never makes an empty buffer", () => {
     expect(coarseBuffer(1296, 0)).toBe(1536);
     expect(coarseBuffer(0, 0)).toBe(256);

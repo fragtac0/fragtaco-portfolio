@@ -3,8 +3,9 @@ import { ledgeHeight } from "./ledge";
 /**
  * How the reading box frames the shelf (round 7 second look, spec 6; Task 30). The shelf is always drawn as the open page's picture
  * (a window sized stage, fitted by `flatFrame`); a frame only chooses which part of that picture it shows, and it may show a part
- * larger than the window. Docked in its box the frame shows the whole row on its ledge, as large as fits (`containFraming`); over
- * the opening the framing eases to the open page's own (the whole window, scale 1) and closing is the same backwards. Pure: the
+ * larger than the window. Docked in its box the frame shows the whole row on its ledge, as large as fits but never larger than the open
+ * page draws it (`containFraming`, scale at most 1: RB10); over the opening the framing eases to the open page's own (the whole window,
+ * scale 1) and closing is the same backwards, so at every size and at every t the scale only grows with t. Pure: the
  * engine's camera and DOM work is shelf-frame.ts.
  *
  * Everything is in pixels of the open page's picture unless it says the frame's. `t` is the move's position: 0 the box, 1 the
@@ -59,12 +60,15 @@ export function windowRow(p: {
 
 /**
  * The framing that puts the whole row, ledge included, inside a `frame`-sized box, as large as fits: the books and the ledge keep
- * `TOP_PAD`, `BOTTOM_PAD` and `SIDE_PAD` clear, and what is left over is shared so the shelf sits in the middle of that room.
+ * `TOP_PAD`, `BOTTOM_PAD` and `SIDE_PAD` clear, and what is left over is shared so the shelf sits in the middle of that room. The scale
+ * is at most 1 (RB10): the box never draws the row larger than the open page does (its textures are painted for that size, and the
+ * opening would shrink the books), so a box that has room to spare (a landscape phone) shows the open page's row, centred, a little
+ * smaller than the room allows.
  */
 export function containFraming(frame: Size, row: Row): Framing {
   const availW = frame.w * (1 - 2 * SIDE_PAD);
   const availH = frame.h * (1 - TOP_PAD - BOTTOM_PAD);
-  const scale = Math.min(availW / (row.right - row.left), availH / (row.ledgeBottom - row.top));
+  const scale = Math.min(1, availW / (row.right - row.left), availH / (row.ledgeBottom - row.top));
   const bandMid = frame.h * (TOP_PAD + (1 - TOP_PAD - BOTTOM_PAD) / 2);
   return {
     scale,
@@ -76,7 +80,7 @@ export function containFraming(frame: Size, row: Row): Framing {
 /**
  * The framing at `t` of a move that starts in a `box`-sized frame and ends in the `win` window: the box's own (`containFraming`) at 0 and
  * exactly the open page's at 1 (scale 1, the window's middle). The scale eases geometrically (the same zoom rate the whole way) and
- * the centre in a straight line, so it is monotonic and has no step at either end.
+ * the centre in a straight line, so it is monotonic (the box's scale is at most 1, so it only grows with t) and has no step at either end.
  */
 export function shelfFraming(box: Size, win: Size, row: Row, t: number): Framing {
   const e = clamp01(t);

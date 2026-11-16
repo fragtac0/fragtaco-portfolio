@@ -9,6 +9,7 @@ import {
   dotRes,
   dotRegion,
   framingRect,
+  frameSizeAt,
   projectRow,
   shelfFraming,
   windowRow,
@@ -41,8 +42,12 @@ const CASES = [
   { name: "1440 by 900", win: { w: 1440, h: 900 }, box: { w: 648, h: 300 } },
   { name: "1366 by 768", win: { w: 1366, h: 768 }, box: { w: 614, h: 300 } },
   { name: "390 by 844", win: { w: 390, h: 844 }, box: { w: 358, h: 332 } },
+  // the landscape phone (dpr 2: the box measured on the production build): the room is larger than the open page's row, so the cap (RB10) holds
+  { name: "844 by 390", win: { w: 844, h: 390 }, box: { w: 776, h: 312 } },
 ];
 const T_STEPS = Array.from({ length: 21 }, (_, i) => i / 20);
+/** t samples that are not the grid `dotRegion` takes its region from (it takes 21 points, i / 20). */
+const OFF_GRID = Array.from({ length: 98 }, (_, i) => i / 97);
 
 describe("the row of the open page", () => {
   it("has its books between the line they stand on and the top, and the ledge under the line", () => {
@@ -88,7 +93,7 @@ describe.each(CASES)("the box framing at t = 0 ($name)", ({ win, box }) => {
     expect((row.top - rect.y) * fr.scale).toBeGreaterThanOrEqual(0.06 * box.h);
   });
 
-  it("is as large as fits: one of the box's margins is the padding itself", () => {
+  it("is as large as fits, or as large as the open page draws the row (the cap): one of the box's margins is the padding itself, or the scale is 1", () => {
     const { row } = rowAt(win.w, win.h);
     const fr = shelfFraming(box, win, row, 0);
     const rect = framingRect(fr, box);
@@ -99,7 +104,7 @@ describe.each(CASES)("the box framing at t = 0 ($name)", ({ win, box }) => {
       Math.abs(top - TOP_PAD * box.h) < 1e-6 && Math.abs(foot - BOTTOM_PAD * box.h) < 1e-6
         ? true
         : Math.abs(side - SIDE_PAD * box.w) < 1e-6;
-    expect(tight).toBe(true);
+    expect(tight || fr.scale === 1).toBe(true);
   });
 
   it("the picture is not stretched: the part of the window it shows has the box's own shape", () => {
@@ -123,13 +128,21 @@ describe.each(CASES)("the framing over the move ($name)", ({ win, box }) => {
     expect(framingRect(fr, win)).toEqual({ x: 0, y: 0, w: win.w, h: win.h });
   });
 
-  it("the scale only grows with t, in steps of 0.05", () => {
-    let prev = 0;
-    for (const t of T_STEPS) {
-      const s = shelfFraming(box, win, row, t).scale;
-      expect(s).toBeGreaterThanOrEqual(prev);
-      prev = s;
+  it("the scale only grows with t, in steps of 0.05 and between them", () => {
+    for (const steps of [T_STEPS, OFF_GRID]) {
+      let prev = 0;
+      for (const t of steps) {
+        const s = shelfFraming(box, win, row, t).scale;
+        expect(s).toBeGreaterThanOrEqual(prev);
+        prev = s;
+      }
     }
+  });
+
+  it("the box never draws the row larger than the open page does (the opening only grows the books)", () => {
+    const s0 = shelfFraming(box, win, row, 0).scale;
+    expect(s0).toBeLessThanOrEqual(1);
+    for (const t of OFF_GRID) expect(shelfFraming(box, win, row, t).scale).toBeLessThanOrEqual(1);
   });
 
   it("has no step at either end: a hair from t = 0 or 1 is a hair from the end's own framing", () => {
@@ -147,7 +160,8 @@ describe.each(CASES)("the framing over the move ($name)", ({ win, box }) => {
 
   it("the dot field covers the frame above the line the books stand on, at every t", () => {
     const region = dotRegion(box, win, row);
-    for (const t of T_STEPS) {
+    // off the grid dotRegion takes its region from, so a gap between its samples would show
+    for (const t of OFF_GRID) {
       const f = frameAt({ left: 0, top: 0, width: box.w, height: box.h }, win.w, win.h, t);
       const rect = framingRect(shelfFraming(box, win, row, t), { w: f.width, h: f.height });
       expect(region.x).toBeLessThanOrEqual(rect.x + 1e-6);
@@ -160,6 +174,18 @@ describe.each(CASES)("the framing over the move ($name)", ({ win, box }) => {
 });
 
 describe("the contain framing", () => {
+  it("never draws the row larger than the open page does, however much room the box has (RB10)", () => {
+    // a row that fits the box 1.048 times over, as the landscape phone's does: the scale stays 1
+    const row: Row = { left: 0, right: 376.2, top: 100, bottom: 190, ledgeBottom: 200 };
+    const fr = containFraming({ w: 776, h: 312 }, row);
+    expect(fr.scale).toBe(1);
+    // its centre is still the row's, in the middle of the room
+    const rect = framingRect(fr, { w: 776, h: 312 });
+    expect(((row.left + row.right) / 2 - rect.x) * fr.scale).toBeCloseTo(388, 6);
+    // and a box a hair too small for the row is not capped: the scale is the fit
+    expect(containFraming({ w: 360, h: 312 }, row).scale).toBeCloseTo((360 * (1 - 2 * SIDE_PAD)) / 376.2, 9);
+  });
+
   it("fits a wide row by its width and a tall one by its height", () => {
     const wide: Row = { left: 0, right: 1000, top: 0, bottom: 90, ledgeBottom: 100 };
     const a = containFraming({ w: 500, h: 500 }, wide);
@@ -178,6 +204,21 @@ describe("the contain framing", () => {
     const above = (row.top - rect.y) * fr.scale - TOP_PAD * 200;
     const below = 200 - (row.ledgeBottom - rect.y) * fr.scale - BOTTOM_PAD * 200;
     expect(above).toBeCloseTo(below, 6);
+  });
+});
+
+describe("the frame's size over the move", () => {
+  const box = { w: 648, h: 300 };
+  const win = { w: 1440, h: 900 };
+  it("is the box at 0 and the window at 1, in a straight line between", () => {
+    expect(frameSizeAt(box, win, 0)).toEqual(box);
+    expect(frameSizeAt(box, win, 1)).toEqual(win);
+    expect(frameSizeAt(box, win, 0.5)).toEqual({ w: 1044, h: 600 });
+    expect(frameSizeAt(box, win, 0.25)).toEqual({ w: 846, h: 450 });
+  });
+  it("holds at the ends outside 0 to 1", () => {
+    expect(frameSizeAt(box, win, -1)).toEqual(box);
+    expect(frameSizeAt(box, win, 2)).toEqual(win);
   });
 });
 
@@ -205,7 +246,8 @@ describe("how fine the dot field is painted", () => {
       const { row } = rowAt(win.w, win.h);
       const region = dotRegion(box, win, row);
       const res = dotRes(containFraming(box, row).scale);
-      expect(res).toBeLessThan(0.6);
+      // the cap (RB10) makes the landscape phone's box scale 1, painted in full: its region is no larger than the box's own pixels, below
+      if (containFraming(box, row).scale < 1) expect(res).toBeLessThan(0.6);
       // the pixels painted (at the same pixel ratio) against the box's own canvas
       expect(region.w * region.h * res * res).toBeLessThan(box.w * box.h * 2);
     }

@@ -82,17 +82,17 @@ export function frameView(frame: Frame | null, vw: number, vh: number, dpr: numb
  */
 export const COARSE_STEP = 256;
 
-/** A buffer up to this share smaller than the picture needs is kept as it is: it is shown stretched by that little, which no eye sees, and the first frames of a move (where the frame has grown by a pixel or two) draw exactly what the box at rest drew (the click changes no pixel of the picture). */
+/** A buffer up to this share smaller than the picture needs is kept as it is while the need is below the cap's end: it is shown stretched by that little, which no eye sees, and the first frames of a move (where the frame has grown by a pixel or two) draw exactly what the box at rest drew (the click changes no pixel of the picture). It is never kept at the cap's end, where the last frame is drawn at the window's own buffer. */
 export const COARSE_SHORT = 0.02;
 
 /**
  * The buffer size, in device pixels, for a picture that needs `needed` of them when the buffer is now `held` (0 for none): the same
  * `held` while `needed * (1 - COARSE_SHORT) <= held < needed + step`, else `needed` rounded up to a multiple of `step`, but not above `cap` (the buffer
- * the move ends with) unless the need itself is above it. Never more than `COARSE_SHORT` smaller than `needed`.
+ * the move ends with) unless the need itself is above it. A buffer smaller than the need is kept only while the need is below `cap`, and then never more than `COARSE_SHORT` smaller.
  */
 export function coarseBuffer(needed: number, held: number, step: number = COARSE_STEP, cap: number = Infinity): number {
   const need = Math.max(1, Math.ceil(needed));
-  if (held >= need * (1 - COARSE_SHORT) && held - need < step) return held;
+  if (held >= need * (1 - COARSE_SHORT) && held - need < step && (held >= need || need < cap)) return held;
   // `cap` (the window's own size) is where the opening ends: the buffer is exactly that there, so the end of the move allocates nothing
   return Math.min(Math.ceil(need / step) * step, Math.max(cap, need));
 }
