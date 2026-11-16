@@ -2,10 +2,10 @@
 // of the change drawn on one 2D canvas, low level to high, each filled and then stroked. Vectors at the screen's
 // resolution, so the lines stay sharp. The drawing takes the view; it only runs while the night is on and the
 // view has changed (the engine decides). The loading is the only part that touches the DOM.
-import { buildLevels, type Level } from "./contours";
-import { GRID_H, GRID_W, liftOf, makeField, type HeightField } from "./heights";
+import { levelsOf, type Level } from "./contours";
+import { GRID_H, GRID_W, fieldSteps, liftOf, type HeightField } from "./heights";
 import type { Stage, View } from "./view";
-import { whenIdle } from "../../utils/idle";
+import { runInTurns } from "../../utils/turns";
 
 /** What loading the heights gives: the field (for the trail's heights) and the levels (for the drawing). */
 export type Terrain = { field: HeightField; levels: Level[] };
@@ -68,10 +68,11 @@ export function drawTerrain(c: CanvasRenderingContext2D, levels: readonly Level[
   }
 }
 
-/** Resolve on the next idle moment (at most `within` ms), so the two heavy steps of loading do not share a task. */
-const idle = (within: number) => new Promise<void>((resolve) => whenIdle(resolve, within));
-
-/** Load the height picture. Rejects if it does not load or the canvas cannot be read. The steps run apart, each in an idle moment. */
+/**
+ * Load the height picture. Rejects if it does not load or the canvas cannot be read. Reading the picture is one short step; the field (about 60 ms of
+ * work) and the levels (over 150) are made in many small steps, a few milliseconds of them at each idle moment (utils/turns.ts), so no frame of the
+ * page is held for them: the page may start this while it is animating (My experience starts it while its words come in).
+ */
 export async function loadTerrain(url: string): Promise<Terrain> {
   const img = new Image();
 
@@ -88,13 +89,15 @@ export async function loadTerrain(url: string): Promise<Terrain> {
   if (g === null) throw new Error("no 2d canvas");
   g.drawImage(img, 0, 0, GRID_W, GRID_H);
 
-  const grey = redChannel(g.getImageData(0, 0, GRID_W, GRID_H).data);
+  const make = fieldSteps(redChannel(g.getImageData(0, 0, GRID_W, GRID_H).data), GRID_W, GRID_H);
 
-  await idle(400);
+  await runInTurns(make.steps);
 
-  const field = makeField(grey, GRID_W, GRID_H);
+  const field = make.field();
+  const finder = levelsOf(field);
+  const levels: Level[] = [];
 
-  await idle(400);
+  await runInTurns(Array.from({ length: finder.count }, (_, i) => () => void levels.push(finder.level(i))));
 
-  return { field, levels: buildLevels(field) };
+  return { field, levels };
 }

@@ -14,9 +14,11 @@
   display: inline-block;
 }
 
-/* before their time: not shown */
+/* before their time: not shown. The failsafe: the server's HTML has them waiting, and if the script never plays the entrance (it failed or never came) they are shown
+   after 6 s (ENTRANCE_FAILSAFE_MS; tied to this number by entrance-css.test.ts). A page whose script runs leaves "wait" long before that. */
 .map-page[data-entrance="wait"] :is(.map-letter, .map-rise) {
   opacity: 0;
+  animation: map-failsafe-in var(--ent-reduced-ms, 200ms) linear 6s both;
 }
 
 /* the title, letter by letter from the left; the label the same, a little quicker */
@@ -50,6 +52,11 @@
   from {
     opacity: 0;
     transform: translateY(var(--ent-line-rise));
+  }
+}
+@keyframes map-failsafe-in {
+  to {
+    opacity: 1;
   }
 }
 @keyframes map-fade-in {

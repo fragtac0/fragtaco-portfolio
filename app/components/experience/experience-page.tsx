@@ -53,11 +53,12 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
   // false on the server and while hydrating, so the first render is the same on both
   const available = useSyncExternalStore(never, mapAvailable, () => true);
   const [failed, setFailed] = useState<"picture" | "heights" | null>(null);
-  const [pictureShown, setPictureShown] = useState(false);
-  const onPicture = useCallback(() => setPictureShown(true), []);
+  /** When the picture was shown (`performance.now()`), null before: the first load's entrance counts from it (use-entrance.ts). */
+  const [pictureAt, setPictureAt] = useState<number | null>(null);
+  const onPicture = useCallback((at?: number) => setPictureAt((was) => was ?? at ?? performance.now()), []);
   const failPicture = useCallback(() => {
     setFailed("picture");
-    setPictureShown(true);
+    setPictureAt((was) => was ?? performance.now());
   }, []);
   const failHeights = useCallback(() => setFailed((f) => f ?? "heights"), []);
   const arrived = usePageArrived(1);
@@ -65,8 +66,6 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
   // the words and the frame are all there when the change uncovers it); only the heights, which draw nothing in the overview, wait for the change to be over.
   const [byChange] = useState(isChangeRunning);
   const reduced = useReducedMotion();
-  const entrance = useEntrance(byChange, pictureShown, reduced);
-  const entranceStyle = useMemo(() => (entrance.phase === "play" ? (entranceVars(entrance.ms, entrance.lag) as CSSProperties) : undefined), [entrance]);
   const pageRef = useRef<HTMLElement>(null);
   const remeasureRef = useRef<(() => void) | null>(null);
   const remeasure = useCallback(() => remeasureRef.current?.(), []);
@@ -82,6 +81,8 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
   }, [experience.cliff.points, trail, moments.length]);
   // "pending" while the page change is still on and nothing is drawn yet (a first load), "on" once the engine runs: at once for a page that came in through a change
   const engine = !available || failed !== null ? "off" : arrived || byChange ? "on" : "pending";
+  const [entrance, entranceEnded] = useEntrance(byChange, pictureAt, reduced, engine === "on");
+  const entranceStyle = useMemo(() => (entrance.phase === "play" ? (entranceVars(entrance.ms, entrance.lag) as CSSProperties) : undefined), [entrance]);
   useWordsLayout(pageRef, layoutData, engine !== "off", engine, remeasure);
   const focusBeadRef = useRef<((index: number) => void) | null>(null);
   const onReady = useCallback(() => setReady(true), []);
@@ -146,7 +147,7 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
         onChoose={choose}
         focusBeadRef={focusBeadRef}
         running={engine === "on"}
-        heightsGo={arrived}
+        heightsGo={arrived || entrance.phase === "play"}
         byChange={byChange}
         reduced={reduced}
         picture={failed !== "picture"}
@@ -154,6 +155,7 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
         onFailPicture={failPicture}
         onFailHeights={failHeights}
         entrance={entrance}
+        onEntranceEnd={entranceEnded}
         remeasureRef={remeasureRef}
       />
       <HeadingBlock title={heading.title} text={heading.description} />

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Reveal } from "../../lib/change-state";
-import { WAITING, nextEntrance, quietLength, type EntranceState } from "./entrance-state";
+import { ENGINE_GRACE_MS, END_SLACK_MS, PICTURE_MAX_AGE_MS, WAITING, endDelay, nextEntrance, quietLength, shownAtOf, type EntranceState } from "./entrance-state";
+import { entranceEnd } from "./entrance";
 
 const reveal = (over: Partial<Reveal>): Reveal => ({ phase: "run", at: 1000, ms: 2250, skipped: false, ...over });
 
@@ -59,5 +60,47 @@ describe("nextEntrance", () => {
   it("ends when it has run its length, but not before it began", () => {
     expect(nextEntrance({ phase: "play", t0: 1, ms: 2, lag: 0 }, { type: "end" })).toEqual({ phase: "done" });
     expect(nextEntrance(WAITING, { type: "end" })).toEqual(WAITING);
+  });
+});
+
+describe("endDelay", () => {
+  const play = { t0: 1000, ms: 2250 };
+
+  it("where no map draws a trace, is the entrance's nominal end and a slack", () => {
+    expect(endDelay(play, 1000, false)).toBe(entranceEnd(2250) + END_SLACK_MS);
+    expect(endDelay(play, 4000, false)).toBe(entranceEnd(2250) + END_SLACK_MS - 3000);
+  });
+
+  it("where the map draws it, waits for the map to say it is over: the page's clock is a failsafe a grace past the nominal end (a trace that began late is not cut)", () => {
+    expect(endDelay(play, 1000, true)).toBe(entranceEnd(2250) + ENGINE_GRACE_MS);
+    expect(ENGINE_GRACE_MS).toBeGreaterThan(END_SLACK_MS * 10);
+  });
+
+  it("is never negative", () => {
+    expect(endDelay(play, 1e6, true)).toBe(0);
+  });
+});
+
+describe("the first load counts from the picture's showing", () => {
+  it("plays from `at`, with the time since as its lag, not from the moment the script woke", () => {
+    expect(nextEntrance(WAITING, { type: "picture", now: 1500, at: 400, reduced: false })).toEqual({ phase: "play", t0: 400, ms: 2250, lag: 1100 });
+    expect(nextEntrance(WAITING, { type: "picture", now: 1500, reduced: false })).toEqual({ phase: "play", t0: 1500, ms: 2250, lag: 0 });
+    expect(nextEntrance(WAITING, { type: "picture", now: 1500, at: 400, reduced: true })).toMatchObject({ ms: 0, t0: 400 });
+  });
+
+  it("never plays from the future", () => {
+    expect(nextEntrance(WAITING, { type: "picture", now: 100, at: 400, reduced: false })).toMatchObject({ t0: 100, lag: 0 });
+  });
+
+  it("shownAtOf reads when the picture finished arriving from the last timeline entry", () => {
+    expect(shownAtOf([{ responseEnd: 200 }, { responseEnd: 450 }], 900)).toBe(450);
+    expect(shownAtOf([{ responseEnd: 450 }], 300)).toBe(300);
+  });
+
+  it("shownAtOf says now where it cannot know: no entry, an entry with no end, or one older than the page's wake", () => {
+    expect(shownAtOf([], 900)).toBe(900);
+    expect(shownAtOf([{ responseEnd: 0 }], 900)).toBe(900);
+    expect(shownAtOf([{ responseEnd: 100 }], 100 + PICTURE_MAX_AGE_MS + 1)).toBe(100 + PICTURE_MAX_AGE_MS + 1);
+    expect(shownAtOf([{ responseEnd: 100 }], 100 + PICTURE_MAX_AGE_MS)).toBe(100);
   });
 });

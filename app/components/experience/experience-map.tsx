@@ -5,7 +5,7 @@ import type { ExperienceMoment } from "../../types";
 import { createCardController, type CardController } from "./card-controller";
 import type { Mode } from "./climb-change";
 import { createClimbEngine, type ClimbEngine, type ClimbLayers } from "./climb-engine";
-import type { EntranceState } from "./entrance-state";
+import { shownAtOf, type EntranceState } from "./entrance-state";
 import { PICTURE } from "./frame";
 import { FRAME_FONT } from "./frame-layer";
 import { DOCK_SELECTOR, WORDS_SELECTOR, readKeepOut } from "./keep-out";
@@ -48,7 +48,10 @@ type Props = {
   selected: number | null;
   /** Whether the engine runs: where a 2D canvas is there and the picture came (from the page's first commit when it came in through a page change, else from the change's end). */
   running: boolean;
-  /** The heights are read at idle once this is true (the change is over): they draw nothing in the overview. */
+  /**
+   * The heights are read, a few milliseconds at a time at idle moments (terrain-canvas.ts), once this is true: the change is over, or the reveal has begun and
+   * the page's words are coming in (so the load is done before the trail starts at the reveal's end, not during it). They draw nothing in the overview.
+   */
   heightsGo: boolean;
   /** The page was made while a change ran: the reveal waits for the picture. */
   byChange: boolean;
@@ -62,10 +65,12 @@ type Props = {
   onChoose: (index: number) => void;
   /** Filled with a function that moves the keyboard focus to a bead (the arrow keys move the focus with the selection). */
   focusBeadRef: MutableRefObject<((index: number) => void) | null>;
-  /** The overview picture is in (it loaded): the page's entrance counts from it on a first load. */
-  onPicture: () => void;
+  /** The overview picture is in (it loaded), and when (`performance.now()`; left out: now): the page's entrance counts from it on a first load. */
+  onPicture: (at?: number) => void;
   /** Where the page's entrance is (use-entrance.ts): the trail, the beads and the radar play their part of it. */
   entrance: EntranceState;
+  /** The map's trace has drawn its last frame: the page's entrance is over (use-entrance.ts). */
+  onEntranceEnd: () => void;
   /** Filled with a function that reads the words' places again and tells the engine (the page moved them: use-words-layout.ts). */
   remeasureRef: MutableRefObject<(() => void) | null>;
   /** The picture failed, or the heights or a 2D canvas did: the page falls back to the list. */
@@ -82,6 +87,15 @@ function playEntrance(e: ClimbEngine, entrance: EntranceState) {
   else if (entrance.phase === "done") e.finishEntrance();
 }
 
+/** When a picture that is already complete was shown: when it finished arriving, from the timeline's entry for its address (`shownAtOf`). */
+function pictureShownAt(img: HTMLImageElement): number {
+  try {
+    return shownAtOf(performance.getEntriesByName(img.currentSrc || img.src, "resource") as PerformanceResourceTiming[], performance.now());
+  } catch {
+    return performance.now();
+  }
+}
+
 /** An audit hook: when the page has an array in `window.__expTrace`, every frame of a move writes a row to it. */
 const trace = () => (window as unknown as { __expTrace?: number[][] }).__expTrace;
 
@@ -95,7 +109,7 @@ const trace = () => (window as unknown as { __expTrace?: number[][] }).__expTrac
  * and the first paint show the picture. The layers' strength follows `--night`, which the engine writes (no React state per
  * frame). Nothing but the beads is read by a screen reader: the moments are listed by the page.
  */
-export default function ExperienceMap({ trail, moments, of, mode, selected, running, heightsGo, byChange, reduced, picture: showPicture, ready, onReady, onChoose, focusBeadRef, onPicture, entrance, remeasureRef, onFailPicture, onFailHeights }: Props) {
+export default function ExperienceMap({ trail, moments, of, mode, selected, running, heightsGo, byChange, reduced, picture: showPicture, ready, onReady, onChoose, focusBeadRef, onPicture, entrance, onEntranceEnd, remeasureRef, onFailPicture, onFailHeights }: Props) {
   const stage = useRef<HTMLDivElement>(null);
   const plane = useRef<HTMLDivElement>(null);
   const night = useRef<HTMLDivElement>(null);
@@ -108,7 +122,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
   const pinBox = useRef<HTMLDivElement | null>(null);
   const pins = useRef<(HTMLButtonElement | null)[]>([]);
   const engine = useRef<ClimbEngine | null>(null);
-  const live = useRef({ mode, selected, reduced, onFailHeights, onReady, entrance });
+  const live = useRef({ mode, selected, reduced, onFailHeights, onReady, entrance, onEntranceEnd });
   /** The state the engine was last told to go to, so the effect below speaks only when it has changed (and the engine just made already got it). */
   const told = useRef<{ mode: Mode; selected: number | null } | null>(null);
   /** The heights once they are in. An engine made after that (its effect runs again) is given them as it starts, so a remade engine never lacks the terrain. */
@@ -117,7 +131,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
   const setPin = useCallback((i: number, el: HTMLButtonElement | null) => void (pins.current[i] = el), []);
 
   useEffect(() => {
-    live.current = { mode, selected, reduced, onFailHeights, onReady, entrance };
+    live.current = { mode, selected, reduced, onFailHeights, onReady, entrance, onEntranceEnd };
   });
 
   useEffect(() => {
@@ -141,7 +155,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     const img = picture.current;
 
     if (img?.complete && img.naturalWidth === 0) onFailPicture();
-    else if (img?.complete) onPicture();
+    else if (img?.complete) onPicture(pictureShownAt(img)); // it came before the script woke: counted from when it came, not from now
   }, [onFailPicture, onPicture]);
 
   useEffect(() => {
@@ -170,6 +184,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
       onFail: () => live.current.onFailHeights(),
       trace,
       entrance: live.current.entrance.phase !== "done",
+      onEntranceEnd: () => live.current.onEntranceEnd(),
     });
     let gone = false;
     const page = el.closest(".map-page") ?? el.parentElement ?? el;
@@ -220,7 +235,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     };
   }, [running, trail, moments.length, remeasureRef]);
 
-  // the heights are read at idle once the engine is up and the change is over (the picture is already there; only My climb draws from them)
+  // the heights are read at idle once the engine is up and the reveal has begun (the picture is already there; only My climb draws from them): in small turns, so the words' frames hold
   useEffect(() => {
     const el = stage.current;
     if (!running || !heightsGo || !el || !engine.current || loaded.current) return;
@@ -282,7 +297,7 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
           {showPicture ? (
             <picture>
               <source media={PHONE_MEDIA} srcSet={RELIEF_PHONE_SRC} type="image/webp" />
-              <img ref={picture} src={RELIEF_SRC} alt="" width={PICTURE.w} height={PICTURE.h} draggable={false} decoding="async" {...HIGH} onLoad={onPicture} onError={onFailPicture} />
+              <img ref={picture} src={RELIEF_SRC} alt="" width={PICTURE.w} height={PICTURE.h} draggable={false} decoding="async" {...HIGH} onLoad={() => onPicture()} onError={onFailPicture} />
             </picture>
           ) : null}
         </div>

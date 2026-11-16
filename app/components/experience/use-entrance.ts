@@ -1,22 +1,19 @@
 // My experience's entrance clock (round 7 second look, spec 8), the page's side: feeds entrance-state.ts with what happens (the running change's
 // reveal starts, ends or is cut short; the picture is shown on a page no change made; a press) and says when to call it over. The reveal's start and length
 // come from page-change.ts and `GLASS.ms`; the words' own delays are CSS (entrance.css) from the variables `entranceVars` makes.
-import { useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 import { isFinishingKey } from "../../lib/change-finish";
 import { getReveal, subscribeReveal } from "../../lib/page-change";
-import { entranceEnd } from "./entrance";
-import { WAITING, nextEntrance, type EntranceState } from "./entrance-state";
+import { WAITING, endDelay, nextEntrance, type EntranceState } from "./entrance-state";
 
 /** A page no change made waits this long for its picture at most before it plays anyway (a picture that never comes must not keep the words away). */
 export const PICTURE_WAIT_MS = 2500;
-/** The entrance is called over this long after its length, so the last drawn frames are not cut. */
-const END_SLACK_MS = 150;
-
 /**
- * The entrance's state for the page. `byChange`: the page was made while a change ran (it times itself to that change's reveal). `picture`: the overview
- * picture is shown (loaded, or failed), for a page that no change made. `reduced`: reduced motion.
+ * The entrance's state for the page, and what the map calls when its trace has drawn its last frame (the entrance is over then: the page's own timer is only
+ * a failsafe where a map runs, `endDelay`). `byChange`: the page was made while a change ran (it times itself to that change's reveal). `picture`: when the overview
+ * picture was shown (`performance.now()`; null: not yet), for a page that no change made. `reduced`: reduced motion. `map`: the map's engine runs (it says when the trace ends).
  */
-export function useEntrance(byChange: boolean, picture: boolean, reduced: boolean): EntranceState {
+export function useEntrance(byChange: boolean, picture: number | null, reduced: boolean, map: boolean): [EntranceState, () => void] {
   const [state, send] = useReducer(nextEntrance, WAITING);
   const wasReduced = useRef(reduced);
 
@@ -38,8 +35,8 @@ export function useEntrance(byChange: boolean, picture: boolean, reduced: boolea
   // a first load or a deep link: counted from the moment the picture is shown
   useEffect(() => {
     if (byChange) return;
-    if (picture) {
-      send({ type: "picture", now: performance.now(), reduced: wasReduced.current });
+    if (picture !== null) {
+      send({ type: "picture", now: performance.now(), at: picture, reduced: wasReduced.current });
 
       return;
     }
@@ -62,7 +59,7 @@ export function useEntrance(byChange: boolean, picture: boolean, reduced: boolea
 
     let timer = 0;
 
-    if (state.phase === "play") timer = window.setTimeout(() => send({ type: "end" }), Math.max(0, state.t0 + entranceEnd(state.ms) + END_SLACK_MS - performance.now()));
+    if (state.phase === "play") timer = window.setTimeout(() => send({ type: "end" }), endDelay(state, performance.now(), map));
 
     return () => {
       window.removeEventListener("pointerdown", press, { capture: true });
@@ -70,7 +67,9 @@ export function useEntrance(byChange: boolean, picture: boolean, reduced: boolea
       window.removeEventListener("keydown", key, { capture: true });
       window.clearTimeout(timer);
     };
-  }, [state]);
+  }, [state, map]);
 
-  return state;
+  const ended = useCallback(() => send({ type: "end" }), []);
+
+  return [state, ended];
 }

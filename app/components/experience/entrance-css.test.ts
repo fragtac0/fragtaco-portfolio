@@ -2,7 +2,7 @@
 // words-layout.ts write, they hide a word before its time, they move nothing but opacity and transform, and they have a reduced-motion form.
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { BEAD_FROM, ENTRANCE, entranceVars } from "./entrance";
+import { BEAD_FROM, ENTRANCE, ENTRANCE_FAILSAFE_MS, entranceVars } from "./entrance";
 import { WIDE_MEDIA } from "./words-layout";
 import { DY_VAR, TITLE_VAR } from "./use-words-layout";
 
@@ -28,11 +28,19 @@ describe("entrance.css", () => {
     expect(entrance).toMatch(/\[data-entrance="wait"\] :is\(\.map-letter, \.map-rise\) \{\s*opacity: 0;/);
   });
 
+  it("shows the words by itself after the failsafe if the script never plays the entrance, in the time entrance.ts says, with its own keyframes (opacity 0 to 1)", () => {
+    const waiting = entrance.slice(entrance.indexOf('[data-entrance="wait"]'), entrance.indexOf("/* the title, letter by letter"));
+
+    expect(waiting).toContain(`map-failsafe-in var(--ent-reduced-ms, 200ms) linear ${ENTRANCE_FAILSAFE_MS / 1000}s both`);
+    expect(entrance).toMatch(/@keyframes map-failsafe-in \{\s*to \{\s*opacity: 1;/);
+    expect(ENTRANCE_FAILSAFE_MS).toBeGreaterThan(5000); // past the longest a working page waits (the hold, the reveal's 0.7 T, the picture's wait)
+  });
+
   it("moves only opacity and transform", () => {
     const keyframes = [...entrance.matchAll(/@keyframes [\w-]+ \{([\s\S]*?)\n\}/g)].map((m) => m[1]);
     const props = new Set(keyframes.flatMap((k) => [...k.matchAll(/^\s+([a-z-]+):/gm)].map((m) => m[1])));
 
-    expect(keyframes.length).toBe(3);
+    expect(keyframes.length).toBe(4);
     expect([...props].sort()).toEqual(["opacity", "transform"]);
     expect(entrance).not.toMatch(/\b(top|left|width|height|margin|font-size)\s*:/);
   });

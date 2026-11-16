@@ -44,16 +44,20 @@ export function thresholdsOf(field: Pick<HeightField, "lo" | "hi">): number[] {
   return range(Math.ceil(field.lo) + 0.5, field.hi, LEVEL_STEP);
 }
 
-/** Every level of the field, lowest first, ready to draw one over the next. */
-export function buildLevels(field: HeightField): Level[] {
+/**
+ * The levels of the field one at a time (`level(i)` for i below `count`), so a caller can spread the work (each is about 2 ms; all of them are over
+ * 150): the same levels `buildLevels` gives. d3-contour's `contour(values, value)` is what its `thresholds(...)(values)` calls for each value.
+ */
+export function levelsOf(field: HeightField): { count: number; level: (i: number) => Level } {
   const { w, h } = field;
   const { x0, y0, w: fw, h: fh } = HEIGHT_FRAME;
+  const values = thresholdsOf(field);
+  const finder = contours().size([w, h]).smooth(true);
 
-  return contours()
-    .size([w, h])
-    .smooth(true)
-    .thresholds(thresholdsOf(field))(field.data as unknown as number[]) // @types/d3-contour asks for number[]; it only indexes, so the Float32Array is fine
-    .map((ct, i) => {
+  return {
+    count: values.length,
+    level: (i) => {
+      const ct = finder.contour(field.data as unknown as number[], values[i]); // @types/d3-contour asks for number[]; it only indexes, so the Float32Array is fine
       const n = normalise(field, ct.value);
       const major = i % MAJOR_EVERY === 0;
 
@@ -75,5 +79,13 @@ export function buildLevels(field: HeightField): Level[] {
           }),
         ),
       };
-    });
+    },
+  };
+}
+
+/** Every level of the field, lowest first, ready to draw one over the next. */
+export function buildLevels(field: HeightField): Level[] {
+  const { count, level } = levelsOf(field);
+
+  return Array.from({ length: count }, (_, i) => level(i));
 }
