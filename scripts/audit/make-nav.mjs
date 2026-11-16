@@ -29,7 +29,7 @@ window.__arm=()=>{const k=new Set();window.__k=k;const h=document.documentElemen
 window.__state=()=>({path:location.pathname,title:document.title,
  active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.trim().toLowerCase()+'='+e.getAttribute('aria-current')),
  kind:[...(window.__k||[])].join('+')||'none',
- rowOpen:document.querySelector('.dock-row')?.dataset.open??'no-row'});
+ rowOpen:document.querySelector('.dock-row')?'row':'no-row'});
 // Read once the change is over (the kind was seen and the mark is gone), or after 0.9 s when no change was started.
 window.__move=(act,want)=>{window.__arm();act();return new Promise(res=>{const t0=performance.now(),h=document.documentElement;const iv=setInterval(()=>{const el=performance.now()-t0;
  if((window.__k.size&&!h.dataset.changeKind&&el>150)||(!window.__k.size&&el>900)||el>9000){clearInterval(iv);setTimeout(()=>{const got=window.__state();

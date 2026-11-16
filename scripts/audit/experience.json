@@ -183,8 +183,8 @@
   "label": "hold the change into /experience at t=0.1 (desktop)"
  },
  {
-  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
-  "label": "desktop, t=0.1: the arriving page shows the picture, no fallback list, the engine pending"
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "desktop, t=0.1: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
  },
  {
   "wait": 120,
@@ -211,8 +211,8 @@
   "label": "hold the change into /experience at t=0.3 (desktop)"
  },
  {
-  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
-  "label": "desktop, t=0.3: the arriving page shows the picture, no fallback list, the engine pending"
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "desktop, t=0.3: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
  },
  {
   "wait": 120,
@@ -239,8 +239,8 @@
   "label": "hold the change into /experience at t=0.6 (desktop)"
  },
  {
-  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
-  "label": "desktop, t=0.6: the arriving page shows the picture, no fallback list, the engine pending"
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "desktop, t=0.6: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
  },
  {
   "wait": 120,
@@ -279,8 +279,8 @@
   "label": "hold the change into /experience at t=0.1 (phone)"
  },
  {
-  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
-  "label": "phone, t=0.1: the arriving page shows the picture, no fallback list, the engine pending"
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "phone, t=0.1: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
  },
  {
   "wait": 120,
@@ -307,8 +307,8 @@
   "label": "hold the change into /experience at t=0.3 (phone)"
  },
  {
-  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
-  "label": "phone, t=0.3: the arriving page shows the picture, no fallback list, the engine pending"
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "phone, t=0.3: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
  },
  {
   "wait": 120,
@@ -335,8 +335,8 @@
   "label": "hold the change into /experience at t=0.6 (phone)"
  },
  {
-  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
-  "label": "phone, t=0.6: the arriving page shows the picture, no fallback list, the engine pending"
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "phone, t=0.6: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
  },
  {
   "wait": 120,

@@ -497,6 +497,9 @@ function writeSteps() {
     { key: "Enter" },
     { label: "RF5 after the change: the same link has focus (the dock is the same element), the row never closed", eval: `(async () => { const html = document.documentElement; await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind && location.pathname === '/work/short-form') || performance.now() - t0 > 7000) { clearInterval(id); res(); } }, 50); }); const row = document.querySelector('.dock-row'); return { ...${state}, sameElement: document.activeElement === window.__rf5.el, rowPresent: !!row, rowOpacity: row && getComputedStyle(row).opacity, rowInert: row ? row.hasAttribute('inert') : null }; })()` },
     { label: "RF5 the row is in both pictures of a change: its box does not change across a change between two row pages", eval: `(async () => { const html = document.documentElement; const box = () => { const r = document.querySelector('[data-dock-glass]').getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map((v) => Math.round(v * 10) / 10); }; const before = box(); const seen = new Set([before.join()]); document.querySelector('header[data-site-nav] [data-work-tab="/experience"]').click(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { seen.add(box().join()); if ((!html.dataset.changeKind && location.pathname === '/experience') || performance.now() - t0 > 7000) { clearInterval(id); res(); } }, 16); }); return { before, after: box(), distinctBoxes: seen.size }; })()` },
+    // leave nothing held: the page is taken away from every interception before the run ends
+    { intercept: [], label: "RF end: disarm every held request" },
+    { go: "about:blank", wait: 200 },
   ];
   writeFileSync(new URL("./arrival.json", import.meta.url), JSON.stringify(steps, null, 1) + "\n");
   console.log("wrote scripts/audit/arrival.json");

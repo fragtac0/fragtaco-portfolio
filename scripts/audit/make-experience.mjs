@@ -123,7 +123,7 @@ function settledAfterMs(mode, ms, label) {
   return { eval: `new Promise(r=>setTimeout(()=>{const p=${PAGE};r(JSON.stringify({mode:p.dataset.mode,ok:p.dataset.mode==='${mode}'&&+getComputedStyle(${PLANE}).opacity===${mode === "climb" ? 0 : 1}}))},${ms}))`, label };
 }
 
-// A client-side change into /experience never shows the fallback list, and the picture is already there (R46.1 I1, and round 7: the map is painted in the arriving page).
+// A client-side change into /experience never shows the fallback list, and the picture is already there (R46.1 I1, and round 7: the map is painted in the arriving page; since R56 the engine is on too, so the frame, the trail and the beads are drawn when the reveal uncovers the page).
 const HOLD_INIT = `try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}
 window.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();
  const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);
@@ -137,7 +137,7 @@ window.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}
 const arriving = (label) => ({
   eval: `(()=>{${rect}const p=${PAGE},pl=p&&${PLANE},img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,
 image:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,
-ok:!!p&&p.dataset.engine==='pending'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()`,
+ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()`,
   label,
 });
 const settledAfter = (label) => ({
@@ -148,7 +148,7 @@ const heldIntoMap = (size, dpr, mobile, tag) => [
   { size, dpr, mobile, touch: mobile, init: HOLD_INIT, go: "{{BASE}}/work", wait: 3000 },
   ...[0.1, 0.3, 0.6].flatMap((t) => [
     { eval: `__hold('/experience',${t})`, label: `hold the change into /experience at t=${t} (${tag})` },
-    arriving(`${tag}, t=${t}: the arriving page shows the picture, no fallback list, the engine pending`),
+    arriving(`${tag}, t=${t}: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)`),
     { wait: 120, shot: `r53-held-${tag}-${t}-warm` },
     { wait: 60, shot: `r53-held-${tag}-${t}` },
     { eval: "__release()", label: "release" },

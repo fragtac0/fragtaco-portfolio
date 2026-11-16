@@ -1570,8 +1570,8 @@
   "label": "reveal: click Long form from the rings"
  },
  {
-  "eval": "new Promise(r=>{const t0=performance.now();const f=()=>{const c=document.querySelector('.wall-canvas');if(c&&c.dataset.arrived!==undefined&&window.__chg.end!==null){const a=window.__arr,abs=a.frames.map(x=>a.canvasAt+x[0]);r(JSON.stringify({changeMs:Math.round(window.__chg.end-window.__chg.began),at1500ms:{tilesInPage:window.__chg.tilesInPage,linksShown:window.__chg.linksShown,canvases:window.__chg.canvases},firstDrawAfterChangeEndMs:Math.round(a.canvasAt-window.__chg.end),drawsBeforeChangeEnd:abs.filter(t=>t<window.__chg.end).length,draws:a.frames.length,startMs:+c.dataset.startMs,startPictures:+c.dataset.startPictures,tilesWholeAtEnd:a.frames.at(-1)[1]}))}else if(performance.now()-t0>15000)r('timeout');else setTimeout(f,50)};f()})",
-  "label": "reveal: the wall arrives after the change ends, not during it"
+  "eval": "new Promise(r=>{const t0=performance.now();const f=()=>{const c=document.querySelector('.wall-canvas');if(c&&c.dataset.arrived!==undefined&&window.__chg.end!==null){const a=window.__arr,abs=a.frames.map(x=>a.canvasAt+x[0]);r(JSON.stringify({changeMs:Math.round(window.__chg.end-window.__chg.began),at1500ms:{tilesInPage:window.__chg.tilesInPage,linksShown:window.__chg.linksShown,canvases:window.__chg.canvases},firstDrawAfterChangeEndMs:Math.round(a.canvasAt-window.__chg.end),drawsBeforeChangeEnd:abs.filter(t=>t<window.__chg.end).length,draws:a.frames.length,startMs:+c.dataset.startMs,startPictures:+c.dataset.startPictures,tilesWholeAtEnd:a.frames.at(-1)[1],ok:window.__chg.tilesInPage===window.__chg.linksShown&&window.__chg.canvases===0&&abs.filter(t=>t<window.__chg.end).length===0&&a.frames.at(-1)[1]===window.__chg.tilesInPage&&+c.dataset.startPictures===window.__chg.tilesInPage}))}else if(performance.now()-t0>15000)r('timeout');else setTimeout(f,50)};f()})",
+  "label": "reveal: the wall is the plain links, whole, while the change runs; the engine draws it whole after the change ends (no arrival)"
  },
  {
   "size": [

@@ -30,10 +30,11 @@ window.__release=()=>new Promise(res=>{for(const a of document.getAnimations())t
  const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);
  setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},${CHANGE_MS + 5500})});`;
 // A sampler for the first painting's words (Ruling R54): [time, phase, opacity, text length] every 16 ms, and its summary: the words
-// must be hidden while the phase is `awaiting` (the painting is not up), and fade in (many in-between opacities, no jump) after it.
+// must be hidden while the phase is `awaiting` (the painting is not up), and fade in (many in-between opacities, no jump) after it. Since R56 a page that
+// comes in through a change has no awaiting phase: its words are up in its first frame, whole, and stay up (the reveal waits for the sharp painting).
 const wordsRecorder = `window.__wl=[];setInterval(()=>{const r=document.querySelector('#hero'),c=r&&r.querySelector('.caption');if(!c)return;
  window.__wl.push([Math.round(performance.now()),r.dataset.words||'',+(+getComputedStyle(c).opacity).toFixed(2),r.querySelector('.caption .t').textContent.length])},16);
-window.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0)return{awaiting:false,ok:false};
+window.__wsum=()=>{const l=window.__wl,i0=l.findIndex(r=>r[1]==='awaiting');if(i0<0){const e=l.filter(r=>r[0]-l[0][0]<3000),up=e.length>0&&e.every(r=>r[2]>=0.95&&r[3]>0);return{awaiting:false,wordsUpFromFirstFrame:up,samples:e.length,minOpacity:e.length?Math.min(...e.map(r=>r[2])):null,ok:up}}; // R56: after a change the words are up in the page's first frame (no awaiting phase, no fade after the reveal)
  const aw=l.filter(r=>r[1]==='awaiting'),i1=l.findIndex((r,i)=>i>i0&&r[1]==='swapped');if(i1<0)return{awaiting:true,swapped:false,ok:false};
  const after=l.slice(i1).filter(r=>r[0]-l[i1][0]<1600);let step=0;for(let i=1;i<after.length;i++)step=Math.max(step,Math.abs(after[i][2]-after[i-1][2]));
  const hidden=aw.every(r=>r[2]<=0.05),mid=after.filter(r=>r[2]>0.05&&r[2]<0.95).length,end=after.at(-1)[2];
@@ -56,9 +57,15 @@ const film = (label, keep, at, evalCode = toHome, changeMs = CHANGE_MS) =>
 const state = (label) => steps.push({ label, eval: "JSON.stringify({path:location.pathname,still:(()=>{const s=document.querySelector('.paint-still');return s?(s.hidden?'hidden':'shown'):'none'})(),canvas:!!document.querySelector('.paint-host canvas'),intro:document.documentElement.classList.contains('intro'),words:document.querySelector('#hero')?.dataset.words||''})" });
 
 const words = (label) => steps.push({ label, eval: "JSON.stringify(__wsum())" });
-arrive("return"); film("return, dock, 1x: no bare frame", "return-darkest", atAfter(CHANGE_MS, 180)); state("return state"); words("return: words wait for the painting, then fade in (not pop)");
+arrive("return"); film("return, dock, 1x: no bare frame", "return-darkest", atAfter(CHANGE_MS, 180)); state("return state");
+// the words (R56: up in the page's first frame and staying up), read in their own run of the change (the film's screencast holds the page's timers back)
+for (const kind of ["return", "first"]) {
+  arrive(kind);
+  steps.push({ eval: toHome, wait: CHANGE_MS + 1500 });
+  words(kind === "return" ? "return: the words are up in the page's first frame and stay up (R56; none fades in after the reveal)" : "first visit: the reveal waits for the sharp painting, the words are up in the first frame and stay up (R56)");
+}
 arrive("return", { cpu: 6 }); film("return, dock, CPU 6x: no bare frame", "return-slow-darkest", atAfter(CHANGE_MS, 490));
-arrive("first"); film("first visit (landed on /work), dock, 1x: no bare frame", "first-darkest", atAfter(CHANGE_MS, 180)); state("first visit state"); words("first visit: words wait for the sharp painting (not the placeholder), then fade in");
+arrive("first"); film("first visit (landed on /work), dock, 1x: no bare frame", "first-darkest", atAfter(CHANGE_MS, 180)); state("first visit state");
 arrive("first", { cpu: 6 }); film("first visit, dock, CPU 6x: no bare frame", "first-slow-darkest", atAfter(CHANGE_MS, 490));
 arrive("return"); film("return by Back: no bare frame", "back-darkest", atAfter(CHANGE_MS, 180), "(window.__wl.length=0,history.back())");
 arrive("return", { reduce: true }); film("return, reduced motion: no bare frame", "return-reduced-darkest", atAfter(REDUCED_CHANGE_MS, 280), toHome, REDUCED_CHANGE_MS);

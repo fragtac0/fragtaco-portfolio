@@ -9,7 +9,7 @@
 //  - checks the intro (title and its lines of text) sits inside the stack ring's icons, that no video tile comes within 40 px of it (R54.2),
 //    that the dock's measured box lies inside the keep-out the rings fade out in (R54.2b, R117: nothing shows under the dock's tabs), that no tile can be
 //    hit by the pointer there (elementFromPoint over 40 phases), and that a focused tile drops its ring's mask (under reduced motion, where the rings stand at phase 0),
-//  - the arrival through a page change (R60): the rings are in the page for the reveal, standing still, then turn together.
+//  - the arrival through a page change (R60, R56): every ring item is in the page's first commit and the reveal waits for their pictures; the rings stand still (their animations made and paused) while it runs, then turn together, from standstill.
 // Pictures (1440 by 900, 1920 by 1080, 820 by 1180, 390 by 844) at three ring phases each. The long form pictures are YouTube thumbnails loaded at run time;
 // where they cannot be reached (or must not be kept) the audit paints neutral, generated gradients on the tiles (a number and a corner
 // mark show they are upright) so the geometry can still be seen: nothing from a third party is drawn.
@@ -104,19 +104,19 @@ window.__intro=()=>{const cx=innerWidth/2,cy=innerHeight/2;const ul=document.que
 // first item and the last item are in the page, whether the rings are standing still (data-still) while the reveal runs, how many
 // pictures have loaded (and none is lazy) when the reveal is a second old, then waits for the change to end and reads that the rings
 // are all turning together (a spin on every ring and a turn-back on every item, each started at the same moment)
-window.__viaChange=()=>new Promise(res=>{const t0=performance.now();const out={firstItemMs:null,allItemsMs:null,stillDuringReveal:null,lazy:null,readyAt1s:null,coversAt1s:null,
+window.__viaChange=()=>new Promise(res=>{const t0=performance.now();const out={firstItemMs:null,allItemsMs:null,stillDuringReveal:null,pausedAnimations:null,lazy:null,readyAt1s:null,coversAt1s:null,
  turningAfter:null,startsEqual:null,rings:0,items:0,changeEndedMs:null};__ftChange('/work');
  const iv=setInterval(()=>{const t=performance.now()-t0;const n=document.querySelectorAll('.work-item').length;
   if(out.firstItemMs===null&&n>0)out.firstItemMs=Math.round(t);
   const want=window.__want||0;if(out.allItemsMs===null&&n>0&&n>=want&&t>0){out.allItemsMs=Math.round(t)}
-  if(out.stillDuringReveal===null&&n>0&&t>700){const m=document.querySelector('.work-page');out.stillDuringReveal=!!m&&m.hasAttribute('data-still')&&document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin').length===0;
+  if(out.stillDuringReveal===null&&n>0&&t>700){const m=document.querySelector('.work-page');const sa=document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin');out.stillDuringReveal=!!m&&m.hasAttribute('data-still')&&sa.length>0&&sa.every(a=>a.playState==='paused'&&(+a.currentTime||0)===0);out.pausedAnimations=sa.length;
    out.lazy=document.querySelectorAll('.work-cover img[loading=lazy]').length;out.coversAt1s=document.querySelectorAll('.work-cover img').length;out.readyAt1s=document.querySelectorAll('.work-cover img[data-ready]').length;out.items=n;out.rings=document.querySelectorAll('.work-ring').length}
   if(t>1500&&!document.documentElement.dataset.changeKind){clearInterval(iv);out.changeEndedMs=Math.round(t);
    setTimeout(()=>{const sp=document.getAnimations().filter(a=>a.animationName==='work-spin');const un=document.getAnimations().filter(a=>a.animationName==='work-unspin');
     out.turningAfter={spin:sp.length,unspin:un.length,stillAttr:document.querySelector('.work-page').hasAttribute('data-still')};
     out.startsEqual=new Set([...sp,...un].map(a=>Math.round(a.startTime))).size<=2;res(JSON.stringify(out))},400)}
   if(t>9000){clearInterval(iv);res(JSON.stringify({timeout:true,out}))}},16)});
-// the rings arriving through a reduced-motion change (the 120 ms fade, R60 only batches the radial reveal): polls every 8 ms for how many items are in the page
+// the rings arriving through a reduced-motion change (the 120 ms fade; since R56 the page is made for it like for the radial reveal): polls every 8 ms for how many items are in the page
 // each time that number changes (it must go from none to all in one step), whether the page carries the change arrival or standing-still marks, and the
 // ring groups' own animation (the plain fade) once they are in
 window.__viaFade=()=>new Promise(res=>{const t0=performance.now();const out={steps:[],kind:null,arrival:'unset',still:'unset',groupAnim:null,groupMs:null,turning:null,changeEndedMs:null};let last=-1;__ftChange('/work');
@@ -233,14 +233,14 @@ for (const f of FRAME_RUNS) {
   steps.push({ move: [5, 5], cpu: 1 });
 }
 
-// the rings arriving through a page change from home (R60): present for the reveal (all 34 items in within about half a second, standing
+// the rings arriving through a page change from home (R60): present for the reveal (all 34 items in the first commit, the reveal waiting for their pictures, standing
 // still, pictures loading at once, none lazy), turning together when the change ends
 steps.push({ size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/", wait: 3000, eval: "window.__want=34;'ready'", label: "via a change: from home" });
 steps.push({ label: "via a change: the rings during the reveal and when it ends", eval: "window.__viaChange()" });
 
-// reduced motion through a change (the 120 ms fade): no batches and no change arrival, so the rings come in whole at the first commit with the plain 300 ms fade (as on a first load)
+// reduced motion through a change (the 120 ms fade): the rings come in whole at the first commit and the fade is their arrival (no fade of their own)
 steps.push({ reduce: true, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/", wait: 3000, eval: "'ready'", label: "reduced motion via a change: from home" });
-steps.push({ label: "reduced motion via a change: items go from none to all in one step, plain fade, no arrival or still marks", eval: "window.__viaFade()" });
+steps.push({ label: "reduced motion via a change: every item is in the first commit (the 120 ms fade is the arrival: the page has the change marks and no fade of its own)", eval: "window.__viaFade()" });
 steps.push({ reduce: false });
 
 // a cover that fails (R51.1b): the tile shows the local art. Requests to YouTube's thumbnail host are intercepted: unreachable (the host does not resolve), then
