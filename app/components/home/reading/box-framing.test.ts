@@ -5,6 +5,8 @@ import {
   SIDE_PAD,
   TOP_PAD,
   containFraming,
+  DOT_RES_MIN,
+  dotRes,
   dotRegion,
   framingRect,
   projectRow,
@@ -187,5 +189,25 @@ describe("projecting a row", () => {
     expect(p.books).toHaveLength(14);
     expect(p.ledge.bottom).toBeLessThanOrEqual(300);
     expect(Math.min(...p.books.map((b) => b.top))).toBeGreaterThanOrEqual(0.06 * 300);
+  });
+});
+
+describe("how fine the dot field is painted", () => {
+  it("follows the framing's scale a little over, between a floor and the open page's own", () => {
+    expect(dotRes(0.36)).toBeCloseTo(0.45, 9);
+    expect(dotRes(0.9)).toBe(1);
+    expect(dotRes(1)).toBe(1);
+    expect(dotRes(0.05)).toBe(DOT_RES_MIN);
+  });
+
+  it("is less than the full ratio in every box, so the canvas that covers more than the window costs no more than the box's own did", () => {
+    for (const { win, box } of CASES) {
+      const { row } = rowAt(win.w, win.h);
+      const region = dotRegion(box, win, row);
+      const res = dotRes(containFraming(box, row).scale);
+      expect(res).toBeLessThan(0.6);
+      // the pixels painted (at the same pixel ratio) against the box's own canvas
+      expect(region.w * region.h * res * res).toBeLessThan(box.w * box.h * 2);
+    }
   });
 });

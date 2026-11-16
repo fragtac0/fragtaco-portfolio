@@ -12,7 +12,7 @@ const VH = 900;
 /** A canvas-like with a style that records what is set and removed. */
 function fakeEl() {
   const props = new Map<string, string>();
-  const camel = (p: string) => p.replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase());
+  const camel = (p: string) => (p.startsWith("--") ? p : p.replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase()));
   const own: Record<string, unknown> = {
     removeProperty: (p: string) => void props.delete(camel(p)),
     setProperty: (p: string, v: string) => void props.set(camel(p), v),
@@ -213,6 +213,21 @@ describe("the dot field in a frame", () => {
   });
 });
 
+describe("the dot field's own resolution", () => {
+  it("is the box's all through a move (the canvas keeps one size and one resolution), and goes when the frame does (the open page's field is painted at full size)", () => {
+    const { el, props } = fakeEl();
+    const box = framed(BOX, { place: false });
+    placeDots(el, box.ctx.box, VW, VH, ROW.bottom, viewFor(box.ctx, SCALE, VW, VH));
+    const rest = props.get("--dot-res");
+    expect(Number(rest)).toBeLessThan(0.6);
+    const end = framed({ left: 0, top: 0, width: VW, height: VH }, { place: false, move: { box: { width: 648, height: 300 }, t: 1 } });
+    placeDots(el, end.ctx.box, VW, VH, ROW.bottom, viewFor(end.ctx, SCALE, VW, VH));
+    expect(props.get("--dot-res")).toBe(rest);
+    placeDots(el, setup(null).ctx.box, VW, VH, ROW.bottom);
+    expect(props.has("--dot-res")).toBe(false);
+  });
+});
+
 describe("docking the shelf", () => {
   it("takes the canvas out of the tab order and the pointer's way, and forgets the hover and the press", () => {
     const { el, props } = fakeEl();
@@ -357,7 +372,7 @@ describe("the shelf's view of a frame once it has a row (the box framing)", () =
     const noRow = setup(BOX, { place: false });
     expect(viewFor(noRow.ctx, SCALE, VW, VH).sub).toEqual(subWindow(BOX, VW, VH));
     expect(viewFor(noRow.ctx, SCALE, VW, VH).region).toBeNull();
-    expect(viewFor(framed(null).ctx, SCALE, VW, VH)).toEqual({ sub: { x: 0, y: 0, w: VW, h: VH }, region: null });
+    expect(viewFor(framed(null).ctx, SCALE, VW, VH)).toEqual({ sub: { x: 0, y: 0, w: VW, h: VH }, region: null, res: 1 });
   });
 
   it("the dot field's region is the one for the box and the window, the same at every position of the move", () => {
@@ -388,6 +403,8 @@ describe("the dot field in the box framing", () => {
       `${view.region!.h}px`,
     ]);
     expect(props.get("transform")).toBe(`scale(${p.scale})`);
+    expect(Number(props.get("--dot-res"))).toBeCloseTo(view.res, 9); // painted finer than it shows, by the framing's scale
+    expect(view.res).toBeLessThan(0.6);
     // what shows of the field (the canvas less the cut sides) covers the box's width and its top, down to the line the books stand on
     const [t, r, b, l] = p.inset;
     const sc = p.scale;

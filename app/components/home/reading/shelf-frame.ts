@@ -1,6 +1,6 @@
 import { clearPlacement, noTransition, windowSize, type FrameBox } from "../layer/frame-box";
 import { COARSE_STEP, coarseBuffer, dotPlacement, placeRegion, subWindow } from "../layer/frame-math";
-import { dotRegion, framingRect, shelfFraming, type Rect, type Row } from "./box-framing";
+import { containFraming, dotRegion, dotRes, framingRect, shelfFraming, type Rect, type Row } from "./box-framing";
 import type { ShelfCtx, ShelfState } from "./shelf-open";
 import { RENDER_DPR_MAX } from "./shelf-math";
 import { newBag, type ShelfScene } from "./shelf-scene";
@@ -15,7 +15,7 @@ import { newBag, type ShelfScene } from "./shelf-scene";
  */
 
 /** What a frame shows of the open page's picture: the part (it may stick out of the window) and the part the dot field is painted over. */
-export type ShelfView = { sub: Rect; region: Rect | null };
+export type ShelfView = { sub: Rect; region: Rect | null; /** `dotRes` of the box's framing: how fine the dot field is painted (1 when not framed). */ res: number };
 
 /**
  * The view for the frame in force. Framed, with the row of the last fit: the box framing at the move's position (a frame that says nothing of
@@ -25,7 +25,7 @@ export type ShelfView = { sub: Rect; region: Rect | null };
 export function viewFor(ctx: ShelfCtx, scale: number, vw: number, vh: number): ShelfView {
   const f = ctx.box.frame();
   const row = ctx.st.row;
-  if (!f || !row) return { sub: subWindow(f, vw, vh), region: null };
+  if (!f || !row) return { sub: subWindow(f, vw, vh), region: null, res: 1 };
   const shift = -(ctx.cam?.x ?? 0) * scale;
   const slid: Row = { ...row, left: row.left + shift, right: row.right + shift };
   const win = { w: vw, h: vh };
@@ -36,6 +36,7 @@ export function viewFor(ctx: ShelfCtx, scale: number, vw: number, vh: number): S
   return {
     sub: framingRect(shelfFraming(box, win, slid, t), { w: f.width, h: f.height }),
     region: dotRegion(box, win, slid),
+    res: dotRes(containFraming(box, slid).scale),
   };
 }
 
@@ -98,7 +99,7 @@ export function syncRatio(gl: ShelfScene, st: ShelfState, device: number, cap: n
   st.dirty = true;
 }
 
-const DOT_STYLES = ["position", "left", "top", "width", "height", "transform", "transform-origin", "clip-path"] as const;
+const DOT_STYLES = ["position", "left", "top", "width", "height", "transform", "transform-origin", "clip-path", "--dot-res"] as const;
 
 /**
  * Puts the dot field where the frame's picture has it (or back to the stylesheet's place with no frame). In a frame the caller
@@ -129,6 +130,9 @@ export function placeDots(
   s.height = `${p.height}px`;
   s.transformOrigin = "0 0";
   s.transform = `scale(${p.scale})`;
+  // the dot field's own hook paints at this share of its pixel ratio (use-dot-field.ts)
+  if (view?.region && view.res < 1) s.setProperty("--dot-res", String(view.res));
+  else s.removeProperty("--dot-res");
   const [t, r, b, l] = p.inset;
   s.clipPath = `inset(${t}px ${r}px ${b}px ${l}px)`;
   noTransition(dots);

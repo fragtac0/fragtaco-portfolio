@@ -126,6 +126,15 @@ export function dotRegion(box: Size, win: Size, row: Row): Rect {
   return { x, y, w: Math.ceil(x1) + 1 - x, h: row.bottom - y };
 }
 
+/**
+ * How fine the dot field is painted while it is framed, as a share of the pixel ratio the open page paints it at: the field is shown at the
+ * framing's scale (the dots, 0.8 to 1.7 px across and 2 to 10% cream, are tiny textures), so its canvas is painted at about that scale and a
+ * little over, never under `DOT_RES_MIN`; the region it covers (`dotRegion`) is larger than the window, so painting it at full size is
+ * several times the work of the box's own canvas before (the first frame on screen at 4 times slower CPU).
+ */
+export const DOT_RES_MIN = 0.25;
+export const dotRes = (scale: number): number => Math.min(1, Math.max(DOT_RES_MIN, scale * 1.25));
+
 /** A box of the picture in the frame's pixels. */
 export type Box = { left: number; right: number; top: number; bottom: number };
 

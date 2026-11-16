@@ -35,7 +35,9 @@ export function useDotField(ref: RefObject<HTMLCanvasElement>, running: boolean,
       if (w && h) paintDots(c, w, h, performance.now() / 1000);
     };
     const fit = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, DOT_DPR_MAX);
+      // a framed field (the box) is painted finer than it shows (`--dot-res`, set by shelf-frame.ts): its canvas covers more than the window
+      const res = parseFloat(canvas.style.getPropertyValue("--dot-res")) || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, DOT_DPR_MAX) * res;
       const next = `${canvas.clientWidth}x${canvas.clientHeight}@${dpr}`;
       if (next === key) return; // assigning a canvas size clears it: only do it for a real change
       key = next;
