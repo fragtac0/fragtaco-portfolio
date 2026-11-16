@@ -73,9 +73,9 @@ function recorder(counts: Record<string, number>, nothing = false, log?: Call[])
 
 const style = () => ({ transform: "", opacity: "", width: "", height: "", visibility: "", zIndex: "", props: {} as Record<string, string>, setProperty(n: string, v: string) { this.props[n] = v; }, removeProperty(n: string) { delete this.props[n]; } });
 
-type Setup = { reduced?: boolean; noTerrainContext?: boolean; count?: number; phone?: boolean; entrance?: boolean };
+type Setup = { reduced?: boolean; noTerrainContext?: boolean; count?: number; phone?: boolean; entrance?: boolean; onEntranceEnd?: () => void };
 
-export function setup({ reduced = false, noTerrainContext = false, count = 9, phone = false, entrance = false }: Setup = {}) {
+export function setup({ reduced = false, noTerrainContext = false, count = 9, phone = false, entrance = false, onEntranceEnd }: Setup = {}) {
   const terrainCalls: Record<string, number> = {};
   const trailCalls: Record<string, number> = {};
   const radarCalls: Record<string, number> = {};
@@ -118,6 +118,7 @@ export function setup({ reduced = false, noTerrainContext = false, count = 9, ph
     onHeads: (h) => heads.push(h),
     onFail: () => fails.push("fail"),
     entrance,
+    onEntranceEnd,
   });
 
   return { engine, layers, f, rows, fills, trail, terrainCalls, trailCalls, radarCalls, frameCalls, frameLog, classes, selects, heads, fails };

@@ -38,6 +38,8 @@ export type ClimbOptions = {
   onFail?: () => void;
   /** The map is made before its entrance has played (spec 8: the trail, the beads and the radar are not shown until `startEntrance` and their time). Absent: they are shown. */
   entrance?: boolean;
+  /** The entrance drew its last frame (the way ahead reached the summit; under reduced motion, the fade ended). Not told when it was finished early by `finishEntrance`. */
+  onEntranceEnd?: () => void;
   /** Every frame that moves: [time, k, screen y of the camera's look-at point, pitch, tx, ty, tz, zoom] (the audit's hook). */
   trace?: () => number[][] | undefined;
 };

@@ -12,8 +12,10 @@ import { settle, springStep } from "./camera";
 import { writeHits } from "./bead-hit";
 import { chartAlpha } from "./chart";
 import { createChartState } from "./chart-state";
+import { BEAD_TARGET, ENTRY_U, FLIP_AT, NIGHT_ON, PICTURE_SEEN, RADAR_GAP, REST, WAIT_ENTRY, WAIT_MOVE, WAIT_STAY } from "./climb-constants";
 import { changeAt, IN_MS, kOf, startChange, type Change, type Mode } from "./climb-change";
-import type { CanvasLayer, ClimbEngine, ClimbLayers, ClimbOptions } from "./climb-engine-types";
+import type { ClimbEngine, ClimbLayers, ClimbOptions } from "./climb-engine-types";
+import { clearCanvases, placePins, sizeCanvas } from "./climb-layers";
 import { dipAt, hopStart, jumpNow } from "./climb-hop";
 import { createEntrance } from "./entrance-driver";
 import { PICTURE, SUMMIT_XY } from "./frame";
@@ -28,24 +30,7 @@ import type { XY } from "./card-slot";
 
 export type { CanvasLayer, ClimbEngine, ClimbLayers, ClimbOptions, Host, Layer, StageLayer, StyleLike } from "./climb-engine-types";
 
-/** The night map is drawn only above this much night (below it its opacity is 0). */
-export const NIGHT_ON = 0.04;
-/** The picture is moved only while it can be seen. */
-export const PICTURE_SEEN = 0.003;
-/** Where the camera starts on the trail when it goes into My climb, before it settles for the chosen milestone. */
-export const ENTRY_U = 0.72;
-/** How long the card waits: for a milestone already in view, for one the camera has to travel to, and for the change into My climb (milliseconds). */
-export const WAIT_STAY = 250;
-export const WAIT_MOVE = 1300;
-export const WAIT_ENTRY = 3150;
-/** The spring is at rest when it is this near its goal and this slow. */
-const REST = 0.0004;
-/** A bead whose head is past this share of the stage's width shows its label on its left (the side with more room), so the label is not cut off at the edge. */
-export const FLIP_AT = 0.5;
-/** The radar is redrawn at about 30 frames a second (its ring moves under half a pixel a frame): this many milliseconds apart at least (Ruling R102). */
-export const RADAR_GAP = 30;
-/** A bead's touch target, in pixels (the overview keeps the whole of it on the screen). */
-export const BEAD_TARGET = 44;
+export { BEAD_TARGET, ENTRY_U, FLIP_AT, NIGHT_ON, PICTURE_SEEN, RADAR_GAP, WAIT_ENTRY, WAIT_MOVE, WAIT_STAY };
 
 export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): ClimbEngine {
   const { stage, plane, night, terrain: canvas, trail: trailCanvas, radar: radarCanvas, frame: frameCanvas, pinBox, pins } = layers;
@@ -62,7 +47,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
   const ahead = aheadTrail([trail[trail.length - 1].x, trail[trail.length - 1].y], SUMMIT_XY);
   const shares = sharesFor(pins.length);
   let spots = shares.map((u) => ({ ...trailAt(trail, u), u }));
-  const entrance = createEntrance(pins, shares, reduced, options.entrance === true);
+  const entrance = createEntrance(pins, shares, reduced, options.entrance === true, options.onEntranceEnd);
   let keep = NO_KEEP_OUT;
   /** The overview's framing that `cam` is gliding to. */
   let look: Look = { ...start() };
@@ -171,12 +156,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     const heads = places.map((p) => p.head);
 
     writeHits(pins.map((p) => p.style), heads, hitWas, pins.map((p) => p.hasAttribute("data-under")));
-    places.forEach(({ head }, i) => {
-      pins[i].style.transform = `translate(${head[0]}px, ${head[1]}px)`;
-      pins[i].style.setProperty("--bs", String(0.5 + 0.5 * seen.k));
-      pins[i].style.setProperty("--flip", head[0] > FLIP_AT * size.w ? "1" : "0");
-      pins[i].style.zIndex = String(Math.round(head[1]));
-    });
+    placePins(pins, places, seen.k, size.w);
     if (alpha !== alphaWas) {
       alphaWas = alpha;
       trailCanvas.style.opacity = radarCanvas.style.opacity = pinBox.style.opacity = alpha;
@@ -228,6 +208,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       Object.assign(cam, glideTo(cam, look, dt));
       dirty = true;
     }
+    entrance.settle(now); // a finish's no-transition mark on the beads comes off a moment later, whether or not a frame is drawn
     if (entrance.wakes(now)) dirty = true;
     if (dirty) scene(now, traced);
     else if (!calm && now - radarAt >= RADAR_GAP) radar(now, calm, entrance.step(now).radar);
@@ -291,16 +272,11 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       plane.style.height = `${PICTURE.h}px`;
       if (!same) {
         // a canvas is cleared by being given a size, even the one it has: so only on a change, and drawn again before the next paint
-        const stageBox = (c: CanvasLayer, cw: number, ch: number) => {
-          c.width = Math.round(cw * ratio);
-          c.height = Math.round(ch * ratio);
-        };
-
         side = radarSide(Math.max(w / PICTURE.w, h / PICTURE.h));
-        stageBox(canvas, w, h);
-        stageBox(trailCanvas, w, h);
-        stageBox(frameCanvas, w, h);
-        stageBox(radarCanvas, side, side);
+        sizeCanvas(canvas, w, h, ratio);
+        sizeCanvas(trailCanvas, w, h, ratio);
+        sizeCanvas(frameCanvas, w, h, ratio);
+        sizeCanvas(radarCanvas, side, side, ratio);
         radarCanvas.style.width = radarCanvas.style.height = `${side}px`;
         terrainFresh = false;
         dirty = true;
@@ -361,10 +337,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       if (handle) host.cancel(handle);
       handle = 0;
       // leave nothing of the trail, the radar or the beads behind (the page falls back to the list when the heights fail)
-      for (const [c, cv] of [[trailCtx, trailCanvas], [radarCtx, radarCanvas], [frameCtx, frameCanvas], [ctx, canvas]] as const) {
-        c?.setTransform(1, 0, 0, 1, 0, 0);
-        c?.clearRect(0, 0, cv.width, cv.height);
-      }
+      clearCanvases([[trailCtx, trailCanvas], [radarCtx, radarCanvas], [frameCtx, frameCanvas], [ctx, canvas]]);
       pinBox.style.opacity = "";
     },
   };

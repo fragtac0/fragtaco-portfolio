@@ -18,11 +18,13 @@ export type Entrance = {
   start(at: number): void;
   /** Show everything now (a press, or a visitor who is already past it). */
   finish(now: number): void;
-  /** The numbers for the frame at `now`; opens the beads that are due. */
+  /** The numbers for the frame at `now`; opens the beads that are due (and settles, below). */
   step(now: number): EntranceView;
+  /** Takes the beads' no-transition mark off once its time has passed (a cheap check, made by every frame: a frame that draws nothing else, as under reduced motion, still makes it). */
+  settle(now: number): void;
   /** Does the entrance change what the frame at `now` shows (it is running, or is about to begin)? */
   wakes(now: number): boolean;
-  /** Is there still something to wait for or to draw (the loop must keep running)? */
+  /** Is there still something to wait for or to draw (the loop must keep running, also under reduced motion, until the last bead's `data-instant` is off)? */
   live(): boolean;
 };
 
@@ -34,8 +36,9 @@ const FULL: EntranceView = { share: 1, ahead: 1, alpha: 1, radar: 0 };
 /**
  * `waiting`: the entrance has not played yet (the beads start hidden, nothing of the trail is drawn); false: the map is as it
  * is after the entrance (a map made again, a screen where it does not play). `shares` are the milestones' places on the trail.
+ * `onEnd` is told once when the entrance has drawn its last frame by itself (not when `finish` cut it short): the page's clock for "done" is this, not a guess.
  */
-export function createEntrance(beads: readonly BeadEl[], shares: readonly number[], reduced: () => boolean, waiting: boolean): Entrance {
+export function createEntrance(beads: readonly BeadEl[], shares: readonly number[], reduced: () => boolean, waiting: boolean, onEnd?: () => void): Entrance {
   let mode: "off" | "wait" | "run" = waiting ? "wait" : "off";
   let at: number | null = null;
   let t0 = 0;
@@ -54,6 +57,13 @@ export function createEntrance(beads: readonly BeadEl[], shares: readonly number
   const over = () => {
     mode = "off";
     beads.forEach((b) => b.removeAttribute("data-enter"));
+    onEnd?.();
+  };
+
+  const settle = (now: number) => {
+    if (instantUntil === null || now < instantUntil) return;
+    instantUntil = null;
+    beads.forEach((b) => b.removeAttribute("data-instant"));
   };
 
   return {
@@ -73,11 +83,9 @@ export function createEntrance(beads: readonly BeadEl[], shares: readonly number
         b.setAttribute("data-instant", "");
       });
     },
+    settle,
     step(now) {
-      if (instantUntil !== null && now >= instantUntil) {
-        instantUntil = null;
-        beads.forEach((b) => b.removeAttribute("data-instant"));
-      }
+      settle(now);
       if (mode === "wait" && at !== null && now >= at) {
         mode = "run";
         t0 = now;
@@ -107,7 +115,7 @@ export function createEntrance(beads: readonly BeadEl[], shares: readonly number
       return mode === "run" || (mode === "wait" && at !== null && now >= at);
     },
     live() {
-      return mode === "run" || (mode === "wait" && at !== null);
+      return instantUntil !== null || mode === "run" || (mode === "wait" && at !== null);
     },
   };
 }

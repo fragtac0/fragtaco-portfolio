@@ -94,6 +94,36 @@ describe("the entrance in the engine (spec 8)", () => {
     expect(f.pending()).toBe(0);
   });
 
+  it("takes the beads' no-transition mark off a moment after a finish and then stops asking for frames, also under reduced motion (the loop used to stop with the mark still on)", () => {
+    for (const reduced of [false, true]) {
+      const { engine, f, layers } = setup({ entrance: true, reduced });
+
+      started(engine, f);
+      engine.startEntrance(1000);
+      f.run(100);
+      engine.finishEntrance();
+      f.run(30);
+      expect(layers.pins.every((p) => p.attrs.has("data-instant"))).toBe(true);
+      f.run(300);
+      expect(layers.pins.every((p) => !p.attrs.has("data-instant") && !p.attrs.has("data-wait"))).toBe(true);
+      if (reduced) expect(f.pending()).toBe(0); // and the loop has stopped
+    }
+  });
+
+  it("tells onEntranceEnd once, when the trace has drawn its last frame", () => {
+    const ended: number[] = [];
+    const { engine, f } = setup({ entrance: true, onEntranceEnd: () => ended.push(1) });
+
+    started(engine, f);
+    engine.startEntrance(1000);
+    f.run(1000 + TRACE_END_MS - 100 - 50);
+    expect(ended).toEqual([]);
+    f.run(400);
+    expect(ended).toEqual([1]);
+    f.run(2000);
+    expect(ended).toEqual([1]);
+  });
+
   it("does not hold the loop for an entrance that has not been told when to start (a map waiting for its reveal draws nothing again)", () => {
     const { engine, f, trailCalls } = setup({ entrance: true, reduced: true });
 

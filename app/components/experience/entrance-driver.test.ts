@@ -10,8 +10,9 @@ function bead(): BeadEl & { attrs: Set<string> } {
 }
 const make = (waiting = true, calm = false) => {
   const beads = MILESTONE_SHARES.map(() => bead());
+  const ended: number[] = [];
 
-  return { beads, e: createEntrance(beads, MILESTONE_SHARES, () => calm, waiting), calm };
+  return { beads, ended, e: createEntrance(beads, MILESTONE_SHARES, () => calm, waiting, () => ended.push(1)), calm };
 };
 
 describe("the entrance driver", () => {
@@ -84,6 +85,35 @@ describe("the entrance driver", () => {
     expect(e.step(TRACE_END_MS + 5000).radar).toBe(ENTRANCE.traceMs); // the radar's clock does not change when the entrance is over
   });
 
+  it("tells onEnd once when the trace has drawn its last frame, under reduced motion when the fade has ended, and never when it was finished early", () => {
+    const full = make();
+
+    full.e.start(0);
+    full.e.step(0);
+    full.e.step(TRACE_END_MS - 1);
+    expect(full.ended).toEqual([]);
+    full.e.step(TRACE_END_MS);
+    full.e.step(TRACE_END_MS + 20);
+    expect(full.ended).toEqual([1]);
+
+    const calm = make(true, true);
+
+    calm.e.start(0);
+    calm.e.step(0);
+    calm.e.step(ENTRANCE.reducedMs + 299);
+    expect(calm.ended).toEqual([]);
+    calm.e.step(ENTRANCE.reducedMs + 300);
+    expect(calm.ended).toEqual([1]);
+
+    const cut = make();
+
+    cut.e.start(0);
+    cut.e.step(100);
+    cut.e.finish(200);
+    cut.e.step(5000);
+    expect(cut.ended).toEqual([]);
+  });
+
   it("finishes at once: every bead shown with no transition, everything drawn, the radar from now", () => {
     const { beads, e } = make();
 
@@ -93,7 +123,25 @@ describe("the entrance driver", () => {
     e.finish(1234);
     expect(beads.every((b) => !b.attrs.has("data-wait") && b.attrs.has("data-instant"))).toBe(true);
     expect(e.step(1250)).toEqual({ share: 1, ahead: 1, alpha: 1, radar: 1234 });
+    expect(e.live()).toBe(true); // until the beads' no-transition mark is off (below)
+    e.step(1234 + INSTANT_MS);
     expect(e.live()).toBe(false);
+  });
+
+  it("keeps asking for frames after a finish until the no-transition mark is off, whatever the motion (a loop that stops with it on leaves the beads without their own transitions)", () => {
+    for (const calm of [false, true]) {
+      const { beads, e } = make(true, calm);
+
+      e.finish(1000);
+      expect(e.live()).toBe(true);
+      expect(e.wakes(1000)).toBe(false); // nothing is drawn again for it: only the mark comes off
+      e.settle(1000 + INSTANT_MS - 1);
+      expect(e.live()).toBe(true);
+      expect(beads.every((b) => b.attrs.has("data-instant"))).toBe(true);
+      e.settle(1000 + INSTANT_MS);
+      expect(beads.every((b) => !b.attrs.has("data-instant"))).toBe(true);
+      expect(e.live()).toBe(false);
+    }
   });
 
   it("takes the no-transition mark off again a moment after a finish, so the beads' own transitions are theirs afterwards", () => {
@@ -113,6 +161,7 @@ describe("the entrance driver", () => {
     e.start(5000);
     expect(beads.every((b) => !b.attrs.has("data-wait"))).toBe(true);
     expect(e.step(20)).toEqual({ share: 1, ahead: 1, alpha: 1, radar: 10 });
+    e.step(10 + INSTANT_MS);
     expect(e.live()).toBe(false);
   });
 
