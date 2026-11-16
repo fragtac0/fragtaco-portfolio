@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseListedVideo, toPlaylistEntry } from "./playlist-listing";
+import { parseListedVideo, plainDashes, toPlaylistEntry } from "./playlist-listing";
 
 const line = (over: Record<string, unknown>) =>
   JSON.stringify({
@@ -10,6 +10,20 @@ const line = (over: Record<string, unknown>) =>
     uploader_url: "https://www.youtube.com/@LEMMiNO",
     ...over,
   });
+
+describe("plainDashes", () => {
+  it("reads an en or em dash as a spaced hyphen, and leaves other text alone", () => {
+    expect(plainDashes("A Life of Reading \u2013 Gabriela")).toBe("A Life of Reading - Gabriela");
+    expect(plainDashes("One\u2014two")).toBe("One - two");
+    expect(plainDashes("Spider-Man: Part 2")).toBe("Spider-Man: Part 2");
+  });
+
+  it("is applied to the title and the channel of a listed video", () => {
+    const v = parseListedVideo(line({ title: "Why \u2014 now", channel: "A \u2013 B" }));
+    expect(v?.title).toBe("Why - now");
+    expect(v?.channel).toBe("A - B");
+  });
+});
 
 describe("parseListedVideo", () => {
   it("prefers the @handle page and trims the text", () => {

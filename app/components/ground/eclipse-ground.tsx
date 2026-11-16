@@ -119,8 +119,11 @@ export default function EclipseGround({ placement, scope = "page", covered = fal
           onLost: () => {
             // a lost context is final: the canvas goes at once and the still stays. It is not faded: a lost canvas has
             // no picture left (the browser paints it blank and pale), so a fade would flash that over the still.
-            delete el.dataset.live;
-            engine.current = null;
+            // (only if it is still the engine of this ground: a context lost during the fade-out of a leaving engine, after a new one was made, must not clear the new one)
+            if (engine.current === created) {
+              delete el.dataset.live;
+              engine.current = null;
+            }
             made.remove();
           },
         });

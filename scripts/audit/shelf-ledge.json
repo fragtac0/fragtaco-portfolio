@@ -50,7 +50,7 @@
   "wait": 1500
  },
  {
-  "eval": "new Promise(r=>{const a=window.__dots;setTimeout(()=>r({layerOpen:!!document.querySelector('.home-layer.on'),redrawsIn1s:window.__dots-a}),1000)})",
+  "eval": "new Promise(r=>{const a=window.__dots;setTimeout(()=>r({layerOpen:!!document.querySelector('.home-layer'),redrawsIn1s:window.__dots-a}),1000)})",
   "label": "1440x900: after Esc the loop has stopped (redrawsIn1s 0, or 1 for the still frame the closing layer may draw)"
  },
  {
@@ -104,7 +104,7 @@
   "wait": 1500
  },
  {
-  "eval": "new Promise(r=>{const a=window.__dots;setTimeout(()=>r({layerOpen:!!document.querySelector('.home-layer.on'),redrawsIn1s:window.__dots-a}),1000)})",
+  "eval": "new Promise(r=>{const a=window.__dots;setTimeout(()=>r({layerOpen:!!document.querySelector('.home-layer'),redrawsIn1s:window.__dots-a}),1000)})",
   "label": "390x844: after Esc the loop has stopped (redrawsIn1s 0, or 1 for the still frame the closing layer may draw)"
  },
  {
@@ -158,7 +158,7 @@
   "wait": 1500
  },
  {
-  "eval": "new Promise(r=>{const a=window.__dots;setTimeout(()=>r({layerOpen:!!document.querySelector('.home-layer.on'),redrawsIn1s:window.__dots-a}),1000)})",
+  "eval": "new Promise(r=>{const a=window.__dots;setTimeout(()=>r({layerOpen:!!document.querySelector('.home-layer'),redrawsIn1s:window.__dots-a}),1000)})",
   "label": "1440x900-reduced: after Esc nothing is redrawn (redrawsIn1s 0)"
  },
  {

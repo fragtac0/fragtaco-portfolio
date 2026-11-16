@@ -155,7 +155,6 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     }
     const heads = places.map((p) => p.head);
 
-    writeHits(pins.map((p) => p.style), heads, hitWas, pins.map((p) => p.hasAttribute("data-under")));
     placePins(pins, places, seen.k, size.w);
     if (alpha !== alphaWas) {
       alphaWas = alpha;
@@ -165,6 +164,8 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     radarCanvas.style.transform = `translate(${foot[0] - side / 2}px, ${foot[1] - side / 2}px)`;
     radar(now, calm, entering.radar);
     options.onHeads?.(heads, { w: size.w, h: size.h });
+    // after onHeads: the card moves there and toggles each pin's `data-under`, which the hit areas read
+    writeHits(pins.map((p) => p.style), heads, hitWas, pins.map((p) => p.hasAttribute("data-under")));
     dirty = false;
 
     const rows = options.trace?.();

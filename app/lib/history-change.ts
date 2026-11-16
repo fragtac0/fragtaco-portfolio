@@ -3,7 +3,8 @@
  * transition captures, `planNow`) and the commit state from change-state.ts.
  */
 import { committedPathname, captureNextTransition, onCommit } from "./change-state";
-import { FAILSAFE_MS, captureRouterTransition, endChange, open, planNow, skipHold, startOwnTransition } from "./page-change";
+import { focusAfterFinish } from "./dock-focus";
+import { FAILSAFE_MS, captureRouterTransition, endChange, isChangeRunning, open, planNow, skipHold, startOwnTransition } from "./page-change";
 
 /** The slice of Remix's router (`window.__remixRouter`) that Back and Forward use. */
 export interface RouterLike {
@@ -43,6 +44,26 @@ function skipRouterTransition(path: string) {
   skipHold.end = end;
   const timer = window.setTimeout(end, 4000);
   const offCommit = onCommit(() => committedPathname() === path && end());
+}
+
+/**
+ * The Back or Forward landed on `path` and the page it left (and the element that had focus on it) went away: once that page is
+ * committed, focus on <body> is put on the new page's <main>, as at the end of a pressed change (`focusAfterFinish`), so Tab carries on from
+ * the page and not from the top of the document. Nothing happens if the new page put focus somewhere on purpose.
+ */
+function focusWhenCommitted(path: string) {
+  let timer = 0;
+  let off = () => {};
+  const go = () => {
+    window.clearTimeout(timer);
+    off();
+    window.setTimeout(() => {
+      if (!isChangeRunning()) focusAfterFinish();
+    }, 0);
+  };
+  if (committedPathname() === path) return go();
+  off = onCommit(() => committedPathname() === path && go());
+  timer = window.setTimeout(() => off(), 4000);
 }
 
 /**
@@ -86,11 +107,16 @@ export function watchHistory(): () => void {
       // The router's own popstate listener has run before this point (it has the new state already, so
       // there is nothing to wait for), and it starts its transition a few effects later: be ready for it.
       if (router && "startViewTransition" in document) skipRouterTransition(path);
+      if (ended) focusWhenCommitted(path);
       return;
     }
     const plan = planNow(committedPathname() ?? "", path);
     if (plan.kind === "none") return;
     const c = open(plan);
+    // the change is over (it ran its course, or a newer one replaced it): focus that fell to <body> with the old page goes to the new one
+    void c.done.then(() => {
+      if (!isChangeRunning()) focusAfterFinish();
+    });
     if (!router) {
       startOwnTransition(c);
       return;

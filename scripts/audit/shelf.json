@@ -59,7 +59,7 @@
   "label": "frames-close-layer"
  },
  {
-  "eval": "[document.documentElement.className, location.hash, !!document.querySelector(\".home-layer.on\")]",
+  "eval": "[document.documentElement.className, location.hash, !!document.querySelector(\".home-layer\")]",
   "label": "after-close"
  },
  {

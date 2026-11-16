@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activeTab, rowTarget, WORK_TABS } from "./work-tabs";
+import { rowTarget, WORK_TABS } from "./work-tabs";
 
 describe("WORK_TABS", () => {
   it("is the three tabs, in order", () => {
@@ -8,16 +8,6 @@ describe("WORK_TABS", () => {
       { to: "/work/short-form", label: "Short form" },
       { to: "/experience", label: "My experience" },
     ]);
-  });
-});
-
-describe("activeTab", () => {
-  it("finds the tab of the current address, none on /work or elsewhere", () => {
-    expect(activeTab("/work/long-form")).toBe("/work/long-form");
-    expect(activeTab("/work/short-form/")).toBe("/work/short-form");
-    expect(activeTab("/experience")).toBe("/experience");
-    expect(activeTab("/work")).toBeNull();
-    expect(activeTab("/")).toBeNull();
   });
 });
 

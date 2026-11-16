@@ -470,7 +470,7 @@
   "key": "Escape",
   "vk": 27,
   "wait": 1200,
-  "eval": "[document.documentElement.className, location.hash, !!document.querySelector(\".home-layer.on\")]",
+  "eval": "[document.documentElement.className, location.hash, !!document.querySelector(\".home-layer\")]",
   "label": "after-close"
  },
  {

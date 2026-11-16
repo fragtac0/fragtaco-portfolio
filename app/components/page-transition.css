@@ -17,6 +17,15 @@ html[data-change-kind="fade"]::view-transition-group(*) { animation-duration: va
  * own corners: 1.75rem, which is the radius of the two-row dock and, on a one-row dock about 58 px high (Home), a pill (a radius larger
  * than half the box is scaled down). The group morphs from the old dock's box to the new one's, once, during the reveal. */
 ::view-transition-group(site-dock) { clip-path: inset(0 round 1.75rem); }
+/* Home's dock is one row and the other pages' is two: the UA's default morph stretches both pictures to the group's box, so for a quarter of a
+ * second the labels of the two docks lay over each other. Keep both pictures unscaled and bottom-aligned (the tab row stays where it is; only the
+ * second row fades in or out) while the group's box still morphs. */
+::view-transition-old(site-dock),
+::view-transition-new(site-dock) {
+  height: 100%;
+  object-fit: none;
+  object-position: 50% 100%;
+}
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*) { animation-duration: 120ms; }
 }

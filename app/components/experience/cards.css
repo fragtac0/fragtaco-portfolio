@@ -170,6 +170,10 @@
 .map-pin:focus-visible .map-pin-tip {
   opacity: 1;
 }
+/* the chosen bead's card already says the same words: its own label would lie over the trail beside it (the other beads' labels are as before) */
+.is-night .map-pin[aria-current] .map-pin-tip {
+  opacity: 0;
+}
 
 /* the card: out quickly, in gently; its words arrive with it, a breath apart, with no sliding */
 .map-card {
