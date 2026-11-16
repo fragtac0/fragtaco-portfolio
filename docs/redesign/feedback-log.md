@@ -754,3 +754,5 @@ While tasks 28 and 30 were building he wrote: "Modern Web Guidance. I have insta
 | Improve performance | Measured first on the final build (load, first picture, the weight of the scripts and pictures, the cost of the animations), then the changes, then measured again. |
 
 Process as before: Fable reads, asks and plans; Sonnet builds; Opus reviews once per task.
+
+Later the same evening he pasted the two install commands (`claude plugin marketplace add GoogleChrome/modern-web-guidance`, `claude plugin install modern-web-guidance@googlechrome`). The plugin is installed for his user at version 1.0.0 (commit 4dd9683). It holds two skills and their guides as text, with no hooks and no servers. The skill works through a command line tool fetched with `npx` (`search`, `retrieve`, and `legacy-scan` for a whole codebase); `legacy-scan` covers about a fifth of the guides, so the modernizing step also searches the guides by topic. The running build session does not list the skill until it is restarted, and it is not restarted while the build runs: the skill's text is read from its install folder.
