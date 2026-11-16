@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { BEFORE } from "./ring-before.fixture";
+import { coverage } from "./ring-coverage";
 import { introLine, labelSide, layoutRings } from "./ring-layout";
 import { clear, ringCapacity, ringPlan } from "./ring-math";
 
@@ -7,6 +9,32 @@ const WORK = { stack: 8, long: 35, short: 35 };
 const REAL = { stack: 8, long: 21, short: 35 };
 /** The seven sizes the ring audit photographs (scripts/audit/make-rings.mjs). */
 const AUDIT_SIZES: [number, number][] = [[1440, 900], [1920, 1080], [820, 1180], [390, 844], [375, 667], [568, 320], [320, 568]];
+/** The nine sizes the ring audit measures. */
+const ALL_AUDIT_SIZES: [number, number][] = [...AUDIT_SIZES, [1024, 768], [2560, 1440]];
+
+describe("layoutRings without a cut-out round the dock (R56.4)", () => {
+  it("has, at every audit size, tiles no smaller and no fewer than at 4621443, the last commit with the cut-out", () => {
+    for (const [vw, vh] of ALL_AUDIT_SIZES) {
+      const before = BEFORE[`${vw}x${vh}`];
+      const layout = layoutRings(REAL, vw, vh);
+      const video = layout.rings.filter((r) => r.kind !== "stack");
+      expect(layout.L, `${vw}x${vh} L`).toBeGreaterThanOrEqual(before.L);
+      expect(video.reduce((n, r) => n + r.slots.length, 0), `${vw}x${vh} tiles`).toBeGreaterThanOrEqual(before.tiles);
+      for (const r of video) expect(Math.max(r.size.w, r.size.h), `${vw}x${vh} ${r.id}`).toBeGreaterThanOrEqual(before.L);
+    }
+  });
+
+  it("counts the coverage of that layout without a mask, and it is no less than before", () => {
+    for (const [vw, vh] of ALL_AUDIT_SIZES) {
+      expect(coverage(layoutRings(REAL, vw, vh), vw, vh), `${vw}x${vh}`).toBeGreaterThanOrEqual(BEFORE[`${vw}x${vh}`].full - 1e-6);
+    }
+  });
+
+  it("is the same layout whatever else is on the screen: it takes the counts, the size and the order, nothing about the dock", () => {
+    expect(layoutRings.length).toBeLessThanOrEqual(4);
+    expect(layoutRings(REAL, 1440, 900)).toEqual(layoutRings(REAL, 1440, 900, "alternating"));
+  });
+});
 
 describe("layoutRings", () => {
   it("draws the stack ring and the video rings inside to outside, for the real content on a laptop", () => {

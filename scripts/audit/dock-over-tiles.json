@@ -1,0 +1,2745 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "\ntry{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__rank=async()=>{const w=window.__remixContext.state.loaderData['routes/work'].work;\n const idOf=u=>{try{const p=new URL(u);const h=p.hostname.replace(/^(www|m)\\./,'');let c=null;if(h==='youtu.be')c=p.pathname.split('/')[1];\n  else if(h==='youtube.com'){const[,k,i]=p.pathname.split('/');c=k==='watch'?p.searchParams.get('v'):(k==='shorts'||k==='embed'||k==='live')?i:null}\n  return c&&/^[A-Za-z0-9_-]{11}$/.test(c)?c:null}catch(e){return null}};\n const list=[];for(const [vids,tall] of [[w.longForm,false],[w.shortForm,true]])for(const v of vids){const id=v.cover?null:idOf(v.url);\n  const url=v.cover||(id?'https://i.ytimg.com/vi/'+id+'/'+(tall?'oar2':'hqdefault')+'.jpg':null);if(url&&!url.startsWith('data:'))list.push({id:v.id,url,tall})}\n const lin=v=>{v/=255;return v<=0.03928?v/12.92:((v+0.055)/1.055)**2.4};\n const rows=[];\n for(const it of list){try{const r=await fetch(it.url,{mode:'cors'});if(!r.ok)continue;const blob=await r.blob();const bmp=await createImageBitmap(blob);if(bmp.width<=120)continue;\n  const c=new OffscreenCanvas(48,27),x=c.getContext('2d',{willReadFrequently:true});x.drawImage(bmp,0,0,48,27);const d=x.getImageData(0,0,48,27).data;let s=0;\n  for(let i=0;i<d.length;i+=4)s+=0.2126*lin(d[i])+0.7152*lin(d[i+1])+0.0722*lin(d[i+2]);\n  const lum=s/(d.length/4);const data=await new Promise(res=>{const f=new FileReader();f.onload=()=>res(f.result);f.readAsDataURL(blob)});rows.push({id:it.id,tall:it.tall,lum,data})}catch(e){}}\n rows.sort((a,b)=>b.lum-a.lum);if(!rows.length)return JSON.stringify({error:'no thumbnail could be read',asked:list.length});\n window.__bright=rows[0].data;const mid=rows[Math.floor(rows.length/2)].lum;\n return JSON.stringify({asked:list.length,read:rows.length,brightest:{id:rows[0].id,tall:rows[0].tall,meanLuminance:+rows[0].lum.toFixed(4)},top3:rows.slice(0,3).map(r=>[r.id,+r.lum.toFixed(4)]),median:+mid.toFixed(4)})};\nwindow.__prep=(hide,tint)=>{if(tint!=null)document.documentElement.style.setProperty('--dock-tint',String(tint));const t=document.querySelector('.work-item[data-ring=long] .work-item-turn');const r=t.getBoundingClientRect();window.__tile={w:r.width,h:r.height};\n if(hide){const s=document.createElement('style');s.textContent='.work-rings{visibility:hidden !important}';document.head.appendChild(s)}\n return JSON.stringify({tile:[Math.round(r.width),Math.round(r.height)],hidden:!!hide,tint:getComputedStyle(document.documentElement).getPropertyValue('--dock-tint').trim()})};\nwindow.__under=(sel,which)=>{let t=document.getElementById('__t');if(!t){t=document.createElement('div');t.id='__t';t.style.cssText='position:fixed;z-index:25;pointer-events:none;display:none';document.body.appendChild(t)}\n if(which==='none'){t.style.display='none';return 'none'}\n const e=document.querySelector(sel);if(!e)return 'missing '+sel;const r=e.getBoundingClientRect();const W=window.__tile.w,H=window.__tile.h;\n t.style.display='block';t.style.width=W+'px';t.style.height=H+'px';t.style.left=(r.left+r.width/2-W/2)+'px';t.style.top=(r.top+r.height/2-H/2)+'px';\n t.style.background=which==='white'?'#fff':'url('+window.__bright+') center/cover';return which+' on '+sel};\n// the ink of each label and icon: colour with its own alpha, times the opacity of it and of every parent up to the dock\nwindow.__inks=()=>{const g=document.querySelector('[data-dock-glass]');const out={};const cv=document.createElement('canvas');cv.width=cv.height=1;const cx=cv.getContext('2d',{willReadFrequently:true});\n const ink=(name,sel)=>{const e=document.querySelector(sel);if(!e){out[name]='missing';return}let o=1;for(let n=e;n&&n!==g.parentElement;n=n.parentElement)o*=parseFloat(getComputedStyle(n).opacity);\n  cx.clearRect(0,0,1,1);cx.fillStyle=getComputedStyle(e).color;cx.fillRect(0,0,1,1);const d=cx.getImageData(0,0,1,1).data;out[name]=[d[0],d[1],d[2],+(d[3]/255*o).toFixed(2)]};\n for(const t of [\"/work/long-form\",\"/work/short-form\",\"/experience\"])ink('tab '+t,'[data-dock-glass] a[data-work-tab=\"'+t+'\"]');\n for(const k of [{\"name\":\"home label\",\"sel\":\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\"},{\"name\":\"home icon\",\"sel\":\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\"},{\"name\":\"work label\",\"sel\":\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\"},{\"name\":\"work icon\",\"sel\":\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\"},{\"name\":\"YouTube icon\",\"sel\":\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\"},{\"name\":\"Instagram icon\",\"sel\":\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\"},{\"name\":\"X icon\",\"sel\":\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\"},{\"name\":\"Mail icon\",\"sel\":\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\"}])ink(k.name,k.sel);return JSON.stringify(out)};\n// neutral generated pictures (no third party) on every tile, for the pictures that may be committed; a number shows each tile is upright\nwindow.__fake=()=>{let i=0;for(const img of document.querySelectorAll('.work-cover img')){i++;const tall=img.closest('.work-item').dataset.ring==='short';\n const W=tall?360:640,H=tall?640:360,hue=(i*47)%360;\n const svg='<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 '+W+' '+H+'\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl('+hue+',55%,60%)\"/><stop offset=\"1\" stop-color=\"hsl('+((hue+60)%360)+',60%,38%)\"/></linearGradient></defs><rect width=\"'+W+'\" height=\"'+H+'\" fill=\"url(#g)\"/><text x=\"'+W/2+'\" y=\"'+(H/2+30)+'\" font-family=\"monospace\" font-size=\"'+Math.round(H*.22)+'\" text-anchor=\"middle\" fill=\"rgba(255,255,255,.9)\">'+i+'</text></svg>';\n img.src='data:image/svg+xml;utf8,'+encodeURIComponent(svg)}return i};\nwindow.__dockShow=(on)=>{document.querySelector('[data-site-nav]').style.visibility=on?'':'hidden';return on?'dock shown':'dock hidden'};\nwindow.__bring=(where)=>{const d=document.querySelector('[data-dock-glass]').getBoundingClientRect();\n const pt={centre:[(d.left+d.right)/2,(d.top+d.bottom)/2],left:[d.left,(d.top+d.bottom)/2],right:[d.right,(d.top+d.bottom)/2],top:[(d.left+d.right)/2,d.top]}[where];\n const turning=ul=>ul.getAnimations({subtree:true}).filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin');\n document.getAnimations().filter(a=>a.animationName==='work-ring-in').forEach(a=>a.finish());\n for(const ul of document.querySelectorAll('.work-ring')){for(const a of turning(ul)){a.pause();a.currentTime=0}}\n let best=null;\n for(const ul of document.querySelectorAll('.work-ring[data-ring-id^=\"long\"],.work-ring[data-ring-id^=\"short\"]')){const as=turning(ul);const dur=as[0].effect.getTiming().duration;const item=ul.querySelector('.work-item-turn');\n  for(let k=0;k<480;k++){const t=k/480*dur;for(const a of as)a.currentTime=t;const r=item.getBoundingClientRect();const dd=Math.hypot((r.left+r.right)/2-pt[0],(r.top+r.bottom)/2-pt[1]);if(!best||dd<best.dd)best={dd,t,ul,item}}\n  for(const a of as)a.currentTime=0}\n for(const a of turning(best.ul))a.currentTime=best.t;const r=best.item.getBoundingClientRect();\n return JSON.stringify({where,ring:best.ul.dataset.ringId,dock:[d.left,d.top,d.right,d.bottom].map(v=>+v.toFixed(2)),tile:[r.left,r.top,r.right,r.bottom].map(v=>+v.toFixed(2)),dpr:devicePixelRatio})};\n",
+  "go": "{{BASE}}/work",
+  "wait": 2800,
+  "label": "prep|1440x900",
+  "eval": "window.__prep(true, null)"
+ },
+ {
+  "label": "rank|1440x900",
+  "eval": "window.__rank()"
+ },
+ {
+  "label": "inks|1440x900",
+  "eval": "window.__inks()"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/long-form\\\"]\", \"none\")",
+  "label": "under|1440x900|none|Long form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Long form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/long-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|Long form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/short-form\\\"]\", \"none\")",
+  "label": "under|1440x900|none|Short form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Short form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/short-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|Short form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/experience\\\"]\", \"none\")",
+  "label": "under|1440x900|none|My experience",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "My experience",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/experience\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|My experience"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\", \"none\")",
+  "label": "under|1440x900|none|home label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|home label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\", \"none\")",
+  "label": "under|1440x900|none|home icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|home icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\", \"none\")",
+  "label": "under|1440x900|none|work label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|work label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\", \"none\")",
+  "label": "under|1440x900|none|work icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|work icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\", \"none\")",
+  "label": "under|1440x900|none|YouTube icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "YouTube icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"YouTube\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|YouTube icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\", \"none\")",
+  "label": "under|1440x900|none|Instagram icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Instagram icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Instagram\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|Instagram icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\", \"none\")",
+  "label": "under|1440x900|none|X icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "X icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"X\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|X icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\", \"none\")",
+  "label": "under|1440x900|none|Mail icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Mail icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Mail\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|none|Mail icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/long-form\\\"]\", \"bright\")",
+  "label": "under|1440x900|bright|Long form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Long form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/long-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|Long form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/short-form\\\"]\", \"bright\")",
+  "label": "under|1440x900|bright|Short form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Short form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/short-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|Short form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/experience\\\"]\", \"bright\")",
+  "label": "under|1440x900|bright|My experience",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "My experience",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/experience\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|My experience"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\", \"bright\")",
+  "label": "under|1440x900|bright|home label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|home label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\", \"bright\")",
+  "label": "under|1440x900|bright|home icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|home icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\", \"bright\")",
+  "label": "under|1440x900|bright|work label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|work label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\", \"bright\")",
+  "label": "under|1440x900|bright|work icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|work icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\", \"bright\")",
+  "label": "under|1440x900|bright|YouTube icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "YouTube icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"YouTube\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|YouTube icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\", \"bright\")",
+  "label": "under|1440x900|bright|Instagram icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Instagram icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Instagram\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|Instagram icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\", \"bright\")",
+  "label": "under|1440x900|bright|X icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "X icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"X\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|X icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\", \"bright\")",
+  "label": "under|1440x900|bright|Mail icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Mail icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Mail\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|bright|Mail icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/long-form\\\"]\", \"white\")",
+  "label": "under|1440x900|white|Long form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Long form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/long-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|Long form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/short-form\\\"]\", \"white\")",
+  "label": "under|1440x900|white|Short form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Short form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/short-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|Short form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/experience\\\"]\", \"white\")",
+  "label": "under|1440x900|white|My experience",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "My experience",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/experience\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|My experience"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\", \"white\")",
+  "label": "under|1440x900|white|home label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|home label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\", \"white\")",
+  "label": "under|1440x900|white|home icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|home icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\", \"white\")",
+  "label": "under|1440x900|white|work label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|work label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\", \"white\")",
+  "label": "under|1440x900|white|work icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|work icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\", \"white\")",
+  "label": "under|1440x900|white|YouTube icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "YouTube icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"YouTube\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|YouTube icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\", \"white\")",
+  "label": "under|1440x900|white|Instagram icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Instagram icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Instagram\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|Instagram icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\", \"white\")",
+  "label": "under|1440x900|white|X icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "X icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"X\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|X icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\", \"white\")",
+  "label": "under|1440x900|white|Mail icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Mail icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Mail\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|1440x900|white|Mail icon"
+ },
+ {
+  "eval": "window.__under('', 'none')",
+  "label": "tile away"
+ },
+ {
+  "go": "{{BASE}}/work?nogl=1",
+  "wait": 2800,
+  "label": "reload|1440x900",
+  "eval": "window.__prep(false, null)"
+ },
+ {
+  "label": "bring|1440x900|centre",
+  "eval": "window.__bring(\"centre\")"
+ },
+ {
+  "png": "foot-1440x900-centre-dock"
+ },
+ {
+  "label": "hide|1440x900|centre",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-1440x900-centre-nodock"
+ },
+ {
+  "label": "show|1440x900|centre",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "bring|1440x900|left",
+  "eval": "window.__bring(\"left\")"
+ },
+ {
+  "png": "foot-1440x900-left-dock"
+ },
+ {
+  "label": "hide|1440x900|left",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-1440x900-left-nodock"
+ },
+ {
+  "label": "show|1440x900|left",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "bring|1440x900|right",
+  "eval": "window.__bring(\"right\")"
+ },
+ {
+  "png": "foot-1440x900-right-dock"
+ },
+ {
+  "label": "hide|1440x900|right",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-1440x900-right-nodock"
+ },
+ {
+  "label": "show|1440x900|right",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "bring|1440x900|top",
+  "eval": "window.__bring(\"top\")"
+ },
+ {
+  "png": "foot-1440x900-top-dock"
+ },
+ {
+  "label": "hide|1440x900|top",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-1440x900-top-nodock"
+ },
+ {
+  "label": "show|1440x900|top",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "fake|1440x900",
+  "eval": "window.__fake()",
+  "wait": 700
+ },
+ {
+  "label": "bring-fake|1440x900|left",
+  "eval": "window.__bring(\"left\")"
+ },
+ {
+  "shot": "dock-1440x900-left-generated"
+ },
+ {
+  "label": "bring-fake|1440x900|centre",
+  "eval": "window.__bring(\"centre\")"
+ },
+ {
+  "shot": "dock-1440x900-centre-generated"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/work",
+  "wait": 2800,
+  "label": "prep|390x844",
+  "eval": "window.__prep(true, null)"
+ },
+ {
+  "label": "rank|390x844",
+  "eval": "window.__rank()"
+ },
+ {
+  "label": "inks|390x844",
+  "eval": "window.__inks()"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/long-form\\\"]\", \"none\")",
+  "label": "under|390x844|none|Long form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Long form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/long-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|Long form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/short-form\\\"]\", \"none\")",
+  "label": "under|390x844|none|Short form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Short form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/short-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|Short form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/experience\\\"]\", \"none\")",
+  "label": "under|390x844|none|My experience",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "My experience",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/experience\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|My experience"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\", \"none\")",
+  "label": "under|390x844|none|home label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|home label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\", \"none\")",
+  "label": "under|390x844|none|home icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|home icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\", \"none\")",
+  "label": "under|390x844|none|work label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|work label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\", \"none\")",
+  "label": "under|390x844|none|work icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|work icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\", \"none\")",
+  "label": "under|390x844|none|YouTube icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "YouTube icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"YouTube\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|YouTube icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\", \"none\")",
+  "label": "under|390x844|none|Instagram icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Instagram icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Instagram\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|Instagram icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\", \"none\")",
+  "label": "under|390x844|none|X icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "X icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"X\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|X icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\", \"none\")",
+  "label": "under|390x844|none|Mail icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Mail icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Mail\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|none|Mail icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/long-form\\\"]\", \"bright\")",
+  "label": "under|390x844|bright|Long form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Long form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/long-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|Long form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/short-form\\\"]\", \"bright\")",
+  "label": "under|390x844|bright|Short form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Short form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/short-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|Short form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/experience\\\"]\", \"bright\")",
+  "label": "under|390x844|bright|My experience",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "My experience",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/experience\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|My experience"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\", \"bright\")",
+  "label": "under|390x844|bright|home label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|home label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\", \"bright\")",
+  "label": "under|390x844|bright|home icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|home icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\", \"bright\")",
+  "label": "under|390x844|bright|work label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|work label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\", \"bright\")",
+  "label": "under|390x844|bright|work icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|work icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\", \"bright\")",
+  "label": "under|390x844|bright|YouTube icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "YouTube icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"YouTube\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|YouTube icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\", \"bright\")",
+  "label": "under|390x844|bright|Instagram icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Instagram icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Instagram\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|Instagram icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\", \"bright\")",
+  "label": "under|390x844|bright|X icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "X icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"X\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|X icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\", \"bright\")",
+  "label": "under|390x844|bright|Mail icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Mail icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Mail\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|bright|Mail icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/long-form\\\"]\", \"white\")",
+  "label": "under|390x844|white|Long form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Long form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/long-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|Long form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/short-form\\\"]\", \"white\")",
+  "label": "under|390x844|white|Short form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Short form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/short-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|Short form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/experience\\\"]\", \"white\")",
+  "label": "under|390x844|white|My experience",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "My experience",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/experience\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|My experience"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\", \"white\")",
+  "label": "under|390x844|white|home label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|home label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\", \"white\")",
+  "label": "under|390x844|white|home icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|home icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\", \"white\")",
+  "label": "under|390x844|white|work label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|work label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\", \"white\")",
+  "label": "under|390x844|white|work icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|work icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\", \"white\")",
+  "label": "under|390x844|white|YouTube icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "YouTube icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"YouTube\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|YouTube icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\", \"white\")",
+  "label": "under|390x844|white|Instagram icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Instagram icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Instagram\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|Instagram icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\", \"white\")",
+  "label": "under|390x844|white|X icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "X icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"X\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|X icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\", \"white\")",
+  "label": "under|390x844|white|Mail icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Mail icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Mail\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|390x844|white|Mail icon"
+ },
+ {
+  "eval": "window.__under('', 'none')",
+  "label": "tile away"
+ },
+ {
+  "go": "{{BASE}}/work?nogl=1",
+  "wait": 2800,
+  "label": "reload|390x844",
+  "eval": "window.__prep(false, null)"
+ },
+ {
+  "label": "bring|390x844|centre",
+  "eval": "window.__bring(\"centre\")"
+ },
+ {
+  "png": "foot-390x844-centre-dock"
+ },
+ {
+  "label": "hide|390x844|centre",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-390x844-centre-nodock"
+ },
+ {
+  "label": "show|390x844|centre",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "bring|390x844|left",
+  "eval": "window.__bring(\"left\")"
+ },
+ {
+  "png": "foot-390x844-left-dock"
+ },
+ {
+  "label": "hide|390x844|left",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-390x844-left-nodock"
+ },
+ {
+  "label": "show|390x844|left",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "bring|390x844|right",
+  "eval": "window.__bring(\"right\")"
+ },
+ {
+  "png": "foot-390x844-right-dock"
+ },
+ {
+  "label": "hide|390x844|right",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-390x844-right-nodock"
+ },
+ {
+  "label": "show|390x844|right",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "bring|390x844|top",
+  "eval": "window.__bring(\"top\")"
+ },
+ {
+  "png": "foot-390x844-top-dock"
+ },
+ {
+  "label": "hide|390x844|top",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-390x844-top-nodock"
+ },
+ {
+  "label": "show|390x844|top",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "fake|390x844",
+  "eval": "window.__fake()",
+  "wait": 700
+ },
+ {
+  "label": "bring-fake|390x844|left",
+  "eval": "window.__bring(\"left\")"
+ },
+ {
+  "shot": "dock-390x844-left-generated"
+ },
+ {
+  "label": "bring-fake|390x844|centre",
+  "eval": "window.__bring(\"centre\")"
+ },
+ {
+  "shot": "dock-390x844-centre-generated"
+ },
+ {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/work",
+  "wait": 2800,
+  "label": "prep|320x568",
+  "eval": "window.__prep(true, null)"
+ },
+ {
+  "label": "rank|320x568",
+  "eval": "window.__rank()"
+ },
+ {
+  "label": "inks|320x568",
+  "eval": "window.__inks()"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/long-form\\\"]\", \"none\")",
+  "label": "under|320x568|none|Long form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Long form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/long-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|Long form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/short-form\\\"]\", \"none\")",
+  "label": "under|320x568|none|Short form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Short form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/short-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|Short form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/experience\\\"]\", \"none\")",
+  "label": "under|320x568|none|My experience",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "My experience",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/experience\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|My experience"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\", \"none\")",
+  "label": "under|320x568|none|home label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|home label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\", \"none\")",
+  "label": "under|320x568|none|home icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|home icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\", \"none\")",
+  "label": "under|320x568|none|work label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|work label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\", \"none\")",
+  "label": "under|320x568|none|work icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|work icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\", \"none\")",
+  "label": "under|320x568|none|YouTube icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "YouTube icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"YouTube\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|YouTube icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\", \"none\")",
+  "label": "under|320x568|none|Instagram icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Instagram icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Instagram\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|Instagram icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\", \"none\")",
+  "label": "under|320x568|none|X icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "X icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"X\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|X icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\", \"none\")",
+  "label": "under|320x568|none|Mail icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Mail icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Mail\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|none|Mail icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/long-form\\\"]\", \"bright\")",
+  "label": "under|320x568|bright|Long form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Long form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/long-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|Long form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/short-form\\\"]\", \"bright\")",
+  "label": "under|320x568|bright|Short form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Short form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/short-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|Short form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/experience\\\"]\", \"bright\")",
+  "label": "under|320x568|bright|My experience",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "My experience",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/experience\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|My experience"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\", \"bright\")",
+  "label": "under|320x568|bright|home label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|home label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\", \"bright\")",
+  "label": "under|320x568|bright|home icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|home icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\", \"bright\")",
+  "label": "under|320x568|bright|work label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|work label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\", \"bright\")",
+  "label": "under|320x568|bright|work icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|work icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\", \"bright\")",
+  "label": "under|320x568|bright|YouTube icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "YouTube icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"YouTube\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|YouTube icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\", \"bright\")",
+  "label": "under|320x568|bright|Instagram icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Instagram icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Instagram\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|Instagram icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\", \"bright\")",
+  "label": "under|320x568|bright|X icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "X icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"X\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|X icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\", \"bright\")",
+  "label": "under|320x568|bright|Mail icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Mail icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Mail\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|bright|Mail icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/long-form\\\"]\", \"white\")",
+  "label": "under|320x568|white|Long form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Long form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/long-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|Long form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/work/short-form\\\"]\", \"white\")",
+  "label": "under|320x568|white|Short form",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Short form",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/work/short-form\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|Short form"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] a[data-work-tab=\\\"/experience\\\"]\", \"white\")",
+  "label": "under|320x568|white|My experience",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "My experience",
+    "selector": "[data-dock-glass] a[data-work-tab=\"/experience\"]",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|My experience"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] span\", \"white\")",
+  "label": "under|320x568|white|home label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|home label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href=\\\"/\\\"] svg\", \"white\")",
+  "label": "under|320x568|white|home icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "home icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href=\"/\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     0.85
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|home icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] span\", \"white\")",
+  "label": "under|320x568|white|work label",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work label",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] span",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": true,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|work label"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[href^=\\\"/work\\\"] svg\", \"white\")",
+  "label": "under|320x568|white|work icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "work icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[href^=\"/work\"] svg",
+    "ink": [
+     245,
+     239,
+     230,
+     1
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|work icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"YouTube\\\"] svg\", \"white\")",
+  "label": "under|320x568|white|YouTube icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "YouTube icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"YouTube\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|YouTube icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Instagram\\\"] svg\", \"white\")",
+  "label": "under|320x568|white|Instagram icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Instagram icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Instagram\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|Instagram icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"X\\\"] svg\", \"white\")",
+  "label": "under|320x568|white|X icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "X icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"X\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|X icon"
+ },
+ {
+  "eval": "window.__under(\"[data-dock-glass] nav[aria-label=\\\"Primary\\\"] a[aria-label=\\\"Mail\\\"] svg\", \"white\")",
+  "label": "under|320x568|white|Mail icon",
+  "wait": 120
+ },
+ {
+  "contrast": [
+   {
+    "name": "Mail icon",
+    "selector": "[data-dock-glass] nav[aria-label=\"Primary\"] a[aria-label=\"Mail\"] svg",
+    "ink": [
+     255,
+     255,
+     255,
+     0.68
+    ],
+    "glass": true,
+    "text": false,
+    "clip": "[data-dock-glass]",
+    "inset": 14
+   }
+  ],
+  "label": "c|320x568|white|Mail icon"
+ },
+ {
+  "eval": "window.__under('', 'none')",
+  "label": "tile away"
+ },
+ {
+  "go": "{{BASE}}/work?nogl=1",
+  "wait": 2800,
+  "label": "reload|320x568",
+  "eval": "window.__prep(false, null)"
+ },
+ {
+  "label": "bring|320x568|centre",
+  "eval": "window.__bring(\"centre\")"
+ },
+ {
+  "png": "foot-320x568-centre-dock"
+ },
+ {
+  "label": "hide|320x568|centre",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-320x568-centre-nodock"
+ },
+ {
+  "label": "show|320x568|centre",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "bring|320x568|left",
+  "eval": "window.__bring(\"left\")"
+ },
+ {
+  "png": "foot-320x568-left-dock"
+ },
+ {
+  "label": "hide|320x568|left",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-320x568-left-nodock"
+ },
+ {
+  "label": "show|320x568|left",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "bring|320x568|right",
+  "eval": "window.__bring(\"right\")"
+ },
+ {
+  "png": "foot-320x568-right-dock"
+ },
+ {
+  "label": "hide|320x568|right",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-320x568-right-nodock"
+ },
+ {
+  "label": "show|320x568|right",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "bring|320x568|top",
+  "eval": "window.__bring(\"top\")"
+ },
+ {
+  "png": "foot-320x568-top-dock"
+ },
+ {
+  "label": "hide|320x568|top",
+  "eval": "window.__dockShow(false)"
+ },
+ {
+  "png": "foot-320x568-top-nodock"
+ },
+ {
+  "label": "show|320x568|top",
+  "eval": "window.__dockShow(true)"
+ },
+ {
+  "label": "fake|320x568",
+  "eval": "window.__fake()",
+  "wait": 700
+ },
+ {
+  "label": "bring-fake|320x568|left",
+  "eval": "window.__bring(\"left\")"
+ },
+ {
+  "shot": "dock-320x568-left-generated"
+ },
+ {
+  "label": "bring-fake|320x568|centre",
+  "eval": "window.__bring(\"centre\")"
+ },
+ {
+  "shot": "dock-320x568-centre-generated"
+ }
+]

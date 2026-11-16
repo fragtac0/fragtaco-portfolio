@@ -32,7 +32,8 @@
   --cream: #fdfce6; /* the cream itself, at full strength (the --ink steps are this at 92 / 72 / 62%) */
   --accent-soft: rgba(252, 76, 0, 0.14); /* the active pill's fill */
   --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the page's orange glow (the open card, the dock); only the About and Credits tabs have their own, below (R69) */
-  --glass-rgb: 16 16 15; /* the dock glass: this colour at 46% */
+  --glass-rgb: 16 16 15; /* the dock glass: this colour at --dock-tint */
+  --dock-tint: 0.58; /* how much of --glass-rgb the dock's glass is: 0.46 until R56.4, raised so that every label and icon keeps 4.5 to 1 with the brightest thumbnail under the dock (docs/redesign/compare/round7/r56-dock-contrast.json) */
 
   /* the About and Credits tabs (round 7, spec 6): an orange gradient with white text, the glow and a drop shadow.
      White on --accent itself is only 3.4 to 1, so the lightest point of the tab is --accent-tab, the accent stepped down
@@ -88,7 +89,7 @@
   --head-pad-x: clamp(24px, 4.5vw, 72px);
 
   /* the small glass pill of a layer or a wall (round 7, spec 6 and 8.1): the Close and Back button and the round close of an open video.
-     The dock's glass (46% of --glass-rgb with a lit top edge) a little denser, since it sits over pictures, with a blur behind it
+     The dock's glass (--dock-tint of --glass-rgb with a lit top edge) a little denser, since it sits over pictures, with a blur behind it
      and a thin outline; one place so the three stay the same (close-button.css, watching.css). */
   --pill-bg:
     linear-gradient(180deg, rgba(255, 236, 214, 0.16), rgba(255, 236, 214, 0.04) 42%, rgba(0, 0, 0, 0.14)),

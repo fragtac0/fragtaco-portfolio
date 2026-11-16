@@ -15,12 +15,12 @@ describe("planChange", () => {
     expect(plan.ms).toBe(0);
   });
 
-  it("is the same radial 2500 ms reveal from the centre for every pair of pages, the two walls included", () => {
+  it("is the same radial 2250 ms reveal from the centre for every pair of pages, the two walls included", () => {
     for (const from of PAGES) {
       for (const to of PAGES) {
         expect(planChange(from, to, scr)).toEqual({
           kind: "radial",
-          ms: 2500,
+          ms: 2250,
           origin: { x: 720, y: 450 },
           radius: Math.hypot(720, 450),
           vw: 1440,
@@ -146,7 +146,7 @@ describe("changePage", () => {
     // the centre of the screen, whatever was clicked
     expect(env.props.get("--change-x")).toBe("720px");
     expect(env.props.get("--change-y")).toBe("450px");
-    expect(env.props.get("--change-ms")).toBe("2500ms");
+    expect(env.props.get("--change-ms")).toBe("2250ms");
     expect(env.props.has("--change-w")).toBe(false);
     // the glass numbers glass.css reads, from glass-math.ts
     expect(env.props.get("--change-band")).toBe("0.15");

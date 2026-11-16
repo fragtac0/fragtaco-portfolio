@@ -3,13 +3,12 @@
 // One stack ring and up to four video rings round the intro, packed outward from the stack ring, each as
 // close to the one inside it as the clearance rule allows, none beyond 0.92 of the screen's half-diagonal.
 // Every video tile has the same long side L, which a screen asks for (`targetL`, R54.2: 200 px at 1440 by 900) and
-// which the plan gets as near to as it can with the most coverage that shows (`coverage` through the dock's keep-out, ring-keep-out.ts). Items are upright rectangles on
+// which the plan gets as near to as it can with the most coverage (`coverage`: every tile counts in full, R56.4). Items are upright rectangles on
 // rings that turn at different speeds, so two of them can meet at any angle. They never overlap if
 // their centres stay at least `clear(a, b)` apart: if both sides of the gap rule were short, the
 // centres would be closer than the diagonal `sqrt(sx^2 + sy^2)` that this function returns.
 
 import { coverage } from "./ring-coverage";
-import { keepOutFor, nominalDock, type Rect } from "./ring-keep-out";
 
 export { coverage };
 export type Size = { w: number; h: number };
@@ -214,14 +213,14 @@ function videoRings(kinds: ("long" | "short")[], radii: number[], L: number, cou
 }
 
 /**
- * The rings for a screen and item counts (R54.2: larger tiles, fewer rings). The screen asks for a long side
+ * The rings for a screen and item counts (R54.2: larger tiles, fewer rings; R56.4: planned for the whole screen, the dock's glass is over the tiles and there is no cut-out). The screen asks for a long side
  * (`targetL`). For 4, 3, 2 and 1 video rings (long form the inner kind, in both modes), each L from the largest up
  * to that which packs inside the outer ring (the clearance rule holding between every pair of rings, the stack
  * ring included) down to 90% of the best a single ring could have is a plan, and the one with the most `coverage` is returned. L is never below 96 (R34): where no ring packs, none: the stack ring alone, every video then being
  * on the walls. A plan whose scan failed is never returned. Each kind's items fill its rings from the inside out,
  * shared out by capacity; the first items in content order are kept.
  */
-export function ringPlan(vw: number, vh: number, counts: Counts, mode: RingOrderMode = RING_ORDER_MODE, dock?: Rect | null): RingPlan {
+export function ringPlan(vw: number, vh: number, counts: Counts, mode: RingOrderMode = RING_ORDER_MODE): RingPlan {
   const icon = stackIconSize(vw);
   const stackSize: Size = { w: icon, h: icon };
   const inner = stackRadius(vw, vh);
@@ -238,8 +237,6 @@ export function ringPlan(vw: number, vh: number, counts: Counts, mode: RingOrder
     stackRing.push({ id: "stack", kind: "stack", radius: inner, count: stackCount, size: stackSize, periodS: STACK_PERIOD, dir: 1 });
   }
 
-  // what shows is what is counted: the plan is scored through the dock's keep-out (the measured glass, or the nominal one before it is measured)
-  const keep = keepOutFor(dock ?? nominalDock(vw, vh));
   const top = targetL(vw, vh);
   const one = largestFit(ringKinds(1, mode), stackSize, inner, outer, top);
   // a phone keeps the largest tile a single ring can have (R118: none gets smaller tiles); a larger screen may trade a little size for more rings
@@ -255,7 +252,7 @@ export function ringPlan(vw: number, vh: number, counts: Counts, mode: RingOrder
       for (let L = fit.L; L >= lowest; L--) {
         const { rings, hidden } = videoRings(kinds, packRadii(kinds, L, stackSize, inner), L, counts);
         const plan: RingPlan = { L, rings: [...stackRing, ...rings].sort((a, b) => a.radius - b.radius), hidden };
-        const share = coverage(plan, vw, vh, keep);
+        const share = coverage(plan, vw, vh);
         if (share > bestShare + 1e-9) {
           best = plan;
           bestShare = share;

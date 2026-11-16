@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { BEFORE } from "./ring-before.fixture";
 import { COVERAGE_STEPS, coverage } from "./ring-coverage";
-import { keepOutFor, nominalDock } from "./ring-keep-out";
 import { layoutRings } from "./ring-layout";
 import {
   INTRO_GAP,
@@ -82,32 +81,33 @@ describe("coverage of the plans (R54.2, spec 5)", () => {
     expect(coverage(TODAY_1920, 1920, 1080)).toBeCloseTo(0.165, 3);
   });
 
-  it("shows 0.28 of the screen at 1440 by 900, not the 0.30 to 0.40 of the brief: with L at most 200 two rings cannot reach it (R117)", () => {
-    // What is counted is what shows through the dock's keep-out. Unmasked the plan covers 0.313; the glass's own box and its short fade cost
-    // 0.03 of that. 0.30 visible would need tiles about 222 px long (outside the spec's 180 to 200).
+  it("covers 0.30 to 0.40 of the screen at 1440 by 900, the brief's number, counted in full: nothing is cut out round the dock (R56.4)", () => {
     for (const counts of [REAL, { stack: 8, long: 35, short: 35 }]) {
-      const p = ringPlan(1440, 900, counts);
-      const shown = coverage(p, 1440, 900, keepOutFor(nominalDock(1440, 900)));
-      expect(shown).toBeGreaterThanOrEqual(0.275);
-      expect(shown).toBeLessThanOrEqual(0.4);
-      expect(coverage(p, 1440, 900)).toBeGreaterThan(shown);
+      const share = coverage(ringPlan(1440, 900, counts), 1440, 900);
+      expect(share).toBeGreaterThanOrEqual(0.3);
+      expect(share).toBeLessThanOrEqual(0.4);
     }
   });
 
-  it("is solved for what shows: the plan made for a wide dock shows at least as much round that dock as the one made for the nominal dock", () => {
-    const wide = { l: 360, t: 640, r: 1080, b: 860 };
-    const keep = keepOutFor(wide);
-    const forWide = ringPlan(1440, 900, REAL, undefined, wide);
-    const forNominal = ringPlan(1440, 900, REAL);
-    expect(coverage(forWide, 1440, 900, keep)).toBeGreaterThanOrEqual(coverage(forNominal, 1440, 900, keep) - 1e-9);
+  it("counts a tile under the dock in full: coverage takes the plan and the screen, no keep-out", () => {
+    expect(coverage.length).toBe(3);
+    // one tile on a ring of radius 400 round the middle of 1440 by 900: at a quarter of the turn it is at the foot of the screen, where the dock is
+    const sum = Array.from({ length: COVERAGE_STEPS }, (_, k) => {
+      const a = (k / COVERAGE_STEPS) * 2 * Math.PI;
+      const cx = 720 + 400 * Math.cos(a);
+      const cy = 450 + 400 * Math.sin(a);
+      const w = Math.max(0, Math.min(cx + 100, 1440) - Math.max(cx - 100, 0));
+      const h = Math.max(0, Math.min(cy + 56, 900) - Math.max(cy - 56, 0));
+      return w * h;
+    }).reduce((x, y) => x + y, 0);
+    expect(coverage(plan([ring("long", 400, 1, { w: 200, h: 112 })]), 1440, 900)).toBeCloseTo(sum / COVERAGE_STEPS / (1440 * 900), 9);
   });
 
-  it("shows at least 1.15 times what it showed at 390 by 844 (the brief's 1.3 is for the unmasked area, 1.40; on the screen 1.19), and about twice at 1440 by 900", () => {
+  it("covers at least 1.3 times what it covered at 390 by 844, and about twice at 1440 by 900 (the brief's numbers, with no mask to cost any of it)", () => {
     expect(coverage(TODAY_390, 390, 844)).toBeCloseTo(0.175, 3);
-    const shown = (vw: number, vh: number) => coverage(ringPlan(vw, vh, REAL), vw, vh, keepOutFor(nominalDock(vw, vh)));
-    expect(shown(390, 844)).toBeGreaterThanOrEqual(1.15 * BEFORE["390x844"].visible);
-    expect(shown(1440, 900)).toBeGreaterThan(1.9 * BEFORE["1440x900"].visible);
-    expect(shown(1920, 1080)).toBeGreaterThan(1.5 * BEFORE["1920x1080"].visible);
+    expect(coverage(ringPlan(390, 844, REAL), 390, 844)).toBeGreaterThanOrEqual(1.3 * coverage(TODAY_390, 390, 844));
+    expect(coverage(ringPlan(1440, 900, REAL), 1440, 900)).toBeGreaterThan(1.9 * coverage(TODAY_1440, 1440, 900));
+    expect(coverage(ringPlan(1920, 1080, REAL), 1920, 1080)).toBeGreaterThan(1.5 * coverage(TODAY_1920, 1920, 1080));
   });
 
   it("has a tile whose long side is 180 to 200 px at 1440 by 900 (spec: about 190 by 107, 104 by 185 short form), icons of 76 px", () => {
@@ -119,15 +119,15 @@ describe("coverage of the plans (R54.2, spec 5)", () => {
   });
 });
 
-describe("no audit size gets smaller tiles or less tile area than at 19ca81b (R118)", () => {
-  const SHOWN_TOLERANCE = 0.003;
+describe("no audit size gets smaller tiles or fewer tiles than at 4621443 (R56.4)", () => {
+  const video = (vw: number, vh: number) => layoutRings(REAL, vw, vh).rings.filter((r) => r.kind !== "stack");
 
-  it("pins what 19ca81b drew: the fixture's plans give its own visible shares", () => {
+  it("pins what 4621443 drew: the fixture's plans give its own coverage, counted in full", () => {
     for (const [vw, vh] of AUDIT_SIZES) {
       const before = BEFORE[`${vw}x${vh}`];
       const rings = before.rings.map(([kind, radius, count]) => ring(kind, radius, count, tileSize(kind, before.L)));
-      const d = nominalDock(vw, vh);
-      expect(coverage(plan(rings), vw, vh, { l: d.l, r: d.r, t: d.t, f: 0.001 }), `${vw}x${vh}`).toBeCloseTo(before.visible, 3);
+      expect(before.tiles, `${vw}x${vh}`).toBe(before.rings.reduce((n, r) => n + r[2], 0));
+      expect(coverage(plan(rings), vw, vh), `${vw}x${vh}`).toBeCloseTo(before.full, 3);
     }
   });
 
@@ -137,11 +137,18 @@ describe("no audit size gets smaller tiles or less tile area than at 19ca81b (R1
     }
   });
 
-  it("shows at least as much tile area as before at every audit size (within 0.003 of the screen at 320 by 568, where the glass spans the screen)", () => {
+  it("draws at least as many tiles, in at least as many rings, as before at every audit size", () => {
     for (const [vw, vh] of AUDIT_SIZES) {
-      const shown = coverage(ringPlan(vw, vh, REAL), vw, vh, keepOutFor(nominalDock(vw, vh)));
-      expect(shown, `${vw}x${vh}`).toBeGreaterThanOrEqual(BEFORE[`${vw}x${vh}`].visible - SHOWN_TOLERANCE);
-      if (vw !== 320) expect(shown, `${vw}x${vh}`).toBeGreaterThanOrEqual(BEFORE[`${vw}x${vh}`].visible);
+      const before = BEFORE[`${vw}x${vh}`];
+      const rings = video(vw, vh);
+      expect(rings.reduce((n, r) => n + r.slots.length, 0), `${vw}x${vh} tiles`).toBeGreaterThanOrEqual(before.tiles);
+      expect(rings.length, `${vw}x${vh} rings`).toBeGreaterThanOrEqual(before.rings.length);
+    }
+  });
+
+  it("covers at least as much of the screen as before at every audit size (counted in full)", () => {
+    for (const [vw, vh] of AUDIT_SIZES) {
+      expect(coverage(ringPlan(vw, vh, REAL), vw, vh), `${vw}x${vh}`).toBeGreaterThanOrEqual(BEFORE[`${vw}x${vh}`].full - 1e-6);
     }
   });
 
@@ -151,8 +158,8 @@ describe("no audit size gets smaller tiles or less tile area than at 19ca81b (R1
     }
   });
 
-  it("makes a tile at least 1.3 times larger on a phone where today's was not already large (390 by 844: 104 to 220)", () => {
-    expect(ringPlan(390, 844, REAL).L).toBeGreaterThanOrEqual(1.3 * BEFORE["390x844"].L);
+  it("makes a tile at least 1.3 times larger on a phone where the round 6 one was not already large (390 by 844: 104 to 220)", () => {
+    expect(ringPlan(390, 844, REAL).L).toBeGreaterThanOrEqual(1.3 * 104);
     expect(ringPlan(1920, 1080, REAL).L).toBeGreaterThan(155);
     expect(ringPlan(1024, 768, REAL).L).toBeGreaterThan(104);
   });
@@ -197,13 +204,6 @@ describe("what the rings keep clear (R54.2)", () => {
       const [stack, first] = ringPlan(vw, vh, REAL).rings;
       if (!first || first.kind === "stack") continue;
       expect(first.radius - stack.radius, `${vw}x${vh}`).toBeGreaterThanOrEqual(clear(stack.size, first.size) - 1e-6);
-    }
-  });
-
-  it("leaves the stack ring's icons above the dock's top, so only the video rings need the keep-out (every audit size but a phone on its side)", () => {
-    for (const [vw, vh] of AUDIT_SIZES.filter(([w, h]) => h > 400 || w > 700)) {
-      const [stack] = ringPlan(vw, vh, REAL).rings;
-      expect(vh / 2 + stack.radius + stack.size.h / 2, `${vw}x${vh}`).toBeLessThanOrEqual(nominalDock(vw, vh).t);
     }
   });
 });

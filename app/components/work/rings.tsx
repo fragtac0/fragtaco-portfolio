@@ -1,11 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, type CSSProperties, type FocusEvent } from "react";
 import { holdImages, inWindow } from "../../lib/arrival-dom";
 import type { SiteWork } from "../../types";
+import { bringClearOfDock } from "./focus-clear";
 import { entriesFor } from "./ring-entries";
-import { keepOutFor, keepOutVars, nominalDock } from "./ring-keep-out";
 import { layoutRings } from "./ring-layout";
 import { RING_ORDER_MODE, type RingKind } from "./ring-math";
-import { useDockBox } from "./use-dock-box";
 import { useStageSize } from "./use-stage-size";
 import WorkItem from "./work-item";
 
@@ -40,7 +39,6 @@ const LABEL: Record<RingKind, string> = {
  */
 export default function Rings({ work, byChange = false }: RingsProps) {
   const size = useStageSize();
-  const dock = useDockBox(size?.vw ?? 0, size?.vh ?? 0);
   const entries = entriesFor(work);
   const layout = size
     ? layoutRings(
@@ -48,40 +46,40 @@ export default function Rings({ work, byChange = false }: RingsProps) {
         size.vw,
         size.vh,
         RING_ORDER_MODE,
-        dock,
       )
     : null;
-  // The reveal waits for the pictures the window shows. It registers once the dock has been read for this size (the rings are planned round the real
-  // dock then, and a ring whose slot count changes is made afresh: pictures held before that would be detached), or one frame later if the dock cannot
-  // be read. (The rings stand still until the change is over; the pictures' own fade-in is `fadeLate`, `data-late` in work.css.)
+  // The reveal waits for the pictures the window shows. The rings are planned for the whole screen (R56.4: nothing is cut out round the dock), so the plan is
+  // final in the first commit and the pictures are registered there. (The rings stand still until the change is over; the pictures' own fade-in is `fadeLate`,
+  // `data-late` in work.css.)
   const root = useRef<HTMLDivElement>(null);
   const holding = useRef(false);
   const made = layout !== null;
-  const dockRead = dock !== null;
   useIsoLayoutEffect(() => {
-    if (!byChange || !made || holding.current) return;
-    const hold = () => {
-      const el = root.current;
-      if (!el || holding.current) return;
-      holding.current = true;
-      holdImages("rings", [...el.querySelectorAll("img")].filter(inWindow));
-    };
-    if (dockRead) {
-      hold();
-      return;
-    }
-    const frame = requestAnimationFrame(hold);
-    return () => cancelAnimationFrame(frame);
-  }, [byChange, made, dockRead]);
+    const el = root.current;
+    if (!byChange || !made || holding.current || !el) return;
+    holding.current = true;
+    holdImages("rings", [...el.querySelectorAll("img")].filter(inWindow));
+  }, [byChange, made]);
+
+  // A tile that gets keyboard focus while more than half of it is under the dock is brought clear (its ring is turned on, eased in and out, until it is);
+  // a tile that is clear is not moved. A focused ring is held still by work.css. The turn ends when focus leaves, and with the page.
+  const clearing = useRef<(() => void) | null>(null);
+  const endClearing = () => {
+    clearing.current?.();
+    clearing.current = null;
+  };
+  const onFocus = (e: FocusEvent<HTMLDivElement>) => {
+    endClearing();
+    const face = e.target;
+    if (face instanceof Element && face.matches(".work-item-face:focus-visible")) clearing.current = bringClearOfDock(face);
+  };
+  useEffect(() => endClearing, []);
   if (!size || !layout) return null;
 
   const seen: Record<RingKind, number> = { stack: 0, long: 0, short: 0 };
 
-  // the video rings fade out round the dock's glass (work.css reads these; R117), and a transparent block there takes the pointer
-  const keep = keepOutFor(dock ?? nominalDock(size.vw, size.vh));
-
   return (
-    <div className="work-rings" ref={root} style={keepOutVars(keep) as CSSProperties}>
+    <div className="work-rings" ref={root} onFocus={onFocus} onBlur={endClearing}>
       {layout.rings.map((ring) => {
         const nth = seen[ring.kind]++;
         return (
@@ -115,7 +113,6 @@ export default function Rings({ work, byChange = false }: RingsProps) {
           </div>
         );
       })}
-      <div className="work-keep-out" aria-hidden="true" />
     </div>
   );
 }

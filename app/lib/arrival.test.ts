@@ -167,8 +167,8 @@ describe("a hold knows whether it missed the reveal, per part, however long afte
     await adv(500);
     expect(await waited).toEqual({ late: ["map"] });
     expect(hold?.late).toBe(true);
-    endArrival(); // the change is over (2.5 s on) and the picture has still not come
-    await adv(2500);
+    endArrival(); // the change is over (2.25 s on) and the picture has still not come
+    await adv(2250);
     expect(hold?.late).toBe(true); // endArrival does not clear it
     let fades = 0;
     void part.promise.then(() => hold?.late && fades++); // what a page does when its part comes

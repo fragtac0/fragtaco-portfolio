@@ -7,8 +7,10 @@
 //    its period, paused) and reads the gap between every pair of item boxes (`.work-item-turn`, upright): the
 //    smallest gap over all pairs and phases, and how many pairs touch or overlap (both must be 12 or more / 0),
 //  - checks the intro (title and its lines of text) sits inside the stack ring's icons, that no video tile comes within 40 px of it (R54.2),
-//    that the dock's measured box lies inside the keep-out the rings fade out in (R54.2b, R117: nothing shows under the dock's tabs), that no tile can be
-//    hit by the pointer there (elementFromPoint over 40 phases), and that a focused tile drops its ring's mask (under reduced motion, where the rings stand at phase 0),
+//    that nothing is cut out round the dock (R56.4, spec 4 of the round 7 second look: no mask on any ring, no keep-out block or custom property, a tile under the dock's glass cannot be
+//    pressed through it: elementFromPoint over the glass at 40 phases is always the dock) and that the share of the screen under tiles is no less than before (the layout of 4621443),
+//  - keyboard focus (Review Focus 2): every video tile focused in turn while the rings turn, and again under reduced motion: a tile more than half under the dock is brought clear
+//    (at most 0.5 of it under at rest), a tile that is clear is not moved, no frame moves the tile more than 30 px; then sixteen real Tab presses,
 //  - the arrival through a page change (R60, R56): every ring item is in the page's first commit and the reveal waits for their pictures; the rings stand still (their animations made and paused) while it runs, then turn together, from standstill.
 // Pictures (1440 by 900, 1920 by 1080, 820 by 1180, 390 by 844) at three ring phases each. The long form pictures are YouTube thumbnails loaded at run time;
 // where they cannot be reached (or must not be kept) the audit paints neutral, generated gradients on the tiles (a number and a corner
@@ -59,19 +61,41 @@ window.__titleGap=()=>{const rects=[];for(const el of document.querySelectorAll(
 window.__sweep=(k)=>{let min=Infinity,pair='',touching=0,n=0,title=Infinity;
  for(let i=1;i<=k;i++){window.__phase(i*7919);const g=window.__gap();n=g.n;touching+=g.touching;if(g.min<min){min=g.min;pair=g.pair}title=Math.min(title,window.__titleGap())}
  return{items:n,phases:k,minGap:+min.toFixed(2),worst:pair,pairsUnder12:touching,titleGapMin:+title.toFixed(1)}};
-// the dock's box (measured) against the keep-out the rings fade out in (the custom properties rings.tsx sets on .work-rings from the measured glass, R117): the
-// glass must lie inside the hidden box (from --keep-l to --keep-r across and from --keep-t down), and only the long and short groups are masked
-window.__dock=()=>{const d=document.querySelector('[data-dock-glass]');if(!d)return null;const r=d.getBoundingClientRect();const cs=getComputedStyle(document.querySelector('.work-rings'));
- const v=n=>parseFloat(cs.getPropertyValue(n));const l=v('--keep-l'),rr=v('--keep-r'),t=v('--keep-t'),f=v('--keep-f');
- return{dock:[r.left,r.top,r.right,r.bottom].map(Math.round),keep:{l,r:rr,t,f},glassInsideKeepOut:l<=r.left&&rr>=r.right&&t<=r.top,
-  spare:{left:+(r.left-l).toFixed(1),right:+(rr-r.right).toFixed(1),top:+(r.top-t).toFixed(1)},masked:[...document.querySelectorAll('.work-ring-group')].map(g=>g.dataset.ring+':'+(getComputedStyle(g).maskImage!=='none'))}};
-// the pointer in the keep-out (R117, a mask does not stop it): at k ring phases, the topmost element at points in the blocked band (across the dock, from half its feather above its keep-out to just inside it)
-// must never be a ring item: it is the block (.work-keep-out)
-window.__band=(k)=>{const cs=getComputedStyle(document.querySelector('.work-rings'));const v=n=>parseFloat(cs.getPropertyValue(n));const l=v('--keep-l'),rr=v('--keep-r'),t=v('--keep-t'),f=v('--keep-f');
- const pts=[];for(const x of [l+f/2+2,(l+rr)/2,rr-f/2-2])for(const y of [t-f/2+2,t+4])pts.push([x,y]);
- let onItem=0,onBlock=0,other=0,n=0;for(let i=1;i<=k;i++){window.__phase(i*7919);for(const[x,y]of pts){const e=document.elementFromPoint(x,y);n++;
-  if(e&&e.closest('.work-item'))onItem++;else if(e&&e.closest('.work-keep-out'))onBlock++;else other++}}
- return{phases:k,points:n,onItem,onBlock,other}};
+// nothing is cut out round the dock (R56.4): no mask on a ring group, a ring or an item, none of the old keep-out's block or custom properties (set by rings.tsx on .work-rings before)
+window.__cutout=()=>{const d=document.querySelector('[data-dock-glass]');const r=d.getBoundingClientRect();const cs=getComputedStyle(document.querySelector('.work-rings'));
+ const masked=[...document.querySelectorAll('.work-rings,.work-ring-group,.work-ring,.work-item')].filter(g=>{const m=getComputedStyle(g);return (m.maskImage&&m.maskImage!=='none')||(m.webkitMaskImage&&m.webkitMaskImage!=='none')}).length;
+ return{dock:[r.left,r.top,r.right,r.bottom].map(Math.round),masked,keepOutBlocks:document.querySelectorAll('.work-keep-out').length,
+  keepVars:['--keep-l','--keep-r','--keep-t','--keep-f'].filter(n=>cs.getPropertyValue(n).trim()!=='').length}};
+// a tile under the dock cannot be pressed through it: at k ring phases, the topmost element at a grid of points across the glass (clear of its rounded corners) must be the dock's, never a
+// ring item; underTile counts the points that have a video tile behind them, so the check is about something
+window.__through=(k)=>{const d=document.querySelector('[data-dock-glass]').getBoundingClientRect();const pts=[];
+ for(let i=0;i<7;i++)for(const f of [0.2,0.5,0.8])pts.push([d.left+30+(d.width-60)*i/6,d.top+d.height*f]);
+ let onItem=0,notDock=0,underTile=0,n=0;
+ for(let i=1;i<=k;i++){window.__phase(i*7919);const tiles=[...document.querySelectorAll('.work-item[data-kind=video] .work-item-turn')].map(t=>t.getBoundingClientRect());
+  for(const[x,y]of pts){n++;const e=document.elementFromPoint(x,y);if(e&&e.closest('.work-item'))onItem++;if(!(e&&e.closest('[data-dock-glass]')))notDock++;
+   if(tiles.some(r=>x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom))underTile++}}
+ return{phases:k,points:n,onItem,notDock,pointsWithATileBehind:underTile}};
+// the share of the screen under video tiles (their boxes, on the screen), averaged over k random phases, against the share the layout of 4621443 counted (BEFORE in ring-before.fixture.ts)
+window.__share=(k,before)=>{let sum=0;for(let i=1;i<=k;i++){window.__phase(i*104729);let a=0;
+  for(const t of document.querySelectorAll('.work-item[data-kind=video] .work-item-turn')){const r=t.getBoundingClientRect();
+   const w=Math.min(r.right,innerWidth)-Math.max(r.left,0),h=Math.min(r.bottom,innerHeight)-Math.max(r.top,0);if(w>0&&h>0)a+=w*h}sum+=a/(innerWidth*innerHeight)}
+ const share=sum/k;return{phases:k,share:+share.toFixed(4),before,ratio:+(share/before).toFixed(3),atLeastBefore:share>=before*0.97}};
+// keyboard focus (R56.4, Review Focus 2): every video tile focused in turn (a key was pressed first, so the focus is a keyboard one), each watched frame by frame until it has stood still for 20 frames
+const underOf=(t,d)=>{const w=Math.min(t.right,d.right)-Math.max(t.left,d.left),h=Math.min(t.bottom,d.bottom)-Math.max(t.top,d.top);return w>0&&h>0?w*h/(t.width*t.height):0};
+const watch=async(turn,dockEl)=>{const t0=performance.now();let prev=turn.getBoundingClientRect(),first=prev,max=0,still=0;
+ while(performance.now()-t0<9000){await new Promise(r=>requestAnimationFrame(r));const r=turn.getBoundingClientRect();const st=Math.hypot(r.left-prev.left,r.top-prev.top);max=Math.max(max,st);prev=r;still=st<0.2?still+1:0;if(still>=20)break}
+ const r=turn.getBoundingClientRect();return{under:+underOf(r,dockEl.getBoundingClientRect()).toFixed(3),maxStepPx:+max.toFixed(1),movedPx:+Math.hypot(r.left-first.left,r.top-first.top).toFixed(1),ms:Math.round(performance.now()-t0)}};
+window.__focusAll=async()=>{const dockEl=document.querySelector('[data-dock-glass]');const rows=[];
+ for(const face of document.querySelectorAll('.work-item[data-kind=video] .work-item-face')){const turn=face.closest('.work-item-turn');
+  const before=underOf(turn.getBoundingClientRect(),dockEl.getBoundingClientRect());face.focus({preventScroll:true});
+  const w=await watch(turn,dockEl);rows.push({before:+before.toFixed(3),...w,focusVisible:face.matches(':focus-visible')})}
+ const hit=rows.filter(r=>r.before>0.5),clear=rows.filter(r=>r.before<=0.5);document.activeElement.blur();
+ return JSON.stringify({tiles:rows.length,moreThanHalfUnder:hit.length,worstUnderAtRest:Math.max(...rows.map(r=>r.under)),maxStepPx:Math.max(...rows.map(r=>r.maxStepPx)),
+  clearTilesMoved:clear.filter(r=>r.movedPx>1.5).length,slowest:Math.max(...rows.map(r=>r.ms)),allFocusVisible:rows.every(r=>r.focusVisible),
+  pass:rows.every(r=>r.under<=0.5)&&rows.every(r=>r.maxStepPx<=30)&&clear.every(r=>r.movedPx<=1.5),hit:hit.map(r=>[r.before,r.under,r.maxStepPx,r.ms])})};
+// after a real Tab press: what has focus, how much of it is under the dock once it has stood still
+window.__tabbed=async()=>{const a=document.activeElement;const turn=a&&a.closest&&a.closest('.work-item-turn');if(!turn)return JSON.stringify({on:a?(a.getAttribute('aria-label')||a.textContent||a.tagName).trim().slice(0,30):null,tile:false});
+ const w=await watch(turn,document.querySelector('[data-dock-glass]'));return JSON.stringify({tile:true,focusVisible:a.matches(':focus-visible'),...w,ok:w.under<=0.5&&w.maxStepPx<=30})};
 // the intro's room to the stack icons against what round 6 left at that size (R119: the icons keep at least that; measured on 19ca81b's rules, 60 px icons and a 14 px margin, by
 // setting those two custom properties and the ring 8 px nearer; phones, whose icons did not change, are what they were). 0.3 px of rounding is allowed
 window.__roomVs=(round6)=>{const i=window.__intro();return{...i,round6,atLeastRound6:i.roomToIcons>=round6-0.3}};
@@ -148,15 +172,15 @@ window.__fake=()=>{let i=0;for(const img of document.querySelectorAll('.work-cov
 `.trim();
 
 const SIZES = [
-  { name: "1440x900", round6: 26.3, size: [1440, 900], dpr: 1, rings: 3, pictures: true },
-  { name: "1920x1080", round6: 33, size: [1920, 1080], dpr: 1, rings: 3, pictures: true },
-  { name: "820x1180", round6: 73.5, size: [820, 1180], dpr: 1, rings: 3, pictures: true, mobile: true, touch: true },
-  { name: "390x844", round6: 31.5, size: [390, 844], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
-  { name: "375x667", round6: 30, size: [375, 667], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
-  { name: "568x320", round6: 26.1, size: [568, 320], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
-  { name: "320x568", round6: 23, size: [320, 568], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
-  { name: "1024x768", round6: 15.9, size: [1024, 768], dpr: 1, rings: 3 },
-  { name: "2560x1440", round6: 46.6, size: [2560, 1440], dpr: 1, rings: 4 },
+  { name: "1440x900", before: 0.308961, round6: 26.3, size: [1440, 900], dpr: 1, rings: 3, pictures: true },
+  { name: "1920x1080", before: 0.270521, round6: 33, size: [1920, 1080], dpr: 1, rings: 3, pictures: true },
+  { name: "820x1180", before: 0.209879, round6: 73.5, size: [820, 1180], dpr: 1, rings: 3, pictures: true, mobile: true, touch: true },
+  { name: "390x844", before: 0.230922, round6: 31.5, size: [390, 844], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
+  { name: "375x667", before: 0.201577, round6: 30, size: [375, 667], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
+  { name: "568x320", before: 0.077492, round6: 26.1, size: [568, 320], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
+  { name: "320x568", before: 0.189805, round6: 23, size: [320, 568], dpr: 2, rings: 2, pictures: true, mobile: true, touch: true },
+  { name: "1024x768", before: 0.279105, round6: 15.9, size: [1024, 768], dpr: 1, rings: 3 },
+  { name: "2560x1440", before: 0.257215, round6: 46.6, size: [2560, 1440], dpr: 1, rings: 4 },
 ];
 
 // where the first long-1 and stack items sit at the start of a turn at 1440 by 900 (read by the step before them)
@@ -172,8 +196,9 @@ for (const s of SIZES) {
   steps.push({ label: `${s.name} overlap at 40 phases`, eval: "window.__sweep(40)" });
   steps.push({ label: `${s.name} intro inside the stack ring`, eval: "window.__intro()" });
   steps.push({ label: `${s.name} the intro's room to the stack icons, at least round 6's (R119)`, eval: `window.__roomVs(${s.round6})` });
-  steps.push({ label: `${s.name} the dock's glass inside the keep-out (R117)`, eval: "window.__dock()" });
-  steps.push({ label: `${s.name} no ring item under the pointer in the keep-out, 40 phases (R117)`, eval: "window.__band(40)" });
+  steps.push({ label: `${s.name} no cut-out round the dock (R56.4): no mask, no keep-out block`, eval: "window.__cutout()" });
+  steps.push({ label: `${s.name} a tile under the dock's glass cannot be pressed through it, 40 phases (R56.4)`, eval: "window.__through(40)" });
+  steps.push({ label: `${s.name} the share of the screen under tiles is no less than before R56.4 (${s.before})`, eval: `window.__share(200, ${s.before})` });
   if (s.pictures) {
     steps.push({ label: `${s.name} generated pictures on tiles`, eval: "window.__fake()", wait: 600 });
     [1, 2, 3].forEach((p) => {
@@ -254,25 +279,28 @@ steps.push({ shot: "r51-covers-404-grey" });
 // a first load keeps the pictures lazy (they do not compete with the page's own requests); a rotating item brings its picture when it nears the screen
 steps.push({ intercept: [], nocache: false, go: "{{BASE}}/work", wait: 3000, eval: "window.__covers()", label: "first load: covers are lazy" });
 
+// keyboard focus (R56.4, Review Focus 2). A key press first, so the focus that follows is a keyboard one (:focus-visible), as a tab stop would give; every video tile focused in turn.
+steps.push({ reduce: false, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/work", wait: 1800, eval: "window.__ready(3)", label: "focus: ready (rings turning)" });
+steps.push({ key: "Shift", vk: 16 });
+steps.push({ label: "focus, rings turning, 1440x900: every video tile in turn: none rests more than half under the dock, a clear tile is not moved, no frame moves a tile over 30 px", eval: "window.__focusAll()" });
+// real Tab presses: the dock first (nine stops), then the video tiles in order (the stack icons are no tab stop)
+for (let i = 1; i <= 16; i++) {
+  steps.push({ key: "Tab", vk: 9 });
+  steps.push({ label: `focus, real Tab press ${i}`, eval: "window.__tabbed()" });
+}
+for (const f of [{ name: "390x844", size: [390, 844], dpr: 2 }, { name: "320x568", size: [320, 568], dpr: 2 }]) {
+  steps.push({ size: f.size, dpr: f.dpr, mobile: true, touch: true, go: "{{BASE}}/work", wait: 1800, eval: "window.__ready(2)", label: `focus: ready ${f.name}` });
+  steps.push({ key: "Shift", vk: 16 });
+  steps.push({ label: `focus, rings turning, ${f.name}: every video tile in turn`, eval: "window.__focusAll()" });
+}
 steps.push({ reduce: true, size: [1440, 900], dpr: 1, mobile: false, touch: false, go: "{{BASE}}/work", wait: 1500, eval: "window.__ready(3)", label: "reduced motion: ready" });
 steps.push({
   label: "reduced motion: no ring or item is turning",
   eval: `JSON.stringify({turning:document.getAnimations().filter(a=>a.animationName==='work-spin'||a.animationName==='work-unspin').length,
     groupAnim:[...new Set([...document.querySelectorAll('.work-ring-group')].map(g=>getComputedStyle(g).animationName))]})`,
 });
-// a key press first, so the focus that follows is a keyboard one (:focus-visible), as a tab stop would give
 steps.push({ key: "Shift", vk: 16 });
-steps.push({
-  label: "reduced motion: the tile nearest the dock, focused, drops its ring's mask (R117, WCAG 2.4.7); the other video ring keeps its mask",
-  eval: `(()=>{const d=document.querySelector('[data-dock-glass]').getBoundingClientRect();const cx=(d.left+d.right)/2,cy=d.top;let best=null,bd=1e9;
-    for(const it of document.querySelectorAll('.work-item[data-kind=video]')){const r=it.getBoundingClientRect();const dist=Math.hypot(r.left+r.width/2-cx,r.top+r.height/2-cy);if(dist<bd){bd=dist;best=it}}
-    const g=best.closest('.work-ring-group');const masked=x=>getComputedStyle(x).maskImage!=='none';const before=masked(g);
-    const face=best.querySelector('.work-item-face');face.focus();
-    const r=best.getBoundingClientRect();const cs=getComputedStyle(document.querySelector('.work-rings'));const v=n=>parseFloat(cs.getPropertyValue(n));
-    const inKeep=r.right>v('--keep-l')&&r.left<v('--keep-r')&&r.bottom>v('--keep-t');
-    const others=[...document.querySelectorAll('.work-ring-group[data-ring=long],.work-ring-group[data-ring=short]')].filter(x=>x!==g).map(masked);
-    return JSON.stringify({ring:g.dataset.ring,distanceToDock:Math.round(bd),tileInKeepOut:inKeep,maskedBefore:before,maskedAfterFocus:masked(g),focusVisible:face.matches(':focus-visible'),outline:getComputedStyle(face).outlineStyle,otherVideoGroupsMasked:others})})()`,
-});
+steps.push({ label: "focus, reduced motion (the rings stand still: a tile under the dock is brought clear by turning its ring at once), 1440x900", eval: "window.__focusAll()" });
 steps.push({ reduce: false });
 
 writeFileSync(new URL("./rings.json", import.meta.url), JSON.stringify(steps, null, 1) + "\n");

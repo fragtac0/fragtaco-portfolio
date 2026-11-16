@@ -11,8 +11,8 @@
  */
 
 export const GLASS = {
-  /** Spec 4: one reveal for every change, 2.5 s (3.5 s before the follow-ups). */
-  ms: 2500,
+  /** One reveal for every change: 2.25 s (R56.4, the second look's spec 5; 2.5 s before it, 3.5 s before the follow-ups). The one place the length is written. */
+  ms: 2250,
   /** Half-width of the soft edge, as a share of the farthest-corner distance: the same width in pixels at every moment. */
   band: 0.15,
   /** The bend's peak push, as a share of the viewport's height (the preview's 0.03 times its bend of 1.9), ... */

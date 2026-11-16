@@ -1,4 +1,4 @@
-/* The liquid-glass page change (follow-ups spec 4: one radial reveal from the centre of the screen, 2.5 s, for every change, as
+/* The liquid-glass page change (follow-ups spec 4: one radial reveal from the centre of the screen, 2.25 s since R56.4, for every change, as
  * the tenth preview's edge with "Wider" and "Stronger"). While a change runs, app/lib/page-change.ts marks <html> with
  * data-change-kind (radial | fade), the origin and size (--change-x, --change-y = the centre, --change-r = farthest corner,
  * --change-ms) and the numbers from glass-math.ts's glassVars() (--change-band, -warp, -start, -span, -ease), so nothing below

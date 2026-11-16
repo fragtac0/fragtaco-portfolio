@@ -1,0 +1,2787 @@
+{
+  "method": "scripts/audit/make-dock-over-tiles.mjs: the brightest thumbnail of the set under each dock label and icon, WCAG contrast of the label's own ink read from a photograph with its text hidden; the foot picture with and without the dock",
+  "minContrast": 4.5,
+  "maxDarkerLevels": 2,
+  "runs": {
+    "before": {
+      "label": "before",
+      "sizes": {
+        "1440x900": {
+          "brightestThumbnail": {
+            "asked": 21,
+            "read": 21,
+            "brightest": {
+              "id": "yt--_ovL8w1TMM",
+              "tall": false,
+              "meanLuminance": 0.2526
+            },
+            "top3": [
+              [
+                "yt--_ovL8w1TMM",
+                0.2526
+              ],
+              [
+                "yt-wit1TTy0UWY",
+                0.2504
+              ],
+              [
+                "yt-dwLzJdvj63s",
+                0.2423
+              ]
+            ],
+            "median": 0.1462
+          },
+          "inksChecked": "every ink matches the page",
+          "contrast": {
+            "none": {
+              "Long form": {
+                "worst": 9.9,
+                "p1": 9.9,
+                "mean": 10.39,
+                "brightestBgLuminance": 0.0198
+              },
+              "Short form": {
+                "worst": 9.9,
+                "p1": 9.9,
+                "mean": 10.39,
+                "brightestBgLuminance": 0.0198
+              },
+              "My experience": {
+                "worst": 9.9,
+                "p1": 9.9,
+                "mean": 10.39,
+                "brightestBgLuminance": 0.0198
+              },
+              "home label": {
+                "worst": 12.02,
+                "p1": 12.02,
+                "mean": 12.13,
+                "brightestBgLuminance": 0.0057
+              },
+              "home icon": {
+                "worst": 12.02,
+                "p1": 12.02,
+                "mean": 12.12,
+                "brightestBgLuminance": 0.0057
+              },
+              "work label": {
+                "worst": 14.12,
+                "p1": 14.12,
+                "mean": 14.32,
+                "brightestBgLuminance": 0.015
+              },
+              "work icon": {
+                "worst": 14.12,
+                "p1": 14.12,
+                "mean": 14.32,
+                "brightestBgLuminance": 0.015
+              },
+              "YouTube icon": {
+                "worst": 8.91,
+                "p1": 8.91,
+                "mean": 9.03,
+                "brightestBgLuminance": 0.0065
+              },
+              "Instagram icon": {
+                "worst": 8.91,
+                "p1": 8.91,
+                "mean": 9.03,
+                "brightestBgLuminance": 0.0065
+              },
+              "X icon": {
+                "worst": 8.97,
+                "p1": 8.97,
+                "mean": 9.03,
+                "brightestBgLuminance": 0.0058
+              },
+              "Mail icon": {
+                "worst": 8.97,
+                "p1": 8.97,
+                "mean": 9.03,
+                "brightestBgLuminance": 0.0058
+              }
+            },
+            "bright": {
+              "Long form": {
+                "worst": 3.87,
+                "p1": 3.9,
+                "mean": 4.41,
+                "brightestBgLuminance": 0.1476
+              },
+              "Short form": {
+                "worst": 3.97,
+                "p1": 3.97,
+                "mean": 4.52,
+                "brightestBgLuminance": 0.1418
+              },
+              "My experience": {
+                "worst": 3.96,
+                "p1": 3.97,
+                "mean": 4.57,
+                "brightestBgLuminance": 0.1427
+              },
+              "home label": {
+                "worst": 5.04,
+                "p1": 5.1,
+                "mean": 5.51,
+                "brightestBgLuminance": 0.0975
+              },
+              "home icon": {
+                "worst": 5.3,
+                "p1": 5.31,
+                "mean": 5.48,
+                "brightestBgLuminance": 0.0895
+              },
+              "work label": {
+                "worst": 6.14,
+                "p1": 6.21,
+                "mean": 6.51,
+                "brightestBgLuminance": 0.0996
+              },
+              "work icon": {
+                "worst": 6.23,
+                "p1": 6.23,
+                "mean": 6.39,
+                "brightestBgLuminance": 0.0975
+              },
+              "YouTube icon": {
+                "worst": 4.58,
+                "p1": 4.58,
+                "mean": 4.71,
+                "brightestBgLuminance": 0.0872
+              },
+              "Instagram icon": {
+                "worst": 4.58,
+                "p1": 4.58,
+                "mean": 4.71,
+                "brightestBgLuminance": 0.0872
+              },
+              "X icon": {
+                "worst": 4.57,
+                "p1": 4.58,
+                "mean": 4.67,
+                "brightestBgLuminance": 0.0875
+              },
+              "Mail icon": {
+                "worst": 4.42,
+                "p1": 4.43,
+                "mean": 4.51,
+                "brightestBgLuminance": 0.0935
+              }
+            },
+            "white": {
+              "Long form": {
+                "worst": 2.31,
+                "p1": 2.33,
+                "mean": 2.49,
+                "brightestBgLuminance": 0.3005
+              },
+              "Short form": {
+                "worst": 2.36,
+                "p1": 2.39,
+                "mean": 2.56,
+                "brightestBgLuminance": 0.2927
+              },
+              "My experience": {
+                "worst": 2.31,
+                "p1": 2.33,
+                "mean": 2.54,
+                "brightestBgLuminance": 0.3005
+              },
+              "home label": {
+                "worst": 3.04,
+                "p1": 3.04,
+                "mean": 3.14,
+                "brightestBgLuminance": 0.2086
+              },
+              "home icon": {
+                "worst": 3.04,
+                "p1": 3.06,
+                "mean": 3.12,
+                "brightestBgLuminance": 0.2084
+              },
+              "work label": {
+                "worst": 3.64,
+                "p1": 3.65,
+                "mean": 3.81,
+                "brightestBgLuminance": 0.2021
+              },
+              "work icon": {
+                "worst": 3.7,
+                "p1": 3.7,
+                "mean": 3.76,
+                "brightestBgLuminance": 0.1986
+              },
+              "YouTube icon": {
+                "worst": 2.82,
+                "p1": 2.84,
+                "mean": 2.89,
+                "brightestBgLuminance": 0.2048
+              },
+              "Instagram icon": {
+                "worst": 2.82,
+                "p1": 2.84,
+                "mean": 2.89,
+                "brightestBgLuminance": 0.2048
+              },
+              "X icon": {
+                "worst": 2.79,
+                "p1": 2.81,
+                "mean": 2.86,
+                "brightestBgLuminance": 0.2084
+              },
+              "Mail icon": {
+                "worst": 2.79,
+                "p1": 2.81,
+                "mean": 2.86,
+                "brightestBgLuminance": 0.2084
+              }
+            }
+          },
+          "worstContrast": {
+            "none": 8.91,
+            "bright": 3.87,
+            "white": 2.31
+          },
+          "passesBrightest": false,
+          "foot": [],
+          "footPasses": false
+        },
+        "390x844": {
+          "brightestThumbnail": {
+            "asked": 21,
+            "read": 21,
+            "brightest": {
+              "id": "yt--_ovL8w1TMM",
+              "tall": false,
+              "meanLuminance": 0.2526
+            },
+            "top3": [
+              [
+                "yt--_ovL8w1TMM",
+                0.2526
+              ],
+              [
+                "yt-wit1TTy0UWY",
+                0.2504
+              ],
+              [
+                "yt-dwLzJdvj63s",
+                0.2423
+              ]
+            ],
+            "median": 0.1462
+          },
+          "inksChecked": "every ink matches the page",
+          "contrast": {
+            "none": {
+              "Long form": {
+                "worst": 9.82,
+                "p1": 9.84,
+                "mean": 10.41,
+                "brightestBgLuminance": 0.0204
+              },
+              "Short form": {
+                "worst": 9.82,
+                "p1": 9.84,
+                "mean": 10.4,
+                "brightestBgLuminance": 0.0204
+              },
+              "My experience": {
+                "worst": 9.82,
+                "p1": 9.84,
+                "mean": 10.43,
+                "brightestBgLuminance": 0.0204
+              },
+              "home label": {
+                "worst": 11.96,
+                "p1": 12.02,
+                "mean": 12.13,
+                "brightestBgLuminance": 0.006
+              },
+              "home icon": {
+                "worst": 11.96,
+                "p1": 11.96,
+                "mean": 12.12,
+                "brightestBgLuminance": 0.006
+              },
+              "work label": {
+                "worst": 14.12,
+                "p1": 14.12,
+                "mean": 14.32,
+                "brightestBgLuminance": 0.015
+              },
+              "work icon": {
+                "worst": 14.12,
+                "p1": 14.12,
+                "mean": 14.32,
+                "brightestBgLuminance": 0.015
+              },
+              "YouTube icon": {
+                "worst": 8.9,
+                "p1": 8.91,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0066
+              },
+              "Instagram icon": {
+                "worst": 8.91,
+                "p1": 8.91,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0065
+              },
+              "X icon": {
+                "worst": 8.91,
+                "p1": 8.91,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0064
+              },
+              "Mail icon": {
+                "worst": 8.91,
+                "p1": 8.94,
+                "mean": 9.03,
+                "brightestBgLuminance": 0.0064
+              }
+            },
+            "bright": {
+              "Long form": {
+                "worst": 3.85,
+                "p1": 3.9,
+                "mean": 4.46,
+                "brightestBgLuminance": 0.1485
+              },
+              "Short form": {
+                "worst": 3.99,
+                "p1": 4.04,
+                "mean": 4.56,
+                "brightestBgLuminance": 0.1408
+              },
+              "My experience": {
+                "worst": 3.99,
+                "p1": 4.05,
+                "mean": 4.58,
+                "brightestBgLuminance": 0.1407
+              },
+              "home label": {
+                "worst": 4.7,
+                "p1": 4.75,
+                "mean": 5.01,
+                "brightestBgLuminance": 0.1093
+              },
+              "home icon": {
+                "worst": 4.73,
+                "p1": 4.74,
+                "mean": 4.9,
+                "brightestBgLuminance": 0.1082
+              },
+              "work label": {
+                "worst": 5.57,
+                "p1": 5.6,
+                "mean": 5.83,
+                "brightestBgLuminance": 0.1148
+              },
+              "work icon": {
+                "worst": 5.58,
+                "p1": 5.61,
+                "mean": 5.78,
+                "brightestBgLuminance": 0.1147
+              },
+              "YouTube icon": {
+                "worst": 4.11,
+                "p1": 4.13,
+                "mean": 4.29,
+                "brightestBgLuminance": 0.107
+              },
+              "Instagram icon": {
+                "worst": 4.13,
+                "p1": 4.13,
+                "mean": 4.28,
+                "brightestBgLuminance": 0.1064
+              },
+              "X icon": {
+                "worst": 4.14,
+                "p1": 4.15,
+                "mean": 4.28,
+                "brightestBgLuminance": 0.1059
+              },
+              "Mail icon": {
+                "worst": 4.09,
+                "p1": 4.09,
+                "mean": 4.21,
+                "brightestBgLuminance": 0.1083
+              }
+            },
+            "white": {
+              "Long form": {
+                "worst": 2.23,
+                "p1": 2.24,
+                "mean": 2.33,
+                "brightestBgLuminance": 0.315
+              },
+              "Short form": {
+                "worst": 2.23,
+                "p1": 2.26,
+                "mean": 2.36,
+                "brightestBgLuminance": 0.315
+              },
+              "My experience": {
+                "worst": 2.23,
+                "p1": 2.24,
+                "mean": 2.35,
+                "brightestBgLuminance": 0.315
+              },
+              "home label": {
+                "worst": 2.76,
+                "p1": 2.76,
+                "mean": 2.86,
+                "brightestBgLuminance": 0.2381
+              },
+              "home icon": {
+                "worst": 2.76,
+                "p1": 2.78,
+                "mean": 2.85,
+                "brightestBgLuminance": 0.2381
+              },
+              "work label": {
+                "worst": 3.3,
+                "p1": 3.31,
+                "mean": 3.43,
+                "brightestBgLuminance": 0.2283
+              },
+              "work icon": {
+                "worst": 3.3,
+                "p1": 3.3,
+                "mean": 3.4,
+                "brightestBgLuminance": 0.2283
+              },
+              "YouTube icon": {
+                "worst": 2.54,
+                "p1": 2.54,
+                "mean": 2.64,
+                "brightestBgLuminance": 0.242
+              },
+              "Instagram icon": {
+                "worst": 2.54,
+                "p1": 2.54,
+                "mean": 2.64,
+                "brightestBgLuminance": 0.242
+              },
+              "X icon": {
+                "worst": 2.54,
+                "p1": 2.56,
+                "mean": 2.64,
+                "brightestBgLuminance": 0.242
+              },
+              "Mail icon": {
+                "worst": 2.54,
+                "p1": 2.56,
+                "mean": 2.64,
+                "brightestBgLuminance": 0.242
+              }
+            }
+          },
+          "worstContrast": {
+            "none": 8.9,
+            "bright": 3.85,
+            "white": 2.23
+          },
+          "passesBrightest": false,
+          "foot": [],
+          "footPasses": false
+        },
+        "320x568": {
+          "brightestThumbnail": {
+            "asked": 21,
+            "read": 21,
+            "brightest": {
+              "id": "yt--_ovL8w1TMM",
+              "tall": false,
+              "meanLuminance": 0.2526
+            },
+            "top3": [
+              [
+                "yt--_ovL8w1TMM",
+                0.2526
+              ],
+              [
+                "yt-wit1TTy0UWY",
+                0.2504
+              ],
+              [
+                "yt-dwLzJdvj63s",
+                0.2423
+              ]
+            ],
+            "median": 0.1462
+          },
+          "inksChecked": "every ink matches the page",
+          "contrast": {
+            "none": {
+              "Long form": {
+                "worst": 9.82,
+                "p1": 9.84,
+                "mean": 10.4,
+                "brightestBgLuminance": 0.0204
+              },
+              "Short form": {
+                "worst": 9.82,
+                "p1": 9.84,
+                "mean": 10.4,
+                "brightestBgLuminance": 0.0204
+              },
+              "My experience": {
+                "worst": 9.82,
+                "p1": 9.84,
+                "mean": 10.4,
+                "brightestBgLuminance": 0.0204
+              },
+              "home label": {
+                "worst": 11.95,
+                "p1": 11.96,
+                "mean": 12.08,
+                "brightestBgLuminance": 0.0061
+              },
+              "home icon": {
+                "worst": 11.96,
+                "p1": 11.96,
+                "mean": 12.08,
+                "brightestBgLuminance": 0.006
+              },
+              "work label": {
+                "worst": 14.12,
+                "p1": 14.12,
+                "mean": 14.32,
+                "brightestBgLuminance": 0.015
+              },
+              "work icon": {
+                "worst": 14.12,
+                "p1": 14.12,
+                "mean": 14.32,
+                "brightestBgLuminance": 0.015
+              },
+              "YouTube icon": {
+                "worst": 8.9,
+                "p1": 8.91,
+                "mean": 9,
+                "brightestBgLuminance": 0.0066
+              },
+              "Instagram icon": {
+                "worst": 8.91,
+                "p1": 8.91,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0065
+              },
+              "X icon": {
+                "worst": 8.91,
+                "p1": 8.91,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0064
+              },
+              "Mail icon": {
+                "worst": 8.91,
+                "p1": 8.94,
+                "mean": 9.03,
+                "brightestBgLuminance": 0.0064
+              }
+            },
+            "bright": {
+              "Long form": {
+                "worst": 4.05,
+                "p1": 4.11,
+                "mean": 4.7,
+                "brightestBgLuminance": 0.1375
+              },
+              "Short form": {
+                "worst": 4.17,
+                "p1": 4.24,
+                "mean": 4.77,
+                "brightestBgLuminance": 0.1318
+              },
+              "My experience": {
+                "worst": 4,
+                "p1": 4.02,
+                "mean": 4.44,
+                "brightestBgLuminance": 0.1405
+              },
+              "home label": {
+                "worst": 5,
+                "p1": 5.02,
+                "mean": 5.3,
+                "brightestBgLuminance": 0.0987
+              },
+              "home icon": {
+                "worst": 4.98,
+                "p1": 5,
+                "mean": 5.14,
+                "brightestBgLuminance": 0.0994
+              },
+              "work label": {
+                "worst": 5.93,
+                "p1": 5.96,
+                "mean": 6.19,
+                "brightestBgLuminance": 0.1049
+              },
+              "work icon": {
+                "worst": 5.9,
+                "p1": 5.93,
+                "mean": 6.06,
+                "brightestBgLuminance": 0.1056
+              },
+              "YouTube icon": {
+                "worst": 4.33,
+                "p1": 4.36,
+                "mean": 4.5,
+                "brightestBgLuminance": 0.097
+              },
+              "Instagram icon": {
+                "worst": 4.3,
+                "p1": 4.31,
+                "mean": 4.45,
+                "brightestBgLuminance": 0.0983
+              },
+              "X icon": {
+                "worst": 4.26,
+                "p1": 4.27,
+                "mean": 4.38,
+                "brightestBgLuminance": 0.1004
+              },
+              "Mail icon": {
+                "worst": 4.11,
+                "p1": 4.14,
+                "mean": 4.23,
+                "brightestBgLuminance": 0.1071
+              }
+            },
+            "white": {
+              "Long form": {
+                "worst": 2.28,
+                "p1": 2.31,
+                "mean": 2.45,
+                "brightestBgLuminance": 0.3059
+              },
+              "Short form": {
+                "worst": 2.33,
+                "p1": 2.34,
+                "mean": 2.5,
+                "brightestBgLuminance": 0.2971
+              },
+              "My experience": {
+                "worst": 2.31,
+                "p1": 2.33,
+                "mean": 2.53,
+                "brightestBgLuminance": 0.3015
+              },
+              "home label": {
+                "worst": 2.93,
+                "p1": 2.93,
+                "mean": 3.02,
+                "brightestBgLuminance": 0.2193
+              },
+              "home icon": {
+                "worst": 2.93,
+                "p1": 2.93,
+                "mean": 3,
+                "brightestBgLuminance": 0.2193
+              },
+              "work label": {
+                "worst": 3.53,
+                "p1": 3.53,
+                "mean": 3.62,
+                "brightestBgLuminance": 0.21
+              },
+              "work icon": {
+                "worst": 3.48,
+                "p1": 3.48,
+                "mean": 3.56,
+                "brightestBgLuminance": 0.2136
+              },
+              "YouTube icon": {
+                "worst": 2.7,
+                "p1": 2.72,
+                "mean": 2.78,
+                "brightestBgLuminance": 0.2193
+              },
+              "Instagram icon": {
+                "worst": 2.69,
+                "p1": 2.69,
+                "mean": 2.76,
+                "brightestBgLuminance": 0.2203
+              },
+              "X icon": {
+                "worst": 2.69,
+                "p1": 2.69,
+                "mean": 2.77,
+                "brightestBgLuminance": 0.2203
+              },
+              "Mail icon": {
+                "worst": 2.69,
+                "p1": 2.69,
+                "mean": 2.76,
+                "brightestBgLuminance": 0.2203
+              }
+            }
+          },
+          "worstContrast": {
+            "none": 8.9,
+            "bright": 4,
+            "white": 2.28
+          },
+          "passesBrightest": false,
+          "foot": [],
+          "footPasses": false
+        }
+      }
+    },
+    "sweep-0.52": {
+      "label": "sweep-0.52",
+      "sizes": {
+        "1440x900": {
+          "brightestThumbnail": {
+            "asked": 21,
+            "read": 21,
+            "brightest": {
+              "id": "yt--_ovL8w1TMM",
+              "tall": false,
+              "meanLuminance": 0.2526
+            },
+            "top3": [
+              [
+                "yt--_ovL8w1TMM",
+                0.2526
+              ],
+              [
+                "yt-wit1TTy0UWY",
+                0.2504
+              ],
+              [
+                "yt-dwLzJdvj63s",
+                0.2423
+              ]
+            ],
+            "median": 0.1462
+          },
+          "inksChecked": "every ink matches the page",
+          "contrast": {
+            "none": {
+              "Long form": {
+                "worst": 9.81,
+                "p1": 9.81,
+                "mean": 10.32,
+                "brightestBgLuminance": 0.0205
+              },
+              "Short form": {
+                "worst": 9.81,
+                "p1": 9.81,
+                "mean": 10.32,
+                "brightestBgLuminance": 0.0205
+              },
+              "My experience": {
+                "worst": 9.81,
+                "p1": 9.81,
+                "mean": 10.32,
+                "brightestBgLuminance": 0.0205
+              },
+              "home label": {
+                "worst": 11.96,
+                "p1": 11.96,
+                "mean": 12.08,
+                "brightestBgLuminance": 0.006
+              },
+              "home icon": {
+                "worst": 11.96,
+                "p1": 11.96,
+                "mean": 12.07,
+                "brightestBgLuminance": 0.006
+              },
+              "work label": {
+                "worst": 14.07,
+                "p1": 14.07,
+                "mean": 14.37,
+                "brightestBgLuminance": 0.0153
+              },
+              "work icon": {
+                "worst": 14.07,
+                "p1": 14.07,
+                "mean": 14.37,
+                "brightestBgLuminance": 0.0153
+              },
+              "YouTube icon": {
+                "worst": 8.91,
+                "p1": 8.91,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0065
+              },
+              "Instagram icon": {
+                "worst": 8.91,
+                "p1": 8.91,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0065
+              },
+              "X icon": {
+                "worst": 8.94,
+                "p1": 8.94,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0061
+              },
+              "Mail icon": {
+                "worst": 8.94,
+                "p1": 8.94,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0061
+              }
+            },
+            "bright": {
+              "Long form": {
+                "worst": 4.3,
+                "p1": 4.36,
+                "mean": 4.92,
+                "brightestBgLuminance": 0.1255
+              },
+              "Short form": {
+                "worst": 4.42,
+                "p1": 4.48,
+                "mean": 5.03,
+                "brightestBgLuminance": 0.1204
+              },
+              "My experience": {
+                "worst": 4.42,
+                "p1": 4.48,
+                "mean": 5.08,
+                "brightestBgLuminance": 0.1204
+              },
+              "home label": {
+                "worst": 5.65,
+                "p1": 5.72,
+                "mean": 6.13,
+                "brightestBgLuminance": 0.08
+              },
+              "home icon": {
+                "worst": 5.96,
+                "p1": 5.96,
+                "mean": 6.11,
+                "brightestBgLuminance": 0.0726
+              },
+              "work label": {
+                "worst": 6.89,
+                "p1": 6.94,
+                "mean": 7.2,
+                "brightestBgLuminance": 0.0833
+              },
+              "work icon": {
+                "worst": 6.95,
+                "p1": 6.95,
+                "mean": 7.08,
+                "brightestBgLuminance": 0.0821
+              },
+              "YouTube icon": {
+                "worst": 5.04,
+                "p1": 5.05,
+                "mean": 5.16,
+                "brightestBgLuminance": 0.0713
+              },
+              "Instagram icon": {
+                "worst": 5.04,
+                "p1": 5.05,
+                "mean": 5.16,
+                "brightestBgLuminance": 0.0713
+              },
+              "X icon": {
+                "worst": 5.04,
+                "p1": 5.05,
+                "mean": 5.13,
+                "brightestBgLuminance": 0.0713
+              },
+              "Mail icon": {
+                "worst": 4.9,
+                "p1": 4.9,
+                "mean": 4.98,
+                "brightestBgLuminance": 0.0758
+              }
+            },
+            "white": {
+              "Long form": {
+                "worst": 2.68,
+                "p1": 2.68,
+                "mean": 2.89,
+                "brightestBgLuminance": 0.2473
+              },
+              "Short form": {
+                "worst": 2.71,
+                "p1": 2.74,
+                "mean": 2.97,
+                "brightestBgLuminance": 0.2431
+              },
+              "My experience": {
+                "worst": 2.68,
+                "p1": 2.68,
+                "mean": 2.94,
+                "brightestBgLuminance": 0.2473
+              },
+              "home label": {
+                "worst": 3.57,
+                "p1": 3.58,
+                "mean": 3.67,
+                "brightestBgLuminance": 0.1658
+              },
+              "home icon": {
+                "worst": 3.58,
+                "p1": 3.59,
+                "mean": 3.65,
+                "brightestBgLuminance": 0.1651
+              },
+              "work label": {
+                "worst": 4.32,
+                "p1": 4.32,
+                "mean": 4.43,
+                "brightestBgLuminance": 0.1627
+              },
+              "work icon": {
+                "worst": 4.32,
+                "p1": 4.32,
+                "mean": 4.37,
+                "brightestBgLuminance": 0.1627
+              },
+              "YouTube icon": {
+                "worst": 3.24,
+                "p1": 3.24,
+                "mean": 3.31,
+                "brightestBgLuminance": 0.1627
+              },
+              "Instagram icon": {
+                "worst": 3.24,
+                "p1": 3.24,
+                "mean": 3.31,
+                "brightestBgLuminance": 0.1627
+              },
+              "X icon": {
+                "worst": 3.21,
+                "p1": 3.21,
+                "mean": 3.27,
+                "brightestBgLuminance": 0.1658
+              },
+              "Mail icon": {
+                "worst": 3.21,
+                "p1": 3.21,
+                "mean": 3.27,
+                "brightestBgLuminance": 0.1658
+              }
+            }
+          },
+          "worstContrast": {
+            "none": 8.91,
+            "bright": 4.3,
+            "white": 2.68
+          },
+          "passesBrightest": false,
+          "foot": [],
+          "footPasses": false
+        },
+        "390x844": {
+          "brightestThumbnail": null,
+          "inksChecked": [
+            [
+              "tab /work/long-form",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "tab /work/short-form",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "tab /experience",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "home label",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "home icon",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "work label",
+              [
+                245,
+                239,
+                230,
+                1
+              ],
+              null
+            ],
+            [
+              "work icon",
+              [
+                245,
+                239,
+                230,
+                1
+              ],
+              null
+            ],
+            [
+              "YouTube icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "Instagram icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "X icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "Mail icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ]
+          ],
+          "contrast": {
+            "none": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            },
+            "bright": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            },
+            "white": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            }
+          },
+          "worstContrast": {
+            "none": 0,
+            "bright": 0,
+            "white": 0
+          },
+          "passesBrightest": false,
+          "foot": [],
+          "footPasses": false
+        },
+        "320x568": {
+          "brightestThumbnail": null,
+          "inksChecked": [
+            [
+              "tab /work/long-form",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "tab /work/short-form",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "tab /experience",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "home label",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "home icon",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "work label",
+              [
+                245,
+                239,
+                230,
+                1
+              ],
+              null
+            ],
+            [
+              "work icon",
+              [
+                245,
+                239,
+                230,
+                1
+              ],
+              null
+            ],
+            [
+              "YouTube icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "Instagram icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "X icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "Mail icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ]
+          ],
+          "contrast": {
+            "none": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            },
+            "bright": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            },
+            "white": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            }
+          },
+          "worstContrast": {
+            "none": 0,
+            "bright": 0,
+            "white": 0
+          },
+          "passesBrightest": false,
+          "foot": [],
+          "footPasses": false
+        }
+      }
+    },
+    "sweep-0.55": {
+      "label": "sweep-0.55",
+      "sizes": {
+        "1440x900": {
+          "brightestThumbnail": {
+            "asked": 21,
+            "read": 21,
+            "brightest": {
+              "id": "yt--_ovL8w1TMM",
+              "tall": false,
+              "meanLuminance": 0.2526
+            },
+            "top3": [
+              [
+                "yt--_ovL8w1TMM",
+                0.2526
+              ],
+              [
+                "yt-wit1TTy0UWY",
+                0.2504
+              ],
+              [
+                "yt-dwLzJdvj63s",
+                0.2423
+              ]
+            ],
+            "median": 0.1462
+          },
+          "inksChecked": "every ink matches the page",
+          "contrast": {
+            "none": {
+              "Long form": {
+                "worst": 9.87,
+                "p1": 9.87,
+                "mean": 10.28,
+                "brightestBgLuminance": 0.02
+              },
+              "Short form": {
+                "worst": 9.87,
+                "p1": 9.87,
+                "mean": 10.28,
+                "brightestBgLuminance": 0.02
+              },
+              "My experience": {
+                "worst": 9.87,
+                "p1": 9.87,
+                "mean": 10.28,
+                "brightestBgLuminance": 0.02
+              },
+              "home label": {
+                "worst": 11.88,
+                "p1": 11.88,
+                "mean": 12.05,
+                "brightestBgLuminance": 0.0064
+              },
+              "home icon": {
+                "worst": 11.88,
+                "p1": 11.88,
+                "mean": 12.04,
+                "brightestBgLuminance": 0.0064
+              },
+              "work label": {
+                "worst": 13.97,
+                "p1": 13.97,
+                "mean": 14.26,
+                "brightestBgLuminance": 0.0158
+              },
+              "work icon": {
+                "worst": 13.97,
+                "p1": 13.97,
+                "mean": 14.26,
+                "brightestBgLuminance": 0.0158
+              },
+              "YouTube icon": {
+                "worst": 8.87,
+                "p1": 8.87,
+                "mean": 8.99,
+                "brightestBgLuminance": 0.0069
+              },
+              "Instagram icon": {
+                "worst": 8.87,
+                "p1": 8.87,
+                "mean": 8.99,
+                "brightestBgLuminance": 0.0069
+              },
+              "X icon": {
+                "worst": 8.9,
+                "p1": 8.9,
+                "mean": 8.99,
+                "brightestBgLuminance": 0.0066
+              },
+              "Mail icon": {
+                "worst": 8.9,
+                "p1": 8.9,
+                "mean": 8.99,
+                "brightestBgLuminance": 0.0066
+              }
+            },
+            "bright": {
+              "Long form": {
+                "worst": 4.48,
+                "p1": 4.53,
+                "mean": 5.05,
+                "brightestBgLuminance": 0.1178
+              },
+              "Short form": {
+                "worst": 4.59,
+                "p1": 4.61,
+                "mean": 5.16,
+                "brightestBgLuminance": 0.1134
+              },
+              "My experience": {
+                "worst": 4.55,
+                "p1": 4.61,
+                "mean": 5.21,
+                "brightestBgLuminance": 0.1151
+              },
+              "home label": {
+                "worst": 5.92,
+                "p1": 5.97,
+                "mean": 6.36,
+                "brightestBgLuminance": 0.0736
+              },
+              "home icon": {
+                "worst": 6.14,
+                "p1": 6.21,
+                "mean": 6.34,
+                "brightestBgLuminance": 0.0687
+              },
+              "work label": {
+                "worst": 7.07,
+                "p1": 7.17,
+                "mean": 7.44,
+                "brightestBgLuminance": 0.08
+              },
+              "work icon": {
+                "worst": 7.11,
+                "p1": 7.18,
+                "mean": 7.32,
+                "brightestBgLuminance": 0.0792
+              },
+              "YouTube icon": {
+                "worst": 5.2,
+                "p1": 5.24,
+                "mean": 5.33,
+                "brightestBgLuminance": 0.0667
+              },
+              "Instagram icon": {
+                "worst": 5.2,
+                "p1": 5.24,
+                "mean": 5.33,
+                "brightestBgLuminance": 0.0667
+              },
+              "X icon": {
+                "worst": 5.2,
+                "p1": 5.2,
+                "mean": 5.3,
+                "brightestBgLuminance": 0.0667
+              },
+              "Mail icon": {
+                "worst": 5.03,
+                "p1": 5.07,
+                "mean": 5.14,
+                "brightestBgLuminance": 0.0718
+              }
+            },
+            "white": {
+              "Long form": {
+                "worst": 2.87,
+                "p1": 2.88,
+                "mean": 3.06,
+                "brightestBgLuminance": 0.2248
+              },
+              "Short form": {
+                "worst": 2.91,
+                "p1": 2.92,
+                "mean": 3.14,
+                "brightestBgLuminance": 0.2211
+              },
+              "My experience": {
+                "worst": 2.87,
+                "p1": 2.88,
+                "mean": 3.11,
+                "brightestBgLuminance": 0.2248
+              },
+              "home label": {
+                "worst": 3.78,
+                "p1": 3.78,
+                "mean": 3.92,
+                "brightestBgLuminance": 0.1527
+              },
+              "home icon": {
+                "worst": 3.83,
+                "p1": 3.83,
+                "mean": 3.89,
+                "brightestBgLuminance": 0.1497
+              },
+              "work label": {
+                "worst": 4.56,
+                "p1": 4.58,
+                "mean": 4.71,
+                "brightestBgLuminance": 0.1512
+              },
+              "work icon": {
+                "worst": 4.56,
+                "p1": 4.56,
+                "mean": 4.65,
+                "brightestBgLuminance": 0.1512
+              },
+              "YouTube icon": {
+                "worst": 3.44,
+                "p1": 3.45,
+                "mean": 3.5,
+                "brightestBgLuminance": 0.1474
+              },
+              "Instagram icon": {
+                "worst": 3.44,
+                "p1": 3.45,
+                "mean": 3.5,
+                "brightestBgLuminance": 0.1474
+              },
+              "X icon": {
+                "worst": 3.41,
+                "p1": 3.41,
+                "mean": 3.46,
+                "brightestBgLuminance": 0.1497
+              },
+              "Mail icon": {
+                "worst": 3.41,
+                "p1": 3.41,
+                "mean": 3.46,
+                "brightestBgLuminance": 0.1497
+              }
+            }
+          },
+          "worstContrast": {
+            "none": 8.87,
+            "bright": 4.48,
+            "white": 2.87
+          },
+          "passesBrightest": false,
+          "foot": [],
+          "footPasses": false
+        },
+        "390x844": {
+          "brightestThumbnail": null,
+          "inksChecked": [
+            [
+              "tab /work/long-form",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "tab /work/short-form",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "tab /experience",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "home label",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "home icon",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "work label",
+              [
+                245,
+                239,
+                230,
+                1
+              ],
+              null
+            ],
+            [
+              "work icon",
+              [
+                245,
+                239,
+                230,
+                1
+              ],
+              null
+            ],
+            [
+              "YouTube icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "Instagram icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "X icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "Mail icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ]
+          ],
+          "contrast": {
+            "none": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            },
+            "bright": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            },
+            "white": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            }
+          },
+          "worstContrast": {
+            "none": 0,
+            "bright": 0,
+            "white": 0
+          },
+          "passesBrightest": false,
+          "foot": [],
+          "footPasses": false
+        },
+        "320x568": {
+          "brightestThumbnail": null,
+          "inksChecked": [
+            [
+              "tab /work/long-form",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "tab /work/short-form",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "tab /experience",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "home label",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "home icon",
+              [
+                245,
+                239,
+                230,
+                0.85
+              ],
+              null
+            ],
+            [
+              "work label",
+              [
+                245,
+                239,
+                230,
+                1
+              ],
+              null
+            ],
+            [
+              "work icon",
+              [
+                245,
+                239,
+                230,
+                1
+              ],
+              null
+            ],
+            [
+              "YouTube icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "Instagram icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "X icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ],
+            [
+              "Mail icon",
+              [
+                255,
+                255,
+                255,
+                0.68
+              ],
+              null
+            ]
+          ],
+          "contrast": {
+            "none": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            },
+            "bright": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            },
+            "white": {
+              "Long form": null,
+              "Short form": null,
+              "My experience": null,
+              "home label": null,
+              "home icon": null,
+              "work label": null,
+              "work icon": null,
+              "YouTube icon": null,
+              "Instagram icon": null,
+              "X icon": null,
+              "Mail icon": null
+            }
+          },
+          "worstContrast": {
+            "none": 0,
+            "bright": 0,
+            "white": 0
+          },
+          "passesBrightest": false,
+          "foot": [],
+          "footPasses": false
+        }
+      }
+    },
+    "after": {
+      "label": "after",
+      "sizes": {
+        "1440x900": {
+          "brightestThumbnail": {
+            "asked": 21,
+            "read": 21,
+            "brightest": {
+              "id": "yt--_ovL8w1TMM",
+              "tall": false,
+              "meanLuminance": 0.2526
+            },
+            "top3": [
+              [
+                "yt--_ovL8w1TMM",
+                0.2526
+              ],
+              [
+                "yt-wit1TTy0UWY",
+                0.2504
+              ],
+              [
+                "yt-dwLzJdvj63s",
+                0.2423
+              ]
+            ],
+            "median": 0.1462
+          },
+          "inksChecked": "every ink matches the page",
+          "contrast": {
+            "none": {
+              "Long form": {
+                "worst": 9.89,
+                "p1": 9.89,
+                "mean": 10.31,
+                "brightestBgLuminance": 0.0199
+              },
+              "Short form": {
+                "worst": 9.89,
+                "p1": 9.89,
+                "mean": 10.31,
+                "brightestBgLuminance": 0.0199
+              },
+              "My experience": {
+                "worst": 9.89,
+                "p1": 9.89,
+                "mean": 10.31,
+                "brightestBgLuminance": 0.0199
+              },
+              "home label": {
+                "worst": 11.94,
+                "p1": 11.94,
+                "mean": 12.07,
+                "brightestBgLuminance": 0.0061
+              },
+              "home icon": {
+                "worst": 11.94,
+                "p1": 11.94,
+                "mean": 12.06,
+                "brightestBgLuminance": 0.0061
+              },
+              "work label": {
+                "worst": 13.96,
+                "p1": 13.96,
+                "mean": 14.26,
+                "brightestBgLuminance": 0.0158
+              },
+              "work icon": {
+                "worst": 13.96,
+                "p1": 13.96,
+                "mean": 14.25,
+                "brightestBgLuminance": 0.0158
+              },
+              "YouTube icon": {
+                "worst": 8.9,
+                "p1": 8.9,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0066
+              },
+              "Instagram icon": {
+                "worst": 8.9,
+                "p1": 8.9,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0066
+              },
+              "X icon": {
+                "worst": 8.93,
+                "p1": 8.93,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0063
+              },
+              "Mail icon": {
+                "worst": 8.93,
+                "p1": 8.93,
+                "mean": 9,
+                "brightestBgLuminance": 0.0063
+              }
+            },
+            "bright": {
+              "Long form": {
+                "worst": 4.73,
+                "p1": 4.8,
+                "mean": 5.34,
+                "brightestBgLuminance": 0.108
+              },
+              "Short form": {
+                "worst": 4.87,
+                "p1": 4.88,
+                "mean": 5.45,
+                "brightestBgLuminance": 0.1032
+              },
+              "My experience": {
+                "worst": 4.82,
+                "p1": 4.88,
+                "mean": 5.5,
+                "brightestBgLuminance": 0.105
+              },
+              "home label": {
+                "worst": 6.26,
+                "p1": 6.33,
+                "mean": 6.74,
+                "brightestBgLuminance": 0.0661
+              },
+              "home icon": {
+                "worst": 6.51,
+                "p1": 6.58,
+                "mean": 6.72,
+                "brightestBgLuminance": 0.0612
+              },
+              "work label": {
+                "worst": 7.44,
+                "p1": 7.56,
+                "mean": 7.85,
+                "brightestBgLuminance": 0.0734
+              },
+              "work icon": {
+                "worst": 7.56,
+                "p1": 7.56,
+                "mean": 7.73,
+                "brightestBgLuminance": 0.0716
+              },
+              "YouTube icon": {
+                "worst": 5.46,
+                "p1": 5.51,
+                "mean": 5.61,
+                "brightestBgLuminance": 0.0597
+              },
+              "Instagram icon": {
+                "worst": 5.46,
+                "p1": 5.51,
+                "mean": 5.61,
+                "brightestBgLuminance": 0.0597
+              },
+              "X icon": {
+                "worst": 5.41,
+                "p1": 5.46,
+                "mean": 5.57,
+                "brightestBgLuminance": 0.0609
+              },
+              "Mail icon": {
+                "worst": 5.33,
+                "p1": 5.34,
+                "mean": 5.42,
+                "brightestBgLuminance": 0.0632
+              }
+            },
+            "white": {
+              "Long form": {
+                "worst": 3.09,
+                "p1": 3.1,
+                "mean": 3.33,
+                "brightestBgLuminance": 0.2033
+              },
+              "Short form": {
+                "worst": 3.13,
+                "p1": 3.17,
+                "mean": 3.41,
+                "brightestBgLuminance": 0.1998
+              },
+              "My experience": {
+                "worst": 3.09,
+                "p1": 3.1,
+                "mean": 3.38,
+                "brightestBgLuminance": 0.2033
+              },
+              "home label": {
+                "worst": 4.15,
+                "p1": 4.15,
+                "mean": 4.28,
+                "brightestBgLuminance": 0.1327
+              },
+              "home icon": {
+                "worst": 4.15,
+                "p1": 4.15,
+                "mean": 4.25,
+                "brightestBgLuminance": 0.1327
+              },
+              "work label": {
+                "worst": 4.93,
+                "p1": 4.98,
+                "mean": 5.11,
+                "brightestBgLuminance": 0.1362
+              },
+              "work icon": {
+                "worst": 4.93,
+                "p1": 4.98,
+                "mean": 5.04,
+                "brightestBgLuminance": 0.1362
+              },
+              "YouTube icon": {
+                "worst": 3.7,
+                "p1": 3.7,
+                "mean": 3.77,
+                "brightestBgLuminance": 0.1299
+              },
+              "Instagram icon": {
+                "worst": 3.7,
+                "p1": 3.7,
+                "mean": 3.77,
+                "brightestBgLuminance": 0.1299
+              },
+              "X icon": {
+                "worst": 3.65,
+                "p1": 3.65,
+                "mean": 3.74,
+                "brightestBgLuminance": 0.1327
+              },
+              "Mail icon": {
+                "worst": 3.65,
+                "p1": 3.65,
+                "mean": 3.74,
+                "brightestBgLuminance": 0.1327
+              }
+            }
+          },
+          "worstContrast": {
+            "none": 8.9,
+            "bright": 4.73,
+            "white": 3.09
+          },
+          "passesBrightest": true,
+          "foot": [
+            {
+              "where": "centre",
+              "ring": "long-1",
+              "pixelsOutsideDock": 1243800,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [],
+              "pass": true
+            },
+            {
+              "where": "left",
+              "ring": "long-1",
+              "pixelsOutsideDock": 1243800,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [
+                "left",
+                "top"
+              ],
+              "pass": true
+            },
+            {
+              "where": "right",
+              "ring": "long-1",
+              "pixelsOutsideDock": 1243800,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [
+                "right",
+                "top"
+              ],
+              "pass": true
+            },
+            {
+              "where": "top",
+              "ring": "long-1",
+              "pixelsOutsideDock": 1243800,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [],
+              "pass": true
+            }
+          ],
+          "footPasses": true
+        },
+        "390x844": {
+          "brightestThumbnail": {
+            "asked": 21,
+            "read": 21,
+            "brightest": {
+              "id": "yt--_ovL8w1TMM",
+              "tall": false,
+              "meanLuminance": 0.2526
+            },
+            "top3": [
+              [
+                "yt--_ovL8w1TMM",
+                0.2526
+              ],
+              [
+                "yt-wit1TTy0UWY",
+                0.2504
+              ],
+              [
+                "yt-dwLzJdvj63s",
+                0.2423
+              ]
+            ],
+            "median": 0.1462
+          },
+          "inksChecked": "every ink matches the page",
+          "contrast": {
+            "none": {
+              "Long form": {
+                "worst": 9.92,
+                "p1": 9.92,
+                "mean": 10.34,
+                "brightestBgLuminance": 0.0196
+              },
+              "Short form": {
+                "worst": 9.92,
+                "p1": 9.92,
+                "mean": 10.33,
+                "brightestBgLuminance": 0.0196
+              },
+              "My experience": {
+                "worst": 9.92,
+                "p1": 9.92,
+                "mean": 10.36,
+                "brightestBgLuminance": 0.0196
+              },
+              "home label": {
+                "worst": 11.88,
+                "p1": 11.94,
+                "mean": 12.07,
+                "brightestBgLuminance": 0.0064
+              },
+              "home icon": {
+                "worst": 11.88,
+                "p1": 11.94,
+                "mean": 12.07,
+                "brightestBgLuminance": 0.0064
+              },
+              "work label": {
+                "worst": 14.02,
+                "p1": 14.03,
+                "mean": 14.27,
+                "brightestBgLuminance": 0.0155
+              },
+              "work icon": {
+                "worst": 14.02,
+                "p1": 14.03,
+                "mean": 14.27,
+                "brightestBgLuminance": 0.0155
+              },
+              "YouTube icon": {
+                "worst": 8.86,
+                "p1": 8.87,
+                "mean": 8.98,
+                "brightestBgLuminance": 0.007
+              },
+              "Instagram icon": {
+                "worst": 8.87,
+                "p1": 8.87,
+                "mean": 8.98,
+                "brightestBgLuminance": 0.0069
+              },
+              "X icon": {
+                "worst": 8.9,
+                "p1": 8.9,
+                "mean": 8.99,
+                "brightestBgLuminance": 0.0066
+              },
+              "Mail icon": {
+                "worst": 8.9,
+                "p1": 8.91,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0066
+              }
+            },
+            "bright": {
+              "Long form": {
+                "worst": 4.76,
+                "p1": 4.81,
+                "mean": 5.4,
+                "brightestBgLuminance": 0.107
+              },
+              "Short form": {
+                "worst": 4.92,
+                "p1": 4.94,
+                "mean": 5.49,
+                "brightestBgLuminance": 0.1013
+              },
+              "My experience": {
+                "worst": 4.94,
+                "p1": 4.94,
+                "mean": 5.51,
+                "brightestBgLuminance": 0.1007
+              },
+              "home label": {
+                "worst": 5.89,
+                "p1": 5.98,
+                "mean": 6.27,
+                "brightestBgLuminance": 0.0741
+              },
+              "home icon": {
+                "worst": 5.96,
+                "p1": 5.98,
+                "mean": 6.16,
+                "brightestBgLuminance": 0.0726
+              },
+              "work label": {
+                "worst": 6.88,
+                "p1": 6.88,
+                "mean": 7.22,
+                "brightestBgLuminance": 0.0836
+              },
+              "work icon": {
+                "worst": 6.88,
+                "p1": 6.95,
+                "mean": 7.16,
+                "brightestBgLuminance": 0.0835
+              },
+              "YouTube icon": {
+                "worst": 4.99,
+                "p1": 5.05,
+                "mean": 5.21,
+                "brightestBgLuminance": 0.0729
+              },
+              "Instagram icon": {
+                "worst": 5.01,
+                "p1": 5.05,
+                "mean": 5.2,
+                "brightestBgLuminance": 0.0724
+              },
+              "X icon": {
+                "worst": 5.06,
+                "p1": 5.06,
+                "mean": 5.21,
+                "brightestBgLuminance": 0.071
+              },
+              "Mail icon": {
+                "worst": 4.99,
+                "p1": 4.99,
+                "mean": 5.13,
+                "brightestBgLuminance": 0.0729
+              }
+            },
+            "white": {
+              "Long form": {
+                "worst": 3.02,
+                "p1": 3.02,
+                "mean": 3.15,
+                "brightestBgLuminance": 0.2097
+              },
+              "Short form": {
+                "worst": 3.02,
+                "p1": 3.02,
+                "mean": 3.19,
+                "brightestBgLuminance": 0.2097
+              },
+              "My experience": {
+                "worst": 3.02,
+                "p1": 3.02,
+                "mean": 3.17,
+                "brightestBgLuminance": 0.2097
+              },
+              "home label": {
+                "worst": 3.78,
+                "p1": 3.78,
+                "mean": 3.96,
+                "brightestBgLuminance": 0.1527
+              },
+              "home icon": {
+                "worst": 3.78,
+                "p1": 3.82,
+                "mean": 3.95,
+                "brightestBgLuminance": 0.1527
+              },
+              "work label": {
+                "worst": 4.51,
+                "p1": 4.52,
+                "mean": 4.7,
+                "brightestBgLuminance": 0.1536
+              },
+              "work icon": {
+                "worst": 4.51,
+                "p1": 4.52,
+                "mean": 4.66,
+                "brightestBgLuminance": 0.1536
+              },
+              "YouTube icon": {
+                "worst": 3.36,
+                "p1": 3.37,
+                "mean": 3.5,
+                "brightestBgLuminance": 0.1536
+              },
+              "Instagram icon": {
+                "worst": 3.36,
+                "p1": 3.36,
+                "mean": 3.49,
+                "brightestBgLuminance": 0.1536
+              },
+              "X icon": {
+                "worst": 3.36,
+                "p1": 3.36,
+                "mean": 3.5,
+                "brightestBgLuminance": 0.1536
+              },
+              "Mail icon": {
+                "worst": 3.36,
+                "p1": 3.36,
+                "mean": 3.5,
+                "brightestBgLuminance": 0.1536
+              }
+            }
+          },
+          "worstContrast": {
+            "none": 8.86,
+            "bright": 4.76,
+            "white": 3.02
+          },
+          "passesBrightest": true,
+          "foot": [
+            {
+              "where": "centre",
+              "ring": "long-1",
+              "pixelsOutsideDock": 1184664,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [
+                "top"
+              ],
+              "pass": true
+            },
+            {
+              "where": "left",
+              "ring": "long-1",
+              "pixelsOutsideDock": 1184664,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [
+                "left",
+                "top"
+              ],
+              "pass": true
+            },
+            {
+              "where": "right",
+              "ring": "long-1",
+              "pixelsOutsideDock": 1184664,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [
+                "right",
+                "top"
+              ],
+              "pass": true
+            },
+            {
+              "where": "top",
+              "ring": "long-1",
+              "pixelsOutsideDock": 1184664,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [
+                "top"
+              ],
+              "pass": true
+            }
+          ],
+          "footPasses": true
+        },
+        "320x568": {
+          "brightestThumbnail": {
+            "asked": 21,
+            "read": 21,
+            "brightest": {
+              "id": "yt--_ovL8w1TMM",
+              "tall": false,
+              "meanLuminance": 0.2526
+            },
+            "top3": [
+              [
+                "yt--_ovL8w1TMM",
+                0.2526
+              ],
+              [
+                "yt-wit1TTy0UWY",
+                0.2504
+              ],
+              [
+                "yt-dwLzJdvj63s",
+                0.2423
+              ]
+            ],
+            "median": 0.1462
+          },
+          "inksChecked": "every ink matches the page",
+          "contrast": {
+            "none": {
+              "Long form": {
+                "worst": 9.92,
+                "p1": 9.92,
+                "mean": 10.33,
+                "brightestBgLuminance": 0.0196
+              },
+              "Short form": {
+                "worst": 9.92,
+                "p1": 9.92,
+                "mean": 10.33,
+                "brightestBgLuminance": 0.0196
+              },
+              "My experience": {
+                "worst": 9.92,
+                "p1": 9.92,
+                "mean": 10.33,
+                "brightestBgLuminance": 0.0196
+              },
+              "home label": {
+                "worst": 11.87,
+                "p1": 11.88,
+                "mean": 12.03,
+                "brightestBgLuminance": 0.0065
+              },
+              "home icon": {
+                "worst": 11.88,
+                "p1": 11.88,
+                "mean": 12.03,
+                "brightestBgLuminance": 0.0064
+              },
+              "work label": {
+                "worst": 14.02,
+                "p1": 14.03,
+                "mean": 14.27,
+                "brightestBgLuminance": 0.0155
+              },
+              "work icon": {
+                "worst": 14.02,
+                "p1": 14.03,
+                "mean": 14.27,
+                "brightestBgLuminance": 0.0155
+              },
+              "YouTube icon": {
+                "worst": 8.86,
+                "p1": 8.87,
+                "mean": 8.98,
+                "brightestBgLuminance": 0.007
+              },
+              "Instagram icon": {
+                "worst": 8.87,
+                "p1": 8.87,
+                "mean": 8.98,
+                "brightestBgLuminance": 0.0069
+              },
+              "X icon": {
+                "worst": 8.9,
+                "p1": 8.9,
+                "mean": 8.99,
+                "brightestBgLuminance": 0.0066
+              },
+              "Mail icon": {
+                "worst": 8.9,
+                "p1": 8.91,
+                "mean": 9.01,
+                "brightestBgLuminance": 0.0066
+              }
+            },
+            "bright": {
+              "Long form": {
+                "worst": 4.95,
+                "p1": 4.98,
+                "mean": 5.63,
+                "brightestBgLuminance": 0.1003
+              },
+              "Short form": {
+                "worst": 5.15,
+                "p1": 5.15,
+                "mean": 5.7,
+                "brightestBgLuminance": 0.094
+              },
+              "My experience": {
+                "worst": 4.93,
+                "p1": 4.94,
+                "mean": 5.38,
+                "brightestBgLuminance": 0.101
+              },
+              "home label": {
+                "worst": 6.23,
+                "p1": 6.24,
+                "mean": 6.55,
+                "brightestBgLuminance": 0.0667
+              },
+              "home icon": {
+                "worst": 6.2,
+                "p1": 6.22,
+                "mean": 6.4,
+                "brightestBgLuminance": 0.0673
+              },
+              "work label": {
+                "worst": 7.21,
+                "p1": 7.28,
+                "mean": 7.56,
+                "brightestBgLuminance": 0.0774
+              },
+              "work icon": {
+                "worst": 7.21,
+                "p1": 7.21,
+                "mean": 7.44,
+                "brightestBgLuminance": 0.0775
+              },
+              "YouTube icon": {
+                "worst": 5.19,
+                "p1": 5.24,
+                "mean": 5.41,
+                "brightestBgLuminance": 0.0671
+              },
+              "Instagram icon": {
+                "worst": 5.2,
+                "p1": 5.21,
+                "mean": 5.36,
+                "brightestBgLuminance": 0.0667
+              },
+              "X icon": {
+                "worst": 5.14,
+                "p1": 5.16,
+                "mean": 5.3,
+                "brightestBgLuminance": 0.0685
+              },
+              "Mail icon": {
+                "worst": 5.01,
+                "p1": 5.05,
+                "mean": 5.16,
+                "brightestBgLuminance": 0.0725
+              }
+            },
+            "white": {
+              "Long form": {
+                "worst": 3.1,
+                "p1": 3.1,
+                "mean": 3.28,
+                "brightestBgLuminance": 0.2026
+              },
+              "Short form": {
+                "worst": 3.14,
+                "p1": 3.14,
+                "mean": 3.35,
+                "brightestBgLuminance": 0.1991
+              },
+              "My experience": {
+                "worst": 3.1,
+                "p1": 3.1,
+                "mean": 3.37,
+                "brightestBgLuminance": 0.2026
+              },
+              "home label": {
+                "worst": 3.99,
+                "p1": 4.03,
+                "mean": 4.14,
+                "brightestBgLuminance": 0.1411
+              },
+              "home icon": {
+                "worst": 3.99,
+                "p1": 4.03,
+                "mean": 4.12,
+                "brightestBgLuminance": 0.1411
+              },
+              "work label": {
+                "worst": 4.72,
+                "p1": 4.77,
+                "mean": 4.91,
+                "brightestBgLuminance": 0.1446
+              },
+              "work icon": {
+                "worst": 4.7,
+                "p1": 4.72,
+                "mean": 4.84,
+                "brightestBgLuminance": 0.1456
+              },
+              "YouTube icon": {
+                "worst": 3.53,
+                "p1": 3.56,
+                "mean": 3.65,
+                "brightestBgLuminance": 0.1411
+              },
+              "Instagram icon": {
+                "worst": 3.53,
+                "p1": 3.53,
+                "mean": 3.63,
+                "brightestBgLuminance": 0.1411
+              },
+              "X icon": {
+                "worst": 3.53,
+                "p1": 3.56,
+                "mean": 3.64,
+                "brightestBgLuminance": 0.1411
+              },
+              "Mail icon": {
+                "worst": 3.53,
+                "p1": 3.55,
+                "mean": 3.63,
+                "brightestBgLuminance": 0.1411
+              }
+            }
+          },
+          "worstContrast": {
+            "none": 8.86,
+            "bright": 4.93,
+            "white": 3.1
+          },
+          "passesBrightest": true,
+          "foot": [
+            {
+              "where": "centre",
+              "ring": "long-1",
+              "pixelsOutsideDock": 612360,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [],
+              "pass": true
+            },
+            {
+              "where": "left",
+              "ring": "long-1",
+              "pixelsOutsideDock": 612360,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [
+                "left"
+              ],
+              "pass": true
+            },
+            {
+              "where": "right",
+              "ring": "long-1",
+              "pixelsOutsideDock": 612360,
+              "maxDarkerWithDock": 0,
+              "at": null,
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [
+                "right"
+              ],
+              "pass": true
+            },
+            {
+              "where": "top",
+              "ring": "long-1",
+              "pixelsOutsideDock": 612360,
+              "maxDarkerWithDock": 1,
+              "at": [
+                237,
+                20
+              ],
+              "pixelsDarkerBy3OrMore": 0,
+              "tileReachesEdges": [],
+              "pass": true
+            }
+          ],
+          "footPasses": true
+        }
+      }
+    }
+  },
+  "summary": {
+    "tintBefore": 0.46,
+    "tintAfter": 0.58,
+    "worstContrastWithBrightestThumbnail": {
+      "1440x900": {
+        "before": 3.87,
+        "after": 4.73
+      },
+      "390x844": {
+        "before": 3.85,
+        "after": 4.76
+      },
+      "320x568": {
+        "before": 4,
+        "after": 4.93
+      }
+    },
+    "sweepAt1440x900": {
+      "0.46": 3.87,
+      "0.52": 4.3,
+      "0.55": 4.48,
+      "0.58": 4.73
+    },
+    "notes": [
+      "before = the dock as it was (tint 0.46, a soft black drop shadow outside the glass) measured inside the glass only; the shadow never touched the labels.",
+      "after = tint 0.58 and no drop shadow. 0.55 is 4.48 at 1440 by 900, so 0.58 is the smallest of the steps tried that holds 4.5 to 1 at all three sizes.",
+      "contrast is the worst pixel of each label's box (not the mean): the label's own ink over the picture with its text hidden, WCAG relative luminance.",
+      "white is a pure white tile, the bound no picture can pass; the dock is not asked to hold it."
+    ]
+  }
+}

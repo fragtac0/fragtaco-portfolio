@@ -6,7 +6,7 @@
  * filters once where nobody sees them, so the first change after a load does no first-time work (R56, spec 4).
  *
  * The work is done a tile at a time with a gap between (so none is a long task) and it stops while a change runs (the marks on
- * <html> say so), so it can never land inside the 2.5 s of a reveal; most important first: the glow and shade gradients (only
+ * <html> say so), so it can never land inside the 2.25 s of a reveal; most important first: the glow and shade gradients (only
  * strings, injected at once), the mask's sheet, the glow's, the shade's, then the bend. A change that starts before they are ready,
  * or after a step failed, draws what it can: plain gradients for the edge, the glow and the shade, and no bend if its tiles or the
  * vignette for this screen's size are missing. Nothing at all is made when the browser has no View Transitions (the page just

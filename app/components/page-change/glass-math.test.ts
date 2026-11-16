@@ -26,8 +26,8 @@ import {
 const radial = { radius: 1000 };
 
 describe("GLASS", () => {
-  it("holds the follow-up spec's numbers (4): 2.5 s, a 15% band, a bend of 5.7% of the height capped at 64 px, a 12% wander, a colour split", () => {
-    expect(GLASS).toEqual({ ms: 2500, band: 0.15, bendShare: 0.057, bendMaxPx: 64 });
+  it("holds the follow-up spec's numbers (4) with the second look's length (spec 5): 2.25 s, a 15% band, a bend of 5.7% of the height capped at 64 px, a 12% wander, a colour split", () => {
+    expect(GLASS).toEqual({ ms: 2250, band: 0.15, bendShare: 0.057, bendMaxPx: 64 });
     expect(WARP).toBe(0.12);
     expect(SPLIT).toEqual({ r: 1.29, g: 1, b: 0.71 });
     expect(UNCOVERED_AT).toBe(0.95);

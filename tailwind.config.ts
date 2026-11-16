@@ -25,8 +25,9 @@ const config: Config = {
         space: ['"Space Mono"', "monospace"],
       },
       boxShadow: {
-        "nav-glass":
-          "0 18px 60px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,236,214,0.24), inset 0 -1px 0 rgba(255,255,255,0.05)",
+        // The dock's lit edges, inside the glass only. It had a soft black drop shadow round it (0 18px 60px at 38%) until R56.4: over a thumbnail that passes
+        // under the glass that read as a dark box behind the dock (the owner's note, 16 Nov), so nothing outside the glass is darker than it would be without it.
+        "nav-glass": "inset 0 1px 0 rgba(255,236,214,0.24), inset 0 -1px 0 rgba(255,255,255,0.05)",
       },
     },
   },

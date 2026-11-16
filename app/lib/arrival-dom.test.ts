@@ -50,7 +50,7 @@ describe("holdImages", () => {
     await adv(500);
     expect((await waited).late).toEqual(["map"]);
     endArrival(); // the change is over, the picture has still not come
-    await adv(2500);
+    await adv(2250);
     expect(p.veil.play).not.toHaveBeenCalled();
     expect(p.veil.cancel).not.toHaveBeenCalled(); // still held at 0
     p.land();

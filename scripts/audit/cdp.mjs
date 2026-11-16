@@ -224,8 +224,8 @@ for (const s of steps) {
     console.log(JSON.stringify({ step: s.label ?? "sample", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description }));
   }
   if (s.contrast) {
-    // `contrast`: [{name, selector, ink: [r, g, b, a]}]: hides the text of each (visibility), photographs the page and prints the contrast of the ink over the picture behind it
-    const boxes = (await send("Runtime.evaluate", { expression: `(()=>{const o=[];for(const it of ${JSON.stringify(s.contrast)}){const e=document.querySelector(it.selector);if(!e)continue;const r=e.getBoundingClientRect();o.push({name:it.name,x:r.left,y:r.top,w:r.width,h:r.height,ink:it.ink});if(it.glass){for(const n of [e,...e.querySelectorAll('*')])n.style.setProperty('color','transparent','important');e.style.setProperty('outline','none','important')}else e.style.visibility='hidden'}return o})()`, returnByValue: true })).result?.result?.value ?? [];
+    // `contrast`: [{name, selector, ink: [r, g, b, a], glass?, text? (R56.4: the box is the element's text, not its padding box, whose corners can lie outside a rounded glass), clip? (a selector: the box is cut to that element's, less `inset` px all round: for a label a scrolling dock row pushes under the glass's rounded edge), save?}]: hides the text of each (visibility), photographs the page and prints the contrast of the ink over the picture behind it
+    const boxes = (await send("Runtime.evaluate", { expression: `(()=>{const o=[];for(const it of ${JSON.stringify(s.contrast)}){const e=document.querySelector(it.selector);if(!e)continue;const r=(()=>{if(!it.text)return e.getBoundingClientRect();const g=document.createRange();g.selectNodeContents(e);return g.getBoundingClientRect()})();const c=it.clip?document.querySelector(it.clip)?.getBoundingClientRect():null,n=it.inset??0;const x0=c?Math.max(r.left,c.left+n):r.left,y0=c?Math.max(r.top,c.top+n):r.top,x1=c?Math.min(r.right,c.right-n):r.right,y1=c?Math.min(r.bottom,c.bottom-n):r.bottom;o.push({name:it.name,x:x0,y:y0,w:Math.max(1,x1-x0),h:Math.max(1,y1-y0),ink:it.ink});if(it.glass){for(const n of [e,...e.querySelectorAll('*')])n.style.setProperty('color','transparent','important');e.style.setProperty('outline','none','important')}else e.style.visibility='hidden'}return o})()`, returnByValue: true })).result?.result?.value ?? [];
     await sleep(300); await send("Page.captureScreenshot", { format: "png" });
     const png = await send("Page.captureScreenshot", { format: "png" });
     if (s.contrast.some(it => it.save)) writeFileSync(`${outDir}/${s.contrast.find(it => it.save).save}.png`, Buffer.from(png.result.data, "base64"));
@@ -238,6 +238,13 @@ for (const s of steps) {
     const r = await send("Page.captureScreenshot", { format: "jpeg", quality: 85 });
     writeFileSync(`${outDir}/${s.shot}.jpg`, Buffer.from(r.result.data, "base64"));
     console.log(JSON.stringify({ step: "shot", file: `${outDir}/${s.shot}.jpg` }));
+  }
+  if (s.png) {
+    // `png` (R56.4): a lossless picture, for checks that compare pixels (two shots of an unchanged page are identical); a throwaway shot first, as headless lags a frame
+    await sleep(200); await send("Page.captureScreenshot", { format: "png" });
+    const r = await send("Page.captureScreenshot", { format: "png" });
+    writeFileSync(`${outDir}/${s.png}.png`, Buffer.from(r.result.data, "base64"));
+    console.log(JSON.stringify({ step: "png", file: `${outDir}/${s.png}.png` }));
   }
 }
 ws.close(); chrome.kill();

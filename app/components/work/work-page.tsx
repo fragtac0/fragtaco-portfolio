@@ -7,7 +7,6 @@ import { introLine } from "./ring-layout";
 import Rings from "./rings";
 import { ROW_ID } from "./work-switcher";
 import "./work.css";
-import "./work-keep-out.css";
 
 // Layout effects warn on the server; the effect below never runs there.
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
