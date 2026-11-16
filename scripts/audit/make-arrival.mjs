@@ -5,7 +5,7 @@
 //
 // For each of the six changes (home to portfolio, portfolio to long form, to short form, to my experience, to home, and long form to portfolio) at each
 // size, in a fresh headless Chrome: the change is run once to warm the pictures and the code (its numbers are kept as `cold`), then again and
-// frozen at 99% of its time (F: the change's animations are paused at 2475 ms of the 2500, `--at`), photographed; ended (every animation finished) and photographed at
+// frozen at 99% of its time (F: the change's animations are paused at 99% of GLASS.ms, 2228 ms of the 2250 since R56.4, `--at`), photographed; ended (every animation finished) and photographed at
 // once (E, with how many ms after the end); and photographed again 700 ms later (L). Pixels differ when their luma differs by more than 25 levels
 // (the share of all pixels). The pass conditions are spec 5.4's:
 //   - F against E under 0.5%;
@@ -29,6 +29,7 @@ import sharp from "sharp";
 import { arm, goAndWarm, sleep, withBrowser } from "./arrival-browser.mjs";
 import { DOCK_BOX, END, FREEZE, MASK_BOXES, PLAY, REST_RESULT, RING_ANIM, SNAP } from "./arrival-page.mjs";
 import { compare, domChanges, luma, sameBox } from "./arrival-pixels.mjs";
+import { glassMs } from "./glass-constants.mjs";
 import { writeSteps } from "./make-arrival-steps.mjs";
 
 const argv = process.argv.slice(2);
@@ -47,7 +48,7 @@ const SIZES = opt("sizes", "1512x982@2,390x844@3").split(",").map((s) => s.split
 const ONLY = opt("only", "").split(",").filter(Boolean);
 const JSON_OUT = opt("json", "");
 const GENERATED = argv.includes("--generated");
-const FREEZE_AT = Number(opt("at", "2475")); // 99% of the 2500 ms
+const FREEZE_AT = Number(opt("at", String(Math.round(glassMs() * 0.99)))); // 99% of the change (GLASS.ms read from the source: 2228 ms of the 2250 since R56.4; it was 2475 of 2500)
 const BLOCKED_ONLY = argv.includes("--blocked-only");
 const BASE = process.env.BASE ?? "http://localhost:5180";
 mkdirSync(outDir, { recursive: true });

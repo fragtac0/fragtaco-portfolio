@@ -2778,10 +2778,11 @@
       "0.58": 4.73
     },
     "notes": [
-      "before = the dock as it was (tint 0.46, a soft black drop shadow outside the glass) measured inside the glass only; the shadow never touched the labels.",
+      "before = the glass at its old tint, 0.46, set on this build with the page's --dock-tint (so the picture behind and the build are the same as for after); the old soft black drop shadow lies outside the glass and never touched a label, so it does not enter the number.",
       "after = tint 0.58 and no drop shadow. 0.55 is 4.48 at 1440 by 900, so 0.58 is the smallest of the steps tried that holds 4.5 to 1 at all three sizes.",
       "contrast is the worst pixel of each label's box (not the mean): the label's own ink over the picture with its text hidden, WCAG relative luminance.",
-      "white is a pure white tile, the bound no picture can pass; the dock is not asked to hold it."
+      "white is a pure white tile, the bound no picture can pass; the dock is not asked to hold it.",
+      "a second full run of the final build (label 'final' in the work folder, not kept here) gave the same worst contrasts: 4.73, 4.76, 4.93."
     ]
   }
 }

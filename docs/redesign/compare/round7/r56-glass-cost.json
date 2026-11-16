@@ -1,726 +1,889 @@
 {
- "what": "R56.1 cost gate (round 7 change-arrival spec 4): busy time of the top-level tasks on the renderer's compositor thread and the display compositor thread inside one warmed change from home to the portfolio page, from scripts/audit/make-glass-cost.mjs (a trace between two performance marks), headless Chrome on an M4 Pro. Gate: Renderer/Compositor at most 450 ms, GPU Process/VizCompositorThread at most 300 ms, every frame presented (no STATE_DROPPED), three runs each, all three must pass. The busy times sum top-level tasks together with the thread-controller wrapper task round each (both are `toplevel` slices), so each is about 2x the thread's self time (a DevTools profile reads about half); the verdicts hold because the baseline, the thresholds and the ratio all use the same measure.",
- "date": "2026-11-15",
- "gate": {
-  "rendererCompositorMs": 450,
-  "vizCompositorMs": 300,
-  "runsPerSize": 3
- },
- "baseline_r54_as_built": {
-  "commit": "1477526",
-  "note": "the bend with 23 map pictures in each of two filters; `--ready glass-bend-ready` (no warm mark yet)",
-  "1512x982@2": {
-   "size": "1512x982@2",
-   "pass": false,
-   "runs": [
-    {
-     "run": 1,
-     "windowMs": 2563,
-     "rendererCompositorMs": 979,
-     "vizCompositorMs": 582,
-     "gpuMainMs": 581,
-     "rendererMainMs": 192,
-     "presented": 154,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 154
-     }
-    },
-    {
-     "run": 2,
-     "windowMs": 2564,
-     "rendererCompositorMs": 990,
-     "vizCompositorMs": 630,
-     "gpuMainMs": 600,
-     "rendererMainMs": 193,
-     "presented": 154,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 154
-     }
-    },
-    {
-     "run": 3,
-     "windowMs": 2562,
-     "rendererCompositorMs": 988,
-     "vizCompositorMs": 622,
-     "gpuMainMs": 527,
-     "rendererMainMs": 210,
-     "presented": 155,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 155
-     }
-    }
-   ]
-  },
-  "1920x1080@1": {
-   "size": "1920x1080@1",
-   "pass": false,
-   "runs": [
-    {
-     "run": 1,
-     "windowMs": 2580,
-     "rendererCompositorMs": 1105,
-     "vizCompositorMs": 659,
-     "gpuMainMs": 629,
-     "rendererMainMs": 219,
-     "presented": 302,
-     "dropped": 1,
-     "states": {
-      "STATE_PRESENTED_PARTIAL": 149,
-      "STATE_PRESENTED_ALL": 153,
-      "STATE_DROPPED": 1
-     }
-    },
-    {
-     "run": 2,
-     "windowMs": 2580,
-     "rendererCompositorMs": 1059,
-     "vizCompositorMs": 667,
-     "gpuMainMs": 584,
-     "rendererMainMs": 220,
-     "presented": 157,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 156,
-      "STATE_PRESENTED_PARTIAL": 1
-     }
-    },
-    {
-     "run": 3,
-     "windowMs": 2577,
-     "rendererCompositorMs": 1108,
-     "vizCompositorMs": 726,
-     "gpuMainMs": 697,
-     "rendererMainMs": 237,
-     "presented": 305,
-     "dropped": 1,
-     "states": {
-      "STATE_PRESENTED_ALL": 155,
-      "STATE_PRESENTED_PARTIAL": 150,
-      "STATE_DROPPED": 1
-     }
-    }
-   ]
-  },
-  "baseline_note": "one STATE_DROPPED frame in two of the 1920 runs and a 302/305 'presented' count are the trace's double counting of partial presents at the window's edge"
- },
- "r56_1": {
-  "build": "the build that is committed as R56.1: one map picture per filter (its source swapped to the tile for the front), BEND_NEW 0.5, warm-up (filters, the bend tiles and the three sheets drawn once, `glass-warm`), guard; the two sizes were measured at a load average of about 7",
-  "1512x982@2": {
-   "size": "1512x982@2",
-   "pass": true,
-   "runs": [
-    {
-     "run": 1,
-     "windowMs": 2564,
-     "rendererCompositorMs": 287,
-     "vizCompositorMs": 199,
-     "gpuMainMs": 606,
-     "rendererMainMs": 206,
-     "presented": 155,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 155
-     }
-    },
-    {
-     "run": 2,
-     "windowMs": 2564,
-     "rendererCompositorMs": 291,
-     "vizCompositorMs": 204,
-     "gpuMainMs": 600,
-     "rendererMainMs": 201,
-     "presented": 155,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 155
-     }
-    },
-    {
-     "run": 3,
-     "windowMs": 2578,
-     "rendererCompositorMs": 283,
-     "vizCompositorMs": 198,
-     "gpuMainMs": 701,
-     "rendererMainMs": 222,
-     "presented": 157,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 156,
-      "STATE_PRESENTED_PARTIAL": 1
-     }
-    }
-   ]
-  },
-  "1920x1080@1": {
-   "size": "1920x1080@1",
-   "pass": true,
-   "runs": [
-    {
-     "run": 1,
-     "windowMs": 2580,
-     "rendererCompositorMs": 338,
-     "vizCompositorMs": 233,
-     "gpuMainMs": 916,
-     "rendererMainMs": 238,
-     "presented": 157,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 156,
-      "STATE_PRESENTED_PARTIAL": 1
-     }
-    },
-    {
-     "run": 2,
-     "windowMs": 2580,
-     "rendererCompositorMs": 340,
-     "vizCompositorMs": 232,
-     "gpuMainMs": 851,
-     "rendererMainMs": 219,
-     "presented": 156,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 155,
-      "STATE_PRESENTED_PARTIAL": 1,
-      "STATE_NO_UPDATE_DESIRED": 1
-     }
-    },
-    {
-     "run": 3,
-     "windowMs": 2563,
-     "rendererCompositorMs": 379,
-     "vizCompositorMs": 263,
-     "gpuMainMs": 2547,
-     "rendererMainMs": 235,
-     "presented": 153,
-     "dropped": 0,
-     "states": {
-      "STATE_PRESENTED_ALL": 153,
-      "STATE_NO_UPDATE_DESIRED": 1
-     }
-    }
-   ]
-  },
-  "earlier_passing_run_same_behaviour": {
-   "1512x982@2_rendererCompositorMs": [
-    295,
-    313,
-    280
-   ],
-   "1512x982@2_vizCompositorMs": [
-    209,
-    210,
-    209
-   ],
-   "1920x1080@1_rendererCompositorMs": [
-    366,
-    342,
-    348
-   ],
-   "1920x1080@1_vizCompositorMs": [
-    253,
-    229,
-    239
-   ],
-   "dropped": "0 in all six"
-  }
- },
- "discarded_noisy_run": {
-  "why": "two sets of runs were taken while other apps used the machine (Adobe After Effects at 550 to 750% CPU, load average 23 to 26 the first time; load 20 the second): dropped frames and 350 to 590 ms compositor times, so not counted (a gate for a quiet machine); the same build passed when the load was about 7",
-  "1512x982@2_rendererCompositorMs": [
-   356,
-   341,
-   380
-  ],
-  "1512x982@2_vizCompositorMs": [
-   226,
-   222,
-   267
-  ],
-  "1920x1080@1_rendererCompositorMs": [
-   590,
-   488,
-   440
-  ],
-  "1920x1080@1_vizCompositorMs": [
-   365,
-   314,
-   306
-  ],
-  "1920x1080@1_dropped": [
-   9,
-   8,
-   9
-  ],
-  "second_noisy_set": {
-   "1512x982@2_rendererCompositorMs": [
-    300,
-    522,
-    321
-   ],
-   "1512x982@2_dropped": [
-    17,
-    33,
-    0
-   ],
-   "1920x1080@1_rendererCompositorMs": [
-    365,
-    398,
-    394
-   ],
-   "1920x1080@1_dropped": [
-    10,
-    42,
-    12
-   ]
-  }
- },
- "intermediate_attempt": {
-  "what": "one sheet of all the bend tiles as the one map picture, laid so that one tile is over the screen (the picture many screens wide): 1512x982@2 renderer compositor 1227/1290/1149 ms, viz 909/885/868 ms, dropped 1/4/5: worse than the 23-picture build, dropped. Replaced by one picture whose source is swapped (data addresses, all 23 warmed through the filter)."
- },
- "cold_first_change": {
-  "how": "scripts/audit/page-change.json (home to work first, CPU 4 times slower, 1440 by 900 at 2x), the first change after a load, `glass-warm` waited for",
-  "page-change.json_final_build_3_runs": "3 of 3 first changes with no frame over 34 ms (max 33.3, 33.3, 33.3), all 15 changes of the three runs with no frame over 34 ms, bend on in every change, the guard never tripped",
-  "page-change-hook.json_final_build_5_runs": "3 of 5 runs clean; run 1 had a 133 ms frame at 2311 ms and a 50 ms frame at 2361 ms in its first change (not reproduced in the next 4 runs), run 2 a 50 ms frame at 220 ms in its first change",
-  "page-change-phone.json_2_runs": "all 10 changes clean (max 16.8 ms)",
-  "frames_at_about_240_ms": "A 50 ms frame about 190 to 270 ms after the click in the first change to /work is the new page's mount, not the glass: with the glass switched off (the plain crossfade) 3 of 8 cold first changes had it too (frames at 191, 206 and 218 ms); on the R54 build 5 of 8 first changes had a frame over 34 ms (one of 400 ms), on this build before the sheets were warmed 3 of 8. The renderer main thread has 20 to 30 ms tasks at 60 to 160 ms and about 310 ms into the change at CPU 4x (a trace of four cold changes). That is task 28's hold (the new page's work before the reveal)."
- },
- "review_focus": {
-  "3_change_before_warm": "scripts/audit/glass-warm.json A and C: a change started before glass-warm runs with no frame carrying data-glass, ends, leaves the maps and pushes at 0; a change started while the warm-up is drawing removes its elements in the same task (no frame of the change has one) and the warm-up runs again after the change; the next change has the bend (152 of 154 frames)",
-  "4_resize": "glass-warm.json B: after a resize a change at once has no bend, the vignette is made again for the new size and warmed again (a second glass-warm mark), the next change has the bend, vignette width = innerWidth"
- },
- "pictures": {
-  "r56-change-beside-r54.jpg": "20, 35, 50, 65 and 80% of experience to home, R54 left, R56 right (the arriving painting is picked at random per load, so it differs between the columns)",
-  "r56-change-old-page-r54-r56.jpg": "the page being left alone (the arriving page's picture hidden) at 35, 50 and 65%: R54, R56 and their difference times 8; the difference is image noise, no bend difference"
- },
- "old_page_difference": "with the arriving picture hidden, R54 against R56 at 20, 35, 50, 65 and 80%: mean absolute luma difference 0.70 to 0.82 on a 0 to 255 scale (the noise floor at 20% is 0.70), 0.0 to 0.07% of pixels differ by more than 16",
- "fix_round_r56_1b": {
-  "what": "R56.1b, the fix round after the review of R56.1: the CrGpuMain question, the gate again at both sizes with the new build, and the notes on the cold first change",
+  "what": "R56.1 cost gate (round 7 change-arrival spec 4): busy time of the top-level tasks on the renderer's compositor thread and the display compositor thread inside one warmed change from home to the portfolio page, from scripts/audit/make-glass-cost.mjs (a trace between two performance marks), headless Chrome on an M4 Pro. Gate: Renderer/Compositor at most 450 ms, GPU Process/VizCompositorThread at most 300 ms, every frame presented (no STATE_DROPPED), three runs each, all three must pass. The busy times sum top-level tasks together with the thread-controller wrapper task round each (both are `toplevel` slices), so each is about 2x the thread's self time (a DevTools profile reads about half); the verdicts hold because the baseline, the thresholds and the ratio all use the same measure.",
   "date": "2026-11-15",
-  "build": "R56.1b: R56.1 plus the warm-up loop that re-checks the vignette, the sheet hosts of the warm-up drawn in a 3 px square (no longer full-screen at 1% opacity), the revoked vignette address, pushScale and the comment fixes",
-  "gpu_main_thread_question": {
-   "asked": "in the review of R56.1: gpuMainMs (busy time of the top-level tasks on GPU Process/CrGpuMain) went from 629/584/697 (R54) to 916/851/2547 (R56.1) at 1920x1080@1, 2547 of a 2563 ms window in the third run",
-   "answer": "It is waiting, not work, and it is not a texture upload or a decode. make-glass-cost.mjs now names the slices behind the number (self time by name, gpuMainTop, split into waits and work as gpuMainWaitMs and gpuMainWorkMs; --gpu-detail adds the GPU service and ANGLE categories). On both builds the thread spends its time in two waits: CALayerTreeCoordinator::ApplyBackpressure::Metal (the thread blocked, polling every millisecond, until the display hands it a drawable; it grows when the display is busy or the machine is loaded: 23 to 1,669 ms in the same build) and IOSurfaceImageBacking::WaitForCommandsToBeScheduled::Dawn (waiting for the renderer compositor to have scheduled its commands; 44 to 1,585 ms, the larger on R54 whose renderer compositor is slower). What it works at is the same in both builds: SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass about 90 to 116 ms, RasterDecoderImpl::DoEndRasterCHROMIUM::Flush about 50 ms, SubmitToGPU about 80 to 96 ms, and graphite DrawAtlas::recordUploads 11 ms (the only upload slice; the 23 href swaps per filter leave no slice of their own, no image decode is on the thread). Work (self time less the waits): R56.1b 228 to 256 ms at both sizes in 6 runs; R54 173 to 283 ms in 6 runs. The toplevel sum in gpuMainMs also counts a task and the thread-controller task around it twice (the self time is half of it), which is why one run showed nearly the whole window.",
-   "answer_wording_after_re_review": "CrGpuMain's own work is unchanged; the rest is waiting on the display or GPU pipeline, which grows with load and is no larger than R54's in the same hour. (A CPU trace cannot tell the display's wait from the GPU running the page's own filters, and every sliced run was on a loaded machine, so the load is inferred from the variance between runs, not isolated.)",
-   "so": "nothing was reduced: there is no per-swap upload or decode to remove. The gate stays on the two compositor threads. A display that is busy (After Effects at 170% CPU and a WindowServer at 60% during these runs) lengthens the backpressure wait in either build; a dropped frame count above 0 together with a long ApplyBackpressure is the machine, and the gate is for a quiet one.",
-   "runs_with_slices_R56_1b": {
+  "gate": {
+    "rendererCompositorMs": 450,
+    "vizCompositorMs": 300,
+    "runsPerSize": 3
+  },
+  "baseline_r54_as_built": {
+    "commit": "1477526",
+    "note": "the bend with 23 map pictures in each of two filters; `--ready glass-bend-ready` (no warm mark yet)",
     "1512x982@2": {
-     "rendererCompositorMs": [
-      305,
-      295,
-      287
-     ],
-     "vizCompositorMs": [
-      204,
-      217,
-      190
-     ],
-     "dropped": [
-      0,
-      0,
-      0
-     ],
-     "gpuMainMs": [
-      667,
-      601,
-      671
-     ],
-     "gpuMainSelfMs": [
-      336,
-      303,
-      339
-     ],
-     "gpuMainWaitMs": [
-      99,
-      47,
-      100
-     ],
-     "gpuMainWorkMs": [
-      237,
-      256,
-      239
-     ]
+      "size": "1512x982@2",
+      "pass": false,
+      "runs": [
+        {
+          "run": 1,
+          "windowMs": 2563,
+          "rendererCompositorMs": 979,
+          "vizCompositorMs": 582,
+          "gpuMainMs": 581,
+          "rendererMainMs": 192,
+          "presented": 154,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 154
+          }
+        },
+        {
+          "run": 2,
+          "windowMs": 2564,
+          "rendererCompositorMs": 990,
+          "vizCompositorMs": 630,
+          "gpuMainMs": 600,
+          "rendererMainMs": 193,
+          "presented": 154,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 154
+          }
+        },
+        {
+          "run": 3,
+          "windowMs": 2562,
+          "rendererCompositorMs": 988,
+          "vizCompositorMs": 622,
+          "gpuMainMs": 527,
+          "rendererMainMs": 210,
+          "presented": 155,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 155
+          }
+        }
+      ]
     },
     "1920x1080@1": {
-     "rendererCompositorMs": [
-      376,
-      354,
-      353
-     ],
-     "vizCompositorMs": [
-      260,
-      250,
-      244
-     ],
-     "dropped": [
-      0,
-      0,
-      0
-     ],
-     "gpuMainMs": [
-      2588,
-      1096,
-      977
-     ],
-     "gpuMainSelfMs": [
-      1297,
-      551,
-      491
-     ],
-     "gpuMainWaitMs": [
-      1066,
-      315,
-      263
-     ],
-     "gpuMainWorkMs": [
-      230,
-      236,
-      228
-     ]
+      "size": "1920x1080@1",
+      "pass": false,
+      "runs": [
+        {
+          "run": 1,
+          "windowMs": 2580,
+          "rendererCompositorMs": 1105,
+          "vizCompositorMs": 659,
+          "gpuMainMs": 629,
+          "rendererMainMs": 219,
+          "presented": 302,
+          "dropped": 1,
+          "states": {
+            "STATE_PRESENTED_PARTIAL": 149,
+            "STATE_PRESENTED_ALL": 153,
+            "STATE_DROPPED": 1
+          }
+        },
+        {
+          "run": 2,
+          "windowMs": 2580,
+          "rendererCompositorMs": 1059,
+          "vizCompositorMs": 667,
+          "gpuMainMs": 584,
+          "rendererMainMs": 220,
+          "presented": 157,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 156,
+            "STATE_PRESENTED_PARTIAL": 1
+          }
+        },
+        {
+          "run": 3,
+          "windowMs": 2577,
+          "rendererCompositorMs": 1108,
+          "vizCompositorMs": 726,
+          "gpuMainMs": 697,
+          "rendererMainMs": 237,
+          "presented": 305,
+          "dropped": 1,
+          "states": {
+            "STATE_PRESENTED_ALL": 155,
+            "STATE_PRESENTED_PARTIAL": 150,
+            "STATE_DROPPED": 1
+          }
+        }
+      ]
+    },
+    "baseline_note": "one STATE_DROPPED frame in two of the 1920 runs and a 302/305 'presented' count are the trace's double counting of partial presents at the window's edge"
+  },
+  "r56_1": {
+    "build": "the build that is committed as R56.1: one map picture per filter (its source swapped to the tile for the front), BEND_NEW 0.5, warm-up (filters, the bend tiles and the three sheets drawn once, `glass-warm`), guard; the two sizes were measured at a load average of about 7",
+    "1512x982@2": {
+      "size": "1512x982@2",
+      "pass": true,
+      "runs": [
+        {
+          "run": 1,
+          "windowMs": 2564,
+          "rendererCompositorMs": 287,
+          "vizCompositorMs": 199,
+          "gpuMainMs": 606,
+          "rendererMainMs": 206,
+          "presented": 155,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 155
+          }
+        },
+        {
+          "run": 2,
+          "windowMs": 2564,
+          "rendererCompositorMs": 291,
+          "vizCompositorMs": 204,
+          "gpuMainMs": 600,
+          "rendererMainMs": 201,
+          "presented": 155,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 155
+          }
+        },
+        {
+          "run": 3,
+          "windowMs": 2578,
+          "rendererCompositorMs": 283,
+          "vizCompositorMs": 198,
+          "gpuMainMs": 701,
+          "rendererMainMs": 222,
+          "presented": 157,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 156,
+            "STATE_PRESENTED_PARTIAL": 1
+          }
+        }
+      ]
+    },
+    "1920x1080@1": {
+      "size": "1920x1080@1",
+      "pass": true,
+      "runs": [
+        {
+          "run": 1,
+          "windowMs": 2580,
+          "rendererCompositorMs": 338,
+          "vizCompositorMs": 233,
+          "gpuMainMs": 916,
+          "rendererMainMs": 238,
+          "presented": 157,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 156,
+            "STATE_PRESENTED_PARTIAL": 1
+          }
+        },
+        {
+          "run": 2,
+          "windowMs": 2580,
+          "rendererCompositorMs": 340,
+          "vizCompositorMs": 232,
+          "gpuMainMs": 851,
+          "rendererMainMs": 219,
+          "presented": 156,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 155,
+            "STATE_PRESENTED_PARTIAL": 1,
+            "STATE_NO_UPDATE_DESIRED": 1
+          }
+        },
+        {
+          "run": 3,
+          "windowMs": 2563,
+          "rendererCompositorMs": 379,
+          "vizCompositorMs": 263,
+          "gpuMainMs": 2547,
+          "rendererMainMs": 235,
+          "presented": 153,
+          "dropped": 0,
+          "states": {
+            "STATE_PRESENTED_ALL": 153,
+            "STATE_NO_UPDATE_DESIRED": 1
+          }
+        }
+      ]
+    },
+    "earlier_passing_run_same_behaviour": {
+      "1512x982@2_rendererCompositorMs": [
+        295,
+        313,
+        280
+      ],
+      "1512x982@2_vizCompositorMs": [
+        209,
+        210,
+        209
+      ],
+      "1920x1080@1_rendererCompositorMs": [
+        366,
+        342,
+        348
+      ],
+      "1920x1080@1_vizCompositorMs": [
+        253,
+        229,
+        239
+      ],
+      "dropped": "0 in all six"
     }
-   },
-   "runs_with_slices_R54": {
-    "1512x982@2": {
-     "rendererCompositorMs": [
-      1052,
-      1388,
-      820
-     ],
-     "vizCompositorMs": [
-      686,
-      822,
-      467
-     ],
-     "dropped": [
-      0,
-      0,
-      67
-     ],
-     "gpuMainMs": [
-      712,
-      1150,
-      5058
-     ],
-     "gpuMainSelfMs": [
-      358,
-      578,
-      2531
-     ],
-     "gpuMainWaitMs": [
-      89,
-      295,
-      2358
-     ],
-     "gpuMainWorkMs": [
-      270,
-      283,
-      173
-     ]
-    },
-    "1920x1080@1": {
-     "rendererCompositorMs": [
-      904,
-      998,
-      914
-     ],
-     "vizCompositorMs": [
-      636,
-      636,
-      580
-     ],
-     "dropped": [
-      37,
-      18,
-      51
-     ],
-     "gpuMainMs": [
-      5018,
-      4993,
-      5110
-     ],
-     "gpuMainSelfMs": [
-      2511,
-      2499,
-      2558
-     ],
-     "gpuMainWaitMs": [
-      2305,
-      2273,
-      2358
-     ],
-     "gpuMainWorkMs": [
-      207,
+  },
+  "discarded_noisy_run": {
+    "why": "two sets of runs were taken while other apps used the machine (Adobe After Effects at 550 to 750% CPU, load average 23 to 26 the first time; load 20 the second): dropped frames and 350 to 590 ms compositor times, so not counted (a gate for a quiet machine); the same build passed when the load was about 7",
+    "1512x982@2_rendererCompositorMs": [
+      356,
+      341,
+      380
+    ],
+    "1512x982@2_vizCompositorMs": [
       226,
-      199
-     ]
+      222,
+      267
+    ],
+    "1920x1080@1_rendererCompositorMs": [
+      590,
+      488,
+      440
+    ],
+    "1920x1080@1_vizCompositorMs": [
+      365,
+      314,
+      306
+    ],
+    "1920x1080@1_dropped": [
+      9,
+      8,
+      9
+    ],
+    "second_noisy_set": {
+      "1512x982@2_rendererCompositorMs": [
+        300,
+        522,
+        321
+      ],
+      "1512x982@2_dropped": [
+        17,
+        33,
+        0
+      ],
+      "1920x1080@1_rendererCompositorMs": [
+        365,
+        398,
+        394
+      ],
+      "1920x1080@1_dropped": [
+        10,
+        42,
+        12
+      ]
     }
-   },
-   "earlier_slice_runs_1920x1080@1": {
-    "R56.1_3_runs": "toplevel 4394/3075/1969, ApplyBackpressure::Metal 1681/1019/554 ms, WaitForCommandsToBeScheduled 252/285/204 ms, FinishPaintRenderPass 104/87/89 ms, DoEndRasterCHROMIUM::Flush 56/54/51 ms; renderer compositor 445/426/370, display compositor 293/241/232, dropped 3/1/2 (loaded machine)",
-    "R54_3_runs": "toplevel 4854/3408/5058, WaitForCommandsToBeScheduled 1369/909/1485 ms, ApplyBackpressure::Metal 790/518/797 ms, FinishPaintRenderPass 120/116/116 ms, DoEndRasterCHROMIUM::Flush 48/51/47 ms; renderer compositor 1349/1359/1110, display compositor 806/822/729, dropped 4/10/15 (loaded machine)",
-    "gpu_detail_runs": "2 runs each with --gpu-detail: the same names; graphite addRenderPass, TaskList::addCommands, SubmitToGPU and DrawAtlas::recordUploads are 10 to 96 ms each; nothing is named as an image decode or a texture upload of the bend tiles"
-   }
   },
-  "gate_again_r56_1b": {
-   "note": "3 runs at each size on the committed build of this round, under the gate lock; the machine was not quiet (load average 7 to 10, After Effects at about 170% CPU) and all six runs pass with no dropped frame",
-   "1512x982@2": {
-    "pass": true,
-    "rendererCompositorMs": [
-     305,
-     295,
-     287
+  "intermediate_attempt": {
+    "what": "one sheet of all the bend tiles as the one map picture, laid so that one tile is over the screen (the picture many screens wide): 1512x982@2 renderer compositor 1227/1290/1149 ms, viz 909/885/868 ms, dropped 1/4/5: worse than the 23-picture build, dropped. Replaced by one picture whose source is swapped (data addresses, all 23 warmed through the filter)."
+  },
+  "cold_first_change": {
+    "how": "scripts/audit/page-change.json (home to work first, CPU 4 times slower, 1440 by 900 at 2x), the first change after a load, `glass-warm` waited for",
+    "page-change.json_final_build_3_runs": "3 of 3 first changes with no frame over 34 ms (max 33.3, 33.3, 33.3), all 15 changes of the three runs with no frame over 34 ms, bend on in every change, the guard never tripped",
+    "page-change-hook.json_final_build_5_runs": "3 of 5 runs clean; run 1 had a 133 ms frame at 2311 ms and a 50 ms frame at 2361 ms in its first change (not reproduced in the next 4 runs), run 2 a 50 ms frame at 220 ms in its first change",
+    "page-change-phone.json_2_runs": "all 10 changes clean (max 16.8 ms)",
+    "frames_at_about_240_ms": "A 50 ms frame about 190 to 270 ms after the click in the first change to /work is the new page's mount, not the glass: with the glass switched off (the plain crossfade) 3 of 8 cold first changes had it too (frames at 191, 206 and 218 ms); on the R54 build 5 of 8 first changes had a frame over 34 ms (one of 400 ms), on this build before the sheets were warmed 3 of 8. The renderer main thread has 20 to 30 ms tasks at 60 to 160 ms and about 310 ms into the change at CPU 4x (a trace of four cold changes). That is task 28's hold (the new page's work before the reveal)."
+  },
+  "review_focus": {
+    "3_change_before_warm": "scripts/audit/glass-warm.json A and C: a change started before glass-warm runs with no frame carrying data-glass, ends, leaves the maps and pushes at 0; a change started while the warm-up is drawing removes its elements in the same task (no frame of the change has one) and the warm-up runs again after the change; the next change has the bend (152 of 154 frames)",
+    "4_resize": "glass-warm.json B: after a resize a change at once has no bend, the vignette is made again for the new size and warmed again (a second glass-warm mark), the next change has the bend, vignette width = innerWidth"
+  },
+  "pictures": {
+    "r56-change-beside-r54.jpg": "20, 35, 50, 65 and 80% of experience to home, R54 left, R56 right (the arriving painting is picked at random per load, so it differs between the columns)",
+    "r56-change-old-page-r54-r56.jpg": "the page being left alone (the arriving page's picture hidden) at 35, 50 and 65%: R54, R56 and their difference times 8; the difference is image noise, no bend difference"
+  },
+  "old_page_difference": "with the arriving picture hidden, R54 against R56 at 20, 35, 50, 65 and 80%: mean absolute luma difference 0.70 to 0.82 on a 0 to 255 scale (the noise floor at 20% is 0.70), 0.0 to 0.07% of pixels differ by more than 16",
+  "fix_round_r56_1b": {
+    "what": "R56.1b, the fix round after the review of R56.1: the CrGpuMain question, the gate again at both sizes with the new build, and the notes on the cold first change",
+    "date": "2026-11-15",
+    "build": "R56.1b: R56.1 plus the warm-up loop that re-checks the vignette, the sheet hosts of the warm-up drawn in a 3 px square (no longer full-screen at 1% opacity), the revoked vignette address, pushScale and the comment fixes",
+    "gpu_main_thread_question": {
+      "asked": "in the review of R56.1: gpuMainMs (busy time of the top-level tasks on GPU Process/CrGpuMain) went from 629/584/697 (R54) to 916/851/2547 (R56.1) at 1920x1080@1, 2547 of a 2563 ms window in the third run",
+      "answer": "It is waiting, not work, and it is not a texture upload or a decode. make-glass-cost.mjs now names the slices behind the number (self time by name, gpuMainTop, split into waits and work as gpuMainWaitMs and gpuMainWorkMs; --gpu-detail adds the GPU service and ANGLE categories). On both builds the thread spends its time in two waits: CALayerTreeCoordinator::ApplyBackpressure::Metal (the thread blocked, polling every millisecond, until the display hands it a drawable; it grows when the display is busy or the machine is loaded: 23 to 1,669 ms in the same build) and IOSurfaceImageBacking::WaitForCommandsToBeScheduled::Dawn (waiting for the renderer compositor to have scheduled its commands; 44 to 1,585 ms, the larger on R54 whose renderer compositor is slower). What it works at is the same in both builds: SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass about 90 to 116 ms, RasterDecoderImpl::DoEndRasterCHROMIUM::Flush about 50 ms, SubmitToGPU about 80 to 96 ms, and graphite DrawAtlas::recordUploads 11 ms (the only upload slice; the 23 href swaps per filter leave no slice of their own, no image decode is on the thread). Work (self time less the waits): R56.1b 228 to 256 ms at both sizes in 6 runs; R54 173 to 283 ms in 6 runs. The toplevel sum in gpuMainMs also counts a task and the thread-controller task around it twice (the self time is half of it), which is why one run showed nearly the whole window.",
+      "answer_wording_after_re_review": "CrGpuMain's own work is unchanged; the rest is waiting on the display or GPU pipeline, which grows with load and is no larger than R54's in the same hour. (A CPU trace cannot tell the display's wait from the GPU running the page's own filters, and every sliced run was on a loaded machine, so the load is inferred from the variance between runs, not isolated.)",
+      "so": "nothing was reduced: there is no per-swap upload or decode to remove. The gate stays on the two compositor threads. A display that is busy (After Effects at 170% CPU and a WindowServer at 60% during these runs) lengthens the backpressure wait in either build; a dropped frame count above 0 together with a long ApplyBackpressure is the machine, and the gate is for a quiet one.",
+      "runs_with_slices_R56_1b": {
+        "1512x982@2": {
+          "rendererCompositorMs": [
+            305,
+            295,
+            287
+          ],
+          "vizCompositorMs": [
+            204,
+            217,
+            190
+          ],
+          "dropped": [
+            0,
+            0,
+            0
+          ],
+          "gpuMainMs": [
+            667,
+            601,
+            671
+          ],
+          "gpuMainSelfMs": [
+            336,
+            303,
+            339
+          ],
+          "gpuMainWaitMs": [
+            99,
+            47,
+            100
+          ],
+          "gpuMainWorkMs": [
+            237,
+            256,
+            239
+          ]
+        },
+        "1920x1080@1": {
+          "rendererCompositorMs": [
+            376,
+            354,
+            353
+          ],
+          "vizCompositorMs": [
+            260,
+            250,
+            244
+          ],
+          "dropped": [
+            0,
+            0,
+            0
+          ],
+          "gpuMainMs": [
+            2588,
+            1096,
+            977
+          ],
+          "gpuMainSelfMs": [
+            1297,
+            551,
+            491
+          ],
+          "gpuMainWaitMs": [
+            1066,
+            315,
+            263
+          ],
+          "gpuMainWorkMs": [
+            230,
+            236,
+            228
+          ]
+        }
+      },
+      "runs_with_slices_R54": {
+        "1512x982@2": {
+          "rendererCompositorMs": [
+            1052,
+            1388,
+            820
+          ],
+          "vizCompositorMs": [
+            686,
+            822,
+            467
+          ],
+          "dropped": [
+            0,
+            0,
+            67
+          ],
+          "gpuMainMs": [
+            712,
+            1150,
+            5058
+          ],
+          "gpuMainSelfMs": [
+            358,
+            578,
+            2531
+          ],
+          "gpuMainWaitMs": [
+            89,
+            295,
+            2358
+          ],
+          "gpuMainWorkMs": [
+            270,
+            283,
+            173
+          ]
+        },
+        "1920x1080@1": {
+          "rendererCompositorMs": [
+            904,
+            998,
+            914
+          ],
+          "vizCompositorMs": [
+            636,
+            636,
+            580
+          ],
+          "dropped": [
+            37,
+            18,
+            51
+          ],
+          "gpuMainMs": [
+            5018,
+            4993,
+            5110
+          ],
+          "gpuMainSelfMs": [
+            2511,
+            2499,
+            2558
+          ],
+          "gpuMainWaitMs": [
+            2305,
+            2273,
+            2358
+          ],
+          "gpuMainWorkMs": [
+            207,
+            226,
+            199
+          ]
+        }
+      },
+      "earlier_slice_runs_1920x1080@1": {
+        "R56.1_3_runs": "toplevel 4394/3075/1969, ApplyBackpressure::Metal 1681/1019/554 ms, WaitForCommandsToBeScheduled 252/285/204 ms, FinishPaintRenderPass 104/87/89 ms, DoEndRasterCHROMIUM::Flush 56/54/51 ms; renderer compositor 445/426/370, display compositor 293/241/232, dropped 3/1/2 (loaded machine)",
+        "R54_3_runs": "toplevel 4854/3408/5058, WaitForCommandsToBeScheduled 1369/909/1485 ms, ApplyBackpressure::Metal 790/518/797 ms, FinishPaintRenderPass 120/116/116 ms, DoEndRasterCHROMIUM::Flush 48/51/47 ms; renderer compositor 1349/1359/1110, display compositor 806/822/729, dropped 4/10/15 (loaded machine)",
+        "gpu_detail_runs": "2 runs each with --gpu-detail: the same names; graphite addRenderPass, TaskList::addCommands, SubmitToGPU and DrawAtlas::recordUploads are 10 to 96 ms each; nothing is named as an image decode or a texture upload of the bend tiles"
+      }
+    },
+    "gate_again_r56_1b": {
+      "note": "3 runs at each size on the committed build of this round, under the gate lock; the machine was not quiet (load average 7 to 10, After Effects at about 170% CPU) and all six runs pass with no dropped frame",
+      "1512x982@2": {
+        "pass": true,
+        "rendererCompositorMs": [
+          305,
+          295,
+          287
+        ],
+        "vizCompositorMs": [
+          204,
+          217,
+          190
+        ],
+        "dropped": [
+          0,
+          0,
+          0
+        ],
+        "gpuMainMs": [
+          667,
+          601,
+          671
+        ],
+        "gpuMainSelfMs": [
+          336,
+          303,
+          339
+        ],
+        "gpuMainWaitMs": [
+          99,
+          47,
+          100
+        ],
+        "gpuMainWorkMs": [
+          237,
+          256,
+          239
+        ]
+      },
+      "1920x1080@1": {
+        "pass": true,
+        "rendererCompositorMs": [
+          376,
+          354,
+          353
+        ],
+        "vizCompositorMs": [
+          260,
+          250,
+          244
+        ],
+        "dropped": [
+          0,
+          0,
+          0
+        ],
+        "gpuMainMs": [
+          2588,
+          1096,
+          977
+        ],
+        "gpuMainSelfMs": [
+          1297,
+          551,
+          491
+        ],
+        "gpuMainWaitMs": [
+          1066,
+          315,
+          263
+        ],
+        "gpuMainWorkMs": [
+          230,
+          236,
+          228
+        ]
+      },
+      "r54_same_session": "R54 on the same machine in the same hour: 1512x982@2 renderer compositor 1052/1388/820, display 686/822/467, dropped 0/0/67; 1920x1080@1 904/998/914, 636/636/580, dropped 37/18/51 (loaded machine: more drops than in the first baseline above)"
+    },
+    "long_frame_133ms": {
+      "asked": "the 133 ms frame at 2311 ms in the first change of page-change-hook.json run 1 of R56.1: name its long-animation-frame script, or say it had none",
+      "answer": "its entry was not kept: the run was summarised to the frame gaps only and the raw output of the run was not saved, so its script cannot be named. It did not come back in 11 runs of page-change-hook.json on this build (all first changes: 10 clean, 1 with a cluster of 50 to 83 ms frames at 1154 to 1604 ms into the change). The loaf entries of that cluster, which is the same kind of frame, name the page, not the glass: MessagePort.onmessage (React scheduler, components chunk) 6 to 85 ms in a frame (the new page being rendered, up to 24 ms of it forced style and layout), page timers (_index chunk) 24 to 31 ms and FrameRequestCallback of the page-change chunk (the glass tick) 6 to 14 ms; no frame is the glass tick alone. The page-mount cost is task 28's.",
+      "runs": "page-change-hook.json 11 runs: first change over 34 ms in 1 run; the other four changes of each run clean in all 11"
+    },
+    "cold_first_change_again": {
+      "page_change_json_3_runs": "first change: run 1 one frame of 100 ms at 303 ms (the machine was loaded: the same run had 6 and 8 slow frames in its next two changes, the guard dropped the bend in the second, and the tab ran the last two without it), run 2 one frame of 50 ms at 504 ms, run 3 clean (max 33.4). The R33 gate of \"no frame over 34 ms in the first change\" is therefore not met in 2 of these 3 runs, on a machine under load; the same first change with the build as committed (fe51bca) in interleaved A/B runs: 2 of 4 had a slow frame (83 and 50 ms at about 260 ms), the new build 1 of 4 (50 ms at 272 ms), so the change does not make it worse. All of them are the new page's mount (page-change task 28's hold), not the bend.",
+      "a_b_first_change": "4 interleaved pairs, steps page-change.json up to the first change; new build 0 1 0 0 slow frames, fe51bca 0 2 0 1 (frames over 34 ms in the first change)",
+      "page_change_json_second_3_runs": "a second set of 3 cold runs, taken later the same hour: first change max 33.3, 33.3 and 16.8 ms, none over 34 ms; all 15 changes of the set clean except two single 50 ms frames in the Back and Forward changes of the third run (1166 ms and 263 ms in). So the gate \"no frame over 34 ms in the first change after a load\" holds in 3 of 3 runs in this set and 1 of 3 in the first (loaded machine), 4 of 6 in all; it is not guaranteed, because of the page mount (task 28)."
+    },
+    "warm_hosts": {
+      "before": "the three sheet hosts were full-screen at 1% opacity for about 23 frames (a masked black disc, a plus-lighter ring and a shade over the home page)",
+      "now": "each is a 3 px square in the top left corner at 1% opacity, with the tile laid so that its middle is under it; the two filter hosts hold nothing (their output is transparent whatever their opacity). The gate passes with it (above) and the first change after a load is no worse (A/B above), so it stays."
+    },
+    "blink_check": "glass-warm.json E: a film of a whole change to /work (every frame the compositor makes: 203 and 204 frames in two runs) has no frame that differs from both neighbours while they agree (blinkFrames empty, largest frame-to-frame step 7.1 and 6.8 luma levels on the 48 by 30 cells); step F is the control, the same film with one frame of the old page's map picture taken away: blinkFrames lists it (steps 29 and 27 to 29, the neighbours 1 to 5 apart)"
+  },
+  "r56_2a_after_arrival": {
+    "what": "The gate again on the build with the arrival hold, the dock that keeps its row and the page that is finished before the reveal (R56.2a, 16 Nov), three warmed changes from home to /work at each size under the gate lock. The page's own work now happens before the reveal, so none of it lands in the traced window.",
+    "note_1920": "the first 1920x1080@1 set had one dropped frame in run 3 (renderer compositor 347 ms, viz 228 ms, load average about 5); re-run once as the rules say: 0 dropped in all three, so it passes on the re-run.",
+    "1512x982@2": [
+      {
+        "rendererCompositorMs": 277,
+        "vizCompositorMs": 184,
+        "dropped": 0,
+        "gpuMainSelfMs": 254,
+        "gpuMainWaitMs": 52,
+        "gpuMainWorkMs": 202
+      },
+      {
+        "rendererCompositorMs": 285,
+        "vizCompositorMs": 189,
+        "dropped": 0,
+        "gpuMainSelfMs": 262,
+        "gpuMainWaitMs": 54,
+        "gpuMainWorkMs": 208
+      },
+      {
+        "rendererCompositorMs": 294,
+        "vizCompositorMs": 195,
+        "dropped": 0,
+        "gpuMainSelfMs": 275,
+        "gpuMainWaitMs": 56,
+        "gpuMainWorkMs": 219
+      }
     ],
-    "vizCompositorMs": [
-     204,
-     217,
-     190
+    "1920x1080@1_first": [
+      {
+        "rendererCompositorMs": 311,
+        "vizCompositorMs": 208,
+        "dropped": 0,
+        "gpuMainSelfMs": 248,
+        "gpuMainWaitMs": 43,
+        "gpuMainWorkMs": 205
+      },
+      {
+        "rendererCompositorMs": 312,
+        "vizCompositorMs": 201,
+        "dropped": 0,
+        "gpuMainSelfMs": 266,
+        "gpuMainWaitMs": 64,
+        "gpuMainWorkMs": 202
+      },
+      {
+        "rendererCompositorMs": 347,
+        "vizCompositorMs": 228,
+        "dropped": 1,
+        "gpuMainSelfMs": 336,
+        "gpuMainWaitMs": 110,
+        "gpuMainWorkMs": 226
+      }
     ],
-    "dropped": [
-     0,
-     0,
-     0
-    ],
-    "gpuMainMs": [
-     667,
-     601,
-     671
-    ],
-    "gpuMainSelfMs": [
-     336,
-     303,
-     339
-    ],
-    "gpuMainWaitMs": [
-     99,
-     47,
-     100
-    ],
-    "gpuMainWorkMs": [
-     237,
-     256,
-     239
+    "1920x1080@1_rerun": [
+      {
+        "rendererCompositorMs": 347,
+        "vizCompositorMs": 237,
+        "dropped": 0,
+        "gpuMainSelfMs": 272,
+        "gpuMainWaitMs": 55,
+        "gpuMainWorkMs": 217
+      },
+      {
+        "rendererCompositorMs": 337,
+        "vizCompositorMs": 231,
+        "dropped": 0,
+        "gpuMainSelfMs": 353,
+        "gpuMainWaitMs": 134,
+        "gpuMainWorkMs": 219
+      },
+      {
+        "rendererCompositorMs": 343,
+        "vizCompositorMs": 224,
+        "dropped": 0,
+        "gpuMainSelfMs": 294,
+        "gpuMainWaitMs": 77,
+        "gpuMainWorkMs": 217
+      }
     ]
-   },
-   "1920x1080@1": {
-    "pass": true,
-    "rendererCompositorMs": [
-     376,
-     354,
-     353
+  },
+  "r56_2c_after_fixes": {
+    "what": "The gate again after the review fixes (R56.2c, 16 Nov): drift blend, per-hold late fades, the veil that holds a picture still on its way at opacity 0, three warmed changes from home to /work at each size under the gate lock.",
+    "note_1920": "the first 1920x1080@1 set had one dropped frame in run 2 (renderer compositor 302 ms, viz 192 ms); re-run once as the rules say: 0 dropped in all three, so it passes on the re-run.",
+    "1512x982@2": [
+      {
+        "rendererCompositorMs": 284,
+        "vizCompositorMs": 187,
+        "gpuMainSelfMs": 256,
+        "gpuMainWaitMs": 56,
+        "gpuMainWorkMs": 200,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 294,
+        "vizCompositorMs": 191,
+        "gpuMainSelfMs": 285,
+        "gpuMainWaitMs": 75,
+        "gpuMainWorkMs": 210,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 272,
+        "vizCompositorMs": 180,
+        "gpuMainSelfMs": 248,
+        "gpuMainWaitMs": 52,
+        "gpuMainWorkMs": 196,
+        "dropped": 0
+      }
     ],
-    "vizCompositorMs": [
-     260,
-     250,
-     244
+    "1920x1080@1_first": [
+      {
+        "rendererCompositorMs": 304,
+        "vizCompositorMs": 193,
+        "gpuMainSelfMs": 247,
+        "gpuMainWaitMs": 57,
+        "gpuMainWorkMs": 190,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 302,
+        "vizCompositorMs": 192,
+        "gpuMainSelfMs": 251,
+        "gpuMainWaitMs": 62,
+        "gpuMainWorkMs": 189,
+        "dropped": 1
+      },
+      {
+        "rendererCompositorMs": 313,
+        "vizCompositorMs": 198,
+        "gpuMainSelfMs": 248,
+        "gpuMainWaitMs": 51,
+        "gpuMainWorkMs": 197,
+        "dropped": 0
+      }
     ],
-    "dropped": [
-     0,
-     0,
-     0
-    ],
-    "gpuMainMs": [
-     2588,
-     1096,
-     977
-    ],
-    "gpuMainSelfMs": [
-     1297,
-     551,
-     491
-    ],
-    "gpuMainWaitMs": [
-     1066,
-     315,
-     263
-    ],
-    "gpuMainWorkMs": [
-     230,
-     236,
-     228
+    "1920x1080@1_rerun": [
+      {
+        "rendererCompositorMs": 297,
+        "vizCompositorMs": 191,
+        "gpuMainSelfMs": 256,
+        "gpuMainWaitMs": 60,
+        "gpuMainWorkMs": 196,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 308,
+        "vizCompositorMs": 201,
+        "gpuMainSelfMs": 280,
+        "gpuMainWaitMs": 87,
+        "gpuMainWorkMs": 193,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 302,
+        "vizCompositorMs": 191,
+        "gpuMainSelfMs": 235,
+        "gpuMainWaitMs": 50,
+        "gpuMainWorkMs": 186,
+        "dropped": 0
+      }
     ]
-   },
-   "r54_same_session": "R54 on the same machine in the same hour: 1512x982@2 renderer compositor 1052/1388/820, display 686/822/467, dropped 0/0/67; 1920x1080@1 904/998/914, 636/636/580, dropped 37/18/51 (loaded machine: more drops than in the first baseline above)"
   },
-  "long_frame_133ms": {
-   "asked": "the 133 ms frame at 2311 ms in the first change of page-change-hook.json run 1 of R56.1: name its long-animation-frame script, or say it had none",
-   "answer": "its entry was not kept: the run was summarised to the frame gaps only and the raw output of the run was not saved, so its script cannot be named. It did not come back in 11 runs of page-change-hook.json on this build (all first changes: 10 clean, 1 with a cluster of 50 to 83 ms frames at 1154 to 1604 ms into the change). The loaf entries of that cluster, which is the same kind of frame, name the page, not the glass: MessagePort.onmessage (React scheduler, components chunk) 6 to 85 ms in a frame (the new page being rendered, up to 24 ms of it forced style and layout), page timers (_index chunk) 24 to 31 ms and FrameRequestCallback of the page-change chunk (the glass tick) 6 to 14 ms; no frame is the glass tick alone. The page-mount cost is task 28's.",
-   "runs": "page-change-hook.json 11 runs: first change over 34 ms in 1 run; the other four changes of each run clean in all 11"
-  },
-  "cold_first_change_again": {
-   "page_change_json_3_runs": "first change: run 1 one frame of 100 ms at 303 ms (the machine was loaded: the same run had 6 and 8 slow frames in its next two changes, the guard dropped the bend in the second, and the tab ran the last two without it), run 2 one frame of 50 ms at 504 ms, run 3 clean (max 33.4). The R33 gate of \"no frame over 34 ms in the first change\" is therefore not met in 2 of these 3 runs, on a machine under load; the same first change with the build as committed (fe51bca) in interleaved A/B runs: 2 of 4 had a slow frame (83 and 50 ms at about 260 ms), the new build 1 of 4 (50 ms at 272 ms), so the change does not make it worse. All of them are the new page's mount (page-change task 28's hold), not the bend.",
-   "a_b_first_change": "4 interleaved pairs, steps page-change.json up to the first change; new build 0 1 0 0 slow frames, fe51bca 0 2 0 1 (frames over 34 ms in the first change)",
-   "page_change_json_second_3_runs": "a second set of 3 cold runs, taken later the same hour: first change max 33.3, 33.3 and 16.8 ms, none over 34 ms; all 15 changes of the set clean except two single 50 ms frames in the Back and Forward changes of the third run (1166 ms and 263 ms in). So the gate \"no frame over 34 ms in the first change after a load\" holds in 3 of 3 runs in this set and 1 of 3 in the first (loaded machine), 4 of 6 in all; it is not guaranteed, because of the page mount (task 28)."
-  },
-  "warm_hosts": {
-   "before": "the three sheet hosts were full-screen at 1% opacity for about 23 frames (a masked black disc, a plus-lighter ring and a shade over the home page)",
-   "now": "each is a 3 px square in the top left corner at 1% opacity, with the tile laid so that its middle is under it; the two filter hosts hold nothing (their output is transparent whatever their opacity). The gate passes with it (above) and the first change after a load is no worse (A/B above), so it stays."
-  },
-  "blink_check": "glass-warm.json E: a film of a whole change to /work (every frame the compositor makes: 203 and 204 frames in two runs) has no frame that differs from both neighbours while they agree (blinkFrames empty, largest frame-to-frame step 7.1 and 6.8 luma levels on the 48 by 30 cells); step F is the control, the same film with one frame of the old page's map picture taken away: blinkFrames lists it (steps 29 and 27 to 29, the neighbours 1 to 5 apart)"
- },
- "r56_2a_after_arrival": {
-  "what": "The gate again on the build with the arrival hold, the dock that keeps its row and the page that is finished before the reveal (R56.2a, 16 Nov), three warmed changes from home to /work at each size under the gate lock. The page's own work now happens before the reveal, so none of it lands in the traced window.",
-  "note_1920": "the first 1920x1080@1 set had one dropped frame in run 3 (renderer compositor 347 ms, viz 228 ms, load average about 5); re-run once as the rules say: 0 dropped in all three, so it passes on the re-run.",
-  "1512x982@2": [
-   {
-    "rendererCompositorMs": 277,
-    "vizCompositorMs": 184,
-    "dropped": 0,
-    "gpuMainSelfMs": 254,
-    "gpuMainWaitMs": 52,
-    "gpuMainWorkMs": 202
-   },
-   {
-    "rendererCompositorMs": 285,
-    "vizCompositorMs": 189,
-    "dropped": 0,
-    "gpuMainSelfMs": 262,
-    "gpuMainWaitMs": 54,
-    "gpuMainWorkMs": 208
-   },
-   {
-    "rendererCompositorMs": 294,
-    "vizCompositorMs": 195,
-    "dropped": 0,
-    "gpuMainSelfMs": 275,
-    "gpuMainWaitMs": 56,
-    "gpuMainWorkMs": 219
-   }
-  ],
-  "1920x1080@1_first": [
-   {
-    "rendererCompositorMs": 311,
-    "vizCompositorMs": 208,
-    "dropped": 0,
-    "gpuMainSelfMs": 248,
-    "gpuMainWaitMs": 43,
-    "gpuMainWorkMs": 205
-   },
-   {
-    "rendererCompositorMs": 312,
-    "vizCompositorMs": 201,
-    "dropped": 0,
-    "gpuMainSelfMs": 266,
-    "gpuMainWaitMs": 64,
-    "gpuMainWorkMs": 202
-   },
-   {
-    "rendererCompositorMs": 347,
-    "vizCompositorMs": 228,
-    "dropped": 1,
-    "gpuMainSelfMs": 336,
-    "gpuMainWaitMs": 110,
-    "gpuMainWorkMs": 226
-   }
-  ],
-  "1920x1080@1_rerun": [
-   {
-    "rendererCompositorMs": 347,
-    "vizCompositorMs": 237,
-    "dropped": 0,
-    "gpuMainSelfMs": 272,
-    "gpuMainWaitMs": 55,
-    "gpuMainWorkMs": 217
-   },
-   {
-    "rendererCompositorMs": 337,
-    "vizCompositorMs": 231,
-    "dropped": 0,
-    "gpuMainSelfMs": 353,
-    "gpuMainWaitMs": 134,
-    "gpuMainWorkMs": 219
-   },
-   {
-    "rendererCompositorMs": 343,
-    "vizCompositorMs": 224,
-    "dropped": 0,
-    "gpuMainSelfMs": 294,
-    "gpuMainWaitMs": 77,
-    "gpuMainWorkMs": 217
-   }
-  ]
- },
- "r56_2c_after_fixes": {
-  "what": "The gate again after the review fixes (R56.2c, 16 Nov): drift blend, per-hold late fades, the veil that holds a picture still on its way at opacity 0, three warmed changes from home to /work at each size under the gate lock.",
-  "note_1920": "the first 1920x1080@1 set had one dropped frame in run 2 (renderer compositor 302 ms, viz 192 ms); re-run once as the rules say: 0 dropped in all three, so it passes on the re-run.",
-  "1512x982@2": [
-   {
-    "rendererCompositorMs": 284,
-    "vizCompositorMs": 187,
-    "gpuMainSelfMs": 256,
-    "gpuMainWaitMs": 56,
-    "gpuMainWorkMs": 200,
-    "dropped": 0
-   },
-   {
-    "rendererCompositorMs": 294,
-    "vizCompositorMs": 191,
-    "gpuMainSelfMs": 285,
-    "gpuMainWaitMs": 75,
-    "gpuMainWorkMs": 210,
-    "dropped": 0
-   },
-   {
-    "rendererCompositorMs": 272,
-    "vizCompositorMs": 180,
-    "gpuMainSelfMs": 248,
-    "gpuMainWaitMs": 52,
-    "gpuMainWorkMs": 196,
-    "dropped": 0
-   }
-  ],
-  "1920x1080@1_first": [
-   {
-    "rendererCompositorMs": 304,
-    "vizCompositorMs": 193,
-    "gpuMainSelfMs": 247,
-    "gpuMainWaitMs": 57,
-    "gpuMainWorkMs": 190,
-    "dropped": 0
-   },
-   {
-    "rendererCompositorMs": 302,
-    "vizCompositorMs": 192,
-    "gpuMainSelfMs": 251,
-    "gpuMainWaitMs": 62,
-    "gpuMainWorkMs": 189,
-    "dropped": 1
-   },
-   {
-    "rendererCompositorMs": 313,
-    "vizCompositorMs": 198,
-    "gpuMainSelfMs": 248,
-    "gpuMainWaitMs": 51,
-    "gpuMainWorkMs": 197,
-    "dropped": 0
-   }
-  ],
-  "1920x1080@1_rerun": [
-   {
-    "rendererCompositorMs": 297,
-    "vizCompositorMs": 191,
-    "gpuMainSelfMs": 256,
-    "gpuMainWaitMs": 60,
-    "gpuMainWorkMs": 196,
-    "dropped": 0
-   },
-   {
-    "rendererCompositorMs": 308,
-    "vizCompositorMs": 201,
-    "gpuMainSelfMs": 280,
-    "gpuMainWaitMs": 87,
-    "gpuMainWorkMs": 193,
-    "dropped": 0
-   },
-   {
-    "rendererCompositorMs": 302,
-    "vizCompositorMs": 191,
-    "gpuMainSelfMs": 235,
-    "gpuMainWaitMs": 50,
-    "gpuMainWorkMs": 186,
-    "dropped": 0
-   }
-  ]
- }
+  "r56_4_at_2250": {
+    "what": "The gate at GLASS.ms 2250 (R56.4, 16 Nov), three warmed changes from home to /work at each size under the gate lock, three sets (the first, a re-run as the rules say, and a third), on the build of R56.4.",
+    "verdict": "the compositor limits (450 and 300 ms) hold in every run at both sizes (renderer compositor 252 to 370 ms, display compositor 174 to 238 ms); the no-dropped-frame rule did not hold in every run: 0 to 2 frames dropped in a run, in the same runs where the machine was busy (load average 8 to 15: Adobe After Effects at about 50%, mediaanalysisd at 110%). The same build with the length patched back to 2500 (built asset edited for the test only, then restored) dropped frames just as often under the same load (1512: 1/0/0 and 0/0/1, 1920: 1/1/0), so they are not caused by the shorter change.",
+    "machine": "load averages at the start of the sets: 8.75, 8.69, 9.42 (the gate is for a quiet machine; the README says so)",
+    "1512x982@2_set1": [
+      {
+        "rendererCompositorMs": 278,
+        "vizCompositorMs": 186,
+        "gpuMainSelfMs": 277,
+        "gpuMainWaitMs": 67,
+        "gpuMainWorkMs": 210,
+        "dropped": 1
+      },
+      {
+        "rendererCompositorMs": 290,
+        "vizCompositorMs": 206,
+        "gpuMainSelfMs": 335,
+        "gpuMainWaitMs": 113,
+        "gpuMainWorkMs": 222,
+        "dropped": 1
+      },
+      {
+        "rendererCompositorMs": 262,
+        "vizCompositorMs": 184,
+        "gpuMainSelfMs": 269,
+        "gpuMainWaitMs": 54,
+        "gpuMainWorkMs": 215,
+        "dropped": 1
+      }
+    ],
+    "1512x982@2_set2_rerun": [
+      {
+        "rendererCompositorMs": 252,
+        "vizCompositorMs": 178,
+        "gpuMainSelfMs": 301,
+        "gpuMainWaitMs": 95,
+        "gpuMainWorkMs": 206,
+        "dropped": 1
+      },
+      {
+        "rendererCompositorMs": 275,
+        "vizCompositorMs": 179,
+        "gpuMainSelfMs": 259,
+        "gpuMainWaitMs": 35,
+        "gpuMainWorkMs": 224,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 267,
+        "vizCompositorMs": 175,
+        "gpuMainSelfMs": 255,
+        "gpuMainWaitMs": 43,
+        "gpuMainWorkMs": 212,
+        "dropped": 0
+      }
+    ],
+    "1512x982@2_set3": [
+      {
+        "rendererCompositorMs": 260,
+        "vizCompositorMs": 174,
+        "gpuMainSelfMs": 260,
+        "gpuMainWaitMs": 45,
+        "gpuMainWorkMs": 214,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 259,
+        "vizCompositorMs": 185,
+        "gpuMainSelfMs": 270,
+        "gpuMainWaitMs": 64,
+        "gpuMainWorkMs": 206,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 263,
+        "vizCompositorMs": 181,
+        "gpuMainSelfMs": 242,
+        "gpuMainWaitMs": 42,
+        "gpuMainWorkMs": 200,
+        "dropped": 1
+      }
+    ],
+    "1920x1080@1_set1": [
+      {
+        "rendererCompositorMs": 309,
+        "vizCompositorMs": 216,
+        "gpuMainSelfMs": 348,
+        "gpuMainWaitMs": 143,
+        "gpuMainWorkMs": 206,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 354,
+        "vizCompositorMs": 238,
+        "gpuMainSelfMs": 343,
+        "gpuMainWaitMs": 99,
+        "gpuMainWorkMs": 243,
+        "dropped": 2
+      },
+      {
+        "rendererCompositorMs": 345,
+        "vizCompositorMs": 221,
+        "gpuMainSelfMs": 303,
+        "gpuMainWaitMs": 89,
+        "gpuMainWorkMs": 215,
+        "dropped": 0
+      }
+    ],
+    "1920x1080@1_set2_rerun": [
+      {
+        "rendererCompositorMs": 361,
+        "vizCompositorMs": 219,
+        "gpuMainSelfMs": 326,
+        "gpuMainWaitMs": 116,
+        "gpuMainWorkMs": 210,
+        "dropped": 1
+      },
+      {
+        "rendererCompositorMs": 370,
+        "vizCompositorMs": 231,
+        "gpuMainSelfMs": 358,
+        "gpuMainWaitMs": 132,
+        "gpuMainWorkMs": 226,
+        "dropped": 2
+      },
+      {
+        "rendererCompositorMs": 344,
+        "vizCompositorMs": 226,
+        "gpuMainSelfMs": 316,
+        "gpuMainWaitMs": 102,
+        "gpuMainWorkMs": 213,
+        "dropped": 0
+      }
+    ],
+    "1920x1080@1_set3": [
+      {
+        "rendererCompositorMs": 317,
+        "vizCompositorMs": 211,
+        "gpuMainSelfMs": 291,
+        "gpuMainWaitMs": 81,
+        "gpuMainWorkMs": 210,
+        "dropped": 0
+      },
+      {
+        "rendererCompositorMs": 324,
+        "vizCompositorMs": 221,
+        "gpuMainSelfMs": 312,
+        "gpuMainWaitMs": 101,
+        "gpuMainWorkMs": 211,
+        "dropped": 1
+      },
+      {
+        "rendererCompositorMs": 318,
+        "vizCompositorMs": 221,
+        "gpuMainSelfMs": 289,
+        "gpuMainWaitMs": 70,
+        "gpuMainWorkMs": 218,
+        "dropped": 1
+      }
+    ],
+    "ab_same_build_with_2500_1512x982@2": "runs: renderer 313/294/293 viz 198/208/195 dropped 1/0/0; renderer 289/317/308 viz 199/235/199 dropped 0/0/1",
+    "ab_same_build_with_2500_1920x1080@1": "renderer 345/371/388 viz 240/242/248 dropped 1/1/0"
+  }
 }

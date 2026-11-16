@@ -1,7 +1,7 @@
 // Writes scripts/audit/page-change.json: home to work and back at 1440x900, dpr 2, CPU 4x, with a
 // rAF frame-gap recorder started in the page before each click and read by polling after (the
 // headless page does not advance timers while idle, so the read is a setInterval inside an eval).
-// The change is the one radial reveal, 2.5 s (follow-ups Task 22; 3.5 s before); it is the glass gate of round 6 (ruling R33) measured again at that length.
+// The change is the one radial reveal, 2.25 s since R56.4 (2.5 s from follow-ups Task 22; 3.5 s before); it is the glass gate of round 6 (ruling R33) measured again at that length.
 // A frame counts as animating once the transition's `ready` has fired; the first frame after it is the commit frame (R31: not counted).
 // It also writes page-change-hook.json (five changes between home, work and experience through the debug hook, at 1440 by 900 as
 // above) and page-change-phone.json (the same on a phone: 390 by 844, dpr 3, touch), the other two groups of the glass gate (Task 22).

@@ -1,4 +1,4 @@
-// Writes the audit files that save frames of the page change (round 7, Task 6: one radial reveal from the centre; 2.5 s since follow-ups Task 22):
+// Writes the audit files that save frames of the page change (round 7, Task 6: one radial reveal from the centre; 2.5 s since follow-ups Task 22, 2.25 s since R56.4):
 //   transition.json   four pairs, nine frames each: home to work, work to long form, long form to short form, experience to home
 //   glass-phone.json  home to work on a phone (390 by 844, dpr 2)
 //   glass-coverage.json  experience to home (no thumbnails) at 0.6, 0.7, 0.8, 0.9, 0.95 and 1.0 of the time, with each page alone (R62:
