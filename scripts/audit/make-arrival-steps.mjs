@@ -111,7 +111,7 @@ export function writeSteps() {
     // Review focus 1, the other half: a part that is late (1.5 s: while the reveal runs; 4 s: after the change has ended) fades in over about 200 ms and moves nothing else.
     { size: [1440, 900], dpr: 2 },
     ...[1500, 4000].flatMap((delay) => [
-      ...lateProbe({ name: "the map's picture", start: "/work", link: `document.querySelector(${JSON.stringify(tab("/experience"))})`, match: "/mars/relief", delay, target: ".map-plane img", pick: "last", scope: ".map-page" }),
+      ...lateProbe({ name: "the map's picture", start: "/work", link: `document.querySelector(${JSON.stringify(tab("/experience"))})`, match: "/mars/relief", delay, target: ".map-plane img", pick: "last", scope: ".map-page", ignore: ".map-heading, .map-caption, .map-pins" }), // R56.6: the words and the beads come in on a clock after the reveal (round 7 second look spec 8)
       ...lateProbe({ name: "the ground's still", start: "/", link: `[...document.querySelectorAll('${HEADER} a')].find((a) => a.getAttribute('href') === '/work')`, match: "/grounds/eclipse", delay, target: '.eclipse-still[data-on="true"] img', scope: ".work-page" }),
       // after the change has ended the painting engine is running and loads and reveals its own first painting (use-paint-engine, use-painting-cycle), so the hero's late sharp copy is a 1.5 s case only
       ...(delay < 3000 ? lateProbe({ name: "the hero's sharp painting", start: "/work", link: `[...document.querySelectorAll('${HEADER} a')].find((a) => a.getAttribute('href') === '/')`, match: "/paintings/", delay, target: ".paint-host img.paint-still", pick: "last", scope: "#hero .hero-layer" }) : []),

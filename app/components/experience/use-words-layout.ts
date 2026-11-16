@@ -134,28 +134,35 @@ export function useWordsLayout(ref: RefObject<HTMLElement | null>, data: WordsLa
 
     const page = pageParts(root);
     let frame = 0;
-    const run = () => {
+    /** The page's size when the words were last laid out: the observer's first call, and a repeat of the same size, change nothing (a layout costs a few forced reflows: not to be spent inside a page change's reveal). */
+    let laid = "";
+    const run = (force: boolean) => {
+      const r = root.getBoundingClientRect();
+      const size = `${r.width}x${r.height}`;
+
+      if (!force && size === laid) return;
+      laid = size;
       applyWordsLayout(page, data.cliff, data.marks);
       onApplied();
     };
-    const soon = () => {
+    const soon = (force: boolean) => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(run);
+      frame = requestAnimationFrame(() => run(force));
     };
-    const observer = new ResizeObserver(soon);
+    const observer = new ResizeObserver(() => soon(false));
+    const fonts = document.fonts;
+    const arrived = () => soon(true);
 
-    run();
-    observer.observe(root);
-    window.addEventListener("resize", soon);
-    // the title's letters are wider or narrower when the lettering font arrives
-    void document.fonts?.ready.then(soon);
-    document.fonts?.addEventListener?.("loadingdone", soon);
+    run(true);
+    observer.observe(root); // the page is fixed to the screen: its size is the screen's, so this is also the window's resize
+    // the title's letters are wider or narrower when the lettering font arrives: only a font that is still on its way asks for another layout
+    if (fonts?.status === "loading") void fonts.ready.then(arrived);
+    fonts?.addEventListener?.("loadingdone", arrived);
 
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
-      window.removeEventListener("resize", soon);
-      document.fonts?.removeEventListener?.("loadingdone", soon);
+      fonts?.removeEventListener?.("loadingdone", arrived);
     };
   }, [ref, data, active, switchKey, onApplied]);
 }

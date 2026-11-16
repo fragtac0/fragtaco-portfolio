@@ -49,7 +49,7 @@ export function useEntrance(byChange: boolean, picture: boolean, reduced: boolea
     return () => window.clearTimeout(timer);
   }, [byChange, picture]);
 
-  // a press or a key press finishes it at once (the action is taken: nothing is prevented); the entrance ends by itself after its length
+  // a press, a click or a key press finishes it at once (the action is taken: nothing is prevented); the entrance ends by itself after its length
   useEffect(() => {
     if (state.phase === "done") return;
 
@@ -57,6 +57,7 @@ export function useEntrance(byChange: boolean, picture: boolean, reduced: boolea
     const key = (e: KeyboardEvent) => isFinishingKey(e) && press();
 
     window.addEventListener("pointerdown", press, { capture: true });
+    window.addEventListener("click", press, { capture: true }); // a click with no press before it (a script's, an assistive technology's)
     window.addEventListener("keydown", key, { capture: true });
 
     let timer = 0;
@@ -65,6 +66,7 @@ export function useEntrance(byChange: boolean, picture: boolean, reduced: boolea
 
     return () => {
       window.removeEventListener("pointerdown", press, { capture: true });
+      window.removeEventListener("click", press, { capture: true });
       window.removeEventListener("keydown", key, { capture: true });
       window.clearTimeout(timer);
     };

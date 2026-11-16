@@ -96,7 +96,8 @@ export const REST_RESULT = `(() => {
 /** Every element of the page outside the rings and the canvases, with the box, the opacity and (pictures) the source: compared between E and L. */
 export const SNAP = `(() => {
   const out = {};
-  const skip = (el) => el.closest('.work-rings, .paint-host, canvas, svg, [data-glass-warm], script, style, noscript, head');
+  // R56.6: My experience's words and beads come in on a clock after the reveal begins (round 7 second look spec 8), so they are left out here as in the pixels (ENTRANCE_BOXES)
+  const skip = (el) => el.closest('.work-rings, .paint-host, canvas, svg, [data-glass-warm], script, style, noscript, head, .map-heading, .map-caption, .map-pins');
   const path = (el) => { const p = []; for (let e = el; e && e !== document.body; e = e.parentElement) p.push(e.tagName[0] + [...e.parentElement.children].indexOf(e)); return p.reverse().join('/'); };
   for (const el of document.body.querySelectorAll('*')) {
     if (skip(el)) continue;
