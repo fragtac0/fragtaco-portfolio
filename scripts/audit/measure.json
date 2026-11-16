@@ -48,7 +48,7 @@
  {
   "key": "Escape",
   "vk": 27,
-  "eval": "(async()=>{const p=__sf(1500);await p;await new Promise(r=>setTimeout(r,800));const q=__sf(3500);document.querySelectorAll('.blk-hit')[1].click();return q})()",
+  "eval": "(async()=>{const p=__sf(1500);await p;document.querySelectorAll('.blk-hit')[1].scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>setTimeout(r,1500));const q=__sf(3500);document.querySelectorAll('.blk-hit')[1].click();return q})()",
   "label": "1440x900 close reading, open watching layer"
  },
  {
@@ -129,7 +129,7 @@
  {
   "key": "Escape",
   "vk": 27,
-  "eval": "(async()=>{const p=__sf(1500);await p;await new Promise(r=>setTimeout(r,800));const q=__sf(3500);document.querySelectorAll('.blk-hit')[1].click();return q})()",
+  "eval": "(async()=>{const p=__sf(1500);await p;document.querySelectorAll('.blk-hit')[1].scrollIntoView({block:'center',behavior:'instant'});await new Promise(r=>setTimeout(r,1500));const q=__sf(3500);document.querySelectorAll('.blk-hit')[1].click();return q})()",
   "label": "390x844 close reading, open watching layer"
  },
  {
