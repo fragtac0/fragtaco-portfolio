@@ -4,7 +4,7 @@
 //   node scripts/audit/make-experience-entrance.mjs sheet <outdir> <out.jpg>     the frame sheet (steps for cdp.mjs: see the end of this file)
 // Checks (each eval prints a JSON line with `ok`; the in-page code is in entrance-page.mjs):
 //   THE FILM, at 1440 by 900 and 390 by 844 (dpr 3), from the portfolio page and from home (the thumbnail hosts are answered with plain pictures, so the pictures show none):
-//     the change into /experience is filmed (the compositor's frames, `<keep>-<ms>.jpg` at 0.6 T, 0.8 T, T, T + 1100 ms and T + 3200 ms from the reveal's start, T = 2250 ms)
+//     the change into /experience is filmed (the compositor's frames, `<keep>-<ms>.jpg` at 0.6 T, 0.8 T, T, T + 1100 ms and T + 3200 ms from the reveal's start, T = GLASS.ms, 2250 ms since R56.4)
 //     and a sampler in the page reads every animation frame from the reveal's start (`arrival-go`): at 0.6 T no letter, no line, no bead, no trail; at 0.8 T the title partly in; at T the title in
 //     and the trail not begun; at T + 1100 ms the trail about half drawn (its cream pixels against the whole), only the beads the tip has passed in (3 to 5 of 9) and no radar; at T + 3200 ms
 //     everything (letters, lines, nine beads, the radar, the way ahead); no layout-shift entry from the reveal's start to T + 4 s; the frame gaps over that time (none over 34 ms); the
@@ -21,6 +21,7 @@ import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
+import { glassMs } from "./glass-constants.mjs";
 import { BACK, CLEAR, CLICKED, FINISHED, FOCUS, INIT, NOMAP, REDUCED, START, VERDICT } from "./entrance-page.mjs";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
@@ -69,13 +70,22 @@ const PHONE = { size: [390, 844], dpr: 3, mobile: true, touch: true };
 const DESK = { size: [1440, 900], dpr: 1, mobile: false, touch: false };
 const sleepStep = (ms) => ({ wait: ms });
 // the five moments of the film: times from the film's start, from the reveal's start (the page says when it was, once the film is over)
-const ATS = `(()=>{const e=performance.getEntriesByName('arrival-go').at(-1);const R=e.startTime-window.__t0,T=2250;return [0.6*T,0.8*T,T,T+1100,T+3200].map(x=>Math.round(R+x))})()`;
+// the reveal's length, GLASS.ms read from the source (glass-constants.mjs): the film's five moments and every wait below follow it
+const T = glassMs();
+const ATS = `(()=>{const e=performance.getEntriesByName('arrival-go').at(-1);const R=e.startTime-window.__t0,T=${T};return [0.6*T,0.8*T,T,T+1100,T+3200].map(x=>Math.round(R+x))})()`;
 const filmFrom = (profile, from, tag) => [
   { ...profile, reduce: false, intercept: PLAIN, go: `{{BASE}}${from}`, wait: 6500 },
   warmed,
   sleepStep(1500),
   { label: `film ${tag}`, film: { ms: 8500, eval: START("change"), keep: `entr-${tag}`, ats: ATS } },
   { label: `the change into My experience from ${from === "/" ? "home" : "the portfolio"} at ${profile.size.join(" x ")}: nothing at 0.6 T, the title partly in at 0.8 T, the trail half drawn with only the beads behind its tip at T + 1100 ms, everything at T + 3200 ms; no layout shift; no frame over 34 ms`, eval: VERDICT },
+];
+// the same layout read on a page that was loaded at another size and then resized (spec 7: the words are measured in the beside styles whatever the last layout vetoed)
+const resizeFrom = ([w0, h0], [w1, h1], tag, wide = true) => [
+  { size: [w0, h0], dpr: 1, mobile: false, touch: false, reduce: false, go: "{{BASE}}/experience", wait: 2500 },
+  { label: `${tag}: at ${w0} x ${h0} first (the words' places are noted)`, eval: "(async()=>{await new Promise(r=>setTimeout(r,600));const p=document.querySelector('.map-page'),r=document.querySelector('.map-caption').getBoundingClientRect();return JSON.stringify({ok:true,words:p.dataset.words??null,cap:[r.left,r.top,r.right,r.bottom].map(Math.round)})})()" },
+  { size: [w1, h1], dpr: 1, mobile: false, touch: false, wait: 1500 },
+  { label: `${tag}: resized to ${w1} x ${h1}, the page not reloaded: ${wide ? "the clearances of spec 7 hold as on a page loaded there" : "today's places again"}`, eval: CLEAR(cliff, wide) },
 ];
 const layoutAt = (w, h, wide) => [
   { size: [w, h], dpr: 1, mobile: false, touch: false, reduce: false, go: "{{BASE}}/experience", wait: 2500 },
@@ -93,6 +103,10 @@ const steps = [
   ...filmFrom(PHONE, "/", "home-390"),
   ...[[1440, 900], [1280, 720], [1024, 768], [900, 600]].flatMap(([w, h]) => layoutAt(w, h, true)),
   ...[[390, 844], [844, 390], [820, 1180]].flatMap(([w, h]) => layoutAt(w, h, false)),
+  // a screen that goes from upright or from no room to a wide one (a tablet turned, a window made bigger): the review of R56.6 found the words measured in their old places then
+  ...resizeFrom([820, 1180], [1180, 820], "a tablet turned"),
+  ...resizeFrom([960, 540], [1280, 800], "a window made bigger"),
+  ...resizeFrom([1180, 820], [820, 1180], "a tablet turned back", false),
   // a first load plays the same entrance from the moment the picture is shown
   { ...DESK, reduce: false, intercept: [], go: "{{BASE}}/work", wait: 800 },
   { eval: "sessionStorage.setItem('ft:armLoad','1')" },
@@ -101,17 +115,17 @@ const steps = [
   // the ways it is finished
   { ...DESK, reduce: false, intercept: PLAIN, go: "{{BASE}}/work", wait: 6500 },
   warmed,
-  { label: "start the change, wait for T + 1000 ms", eval: START("change", 3250) },
+  { label: "start the change, wait for T + 1000 ms", eval: START("change", T + 1000) },
   { key: "a", vk: 65 },
   { label: "a key press during the trail finishes the entrance at once", eval: FINISHED(150) },
   { go: "{{BASE}}/work", wait: 6500 },
   warmed,
-  { label: "start the change again, wait for T + 1900 ms", eval: START("change", 4150) },
+  { label: "start the change again, wait for T + 1900 ms", eval: START("change", T + 1900) },
   { click: `(()=>{const b=[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()` },
   { label: "a click on the switch during the trail finishes the entrance at once and goes into My climb", eval: CLICKED },
   { go: "{{BASE}}/work", wait: 6500 },
   warmed,
-  { label: "start the change, wait for T + 1200 ms", eval: START("change", 3450) },
+  { label: "start the change, wait for T + 1200 ms", eval: START("change", T + 1200) },
   { film: { ms: 30, tiles: true } }, // brings the page to the front, so it has the focus (a headless page does not, and `:focus` would not match)
   { label: "a bead that has the focus is shown before the tip reaches it", eval: FOCUS },
   { go: "{{BASE}}/experience", wait: 400 },

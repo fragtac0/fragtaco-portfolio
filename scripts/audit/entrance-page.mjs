@@ -1,15 +1,16 @@
 // What make-experience-entrance.mjs runs inside the page (R56.6, round 7 second look spec 8): expressions for Runtime.evaluate, as strings. Nothing here
 // touches the app's code: it reads the page the way a visitor's browser would (computed opacities, pixels of the canvases, performance marks).
 
+import { glassMs } from "./glass-constants.mjs";
+
 /** The reveal's own times (ms after the anchor): the five of spec 8's check. */
 export const TARGETS = (T) => [0.6 * T, 0.8 * T, T, T + 1100, T + 3200];
 
 /**
  * Starts the sampler: every frame a row (time from the anchor, letters shown in the title and the label, beads in, the entrance's state), and at each target time one
- * snapshot with the pixels read (the trail's cream line, the radar's orange). The anchor is the reveal's start (`arrival-go`, mode 'change') or the moment the page began
- * to play (`data-entrance` became `play`, mode 'load': the picture was shown). The frame gaps are kept for the verdict.
+ * snapshot with the pixels read (the trail's cream line, the radar's orange). The anchor is the reveal's start (`arrival-go`, mode 'change') or the moment the picture was shown (mode 'load': when its resource finished arriving, the page's own count, entrance-state.ts shownAtOf, else when `data-entrance` became `play`). The frame gaps are kept for the verdict.
  */
-export const ARM = (mode, T = 2250) => String.raw`(()=>{
+export const ARM = (mode, T = glassMs()) => String.raw`(()=>{
 const S=window.__sam={rows:[],snaps:[],gaps:[],anchor:null,mode:${JSON.stringify(mode)},T:${T},targets:${JSON.stringify(TARGETS(T))},next:0,done:false};
 const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
 const shown=sel=>{const l=qa(sel+' .map-letter');return [l.filter(x=>+getComputedStyle(x).opacity>0.5).length,l.length]};
@@ -19,7 +20,8 @@ const orange=()=>px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150);
 const row=(t,now)=>{const [tl,tt]=shown('.map-title'),[ll,lt]=shown('.map-caption-title');const pins=qa('.map-pin');return {t:+t.toFixed(1),title:tl,titleTotal:tt,label:ll,labelTotal:lt,desc:+getComputedStyle(q('.map-text')).opacity,lines:qa('.map-caption .map-rise').map(x=>+getComputedStyle(x).opacity),pinsIn:pins.filter(p=>!p.hasAttribute('data-wait')).length,pins:pins.length,state:q('.map-page')?.dataset.entrance}};
 let last=performance.now();
 const loop=now=>{S.gaps.push([now,now-last]);last=now;
- if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null)S.anchor=window.__playAt}
+ if(S.terrainAbs==null&&q('.map-stage')?.dataset.terrain==='ready')S.terrainAbs=now;
+ if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null){const e=performance.getEntriesByType('resource').filter(x=>/mars\/relief/.test(x.name)).at(-1);S.anchor=e&&e.responseEnd>0&&window.__playAt-e.responseEnd<=5000?Math.min(e.responseEnd,window.__playAt):window.__playAt}}
  if(S.anchor!==null&&q('.map-page')){const t=now-S.anchor,r=row(t,now);S.rows.push(r);
   while(S.next<S.targets.length&&t>=S.targets[S.next]){S.snaps.push({at:S.targets[S.next],...r,cream:cream(),orange:orange()});S.next++}
   if(t>S.T+4300){S.done=true;return}}
@@ -46,13 +48,15 @@ const shifts=window.__ls.filter(e=>!e.input&&e.t>=S.anchor&&e.t<=S.anchor+S.T+40
 const firstOf=f=>{const r=S.rows.find(f);return r?r.t:null};
 
 const o={
- anchor:+S.anchor.toFixed(1),lagFromReveal:S.mode==='change'&&window.__playAt!==null?+(window.__playAt-S.anchor).toFixed(1):null,
+ anchor:+S.anchor.toFixed(1),lagFromReveal:S.mode==='change'&&window.__playAt!==null?+(window.__playAt-S.anchor).toFixed(1):null,lagFromPicture:S.mode==='load'&&window.__playAt!==null?+(window.__playAt-S.anchor).toFixed(1):null,
  at06:{title:s6.title,label:s6.label,desc:s6.desc,pinsIn:s6.pinsIn,cream:s6.cream},
  at08:{title:s8.title+'/'+s8.titleTotal,label:s8.label,cream:s8.cream,pinsIn:s8.pinsIn},
  atT:{title:sT.title+'/'+sT.titleTotal,label:sT.label+'/'+sT.labelTotal,cream:sT.cream,pinsIn:sT.pinsIn},
  atT1100:{cream:s11.cream,share:+(s11.cream/Math.max(1,s32.cream)).toFixed(2),pinsIn:s11.pinsIn,orange:s11.orange},
  atT3200:{title:s32.title+'/'+s32.titleTotal,label:s32.label+'/'+s32.labelTotal,desc:s32.desc,lines:s32.lines,cream:s32.cream,orange:s32.orange,pinsIn:s32.pinsIn},
  firstLetterAt:firstOf(r=>r.title>0),firstCreamSnapAt:S.snaps.find(x=>x.cream>0)?.at??null,
+ // the heights' load (terrain-canvas.ts, in turns of a few ms at idle moments from the reveal's start) is read at data-terrain=ready: before the trace begins (T), and no frame over 34 ms is an idle callback's; every gap over 20 ms is listed with its time
+ heightsReadyAt:S.terrainAbs==null?null:+(S.terrainAbs-S.anchor).toFixed(0),gapsOver20:inWin.filter(x=>x[1]>20).map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),
  frames:win.length,medianGapMs:+sorted[Math.floor(sorted.length/2)].toFixed(1),maxGapMs:+sorted.at(-1).toFixed(1),over20:win.filter(x=>x>20).length,over34:long34.length,over34Idle:long34.length-own34.length,over34Own:own34.length,over34Own_at:own34.map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),over34At:inWin.filter(x=>x[1]>34).map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),loaf:window.__loaf.filter(e=>e.s+e.d>=S.anchor&&e.s<=S.anchor+S.T+4000&&e.d>40).map(e=>({at:+(e.s-S.anchor).toFixed(0),d:+e.d.toFixed(0),b:+e.b.toFixed(0),sc:e.sc})),
  layoutShifts:shifts.length,layoutShiftSum:+shifts.reduce((a,e)=>a+e.v,0).toFixed(5),
 };
@@ -63,7 +67,9 @@ o.checks={
  halfDrawnAtT1100:o.atT1100.share>0.35&&o.atT1100.share<0.65&&s11.pinsIn>=3&&s11.pinsIn<=5&&s11.orange===0,
  everythingAtT3200:s32.title===s32.titleTotal&&s32.label===s32.labelTotal&&s32.desc>0.95&&s32.lines.every(x=>x>0.95)&&s32.pinsIn===s32.pins&&s32.orange>0&&s32.cream>0,
  noLayoutShift:shifts.length===0,
- noOwnFrameOver34:o.over34Own===0};
+ noOwnFrameOver34:o.over34Own===0,
+ noIdleHitch:o.over34Idle===0,
+ heightsBeforeTrace:o.heightsReadyAt!==null&&o.heightsReadyAt<S.T};
 o.ok=Object.values(o.checks).every(Boolean);
 return JSON.stringify(o)})()`;
 
