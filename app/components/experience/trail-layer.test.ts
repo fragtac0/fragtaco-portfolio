@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RADAR_MS, STEMS_FROM, TRAIL_LIFT, drawRadar, drawTrail, pinPlaces, radarFoot, radarPhases, radarRing, radarSide, trailLift } from "./trail-layer";
+import { HEAD_CORE, HEAD_HALO, RADAR_MS, STEMS_FROM, TRAIL_LIFT, drawRadar, drawTrail, partialTrail, pinPlaces, radarFoot, radarPhases, radarRing, radarSide, trailLift } from "./trail-layer";
 import { liftOf } from "./heights";
 import { MILESTONE_SHARES, aheadTrail, lowerTrail, sampleTrail, trailAt, type Point } from "./trail";
 import { OVERVIEW, STEM, project, viewOf, type Cam, type Stage } from "./view";
@@ -115,6 +115,128 @@ describe("drawTrail", () => {
 
     drawTrail(c, v, STAGE, 2, trail, ahead, []);
     expect(calls[0]).toEqual(["clear", 0, 0, 1440, 900]);
+  });
+});
+
+/** The point `share` of the way along a line's length (by true length, not by index). */
+function alongLength(points: readonly { x: number; y: number }[], share: number): [number, number] {
+  const cum = [0];
+
+  for (let i = 1; i < points.length; i++) cum.push(cum[i - 1] + Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y));
+
+  const at = cum[cum.length - 1] * share;
+  let j = 1;
+
+  while (j < points.length - 1 && cum[j] < at) j++;
+
+  const w = (at - cum[j - 1]) / (cum[j] - cum[j - 1]);
+
+  return [points[j - 1].x + (points[j].x - points[j - 1].x) * w, points[j - 1].y + (points[j].y - points[j - 1].y) * w];
+}
+
+describe("partialTrail", () => {
+  it("is the whole trail at 1 and nothing at 0", () => {
+    expect(partialTrail(trail, 1)).toEqual(trail);
+    expect(partialTrail(trail, 0)).toHaveLength(1);
+  });
+
+  it("ends at the point half way along the trail's length at 0.5 (the samples are at equal steps)", () => {
+    const half = partialTrail(trail, 0.5);
+    const tip = half[half.length - 1];
+    const [x, y] = alongLength(trail, 0.5);
+
+    expect(tip.x).toBeCloseTo(x, 1);
+    expect(tip.y).toBeCloseTo(y, 1);
+    expect(half).toHaveLength(101);
+  });
+
+  it("puts the tip between two samples when the share is between them, and lets nothing past it through", () => {
+    const part = partialTrail(trail, 0.0025); // half a step
+
+    expect(part).toHaveLength(2);
+    expect(part[1].x).toBeCloseTo((trail[0].x + trail[1].x) / 2, 8);
+  });
+});
+
+describe("drawTrail while it traces itself", () => {
+  const v = viewOf(cam, 0, 1, STAGE);
+  const pins = pinPlaces(v, spots);
+
+  it("at share 0.5 strokes the first trail to the point half way along its length and draws no way ahead", () => {
+    const { c, strokes, paths } = recorder();
+
+    drawTrail(c, v, STAGE, 2, trail, ahead, pins, undefined, { share: 0.5, aheadShare: 0 });
+    expect(strokes.map((s) => s.dash.length)).toEqual([0, 0]); // the dark line and the cream line, no dotted line
+    expect(paths[0]).toHaveLength(101);
+
+    const [mx, my] = alongLength(trail, 0.5);
+    const [x, y] = project(v, mx, my, 0);
+    const end = paths[0][paths[0].length - 1];
+
+    expect(end[0]).toBeCloseTo(x, 1);
+    expect(end[1]).toBeCloseTo(y, 1);
+  });
+
+  it("draws the bright head at the tip while the share is under 1: a halo and a white point, centred on the tip", () => {
+    const { c, calls, paths } = recorder();
+
+    drawTrail(c, v, STAGE, 2, trail, ahead, pins, undefined, { share: 0.4, aheadShare: 0 });
+
+    const ellipses = calls.filter((x) => x[0] === "ellipse");
+    const tip = paths[0][paths[0].length - 1];
+
+    expect(ellipses).toHaveLength(2);
+    expect(ellipses.map((e) => e[3])).toEqual([HEAD_HALO, HEAD_CORE]);
+    expect(ellipses[0][1]).toBeCloseTo(tip[0], 6);
+    expect(ellipses[1][2]).toBeCloseTo(tip[1], 6);
+  });
+
+  it("draws nothing of the trail, no head and no way ahead at share 0 (before the trace begins)", () => {
+    const { c, strokes, calls } = recorder();
+
+    drawTrail(c, v, STAGE, 2, trail, ahead, pins, undefined, { share: 0, aheadShare: 0 });
+    expect(strokes).toHaveLength(0);
+    expect(calls.filter((x) => x[0] === "ellipse")).toHaveLength(0);
+  });
+
+  it("draws the way ahead in order toward the summit once the trail is whole (a share of it, from where the trail ends)", () => {
+    const { c, strokes, paths } = recorder();
+
+    drawTrail(c, v, STAGE, 2, trail, ahead, pins, undefined, { share: 1, aheadShare: 0.5 });
+    expect(strokes).toHaveLength(3);
+    expect(paths[2]).toHaveLength(Math.round(0.5 * (ahead.length - 1)) + 1);
+
+    const [sx, sy] = project(v, ahead[0].x, ahead[0].y, 0);
+
+    expect(paths[2][0][0]).toBeCloseTo(sx, 6);
+    expect(paths[2][0][1]).toBeCloseTo(sy, 6);
+  });
+
+  it("at 1 and 1 the drawing is today's: the same strokes, paths and fills as with no options, and no head", () => {
+    const a = recorder();
+    const b = recorder();
+
+    drawTrail(a.c, v, STAGE, 2, trail, ahead, pins);
+    drawTrail(b.c, v, STAGE, 2, trail, ahead, pins, undefined, { share: 1, aheadShare: 1 });
+    expect(b.strokes).toEqual(a.strokes);
+    expect(b.paths).toEqual(a.paths);
+    expect(b.calls).toEqual(a.calls);
+    expect(b.calls.filter((x) => x[0] === "ellipse")).toHaveLength(0);
+  });
+
+  it("fades the trail and the way ahead together under reduced motion (a strength, the canvas context's own)", () => {
+    const { c } = recorder();
+    const seen: number[] = [];
+    const ctx = new Proxy(c, {
+      set(target, key, value) {
+        if (key === "globalAlpha") seen.push(value as number);
+
+        return Reflect.set(target, key, value);
+      },
+    });
+
+    drawTrail(ctx, v, STAGE, 2, trail, ahead, pins, undefined, { alpha: 0.4 });
+    expect(seen).toEqual([0.4, 1]); // set for the lines, put back after
   });
 });
 

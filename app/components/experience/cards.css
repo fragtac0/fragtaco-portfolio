@@ -101,6 +101,31 @@
   outline-width: round(calc(2px / (var(--bs, 1) * 1.14)), 1px);
   outline-offset: calc(3px / (var(--bs, 1) * 1.14));
 }
+/*
+ * The entrance (round 7 second look spec 8; entrance-driver.ts puts the attributes): a bead is not shown until the trail's tip reaches its foot (not dimmed:
+ * not there), then fades in and grows from 0.6 of its size over 260 ms. One that has the focus is shown (below). "Now" is orange from the moment it comes. A bead
+ * shown at once by a press has no transition for a moment. Under reduced motion every bead comes together when the reveal ends, over 200 ms, with no growth.
+ */
+.map-pin[data-wait] {
+  opacity: 0;
+}
+.map-pin[data-wait]:not(:hover, :focus-visible) .map-bead {
+  transform: scale(calc(var(--bs, 1) * 0.6));
+}
+.map-pin[data-enter] {
+  transition-duration: 260ms;
+}
+.map-pin[data-enter] .map-bead {
+  transition:
+    transform 260ms ease-out,
+    background 300ms,
+    color 300ms;
+}
+.map-pin[data-instant],
+.map-pin[data-instant] .map-bead {
+  transition: none;
+}
+
 /* the chosen one and "now" are orange */
 .map-pin[data-current] .map-bead,
 .map-pin[data-now] .map-bead {
@@ -225,6 +250,13 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .map-pin[data-enter] {
+    transition-duration: 200ms;
+  }
+  .map-pin[data-wait] .map-bead {
+    transform: scale(var(--bs, 1));
+  }
+  .map-pin[data-enter] .map-bead,
   .map-bead,
   .map-bead svg,
   .map-pin-tip {

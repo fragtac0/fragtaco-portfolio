@@ -27,8 +27,12 @@ import { startGlass } from "../components/page-change/glass-run";
 import { endArrival, HOLD_MS, HOLD_REDUCED_MS, resetArrival, whenArrivalReady } from "./arrival";
 import { focusAfterFinish, focusInDock, restoreDockFocus } from "./dock-focus";
 import {
+  beginReveal,
   captureNextTransition,
   commitCount,
+  endReveal,
+  skipReveal,
+  startReveal,
   isPageSettled,
   nextCommit,
   onCommit,
@@ -37,7 +41,7 @@ import {
   type ViewTransitionLike,
 } from "./change-state";
 
-export { isPageSettled, pageCommitted, subscribeSettled } from "./change-state";
+export { getReveal, isPageSettled, pageCommitted, subscribeReveal, subscribeSettled, type Reveal } from "./change-state";
 
 export type ChangeKind = "radial" | "fade";
 export interface Point {
@@ -165,6 +169,7 @@ export function open(plan: ChangePlan) {
         current = null;
         unmark(html);
         endArrival();
+        endReveal(performance.now());
         setBusy(false);
       }
       resolve();
@@ -174,6 +179,7 @@ export function open(plan: ChangePlan) {
     done,
     finish() {
       finishing = true;
+      skipReveal();
       try {
         transition?.skipTransition();
       } catch {
@@ -182,6 +188,7 @@ export function open(plan: ChangePlan) {
     },
     showing: () => transition !== null && !finishing,
     stop() {
+      if (current === entry) skipReveal(); // a newer change begins its own reveal (its own beginReveal follows)
       cleanup();
       try {
         transition?.skipTransition();
@@ -194,6 +201,7 @@ export function open(plan: ChangePlan) {
   current = entry;
   mark(html, plan);
   resetArrival();
+  beginReveal(plan.ms);
   setBusy(true);
   failsafe = window.setTimeout(over, FAILSAFE_MS);
   return {
@@ -244,6 +252,7 @@ function holdReveal(html: HTMLElement, t: ViewTransitionLike, plan: ChangePlan, 
     .then(({ late }) => {
       if (control.signal.aborted) return; // the change is over or replaced: the marks are not this hold's any more
       stamp("arrival-go");
+      startReveal(performance.now()); // the arriving page times its own entrance to this (use-entrance.ts)
       if (late.length > 0) html.dataset.arrivalLate = late.join(" ");
       delete html.dataset.changeHold;
     });

@@ -73,9 +73,9 @@ function recorder(counts: Record<string, number>, nothing = false, log?: Call[])
 
 const style = () => ({ transform: "", opacity: "", width: "", height: "", visibility: "", zIndex: "", props: {} as Record<string, string>, setProperty(n: string, v: string) { this.props[n] = v; }, removeProperty(n: string) { delete this.props[n]; } });
 
-type Setup = { reduced?: boolean; noTerrainContext?: boolean; count?: number; phone?: boolean };
+type Setup = { reduced?: boolean; noTerrainContext?: boolean; count?: number; phone?: boolean; entrance?: boolean };
 
-export function setup({ reduced = false, noTerrainContext = false, count = 9, phone = false }: Setup = {}) {
+export function setup({ reduced = false, noTerrainContext = false, count = 9, phone = false, entrance = false }: Setup = {}) {
   const terrainCalls: Record<string, number> = {};
   const trailCalls: Record<string, number> = {};
   const radarCalls: Record<string, number> = {};
@@ -92,7 +92,14 @@ export function setup({ reduced = false, noTerrainContext = false, count = 9, ph
     radar: canvas(radarCalls),
     frame: canvas(frameCalls, false, frameLog),
     pinBox: { style: style() },
-    pins: Array.from({ length: count }, () => ({ style: style(), under: false, hasAttribute(name: string) { return name === "data-under" && this.under; } })),
+    pins: Array.from({ length: count }, () => ({
+      style: style(),
+      under: false,
+      attrs: new Set<string>(),
+      hasAttribute(name: string) { return name === "data-under" ? this.under : this.attrs.has(name); },
+      setAttribute(name: string) { this.attrs.add(name); },
+      removeAttribute(name: string) { this.attrs.delete(name); },
+    })),
   };
   const fills = { get length() { return terrainCalls.fill ?? 0; } };
   const f = fakeHost();
@@ -110,6 +117,7 @@ export function setup({ reduced = false, noTerrainContext = false, count = 9, ph
     onSelect: (i, wait) => selects.push([i, wait]),
     onHeads: (h) => heads.push(h),
     onFail: () => fails.push("fail"),
+    entrance,
   });
 
   return { engine, layers, f, rows, fills, trail, terrainCalls, trailCalls, radarCalls, frameCalls, frameLog, classes, selects, heads, fails };

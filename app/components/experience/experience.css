@@ -84,6 +84,35 @@
   color: var(--map-ink-line);
 }
 
+/*
+ * A wide screen (at least 900 px wide and wider than it is high: words-layout.ts WIDE_MEDIA; round 7 second look spec 7): the title block sits left of the
+ * mountain and the mountain's block right of it, both on the summit's row, which is the middle of the stage in the overview (view.ts OVERVIEW looks at the
+ * summit's own row). The page then fits them (use-words-layout.ts): the title shrinks toward 34 px to stay 24 px short of the cliff, written as
+ * `--map-title-size`, and the mountain's block moves up or down the least it needs to keep 32 px clear of the milestones, the trail and the switch, written as
+ * `--map-caption-dy`. `data-words="old"` (no room beside the mountain) and a page with no map (the list is on the right) keep the old places.
+ */
+@media (min-width: 900px) and (min-aspect-ratio: 1001/1000) {
+  .map-page:not([data-words="old"], [data-engine="off"]) .map-heading {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .map-page:not([data-words="old"], [data-engine="off"]) .map-caption {
+    top: 50%;
+    bottom: auto;
+    left: auto;
+    right: var(--map-gutter);
+    transform: translateY(calc(-50% + var(--map-caption-dy, 0px)));
+    text-align: right;
+  }
+  .map-page:not([data-words="old"], [data-engine="off"]) .map-caption figcaption {
+    align-items: flex-end;
+  }
+  /* at most 32 characters wide */
+  .map-page:not([data-words="old"], [data-engine="off"]) :is(.map-caption-line, .map-caption-fact, .map-caption-credit) {
+    max-width: 32ch;
+  }
+}
+
 @media (max-width: 699.98px) {
   .map-page {
     --map-gutter: 16px;

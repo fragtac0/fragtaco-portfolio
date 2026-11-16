@@ -6,7 +6,7 @@ import { ACCENT, CREAM, rgba } from "../../styles/tokens";
 import type { XY } from "./card-slot";
 import { liftOf } from "./heights";
 import { STEM, project, type Stage, type View } from "./view";
-import type { TrailPoint } from "./trail";
+import { trailAt, type TrailPoint } from "./trail";
 
 /** How far the trail and the pins' feet stand above the ground, in map units, when the lines have fully risen. */
 export const TRAIL_LIFT = 0.8;
@@ -27,6 +27,7 @@ export const TRAIL_INK = CREAM;
 export const AHEAD_INK = rgba(CREAM, 0.8);
 export const STEM_INK = "rgba(255, 255, 255, 0.8)";
 export const FOOT_INK = "#fff";
+export const HEAD_HALO_INK = rgba(CREAM, 0.3);
 
 /** A milestone as the overlay needs it: where it is on the ground, and the ground's height there. */
 export type Spot = Pick<TrailPoint, "x" | "y" | "n">;
@@ -46,6 +47,26 @@ export function pinPlaces(v: View, spots: readonly Spot[]): Pin[] {
   });
 }
 
+/** The first `share` (0 to 1) of sampled points, by their index (the samples are at equal steps along the line), the last place between its neighbours. */
+export function partialTrail(points: readonly TrailPoint[], share: number): TrailPoint[] {
+  if (points.length < 2 || share >= 1) return points.slice();
+
+  const f = Math.max(0, share) * (points.length - 1);
+  const i = Math.floor(f);
+  const w = f - i;
+  const out = points.slice(0, i + 1);
+
+  if (w > 0) out.push(trailAt(points, share));
+
+  return out;
+}
+
+/** How the trail is drawn while it traces itself (entrance.ts): the share of the first trail and of the way ahead, and the strength of both (reduced motion fades them in together). Each is 1 when nothing is left out. */
+export type TrailDraw = { share?: number; aheadShare?: number; alpha?: number };
+/** The bright head at the tip of a trail that is still being drawn: a soft halo round a white point, in pixels. */
+export const HEAD_HALO = 8;
+export const HEAD_CORE = 3.2;
+
 function trace(c: CanvasRenderingContext2D, v: View, points: readonly TrailPoint[], lift: number): void {
   c.beginPath();
   points.forEach((p, i) => {
@@ -59,7 +80,9 @@ function trace(c: CanvasRenderingContext2D, v: View, points: readonly TrailPoint
 /**
  * The trail on the cleared canvas: the first one as a dark line under a cream one, then the dotted way ahead to the summit,
  * then each pin's stem and foot. `pins` come from `pinPlaces` for the same view. `under`, when given, draws on the cleared
- * canvas first (the chart's grid, which the trail lies over).
+ * canvas first (the chart's grid, which the trail lies over). `draw` leaves out the part of the trail that has not traced itself
+ * yet (`share` of the first trail, `aheadShare` of the dotted way ahead: both 1 by default) and draws a bright head at the tip
+ * while the trail is short of the end; a share of 0 draws nothing of it.
  */
 export function drawTrail(
   c: CanvasRenderingContext2D,
@@ -70,27 +93,48 @@ export function drawTrail(
   ahead: readonly TrailPoint[],
   pins: readonly Pin[],
   under?: (c: CanvasRenderingContext2D) => void,
+  draw: TrailDraw = {},
 ): void {
   const lift = trailLift(v);
+  const { share = 1, aheadShare = 1, alpha = 1 } = draw;
+  const first = share >= 1 ? trail : partialTrail(trail, share);
+  const way = aheadShare >= 1 ? ahead : partialTrail(ahead, aheadShare);
 
   c.setTransform(dpr, 0, 0, dpr, 0, 0);
   c.clearRect(0, 0, stage.w, stage.h);
   under?.(c);
   c.lineCap = "round";
   c.lineJoin = "round";
-  trace(c, v, trail, lift);
-  c.strokeStyle = TRAIL_SHADOW;
-  c.lineWidth = 3.6;
-  c.stroke();
-  c.strokeStyle = TRAIL_INK;
-  c.lineWidth = 1.5;
-  c.stroke();
-  trace(c, v, ahead, lift);
-  c.setLineDash([1.5, 6]);
-  c.strokeStyle = AHEAD_INK;
-  c.lineWidth = 1.3;
-  c.stroke();
-  c.setLineDash([]);
+  if (alpha < 1) c.globalAlpha = Math.max(0, alpha);
+  if (share > 0) {
+    trace(c, v, first, lift);
+    c.strokeStyle = TRAIL_SHADOW;
+    c.lineWidth = 3.6;
+    c.stroke();
+    c.strokeStyle = TRAIL_INK;
+    c.lineWidth = 1.5;
+    c.stroke();
+  }
+  if (aheadShare > 0) {
+    trace(c, v, way, lift);
+    c.setLineDash([1.5, 6]);
+    c.strokeStyle = AHEAD_INK;
+    c.lineWidth = 1.3;
+    c.stroke();
+    c.setLineDash([]);
+  }
+  if (share > 0 && share < 1) {
+    const tip = first[first.length - 1];
+    const [x, y] = project(v, tip.x, tip.y, liftOf(tip.n, v.rise) + lift);
+
+    for (const [r, fill] of [[HEAD_HALO, HEAD_HALO_INK], [HEAD_CORE, FOOT_INK]] as const) {
+      c.beginPath();
+      c.ellipse(x, y, r, r, 0, 0, 7);
+      c.fillStyle = fill;
+      c.fill();
+    }
+  }
+  if (alpha < 1) c.globalAlpha = 1;
   if (v.rise <= STEMS_FROM) return;
   for (const { foot, head } of pins) {
     c.beginPath();

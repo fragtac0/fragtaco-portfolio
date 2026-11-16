@@ -15,6 +15,7 @@ import { createChartState } from "./chart-state";
 import { changeAt, IN_MS, kOf, startChange, type Change, type Mode } from "./climb-change";
 import type { CanvasLayer, ClimbEngine, ClimbLayers, ClimbOptions } from "./climb-engine-types";
 import { dipAt, hopStart, jumpNow } from "./climb-hop";
+import { createEntrance } from "./entrance-driver";
 import { PICTURE, SUMMIT_XY } from "./frame";
 import { setHeights } from "./heights";
 import { BEAD_REACH, NO_KEEP_OUT, TRAIL_REACH, reachBox, type Box } from "./keep-out";
@@ -61,6 +62,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
   const ahead = aheadTrail([trail[trail.length - 1].x, trail[trail.length - 1].y], SUMMIT_XY);
   const shares = sharesFor(pins.length);
   let spots = shares.map((u) => ({ ...trailAt(trail, u), u }));
+  const entrance = createEntrance(pins, shares, reduced, options.entrance === true);
   let keep = NO_KEEP_OUT;
   /** The overview's framing that `cam` is gliding to. */
   let look: Look = { ...start() };
@@ -123,10 +125,12 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     if (reduced()) Object.assign(cam, look);
   }
 
-  /** The radar's rings, at `now` (milliseconds); still, under reduced motion. */
-  function radar(now: number, calm: boolean) {
+  /** The radar's rings, at `now` (milliseconds) counted from `from` (when the entrance started it; null: not yet, nothing is drawn); still, under reduced motion. */
+  function radar(now: number, calm: boolean, from: number | null) {
     radarAt = now;
-    if (radarCtx !== null) drawRadar(radarCtx, seen, spots[spots.length - 1], foot, side, dpr, radarPhases(calm ? 800 : now));
+    if (radarCtx === null) return;
+    if (from === null) radarCtx.clearRect(0, 0, side, side);
+    else drawRadar(radarCtx, seen, spots[spots.length - 1], foot, side, dpr, radarPhases(calm ? 800 : now - from));
   }
 
   function scene(now: number, traced: boolean) {
@@ -156,8 +160,9 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     const fade = calm ? Math.abs(1 - 2 * k) : 1;
     const alpha = String(+(fade * shown).toFixed(3));
     const over = chartAlpha(seen.night); // the overview's own marks fade with the picture
+    const entering = entrance.step(now); // the entrance (spec 8): how much of the trail is drawn, and whether the radar has begun
 
-    if (trailCtx !== null) drawTrail(trailCtx, seen, size, dpr, trail, ahead, places, (c) => chart.under(c, seen, size, over, want !== "climb"));
+    if (trailCtx !== null) drawTrail(trailCtx, seen, size, dpr, trail, ahead, places, (c) => chart.under(c, seen, size, over, want !== "climb"), { share: entering.share, aheadShare: entering.ahead, alpha: entering.alpha });
     if (frameCtx !== null) {
       const at = want === "climb" ? spots[index] : { x: SUMMIT_XY[0], y: SUMMIT_XY[1] };
 
@@ -178,7 +183,7 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
     }
     foot = radarFoot(seen, spots[spots.length - 1]);
     radarCanvas.style.transform = `translate(${foot[0] - side / 2}px, ${foot[1] - side / 2}px)`;
-    radar(now, calm);
+    radar(now, calm, entering.radar);
     options.onHeads?.(heads, { w: size.w, h: size.h });
     dirty = false;
 
@@ -223,9 +228,10 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       Object.assign(cam, glideTo(cam, look, dt));
       dirty = true;
     }
+    if (entrance.wakes(now)) dirty = true;
     if (dirty) scene(now, traced);
-    else if (!calm && now - radarAt >= RADAR_GAP) radar(now, calm);
-    if (moving() || !calm) schedule();
+    else if (!calm && now - radarAt >= RADAR_GAP) radar(now, calm, entrance.step(now).radar);
+    if (moving() || !calm || entrance.live()) schedule();
   }
 
   /** Move the camera so the milestone is in view, and say how long the card should wait for it. */
@@ -325,6 +331,15 @@ export function createClimbEngine(layers: ClimbLayers, options: ClimbOptions): C
       schedule();
     },
     redraw() {
+      dirty = true;
+      schedule();
+    },
+    startEntrance(at) {
+      entrance.start(at);
+      schedule();
+    },
+    finishEntrance() {
+      entrance.finish(host.now());
       dirty = true;
       schedule();
     },
