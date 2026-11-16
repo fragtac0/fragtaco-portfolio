@@ -13,8 +13,10 @@ type MiniShelfProps = {
 
 /**
  * The reading box's flat picture: the shelf's row on its rock ledge, drawn small with the 3D shelf's own spine painter. It is the picture of
- * a visitor without WebGL or of a scene that failed (spec 6.1); a box that holds its live scene does not mount it, so a live visitor pays
- * for none of its spines, faces or fonts twice. Mounted again (with its own fit and its own painting) if the scene fails later.
+ * a visitor without WebGL or of a scene that failed or lost its context (spec 6.1, 6.3). It mounts only once the client has decided the box
+ * is not live (box-picture.ts): not in the server's render, not in the hydration render and not for a live visitor, so a live visitor pays for
+ * none of its spines, faces or fonts twice. It is mounted with its own fit (a layout effect: the row is at its size in the first painted frame)
+ * and its own painting, also if the scene fails later.
  */
 export default function MiniShelf({ books, near }: MiniShelfProps) {
   const spines = useMemo(() => books.map(miniSpine), [books]);

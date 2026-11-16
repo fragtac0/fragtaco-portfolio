@@ -3,7 +3,9 @@ import { miniThumbUrl, miniWallColumns } from "./mini-previews";
 
 /**
  * The watching box's flat picture: columns of small thumbnails drifting up and down in CSS. It is the picture of a visitor without WebGL or of
- * a scene that failed (spec 6.1); a box that holds its live scene does not mount it, so no thumbnail is requested for it.
+ * a scene that failed or lost its context (spec 6.1, 6.3). It mounts only once the client has decided the box is not live (box-picture.ts):
+ * not in the server's render, not in the hydration render and not for a live visitor, so a live visitor requests none of its thumbnails.
+ * A scene that fails later mounts it in the commit that takes the live scene away; its thumbnails then load at network speed (the images are lazy).
  */
 export default function MiniWall({ videos }: { videos: SiteVideo[] }) {
   const columns = miniWallColumns(videos);

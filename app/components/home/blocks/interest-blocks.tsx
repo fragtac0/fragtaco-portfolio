@@ -5,6 +5,7 @@ import type { SiteBook, SiteVideo } from "../../../types";
 import EclipseGround from "../../ground/eclipse-ground";
 import type { LayerKind } from "../layer/layer-state";
 import "./blocks.css";
+import type { BoxPicture } from "./box-picture";
 import MiniShelf from "./mini-shelf";
 import MiniWall from "./mini-wall";
 import { useNear } from "./use-near";
@@ -22,8 +23,8 @@ type InterestBlocksProps = {
   onOpen: (kind: LayerKind) => void;
   /** Each scene's own element (null on the server): it stands in its block's box, drawn live (layer/box-scene.ts). */
   homes: Record<LayerKind, HTMLElement> | null;
-  /** The box shows its live scene (WebGL, not failed); false: the flat mini preview (mini-shelf.tsx, mini-wall.tsx) is the box's picture, and only then is it mounted. */
-  live: Record<LayerKind, boolean>;
+  /** What each box shows (box-picture.ts): the dark ground until the client has decided, its live scene, or (only then mounted) the flat mini preview (mini-shelf.tsx, mini-wall.tsx). */
+  picture: Record<LayerKind, BoxPicture>;
   /** Fires once per kind, in idle time, when its block comes within 240 px of the viewport. */
   onNear: (kind: LayerKind) => void;
   /** A hero card is open over the page: the blocks are out of the tab order until it closes. */
@@ -37,7 +38,7 @@ function InterestBlocks({
   videos,
   onOpen,
   homes,
-  live,
+  picture,
   onNear,
   blocked = false,
   covered = false,
@@ -86,7 +87,7 @@ function InterestBlocks({
             ref={readRef}
             className="block idle"
             id={BLOCK_ID.reading}
-            data-live={live.reading ? "" : undefined}
+            data-live={picture.reading === "live" ? "" : undefined}
           >
             <div className="blk-text">
               <h2 className="display">
@@ -103,7 +104,7 @@ function InterestBlocks({
               </span>
             </div>
             <div className="blk-box">
-              {!live.reading && <MiniShelf books={books} near={shelfNear} />}
+              {picture.reading === "flat" && <MiniShelf books={books} near={shelfNear} />}
               <div className="blk-live" />
             </div>
             <button
@@ -118,7 +119,7 @@ function InterestBlocks({
             ref={watchRef}
             className="block idle"
             id={BLOCK_ID.watching}
-            data-live={live.watching ? "" : undefined}
+            data-live={picture.watching === "live" ? "" : undefined}
           >
             <div className="blk-text">
               <h2 className="display">
@@ -135,7 +136,7 @@ function InterestBlocks({
               </span>
             </div>
             <div className="blk-box">
-              {!live.watching && <MiniWall videos={videos} />}
+              {picture.watching === "flat" && <MiniWall videos={videos} />}
               <div className="blk-live" />
             </div>
             <button

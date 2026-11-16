@@ -10,6 +10,7 @@ import {
 import { createPortal } from "react-dom";
 import type { getHomePageContent } from "../../content/loaders.server";
 import SiteNav from "../site-nav";
+import { boxPicture } from "./blocks/box-picture";
 import InterestBlocks from "./blocks/interest-blocks";
 import HeroCards from "./cards/hero-cards";
 import { heroNav, type NavContext, type NavInput, type NavState } from "./cards/hero-nav";
@@ -123,10 +124,12 @@ export default function HomePage({
     () => true,
     () => false,
   );
-  const live = useMemo(
+  // what each box shows: the ground until the client has decided, then its live scene, or the flat preview once the scene has gone plain
+  // (box-picture.ts); a live visitor never mounts the flat previews, so it requests none of their thumbnails
+  const picture = useMemo(
     () => ({
-      reading: clientReady && boxes.status.reading !== "plain",
-      watching: clientReady && boxes.status.watching !== "plain",
+      reading: boxPicture(clientReady, boxes.status.reading),
+      watching: boxPicture(clientReady, boxes.status.watching),
     }),
     [clientReady, boxes.status.reading, boxes.status.watching],
   );
@@ -193,7 +196,7 @@ export default function HomePage({
             videos={videos}
             onOpen={boxes.onOpen}
             homes={boxes.homes}
-            live={live}
+            picture={picture}
             onNear={onBlockNear}
             blocked={open}
             covered={layerActive}

@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from "react";
+import { useLayoutEffect, type RefObject } from "react";
 import { miniShelfScale } from "./mini-previews";
 
 /** The gap between spines in the mini shelf (blocks.css `.ms-row`), and the room it keeps below and above. */
@@ -9,14 +9,15 @@ const LIFT = 16; /* headroom for the hover lift */
 /**
  * Sets `--ms-fit` on the mini shelf's row: the scale that spans the preview's inner width (its width
  * less its side padding) as far as the preview's height allows (`miniShelfScale`). Re-run
- * whenever the preview is resized. No React state: the value goes straight to the element.
+ * whenever the preview is resized. No React state: the value goes straight to the element. A layout effect: the preview mounts when a
+ * scene fails (box-picture.ts), and its first painted frame must already have the row at its size (a passive effect left one frame at 1).
  */
 export function useMiniFit(
   artRef: RefObject<HTMLElement>,
   rowRef: RefObject<HTMLElement>,
   spines: readonly { w: number; h: number }[],
 ) {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const art = artRef.current;
     const row = rowRef.current;
     if (!art || !row || spines.length === 0) return;
