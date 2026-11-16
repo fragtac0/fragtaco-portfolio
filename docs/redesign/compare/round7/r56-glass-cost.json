@@ -640,5 +640,87 @@
     "gpuMainWorkMs": 217
    }
   ]
+ },
+ "r56_2c_after_fixes": {
+  "what": "The gate again after the review fixes (R56.2c, 16 Nov): drift blend, per-hold late fades, the veil that holds a picture still on its way at opacity 0, three warmed changes from home to /work at each size under the gate lock.",
+  "note_1920": "the first 1920x1080@1 set had one dropped frame in run 2 (renderer compositor 302 ms, viz 192 ms); re-run once as the rules say: 0 dropped in all three, so it passes on the re-run.",
+  "1512x982@2": [
+   {
+    "rendererCompositorMs": 284,
+    "vizCompositorMs": 187,
+    "gpuMainSelfMs": 256,
+    "gpuMainWaitMs": 56,
+    "gpuMainWorkMs": 200,
+    "dropped": 0
+   },
+   {
+    "rendererCompositorMs": 294,
+    "vizCompositorMs": 191,
+    "gpuMainSelfMs": 285,
+    "gpuMainWaitMs": 75,
+    "gpuMainWorkMs": 210,
+    "dropped": 0
+   },
+   {
+    "rendererCompositorMs": 272,
+    "vizCompositorMs": 180,
+    "gpuMainSelfMs": 248,
+    "gpuMainWaitMs": 52,
+    "gpuMainWorkMs": 196,
+    "dropped": 0
+   }
+  ],
+  "1920x1080@1_first": [
+   {
+    "rendererCompositorMs": 304,
+    "vizCompositorMs": 193,
+    "gpuMainSelfMs": 247,
+    "gpuMainWaitMs": 57,
+    "gpuMainWorkMs": 190,
+    "dropped": 0
+   },
+   {
+    "rendererCompositorMs": 302,
+    "vizCompositorMs": 192,
+    "gpuMainSelfMs": 251,
+    "gpuMainWaitMs": 62,
+    "gpuMainWorkMs": 189,
+    "dropped": 1
+   },
+   {
+    "rendererCompositorMs": 313,
+    "vizCompositorMs": 198,
+    "gpuMainSelfMs": 248,
+    "gpuMainWaitMs": 51,
+    "gpuMainWorkMs": 197,
+    "dropped": 0
+   }
+  ],
+  "1920x1080@1_rerun": [
+   {
+    "rendererCompositorMs": 297,
+    "vizCompositorMs": 191,
+    "gpuMainSelfMs": 256,
+    "gpuMainWaitMs": 60,
+    "gpuMainWorkMs": 196,
+    "dropped": 0
+   },
+   {
+    "rendererCompositorMs": 308,
+    "vizCompositorMs": 201,
+    "gpuMainSelfMs": 280,
+    "gpuMainWaitMs": 87,
+    "gpuMainWorkMs": 193,
+    "dropped": 0
+   },
+   {
+    "rendererCompositorMs": 302,
+    "vizCompositorMs": 191,
+    "gpuMainSelfMs": 235,
+    "gpuMainWaitMs": 50,
+    "gpuMainWorkMs": 186,
+    "dropped": 0
+   }
+  ]
  }
 }

@@ -22,15 +22,34 @@ export function imageReady(img: HTMLImageElement): Promise<void> {
   });
 }
 
+const FADE_FRAMES = [{ opacity: 0 }, { opacity: 1 }];
+const FADE_TIMING = { duration: LATE_FADE_MS, easing: "ease-out" } as const;
+
 /**
- * Fades an element in over `LATE_FADE_MS`, with nothing else moving (opacity only). For a part that came after the cap. This is
- * the only fade a late part has: `data-late` switches off an opacity transition the part's own CSS has (the rings' and the wall's
- * pictures fade in on `data-ready`), so the two never run together and the element never dips back when this one ends.
+ * Fades an element in over `LATE_FADE_MS`, with nothing else moving (opacity only). For a part that came after the cap. This is the only fade a
+ * late part has: `data-late` switches off an opacity transition the part's own CSS has (the rings' and the wall's pictures fade in on `data-ready`), so
+ * the two never run together and the element never dips back when this one ends. With a `veil` (see `veilPicture`) it plays that one, which has held
+ * the picture at opacity 0 since before it came, so the picture is never painted whole in the frames before its fade starts.
  */
-export function fadeLate(el: Element): void {
+export function fadeLate(el: Element, veil?: Animation | null): void {
   if (typeof el.animate !== "function") return;
   (el as HTMLElement).dataset.late = "";
-  el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: LATE_FADE_MS, easing: "ease-out" });
+  if (veil) {
+    veil.onfinish = () => veil.cancel(); // the element is at its own opacity again (1)
+    veil.play();
+  } else el.animate(FADE_FRAMES, FADE_TIMING);
+}
+
+/**
+ * Holds a picture that is still on its way at opacity 0 (a paused animation at its first frame) until `fadeLate` plays it or the page cancels it (the picture
+ * came in time). A picture that comes after the reveal is painted by the browser as soon as it is decoded, which can be a frame or two before the page hears of
+ * it; without this it would show whole for those frames and then fade from 0.
+ */
+export function veilPicture(img: HTMLImageElement): Animation | null {
+  if (typeof img.animate !== "function") return null;
+  const veil = img.animate(FADE_FRAMES, { ...FADE_TIMING, fill: "both" });
+  veil.pause();
+  return veil;
 }
 
 /** Whether any of the element's box is inside the window (the part of the page the reveal shows). */
@@ -49,7 +68,10 @@ export function holdImages(label: string, images: Iterable<HTMLImageElement>): H
   const ready = list.map(imageReady);
   const hold = holdFor(label, Promise.all(ready));
   if (!hold) return null;
-  ready.forEach((promise, i) => void promise.then(() => hold.late && fadeLate(list[i])));
+  list.forEach((img, i) => {
+    const veil = img.complete ? null : veilPicture(img); // still on its way: held at opacity 0 until it is known whether it is late
+    void ready[i].then(() => (hold.late ? fadeLate(img, veil) : veil?.cancel()));
+  });
   return hold;
 }
 

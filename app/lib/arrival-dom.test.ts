@@ -15,7 +15,8 @@ describe("holdImages", () => {
   /** A picture that has not loaded (a plain object: the test environment has no DOM); `land` loads it (complete, decodable) and fires its load event. */
   function picture() {
     const listeners: Record<string, Array<() => void>> = {};
-    const animate = vi.fn();
+    const veil = { pause: vi.fn(), play: vi.fn(), cancel: vi.fn(), onfinish: null as null | (() => void) };
+    const animate = vi.fn((..._args: unknown[]) => veil);
     const img = {
       complete: false,
       naturalWidth: 100,
@@ -28,10 +29,20 @@ describe("holdImages", () => {
       img.complete = true;
       listeners.load?.forEach((fn) => fn());
     };
-    return { img: img as unknown as HTMLImageElement, animate, land };
+    return { img: img as unknown as HTMLImageElement, animate, veil, land };
   }
 
-  it("a picture that settles after the change has ended is faded over LATE_FADE_MS, once, and its own CSS fade is switched off", async () => {
+  it("a picture still on its way is veiled at opacity 0 from the moment it is held (paused, fill both), so it is never painted whole before its fade", () => {
+    resetArrival();
+    const p = picture();
+    holdImages("map", [p.img]);
+    expect(p.animate).toHaveBeenCalledTimes(1);
+    expect(p.animate).toHaveBeenCalledWith([{ opacity: 0 }, { opacity: 1 }], { duration: LATE_FADE_MS, easing: "ease-out", fill: "both" });
+    expect(p.veil.pause).toHaveBeenCalledTimes(1);
+    expect(p.veil.play).not.toHaveBeenCalled();
+  });
+
+  it("a picture that settles after the change has ended plays its veil: a fade over LATE_FADE_MS, once, and its own CSS fade is switched off", async () => {
     resetArrival();
     const p = picture();
     holdImages("map", [p.img]);
@@ -40,15 +51,31 @@ describe("holdImages", () => {
     expect((await waited).late).toEqual(["map"]);
     endArrival(); // the change is over, the picture has still not come
     await adv(2500);
-    expect(p.animate).not.toHaveBeenCalled();
+    expect(p.veil.play).not.toHaveBeenCalled();
+    expect(p.veil.cancel).not.toHaveBeenCalled(); // still held at 0
     p.land();
     await adv(0);
-    expect(p.animate).toHaveBeenCalledTimes(1);
-    expect(p.animate).toHaveBeenCalledWith([{ opacity: 0 }, { opacity: 1 }], { duration: LATE_FADE_MS, easing: "ease-out" });
+    expect(p.veil.play).toHaveBeenCalledTimes(1);
+    expect(p.animate).toHaveBeenCalledTimes(1); // the veil is the one animation
     expect(p.img.dataset.late).toBe("");
+    p.veil.onfinish?.(); // when it ends the picture is at its own opacity again
+    expect(p.veil.cancel).toHaveBeenCalledTimes(1);
   });
 
-  it("a picture that came before the reveal is not faded", async () => {
+  it("a picture that came before the reveal is not faded: its veil is taken off and it is simply there", async () => {
+    resetArrival();
+    const p = picture();
+    holdImages("ground", [p.img]);
+    const waited = whenArrivalReady(500);
+    p.land();
+    await waited;
+    await adv(0);
+    expect(p.veil.play).not.toHaveBeenCalled();
+    expect(p.veil.cancel).toHaveBeenCalledTimes(1);
+    expect(p.img.dataset.late).toBeUndefined();
+  });
+
+  it("a picture that is already in is not veiled or faded", async () => {
     resetArrival();
     const p = picture();
     p.land();
@@ -70,8 +97,10 @@ describe("holdImages", () => {
     await waited;
     slow.land();
     await adv(0);
-    expect(quick.animate).not.toHaveBeenCalled();
-    expect(slow.animate).toHaveBeenCalledTimes(1);
+    expect(quick.veil.play).not.toHaveBeenCalled();
+    expect(quick.veil.cancel).toHaveBeenCalledTimes(1);
+    expect(slow.veil.play).toHaveBeenCalledTimes(1);
+    expect(slow.veil.cancel).not.toHaveBeenCalled();
   });
 
   it("does nothing when no change is waiting for the page", () => {
@@ -81,9 +110,11 @@ describe("holdImages", () => {
     expect(p.animate).not.toHaveBeenCalled();
   });
 
-  it("fadeLate marks the element and animates opacity only", () => {
+  it("fadeLate without a veil (an element made after the reveal, like the hero's sharp painting) animates opacity only, once", () => {
     const p = picture();
     fadeLate(p.img);
-    expect(p.animate).toHaveBeenCalledWith([{ opacity: 0 }, { opacity: 1 }], expect.objectContaining({ duration: 200 }));
+    expect(p.animate).toHaveBeenCalledTimes(1);
+    expect(p.animate).toHaveBeenCalledWith([{ opacity: 0 }, { opacity: 1 }], { duration: LATE_FADE_MS, easing: "ease-out" });
+    expect(p.img.dataset.late).toBe("");
   });
 });

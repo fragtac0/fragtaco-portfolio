@@ -15,6 +15,8 @@
 //    and under reduced motion (a fade, no stagger); frames of the arrival are photographed by a film,
 //  - the way back: the back button (same pill and place as the shelves' Close) is a tab stop, Enter goes to /work through the
 //    one radial change; Esc does too,
+//  - R56.2c: the hook `window.__wallTrace` (an array the engine writes [ms, x, y] to every frame it draws): the first frame's offset from the fit is under 0.5 px and the
+//    offset stays within 6 px on both axes, so the 8 px gap holds with the canvas drifted (`__driftCheck`),
 //  - frames: gaps between animation frames over 3 s of drifting and over 2.5 s of hovering across the wall (over20 must be 0),
 //  - real input: a real mouse move shows the caption of the tile under it, a real click (a real tap on the phone)
 //    opens it, the arrow keys move the focus (the engine's ring) and Enter opens that one,
@@ -74,6 +76,8 @@ const put=(img,v)=>{const m=pic(String(v));if(m&&slow)setTimeout(()=>d.set.call(
 Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:true,get(){return d.get.call(this)},set(v){put(this,v)}});
 const sa=Element.prototype.setAttribute;Element.prototype.setAttribute=function(n,v){if(this instanceof HTMLImageElement&&n==='src'){put(this,v);return}return sa.call(this,n,v)};
 new MutationObserver((ms)=>{for(const m of ms)for(const n of m.addedNodes){const imgs=n.nodeType===1?(n.tagName==='IMG'?[n]:[...n.querySelectorAll('img')]):[];for(const i of imgs){const s=i.getAttribute('src');if(s&&s.includes('i.ytimg.com'))i.src=s}}}).observe(document,{childList:true,subtree:true});
+window.__wallTrace=[];
+window.__driftCheck=()=>{const t=window.__wallTrace.filter((r)=>Math.abs(r[1])<1e6);if(!t.length)return {ok:false,rows:0};const first=t[0];let mx=0,my=0;for(const r of t){mx=Math.max(mx,Math.abs(r[1]));my=Math.max(my,Math.abs(r[2]))}const firstPx=Math.hypot(first[1],first[2]);return {rows:t.length,firstFrameOffsetPx:+firstPx.toFixed(3),maxAbsX:+mx.toFixed(2),maxAbsY:+my.toFixed(2),ok:firstPx<0.5&&mx<=6.01&&my<=6.01}};
 // WebGL refused for the "no WebGL" runs (a flag in sessionStorage, set and cleared by the steps)
 const gc=HTMLCanvasElement.prototype.getContext;
 HTMLCanvasElement.prototype.getContext=function(t,...a){if(sessionStorage.getItem('nogl')==='1'&&/webgl/.test(t))return null;return gc.call(this,t,...a)};
@@ -258,6 +262,8 @@ function wall(kind, size, opts = {}) {
   steps.push({ shot: `${tag}-warm` });
   steps.push({ shot: `r43-wall-${tag}` });
   steps.push(frames(`${tag}: frames while drifting`));
+  // R56.2c: the wall as drawn (the engine's own offset, every frame since its first): the first frame is where the plain links were, and the drift stays within its 6 px of the fit on both axes, so the 8 px gap holds with the canvas drifted
+  steps.push({ eval: "__driftCheck()", label: `${tag}: the drawn wall starts at the fit and drifts within 6 px of it` });
   steps.push(frames(`${tag}: frames while hovering`, true));
   steps.push({ eval: "document.querySelector('.wall-canvas').getBoundingClientRect().width+'x'+document.querySelector('.wall-canvas').getBoundingClientRect().height+' canvases='+document.querySelectorAll('.wall-canvas').length", label: `${tag}: canvas` });
   const pt = "(()=>{const g=__grid(),i=Math.floor(g.count/2),q=__rect(g,i);return __warp(q.x+q.w/2,q.y+q.h/2,g.vw,g.vh)})()";
