@@ -12,7 +12,7 @@
 // A is compared with B moved to the framing the engine reports (the scale and place are read from both pictures' projected boxes: `projected()` gives the ledge's
 // box in each; B carries no dots outside the window and A does, and the dots are too faint to reach the 48 threshold), and a second shelf case, `shelf-t1`, draws
 // the frame of a move at its end (`setFrame(window, { move: { box, t: 1 } })`) and compares it with `setFrame(null)` directly: the open page's own picture (scale 1, nothing
-// moved; 0.5%). The shelf's share bar at dpr 2 is 2.5% (the wall's stays 2%): the row is drawn at about a third of its size in a box, so its edges are a larger share of the pixels (1.7 to 2.0% measured; the difference sheets show outlines of spines and lettering only, RB1). The wall's cases are unchanged.
+// moved; 0.5%). The shelf's share bar at dpr 2 is 2.5% (the wall's stays 2%): the row is drawn at about a third of its size in a box, so its edges are a larger share of the pixels (1.7 to 2.0% measured; the difference sheets show outlines of spines and lettering only). Ruling RB11: 2.5% for the shelf's new comparison (the framed picture moved to the box framing, a resample at about a third of the scale; one frame measured 2.00%); RB1's 2% stays for the wall. The wall's cases are unchanged.
 // Also read: `whenDrawn` resolves in the frame that draws the new frame (the picture is grabbed inside it), `setFrame` builds nothing
 // (no program is created or compiled), the canvas stays the same element, a docked scene is out of the tab order, lets the pointer
 // through and answers no key, a docked wall draws at most 30 times a second and a docked shelf draws nothing while still, and an

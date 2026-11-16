@@ -1,14 +1,15 @@
 // The reading box's framing (R55.3j, Task 30; second look spec 6), pushed into box-open-kit.mjs's `steps`:
-//   framingCases()   at 1440 by 900, 1366 by 768 and 390 by 844 (Review Focus 4: a short wide box and a narrow tall one):
+//   framingCases()   at 1440 by 900, 1366 by 768, 390 by 844 and 844 by 390 (Review Focus 4: a short wide box, a narrow tall one and the landscape phone, where the box's room is larger than the open page's row and the framing is capped at the open page's size: RB10):
 //     REST    the engine's own projected boxes (`__ftEngines.shelf.projected()`: each book's and the ledge's bounding box taken through the camera as it
 //             draws them) are inside the box's frame: every book, the ledge's top edge and its front face; the tallest book's top is at least 6% of the box's
-//             height below the top; the row is as large as fits (a padding of box-framing.ts is tight); the dot field covers the box down to the line the books stand on;
+//             height below the top; the row is as large as fits (a padding of box-framing.ts is tight, or, capped at the open page's size, the box's row is the open page's:
+//             `restNotLargerThanOpen` in OPEN); the dot field covers the box down to the line the books stand on;
 //     OPEN    a recorder on every animation frame (`__bf`: the scene's rect and the ledge's and the tallest book's size as drawn) reads the opening from the click:
 //             the first frame of the move is the box's own picture (no step), the picture then only grows, with no step at the end of the move or after it, and
 //             the end is the open page: the engine's boxes equal those of the same window opened by a deep link (the last frame is the open page);
 //     CLOSE   the same backwards, ending in the box's picture as it was at rest;
 //     RF5     a click while the scene is still fading in (the first frame after `data-drawn`): the picture at the click, at the first frame of the move and at
-//             rest afterwards are one picture.
+//             rest afterwards are one picture (the first move frame is compared with the picture at the click and with the rest picture).
 //   The pictures (a still of the box at rest) are saved as `local-rest-<size>.jpg` (they show covers: docs/redesign/compare/local/r55-4/).
 import { HELPERS } from "./box-open-helpers.mjs";
 import { INIT, push, wait } from "./box-open-kit.mjs";
@@ -17,6 +18,7 @@ export const FRAMING_SIZES = [
   { name: "1440x900", size: [1440, 900], dpr: 1, mobile: false, touch: false },
   { name: "1366x768", size: [1366, 768], dpr: 1, mobile: false, touch: false },
   { name: "390x844", size: [390, 844], dpr: 2, mobile: true, touch: true },
+  { name: "844x390", size: [844, 390], dpr: 2, mobile: true, touch: true },
 ];
 
 // the page-side recorder: the scene's rect and what the engine draws, on every animation frame
@@ -42,11 +44,12 @@ const BF = `(() => {
     const v = mv.map((r) => r.ledgeW), up = dir === 'open' ? 1 : -1;
     let backwards = 0; for (let i = 1; i < v.length; i++) if (up * (v[i] - v[i - 1]) < -0.5) backwards++;
     const steps = []; for (let i = 1; i < v.length; i++) steps.push(Math.abs(v[i] - v[i - 1]));
-    const way = Math.abs(v.at(-1) - v[0]);
+    const way = Math.abs(v.at(-1) - v[0]), flat = way < 1, maxStepPx = Math.max(0, ...steps);
     const startRef = dir === 'open' ? rest : null;
     const share = (a, b) => +(Math.abs(a - b) / Math.max(1, Math.abs(b)) * 100).toFixed(2);
     return { dir, moveFrames: mv.length, firstLedgeW: +first.ledgeW.toFixed(2), lastLedgeW: +last.ledgeW.toFixed(2), afterLedgeW: end ? +end.ledgeW.toFixed(2) : null, backwardsFrames: backwards,
-      maxStepPctOfWay: +(Math.max(...steps) / way * 100).toFixed(2), firstStepPctOfWay: +(steps[0] / way * 100).toFixed(2), lastStepPctOfWay: +(steps.at(-1) / way * 100).toFixed(2),
+      wayPx: +way.toFixed(2), maxStepPx: +maxStepPx.toFixed(2), flat,
+      maxStepPctOfWay: flat ? 0 : +(maxStepPx / way * 100).toFixed(2), firstStepPctOfWay: flat ? 0 : +(steps[0] / way * 100).toFixed(2), lastStepPctOfWay: flat ? 0 : +(steps.at(-1) / way * 100).toFixed(2),
       firstVsRestPct: startRef ? share(first.ledgeW, startRef.ledgeW) : null, firstVsRestTallPct: startRef ? share(first.tallPx, startRef.tallPx) : null,
       lastVsAfterPct: end ? share(last.ledgeW, end.ledgeW) : null, firstFrameRect: [first.w, first.h].map(Math.round), firstTopShare: +first.topShare.toFixed(4),
       inFrameAtFirst: first.left >= -0.5 && first.right <= first.fw + 0.5 };
@@ -100,15 +103,16 @@ export function framingCases() {
       eval: `(async()=>{window.__rest=window.__bfRead();window.__bfStart();await ${wait(300)};document.querySelector('[data-xp=reading]').click();await ${wait(1700)};window.__bfStop=true;await ${wait(100)};
         const v=window.__bfVerdict('open',window.__rest);const open=window.__bfRead();sessionStorage.setItem('bf-open','${s.name}|'+JSON.stringify(open.books)+'|'+JSON.stringify([open.ledgeW,open.ledgeTop,open.ledgeBottom]));
         v.endsOpen=${SCENE}.dataset.at==='open'&&!!document.querySelector('.home-layer.ready');
-        v.ok=v.endsOpen&&v.firstVsRestPct<=1&&v.firstVsRestTallPct<=1&&v.backwardsFrames===0&&v.lastVsAfterPct<=1&&v.maxStepPctOfWay<=15&&v.inFrameAtFirst&&Math.abs(v.firstFrameRect[0]-window.__rest.w)<=8;return JSON.stringify(v)})()`,
-      label: `${tag} OPEN: the first frame of the move is the box's own picture (firstVsRestPct under 1), the picture only grows (backwardsFrames 0), no step at the end of the move (lastVsAfterPct under 1, lastStepPctOfWay no larger than maxStepPctOfWay)`,
+        v.restLedgeW=+window.__rest.ledgeW.toFixed(2);v.openLedgeW=+open.ledgeW.toFixed(2);v.restNotLargerThanOpen=window.__rest.ledgeW<=open.ledgeW+0.5;
+        v.ok=v.endsOpen&&v.firstVsRestPct<=1&&v.firstVsRestTallPct<=1&&v.backwardsFrames===0&&v.lastVsAfterPct<=1&&v.maxStepPctOfWay<=15&&v.maxStepPx<=(v.flat?0.5:Infinity)&&v.restNotLargerThanOpen&&v.inFrameAtFirst&&Math.abs(v.firstFrameRect[0]-window.__rest.w)<=8;return JSON.stringify(v)})()`,
+      label: `${tag} OPEN: the first frame of the move is the box's own picture (firstVsRestPct under 1), the picture only grows (backwardsFrames 0; the box never draws the row larger than the open page: restNotLargerThanOpen), no step at the end of the move (lastVsAfterPct under 1, lastStepPctOfWay no larger than maxStepPctOfWay; a move whose ledge keeps its size, wayPx under 1, has maxStepPx at most 0.5)`,
     });
     // CLOSE: the same backwards, back to the picture the box had at rest
     push({
       eval: `(async()=>{window.__bfStart();await ${wait(300)};document.querySelector('.xp-close').click();await ${wait(1700)};window.__bfStop=true;await ${wait(100)};
         const v=window.__bfVerdict('close',null);const rest=window.__bfRead();const was=window.__rest;
         v.backInBox=!document.querySelector('.home-layer')&&!${SCENE}.dataset.at;v.restAgainDiffPx=Math.max(...rest.books.flatMap((b,i)=>b.map((x,k)=>Math.abs(x-was.books[i][k]))),Math.abs(rest.ledgeW-was.ledgeW));
-        v.ok=v.backInBox&&v.backwardsFrames===0&&v.lastVsAfterPct<=1&&v.restAgainDiffPx<=0.5&&v.maxStepPctOfWay<=15;return JSON.stringify(v)})()`,
+        v.ok=v.backInBox&&v.backwardsFrames===0&&v.lastVsAfterPct<=1&&v.restAgainDiffPx<=0.5&&v.maxStepPctOfWay<=15&&v.maxStepPx<=(v.flat?0.5:Infinity);return JSON.stringify(v)})()`,
       label: `${tag} CLOSE: the same backwards: ends in the box's own picture (restAgainDiffPx at most 0.5), the picture only shrinks`,
     });
     // the open page opened by a deep link at this window size: the boxes at the end of the move are these (the last frame of the move is the open page)
@@ -127,7 +131,7 @@ export function framingCases() {
     push({
       eval: `new Promise(r=>{const sc=${SCENE};document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});
         const i=setInterval(()=>{if(!sc.hasAttribute('data-drawn')&&!sc.hasAttribute('data-plain'))return;clearInterval(i);
-          const atClick=window.__bfRead(),op=getComputedStyle([...sc.children].find((c)=>!c.classList.contains('tex'))).opacity;window.__bfStart();
+          const atClick=window.__atClick=window.__bfRead(),op=getComputedStyle([...sc.children].find((c)=>!c.classList.contains('tex'))).opacity;window.__bfStart();
           document.querySelector('[data-xp=reading]').click();
           setTimeout(()=>{window.__bfStop=true;r(JSON.stringify({atClick:{ledgeW:atClick&&atClick.ledgeW,tallPx:atClick&&atClick.tallPx,topShare:atClick&&atClick.topShare},sceneOpacityAtClick:+op,fading:+op<1}))},1700)},10)})`,
       label: `${tag}: the click comes in the first frames after the scene has drawn (its fade-in); the recorder runs from the click`,
@@ -135,9 +139,9 @@ export function framingCases() {
     push({
       eval: `(async()=>{await ${wait(100)};const bf=window.__bf,first=bf.find(r=>r.at==='move');document.querySelector('.xp-close').click();await ${wait(1600)};const rest=window.__bfRead();
         const cmp=(a,b)=>+(Math.abs(a-b)/Math.max(1,b)*100).toFixed(2);
-        const v={firstMoveFrame:{ledgeW:+first.ledgeW.toFixed(2),tallPx:+first.tallPx.toFixed(2),topShare:+first.topShare.toFixed(4)},atRest:{ledgeW:+rest.ledgeW.toFixed(2),tallPx:+rest.tallPx.toFixed(2),topShare:+rest.topShare.toFixed(4)},firstVsRestPct:cmp(first.ledgeW,rest.ledgeW),firstVsRestTallPct:cmp(first.tallPx,rest.tallPx),firstRectIsBox:Math.abs(first.w-rest.w)<=1&&Math.abs(first.h-rest.h)<=1,closed:!document.querySelector('.home-layer')};
-        v.ok=v.firstVsRestPct<=1&&v.firstVsRestTallPct<=1&&v.firstRectIsBox&&v.closed;return JSON.stringify(v)})()`,
-      label: `${tag}: the first frame of the move has the picture the box has at rest (firstVsRestPct under 1), though the scene was still fading in at the click`,
+        const v={firstMoveFrame:{ledgeW:+first.ledgeW.toFixed(2),tallPx:+first.tallPx.toFixed(2),topShare:+first.topShare.toFixed(4)},atRest:{ledgeW:+rest.ledgeW.toFixed(2),tallPx:+rest.tallPx.toFixed(2),topShare:+rest.topShare.toFixed(4)},firstVsRestPct:cmp(first.ledgeW,rest.ledgeW),firstVsRestTallPct:cmp(first.tallPx,rest.tallPx),firstVsAtClickPct:cmp(first.ledgeW,window.__atClick.ledgeW),firstVsAtClickTallPct:cmp(first.tallPx,window.__atClick.tallPx),firstRectIsBox:Math.abs(first.w-rest.w)<=1&&Math.abs(first.h-rest.h)<=1,closed:!document.querySelector('.home-layer')};
+        v.ok=v.firstVsRestPct<=1&&v.firstVsRestTallPct<=1&&v.firstVsAtClickPct<=1&&v.firstVsAtClickTallPct<=1&&v.firstRectIsBox&&v.closed;return JSON.stringify(v)})()`,
+      label: `${tag}: the first frame of the move has the picture the box has at rest and the one it had at the click (firstVsRestPct and firstVsAtClickPct under 1), though the scene was still fading in at the click`,
     });
   }
 }

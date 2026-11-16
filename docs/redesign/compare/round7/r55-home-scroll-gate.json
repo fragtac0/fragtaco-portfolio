@@ -1496,5 +1496,10 @@
    ]
   ]
  },
- "heroPaintingChangeNote": "The hero's own painting change frames (50 to 67 ms, also with the hero off screen) are carried to Task 20's whole-branch review per RB8; in the runs of this file the change windows held one 50 ms frame (desktop-cpu4 run 1, cold pass, at the first change); the warm passes and the holds held none."
+ "heroPaintingChangeNote": "The hero's own painting change frames (50 to 67 ms, also with the hero off screen) are carried to Task 20's whole-branch review per RB8; in the runs of this file the change windows held one 50 ms frame (desktop-cpu4 run 1, cold pass, at the first change); the warm passes and the holds held none.",
+  "fixRound1": {
+    "commit": "897ea9d (R55.3q)",
+    "what": "The fix round after the review (RB10: the box framing never draws the row larger than the open page, scale at most 1; M1: a short coarse buffer is not kept at the end of the move). The home-scroll gate above is not affected and was not re-run: at its sizes the box framing scale was already below 1, so the cap changes nothing (1440x900 box 648x300: the row in the box is 355.84 px against the open page's 1000.12, scale 0.356; 390x844 box 358x332: 336.52 against 778.51, scale 0.432; the gate's dpr 2 and dpr 3 runs of 390x844 are the same sizes), and the coarse buffer is used only while a box moves, which no home-scroll pass does.",
+    "boxOpenCostFilmsAfterFix": "make-box-open.mjs --only cost once on a production build of 897ea9d, lock held: 16 films (1440x900 dpr 2 and 390x844 dpr 3, both CPU 4x, shelf and wall, open cold, close, open again, close again): worst gap 16.8 ms in every film, 0 frames over 20 ms, 0 over 34 ms, first four frames after the click 16.6 to 16.8 ms (the shelf's first opening at dpr 2 CPU 4x: 16.7, 16.6, 16.7, 16.7)."
+  }
 }
