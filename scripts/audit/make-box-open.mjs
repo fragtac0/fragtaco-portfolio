@@ -19,6 +19,7 @@
 // Contact sheets (12 frames of the opening and 12 of the closing per box) are made from the saved frames: `local-box-<size>-<box>-open-<ms>.jpg` and
 // `-close-`: they show thumbnails and covers, keep them under docs/redesign/compare/local/r55-2/.
 import { writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 import { BOX, OPEN_ATS, load, push, sizes, steps, toBlock, wait } from "./box-open-kit.mjs";
 import { focusCases, focusCasesLate } from "./box-open-focus.mjs";
@@ -230,7 +231,7 @@ if (onlyArg !== null && !["cost", "focus", "framing"].includes(onlyArg)) {
   console.error(`make-box-open.mjs: unknown --only value "${onlyArg}" (one of cost, focus, framing)`);
   process.exit(1);
 }
-const outFile = args.includes("--out") ? args[args.indexOf("--out") + 1] : new URL("./box-open.json", import.meta.url).pathname;
+const outFile = args.includes("--out") ? args[args.indexOf("--out") + 1] : fileURLToPath(new URL("./box-open.json", import.meta.url));
 const out =
   onlyArg === "cost"
     ? steps.slice(costFrom)
