@@ -33,7 +33,7 @@
   --accent-soft: rgba(252, 76, 0, 0.14); /* the active pill's fill */
   --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the page's orange glow (the open card, the dock); only the About and Credits tabs have their own, below (R69) */
   --glass-rgb: 16 16 15; /* the dock glass: this colour at --dock-tint */
-  --dock-tint: 0.58; /* how much of --glass-rgb the dock's glass is: 0.46 until R56.4, raised so that every label and icon keeps 4.5 to 1 with the brightest thumbnail under the dock (docs/redesign/compare/round7/r56-dock-contrast.json) */
+  --dock-tint: 0.61; /* how much of --glass-rgb the dock's glass is: 0.46 until R56.4, 0.58 at R56.4, 0.61 from R56.4b: the lowest step of 0.01 at which every label and icon keeps 4.5 to 1 with the worst tile under it (the brightest thumbnails by their brightest blur-sized window, at the worst places, real ring tiles with their neighbours: docs/redesign/compare/round7/r56-dock-contrast.json) */
 
   /* the About and Credits tabs (round 7, spec 6): an orange gradient with white text, the glow and a drop shadow.
      White on --accent itself is only 3.4 to 1, so the lightest point of the tab is --accent-tab, the accent stepped down

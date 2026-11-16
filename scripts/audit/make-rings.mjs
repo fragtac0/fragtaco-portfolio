@@ -82,20 +82,21 @@ window.__share=(k,before)=>{let sum=0;for(let i=1;i<=k;i++){window.__phase(i*104
  const share=sum/k;return{phases:k,share:+share.toFixed(4),before,ratio:+(share/before).toFixed(3),atLeastBefore:share>=before*0.97}};
 // keyboard focus (R56.4, Review Focus 2): every video tile focused in turn (a key was pressed first, so the focus is a keyboard one), each watched frame by frame until it has stood still for 20 frames
 const underOf=(t,d)=>{const w=Math.min(t.right,d.right)-Math.max(t.left,d.left),h=Math.min(t.bottom,d.bottom)-Math.max(t.top,d.top);return w>0&&h>0?w*h/(t.width*t.height):0};
+const labelUnder=(turn,dockEl)=>{const l=turn.querySelector('.work-label');return l?underOf(l.getBoundingClientRect(),dockEl.getBoundingClientRect()):0};
 const watch=async(turn,dockEl)=>{const t0=performance.now();let prev=turn.getBoundingClientRect(),first=prev,max=0,still=0;
  while(performance.now()-t0<9000){await new Promise(r=>requestAnimationFrame(r));const r=turn.getBoundingClientRect();const st=Math.hypot(r.left-prev.left,r.top-prev.top);max=Math.max(max,st);prev=r;still=st<0.2?still+1:0;if(still>=20)break}
- const r=turn.getBoundingClientRect();return{under:+underOf(r,dockEl.getBoundingClientRect()).toFixed(3),maxStepPx:+max.toFixed(1),movedPx:+Math.hypot(r.left-first.left,r.top-first.top).toFixed(1),ms:Math.round(performance.now()-t0)}};
+ const r=turn.getBoundingClientRect();return{under:+underOf(r,dockEl.getBoundingClientRect()).toFixed(3),labelUnder:+labelUnder(turn,dockEl).toFixed(3),side:turn.closest('.work-item').dataset.side,maxStepPx:+max.toFixed(1),movedPx:+Math.hypot(r.left-first.left,r.top-first.top).toFixed(1),ms:Math.round(performance.now()-t0)}};
 window.__focusAll=async()=>{const dockEl=document.querySelector('[data-dock-glass]');const rows=[];
  for(const face of document.querySelectorAll('.work-item[data-kind=video] .work-item-face')){const turn=face.closest('.work-item-turn');
-  const before=underOf(turn.getBoundingClientRect(),dockEl.getBoundingClientRect());face.focus({preventScroll:true});
-  const w=await watch(turn,dockEl);rows.push({before:+before.toFixed(3),...w,focusVisible:face.matches(':focus-visible')})}
- const hit=rows.filter(r=>r.before>0.5),clear=rows.filter(r=>r.before<=0.5);document.activeElement.blur();
+  const before=underOf(turn.getBoundingClientRect(),dockEl.getBoundingClientRect()),lb=(()=>{const b=turn.getBoundingClientRect();turn.closest('.work-item').dataset.side=b.left+b.width/2<innerWidth/2?'right':'left';return labelUnder(turn,dockEl)})();face.focus({preventScroll:true});
+  const w=await watch(turn,dockEl);rows.push({before:+before.toFixed(3),labelBefore:+lb.toFixed(3),...w,focusVisible:face.matches(':focus-visible')})}
+ const hit=rows.filter(r=>r.before>0.5||r.labelBefore>0),clear=rows.filter(r=>r.before<=0.5&&r.labelBefore===0);document.activeElement.blur();
  return JSON.stringify({tiles:rows.length,moreThanHalfUnder:hit.length,worstUnderAtRest:Math.max(...rows.map(r=>r.under)),maxStepPx:Math.max(...rows.map(r=>r.maxStepPx)),
-  clearTilesMoved:clear.filter(r=>r.movedPx>1.5).length,slowest:Math.max(...rows.map(r=>r.ms)),allFocusVisible:rows.every(r=>r.focusVisible),
-  pass:rows.every(r=>r.under<=0.5)&&rows.every(r=>r.maxStepPx<=30)&&clear.every(r=>r.movedPx<=1.5),hit:hit.map(r=>[r.before,r.under,r.maxStepPx,r.ms])})};
+  clearTilesMoved:clear.filter(r=>r.movedPx>1.5).length,labelUnderBefore:rows.filter(r=>r.labelBefore>0).length,labelUnderAtRest:rows.filter(r=>r.labelUnder>0).length,worstLabelUnderAtRest:Math.max(...rows.map(r=>r.labelUnder)),slowest:Math.max(...rows.map(r=>r.ms)),allFocusVisible:rows.every(r=>r.focusVisible),
+  pass:rows.every(r=>r.under<=0.5)&&rows.every(r=>r.maxStepPx<=30)&&clear.every(r=>r.movedPx<=1.5),hit:hit.map(r=>[r.before,r.labelBefore,r.under,r.labelUnder,r.side,r.maxStepPx,r.ms])})};
 // after a real Tab press: what has focus, how much of it is under the dock once it has stood still
 window.__tabbed=async()=>{const a=document.activeElement;const turn=a&&a.closest&&a.closest('.work-item-turn');if(!turn)return JSON.stringify({on:a?(a.getAttribute('aria-label')||a.textContent||a.tagName).trim().slice(0,30):null,tile:false});
- const w=await watch(turn,document.querySelector('[data-dock-glass]'));return JSON.stringify({tile:true,focusVisible:a.matches(':focus-visible'),...w,ok:w.under<=0.5&&w.maxStepPx<=30})};
+ const w=await watch(turn,document.querySelector('[data-dock-glass]'));return JSON.stringify({tile:true,focusVisible:a.matches(':focus-visible'),...w,labelUnderAtRest:w.labelUnder,ok:w.under<=0.5&&w.maxStepPx<=30})};
 // the intro's room to the stack icons against what round 6 left at that size (R119: the icons keep at least that; measured on 19ca81b's rules, 60 px icons and a 14 px margin, by
 // setting those two custom properties and the ring 8 px nearer; phones, whose icons did not change, are what they were). 0.3 px of rounding is allowed
 window.__roomVs=(round6)=>{const i=window.__intro();return{...i,round6,atLeastRound6:i.roomToIcons>=round6-0.3}};

@@ -885,5 +885,141 @@
     ],
     "ab_same_build_with_2500_1512x982@2": "runs: renderer 313/294/293 viz 198/208/195 dropped 1/0/0; renderer 289/317/308 viz 199/235/199 dropped 0/0/1",
     "ab_same_build_with_2500_1920x1080@1": "renderer 345/371/388 viz 240/242/248 dropped 1/1/0"
+  },
+  "notes_on_this_file": "Reading this file: R56.4a re-serialised it whole (the diff of a14a3cd shows about 700 deleted lines), but every key before r56_4_at_2250 compares equal to what it was when parsed. The real additions are, in order: r56_4_at_2250 (R56.4a: the gate at 2.25 s, and the same build with the length patched to 2500 as a control) and r56_4b_at_2250_tint_0_61 (R56.4b: the gate again after the fix round, with the load average of every set).",
+  "r56_4b_at_2250_tint_0_61": {
+    "what": "R56.4b: the cost gate re-run at 2.25 s after the fix round (build with --dock-tint 0.61, no drop shadow on the dock, the focus changes), three sets of three runs at each size, make-glass-cost.mjs. The compositor numbers hold at both sizes (limits 450 and 300 ms). The no-dropped-frame rule failed in some runs (0 or 1 frame a run, never more than 1) at both sizes. The machine was not quiet: the load average (1, 5, 15 minutes) is recorded for each set; the busiest processes during the runs were not this project's (the system's storage extension at about 56% CPU, WindowServer at about 34%, the owner's own browsers). R56.4a's re-run at 2250 and its A/B with the length patched to 2500 dropped the same number of frames, so the drops are not the shorter change; a quiet machine is still needed for a clean pass.",
+    "sets": {
+      "1512x982@2": [
+        {
+          "set": 1,
+          "loadAverageBefore": "5.84 10.32 9.06",
+          "loadAverageAfter": "5.03 9.41 8.80",
+          "pass": false,
+          "rendererCompositorMs": [
+            273,
+            264,
+            251
+          ],
+          "vizCompositorMs": [
+            184,
+            172,
+            169
+          ],
+          "droppedFrames": [
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "set": 2,
+          "loadAverageBefore": "5.37 8.83 8.62",
+          "loadAverageAfter": "3.97 7.85 8.26",
+          "pass": true,
+          "rendererCompositorMs": [
+            254,
+            267,
+            255
+          ],
+          "vizCompositorMs": [
+            169,
+            172,
+            175
+          ],
+          "droppedFrames": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "set": 3,
+          "loadAverageBefore": "3.99 6.82 7.81",
+          "loadAverageAfter": "4.40 6.49 7.63",
+          "pass": false,
+          "rendererCompositorMs": [
+            273,
+            272,
+            262
+          ],
+          "vizCompositorMs": [
+            188,
+            175,
+            174
+          ],
+          "droppedFrames": [
+            1,
+            0,
+            0
+          ]
+        }
+      ],
+      "1920x1080@1": [
+        {
+          "set": 1,
+          "loadAverageBefore": "5.03 9.41 8.80",
+          "loadAverageAfter": "5.37 8.83 8.62",
+          "pass": false,
+          "rendererCompositorMs": [
+            282,
+            282,
+            288
+          ],
+          "vizCompositorMs": [
+            181,
+            184,
+            185
+          ],
+          "droppedFrames": [
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "set": 2,
+          "loadAverageBefore": "3.97 7.85 8.26",
+          "loadAverageAfter": "4.50 7.42 8.08",
+          "pass": false,
+          "rendererCompositorMs": [
+            321,
+            329,
+            321
+          ],
+          "vizCompositorMs": [
+            214,
+            222,
+            209
+          ],
+          "droppedFrames": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "set": 3,
+          "loadAverageBefore": "4.40 6.49 7.63",
+          "loadAverageAfter": "4.13 6.09 7.42",
+          "pass": false,
+          "rendererCompositorMs": [
+            315,
+            323,
+            318
+          ],
+          "vizCompositorMs": [
+            198,
+            206,
+            200
+          ],
+          "droppedFrames": [
+            1,
+            1,
+            0
+          ]
+        }
+      ]
+    }
   }
 }
