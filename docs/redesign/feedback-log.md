@@ -740,3 +740,17 @@ He wrote: "shelves are so far good to go. fix the transitions in pages, fix the 
 | A tracing animation for the path travelled when the page opens | Task 31. The trail draws itself from the first milestone to "now", each milestone arriving as the line reaches it, then the dotted way ahead. |
 
 The timings and the look of the entrance and the trace are mine; he asked for "a good tracing animation" and left the rest open. Spec and plan: sections 9 to 11 and task 31 of `docs/superpowers/specs/2026-11-16-round7-second-look-design.md` and `docs/superpowers/plans/2026-11-16-round7-second-look.md`.
+
+### Asked for after round 7: a modern web pass (2026-11-16, afternoon)
+
+While tasks 28 and 30 were building he wrote: "Modern Web Guidance. I have installed this skill - once you are done, make sure you: Modernize legacy code. Perform a security audit of my site and suggest improvements. Improve performance. Using that skill".
+
+| His point | What happens |
+|---|---|
+| Use the Modern Web Guidance skill | It is a plugin by Google Chrome in the plugin catalogue (skills `modern-web-guidance` and `chrome-extensions`). On 16 Nov it was listed but not switched on for the build session, so it could not be loaded. He was shown the card to switch it on. Nothing below starts until the skill can be read. |
+| "once you are done" | The pass starts after round 7 is handed back (after task 21), as its own round on a branch stacked on round 7's top branch. Round 7's tasks and order do not change. |
+| Modernize legacy code | Old patterns replaced by what the skill recommends, with the standing rule that polish must not change the look. What counts as legacy is read from the skill and the code, then listed for him before anything is changed. |
+| A security audit, with suggested improvements | A written report on the final build and its deployment settings, each finding with its evidence and a suggested fix. He asked for suggestions: no security change is made before he has picked from the report. |
+| Improve performance | Measured first on the final build (load, first picture, the weight of the scripts and pictures, the cost of the animations), then the changes, then measured again. |
+
+Process as before: Fable reads, asks and plans; Sonnet builds; Opus reviews once per task.
