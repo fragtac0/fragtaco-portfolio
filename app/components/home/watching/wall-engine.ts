@@ -34,7 +34,8 @@ import {
  * a texture and shown through a fish-eye at its borders (wall-warp.ts, wall-warp-pass.ts); the pointer goes through the inverse.
  *
  * The engine owns its canvas. `prepare()` creates the GL context, program and atlas texture in steps (idle time, or short slices
- * once `setUrgent(true)`) and starts loading thumbnails, so the wall is warm when the layer opens. `setFrame()` draws the open
+ * once `setUrgent(true)`) and starts loading thumbnails, so the wall is warm when the layer opens; a docked wall also lays out its block and
+ * allocates its target for the box's frame there, so its first frame on screen has none of that to do. `setFrame()` draws the open
  * page's picture scaled to cover a smaller frame, `setDocked()` takes its input away and holds it to 30 draws a second
  * (layer/frame-math.ts, wall-canvas.ts). `mount()` puts the canvas into the layer and wires the input, `unmount()` takes it out
  * but keeps the GL objects, `dispose()` frees everything. The rest is in the wall-*.ts files beside it.
@@ -123,6 +124,13 @@ export function createWall(
           // size the drawing buffer now: the layer is fixed to the viewport, so `start()` finds
           // this size and does not resize inside the frame that opens the layer
           fitBuffer(canvas, box, wgl, ...windowSize(), dprCap);
+        },
+        () => {
+          // a docked wall's arrival work, done now, off screen, not in its first frame: the block's layout, the drawing buffer at the box's size and
+          // the flat target (a window-sized texture). Nothing is drawn. A wall that is running did this itself (start() does the same).
+          if (disposed || !wgl || !docked || running || !box.frame()) return;
+          sizes();
+          wgl.prepareTarget(st.vw, st.vh);
         },
       ])
       .catch((err: unknown) => {

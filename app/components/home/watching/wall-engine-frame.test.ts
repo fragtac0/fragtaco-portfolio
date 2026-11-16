@@ -8,12 +8,12 @@ import type { WallEngine } from "./wall-types";
  * The wall engine's loop with the GPU stubbed out: a fake canvas and window, hand-driven animation frames, and a draw counter in
  * place of the WebGL passes. What is real: the engine, its frame box, the block, the camera, the pose and the pointer/key code.
  */
-const mocks = vi.hoisted(() => ({ draws: 0, pictures: [] as unknown[], createGl: true }));
+const mocks = vi.hoisted(() => ({ draws: 0, pictures: [] as unknown[], targets: [] as Array<[number, number]>, createGl: true }));
 
 vi.mock("./wall-gl", () => ({
   createWallGl: () =>
     mocks.createGl
-      ? { gl: {}, uniforms: {}, setPicture: (p: unknown) => mocks.pictures.push(p), beginFrame: () => true, endFrame: () => undefined, quad: () => undefined, dispose: () => undefined }
+      ? { gl: {}, uniforms: {}, setPicture: (p: unknown) => mocks.pictures.push(p), beginFrame: () => true, endFrame: () => undefined, prepareTarget: (vw: number, vh: number) => (mocks.targets.push([vw, vh]), true), quad: () => undefined, dispose: () => undefined }
       : null,
 }));
 vi.mock("./wall-thumbs", () => ({
@@ -100,6 +100,7 @@ beforeEach(() => {
   styleProps.clear();
   mocks.draws = 0;
   mocks.pictures = [];
+  mocks.targets = [];
   mocks.createGl = true;
   const win = {
     devicePixelRatio: 2,
@@ -279,5 +280,29 @@ describe("a frame the caller places", () => {
     expect([canvasEl.width, canvasEl.height]).toEqual(buffer);
     // a switch asks for no new picture: the wait for one is over at once
     await expect(wall.whenDrawn()).resolves.toBe("drawn");
+  });
+});
+
+describe("a docked wall's arrival work (Task 26 I1)", () => {
+  it("is done by prepare(), off screen: the buffer is the box's size and the target is allocated for the window, and nothing is drawn", async () => {
+    const wall = make();
+    wall.setDocked(true);
+    wall.setFrame(BOX, { place: false });
+    await wall.prepare();
+    expect(mocks.targets).toEqual([[VW, VH]]);
+    expect([canvasEl.width, canvasEl.height]).toEqual([960, 600]);
+    expect(mocks.draws).toBe(0);
+  });
+
+  it("is not done for a wall that is not docked, or docked with no frame yet (start() does it, as before)", async () => {
+    const free = make();
+    free.setFrame(BOX, { place: false });
+    await free.prepare();
+    expect(mocks.targets).toEqual([]);
+    mocks.targets = [];
+    const noFrame = make();
+    noFrame.setDocked(true);
+    await noFrame.prepare();
+    expect(mocks.targets).toEqual([]);
   });
 });

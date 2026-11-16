@@ -60,6 +60,11 @@ export type WallGl = {
   beginFrame(vw: number, vh: number, time: number): boolean;
   /** Shows the frame on the canvas through the border fish-eye. */
   endFrame(vw: number, vh: number): void;
+  /**
+   * Allocates the flat target for a `vw` by `vh` screen now (the window's picture plus the warp's margin, a large texture), so the first frame
+   * does not wait for it. Draws nothing and leaves no target bound. False when the GPU cannot render to a target that size.
+   */
+  prepareTarget(vw: number, vh: number): boolean;
   /** Draws one quad; `pad` grows it on every side (the glow reaches past the tile). */
   quad(
     x: number,
@@ -143,6 +148,11 @@ export function createWallGl(canvas: HTMLCanvasElement): WallGl | null {
     },
     endFrame(vw, vh) {
       warp.present(vw, vh, picture);
+    },
+    prepareTarget(vw, vh) {
+      const ok = warp.begin(vw, vh, picture) !== null;
+      g.bindFramebuffer(g.FRAMEBUFFER, null);
+      return ok;
     },
     quad(x, y, w, h, kind, alpha, pad, rad) {
       g.uniform4f(U.uRect, x, y, w, h);

@@ -13,6 +13,7 @@ import { fitShelf } from "./shelf-fit";
 import { applyView, dockStage, placeDots, stageSize, syncRatio } from "./shelf-frame";
 import { loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
 import { Aborted, abortable, buildShelf } from "./shelf-build";
+import { prefitShelf } from "./shelf-prefit";
 import { createFontCap, createSpineFonts, type SpineFonts } from "./shelf-spine-fonts";
 import { loadSpinePhotos, stepSpineFades } from "./shelf-spines";
 import { stepCamera } from "./shelf-camera";
@@ -220,6 +221,8 @@ export function createShelf(
             st.dirty = true;
           },
         });
+        // a docked shelf's arrival work (the first fit, the new textures) is done now, off screen, not in its first frame (shelf-prefit.ts)
+        return prefitShelf({ run, scene: () => gl, ready: () => !!els && docked && !running && !disposed && !lost.lost() && !!box.frame(), fit, reframe }).catch(() => {});
       })
       .catch((err: unknown) => {
         if (err instanceof Aborted) {
