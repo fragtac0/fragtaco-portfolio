@@ -64,6 +64,8 @@ const RUNS = Number(process.env.RUNS ?? 3);
 const FROM = Number(process.env.RUN_FROM ?? 1); // the run numbers start here (a long file is cut into several runs of cdp.mjs inside the gate lock)
 const HOLD_MS = 24000;
 const SHOW_PX = 150;
+// the element that is a box (the base commit before part R55 has the flat preview `.blk-art` where the box is now: BOX_SELECTOR='.blk-art' measures that build, whose scenes list is then empty)
+const BOX = process.env.BOX_SELECTOR ?? ".blk-box";
 
 // the way down (to the end of the page) and the way back (to the top): one gesture with a mouse, short swipes with a finger (a swipe cannot be longer than the screen)
 const toEnd = (p, speed) => {
@@ -96,7 +98,7 @@ const hold = (p, run, kind, y) => [
   { wait: 1200 },
   { eval: "__hs.start()", label: `${p.name} run ${run} ${kind}: start` },
   { wait: HOLD_MS },
-  { eval: `Object.assign(__hs.stop('${kind}'), {heroBottom: Math.round(document.querySelector('#hero').getBoundingClientRect().bottom), boxTop: Math.round(document.querySelector('.blk-box').getBoundingClientRect().top)})`, label: `${p.name} run ${run} ${kind}` },
+  { eval: `Object.assign(__hs.stop('${kind}'), {heroBottom: Math.round(document.querySelector('#hero').getBoundingClientRect().bottom), boxTop: Math.round(document.querySelector('${BOX}').getBoundingClientRect().top)})`, label: `${p.name} run ${run} ${kind}` },
 ];
 
 const steps = [];
@@ -110,7 +112,7 @@ for (const p of PROFILES) {
       wait: first ? 9000 : 500,
     });
     if (!first) steps.push({ go: "{{BASE}}/", wait: 9000 });
-    steps.push({ eval: "({run:" + run + ",profile:'" + p.name + "',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('.blk-box')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})", label: `${p.name} run ${run}: the page` });
+    steps.push({ eval: "({run:" + run + ",profile:'" + p.name + "',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('" + BOX + "')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight})", label: `${p.name} run ${run}: the page` });
     steps.push(...pass(p, run, "cold", p.slow));
     steps.push({ wait: 1500 });
     steps.push(...pass(p, run, "slow", p.slow));
@@ -118,7 +120,7 @@ for (const p of PROFILES) {
     steps.push(...pass(p, run, "fast", p.fast));
     steps.push(...pass(p, run, "fast", p.fast));
     steps.push(
-      ...hold(p, run, "change, box on screen", `(()=>{const b=document.querySelector('.blk-box').getBoundingClientRect();const y=Math.round(scrollY+b.top-(innerHeight-${SHOW_PX}));scrollTo({top:y,behavior:'instant'});return {y}})()`),
+      ...hold(p, run, "change, box on screen", `(()=>{const b=document.querySelector('${BOX}').getBoundingClientRect();const y=Math.round(scrollY+b.top-(innerHeight-${SHOW_PX}));scrollTo({top:y,behavior:'instant'});return {y}})()`),
     );
     steps.push(...hold(p, run, "change, no box", `(()=>{scrollTo({top:60,behavior:'instant'});return {y:scrollY}})()`));
   }
