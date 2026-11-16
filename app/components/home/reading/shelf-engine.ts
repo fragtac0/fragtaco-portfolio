@@ -17,8 +17,8 @@ import { prefitShelf } from "./shelf-prefit";
 import { projectScene } from "./shelf-projected";
 import { createFontCap, createSpineFonts, type SpineFonts } from "./shelf-spine-fonts";
 import { loadSpinePhotos, stepSpineFades } from "./shelf-spines";
-import { stepCamera } from "./shelf-camera";
-import { initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
+import { homeCamera, stepCamera } from "./shelf-camera";
+import { introSeconds } from "./shelf-math";
 
 /**
  * The reading shelf: 14 books in one row on a line, seen face on and drawn with three.js (ported from the `Shelf` module of
@@ -226,7 +226,7 @@ export function createShelf(
           },
         });
         // a docked shelf's arrival work (the first fit, the new textures) is done now, off screen, not in its first frame (shelf-prefit.ts)
-        return prefitShelf({ run, scene: () => gl, ready: () => !!els && docked && !running && !disposed && !lost.lost() && !!box.frame(), fit, reframe }).catch(() => {});
+        return prefitShelf({ run, scene: () => gl, ready: () => !!els && docked && !running && !disposed && !lost.lost() && !!box.frame(), fit, home: () => homeCamera(ctx), reframe }).catch(() => {});
       })
       .catch((err: unknown) => {
         if (err instanceof Aborted) {
@@ -288,12 +288,10 @@ export function createShelf(
       box.commit();
       box.invalidate();
       fit();
+      homeCamera(ctx); // before the framing, which follows the camera: the box's picture is the one the prefit made
       reframe(true);
       // the books stand in place: start past the end of the drop-in
       st.t0 = performance.now() - (intro() + 0.4) * 1000;
-      cam.x = initialCamX(gl.maxX, stageSize(canvas, box)[0] < NARROW_PX);
-      cam.xV = st.flickV = 0;
-      reframe(true); // the framing follows the row's place
       for (const b of gl.books) b.anim = newBag();
       st.opened = st.hoverHit = st.camTarget = st.down = null;
       st.focusIdx = -1;

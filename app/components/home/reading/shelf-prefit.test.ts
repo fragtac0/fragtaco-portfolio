@@ -53,10 +53,12 @@ describe("prefitShelf", () => {
       scene: () => gl,
       ready: () => true,
       fit: () => calls.push("fit"),
+      home: () => calls.push("home"),
       reframe: (redraw) => calls.push(`reframe ${redraw}`),
     });
     expect(calls).toEqual([
       "fit",
+      "home", // the camera where a run starts, before the row is framed: the framing follows the camera
       "reframe true",
       "upload ledge",
       "upload s2",
@@ -80,6 +82,7 @@ describe("prefitShelf", () => {
       scene: () => gl,
       ready: () => true,
       fit: () => {},
+      home: () => {},
       reframe: () => {},
     });
     // 7 spines and the ledge are 8 textures: 3 groups, so 1 + 3 + 1 steps
@@ -89,7 +92,7 @@ describe("prefitShelf", () => {
   it("does nothing when the shelf is not ready (running, not docked, not mounted) or has no scene", async () => {
     const calls: string[] = [];
     const { gl } = fakeScene(3, {}, calls);
-    const deps = { run, fit: () => calls.push("fit"), reframe: () => calls.push("reframe") };
+    const deps = { run, fit: () => calls.push("fit"), home: () => calls.push("home"), reframe: () => calls.push("reframe") };
     await prefitShelf({ ...deps, scene: () => gl, ready: () => false });
     await prefitShelf({ ...deps, scene: () => null, ready: () => true });
     expect(calls).toEqual([]);
@@ -107,9 +110,10 @@ describe("prefitShelf", () => {
         calls.push("fit");
         readyNow = false; // the box came on screen and the shelf started
       },
+      home: () => calls.push("home"),
       reframe: () => calls.push("reframe"),
     });
-    expect(calls).toEqual(["fit", "reframe"]); // no upload, no clear after it
+    expect(calls).toEqual(["fit", "home", "reframe"]); // no upload, no clear after it
   });
 
   it("passes on a real failure (it is not swallowed here: the engine's caller decides)", async () => {
@@ -122,6 +126,7 @@ describe("prefitShelf", () => {
         fit: () => {
           throw new Error("boom");
         },
+        home: () => {},
         reframe: () => {},
       }),
     ).rejects.toThrow("boom");

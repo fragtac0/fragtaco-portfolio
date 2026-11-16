@@ -1,5 +1,6 @@
-import { clamp, flick } from "./shelf-math";
-import type { ShelfState } from "./shelf-open";
+import { clamp, flick, initialCamX, NARROW_PX } from "./shelf-math";
+import { stageSize } from "./shelf-frame";
+import type { ShelfCtx, ShelfState } from "./shelf-open";
 import type { Animate } from "./shelf-pose";
 
 /**
@@ -27,4 +28,15 @@ export function stepCamera(
     busy = true;
   }
   return busy;
+}
+
+/**
+ * The camera where a run starts: the books stand in place, a narrow stage at its left end. Also where the docked shelf is framed ahead
+ * (shelf-prefit.ts), because the box framing follows the camera: a framing made with the camera elsewhere is another picture of the row.
+ */
+export function homeCamera(ctx: ShelfCtx): void {
+  const gl = ctx.scene();
+  if (!gl) return;
+  ctx.cam.x = initialCamX(gl.maxX, stageSize(ctx.canvas, ctx.box)[0] < NARROW_PX);
+  ctx.cam.xV = ctx.st.flickV = 0;
 }
