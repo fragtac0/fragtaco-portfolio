@@ -440,3 +440,52 @@ describe("a moving frame (coarse)", () => {
   });
 });
 
+
+describe("a move in progress (the box the frame started from, and how far along)", () => {
+  const BOX = { width: 648, height: 300 };
+  const at = (w: number): Frame => ({ left: 0, top: 0, width: w, height: w / 2 });
+
+  it("is what the last committed request said, and nothing for a frame at rest", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    expect(box.move()).toBeNull();
+    box.request(at(700), { place: false, move: { box: BOX, t: 0.1 } });
+    expect(box.move()).toBeNull(); // not until the commit
+    box.commit();
+    expect(box.move()).toEqual({ box: BOX, t: 0.1 });
+    box.request(at(648), { place: false });
+    box.commit();
+    expect(box.move()).toBeNull();
+  });
+
+  it("a new position of the move at the same size is a new picture: resized", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    box.request(at(700), { place: false, move: { box: BOX, t: 0.1 } });
+    box.commit();
+    box.request(at(700), { place: false, move: { box: BOX, t: 0.2 } });
+    expect(box.commit()).toBe("resized");
+    box.request(at(700), { place: false, move: { box: BOX, t: 0.2 } });
+    expect(box.commit()).toBe("none");
+    box.request(at(700), { place: false });
+    expect(box.commit()).toBe("resized");
+  });
+
+  it("a frame at rest that says t = 0 for its own size is no move at all (the end of a closing is not drawn twice)", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    box.request(at(648), { place: false, move: { box: { width: 648, height: 324 }, t: 0 } });
+    box.commit();
+    box.request(at(648), { place: false });
+    expect(box.commit()).toBe("none");
+  });
+
+  it("a release forgets it", () => {
+    const { canvas } = fakeCanvas();
+    const box = createFrameBox(canvas);
+    box.request(at(700), { place: false, move: { box: BOX, t: 0.5 } });
+    box.commit();
+    box.release();
+    expect(box.move()).toBeNull();
+  });
+});

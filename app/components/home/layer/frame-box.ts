@@ -19,6 +19,16 @@ export function windowSize(): [number, number] {
 /** What `whenDrawn` answers: "drawn" when a frame was drawn with the frame asked for, "stopped" when the engine can draw no frame for it (see `FrameBox.whenDrawn`). */
 export type DrawnResult = "drawn" | "stopped";
 
+/**
+ * A frame that is part way through a move between a box and the whole window: the box's size (what the move started from, or
+ * ends in) and how far along the move is, 0 the box and 1 the window (the position `frameAt` is at). A scene whose picture
+ * changes over the move (the shelf: shelf-frame.ts) reads it; one that only scales (the wall) ignores it.
+ */
+export type FrameMove = { box: { width: number; height: number }; t: number };
+
+const sameMove = (a: FrameMove | null, b: FrameMove | null): boolean =>
+  !a || !b ? a === b : a.t === b.t && a.box.width === b.box.width && a.box.height === b.box.height;
+
 /** How a frame is asked for. */
 export type FrameOptions = {
   /**
@@ -44,6 +54,11 @@ export type FrameOptions = {
    * and so allocate it only every few frames. A frame asked for without it (the box's own size, the whole window) gets the exact buffer.
    */
   coarse?: boolean;
+  /**
+   * Where the frame is in its move (`FrameMove`). Left out it is a box at rest (a frame that does not cover the window) or the open
+   * page (one that does). A move at 0 for the frame's own size is the same as none.
+   */
+  move?: FrameMove;
 };
 
 /** How a scene is docked (`setDocked`). */
@@ -59,6 +74,8 @@ export type FrameBox = {
   placed(): boolean;
   /** Whether the frame in force is a moving one (see `FrameOptions.coarse`). */
   coarse(): boolean;
+  /** Where the frame in force is in its move, or null (see `FrameOptions.move`). */
+  move(): FrameMove | null;
   /** Asks for a frame (null: the whole window). Nothing changes until `commit`. */
   request(frame: Frame | null, opts?: FrameOptions): void;
   hasPending(): boolean;
@@ -134,6 +151,8 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
   let frame: Frame | null = null;
   let placed = true;
   let coarse = false;
+  let move: FrameMove | null = null;
+  let askedMove: FrameMove | null = null;
   let asked: Frame | null = null;
   let askedPlace = true;
   let askedCoarse = false;
@@ -175,8 +194,12 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
     frame: () => frame,
     placed: () => placed,
     coarse: () => coarse,
+    move: () => move,
     request(f, opts) {
       asked = f;
+      // a move at its start for the frame's own size changes nothing
+      const m = opts?.move ?? null;
+      askedMove = m && f && m.t === 0 && m.box.width === f.width && m.box.height === f.height ? null : m;
       askedPlace = opts?.place !== false;
       askedCoarse = !!opts?.coarse;
       applied = opts?.onApplied ?? null;
@@ -189,12 +212,15 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
       const before = frame;
       const nextCoarse = !!asked && askedCoarse;
       // a frame that stops being a moving one (the move's end) needs its exact buffer: that counts as a new size
-      const resized = !sameFrameSize(before, asked) || coarse !== nextCoarse;
+      const nextMove = asked ? askedMove : null;
+      // a new position of a move is a new picture too (the shelf's framing eases over it)
+      const resized = !sameFrameSize(before, asked) || coarse !== nextCoarse || !sameMove(move, nextMove);
       const nextPlaced = asked ? askedPlace : true;
       const restyle = placed !== nextPlaced || (nextPlaced && !sameFrame(before, asked));
       frame = asked;
       placed = nextPlaced;
       coarse = nextCoarse;
+      move = nextMove;
       if (resized) stale = true;
       if (resized || restyle) place();
       const hook = applied;
@@ -230,6 +256,7 @@ export function createFrameBox(canvas: HTMLCanvasElement): FrameBox {
       frame = null;
       placed = true;
       coarse = false;
+      move = null;
       place();
       stopped = true;
       flush("stopped");

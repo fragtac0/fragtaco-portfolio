@@ -8,6 +8,7 @@ import {
   frameView,
   subWindow,
   dotPlacement,
+  placeRegion,
   gluedScale,
   sameFrame,
   sameFrameSize,
@@ -208,6 +209,25 @@ describe("dotPlacement", () => {
 
   it("is null before the ledge has a row", () => {
     expect(dotPlacement(box, VW, VH, 0)).toBeNull();
+  });
+});
+
+describe("placeRegion", () => {
+  it("is dotPlacement's maths for the window's top part, whatever part of the picture the frame shows", () => {
+    const frame: Frame = { left: 0, top: 500, width: 720, height: 200 };
+    const sub = subWindow(frame, VW, VH);
+    const p = placeRegion(frame, sub, { x: 0, y: 0, w: VW, h: 600 });
+    const q = dotPlacement(frame, VW, VH, 600)!;
+    expect(p).toEqual(q);
+  });
+
+  it("puts a region that sticks out of the window where the picture has it, and cuts what the frame does not show", () => {
+    // the frame shows picture x -200 to 1000, y 100 to 400 at half size; the region is x -300 to 1100, y 50 to 350
+    const frame: Frame = { left: 40, top: 60, width: 600, height: 150 };
+    const p = placeRegion(frame, { x: -200, y: 100, w: 1200, h: 300 }, { x: -300, y: 50, w: 1400, h: 300 });
+    expect(p.scale).toBe(0.5);
+    expect([p.left, p.top, p.width, p.height]).toEqual([40 + (-300 + 200) * 0.5, 60 + (50 - 100) * 0.5, 1400, 300]);
+    expect(p.inset).toEqual([50, 100, 0, 100]); // 50 off the top (y 50 to 100), 100 off the right (x 1000 to 1100), none off the foot, 100 off the left (x -300 to -200)
   });
 });
 

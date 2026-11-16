@@ -1,6 +1,7 @@
 import type { DockOptions, DrawnResult, FrameOptions } from "../layer/frame-box";
 import type { Frame } from "../layer/frame-math";
 import type { ShelfEls } from "./shelf-open";
+import type { Projected } from "./shelf-projected";
 
 /** The shelf engine's public surface (shelf-engine.ts). */
 export type ShelfEngine = {
@@ -23,8 +24,9 @@ export type ShelfEngine = {
   setUrgent(on: boolean): void;
   closeBook(): void;
   /**
-   * Draws the open page's picture for the current window scaled to cover `frame` (CSS pixels in the window), centred, and nothing
-   * outside it, with the ledge and (through `els.dots`) the dot field; null draws the whole window as before. By default the
+   * Draws the open page's picture for the current window framed by `frame` (CSS pixels in the window), nothing outside it, with the
+   * ledge and (through `els.dots`) the dot field: a box at rest shows the whole row on its ledge, a frame in a move (`opts.move`)
+   * eases to the open page's picture (box-framing.ts); null draws the whole window as before. By default the
    * canvas (and the dot field) is placed at the frame (fixed); with `{ place: false }` the caller owns the canvas's place and size
    * (it sits in its home box and scrolls with the page; the dot field is then positioned absolutely from the frame's own corner,
    * so it must share the canvas's offset parent) and only the frame's size is used: a move is nothing, a new size is a resize,
@@ -44,6 +46,8 @@ export type ShelfEngine = {
    * loop and nothing to draw it answers "stopped" at once.
    */
   whenDrawn(): Promise<DrawnResult>;
+  /** Every book's box and the ledge's in the canvas's own pixels as drawn (read through the camera), or null before the scene is built. */
+  projected(): Projected | null;
   focusNext(dir: 1 | -1): void;
   openFocused(): void;
   dispose(): void;

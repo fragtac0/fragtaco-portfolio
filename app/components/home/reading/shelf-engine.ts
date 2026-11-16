@@ -10,10 +10,11 @@ import type { ShelfEngine } from "./shelf-engine-types";
 import { createAnimate, poseBooks } from "./shelf-pose";
 import { createMarkerSync } from "./shelf-hud";
 import { fitShelf } from "./shelf-fit";
-import { applyView, dockStage, placeDots, stageSize, syncRatio } from "./shelf-frame";
+import { applyView, dockStage, placeDots, stageSize, syncRatio, viewFor } from "./shelf-frame";
 import { loadShelfFonts, newBag, type ShelfScene } from "./shelf-scene";
 import { Aborted, abortable, buildShelf } from "./shelf-build";
 import { prefitShelf } from "./shelf-prefit";
+import { projectScene } from "./shelf-projected";
 import { createFontCap, createSpineFonts, type SpineFonts } from "./shelf-spine-fonts";
 import { loadSpinePhotos, stepSpineFades } from "./shelf-spines";
 import { stepCamera } from "./shelf-camera";
@@ -29,8 +30,8 @@ import { initialCamX, introSeconds, NARROW_PX } from "./shelf-math";
  * scene in idle time while no layer is mounted, so the layer opens onto a warm scene; once the layer waits, `setUrgent()` runs the
  * same steps back to back, and the wait for the fonts is capped from `mount()` (R89). `mount()` puts the canvas into the layer,
  * `unmount()` takes it out but keeps the GL scene, `dispose()` frees everything. A lost graphics context makes `hasFailed()` true
- * and calls `onLost` listeners. `setFrame()` draws the open page's picture scaled to cover a smaller frame and `setDocked()` takes
- * its input away (shelf-frame.ts, layer/frame-math.ts). The poses are shelf-pose.ts, the open-book path shelf-open.ts, the covers
+ * and calls `onLost` listeners. `setFrame()` frames the open page's picture (box-framing.ts) and `setDocked()` takes
+ * its input away (shelf-frame.ts). The poses are shelf-pose.ts, the open-book path shelf-open.ts, the covers
  * shelf-engine-covers.ts, the scene shelf-scene.ts, the sizing shelf-fit.ts, the camera shelf-camera.ts, the marker shelf-hud.ts,
  * the listeners shelf-input.ts; this file keeps the state, the frame and the lifecycle.
  */
@@ -149,8 +150,10 @@ export function createShelf(
     const [w, h] = stageSize(canvas, box);
     if (!w || !h) return;
     syncRatio(gl, st, window.devicePixelRatio, dprCap);
-    applyView(ctx, gl, w, h);
-    placeDots(els?.dots, box, w, h, st.ledgeTop);
+    const view = viewFor(ctx, gl.scale, w, h);
+    st.viewCam = cam.x;
+    applyView(ctx, gl, w, h, view);
+    placeDots(els?.dots, box, w, h, st.ledgeTop, view);
     if (redraw) st.dirty = true;
   }
 
@@ -180,6 +183,7 @@ export function createShelf(
     let busy = el < introS + 0.3 || st.dirty || (!!st.opened && !reduced);
 
     if (stepCamera(st, cam, s.maxX, animate, dt)) busy = true;
+    if (box.frame() && cam.x !== st.viewCam) reframe(true); // a framed row slides with the camera (the box framing follows it)
     if (stepSpineFades(s.books, dt)) busy = true;
     syncMarker(els?.marker, cam.x, s.maxX, s.visible);
     s.camera.position.x = cam.x; // the fit set the height; the camera looks straight down -z
@@ -289,6 +293,7 @@ export function createShelf(
       st.t0 = performance.now() - (intro() + 0.4) * 1000;
       cam.x = initialCamX(gl.maxX, stageSize(canvas, box)[0] < NARROW_PX);
       cam.xV = st.flickV = 0;
+      reframe(true); // the framing follows the row's place
       for (const b of gl.books) b.anim = newBag();
       st.opened = st.hoverHit = st.camTarget = st.down = null;
       st.focusIdx = -1;
@@ -326,6 +331,10 @@ export function createShelf(
       }
     },
     whenDrawn: () => box.whenDrawn(),
+    projected() {
+      const f = box.frame();
+      return gl ? projectScene(gl.T, gl, f ? { w: f.width, h: f.height } : { w: canvas.clientWidth, h: canvas.clientHeight }) : null;
+    },
     focusNext,
     openFocused,
 

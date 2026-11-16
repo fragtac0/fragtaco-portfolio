@@ -2,6 +2,7 @@ import { windowSize, type FrameBox } from "../layer/frame-box";
 import { clamp, FRONT } from "./shelf-math";
 import { headerBottom } from "./shelf-head";
 import { stageSize } from "./shelf-frame";
+import type { Row } from "./box-framing";
 import { liftLayout, sideBySide } from "./shelf-lift";
 import type { Book, ShelfScene } from "./shelf-scene";
 
@@ -57,6 +58,10 @@ export type ShelfState = {
   fitTop: number;
   /** The feet's row of the last fit (px from the stage's top): the dot field's height. */
   ledgeTop: number;
+  /** The open page's row in its picture, camera at world x 0, as of the last fit: the box framing is made from it (box-framing.ts); null before the first fit. */
+  row: Row | null;
+  /** The camera's world x the last view was made for (the box framing follows the row as it slides). */
+  viewCam: number;
   /** What the renderer and camera were last sized to (shelf-frame.ts `applyView`), so an unchanged view is not set again. */
   viewKey: string;
   /** The size and pixel ratio the renderer's buffer was last allocated for (shelf-frame.ts), so a view change that keeps the buffer does not allocate it again. */
@@ -78,6 +83,8 @@ export const newShelfState = (): ShelfState => ({
   fitH: 0,
   fitTop: 0,
   ledgeTop: 0,
+  row: null,
+  viewCam: 0,
   viewKey: "",
   sizeKey: "",
 });

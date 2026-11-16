@@ -1,5 +1,6 @@
 import { clearPlacement, noTransition, windowSize, type FrameBox } from "../layer/frame-box";
-import { COARSE_STEP, coarseBuffer, dotPlacement, subWindow } from "../layer/frame-math";
+import { COARSE_STEP, coarseBuffer, dotPlacement, placeRegion, subWindow } from "../layer/frame-math";
+import { dotRegion, framingRect, shelfFraming, type Rect, type Row } from "./box-framing";
 import type { ShelfCtx, ShelfState } from "./shelf-open";
 import { RENDER_DPR_MAX } from "./shelf-math";
 import { newBag, type ShelfScene } from "./shelf-scene";
@@ -7,10 +8,36 @@ import { newBag, type ShelfScene } from "./shelf-scene";
 /**
  * The shelf's picture in a frame (layer/frame-math.ts). The row is always fitted to the window the open page would fill
  * (`stageSize`); a frame only changes how much of that picture the canvas shows: the renderer is the frame's size and the
- * orthographic camera looks at the part of the window the frame covers (`setViewOffset`), so the ledge, the books and their shadows are drawn
- * as they are in the open page, scaled to cover the frame and centred. The dot field is a canvas of its own behind the row: it
- * is placed by the same maths (`placeDots`).
+ * orthographic camera looks at the part of the picture the frame covers (`setViewOffset`), so the ledge, the books and their shadows are drawn
+ * as they are in the open page. Which part is the box framing (box-framing.ts, `viewFor`): the whole row on its ledge in the box, easing over
+ * a move to the whole window; before the first fit (no row yet) the window's picture scaled to cover the frame, centred. The dot field is a
+ * canvas of its own behind the row: it is placed by the same maths (`placeDots`).
  */
+
+/** What a frame shows of the open page's picture: the part (it may stick out of the window) and the part the dot field is painted over. */
+export type ShelfView = { sub: Rect; region: Rect | null };
+
+/**
+ * The view for the frame in force. Framed, with the row of the last fit: the box framing at the move's position (a frame that says nothing of
+ * a move is the open page if it covers the window, else a box at rest), the row sliding with the camera (`scale` CSS pixels per world unit).
+ * Framed without a row: the cover. Not framed: the whole window.
+ */
+export function viewFor(ctx: ShelfCtx, scale: number, vw: number, vh: number): ShelfView {
+  const f = ctx.box.frame();
+  const row = ctx.st.row;
+  if (!f || !row) return { sub: subWindow(f, vw, vh), region: null };
+  const shift = -(ctx.cam?.x ?? 0) * scale;
+  const slid: Row = { ...row, left: row.left + shift, right: row.right + shift };
+  const win = { w: vw, h: vh };
+  const mv = ctx.box.move();
+  const covers = f.width >= vw && f.height >= vh;
+  const box = mv ? { w: mv.box.width, h: mv.box.height } : { w: f.width, h: f.height };
+  const t = mv ? mv.t : covers ? 1 : 0;
+  return {
+    sub: framingRect(shelfFraming(box, win, slid, t), { w: f.width, h: f.height }),
+    region: dotRegion(box, win, slid),
+  };
+}
 
 /** A hair added to a whole device pixel count before it is divided by the ratio, so three's `floor(size * ratio)` never lands one short. */
 const BUFFER_EPS = 0.01;
@@ -24,9 +51,9 @@ export function stageSize(canvas: HTMLCanvasElement, box: FrameBox): [number, nu
  * Sizes the renderer for the frame in force and points the camera at what it shows. Only when something changed: setting a canvas
  * size clears it, and the caller draws right after.
  */
-export function applyView(ctx: ShelfCtx, gl: ShelfScene, vw: number, vh: number): void {
+export function applyView(ctx: ShelfCtx, gl: ShelfScene, vw: number, vh: number, view?: ShelfView): void {
   const f = ctx.box.frame();
-  const sub = subWindow(f, vw, vh);
+  const sub = (view ?? viewFor(ctx, gl.scale, vw, vh)).sub;
   let cw = f ? f.width : vw;
   let ch = f ? f.height : vh;
   // a moving frame (the box opening or closing) keeps its drawing buffer larger than it is, allocated every few frames and not at every one
@@ -77,11 +104,19 @@ const DOT_STYLES = ["position", "left", "top", "width", "height", "transform", "
  * Puts the dot field where the frame's picture has it (or back to the stylesheet's place with no frame). In a frame the caller
  * places (`place: false`) it is positioned absolutely from the frame's own corner instead, in the canvas's offset parent.
  */
-export function placeDots(dots: HTMLElement | undefined, box: FrameBox, vw: number, vh: number, ledgeTop: number): void {
+export function placeDots(
+  dots: HTMLElement | undefined,
+  box: FrameBox,
+  vw: number,
+  vh: number,
+  ledgeTop: number,
+  view?: ShelfView,
+): void {
   if (!dots) return;
   const f = box.frame();
   const own = box.placed();
-  const p = f && dotPlacement(own ? f : { ...f, left: 0, top: 0 }, vw, vh, ledgeTop);
+  const at = f && (own ? f : { ...f, left: 0, top: 0 });
+  const p = at && (view?.region ? placeRegion(at, view.sub, view.region) : dotPlacement(at, vw, vh, ledgeTop));
   const s = dots.style;
   if (!p) {
     clearPlacement(dots, DOT_STYLES, () => box.frame() !== null);

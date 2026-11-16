@@ -199,6 +199,42 @@ describe("the move driver: opening", () => {
     expect(t.head.props.has("opacity")).toBe(false); // the stylesheet decides again
   });
 
+  it("tells the engine where the move is: the box it started in and how far along, so a scene can frame its picture over it", () => {
+    const t = setup();
+    t.driver.go(1);
+    step(16);
+    const first = t.calls.at(-1)!;
+    expect(first.opts?.move?.box).toMatchObject({ width: BOX.width, height: BOX.height });
+    expect(first.opts?.move?.t).toBeLessThan(0.01);
+    step(OPEN_MS / 2 - 16);
+    const mid = t.calls.at(-1)!;
+    expect(mid.opts?.move?.t).toBeGreaterThan(0.3);
+    expect(mid.opts?.move?.t).toBeLessThan(0.7);
+    // the frame is the line from the box to the window at that position
+    expect(mid.frame!.width).toBeCloseTo(BOX.width + mid.opts!.move!.t * (1440 - BOX.width), 6);
+    // the positions only grow, and the last frame of the move is the window at 1
+    let prev = -1;
+    for (const c of t.calls) {
+      if (!c.opts?.move) continue;
+      expect(c.opts.move.t).toBeGreaterThanOrEqual(prev);
+      prev = c.opts.move.t;
+    }
+    settle();
+    const last = t.calls.filter((c) => c.opts?.move).at(-1)!;
+    expect(last.opts!.move!.t).toBe(1);
+    expect(last.frame).toMatchObject({ width: 1440, height: 900 });
+  });
+
+  it("the whole-window frame a closing starts from says it is at 1 for the box it will return to", () => {
+    const t = setup();
+    t.driver.go(1);
+    settle();
+    t.driver.go(0);
+    const start = t.calls.at(-1)!;
+    expect(start.frame).toMatchObject({ width: 1440, height: 900 });
+    expect(start.opts?.move).toMatchObject({ t: 1, box: { width: BOX.width, height: BOX.height } });
+  });
+
   it("the chrome follows the move: hidden until 72% of it, whole at the end", () => {
     const t = setup();
     t.driver.go(1);

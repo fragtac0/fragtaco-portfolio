@@ -149,7 +149,7 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     if (eng) {
       eng.setFrame(
         { left: 0, top: 0, width: f.width, height: f.height },
-        { place: false, coarse: true, onApplied: () => carrier.writeScene(f, r) },
+        { place: false, coarse: true, move: { box, t: e }, onApplied: () => carrier.writeScene(f, r) },
       );
     } else {
       carrier.writeScene(f, r, true);
@@ -200,7 +200,7 @@ export function createMoveDriver(parts: DriverParts): MoveDriver {
     box = measure();
     const whole: Frame = { left: 0, top: 0, width: vw, height: vh };
     carrier.carry("move", whole, 0);
-    engine()?.setFrame({ left: 0, top: 0, width: vw, height: vh }, { place: false });
+    engine()?.setFrame({ left: 0, top: 0, width: vw, height: vh }, { place: false, move: { box, t: 1 } });
   }
 
   /** The layer and its chrome are whole: what the move wrote is taken back, and the stylesheet decides again (a hidden header while a video is open). */

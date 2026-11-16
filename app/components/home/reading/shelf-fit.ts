@@ -2,7 +2,8 @@ import { clamp, flatFrame } from "./shelf-math";
 import { ledgeHeight } from "./ledge";
 import { placeMarker } from "./shelf-hud";
 import { headerBottom } from "./shelf-head";
-import { applyView, placeDots, stageSize } from "./shelf-frame";
+import { windowRow } from "./box-framing";
+import { applyView, placeDots, stageSize, viewFor } from "./shelf-frame";
 import type { ShelfCtx } from "./shelf-open";
 import type { Book } from "./shelf-scene-types";
 
@@ -37,13 +38,17 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   st.fitTop = top;
   if (st.opened) closeBook(true);
   const { camera, span } = gl;
-  applyView(ctx, gl, w, h);
   const tallest = Math.max(...gl.books.map((b) => b.H));
   const f = flatFrame({ vw: w, vh: h, span, tallest, top });
   gl.scale = f.scale;
   gl.maxX = f.maxX;
   gl.visible = f.visible;
   cam.x = clamp(cam.x, -f.maxX, f.maxX);
+  // the open page's row in its picture: a frame frames it (box-framing.ts); the view is made once the line the books stand on is known
+  st.row = windowRow({ vw: w, vh: h, scale: f.scale, baseRow: f.baseRow, reach: f.reach, tallest });
+  st.ledgeTop = f.baseRow;
+  const view = viewFor(ctx, f.scale, w, h);
+  applyView(ctx, gl, w, h, view);
   // one world unit is `scale` pixels: the frustum is the stage, and world y 0 (the books' feet) is at `baseRow`
   camera.left = -w / 2 / f.scale;
   camera.right = w / 2 / f.scale;
@@ -57,8 +62,7 @@ export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): 
   placeMarker(els.marker, f.baseRow + Math.max(8, ledgeH - 8));
   // the dot field behind the row (a sibling of the host in the stage) stops at the ledge's top (reading.css `.dot-field`)
   els.stage?.style.setProperty("--ledge-top", `${f.baseRow}px`);
-  st.ledgeTop = f.baseRow;
-  placeDots(els.dots, ctx.box, w, h, f.baseRow);
+  placeDots(els.dots, ctx.box, w, h, f.baseRow, view);
   // read by scripts/audit/shelf.json: the tallest spine's share of the height, the row's of the width, the feet's row
   canvas.dataset.tall = ((f.scale * tallest) / h).toFixed(4);
   canvas.dataset.row = ((f.scale * span) / w).toFixed(4);

@@ -103,29 +103,47 @@ export function subWindow(frame: Frame | null, vw: number, vh: number): { x: num
   return { x: (vw - w) / 2, y: (vh - h) / 2, w, h };
 }
 
+/** Where a canvas laid over a region of the picture goes in a frame (`placeRegion`). */
+export type RegionPlacement = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  scale: number;
+  /** How much to cut off each side (top, right, bottom, left), in the canvas's own pixels, to stay inside the frame. */
+  inset: [number, number, number, number];
+};
+
 /**
- * Where a canvas that is `vw` wide and `ledgeTop` tall in window pixels (the shelf's dot field, which has its own canvas) goes
- * so it is part of the same picture: its top-left corner in the window, the scale about that corner, and how much to cut off each
- * side (top, right, bottom, left, in its own pixels) to stay inside the frame. Null while there is no row yet.
+ * Where a canvas that covers `region` of the open page's picture (the shelf's dot field, which has its own canvas) goes so it is
+ * part of the same picture when `frame` shows `sub` of it: its top-left corner in the window, the scale about that corner, and how much to cut off each
+ * side to stay inside the frame. `sub` and `region` are in the picture's pixels, the canvas is `region.w` by `region.h` of its own.
  */
-export function dotPlacement(
-  frame: Frame,
-  vw: number,
-  vh: number,
-  ledgeTop: number,
-): { left: number; top: number; width: number; height: number; scale: number; inset: [number, number, number, number] } | null {
-  if (!(ledgeTop > 0)) return null;
-  const scale = gluedScale(frame, vw, vh);
-  const v = subWindow(frame, vw, vh);
+export function placeRegion(frame: Frame, sub: { x: number; y: number; w: number; h: number }, region: { x: number; y: number; w: number; h: number }): RegionPlacement {
+  const scale = frame.width / sub.w;
   const cut = (n: number) => Math.max(0, n);
   return {
-    left: frame.left + (frame.width - vw * scale) / 2,
-    top: frame.top + (frame.height - vh * scale) / 2,
-    width: vw,
-    height: ledgeTop,
+    left: frame.left + (region.x - sub.x) * scale,
+    top: frame.top + (region.y - sub.y) * scale,
+    width: region.w,
+    height: region.h,
     scale,
-    inset: [cut(v.y), cut(vw - (v.x + v.w)), cut(ledgeTop - (v.y + v.h)), cut(v.x)],
+    inset: [
+      cut(sub.y - region.y),
+      cut(region.x + region.w - (sub.x + sub.w)),
+      cut(region.y + region.h - (sub.y + sub.h)),
+      cut(sub.x - region.x),
+    ],
   };
+}
+
+/**
+ * Where a canvas that is `vw` wide and `ledgeTop` tall in window pixels goes when the frame covers the window's picture
+ * (`subWindow`): `placeRegion` for the window's top part. Null while there is no row yet.
+ */
+export function dotPlacement(frame: Frame, vw: number, vh: number, ledgeTop: number): RegionPlacement | null {
+  if (!(ledgeTop > 0)) return null;
+  return placeRegion(frame, subWindow(frame, vw, vh), { x: 0, y: 0, w: vw, h: ledgeTop });
 }
 
 /** True when the two frames are the same place and size (null is the whole window). */
