@@ -31,7 +31,8 @@ export interface WarmEnv {
  * Runs warm-ups until one is done for the vignette that is in the filters when it ends. A screen that is resized during a warm-up gets a
  * new vignette (glass-prepare.ts `refreshVignette`, which also puts `ready.warm` back to false) while the warm-up of the old size is still
  * running; when that one ends it has warmed the wrong size, so it is not counted and the loop goes round again for the new one. A screen
- * that was resized and has no new vignette yet ends the loop (the remake calls `warmGlass` when it is made). Returns whether it marked.
+ * that was resized and has no new vignette yet ends the loop (the remake calls `warmGlass` when it is made), also when the resize came while a
+ * warm-up was running and the vignette object had not been swapped by the time that warm-up ended. Returns whether it marked.
  */
 export async function warmLoop(env: WarmEnv, attempts = 20): Promise<boolean> {
   for (let attempt = 0; attempt < attempts && !env.isWarm(); attempt++) {
@@ -45,6 +46,11 @@ export async function warmLoop(env: WarmEnv, attempts = 20): Promise<boolean> {
     if (!size || size.w !== screen.w || size.h !== screen.h) return false; // resized meanwhile: the remake warms
     if (!(await env.warmOnce(size))) continue;
     if (env.vignette() !== size) continue; // the vignette was made again while it ran: that size is not warm
+    // the screen was resized while it ran and its new vignette is still being made (`refreshVignette` has put `warm` back to false and is
+    // waiting for the picture; the vignette in the filters is still the old object): the size that was warmed is not the screen's now, so
+    // it is not counted; the next round finds the vignette and the screen apart and ends the loop, and the remake warms the new size
+    const after = env.screen();
+    if (after.w !== size.w || after.h !== size.h) continue;
     env.markWarm();
     return true;
   }

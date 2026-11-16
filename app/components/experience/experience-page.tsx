@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { isChangeRunning } from "../../lib/page-change";
 import { usePageArrived } from "../../lib/use-page-settled";
 import type { SiteExperience } from "../../types";
 import { useReducedMotion } from "../work/gallery/use-reduced-motion";
@@ -50,9 +51,12 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
   const failPicture = useCallback(() => setFailed("picture"), []);
   const failHeights = useCallback(() => setFailed((f) => f ?? "heights"), []);
   const arrived = usePageArrived(1);
+  // Read once, when the page is made: a page made while a change runs has its map drawn before the reveal (round 7 change-arrival spec 5.1: the picture,
+  // the words and the frame are all there when the change uncovers it); only the heights, which draw nothing in the overview, wait for the change to be over.
+  const [byChange] = useState(isChangeRunning);
   const reduced = useReducedMotion();
-  // "pending" while the page change is still on (the page shows the picture and no list), "on" once the engine may run
-  const engine = !available || failed !== null ? "off" : arrived ? "on" : "pending";
+  // "pending" while the page change is still on and nothing is drawn yet (a first load), "on" once the engine runs: at once for a page that came in through a change
+  const engine = !available || failed !== null ? "off" : arrived || byChange ? "on" : "pending";
   const focusBeadRef = useRef<((index: number) => void) | null>(null);
   const onReady = useCallback(() => setReady(true), []);
   const choose = useCallback((index: number) => {
@@ -103,6 +107,8 @@ export default function ExperiencePage({ experience }: { experience: SiteExperie
         onChoose={choose}
         focusBeadRef={focusBeadRef}
         running={engine === "on"}
+        heightsGo={arrived}
+        byChange={byChange}
         reduced={reduced}
         picture={failed !== "picture"}
         onFailPicture={failPicture}

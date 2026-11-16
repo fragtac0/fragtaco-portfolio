@@ -20,6 +20,7 @@
  */
 
 import type * as THREE from "three";
+import { easeInRate } from "../../../lib/ease-in";
 import { watchContextLost } from "../../home/context-lost";
 import { createAtlas, type Atlas } from "./gallery-atlas";
 import { attachGalleryInput } from "./gallery-input";
@@ -153,8 +154,12 @@ function assemble(
   let drawnTold = false;
 
   const active = () => !destroyed && !lost && !hidden && onScreen;
+  // the drift eases in from standstill over EASE_IN_MS once the wall has started to draw (round 7 change-arrival spec 5.3): its first frame is where the plain links were
+  let driftFrom = Infinity;
   const offsetAt = (now: number): Pt => {
-    const d = reduced ? { x: 0, y: 0 } : driftAt((now - t0) / 1000);
+    const raw = reduced ? { x: 0, y: 0 } : driftAt((now - t0) / 1000);
+    const k = easeInRate(now - driftFrom);
+    const d = { x: raw.x * k, y: raw.y * k };
     const n = rubberBand(pull, NUDGE_MAX_PX);
     return { x: d.x + n.x, y: d.y + n.y };
   };
@@ -191,6 +196,7 @@ function assemble(
         return;
       }
       started = true;
+      driftFrom = now;
       view.compile(renderer); // the shader links before the arrival's clock starts, not inside its first frame
       state.start(performance.now(), typeof opts.instant === "function" ? opts.instant() : opts.instant === true); // pictures that are in by now show whole; the rest fade in over their art
       canvas.dataset.startMs = String(Math.round(now - t0)); // for the audit: when the first frame was drawn, and with how many pictures

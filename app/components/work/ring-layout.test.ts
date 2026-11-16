@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { introLine, labelSide, layoutRings, mountedIn } from "./ring-layout";
+import { introLine, labelSide, layoutRings } from "./ring-layout";
 import { clear, ringCapacity, ringPlan } from "./ring-math";
 
 const WORK = { stack: 8, long: 35, short: 35 };
@@ -122,21 +122,5 @@ describe("introLine", () => {
   it("falls back to the text when it starts with a break, and copes with nothing", () => {
     expect(introLine(", odd")).toBe(", odd");
     expect(introLine("")).toBe("");
-  });
-});
-
-describe("mountedIn", () => {
-  it("counts a ring's items that are in when `shown` items are, rings counted inside to outside", () => {
-    expect(mountedIn(0, 0, 8)).toBe(0);
-    expect(mountedIn(5, 0, 8)).toBe(5);
-    expect(mountedIn(8, 0, 8)).toBe(8);
-    expect(mountedIn(11, 8, 13)).toBe(3);
-    expect(mountedIn(8, 8, 13)).toBe(0);
-    expect(mountedIn(100, 8, 13)).toBe(13);
-  });
-
-  it("is everything when shown is infinite, and nothing for a ring that has not begun", () => {
-    expect(mountedIn(Infinity, 20, 14)).toBe(14);
-    expect(mountedIn(3, 20, 14)).toBe(0);
   });
 });

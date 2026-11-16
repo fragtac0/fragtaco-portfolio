@@ -13,9 +13,20 @@
 html[data-change-kind="fade"]::view-transition-group(*) { animation-duration: var(--change-ms); }
 [data-dock-glass] { view-transition-name: site-dock; }
 /* the dock's view-transition group is a rectangle, and the glass's backdrop blur is drawn over all of it: over a bright page (the
- * Mars map) a square-cornered box showed round the pill for the whole change. The pill is fully round while its row is closed,
- * which it is during every change, so clip the group (and with it both pictures) to a pill. */
-::view-transition-group(site-dock) { clip-path: inset(0 round 9999px); }
+ * Mars map) a square-cornered box showed round the pill for the whole change. Clip the group (and with it both pictures) to the dock's
+ * own corners: 1.75rem, which is the radius of the two-row dock and, on a one-row dock about 58 px high (Home), a pill (a radius larger
+ * than half the box is scaled down). The group morphs from the old dock's box to the new one's, once, during the reveal. */
+::view-transition-group(site-dock) { clip-path: inset(0 round 1.75rem); }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*) { animation-duration: 120ms; }
+}
+
+/* The hold (round 7 change-arrival spec 5.1, app/lib/page-change.ts): from the moment the pictures are up until the arriving page has
+ * said it is finished (or 500 ms have passed), every animation of the change stands at its first frame. The screen shows the page being
+ * left, held still; the new page is live under it, so what it waits for (pictures, the wall, the ground) loads and decodes meanwhile.
+ * `!important`: the rules that name the animations (glass.css, the UA's own) set `animation-play-state` through the shorthand. */
+html[data-change-hold]::view-transition-group(*),
+html[data-change-hold]::view-transition-old(*),
+html[data-change-hold]::view-transition-new(*) {
+  animation-play-state: paused !important;
 }

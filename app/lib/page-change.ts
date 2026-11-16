@@ -4,8 +4,13 @@
  * itself once the destination's data is loaded (so the old page stays live during the network round trip
  * and the transition's update step holds only the React commit); this module captures that transition,
  * so it holds the transition's own promises and can tell the rest of the app when the change is over
- * (`usePageSettled`). Heavy work on the arriving page (starting WebGL, decoding the ring pictures,
- * starting the ring motion) waits for that, so it never lands inside the transition.
+ * (`usePageSettled`). Heavy work on the arriving page (starting WebGL, starting the ring motion) waits for that, so
+ * it never lands inside the transition.
+ *
+ * The arriving page is finished before it is uncovered (round 7 change-arrival spec 5.1): when the pictures are up, the
+ * reveal's animations are held at their first frame (`data-change-hold` on <html>, page-transition.css) until every part
+ * the page gave to `holdFor` (arrival.ts) has settled or the cap has passed (500 ms, 300 ms for the reduced-motion fade),
+ * so the screen shows the page being left, held still, and the reveal then runs as it always did, over a page that is done.
  *
  * Every change is the same reveal (round 7 spec 4): radial from the centre of the screen, 2.5 s, whatever the two pages
  * are and whatever was clicked. While it runs the browser shows pictures of the two pages and nothing under them can be
@@ -19,6 +24,7 @@
 import type { NavigateFunction } from "@remix-run/react";
 import { GLASS, glassVars } from "../components/page-change/glass-math";
 import { startGlass } from "../components/page-change/glass-run";
+import { endArrival, HOLD_MS, HOLD_REDUCED_MS, resetArrival, whenArrivalReady } from "./arrival";
 import { focusAfterFinish, focusInDock, restoreDockFocus } from "./dock-focus";
 import {
   captureNextTransition,
@@ -127,6 +133,8 @@ function mark(html: HTMLElement, plan: ChangePlan) {
 }
 function unmark(html: HTMLElement) {
   delete html.dataset.changeKind;
+  delete html.dataset.changeHold;
+  delete html.dataset.arrivalLate;
   for (const name of ["--change-x", "--change-y", "--change-r", "--change-ms", ...Object.keys(glassVars())]) html.style.removeProperty(name);
 }
 
@@ -156,6 +164,7 @@ export function open(plan: ChangePlan) {
       if (current === entry) {
         current = null;
         unmark(html);
+        endArrival();
         setBusy(false);
       }
       resolve();
@@ -184,6 +193,7 @@ export function open(plan: ChangePlan) {
   };
   current = entry;
   mark(html, plan);
+  resetArrival();
   setBusy(true);
   failsafe = window.setTimeout(over, FAILSAFE_MS);
   return {
@@ -197,11 +207,47 @@ export function open(plan: ChangePlan) {
       t.ready.catch(() => undefined);
       t.updateCallbackDone.catch(() => undefined);
       t.finished.then(over, over);
-      cleanups.push(startGlass(t, plan)); // the glass front, from the transition's `ready`; stopped with the change
+      // the glass front starts when the hold is over (it has nothing to draw while the reveal stands at its first frame)
+      cleanups.push(startGlass({ ready: holdReveal(html, t, plan, cleanups) }, plan)); // stopped with the change
     },
   };
 }
 export type Change = ReturnType<typeof open>;
+
+/** A named moment in the performance timeline, for the audit; nothing where there is no timeline. */
+const stamp = (name: string) => {
+  try {
+    performance.mark(name);
+  } catch {
+    /* no performance timeline */
+  }
+};
+
+/**
+ * Holds the reveal's animations at their first frame from the moment the transition exists (the pseudo-elements are made
+ * paused: page-transition.css) until the arriving page is ready or the cap has passed, and resolves then, so the glass
+ * starts. A press, a newer change or the end of the change takes the hold off at once and leaves nothing waiting. A part
+ * still pending at the cap is named in `data-arrival-late` (the pages fade it in themselves: `arrivalLate`).
+ */
+function holdReveal(html: HTMLElement, t: ViewTransitionLike, plan: ChangePlan, cleanups: Array<() => void>): Promise<void> {
+  const control = new AbortController();
+  html.dataset.changeHold = "";
+  cleanups.push(() => {
+    control.abort();
+    delete html.dataset.changeHold;
+  });
+  return t.ready
+    .then(() => {
+      stamp("arrival-hold"); // for the audit (scripts/audit/make-arrival.mjs): the hold's start and end
+      return whenArrivalReady(plan.kind === "fade" ? HOLD_REDUCED_MS : HOLD_MS, control.signal);
+    })
+    .then(({ late }) => {
+      if (control.signal.aborted) return; // the change is over or replaced: the marks are not this hold's any more
+      stamp("arrival-go");
+      if (late.length > 0) html.dataset.arrivalLate = late.join(" ");
+      delete html.dataset.changeHold;
+    });
+}
 
 /**
  * The router will make the view transition itself (once the destination's loaders are done, with the

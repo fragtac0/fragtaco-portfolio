@@ -25,8 +25,10 @@ let warming = false;
  * Runs both bend filters once where nobody sees it (R56, spec 4), so the first change after a load does no first-time work (the shaders,
  * the bend's tiles' and the vignette's upload to the GPU, each tile's first use as the map): two full-screen elements with nothing in
  * them, each with a filter, nearly clear (opacity 0.01 so the browser does not skip them), the map put through every tile in turn
- * (a frame each) and the pushes set as in a change; and the three sheets (mask, glow, shade) drawn once the same way; then everything
- * put back. Called after `glass-bend-ready` and again after the vignette is remade for a new screen size; marks `glass-warm` and sets
+ * (a frame each) and the pushes set as in a change; and the three sheets (mask, glow, shade), each drawn in a 3 px square in the screen's
+ * corner at the same opacity with the middle of a tile laid under it (the pictures are drawn and decoded whole; what shows is the square,
+ * which nobody can see: not full-screen like the filter hosts); then everything put back. Called after `glass-bend-ready` and again after
+ * the vignette is remade for a new screen size; marks `glass-warm` and sets
  * `ready.warm`. Never while a change runs: it waits for the marks on <html> to go, and a change that starts in the middle of it (it
  * runs without the bend: `ready.warm` is still false) stops it and it starts again afterwards. A vignette that is remade while a
  * warm-up runs makes that warm-up not count (`warmLoop`). In a hidden tab it waits until the tab shows again (a hidden tab draws no

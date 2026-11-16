@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useRef, type CSSProperties, type MutableRefObject } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, type CSSProperties, type MutableRefObject } from "react";
+import { holdFor } from "../../lib/arrival";
+import { afterFrames, holdImages } from "../../lib/arrival-dom";
 import type { ExperienceMoment } from "../../types";
 import { createCardController, type CardController } from "./card-controller";
 import type { Mode } from "./climb-change";
@@ -43,8 +45,12 @@ type Props = {
   mode: Mode;
   /** The chosen milestone in My climb (null in the overview). */
   selected: number | null;
-  /** Whether the engine runs: from the end of the page change, where a 2D canvas is there and the picture came. */
+  /** Whether the engine runs: where a 2D canvas is there and the picture came (from the page's first commit when it came in through a page change, else from the change's end). */
   running: boolean;
+  /** The heights are read at idle once this is true (the change is over): they draw nothing in the overview. */
+  heightsGo: boolean;
+  /** The page was made while a change ran: the reveal waits for the picture. */
+  byChange: boolean;
   reduced: boolean;
   /** Whether the picture is shown (false once it failed to load). */
   picture: boolean;
@@ -60,6 +66,9 @@ type Props = {
   onFailHeights: () => void;
 };
 
+// Layout effects warn on the server; nothing here runs there.
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
 /** An audit hook: when the page has an array in `window.__expTrace`, every frame of a move writes a row to it. */
 const trace = () => (window as unknown as { __expTrace?: number[][] }).__expTrace;
 
@@ -73,7 +82,7 @@ const trace = () => (window as unknown as { __expTrace?: number[][] }).__expTrac
  * and the first paint show the picture. The layers' strength follows `--night`, which the engine writes (no React state per
  * frame). Nothing but the beads is read by a screen reader: the moments are listed by the page.
  */
-export default function ExperienceMap({ trail, moments, of, mode, selected, running, reduced, picture: showPicture, ready, onReady, onChoose, focusBeadRef, onFailPicture, onFailHeights }: Props) {
+export default function ExperienceMap({ trail, moments, of, mode, selected, running, heightsGo, byChange, reduced, picture: showPicture, ready, onReady, onChoose, focusBeadRef, onFailPicture, onFailHeights }: Props) {
   const stage = useRef<HTMLDivElement>(null);
   const plane = useRef<HTMLDivElement>(null);
   const night = useRef<HTMLDivElement>(null);
@@ -103,6 +112,14 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
       focusBeadRef.current = null;
     };
   }, [focusBeadRef]);
+
+  // the reveal of a change waits for the overview picture to be in and decoded, and for the engine to have drawn the overview's chart (its frame, the trail and
+  // the beads are canvases and pins the engine makes: arrival.ts; nothing happens outside a change)
+  useIsoLayoutEffect(() => {
+    if (!byChange) return;
+    if (picture.current) holdImages("map", [picture.current]);
+    if (running) holdFor("map-engine", afterFrames(2));
+  }, []);
 
   // a picture that failed before the page woke up never fires onError here
   useEffect(() => {
@@ -166,12 +183,29 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     document.fonts?.load(FRAME_FONT).then(() => {
       if (!gone) e.redraw();
     }, () => {});
-    // the heights are read at idle once the engine is up (the picture is already there; only My climb draws from them)
+    return () => {
+      gone = true;
+      engine.current = null;
+      e.destroy();
+      controller.destroy();
+      controller.request(null, 0);
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+      document.removeEventListener("visibilitychange", onVisible);
+      delete el.dataset.terrain;
+    };
+  }, [running, trail, moments.length]);
+
+  // the heights are read at idle once the engine is up and the change is over (the picture is already there; only My climb draws from them)
+  useEffect(() => {
+    const el = stage.current;
+    if (!running || !heightsGo || !el || !engine.current) return;
+    let gone = false;
     const cancelIdle = whenIdle(() => {
       loadTerrain(HEIGHTS_SRC).then(
         (t) => {
-          if (gone) return;
-          e.setTerrain(t);
+          if (gone || !engine.current) return;
+          engine.current.setTerrain(t);
           el.dataset.terrain = "ready";
           live.current.onReady();
         },
@@ -184,16 +218,8 @@ export default function ExperienceMap({ trail, moments, of, mode, selected, runn
     return () => {
       gone = true;
       cancelIdle();
-      engine.current = null;
-      e.destroy();
-      controller.destroy();
-      controller.request(null, 0);
-      observer.disconnect();
-      window.removeEventListener("resize", measure);
-      document.removeEventListener("visibilitychange", onVisible);
-      delete el.dataset.terrain;
     };
-  }, [running, trail, moments.length]);
+  }, [running, heightsGo, trail, moments.length]);
 
   useEffect(() => {
     const was = told.current;

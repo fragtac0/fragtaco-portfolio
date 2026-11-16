@@ -1,9 +1,9 @@
 /**
  * Makes the glass front's pictures, in idle time, once per page load (follow-ups spec 4; the tiles are explained in glass-field.ts):
  * sheets of tiles for the new page's mask, the glow and the shade, the bend's tiles (data addresses; each SVG filter of
- * glass-filter.tsx has one map picture whose source glass-run.ts swaps to the tile for the front, R56), and the vignette that damps the bend towards the screen's edges (glass-vignette.ts, made again when the
- * screen changes size). Then `warmGlass` runs the bend's filters once where nobody sees them, so the first change after a load does no
- * first-time work (R56, spec 4).
+ * glass-filter.tsx has one map picture whose source glass-run.ts swaps to the tile for the front, R56), and the vignette that damps the
+ * bend towards the screen's edges (glass-vignette.ts, made again when the screen changes size). Then `warmGlass` runs the bend's
+ * filters once where nobody sees them, so the first change after a load does no first-time work (R56, spec 4).
  *
  * The work is done a tile at a time with a gap between (so none is a long task) and it stops while a change runs (the marks on
  * <html> say so), so it can never land inside the 2.5 s of a reveal; most important first: the glow and shade gradients (only

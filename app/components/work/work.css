@@ -93,10 +93,12 @@
 .work-page[data-arrival="change"] .work-intro {
   animation: none;
 }
-/* ...and stand still while it runs (data-still, until it is over): no moving layers to raster during the reveal; then all turn together. */
+/* ...and stand still while it runs (data-still, until it is over): the animations are made but paused, so the rings are the same layers, rastered the same way,
+   in the reveal as at rest (without them the hand-over to the live page redraws every item's edges, a pixel off); then all turn together, from standstill
+   (work-page.tsx eases their rate in). */
 .work-page[data-still] .work-ring,
 .work-page[data-still] .work-item-turn {
-  animation: none;
+  animation-play-state: paused;
 }
 @keyframes work-spin {
   from { rotate: 0deg; }
@@ -185,6 +187,10 @@
 }
 .work-cover img[data-ready] {
   opacity: 1;
+}
+/* while a change holds its reveal (page-transition.css) a picture that has loaded is simply there, not half way through its fade */
+html[data-change-hold] .work-cover img {
+  transition: none;
 }
 .work-cover {
   border-radius: clamp(8px, calc(var(--h) * 0.1), 16px);

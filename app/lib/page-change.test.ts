@@ -1,5 +1,6 @@
 import type { NavigateFunction } from "@remix-run/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { arrivalLate, holdFor } from "./arrival";
 import { watchHistory, type RouterLike } from "./history-change";
 import { afterSettled, changePage, endChange, finishChange, isChangeRunning, isChangeShowing, isPageSettled, isRadialChange, pageCommitted, planChange, subscribeSettled } from "./page-change";
 
@@ -602,5 +603,120 @@ describe("afterSettled", () => {
     expect(fn).not.toHaveBeenCalled();
     await sleep(80);
     expect(fn).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("the hold (the arriving page is finished before the reveal)", () => {
+  const never = () => new Promise<void>(() => {});
+  beforeEach(() => {
+    vi.useRealTimers();
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("holds the reveal from the moment the pictures are up, and lets it go as soon as the page is ready", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    let ready = () => {};
+    holdFor("rings", new Promise<void>((resolve) => (ready = resolve)));
+    expect(env.html.dataset.changeHold).toBeUndefined(); // the old page is live while the data loads: nothing to hold yet
+    r.dataArrives();
+    expect(env.html.dataset.changeHold).toBe("");
+    await sleep(60);
+    expect(env.html.dataset.changeHold).toBe(""); // not ready, not at the cap: the reveal has not started
+    ready();
+    await tick();
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    expect(env.html.dataset.arrivalLate).toBeUndefined();
+    expect(arrivalLate()).toBe(true); // the reveal has begun: a part that comes now is late
+    env.transitions[0].finish();
+    await done;
+  });
+
+  it("starts the reveal at the cap with what is missing, which is named for the pages to fade in", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    holdFor("painting", never());
+    holdFor("ground", Promise.resolve());
+    r.dataArrives();
+    await sleep(430);
+    expect(env.html.dataset.changeHold).toBe("");
+    await sleep(140); // 500 ms after the pictures are up
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    expect(env.html.dataset.arrivalLate).toBe("painting");
+    env.transitions[0].finish();
+    await done;
+    expect(env.html.dataset.arrivalLate).toBeUndefined();
+  });
+
+  it("does not hold a change whose page gives nothing to wait for", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    r.dataArrives();
+    await tick();
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    env.transitions[0].finish();
+    await done;
+  });
+
+  it("a press (finishChange) during the hold ends the change at once and leaves nothing held", async () => {
+    const env = fakeEnvironment();
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    holdFor("wall", never());
+    r.dataArrives();
+    await tick();
+    expect(env.html.dataset.changeHold).toBe("");
+    expect(isChangeShowing()).toBe(true);
+    finishChange();
+    await done;
+    expect(env.transitions[0].skipped).toBe(true);
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    expect(env.html.dataset.changeKind).toBeUndefined();
+    expect(isPageSettled()).toBe(true);
+    expect(arrivalLate()).toBe(false);
+    expect(holdFor("anything", never())).toBe(false); // nothing is recording, nothing can be held
+    await sleep(560); // the cap passes with no effect on the next change
+    expect(env.html.dataset.arrivalLate).toBeUndefined();
+  });
+
+  it("a newer change takes over the hold: the first one's cap does not mark the second", async () => {
+    const env = fakeEnvironment();
+    const r1 = env.router("/work");
+    const first = changePage(r1.navigate, "/work");
+    holdFor("old page", never());
+    r1.dataArrives();
+    await tick();
+    const r2 = env.router("/work/long-form");
+    const second = changePage(r2.navigate, "/work/long-form");
+    await first;
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    expect(arrivalLate()).toBe(false); // the first one's wait was aborted: it did not mark the second one's reveal as begun
+    holdFor("new page", never());
+    r2.dataArrives();
+    await sleep(100);
+    expect(env.html.dataset.changeHold).toBe("");
+    env.transitions[1].finish();
+    await second;
+  });
+
+  it("the reduced-motion fade waits at most 300 ms", async () => {
+    const env = fakeEnvironment();
+    vi.stubGlobal("window", { ...(globalThis as { window: object }).window, matchMedia: () => ({ matches: true }) });
+    const r = env.router("/work");
+    const done = changePage(r.navigate, "/work");
+    expect(env.html.dataset.changeKind).toBe("fade");
+    holdFor("rings", never());
+    r.dataArrives();
+    await sleep(240);
+    expect(env.html.dataset.changeHold).toBe("");
+    await sleep(110);
+    expect(env.html.dataset.changeHold).toBeUndefined();
+    env.transitions[0].finish();
+    await done;
   });
 });

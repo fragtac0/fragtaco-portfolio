@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { holdImages } from "../../lib/arrival-dom";
 import { isPageSettled, subscribeSettled } from "../../lib/page-change";
 import { usePageArrived } from "../../lib/use-page-settled";
 import { hasWebGL } from "../../lib/webgl-support";
@@ -165,6 +166,13 @@ export default function EclipseGround({ placement, scope = "page", covered = fal
     placementNow.current = placement;
     engine.current?.setPlacement(placement);
   }, [placement]);
+
+  // A page change's reveal waits for the still of this placement to be in and decoded (round 7 change-arrival spec 5.1; nothing happens
+  // outside a change), so the ground the reveal uncovers is the finished one, and one that comes late fades in.
+  useIsoLayoutEffect(() => {
+    const img = scope === "page" ? host.current?.querySelector<HTMLImageElement>('.eclipse-still[data-on="true"] img') : null; // a section's ground is below the fold of the page it is on
+    if (img) holdImages("ground", [img]);
+  }, [placement, scope]);
 
   const placements = scope === "page" ? WORK_PLACEMENTS : [placement];
   const ground = (

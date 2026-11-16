@@ -1,0 +1,227 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}",
+  "go": "{{BASE}}/work",
+  "wait": 6000
+ },
+ {
+  "label": "RF1 arm: every picture held for ever (data-change-hold goes at the cap, not never)",
+  "intercept": [
+   {
+    "match": ".webp",
+    "delay": 600000
+   },
+   {
+    "match": ".jpg",
+    "delay": 600000
+   },
+   {
+    "match": ".jpeg",
+    "delay": 600000
+   },
+   {
+    "match": ".png",
+    "delay": 600000
+   },
+   {
+    "match": ".avif",
+    "delay": 600000
+   },
+   {
+    "match": ".svg",
+    "delay": 600000
+   },
+   {
+    "match": "i.ytimg.com",
+    "delay": 600000
+   },
+   {
+    "match": "covers.openlibrary",
+    "delay": 600000
+   }
+  ]
+ },
+ {
+  "label": "RF1 pictures never load: hold length, late parts, the change ends",
+  "eval": "(async () => { const html = document.documentElement; document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\").click(); const t0 = performance.now(); let holdOn = null, holdOff = null; await new Promise((res) => { const id = setInterval(() => { const h = 'changeHold' in html.dataset; if (h && holdOn === null) holdOn = performance.now() - t0; if (!h && holdOn !== null && holdOff === null) holdOff = performance.now() - t0; if ((holdOff !== null && !html.dataset.changeKind) || performance.now() - t0 > 9000) { clearInterval(id); res(); } }, 8); }); return { holdOnMs: Math.round(holdOn), holdOffMs: Math.round(holdOff), holdLengthMs: Math.round(holdOff - holdOn), ended: !html.dataset.changeKind, ...({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }) }; })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF1 disarm"
+ },
+ {
+  "label": "RF2 reload on the portfolio page",
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": ".webp",
+    "delay": 600000
+   },
+   {
+    "match": ".jpg",
+    "delay": 600000
+   },
+   {
+    "match": ".jpeg",
+    "delay": 600000
+   },
+   {
+    "match": ".png",
+    "delay": 600000
+   },
+   {
+    "match": ".avif",
+    "delay": 600000
+   },
+   {
+    "match": ".svg",
+    "delay": 600000
+   },
+   {
+    "match": "i.ytimg.com",
+    "delay": 600000
+   },
+   {
+    "match": "covers.openlibrary",
+    "delay": 600000
+   }
+  ],
+  "label": "RF2 arm"
+ },
+ {
+  "label": "RF2a a pointer press during the hold finishes the change at once and nothing is held",
+  "eval": "(async () => { const html = document.documentElement; document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\").click(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if (('changeHold' in html.dataset) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 150)); const during = ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }); window.__ftFinish && window.__ftFinish(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 700)); return { during, after: ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }) }; })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF2 disarm"
+ },
+ {
+  "label": "RF2b Back during the hold ends the change at once, no second reveal",
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": ".webp",
+    "delay": 600000
+   },
+   {
+    "match": ".jpg",
+    "delay": 600000
+   },
+   {
+    "match": ".jpeg",
+    "delay": 600000
+   },
+   {
+    "match": ".png",
+    "delay": 600000
+   },
+   {
+    "match": ".avif",
+    "delay": 600000
+   },
+   {
+    "match": ".svg",
+    "delay": 600000
+   },
+   {
+    "match": "i.ytimg.com",
+    "delay": 600000
+   },
+   {
+    "match": "covers.openlibrary",
+    "delay": 600000
+   }
+  ],
+  "label": "RF2b arm"
+ },
+ {
+  "label": "RF2b Back",
+  "eval": "(async () => { const html = document.documentElement; document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\").click(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if (('changeHold' in html.dataset) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 150)); const during = ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }); history.back(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind && !('changeHold' in html.dataset)) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 900)); return { during, after: ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }), glassAnimations: document.getAnimations().filter((a) => a.animationName === 'glass-p').length }; })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF2 disarm"
+ },
+ {
+  "label": "RF2c a second click on another link during the hold replaces the change, nothing stays held",
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": ".webp",
+    "delay": 600000
+   },
+   {
+    "match": ".jpg",
+    "delay": 600000
+   },
+   {
+    "match": ".jpeg",
+    "delay": 600000
+   },
+   {
+    "match": ".png",
+    "delay": 600000
+   },
+   {
+    "match": ".avif",
+    "delay": 600000
+   },
+   {
+    "match": ".svg",
+    "delay": 600000
+   },
+   {
+    "match": "i.ytimg.com",
+    "delay": 600000
+   },
+   {
+    "match": "covers.openlibrary",
+    "delay": 600000
+   }
+  ],
+  "label": "RF2c arm"
+ },
+ {
+  "label": "RF2c a second link",
+  "eval": "(async () => { const html = document.documentElement; document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\").click(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if (('changeHold' in html.dataset) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 150)); const during = ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }); window.__ftChange && window.__ftChange('/experience'); await new Promise((r) => setTimeout(r, 900)); window.__ftFinish && window.__ftFinish(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 700)); return { during, after: ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }) }; })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF2 disarm"
+ },
+ {
+  "label": "RF5 long form, the row's Short form link focused",
+  "go": "{{BASE}}/work/long-form",
+  "wait": 6000
+ },
+ {
+  "label": "RF5 focus the row's Short form link and press Enter",
+  "eval": "(async () => { const a = document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]'); a.focus(); window.__rf5 = { el: a, before: ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }) }; return window.__rf5.before; })()"
+ },
+ {
+  "key": "Enter"
+ },
+ {
+  "label": "RF5 after the change: the same link has focus (the dock is the same element), the row never closed",
+  "eval": "(async () => { const html = document.documentElement; await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind && location.pathname === '/work/short-form') || performance.now() - t0 > 7000) { clearInterval(id); res(); } }, 50); }); const row = document.querySelector('.dock-row'); return { ...({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }), sameElement: document.activeElement === window.__rf5.el, rowPresent: !!row, rowOpacity: row && getComputedStyle(row).opacity, rowInert: row ? row.hasAttribute('inert') : null }; })()"
+ },
+ {
+  "label": "RF5 the row is in both pictures of a change: its box does not change across a change between two row pages",
+  "eval": "(async () => { const html = document.documentElement; const box = () => { const r = document.querySelector('[data-dock-glass]').getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map((v) => Math.round(v * 10) / 10); }; const before = box(); const seen = new Set([before.join()]); document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { seen.add(box().join()); if ((!html.dataset.changeKind && location.pathname === '/experience') || performance.now() - t0 > 7000) { clearInterval(id); res(); } }, 16); }); return { before, after: box(), distinctBoxes: seen.size }; })()"
+ }
+]

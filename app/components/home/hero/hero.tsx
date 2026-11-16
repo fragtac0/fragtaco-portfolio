@@ -1,15 +1,33 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import type { SiteHeroPainting } from "../../../types";
-import { isPageSettled } from "../../../lib/page-change";
+import { arrivalLate, holdFor } from "../../../lib/arrival";
+import { afterFrames, fadeLate } from "../../../lib/arrival-dom";
+import { isChangeRunning } from "../../../lib/page-change";
 import { usePageArrived } from "../../../lib/use-page-settled";
+import { loadImage, whenWebpKnown } from "../../../utils/load-image";
 import "./hero.css";
 import { prefersReducedMotion } from "./hero-runtime";
-import { recallPainting } from "./painting-memory";
+import { firstPaintingSrc } from "./painting-cycle";
+import { recallPainting, rememberPainting } from "./painting-memory";
 import type { PaintEngine } from "./paint-engine";
 import Lockup from "./lockup";
 import { useLoader } from "./use-loader";
 import { usePaintEngine } from "./use-paint-engine";
 import { usePaintingCycle } from "./use-painting-cycle";
+
+// Layout effects warn on the server; the effect that uses this never runs there.
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+/** A plain picture of a painting for the page's first frame: the image's address and how it sits in the hero (the engine draws the same crop). */
+interface Still {
+  src: string;
+  focal: string;
+  zoom: number;
+  /** True for the painting itself (remembered from the last visit, or loaded); false for the first painting's blurred placeholder. */
+  sharp: boolean;
+  painting: SiteHeroPainting;
+}
 
 export interface HeroHandle {
   /** Blurs the painting behind an open card (0 clears it). */
@@ -84,23 +102,52 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
   // creating the context and compiling the shaders, and the upload, are different tasks.
   const engineGo = usePageArrived(1);
   const paintGo = usePageArrived(3);
+  // Read once, when the page is made: a page made while a change runs is finished before the reveal (round 7 change-arrival spec 5.1).
+  const [byChange] = useState(isChangeRunning);
   // The page's first picture, as a plain image: the painting remembered from the last visit, or, arriving
   // during a page change with nothing remembered, the first painting's blurred placeholder (a data URI, so
-  // it is decoded in the same commit). Never the bare ground. A first load (server HTML) has neither.
-  const [still] = useState(() => {
+  // it is decoded in the same commit) until its sharp copy has loaded (below). Never the bare ground. A first load (server HTML) has neither.
+  const [still] = useState((): Still | null => {
     if (typeof window === "undefined") return null;
     const recalled = recallPainting();
     const p = recalled ? paintings.find((q) => q.id === recalled.id) : undefined;
-    if (recalled && p) return { src: recalled.img.currentSrc || recalled.img.src, focal: p.focal, zoom: p.zoom ?? 1 };
+    if (recalled && p) return { src: recalled.img.currentSrc || recalled.img.src, focal: p.focal, zoom: p.zoom ?? 1, sharp: true, painting: p };
     const first = paintings.find((q) => q.id === firstPaintingId);
-    if (!isPageSettled() && first?.blur) return { src: first.blur, focal: first.focal, zoom: first.zoom ?? 1 };
+    if (byChange && first?.blur) return { src: first.blur, focal: first.focal, zoom: first.zoom ?? 1, sharp: false, painting: first };
     return null;
   });
+  // The sharp first painting, once it has loaded, over its blurred placeholder (a page that came in through a change with nothing remembered).
+  const [sharpStill, setSharpStill] = useState<Still | null>(null);
+  // The caption is up in the page's first frame, with the words of the painting that is showing: it does not fade in after the change.
+  const captionUp = byChange && still !== null;
 
   const runtime = { rootRef, engineRef, parkedRef, dataRef };
+  useIsoLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!byChange || !still || !root) return;
+    const words = (selector: string, text: string) => {
+      const el = root.querySelector(selector);
+      if (el) el.textContent = text;
+    };
+    words(".caption .t", still.painting.title);
+    words(".caption .a", `${still.painting.artist}, ${still.painting.year}`);
+    // the reveal waits for the sharp painting (decoded: the remembered one is already, a sharp copy of the first one is fetched)
+    const done = still.sharp
+      ? Promise.resolve()
+      : (async () => {
+          const img = await loadImage(firstPaintingSrc(still.painting.file, window.innerWidth, window.devicePixelRatio || 1, await whenWebpKnown()));
+          if (!img || engineRef.current) return; // it did not come (the placeholder stays), or the engine has taken over and fades it in itself
+          // the sharp painting goes over the placeholder (a fade over 200 ms when it comes after the reveal has begun) and is the painting the cycle starts with
+          rememberPainting(still.painting.id, img);
+          flushSync(() => setSharpStill({ ...still, src: img.currentSrc || img.src, sharp: true }));
+        })();
+    // one frame more, so what the page's effects set in its first frame (the lockup's resting state, the cue) is painted too
+    holdFor("painting", done.then(() => afterFrames(1)));
+  }, []);
+
   const viewRef = usePaintEngine({ ...runtime, hostRef, blurRef, settled: engineGo });
   const cycleRef = usePaintingCycle({ ...runtime, viewRef, settled: paintGo });
-  useLoader({ ...runtime, cycleRef, onReadyRef, settled: paintGo });
+  useLoader({ ...runtime, cycleRef, onReadyRef, settled: paintGo, captionUp });
 
   // The first painting's blurred placeholder, as a CSS backdrop under the canvas. loader.css shows it
   // only when the page was unlocked by the head script's failsafe before this script joined.
@@ -135,6 +182,18 @@ const Hero = forwardRef<HeroHandle, HeroProps>(function Hero(
               alt=""
               decoding="sync"
               style={{ objectPosition: still.focal, transform: `scale(${still.zoom})` }}
+            />
+          ) : null}
+          {sharpStill ? (
+            <img
+              ref={(img) => {
+                if (img && arrivalLate()) fadeLate(img); // it came after the reveal began: it fades in over the placeholder
+              }}
+              className="paint-still"
+              src={sharpStill.src}
+              alt=""
+              decoding="sync"
+              style={{ objectPosition: sharpStill.focal, transform: `scale(${sharpStill.zoom})` }}
             />
           ) : null}
         </div>

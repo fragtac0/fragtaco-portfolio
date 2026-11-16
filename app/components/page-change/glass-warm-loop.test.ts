@@ -72,6 +72,28 @@ describe("warmLoop (R56)", () => {
     expect(p.marks).toBe(1); // once, and for the second size
   });
 
+  it("a screen resized during the warm-up whose new vignette is swapped in only after it ended is not marked warm", async () => {
+    const p = page({
+      onWarm: (call, s) => {
+        if (call === 1) {
+          // the resize came while it ran: `refreshVignette` put warm back to false and is still making the picture, so the vignette in the filters is still the old object
+          s.screen = { w: 1100, h: 800 };
+          s.warm = false;
+        }
+        return true;
+      },
+    });
+    expect(await warmLoop(p.env)).toBe(false); // not marked: the new size has not been warmed; the remake's own call to `warmGlass` does it
+    expect(p.calls).toBe(1);
+    expect(p.marks).toBe(0);
+    expect(p.warm).toBe(false);
+    // the vignette lands, and the warm-up the remake asks for warms the new size and marks it
+    p.vignette = { w: 1100, h: 800 };
+    expect(await warmLoop(p.env)).toBe(true);
+    expect(p.warmed.map((s) => `${s.w}x${s.h}`)).toEqual(["1440x900", "1100x800"]);
+    expect(p.marks).toBe(1);
+  });
+
   it("the size is compared by object: a remake to the same numbers is a new vignette and is warmed again", async () => {
     const p = page({
       onWarm: (call, s) => {

@@ -1,29 +1,26 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
+import { holdImages, inWindow } from "../../lib/arrival-dom";
 import type { SiteWork } from "../../types";
 import { entriesFor } from "./ring-entries";
 import { keepOutFor, keepOutVars, nominalDock } from "./ring-keep-out";
-import { layoutRings, mountedIn } from "./ring-layout";
+import { layoutRings } from "./ring-layout";
 import { RING_ORDER_MODE, type RingKind } from "./ring-math";
 import { useDockBox } from "./use-dock-box";
 import { useStageSize } from "./use-stage-size";
 import WorkItem from "./work-item";
 
-/** How a page that comes in through a change builds its rings: this many items at a time, this many ms apart. */
-export interface RingBatches {
-  items: number;
-  ms: number;
-}
+// Layout effects warn on the server; the rings are only made on the client, but the module is also read there.
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 interface RingsProps {
   work: SiteWork;
   /**
-   * Set when the page was made during a page change: its items are mounted in batches (inner ring first), so no single
-   * frame of the reveal builds them all. Off (null) on a first load, where everything renders at once and the server's
-   * markup and the hydration agree.
+   * Set when the page was made during a page change (round 7 change-arrival spec 5.1): every item is mounted in the page's first
+   * commit with its picture asked for at once (not lazily), and the reveal waits (`holdFor`) for the pictures of the items inside
+   * the window to be in and decoded, so the reveal uncovers rings that are finished. Off on a first load, where the server's markup
+   * and the hydration agree and the outer rings' pictures load only as they near the screen.
    */
-  batches?: RingBatches | null;
-  /** True once the change is over: whatever is not yet mounted is mounted now, before the rings start to turn. */
-  arrived?: boolean;
+  byChange?: boolean;
 }
 
 const LABEL: Record<RingKind, string> = {
@@ -38,10 +35,10 @@ const LABEL: Record<RingKind, string> = {
  * is a `<ul>` that turns by a CSS animation (nothing runs in JavaScript per frame); its items turn back
  * so they stay upright. Radii and item sizes are CSS variables, set when the page is live and again on
  * resize. Videos that fit in no ring are left out (they are all on the walls). The rings are in the page from
- * its first commit, so a page change's reveal shows them, pictures included (R60): all of them within the first
- * half second of it (built in batches, `batches`), well before the reveal's edge reaches the stack ring, and nothing runs per frame.
+ * its first commit, all of them (R60 built them in batches during the reveal; since R56 the reveal waits until they are in, `byChange`),
+ * and nothing runs per frame.
  */
-export default function Rings({ work, batches = null, arrived = true }: RingsProps) {
+export default function Rings({ work, byChange = false }: RingsProps) {
   const size = useStageSize();
   const dock = useDockBox(size?.vw ?? 0, size?.vh ?? 0);
   const entries = entriesFor(work);
@@ -54,32 +51,27 @@ export default function Rings({ work, batches = null, arrived = true }: RingsPro
         dock,
       )
     : null;
-  const total = layout ? layout.rings.reduce((n, ring) => n + ring.slots.length, 0) : 0;
-  // Batched: the first batch mounts on the first timer after the commit, each next one `ms` after the one before.
-  // `count` is the items mounted so far; everything once the change is over or when not batched.
-  const [count, setCount] = useState(batches ? 0 : Infinity);
-  const shown = arrived ? Infinity : count;
-  useEffect(() => {
-    if (!batches || arrived || count >= total) return; // once the change is over everything is mounted: the timer stops
-    const { items, ms } = batches;
-    const timer = window.setTimeout(() => setCount((n) => n + items), count === 0 ? 0 : ms);
-    return () => window.clearTimeout(timer);
-  }, [count, total, batches, arrived]);
+  // The reveal waits for the pictures the window shows (their layout is known in this commit: the rings stand still until the change is over)
+  const root = useRef<HTMLDivElement>(null);
+  const holding = useRef(false);
+  const made = layout !== null;
+  useIsoLayoutEffect(() => {
+    const el = root.current;
+    if (!byChange || !made || !el || holding.current) return;
+    holding.current = true;
+    holdImages("rings", [...el.querySelectorAll("img")].filter(inWindow));
+  }, [byChange, made]);
   if (!size || !layout) return null;
 
   const seen: Record<RingKind, number> = { stack: 0, long: 0, short: 0 };
-  // where each ring's items begin in the count of all items, inside to outside
-  const firsts = layout.rings.map((_, i) => layout.rings.slice(0, i).reduce((n, ring) => n + ring.slots.length, 0));
 
   // the video rings fade out round the dock's glass (work.css reads these; R117), and a transparent block there takes the pointer
   const keep = keepOutFor(dock ?? nominalDock(size.vw, size.vh));
 
   return (
-    <div className="work-rings" style={keepOutVars(keep) as CSSProperties}>
+    <div className="work-rings" ref={root} style={keepOutVars(keep) as CSSProperties}>
       {layout.rings.map((ring) => {
         const nth = seen[ring.kind]++;
-        const mounted = mountedIn(shown, firsts[ring.order], ring.slots.length);
-        if (mounted === 0) return null;
         return (
           <div key={ring.id} className="work-ring-group" data-ring={ring.kind} style={{ "--g": ring.order } as CSSProperties}>
             <ul
@@ -98,13 +90,13 @@ export default function Rings({ work, batches = null, arrived = true }: RingsPro
                 } as CSSProperties
               }
             >
-              {ring.slots.slice(0, mounted).map((slot) => (
+              {ring.slots.map((slot) => (
                 <WorkItem
                   key={entries[ring.kind][slot.index].item.id}
                   entry={entries[ring.kind][slot.index]}
                   ring={ring.kind}
                   place={{ angle: slot.angle, width: ring.size.w, height: ring.size.h }}
-                  lazy={!batches}
+                  lazy={!byChange}
                 />
               ))}
             </ul>
