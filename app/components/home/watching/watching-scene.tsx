@@ -9,7 +9,12 @@ import type { WallEngine } from "./wall-types";
 import { echoSet } from "./wall-math";
 import WatchingFallback, { gridWall } from "./watching-fallback";
 
-/** How long the wall's start waits after its box comes on screen (about three frames), so it does not share a frame with the shelf's. */
+/**
+ * How long every start of the wall waits after `run` turns true (about three frames): on a wide screen both boxes come on screen in the same
+ * frame, and the wall's first frame then falls in a frame of its own instead of sharing the shelf's (a trace at 4 times slower CPU: the shelf's
+ * first frame, then the wall's about 34 ms later). Where the boxes never arrive together (a phone, a deep link, the tab shown again) it only
+ * delays the wall's first draw by the same three frames, which its fade-in covers; it is not tied to the shelf.
+ */
 const START_STAGGER_MS = 50;
 
 type WatchingSceneProps = {
@@ -111,8 +116,7 @@ function WatchingScene({
   useEffect(() => {
     if (grid || !engine || !run) return;
     let live = true;
-    // the wall starts a few frames after its box comes on screen: the shelf's box comes on screen with it, and the two restarts and
-    // first draws in one frame cost more than the 34 ms gate at 4 times slower CPU
+    // the wall starts a few frames after `run` (START_STAGGER_MS), so on a wide screen its first draw is not in the shelf's frame
     const timer = window.setTimeout(() => {
       // the wall could not start (no context, a failed shader): show the grid instead
       void engine

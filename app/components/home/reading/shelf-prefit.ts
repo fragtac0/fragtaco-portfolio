@@ -20,11 +20,16 @@ export function staleTextures(gl: ShelfScene): THREE.Texture[] {
   return maps.filter((t): t is THREE.Texture => !!t && (gl.renderer.properties.get(t) as { __version?: number }).__version !== t.version);
 }
 
+/** Thrown by a step that finds the shelf no longer ready: the rest of the run is dropped at once. */
+class Stop extends Error {}
+
 /**
- * The docked shelf's arrival work, done ahead (R55.3f, Task 26 I1). The box's first frame used to carry the first fit (the renderer's
+ * The docked shelf's arrival work, done ahead (R55.3g, Task 26 I1). The box's first frame used to carry the first fit (the renderer's
  * buffer, the ledge's picture, the spines' sizes, the dot field's canvas), the new textures' upload and the buffer's first allocation on top
- * of the first draw: one frame of 50 to 67 ms at 4 times slower CPU. Run in the slices of `run` (idle time while the block is near, a few
- * milliseconds a frame once it is on screen), each step first checks that nothing has started: a shelf that is running did the work itself.
+ * of the first draw: one frame of 50 to 67 ms at 4 times slower CPU. One run of `run`'s slices (idle time while the block is near, a few
+ * milliseconds a frame once it is on screen): the fit, the changed textures three at a time, the buffer's first use. Each step first checks that
+ * the shelf is still mounted, docked and not running (a layer that opens, or a box that came on screen and started, did the work itself or does
+ * not need it): if not, the run ends there, so a click never waits for steps that have nothing to do.
  * This prepares; it draws nothing (the buffer is cleared, which an empty canvas does not show), so spec 6.1 holds: a scene draws only while its
  * box is on screen.
  */
@@ -32,24 +37,28 @@ export async function prefitShelf(d: PrefitDeps): Promise<void> {
   const gl = d.scene();
   if (!gl || !d.ready()) return;
   let todo: THREE.Texture[] = [];
-  await d.run([
+  // at most the ledge and every spine
+  const groups = Math.ceil((gl.books.length + 1) / UPLOADS_PER_STEP);
+  const steps: Array<() => void> = [
     () => {
-      if (!d.ready()) return;
       d.fit();
       d.reframe(true);
       todo = staleTextures(gl);
     },
-  ]);
-  const uploads: Array<() => void> = [];
-  for (let i = 0; i < todo.length; i += UPLOADS_PER_STEP) {
-    uploads.push(() => {
-      if (!d.ready()) return;
-      for (const map of todo.slice(i, i + UPLOADS_PER_STEP)) gl.renderer.initTexture(map);
-    });
+    ...Array.from({ length: groups }, (_, g) => () => {
+      for (const map of todo.slice(g * UPLOADS_PER_STEP, (g + 1) * UPLOADS_PER_STEP)) gl.renderer.initTexture(map);
+    }),
+    // the buffer is allocated by its first use: clear it now, so the first frame does not wait for the allocation
+    () => gl.renderer.clear(),
+  ];
+  try {
+    await d.run(
+      steps.map((step) => () => {
+        if (!d.ready()) throw new Stop();
+        step();
+      }),
+    );
+  } catch (err) {
+    if (!(err instanceof Stop)) throw err;
   }
-  // the buffer is allocated by its first use: clear it now, so the first frame does not wait for the allocation
-  uploads.push(() => {
-    if (d.ready()) gl.renderer.clear();
-  });
-  await d.run(uploads);
 }

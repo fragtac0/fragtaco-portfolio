@@ -68,7 +68,7 @@ describe("prefitShelf", () => {
     ]);
   });
 
-  it("puts each group of uploads in a step of its own (the slicer decides when each one happens)", async () => {
+  it("is one run of steps (one wait for the slicer): the fit, a step per group of three textures (at most the ledge and every spine), the clear", async () => {
     const { gl } = fakeScene(7, {}, []);
     const sizes: number[] = [];
     await prefitShelf({
@@ -82,8 +82,8 @@ describe("prefitShelf", () => {
       fit: () => {},
       reframe: () => {},
     });
-    // the fit, then 8 stale textures in 3 steps plus the clear
-    expect(sizes).toEqual([1, 4]);
+    // 7 spines and the ledge are 8 textures: 3 groups, so 1 + 3 + 1 steps
+    expect(sizes).toEqual([5]);
   });
 
   it("does nothing when the shelf is not ready (running, not docked, not mounted) or has no scene", async () => {
@@ -95,7 +95,7 @@ describe("prefitShelf", () => {
     expect(calls).toEqual([]);
   });
 
-  it("stops at the first step that finds the shelf running: a started shelf did the work itself", async () => {
+  it("ends the run at the first step that finds the shelf not ready: a started shelf did the work itself, an opened layer has no use for it", async () => {
     const calls: string[] = [];
     const { gl } = fakeScene(7, {}, calls);
     let readyNow = true;
@@ -110,5 +110,20 @@ describe("prefitShelf", () => {
       reframe: () => calls.push("reframe"),
     });
     expect(calls).toEqual(["fit", "reframe"]); // no upload, no clear after it
+  });
+
+  it("passes on a real failure (it is not swallowed here: the engine's caller decides)", async () => {
+    const { gl } = fakeScene(2, {}, []);
+    await expect(
+      prefitShelf({
+        run,
+        scene: () => gl,
+        ready: () => true,
+        fit: () => {
+          throw new Error("boom");
+        },
+        reframe: () => {},
+      }),
+    ).rejects.toThrow("boom");
   });
 });
