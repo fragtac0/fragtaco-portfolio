@@ -102,10 +102,24 @@ describe("the shelf's buffer while a frame moves (coarse)", () => {
       applyView(ctx, gl, VW, VH);
       if (calls.filter((c) => c[0] === "setSize").length > before) allocations++;
       // never smaller than the frame (at the pixel ratio), never a step and more larger
-      expect(gl.renderer.domElement.width).toBeGreaterThanOrEqual(w * 2 - 1);
+      expect(gl.renderer.domElement.width).toBeGreaterThanOrEqual(w * 2 * 0.98 - 1);
       expect(gl.renderer.domElement.width).toBeLessThanOrEqual(w * 2 + 256 + 1);
     }
     expect(allocations).toBeLessThan(12); // 21 frames
+  });
+
+  it("the first frames of a move keep the box's own buffer: the picture the click starts from is not drawn again at another size", () => {
+    const { ctx, gl, calls, box } = setup({ left: 0, top: 0, width: 648, height: 300 }, { place: false });
+    applyView(ctx, gl, VW, VH);
+    const sizes = () => calls.filter((c) => c[0] === "setSize").length;
+    const n = sizes();
+    for (const w of [648.2, 649.1, 651, 654]) {
+      box.request({ left: 0, top: 0, width: w, height: (300 * w) / 648 }, { place: false, coarse: true });
+      box.commit();
+      applyView(ctx, gl, VW, VH);
+    }
+    expect(sizes()).toBe(n);
+    expect(gl.renderer.domElement.width).toBe(1296);
   });
 
   it("a view change that keeps the buffer sets the camera and not the size", () => {
