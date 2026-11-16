@@ -1,0 +1,542 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__ls=[];window.__loaf=[];\ntry{new PerformanceObserver(l=>{for(const e of l.getEntries())window.__loaf.push({s:e.startTime,d:e.duration,b:e.blockingDuration||0,sc:(e.scripts||[]).map(x=>(x.invoker||'')+' '+(x.sourceFunctionName||'')+' '+(x.sourceURL||'').split('/').pop()+':'+(x.sourceCharPosition||0)+' '+x.duration.toFixed(0)+(x.forcedStyleAndLayoutDuration>5?' forced'+x.forcedStyleAndLayoutDuration.toFixed(0):'')).slice(0,6)})}).observe({type:'long-animation-frame',buffered:true})}catch(e){}\ntry{new PerformanceObserver(l=>{for(const e of l.getEntries())window.__ls.push({t:e.startTime,v:e.value,input:e.hadRecentInput})}).observe({type:'layout-shift',buffered:true})}catch(e){}\nwindow.__playAt=null;\ntry{if(sessionStorage.getItem('ft:nocanvas')==='1')HTMLCanvasElement.prototype.getContext=()=>null}catch(e){}\n{const arm=()=>{const p=document.querySelector('.map-page');if(!p)return requestAnimationFrame(arm);if(p.dataset.entrance==='play'&&window.__playAt===null)window.__playAt=performance.now();new MutationObserver(()=>{if(p.dataset.entrance==='play'&&window.__playAt===null)window.__playAt=performance.now()}).observe(p,{attributes:true,attributeFilter:['data-entrance']})};requestAnimationFrame(arm)}\ntry{if(sessionStorage.getItem('ft:armLoad')==='1'){sessionStorage.removeItem('ft:armLoad');(()=>{\nconst S=window.__sam={rows:[],snaps:[],gaps:[],anchor:null,mode:\"load\",T:2250,targets:[1350,1800,2250,3350,5450],next:0,done:false};\nconst q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst shown=sel=>{const l=qa(sel+' .map-letter');return [l.filter(x=>+getComputedStyle(x).opacity>0.5).length,l.length]};\nconst px=(sel,test)=>{const c=q(sel),x=c&&c.getContext('2d');if(!x)return 0;const d=x.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(test(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nconst orange=()=>px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150);\nconst row=(t,now)=>{const [tl,tt]=shown('.map-title'),[ll,lt]=shown('.map-caption-title');const pins=qa('.map-pin');return {t:+t.toFixed(1),title:tl,titleTotal:tt,label:ll,labelTotal:lt,desc:+getComputedStyle(q('.map-text')).opacity,lines:qa('.map-caption .map-rise').map(x=>+getComputedStyle(x).opacity),pinsIn:pins.filter(p=>!p.hasAttribute('data-wait')).length,pins:pins.length,state:q('.map-page')?.dataset.entrance}};\nlet last=performance.now();\nconst loop=now=>{S.gaps.push([now,now-last]);last=now;\n if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null)S.anchor=window.__playAt}\n if(S.anchor!==null&&q('.map-page')){const t=now-S.anchor,r=row(t,now);S.rows.push(r);\n  while(S.next<S.targets.length&&t>=S.targets[S.next]){S.snaps.push({at:S.targets[S.next],...r,cream:cream(),orange:orange()});S.next++}\n  if(t>S.T+4300){S.done=true;return}}\n requestAnimationFrame(loop)};\nrequestAnimationFrame(loop);return 'armed'})()}}catch(e){}",
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "img.youtube.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "covers.openlibrary.org",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   }
+  ],
+  "go": "{{BASE}}/work",
+  "wait": 500
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "img.youtube.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "covers.openlibrary.org",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   }
+  ],
+  "go": "{{BASE}}/work",
+  "wait": 6500
+ },
+ {
+  "label": "glass-warm",
+  "eval": "new Promise(r=>{const t=setInterval(()=>{if(performance.getEntriesByName('glass-warm').length){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "film work-1440",
+  "film": {
+   "ms": 8500,
+   "eval": "(async()=>{window.__t0=performance.now();(()=>{\nconst S=window.__sam={rows:[],snaps:[],gaps:[],anchor:null,mode:\"change\",T:2250,targets:[1350,1800,2250,3350,5450],next:0,done:false};\nconst q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst shown=sel=>{const l=qa(sel+' .map-letter');return [l.filter(x=>+getComputedStyle(x).opacity>0.5).length,l.length]};\nconst px=(sel,test)=>{const c=q(sel),x=c&&c.getContext('2d');if(!x)return 0;const d=x.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(test(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nconst orange=()=>px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150);\nconst row=(t,now)=>{const [tl,tt]=shown('.map-title'),[ll,lt]=shown('.map-caption-title');const pins=qa('.map-pin');return {t:+t.toFixed(1),title:tl,titleTotal:tt,label:ll,labelTotal:lt,desc:+getComputedStyle(q('.map-text')).opacity,lines:qa('.map-caption .map-rise').map(x=>+getComputedStyle(x).opacity),pinsIn:pins.filter(p=>!p.hasAttribute('data-wait')).length,pins:pins.length,state:q('.map-page')?.dataset.entrance}};\nlet last=performance.now();\nconst loop=now=>{S.gaps.push([now,now-last]);last=now;\n if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null)S.anchor=window.__playAt}\n if(S.anchor!==null&&q('.map-page')){const t=now-S.anchor,r=row(t,now);S.rows.push(r);\n  while(S.next<S.targets.length&&t>=S.targets[S.next]){S.snaps.push({at:S.targets[S.next],...r,cream:cream(),orange:orange()});S.next++}\n  if(t>S.T+4300){S.done=true;return}}\n requestAnimationFrame(loop)};\nrequestAnimationFrame(loop);return 'armed'})();window.__ftChange('/experience');\nfor(let i=0;i<300&&!(window.__sam.anchor!==null&&performance.now()-window.__sam.anchor>=0);i++)await new Promise(r=>setTimeout(r,20));return JSON.stringify({anchor:window.__sam.anchor,now:performance.now()})})()",
+   "keep": "entr-work-1440",
+   "ats": "(()=>{const e=performance.getEntriesByName('arrival-go').at(-1);const R=e.startTime-window.__t0,T=2250;return [0.6*T,0.8*T,T,T+1100,T+3200].map(x=>Math.round(R+x))})()"
+  }
+ },
+ {
+  "label": "the change into My experience from the portfolio at 1440 x 900: nothing at 0.6 T, the title partly in at 0.8 T, the trail half drawn with only the beads behind its tip at T + 1100 ms, everything at T + 3200 ms; no layout shift; no frame over 34 ms",
+  "eval": "(async()=>{\nconst S=window.__sam;for(let i=0;i<200&&!S.done;i++)await new Promise(r=>setTimeout(r,100));\nconst [s6,s8,sT,s11,s32]=S.snaps;if(S.snaps.length<5)return JSON.stringify({ok:false,error:'snaps',n:S.snaps.length,anchor:S.anchor});\nconst inWin=S.gaps.filter(([n])=>n>=S.anchor&&n<=S.anchor+S.T+4000);const win=inWin.map(x=>x[1]);const sorted=[...win].sort((a,b)=>a-b);\n// a frame over 34 ms that is the heights' load (an idle callback that runs once, as soon as the change is over: it was there before the entrance) is told apart from one that is not\nconst idle=window.__loaf.filter(e=>e.sc.some(x=>/IdleRequestCallback/.test(x)));const long34=inWin.filter(x=>x[1]>34);// ... and from the frame after one of the sampler's own pixel reads (a snapshot reads two canvases: tens of ms the page does not spend)\nconst own34=long34.filter(x=>!idle.some(e=>x[0]>=e.s&&x[0]<=e.s+e.d+34)&&!S.snaps.some(sn=>x[0]>=S.anchor+sn.t&&x[0]<=S.anchor+sn.t+200));\nconst shifts=window.__ls.filter(e=>!e.input&&e.t>=S.anchor&&e.t<=S.anchor+S.T+4000);\nconst firstOf=f=>{const r=S.rows.find(f);return r?r.t:null};\n\nconst o={\n anchor:+S.anchor.toFixed(1),lagFromReveal:S.mode==='change'&&window.__playAt!==null?+(window.__playAt-S.anchor).toFixed(1):null,\n at06:{title:s6.title,label:s6.label,desc:s6.desc,pinsIn:s6.pinsIn,cream:s6.cream},\n at08:{title:s8.title+'/'+s8.titleTotal,label:s8.label,cream:s8.cream,pinsIn:s8.pinsIn},\n atT:{title:sT.title+'/'+sT.titleTotal,label:sT.label+'/'+sT.labelTotal,cream:sT.cream,pinsIn:sT.pinsIn},\n atT1100:{cream:s11.cream,share:+(s11.cream/Math.max(1,s32.cream)).toFixed(2),pinsIn:s11.pinsIn,orange:s11.orange},\n atT3200:{title:s32.title+'/'+s32.titleTotal,label:s32.label+'/'+s32.labelTotal,desc:s32.desc,lines:s32.lines,cream:s32.cream,orange:s32.orange,pinsIn:s32.pinsIn},\n firstLetterAt:firstOf(r=>r.title>0),firstCreamSnapAt:S.snaps.find(x=>x.cream>0)?.at??null,\n frames:win.length,medianGapMs:+sorted[Math.floor(sorted.length/2)].toFixed(1),maxGapMs:+sorted.at(-1).toFixed(1),over20:win.filter(x=>x>20).length,over34:long34.length,over34Idle:long34.length-own34.length,over34Own:own34.length,over34Own_at:own34.map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),over34At:inWin.filter(x=>x[1]>34).map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),loaf:window.__loaf.filter(e=>e.s+e.d>=S.anchor&&e.s<=S.anchor+S.T+4000&&e.d>40).map(e=>({at:+(e.s-S.anchor).toFixed(0),d:+e.d.toFixed(0),b:+e.b.toFixed(0),sc:e.sc})),\n layoutShifts:shifts.length,layoutShiftSum:+shifts.reduce((a,e)=>a+e.v,0).toFixed(5),\n};\no.ok=s6.title===0&&s6.label===0&&s6.desc<0.05&&s6.lines.every(x=>x<0.05)&&s6.pinsIn===0&&s6.cream===0\n &&s8.title>=1&&s8.title<s8.titleTotal&&s8.cream===0&&s8.pinsIn===0\n &&sT.title===sT.titleTotal&&sT.cream<0.03*s32.cream\n &&s11.share>0.35&&s11.share<0.65&&s11.pinsIn>=3&&s11.pinsIn<=5&&s11.orange===0\n &&s32.title===s32.titleTotal&&s32.label===s32.labelTotal&&s32.desc>0.95&&s32.lines.every(x=>x>0.95)&&s32.pinsIn===s32.pins&&s32.orange>0&&s32.cream>0\n &&shifts.length===0&&o.over34Own===0;\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "img.youtube.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "covers.openlibrary.org",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   }
+  ],
+  "go": "{{BASE}}/",
+  "wait": 6500
+ },
+ {
+  "label": "glass-warm",
+  "eval": "new Promise(r=>{const t=setInterval(()=>{if(performance.getEntriesByName('glass-warm').length){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "film home-1440",
+  "film": {
+   "ms": 8500,
+   "eval": "(async()=>{window.__t0=performance.now();(()=>{\nconst S=window.__sam={rows:[],snaps:[],gaps:[],anchor:null,mode:\"change\",T:2250,targets:[1350,1800,2250,3350,5450],next:0,done:false};\nconst q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst shown=sel=>{const l=qa(sel+' .map-letter');return [l.filter(x=>+getComputedStyle(x).opacity>0.5).length,l.length]};\nconst px=(sel,test)=>{const c=q(sel),x=c&&c.getContext('2d');if(!x)return 0;const d=x.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(test(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nconst orange=()=>px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150);\nconst row=(t,now)=>{const [tl,tt]=shown('.map-title'),[ll,lt]=shown('.map-caption-title');const pins=qa('.map-pin');return {t:+t.toFixed(1),title:tl,titleTotal:tt,label:ll,labelTotal:lt,desc:+getComputedStyle(q('.map-text')).opacity,lines:qa('.map-caption .map-rise').map(x=>+getComputedStyle(x).opacity),pinsIn:pins.filter(p=>!p.hasAttribute('data-wait')).length,pins:pins.length,state:q('.map-page')?.dataset.entrance}};\nlet last=performance.now();\nconst loop=now=>{S.gaps.push([now,now-last]);last=now;\n if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null)S.anchor=window.__playAt}\n if(S.anchor!==null&&q('.map-page')){const t=now-S.anchor,r=row(t,now);S.rows.push(r);\n  while(S.next<S.targets.length&&t>=S.targets[S.next]){S.snaps.push({at:S.targets[S.next],...r,cream:cream(),orange:orange()});S.next++}\n  if(t>S.T+4300){S.done=true;return}}\n requestAnimationFrame(loop)};\nrequestAnimationFrame(loop);return 'armed'})();window.__ftChange('/experience');\nfor(let i=0;i<300&&!(window.__sam.anchor!==null&&performance.now()-window.__sam.anchor>=0);i++)await new Promise(r=>setTimeout(r,20));return JSON.stringify({anchor:window.__sam.anchor,now:performance.now()})})()",
+   "keep": "entr-home-1440",
+   "ats": "(()=>{const e=performance.getEntriesByName('arrival-go').at(-1);const R=e.startTime-window.__t0,T=2250;return [0.6*T,0.8*T,T,T+1100,T+3200].map(x=>Math.round(R+x))})()"
+  }
+ },
+ {
+  "label": "the change into My experience from home at 1440 x 900: nothing at 0.6 T, the title partly in at 0.8 T, the trail half drawn with only the beads behind its tip at T + 1100 ms, everything at T + 3200 ms; no layout shift; no frame over 34 ms",
+  "eval": "(async()=>{\nconst S=window.__sam;for(let i=0;i<200&&!S.done;i++)await new Promise(r=>setTimeout(r,100));\nconst [s6,s8,sT,s11,s32]=S.snaps;if(S.snaps.length<5)return JSON.stringify({ok:false,error:'snaps',n:S.snaps.length,anchor:S.anchor});\nconst inWin=S.gaps.filter(([n])=>n>=S.anchor&&n<=S.anchor+S.T+4000);const win=inWin.map(x=>x[1]);const sorted=[...win].sort((a,b)=>a-b);\n// a frame over 34 ms that is the heights' load (an idle callback that runs once, as soon as the change is over: it was there before the entrance) is told apart from one that is not\nconst idle=window.__loaf.filter(e=>e.sc.some(x=>/IdleRequestCallback/.test(x)));const long34=inWin.filter(x=>x[1]>34);// ... and from the frame after one of the sampler's own pixel reads (a snapshot reads two canvases: tens of ms the page does not spend)\nconst own34=long34.filter(x=>!idle.some(e=>x[0]>=e.s&&x[0]<=e.s+e.d+34)&&!S.snaps.some(sn=>x[0]>=S.anchor+sn.t&&x[0]<=S.anchor+sn.t+200));\nconst shifts=window.__ls.filter(e=>!e.input&&e.t>=S.anchor&&e.t<=S.anchor+S.T+4000);\nconst firstOf=f=>{const r=S.rows.find(f);return r?r.t:null};\n\nconst o={\n anchor:+S.anchor.toFixed(1),lagFromReveal:S.mode==='change'&&window.__playAt!==null?+(window.__playAt-S.anchor).toFixed(1):null,\n at06:{title:s6.title,label:s6.label,desc:s6.desc,pinsIn:s6.pinsIn,cream:s6.cream},\n at08:{title:s8.title+'/'+s8.titleTotal,label:s8.label,cream:s8.cream,pinsIn:s8.pinsIn},\n atT:{title:sT.title+'/'+sT.titleTotal,label:sT.label+'/'+sT.labelTotal,cream:sT.cream,pinsIn:sT.pinsIn},\n atT1100:{cream:s11.cream,share:+(s11.cream/Math.max(1,s32.cream)).toFixed(2),pinsIn:s11.pinsIn,orange:s11.orange},\n atT3200:{title:s32.title+'/'+s32.titleTotal,label:s32.label+'/'+s32.labelTotal,desc:s32.desc,lines:s32.lines,cream:s32.cream,orange:s32.orange,pinsIn:s32.pinsIn},\n firstLetterAt:firstOf(r=>r.title>0),firstCreamSnapAt:S.snaps.find(x=>x.cream>0)?.at??null,\n frames:win.length,medianGapMs:+sorted[Math.floor(sorted.length/2)].toFixed(1),maxGapMs:+sorted.at(-1).toFixed(1),over20:win.filter(x=>x>20).length,over34:long34.length,over34Idle:long34.length-own34.length,over34Own:own34.length,over34Own_at:own34.map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),over34At:inWin.filter(x=>x[1]>34).map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),loaf:window.__loaf.filter(e=>e.s+e.d>=S.anchor&&e.s<=S.anchor+S.T+4000&&e.d>40).map(e=>({at:+(e.s-S.anchor).toFixed(0),d:+e.d.toFixed(0),b:+e.b.toFixed(0),sc:e.sc})),\n layoutShifts:shifts.length,layoutShiftSum:+shifts.reduce((a,e)=>a+e.v,0).toFixed(5),\n};\no.ok=s6.title===0&&s6.label===0&&s6.desc<0.05&&s6.lines.every(x=>x<0.05)&&s6.pinsIn===0&&s6.cream===0\n &&s8.title>=1&&s8.title<s8.titleTotal&&s8.cream===0&&s8.pinsIn===0\n &&sT.title===sT.titleTotal&&sT.cream<0.03*s32.cream\n &&s11.share>0.35&&s11.share<0.65&&s11.pinsIn>=3&&s11.pinsIn<=5&&s11.orange===0\n &&s32.title===s32.titleTotal&&s32.label===s32.labelTotal&&s32.desc>0.95&&s32.lines.every(x=>x>0.95)&&s32.pinsIn===s32.pins&&s32.orange>0&&s32.cream>0\n &&shifts.length===0&&o.over34Own===0;\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "img.youtube.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "covers.openlibrary.org",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   }
+  ],
+  "go": "{{BASE}}/work",
+  "wait": 6500
+ },
+ {
+  "label": "glass-warm",
+  "eval": "new Promise(r=>{const t=setInterval(()=>{if(performance.getEntriesByName('glass-warm').length){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "film work-390",
+  "film": {
+   "ms": 8500,
+   "eval": "(async()=>{window.__t0=performance.now();(()=>{\nconst S=window.__sam={rows:[],snaps:[],gaps:[],anchor:null,mode:\"change\",T:2250,targets:[1350,1800,2250,3350,5450],next:0,done:false};\nconst q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst shown=sel=>{const l=qa(sel+' .map-letter');return [l.filter(x=>+getComputedStyle(x).opacity>0.5).length,l.length]};\nconst px=(sel,test)=>{const c=q(sel),x=c&&c.getContext('2d');if(!x)return 0;const d=x.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(test(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nconst orange=()=>px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150);\nconst row=(t,now)=>{const [tl,tt]=shown('.map-title'),[ll,lt]=shown('.map-caption-title');const pins=qa('.map-pin');return {t:+t.toFixed(1),title:tl,titleTotal:tt,label:ll,labelTotal:lt,desc:+getComputedStyle(q('.map-text')).opacity,lines:qa('.map-caption .map-rise').map(x=>+getComputedStyle(x).opacity),pinsIn:pins.filter(p=>!p.hasAttribute('data-wait')).length,pins:pins.length,state:q('.map-page')?.dataset.entrance}};\nlet last=performance.now();\nconst loop=now=>{S.gaps.push([now,now-last]);last=now;\n if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null)S.anchor=window.__playAt}\n if(S.anchor!==null&&q('.map-page')){const t=now-S.anchor,r=row(t,now);S.rows.push(r);\n  while(S.next<S.targets.length&&t>=S.targets[S.next]){S.snaps.push({at:S.targets[S.next],...r,cream:cream(),orange:orange()});S.next++}\n  if(t>S.T+4300){S.done=true;return}}\n requestAnimationFrame(loop)};\nrequestAnimationFrame(loop);return 'armed'})();window.__ftChange('/experience');\nfor(let i=0;i<300&&!(window.__sam.anchor!==null&&performance.now()-window.__sam.anchor>=0);i++)await new Promise(r=>setTimeout(r,20));return JSON.stringify({anchor:window.__sam.anchor,now:performance.now()})})()",
+   "keep": "entr-work-390",
+   "ats": "(()=>{const e=performance.getEntriesByName('arrival-go').at(-1);const R=e.startTime-window.__t0,T=2250;return [0.6*T,0.8*T,T,T+1100,T+3200].map(x=>Math.round(R+x))})()"
+  }
+ },
+ {
+  "label": "the change into My experience from the portfolio at 390 x 844: nothing at 0.6 T, the title partly in at 0.8 T, the trail half drawn with only the beads behind its tip at T + 1100 ms, everything at T + 3200 ms; no layout shift; no frame over 34 ms",
+  "eval": "(async()=>{\nconst S=window.__sam;for(let i=0;i<200&&!S.done;i++)await new Promise(r=>setTimeout(r,100));\nconst [s6,s8,sT,s11,s32]=S.snaps;if(S.snaps.length<5)return JSON.stringify({ok:false,error:'snaps',n:S.snaps.length,anchor:S.anchor});\nconst inWin=S.gaps.filter(([n])=>n>=S.anchor&&n<=S.anchor+S.T+4000);const win=inWin.map(x=>x[1]);const sorted=[...win].sort((a,b)=>a-b);\n// a frame over 34 ms that is the heights' load (an idle callback that runs once, as soon as the change is over: it was there before the entrance) is told apart from one that is not\nconst idle=window.__loaf.filter(e=>e.sc.some(x=>/IdleRequestCallback/.test(x)));const long34=inWin.filter(x=>x[1]>34);// ... and from the frame after one of the sampler's own pixel reads (a snapshot reads two canvases: tens of ms the page does not spend)\nconst own34=long34.filter(x=>!idle.some(e=>x[0]>=e.s&&x[0]<=e.s+e.d+34)&&!S.snaps.some(sn=>x[0]>=S.anchor+sn.t&&x[0]<=S.anchor+sn.t+200));\nconst shifts=window.__ls.filter(e=>!e.input&&e.t>=S.anchor&&e.t<=S.anchor+S.T+4000);\nconst firstOf=f=>{const r=S.rows.find(f);return r?r.t:null};\n\nconst o={\n anchor:+S.anchor.toFixed(1),lagFromReveal:S.mode==='change'&&window.__playAt!==null?+(window.__playAt-S.anchor).toFixed(1):null,\n at06:{title:s6.title,label:s6.label,desc:s6.desc,pinsIn:s6.pinsIn,cream:s6.cream},\n at08:{title:s8.title+'/'+s8.titleTotal,label:s8.label,cream:s8.cream,pinsIn:s8.pinsIn},\n atT:{title:sT.title+'/'+sT.titleTotal,label:sT.label+'/'+sT.labelTotal,cream:sT.cream,pinsIn:sT.pinsIn},\n atT1100:{cream:s11.cream,share:+(s11.cream/Math.max(1,s32.cream)).toFixed(2),pinsIn:s11.pinsIn,orange:s11.orange},\n atT3200:{title:s32.title+'/'+s32.titleTotal,label:s32.label+'/'+s32.labelTotal,desc:s32.desc,lines:s32.lines,cream:s32.cream,orange:s32.orange,pinsIn:s32.pinsIn},\n firstLetterAt:firstOf(r=>r.title>0),firstCreamSnapAt:S.snaps.find(x=>x.cream>0)?.at??null,\n frames:win.length,medianGapMs:+sorted[Math.floor(sorted.length/2)].toFixed(1),maxGapMs:+sorted.at(-1).toFixed(1),over20:win.filter(x=>x>20).length,over34:long34.length,over34Idle:long34.length-own34.length,over34Own:own34.length,over34Own_at:own34.map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),over34At:inWin.filter(x=>x[1]>34).map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),loaf:window.__loaf.filter(e=>e.s+e.d>=S.anchor&&e.s<=S.anchor+S.T+4000&&e.d>40).map(e=>({at:+(e.s-S.anchor).toFixed(0),d:+e.d.toFixed(0),b:+e.b.toFixed(0),sc:e.sc})),\n layoutShifts:shifts.length,layoutShiftSum:+shifts.reduce((a,e)=>a+e.v,0).toFixed(5),\n};\no.ok=s6.title===0&&s6.label===0&&s6.desc<0.05&&s6.lines.every(x=>x<0.05)&&s6.pinsIn===0&&s6.cream===0\n &&s8.title>=1&&s8.title<s8.titleTotal&&s8.cream===0&&s8.pinsIn===0\n &&sT.title===sT.titleTotal&&sT.cream<0.03*s32.cream\n &&s11.share>0.35&&s11.share<0.65&&s11.pinsIn>=3&&s11.pinsIn<=5&&s11.orange===0\n &&s32.title===s32.titleTotal&&s32.label===s32.labelTotal&&s32.desc>0.95&&s32.lines.every(x=>x>0.95)&&s32.pinsIn===s32.pins&&s32.orange>0&&s32.cream>0\n &&shifts.length===0&&o.over34Own===0;\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "img.youtube.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "covers.openlibrary.org",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   }
+  ],
+  "go": "{{BASE}}/",
+  "wait": 6500
+ },
+ {
+  "label": "glass-warm",
+  "eval": "new Promise(r=>{const t=setInterval(()=>{if(performance.getEntriesByName('glass-warm').length){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "label": "film home-390",
+  "film": {
+   "ms": 8500,
+   "eval": "(async()=>{window.__t0=performance.now();(()=>{\nconst S=window.__sam={rows:[],snaps:[],gaps:[],anchor:null,mode:\"change\",T:2250,targets:[1350,1800,2250,3350,5450],next:0,done:false};\nconst q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst shown=sel=>{const l=qa(sel+' .map-letter');return [l.filter(x=>+getComputedStyle(x).opacity>0.5).length,l.length]};\nconst px=(sel,test)=>{const c=q(sel),x=c&&c.getContext('2d');if(!x)return 0;const d=x.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(test(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nconst orange=()=>px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150);\nconst row=(t,now)=>{const [tl,tt]=shown('.map-title'),[ll,lt]=shown('.map-caption-title');const pins=qa('.map-pin');return {t:+t.toFixed(1),title:tl,titleTotal:tt,label:ll,labelTotal:lt,desc:+getComputedStyle(q('.map-text')).opacity,lines:qa('.map-caption .map-rise').map(x=>+getComputedStyle(x).opacity),pinsIn:pins.filter(p=>!p.hasAttribute('data-wait')).length,pins:pins.length,state:q('.map-page')?.dataset.entrance}};\nlet last=performance.now();\nconst loop=now=>{S.gaps.push([now,now-last]);last=now;\n if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null)S.anchor=window.__playAt}\n if(S.anchor!==null&&q('.map-page')){const t=now-S.anchor,r=row(t,now);S.rows.push(r);\n  while(S.next<S.targets.length&&t>=S.targets[S.next]){S.snaps.push({at:S.targets[S.next],...r,cream:cream(),orange:orange()});S.next++}\n  if(t>S.T+4300){S.done=true;return}}\n requestAnimationFrame(loop)};\nrequestAnimationFrame(loop);return 'armed'})();window.__ftChange('/experience');\nfor(let i=0;i<300&&!(window.__sam.anchor!==null&&performance.now()-window.__sam.anchor>=0);i++)await new Promise(r=>setTimeout(r,20));return JSON.stringify({anchor:window.__sam.anchor,now:performance.now()})})()",
+   "keep": "entr-home-390",
+   "ats": "(()=>{const e=performance.getEntriesByName('arrival-go').at(-1);const R=e.startTime-window.__t0,T=2250;return [0.6*T,0.8*T,T,T+1100,T+3200].map(x=>Math.round(R+x))})()"
+  }
+ },
+ {
+  "label": "the change into My experience from home at 390 x 844: nothing at 0.6 T, the title partly in at 0.8 T, the trail half drawn with only the beads behind its tip at T + 1100 ms, everything at T + 3200 ms; no layout shift; no frame over 34 ms",
+  "eval": "(async()=>{\nconst S=window.__sam;for(let i=0;i<200&&!S.done;i++)await new Promise(r=>setTimeout(r,100));\nconst [s6,s8,sT,s11,s32]=S.snaps;if(S.snaps.length<5)return JSON.stringify({ok:false,error:'snaps',n:S.snaps.length,anchor:S.anchor});\nconst inWin=S.gaps.filter(([n])=>n>=S.anchor&&n<=S.anchor+S.T+4000);const win=inWin.map(x=>x[1]);const sorted=[...win].sort((a,b)=>a-b);\n// a frame over 34 ms that is the heights' load (an idle callback that runs once, as soon as the change is over: it was there before the entrance) is told apart from one that is not\nconst idle=window.__loaf.filter(e=>e.sc.some(x=>/IdleRequestCallback/.test(x)));const long34=inWin.filter(x=>x[1]>34);// ... and from the frame after one of the sampler's own pixel reads (a snapshot reads two canvases: tens of ms the page does not spend)\nconst own34=long34.filter(x=>!idle.some(e=>x[0]>=e.s&&x[0]<=e.s+e.d+34)&&!S.snaps.some(sn=>x[0]>=S.anchor+sn.t&&x[0]<=S.anchor+sn.t+200));\nconst shifts=window.__ls.filter(e=>!e.input&&e.t>=S.anchor&&e.t<=S.anchor+S.T+4000);\nconst firstOf=f=>{const r=S.rows.find(f);return r?r.t:null};\n\nconst o={\n anchor:+S.anchor.toFixed(1),lagFromReveal:S.mode==='change'&&window.__playAt!==null?+(window.__playAt-S.anchor).toFixed(1):null,\n at06:{title:s6.title,label:s6.label,desc:s6.desc,pinsIn:s6.pinsIn,cream:s6.cream},\n at08:{title:s8.title+'/'+s8.titleTotal,label:s8.label,cream:s8.cream,pinsIn:s8.pinsIn},\n atT:{title:sT.title+'/'+sT.titleTotal,label:sT.label+'/'+sT.labelTotal,cream:sT.cream,pinsIn:sT.pinsIn},\n atT1100:{cream:s11.cream,share:+(s11.cream/Math.max(1,s32.cream)).toFixed(2),pinsIn:s11.pinsIn,orange:s11.orange},\n atT3200:{title:s32.title+'/'+s32.titleTotal,label:s32.label+'/'+s32.labelTotal,desc:s32.desc,lines:s32.lines,cream:s32.cream,orange:s32.orange,pinsIn:s32.pinsIn},\n firstLetterAt:firstOf(r=>r.title>0),firstCreamSnapAt:S.snaps.find(x=>x.cream>0)?.at??null,\n frames:win.length,medianGapMs:+sorted[Math.floor(sorted.length/2)].toFixed(1),maxGapMs:+sorted.at(-1).toFixed(1),over20:win.filter(x=>x>20).length,over34:long34.length,over34Idle:long34.length-own34.length,over34Own:own34.length,over34Own_at:own34.map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),over34At:inWin.filter(x=>x[1]>34).map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),loaf:window.__loaf.filter(e=>e.s+e.d>=S.anchor&&e.s<=S.anchor+S.T+4000&&e.d>40).map(e=>({at:+(e.s-S.anchor).toFixed(0),d:+e.d.toFixed(0),b:+e.b.toFixed(0),sc:e.sc})),\n layoutShifts:shifts.length,layoutShiftSum:+shifts.reduce((a,e)=>a+e.v,0).toFixed(5),\n};\no.ok=s6.title===0&&s6.label===0&&s6.desc<0.05&&s6.lines.every(x=>x<0.05)&&s6.pinsIn===0&&s6.cream===0\n &&s8.title>=1&&s8.title<s8.titleTotal&&s8.cream===0&&s8.pinsIn===0\n &&sT.title===sT.titleTotal&&sT.cream<0.03*s32.cream\n &&s11.share>0.35&&s11.share<0.65&&s11.pinsIn>=3&&s11.pinsIn<=5&&s11.orange===0\n &&s32.title===s32.titleTotal&&s32.label===s32.labelTotal&&s32.desc>0.95&&s32.lines.every(x=>x>0.95)&&s32.pinsIn===s32.pins&&s32.orange>0&&s32.cream>0\n &&shifts.length===0&&o.over34Own===0;\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "label": "the words beside the mountain at 1440 x 900",
+  "eval": "(async()=>{\nconst sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nfor(let i=0;i<150&&!(q('.map-page')?.dataset.entrance==='done'&&q('.map-stage')?.dataset.terrain==='ready');i++)await sleep(100);\nawait sleep(300);\nconst R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};\nconst W=innerWidth,H=innerHeight,page=q('.map-page'),head=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),dock=R(q('[data-dock-glass]'));\nconst gutter=parseFloat(getComputedStyle(page).getPropertyValue('--map-gutter'))||48;\nconst M=new DOMMatrixReadOnly(getComputedStyle(q('.map-plane')).transform);const at=(x,y)=>{const p=M.transformPoint(new DOMPoint(x,y));return [p.x/p.w,p.y/p.w]};\nconst gap=(a,b)=>Math.hypot(Math.max(a.l-b.r,0,b.l-a.r),Math.max(a.t-b.b,0,b.t-a.b));\nconst sum=at(500,325);const o={W,H,words:page.dataset.words??null,engine:page.dataset.engine,titleSize:parseFloat(getComputedStyle(q('.map-title')).fontSize),head:[head.l,head.t,head.r,head.b].map(Math.round),cap:[cap.l,cap.t,cap.r,cap.b].map(Math.round),summitRow:Math.round(sum[1])};\nif(true){\n const ring=[[515.8750000000019,210.79999999999995],[528.5500000000006,217.75000000000003],[538.7750000000004,223.475],[543.275000000002,226.75],[546.9500000000004,231.64999999999995],[554.3,231.64999999999995],[570.6750000000021,240.65000000000003],[583.3500000000008,247.19999999999996],[589.074999999999,252.52499999999998],[589.7000000000013,256.975],[585.4250000000001,270.24999999999994],[598.0749999999994,304.575],[601.7500000000006,321.65],[601.7500000000006,332.7],[601.7500000000006,335.15],[602.1750000000019,359.675],[602.975,368.275],[598.4750000000013,374.4],[596.8499999999999,378.09999999999997],[593.9749999999997,384.625],[591.5250000000008,388.72499999999997],[589.074999999999,396.5],[581.300000000001,397.72499999999997],[575.9250000000002,405.65],[568.6249999999994,415.72499999999997],[560.8500000000014,423.07500000000005],[551.850000000001,428.8],[543.6750000000011,432.9],[535.5000000000011,430.45],[525.6750000000004,430.45],[510.54999999999995,434.525],[501.5499999999996,434.95],[492.5500000000021,432.9],[482.3249999999995,439.85],[475.374999999999,440.25],[469.02500000000134,437.125],[464.8999999999994,432.67500000000007],[453.69999999999993,415.72499999999997],[449.2000000000012,415.72499999999997],[439.37500000000045,419.80000000000007],[429.5499999999997,414.075],[412.37499999999943,405.8999999999999],[397.6500000000009,399.35],[391.09999999999945,398.95],[378.42500000000075,398.95],[369.4250000000004,392.4],[366.1500000000011,381.77500000000003],[363.69999999999936,366.65000000000003],[364.92500000000166,357.22499999999997],[359.2000000000006,349.05],[352.375,345.84999999999997],[352.650000000002,338],[358.70000000000107,340.07499999999993],[368.20000000000095,343.72499999999997],[376.7999999999994,332.27500000000003],[381.70000000000005,318.77500000000003],[377.60000000000036,312.65],[371.0750000000012,302.825],[370.64999999999986,294.25],[373.5250000000001,279.52500000000003],[378.85000000000207,264.79999999999995],[382.0999999999991,252.52499999999998],[392.32500000000175,237.8],[405.02499999999986,221.42499999999998],[416.05000000000064,210.79999999999995],[424.64999999999907,205.9],[431.2000000000005,207.52499999999995],[437.75000000000193,209.14999999999998],[448.3750000000008,210.79999999999995],[454.9249999999994,212.02499999999995],[462.2750000000018,210.79999999999995],[473.325000000002,208.75000000000003],[486.0000000000007,205.47500000000002],[495.4000000000001,202.20000000000002],[506.4500000000003,206.70000000000002]].map(([x,y])=>at(x,y));let left=Infinity;\n ring.forEach((a,i)=>{const b=ring[(i+1)%ring.length];for(let s=0;s<=400;s++){const x=a[0]+(b[0]-a[0])*s/400,y=a[1]+(b[1]-a[1])*s/400;if(y>=head.t&&y<=head.b)left=Math.min(left,x)}});\n o.cliffGap=+(left-head.r).toFixed(1);o.titleRowOffset=+((head.t+head.b)/2-sum[1]).toFixed(2);o.headLeft=Math.round(head.l);o.capRightGap=+(W-gutter-cap.r).toFixed(2);\n o.captionMoved=+((cap.t+cap.b)/2-sum[1]).toFixed(1);\n const beads=qa('.map-bead').map(b=>{const r=R(b);return {x:(r.l+r.r)/2,y:(r.t+r.b)/2,rad:r.w/2}});\n o.beadGap=+Math.min(...beads.map(b=>Math.hypot(Math.max(cap.l-b.x,0,b.x-cap.r),Math.max(cap.t-b.y,0,b.y-cap.b))-b.rad)).toFixed(1);\n const c=q('.map-trail'),k=c.width/W,d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let trailGap=Infinity;\n const x0=Math.max(0,Math.floor((cap.l-60)*k)),x1=Math.min(c.width,Math.ceil((cap.r+60)*k)),y0=Math.max(0,Math.floor((cap.t-60)*k)),y1=Math.min(c.height,Math.ceil((cap.b+60)*k));\n for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>=100){const px=x/k,py=y/k;trailGap=Math.min(trailGap,Math.hypot(Math.max(cap.l-px,0,px-cap.r),Math.max(cap.t-py,0,py-cap.b)))}\n o.trailGap=+trailGap.toFixed(1);o.switchGap=+gap(cap,sw).toFixed(1);o.dockGap=+gap(cap,dock).toFixed(1);\n const spans=qa('.map-caption-line,.map-caption-fact,.map-caption-credit').map(s=>{const w=R(s).w,m=parseFloat(getComputedStyle(s).maxWidth);return {w:Math.round(w),max:Math.round(m)}});o.spans=spans;\n o.ok=o.words===null&&o.titleSize>=34&&o.cliffGap>=24&&Math.abs(o.titleRowOffset)<1.5&&Math.abs(o.headLeft-gutter)<1&&Math.abs(o.capRightGap)<1&&o.beadGap>=32&&o.trailGap>=32&&o.switchGap>=32&&o.dockGap>=0&&spans.every(s=>s.w<=s.max+1)&&head.t>=0&&cap.t>=0&&cap.b<=H;\n}else{\n o.headTop=Math.round(head.t);o.headLeft=Math.round(head.l);o.capLeft=Math.round(cap.l);o.capAboveDock=+(dock.t-cap.b).toFixed(1);o.titleSizeWant=+Math.min(64,Math.max(34,W*0.046)).toFixed(2);\n o.ok=o.words==='old'&&Math.abs(head.l-gutter)<1&&Math.abs(cap.l-gutter)<1&&head.t<=40&&cap.b<=dock.t&&Math.abs(o.titleSize-o.titleSizeWant)<0.1;\n}\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   1280,
+   720
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "label": "the words beside the mountain at 1280 x 720",
+  "eval": "(async()=>{\nconst sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nfor(let i=0;i<150&&!(q('.map-page')?.dataset.entrance==='done'&&q('.map-stage')?.dataset.terrain==='ready');i++)await sleep(100);\nawait sleep(300);\nconst R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};\nconst W=innerWidth,H=innerHeight,page=q('.map-page'),head=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),dock=R(q('[data-dock-glass]'));\nconst gutter=parseFloat(getComputedStyle(page).getPropertyValue('--map-gutter'))||48;\nconst M=new DOMMatrixReadOnly(getComputedStyle(q('.map-plane')).transform);const at=(x,y)=>{const p=M.transformPoint(new DOMPoint(x,y));return [p.x/p.w,p.y/p.w]};\nconst gap=(a,b)=>Math.hypot(Math.max(a.l-b.r,0,b.l-a.r),Math.max(a.t-b.b,0,b.t-a.b));\nconst sum=at(500,325);const o={W,H,words:page.dataset.words??null,engine:page.dataset.engine,titleSize:parseFloat(getComputedStyle(q('.map-title')).fontSize),head:[head.l,head.t,head.r,head.b].map(Math.round),cap:[cap.l,cap.t,cap.r,cap.b].map(Math.round),summitRow:Math.round(sum[1])};\nif(true){\n const ring=[[515.8750000000019,210.79999999999995],[528.5500000000006,217.75000000000003],[538.7750000000004,223.475],[543.275000000002,226.75],[546.9500000000004,231.64999999999995],[554.3,231.64999999999995],[570.6750000000021,240.65000000000003],[583.3500000000008,247.19999999999996],[589.074999999999,252.52499999999998],[589.7000000000013,256.975],[585.4250000000001,270.24999999999994],[598.0749999999994,304.575],[601.7500000000006,321.65],[601.7500000000006,332.7],[601.7500000000006,335.15],[602.1750000000019,359.675],[602.975,368.275],[598.4750000000013,374.4],[596.8499999999999,378.09999999999997],[593.9749999999997,384.625],[591.5250000000008,388.72499999999997],[589.074999999999,396.5],[581.300000000001,397.72499999999997],[575.9250000000002,405.65],[568.6249999999994,415.72499999999997],[560.8500000000014,423.07500000000005],[551.850000000001,428.8],[543.6750000000011,432.9],[535.5000000000011,430.45],[525.6750000000004,430.45],[510.54999999999995,434.525],[501.5499999999996,434.95],[492.5500000000021,432.9],[482.3249999999995,439.85],[475.374999999999,440.25],[469.02500000000134,437.125],[464.8999999999994,432.67500000000007],[453.69999999999993,415.72499999999997],[449.2000000000012,415.72499999999997],[439.37500000000045,419.80000000000007],[429.5499999999997,414.075],[412.37499999999943,405.8999999999999],[397.6500000000009,399.35],[391.09999999999945,398.95],[378.42500000000075,398.95],[369.4250000000004,392.4],[366.1500000000011,381.77500000000003],[363.69999999999936,366.65000000000003],[364.92500000000166,357.22499999999997],[359.2000000000006,349.05],[352.375,345.84999999999997],[352.650000000002,338],[358.70000000000107,340.07499999999993],[368.20000000000095,343.72499999999997],[376.7999999999994,332.27500000000003],[381.70000000000005,318.77500000000003],[377.60000000000036,312.65],[371.0750000000012,302.825],[370.64999999999986,294.25],[373.5250000000001,279.52500000000003],[378.85000000000207,264.79999999999995],[382.0999999999991,252.52499999999998],[392.32500000000175,237.8],[405.02499999999986,221.42499999999998],[416.05000000000064,210.79999999999995],[424.64999999999907,205.9],[431.2000000000005,207.52499999999995],[437.75000000000193,209.14999999999998],[448.3750000000008,210.79999999999995],[454.9249999999994,212.02499999999995],[462.2750000000018,210.79999999999995],[473.325000000002,208.75000000000003],[486.0000000000007,205.47500000000002],[495.4000000000001,202.20000000000002],[506.4500000000003,206.70000000000002]].map(([x,y])=>at(x,y));let left=Infinity;\n ring.forEach((a,i)=>{const b=ring[(i+1)%ring.length];for(let s=0;s<=400;s++){const x=a[0]+(b[0]-a[0])*s/400,y=a[1]+(b[1]-a[1])*s/400;if(y>=head.t&&y<=head.b)left=Math.min(left,x)}});\n o.cliffGap=+(left-head.r).toFixed(1);o.titleRowOffset=+((head.t+head.b)/2-sum[1]).toFixed(2);o.headLeft=Math.round(head.l);o.capRightGap=+(W-gutter-cap.r).toFixed(2);\n o.captionMoved=+((cap.t+cap.b)/2-sum[1]).toFixed(1);\n const beads=qa('.map-bead').map(b=>{const r=R(b);return {x:(r.l+r.r)/2,y:(r.t+r.b)/2,rad:r.w/2}});\n o.beadGap=+Math.min(...beads.map(b=>Math.hypot(Math.max(cap.l-b.x,0,b.x-cap.r),Math.max(cap.t-b.y,0,b.y-cap.b))-b.rad)).toFixed(1);\n const c=q('.map-trail'),k=c.width/W,d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let trailGap=Infinity;\n const x0=Math.max(0,Math.floor((cap.l-60)*k)),x1=Math.min(c.width,Math.ceil((cap.r+60)*k)),y0=Math.max(0,Math.floor((cap.t-60)*k)),y1=Math.min(c.height,Math.ceil((cap.b+60)*k));\n for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>=100){const px=x/k,py=y/k;trailGap=Math.min(trailGap,Math.hypot(Math.max(cap.l-px,0,px-cap.r),Math.max(cap.t-py,0,py-cap.b)))}\n o.trailGap=+trailGap.toFixed(1);o.switchGap=+gap(cap,sw).toFixed(1);o.dockGap=+gap(cap,dock).toFixed(1);\n const spans=qa('.map-caption-line,.map-caption-fact,.map-caption-credit').map(s=>{const w=R(s).w,m=parseFloat(getComputedStyle(s).maxWidth);return {w:Math.round(w),max:Math.round(m)}});o.spans=spans;\n o.ok=o.words===null&&o.titleSize>=34&&o.cliffGap>=24&&Math.abs(o.titleRowOffset)<1.5&&Math.abs(o.headLeft-gutter)<1&&Math.abs(o.capRightGap)<1&&o.beadGap>=32&&o.trailGap>=32&&o.switchGap>=32&&o.dockGap>=0&&spans.every(s=>s.w<=s.max+1)&&head.t>=0&&cap.t>=0&&cap.b<=H;\n}else{\n o.headTop=Math.round(head.t);o.headLeft=Math.round(head.l);o.capLeft=Math.round(cap.l);o.capAboveDock=+(dock.t-cap.b).toFixed(1);o.titleSizeWant=+Math.min(64,Math.max(34,W*0.046)).toFixed(2);\n o.ok=o.words==='old'&&Math.abs(head.l-gutter)<1&&Math.abs(cap.l-gutter)<1&&head.t<=40&&cap.b<=dock.t&&Math.abs(o.titleSize-o.titleSizeWant)<0.1;\n}\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   1024,
+   768
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "label": "the words beside the mountain at 1024 x 768",
+  "eval": "(async()=>{\nconst sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nfor(let i=0;i<150&&!(q('.map-page')?.dataset.entrance==='done'&&q('.map-stage')?.dataset.terrain==='ready');i++)await sleep(100);\nawait sleep(300);\nconst R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};\nconst W=innerWidth,H=innerHeight,page=q('.map-page'),head=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),dock=R(q('[data-dock-glass]'));\nconst gutter=parseFloat(getComputedStyle(page).getPropertyValue('--map-gutter'))||48;\nconst M=new DOMMatrixReadOnly(getComputedStyle(q('.map-plane')).transform);const at=(x,y)=>{const p=M.transformPoint(new DOMPoint(x,y));return [p.x/p.w,p.y/p.w]};\nconst gap=(a,b)=>Math.hypot(Math.max(a.l-b.r,0,b.l-a.r),Math.max(a.t-b.b,0,b.t-a.b));\nconst sum=at(500,325);const o={W,H,words:page.dataset.words??null,engine:page.dataset.engine,titleSize:parseFloat(getComputedStyle(q('.map-title')).fontSize),head:[head.l,head.t,head.r,head.b].map(Math.round),cap:[cap.l,cap.t,cap.r,cap.b].map(Math.round),summitRow:Math.round(sum[1])};\nif(true){\n const ring=[[515.8750000000019,210.79999999999995],[528.5500000000006,217.75000000000003],[538.7750000000004,223.475],[543.275000000002,226.75],[546.9500000000004,231.64999999999995],[554.3,231.64999999999995],[570.6750000000021,240.65000000000003],[583.3500000000008,247.19999999999996],[589.074999999999,252.52499999999998],[589.7000000000013,256.975],[585.4250000000001,270.24999999999994],[598.0749999999994,304.575],[601.7500000000006,321.65],[601.7500000000006,332.7],[601.7500000000006,335.15],[602.1750000000019,359.675],[602.975,368.275],[598.4750000000013,374.4],[596.8499999999999,378.09999999999997],[593.9749999999997,384.625],[591.5250000000008,388.72499999999997],[589.074999999999,396.5],[581.300000000001,397.72499999999997],[575.9250000000002,405.65],[568.6249999999994,415.72499999999997],[560.8500000000014,423.07500000000005],[551.850000000001,428.8],[543.6750000000011,432.9],[535.5000000000011,430.45],[525.6750000000004,430.45],[510.54999999999995,434.525],[501.5499999999996,434.95],[492.5500000000021,432.9],[482.3249999999995,439.85],[475.374999999999,440.25],[469.02500000000134,437.125],[464.8999999999994,432.67500000000007],[453.69999999999993,415.72499999999997],[449.2000000000012,415.72499999999997],[439.37500000000045,419.80000000000007],[429.5499999999997,414.075],[412.37499999999943,405.8999999999999],[397.6500000000009,399.35],[391.09999999999945,398.95],[378.42500000000075,398.95],[369.4250000000004,392.4],[366.1500000000011,381.77500000000003],[363.69999999999936,366.65000000000003],[364.92500000000166,357.22499999999997],[359.2000000000006,349.05],[352.375,345.84999999999997],[352.650000000002,338],[358.70000000000107,340.07499999999993],[368.20000000000095,343.72499999999997],[376.7999999999994,332.27500000000003],[381.70000000000005,318.77500000000003],[377.60000000000036,312.65],[371.0750000000012,302.825],[370.64999999999986,294.25],[373.5250000000001,279.52500000000003],[378.85000000000207,264.79999999999995],[382.0999999999991,252.52499999999998],[392.32500000000175,237.8],[405.02499999999986,221.42499999999998],[416.05000000000064,210.79999999999995],[424.64999999999907,205.9],[431.2000000000005,207.52499999999995],[437.75000000000193,209.14999999999998],[448.3750000000008,210.79999999999995],[454.9249999999994,212.02499999999995],[462.2750000000018,210.79999999999995],[473.325000000002,208.75000000000003],[486.0000000000007,205.47500000000002],[495.4000000000001,202.20000000000002],[506.4500000000003,206.70000000000002]].map(([x,y])=>at(x,y));let left=Infinity;\n ring.forEach((a,i)=>{const b=ring[(i+1)%ring.length];for(let s=0;s<=400;s++){const x=a[0]+(b[0]-a[0])*s/400,y=a[1]+(b[1]-a[1])*s/400;if(y>=head.t&&y<=head.b)left=Math.min(left,x)}});\n o.cliffGap=+(left-head.r).toFixed(1);o.titleRowOffset=+((head.t+head.b)/2-sum[1]).toFixed(2);o.headLeft=Math.round(head.l);o.capRightGap=+(W-gutter-cap.r).toFixed(2);\n o.captionMoved=+((cap.t+cap.b)/2-sum[1]).toFixed(1);\n const beads=qa('.map-bead').map(b=>{const r=R(b);return {x:(r.l+r.r)/2,y:(r.t+r.b)/2,rad:r.w/2}});\n o.beadGap=+Math.min(...beads.map(b=>Math.hypot(Math.max(cap.l-b.x,0,b.x-cap.r),Math.max(cap.t-b.y,0,b.y-cap.b))-b.rad)).toFixed(1);\n const c=q('.map-trail'),k=c.width/W,d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let trailGap=Infinity;\n const x0=Math.max(0,Math.floor((cap.l-60)*k)),x1=Math.min(c.width,Math.ceil((cap.r+60)*k)),y0=Math.max(0,Math.floor((cap.t-60)*k)),y1=Math.min(c.height,Math.ceil((cap.b+60)*k));\n for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>=100){const px=x/k,py=y/k;trailGap=Math.min(trailGap,Math.hypot(Math.max(cap.l-px,0,px-cap.r),Math.max(cap.t-py,0,py-cap.b)))}\n o.trailGap=+trailGap.toFixed(1);o.switchGap=+gap(cap,sw).toFixed(1);o.dockGap=+gap(cap,dock).toFixed(1);\n const spans=qa('.map-caption-line,.map-caption-fact,.map-caption-credit').map(s=>{const w=R(s).w,m=parseFloat(getComputedStyle(s).maxWidth);return {w:Math.round(w),max:Math.round(m)}});o.spans=spans;\n o.ok=o.words===null&&o.titleSize>=34&&o.cliffGap>=24&&Math.abs(o.titleRowOffset)<1.5&&Math.abs(o.headLeft-gutter)<1&&Math.abs(o.capRightGap)<1&&o.beadGap>=32&&o.trailGap>=32&&o.switchGap>=32&&o.dockGap>=0&&spans.every(s=>s.w<=s.max+1)&&head.t>=0&&cap.t>=0&&cap.b<=H;\n}else{\n o.headTop=Math.round(head.t);o.headLeft=Math.round(head.l);o.capLeft=Math.round(cap.l);o.capAboveDock=+(dock.t-cap.b).toFixed(1);o.titleSizeWant=+Math.min(64,Math.max(34,W*0.046)).toFixed(2);\n o.ok=o.words==='old'&&Math.abs(head.l-gutter)<1&&Math.abs(cap.l-gutter)<1&&head.t<=40&&cap.b<=dock.t&&Math.abs(o.titleSize-o.titleSizeWant)<0.1;\n}\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   900,
+   600
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "label": "the words beside the mountain at 900 x 600",
+  "eval": "(async()=>{\nconst sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nfor(let i=0;i<150&&!(q('.map-page')?.dataset.entrance==='done'&&q('.map-stage')?.dataset.terrain==='ready');i++)await sleep(100);\nawait sleep(300);\nconst R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};\nconst W=innerWidth,H=innerHeight,page=q('.map-page'),head=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),dock=R(q('[data-dock-glass]'));\nconst gutter=parseFloat(getComputedStyle(page).getPropertyValue('--map-gutter'))||48;\nconst M=new DOMMatrixReadOnly(getComputedStyle(q('.map-plane')).transform);const at=(x,y)=>{const p=M.transformPoint(new DOMPoint(x,y));return [p.x/p.w,p.y/p.w]};\nconst gap=(a,b)=>Math.hypot(Math.max(a.l-b.r,0,b.l-a.r),Math.max(a.t-b.b,0,b.t-a.b));\nconst sum=at(500,325);const o={W,H,words:page.dataset.words??null,engine:page.dataset.engine,titleSize:parseFloat(getComputedStyle(q('.map-title')).fontSize),head:[head.l,head.t,head.r,head.b].map(Math.round),cap:[cap.l,cap.t,cap.r,cap.b].map(Math.round),summitRow:Math.round(sum[1])};\nif(true){\n const ring=[[515.8750000000019,210.79999999999995],[528.5500000000006,217.75000000000003],[538.7750000000004,223.475],[543.275000000002,226.75],[546.9500000000004,231.64999999999995],[554.3,231.64999999999995],[570.6750000000021,240.65000000000003],[583.3500000000008,247.19999999999996],[589.074999999999,252.52499999999998],[589.7000000000013,256.975],[585.4250000000001,270.24999999999994],[598.0749999999994,304.575],[601.7500000000006,321.65],[601.7500000000006,332.7],[601.7500000000006,335.15],[602.1750000000019,359.675],[602.975,368.275],[598.4750000000013,374.4],[596.8499999999999,378.09999999999997],[593.9749999999997,384.625],[591.5250000000008,388.72499999999997],[589.074999999999,396.5],[581.300000000001,397.72499999999997],[575.9250000000002,405.65],[568.6249999999994,415.72499999999997],[560.8500000000014,423.07500000000005],[551.850000000001,428.8],[543.6750000000011,432.9],[535.5000000000011,430.45],[525.6750000000004,430.45],[510.54999999999995,434.525],[501.5499999999996,434.95],[492.5500000000021,432.9],[482.3249999999995,439.85],[475.374999999999,440.25],[469.02500000000134,437.125],[464.8999999999994,432.67500000000007],[453.69999999999993,415.72499999999997],[449.2000000000012,415.72499999999997],[439.37500000000045,419.80000000000007],[429.5499999999997,414.075],[412.37499999999943,405.8999999999999],[397.6500000000009,399.35],[391.09999999999945,398.95],[378.42500000000075,398.95],[369.4250000000004,392.4],[366.1500000000011,381.77500000000003],[363.69999999999936,366.65000000000003],[364.92500000000166,357.22499999999997],[359.2000000000006,349.05],[352.375,345.84999999999997],[352.650000000002,338],[358.70000000000107,340.07499999999993],[368.20000000000095,343.72499999999997],[376.7999999999994,332.27500000000003],[381.70000000000005,318.77500000000003],[377.60000000000036,312.65],[371.0750000000012,302.825],[370.64999999999986,294.25],[373.5250000000001,279.52500000000003],[378.85000000000207,264.79999999999995],[382.0999999999991,252.52499999999998],[392.32500000000175,237.8],[405.02499999999986,221.42499999999998],[416.05000000000064,210.79999999999995],[424.64999999999907,205.9],[431.2000000000005,207.52499999999995],[437.75000000000193,209.14999999999998],[448.3750000000008,210.79999999999995],[454.9249999999994,212.02499999999995],[462.2750000000018,210.79999999999995],[473.325000000002,208.75000000000003],[486.0000000000007,205.47500000000002],[495.4000000000001,202.20000000000002],[506.4500000000003,206.70000000000002]].map(([x,y])=>at(x,y));let left=Infinity;\n ring.forEach((a,i)=>{const b=ring[(i+1)%ring.length];for(let s=0;s<=400;s++){const x=a[0]+(b[0]-a[0])*s/400,y=a[1]+(b[1]-a[1])*s/400;if(y>=head.t&&y<=head.b)left=Math.min(left,x)}});\n o.cliffGap=+(left-head.r).toFixed(1);o.titleRowOffset=+((head.t+head.b)/2-sum[1]).toFixed(2);o.headLeft=Math.round(head.l);o.capRightGap=+(W-gutter-cap.r).toFixed(2);\n o.captionMoved=+((cap.t+cap.b)/2-sum[1]).toFixed(1);\n const beads=qa('.map-bead').map(b=>{const r=R(b);return {x:(r.l+r.r)/2,y:(r.t+r.b)/2,rad:r.w/2}});\n o.beadGap=+Math.min(...beads.map(b=>Math.hypot(Math.max(cap.l-b.x,0,b.x-cap.r),Math.max(cap.t-b.y,0,b.y-cap.b))-b.rad)).toFixed(1);\n const c=q('.map-trail'),k=c.width/W,d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let trailGap=Infinity;\n const x0=Math.max(0,Math.floor((cap.l-60)*k)),x1=Math.min(c.width,Math.ceil((cap.r+60)*k)),y0=Math.max(0,Math.floor((cap.t-60)*k)),y1=Math.min(c.height,Math.ceil((cap.b+60)*k));\n for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>=100){const px=x/k,py=y/k;trailGap=Math.min(trailGap,Math.hypot(Math.max(cap.l-px,0,px-cap.r),Math.max(cap.t-py,0,py-cap.b)))}\n o.trailGap=+trailGap.toFixed(1);o.switchGap=+gap(cap,sw).toFixed(1);o.dockGap=+gap(cap,dock).toFixed(1);\n const spans=qa('.map-caption-line,.map-caption-fact,.map-caption-credit').map(s=>{const w=R(s).w,m=parseFloat(getComputedStyle(s).maxWidth);return {w:Math.round(w),max:Math.round(m)}});o.spans=spans;\n o.ok=o.words===null&&o.titleSize>=34&&o.cliffGap>=24&&Math.abs(o.titleRowOffset)<1.5&&Math.abs(o.headLeft-gutter)<1&&Math.abs(o.capRightGap)<1&&o.beadGap>=32&&o.trailGap>=32&&o.switchGap>=32&&o.dockGap>=0&&spans.every(s=>s.w<=s.max+1)&&head.t>=0&&cap.t>=0&&cap.b<=H;\n}else{\n o.headTop=Math.round(head.t);o.headLeft=Math.round(head.l);o.capLeft=Math.round(cap.l);o.capAboveDock=+(dock.t-cap.b).toFixed(1);o.titleSizeWant=+Math.min(64,Math.max(34,W*0.046)).toFixed(2);\n o.ok=o.words==='old'&&Math.abs(head.l-gutter)<1&&Math.abs(cap.l-gutter)<1&&head.t<=40&&cap.b<=dock.t&&Math.abs(o.titleSize-o.titleSizeWant)<0.1;\n}\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "label": "today's places at 390 x 844",
+  "eval": "(async()=>{\nconst sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nfor(let i=0;i<150&&!(q('.map-page')?.dataset.entrance==='done'&&q('.map-stage')?.dataset.terrain==='ready');i++)await sleep(100);\nawait sleep(300);\nconst R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};\nconst W=innerWidth,H=innerHeight,page=q('.map-page'),head=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),dock=R(q('[data-dock-glass]'));\nconst gutter=parseFloat(getComputedStyle(page).getPropertyValue('--map-gutter'))||48;\nconst M=new DOMMatrixReadOnly(getComputedStyle(q('.map-plane')).transform);const at=(x,y)=>{const p=M.transformPoint(new DOMPoint(x,y));return [p.x/p.w,p.y/p.w]};\nconst gap=(a,b)=>Math.hypot(Math.max(a.l-b.r,0,b.l-a.r),Math.max(a.t-b.b,0,b.t-a.b));\nconst sum=at(500,325);const o={W,H,words:page.dataset.words??null,engine:page.dataset.engine,titleSize:parseFloat(getComputedStyle(q('.map-title')).fontSize),head:[head.l,head.t,head.r,head.b].map(Math.round),cap:[cap.l,cap.t,cap.r,cap.b].map(Math.round),summitRow:Math.round(sum[1])};\nif(false){\n const ring=[[515.8750000000019,210.79999999999995],[528.5500000000006,217.75000000000003],[538.7750000000004,223.475],[543.275000000002,226.75],[546.9500000000004,231.64999999999995],[554.3,231.64999999999995],[570.6750000000021,240.65000000000003],[583.3500000000008,247.19999999999996],[589.074999999999,252.52499999999998],[589.7000000000013,256.975],[585.4250000000001,270.24999999999994],[598.0749999999994,304.575],[601.7500000000006,321.65],[601.7500000000006,332.7],[601.7500000000006,335.15],[602.1750000000019,359.675],[602.975,368.275],[598.4750000000013,374.4],[596.8499999999999,378.09999999999997],[593.9749999999997,384.625],[591.5250000000008,388.72499999999997],[589.074999999999,396.5],[581.300000000001,397.72499999999997],[575.9250000000002,405.65],[568.6249999999994,415.72499999999997],[560.8500000000014,423.07500000000005],[551.850000000001,428.8],[543.6750000000011,432.9],[535.5000000000011,430.45],[525.6750000000004,430.45],[510.54999999999995,434.525],[501.5499999999996,434.95],[492.5500000000021,432.9],[482.3249999999995,439.85],[475.374999999999,440.25],[469.02500000000134,437.125],[464.8999999999994,432.67500000000007],[453.69999999999993,415.72499999999997],[449.2000000000012,415.72499999999997],[439.37500000000045,419.80000000000007],[429.5499999999997,414.075],[412.37499999999943,405.8999999999999],[397.6500000000009,399.35],[391.09999999999945,398.95],[378.42500000000075,398.95],[369.4250000000004,392.4],[366.1500000000011,381.77500000000003],[363.69999999999936,366.65000000000003],[364.92500000000166,357.22499999999997],[359.2000000000006,349.05],[352.375,345.84999999999997],[352.650000000002,338],[358.70000000000107,340.07499999999993],[368.20000000000095,343.72499999999997],[376.7999999999994,332.27500000000003],[381.70000000000005,318.77500000000003],[377.60000000000036,312.65],[371.0750000000012,302.825],[370.64999999999986,294.25],[373.5250000000001,279.52500000000003],[378.85000000000207,264.79999999999995],[382.0999999999991,252.52499999999998],[392.32500000000175,237.8],[405.02499999999986,221.42499999999998],[416.05000000000064,210.79999999999995],[424.64999999999907,205.9],[431.2000000000005,207.52499999999995],[437.75000000000193,209.14999999999998],[448.3750000000008,210.79999999999995],[454.9249999999994,212.02499999999995],[462.2750000000018,210.79999999999995],[473.325000000002,208.75000000000003],[486.0000000000007,205.47500000000002],[495.4000000000001,202.20000000000002],[506.4500000000003,206.70000000000002]].map(([x,y])=>at(x,y));let left=Infinity;\n ring.forEach((a,i)=>{const b=ring[(i+1)%ring.length];for(let s=0;s<=400;s++){const x=a[0]+(b[0]-a[0])*s/400,y=a[1]+(b[1]-a[1])*s/400;if(y>=head.t&&y<=head.b)left=Math.min(left,x)}});\n o.cliffGap=+(left-head.r).toFixed(1);o.titleRowOffset=+((head.t+head.b)/2-sum[1]).toFixed(2);o.headLeft=Math.round(head.l);o.capRightGap=+(W-gutter-cap.r).toFixed(2);\n o.captionMoved=+((cap.t+cap.b)/2-sum[1]).toFixed(1);\n const beads=qa('.map-bead').map(b=>{const r=R(b);return {x:(r.l+r.r)/2,y:(r.t+r.b)/2,rad:r.w/2}});\n o.beadGap=+Math.min(...beads.map(b=>Math.hypot(Math.max(cap.l-b.x,0,b.x-cap.r),Math.max(cap.t-b.y,0,b.y-cap.b))-b.rad)).toFixed(1);\n const c=q('.map-trail'),k=c.width/W,d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let trailGap=Infinity;\n const x0=Math.max(0,Math.floor((cap.l-60)*k)),x1=Math.min(c.width,Math.ceil((cap.r+60)*k)),y0=Math.max(0,Math.floor((cap.t-60)*k)),y1=Math.min(c.height,Math.ceil((cap.b+60)*k));\n for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>=100){const px=x/k,py=y/k;trailGap=Math.min(trailGap,Math.hypot(Math.max(cap.l-px,0,px-cap.r),Math.max(cap.t-py,0,py-cap.b)))}\n o.trailGap=+trailGap.toFixed(1);o.switchGap=+gap(cap,sw).toFixed(1);o.dockGap=+gap(cap,dock).toFixed(1);\n const spans=qa('.map-caption-line,.map-caption-fact,.map-caption-credit').map(s=>{const w=R(s).w,m=parseFloat(getComputedStyle(s).maxWidth);return {w:Math.round(w),max:Math.round(m)}});o.spans=spans;\n o.ok=o.words===null&&o.titleSize>=34&&o.cliffGap>=24&&Math.abs(o.titleRowOffset)<1.5&&Math.abs(o.headLeft-gutter)<1&&Math.abs(o.capRightGap)<1&&o.beadGap>=32&&o.trailGap>=32&&o.switchGap>=32&&o.dockGap>=0&&spans.every(s=>s.w<=s.max+1)&&head.t>=0&&cap.t>=0&&cap.b<=H;\n}else{\n o.headTop=Math.round(head.t);o.headLeft=Math.round(head.l);o.capLeft=Math.round(cap.l);o.capAboveDock=+(dock.t-cap.b).toFixed(1);o.titleSizeWant=+Math.min(64,Math.max(34,W*0.046)).toFixed(2);\n o.ok=o.words==='old'&&Math.abs(head.l-gutter)<1&&Math.abs(cap.l-gutter)<1&&head.t<=40&&cap.b<=dock.t&&Math.abs(o.titleSize-o.titleSizeWant)<0.1;\n}\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   844,
+   390
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "label": "today's places at 844 x 390",
+  "eval": "(async()=>{\nconst sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nfor(let i=0;i<150&&!(q('.map-page')?.dataset.entrance==='done'&&q('.map-stage')?.dataset.terrain==='ready');i++)await sleep(100);\nawait sleep(300);\nconst R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};\nconst W=innerWidth,H=innerHeight,page=q('.map-page'),head=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),dock=R(q('[data-dock-glass]'));\nconst gutter=parseFloat(getComputedStyle(page).getPropertyValue('--map-gutter'))||48;\nconst M=new DOMMatrixReadOnly(getComputedStyle(q('.map-plane')).transform);const at=(x,y)=>{const p=M.transformPoint(new DOMPoint(x,y));return [p.x/p.w,p.y/p.w]};\nconst gap=(a,b)=>Math.hypot(Math.max(a.l-b.r,0,b.l-a.r),Math.max(a.t-b.b,0,b.t-a.b));\nconst sum=at(500,325);const o={W,H,words:page.dataset.words??null,engine:page.dataset.engine,titleSize:parseFloat(getComputedStyle(q('.map-title')).fontSize),head:[head.l,head.t,head.r,head.b].map(Math.round),cap:[cap.l,cap.t,cap.r,cap.b].map(Math.round),summitRow:Math.round(sum[1])};\nif(false){\n const ring=[[515.8750000000019,210.79999999999995],[528.5500000000006,217.75000000000003],[538.7750000000004,223.475],[543.275000000002,226.75],[546.9500000000004,231.64999999999995],[554.3,231.64999999999995],[570.6750000000021,240.65000000000003],[583.3500000000008,247.19999999999996],[589.074999999999,252.52499999999998],[589.7000000000013,256.975],[585.4250000000001,270.24999999999994],[598.0749999999994,304.575],[601.7500000000006,321.65],[601.7500000000006,332.7],[601.7500000000006,335.15],[602.1750000000019,359.675],[602.975,368.275],[598.4750000000013,374.4],[596.8499999999999,378.09999999999997],[593.9749999999997,384.625],[591.5250000000008,388.72499999999997],[589.074999999999,396.5],[581.300000000001,397.72499999999997],[575.9250000000002,405.65],[568.6249999999994,415.72499999999997],[560.8500000000014,423.07500000000005],[551.850000000001,428.8],[543.6750000000011,432.9],[535.5000000000011,430.45],[525.6750000000004,430.45],[510.54999999999995,434.525],[501.5499999999996,434.95],[492.5500000000021,432.9],[482.3249999999995,439.85],[475.374999999999,440.25],[469.02500000000134,437.125],[464.8999999999994,432.67500000000007],[453.69999999999993,415.72499999999997],[449.2000000000012,415.72499999999997],[439.37500000000045,419.80000000000007],[429.5499999999997,414.075],[412.37499999999943,405.8999999999999],[397.6500000000009,399.35],[391.09999999999945,398.95],[378.42500000000075,398.95],[369.4250000000004,392.4],[366.1500000000011,381.77500000000003],[363.69999999999936,366.65000000000003],[364.92500000000166,357.22499999999997],[359.2000000000006,349.05],[352.375,345.84999999999997],[352.650000000002,338],[358.70000000000107,340.07499999999993],[368.20000000000095,343.72499999999997],[376.7999999999994,332.27500000000003],[381.70000000000005,318.77500000000003],[377.60000000000036,312.65],[371.0750000000012,302.825],[370.64999999999986,294.25],[373.5250000000001,279.52500000000003],[378.85000000000207,264.79999999999995],[382.0999999999991,252.52499999999998],[392.32500000000175,237.8],[405.02499999999986,221.42499999999998],[416.05000000000064,210.79999999999995],[424.64999999999907,205.9],[431.2000000000005,207.52499999999995],[437.75000000000193,209.14999999999998],[448.3750000000008,210.79999999999995],[454.9249999999994,212.02499999999995],[462.2750000000018,210.79999999999995],[473.325000000002,208.75000000000003],[486.0000000000007,205.47500000000002],[495.4000000000001,202.20000000000002],[506.4500000000003,206.70000000000002]].map(([x,y])=>at(x,y));let left=Infinity;\n ring.forEach((a,i)=>{const b=ring[(i+1)%ring.length];for(let s=0;s<=400;s++){const x=a[0]+(b[0]-a[0])*s/400,y=a[1]+(b[1]-a[1])*s/400;if(y>=head.t&&y<=head.b)left=Math.min(left,x)}});\n o.cliffGap=+(left-head.r).toFixed(1);o.titleRowOffset=+((head.t+head.b)/2-sum[1]).toFixed(2);o.headLeft=Math.round(head.l);o.capRightGap=+(W-gutter-cap.r).toFixed(2);\n o.captionMoved=+((cap.t+cap.b)/2-sum[1]).toFixed(1);\n const beads=qa('.map-bead').map(b=>{const r=R(b);return {x:(r.l+r.r)/2,y:(r.t+r.b)/2,rad:r.w/2}});\n o.beadGap=+Math.min(...beads.map(b=>Math.hypot(Math.max(cap.l-b.x,0,b.x-cap.r),Math.max(cap.t-b.y,0,b.y-cap.b))-b.rad)).toFixed(1);\n const c=q('.map-trail'),k=c.width/W,d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let trailGap=Infinity;\n const x0=Math.max(0,Math.floor((cap.l-60)*k)),x1=Math.min(c.width,Math.ceil((cap.r+60)*k)),y0=Math.max(0,Math.floor((cap.t-60)*k)),y1=Math.min(c.height,Math.ceil((cap.b+60)*k));\n for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>=100){const px=x/k,py=y/k;trailGap=Math.min(trailGap,Math.hypot(Math.max(cap.l-px,0,px-cap.r),Math.max(cap.t-py,0,py-cap.b)))}\n o.trailGap=+trailGap.toFixed(1);o.switchGap=+gap(cap,sw).toFixed(1);o.dockGap=+gap(cap,dock).toFixed(1);\n const spans=qa('.map-caption-line,.map-caption-fact,.map-caption-credit').map(s=>{const w=R(s).w,m=parseFloat(getComputedStyle(s).maxWidth);return {w:Math.round(w),max:Math.round(m)}});o.spans=spans;\n o.ok=o.words===null&&o.titleSize>=34&&o.cliffGap>=24&&Math.abs(o.titleRowOffset)<1.5&&Math.abs(o.headLeft-gutter)<1&&Math.abs(o.capRightGap)<1&&o.beadGap>=32&&o.trailGap>=32&&o.switchGap>=32&&o.dockGap>=0&&spans.every(s=>s.w<=s.max+1)&&head.t>=0&&cap.t>=0&&cap.b<=H;\n}else{\n o.headTop=Math.round(head.t);o.headLeft=Math.round(head.l);o.capLeft=Math.round(cap.l);o.capAboveDock=+(dock.t-cap.b).toFixed(1);o.titleSizeWant=+Math.min(64,Math.max(34,W*0.046)).toFixed(2);\n o.ok=o.words==='old'&&Math.abs(head.l-gutter)<1&&Math.abs(cap.l-gutter)<1&&head.t<=40&&cap.b<=dock.t&&Math.abs(o.titleSize-o.titleSizeWant)<0.1;\n}\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   820,
+   1180
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 2500
+ },
+ {
+  "label": "today's places at 820 x 1180",
+  "eval": "(async()=>{\nconst sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nfor(let i=0;i<150&&!(q('.map-page')?.dataset.entrance==='done'&&q('.map-stage')?.dataset.terrain==='ready');i++)await sleep(100);\nawait sleep(300);\nconst R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};\nconst W=innerWidth,H=innerHeight,page=q('.map-page'),head=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),dock=R(q('[data-dock-glass]'));\nconst gutter=parseFloat(getComputedStyle(page).getPropertyValue('--map-gutter'))||48;\nconst M=new DOMMatrixReadOnly(getComputedStyle(q('.map-plane')).transform);const at=(x,y)=>{const p=M.transformPoint(new DOMPoint(x,y));return [p.x/p.w,p.y/p.w]};\nconst gap=(a,b)=>Math.hypot(Math.max(a.l-b.r,0,b.l-a.r),Math.max(a.t-b.b,0,b.t-a.b));\nconst sum=at(500,325);const o={W,H,words:page.dataset.words??null,engine:page.dataset.engine,titleSize:parseFloat(getComputedStyle(q('.map-title')).fontSize),head:[head.l,head.t,head.r,head.b].map(Math.round),cap:[cap.l,cap.t,cap.r,cap.b].map(Math.round),summitRow:Math.round(sum[1])};\nif(false){\n const ring=[[515.8750000000019,210.79999999999995],[528.5500000000006,217.75000000000003],[538.7750000000004,223.475],[543.275000000002,226.75],[546.9500000000004,231.64999999999995],[554.3,231.64999999999995],[570.6750000000021,240.65000000000003],[583.3500000000008,247.19999999999996],[589.074999999999,252.52499999999998],[589.7000000000013,256.975],[585.4250000000001,270.24999999999994],[598.0749999999994,304.575],[601.7500000000006,321.65],[601.7500000000006,332.7],[601.7500000000006,335.15],[602.1750000000019,359.675],[602.975,368.275],[598.4750000000013,374.4],[596.8499999999999,378.09999999999997],[593.9749999999997,384.625],[591.5250000000008,388.72499999999997],[589.074999999999,396.5],[581.300000000001,397.72499999999997],[575.9250000000002,405.65],[568.6249999999994,415.72499999999997],[560.8500000000014,423.07500000000005],[551.850000000001,428.8],[543.6750000000011,432.9],[535.5000000000011,430.45],[525.6750000000004,430.45],[510.54999999999995,434.525],[501.5499999999996,434.95],[492.5500000000021,432.9],[482.3249999999995,439.85],[475.374999999999,440.25],[469.02500000000134,437.125],[464.8999999999994,432.67500000000007],[453.69999999999993,415.72499999999997],[449.2000000000012,415.72499999999997],[439.37500000000045,419.80000000000007],[429.5499999999997,414.075],[412.37499999999943,405.8999999999999],[397.6500000000009,399.35],[391.09999999999945,398.95],[378.42500000000075,398.95],[369.4250000000004,392.4],[366.1500000000011,381.77500000000003],[363.69999999999936,366.65000000000003],[364.92500000000166,357.22499999999997],[359.2000000000006,349.05],[352.375,345.84999999999997],[352.650000000002,338],[358.70000000000107,340.07499999999993],[368.20000000000095,343.72499999999997],[376.7999999999994,332.27500000000003],[381.70000000000005,318.77500000000003],[377.60000000000036,312.65],[371.0750000000012,302.825],[370.64999999999986,294.25],[373.5250000000001,279.52500000000003],[378.85000000000207,264.79999999999995],[382.0999999999991,252.52499999999998],[392.32500000000175,237.8],[405.02499999999986,221.42499999999998],[416.05000000000064,210.79999999999995],[424.64999999999907,205.9],[431.2000000000005,207.52499999999995],[437.75000000000193,209.14999999999998],[448.3750000000008,210.79999999999995],[454.9249999999994,212.02499999999995],[462.2750000000018,210.79999999999995],[473.325000000002,208.75000000000003],[486.0000000000007,205.47500000000002],[495.4000000000001,202.20000000000002],[506.4500000000003,206.70000000000002]].map(([x,y])=>at(x,y));let left=Infinity;\n ring.forEach((a,i)=>{const b=ring[(i+1)%ring.length];for(let s=0;s<=400;s++){const x=a[0]+(b[0]-a[0])*s/400,y=a[1]+(b[1]-a[1])*s/400;if(y>=head.t&&y<=head.b)left=Math.min(left,x)}});\n o.cliffGap=+(left-head.r).toFixed(1);o.titleRowOffset=+((head.t+head.b)/2-sum[1]).toFixed(2);o.headLeft=Math.round(head.l);o.capRightGap=+(W-gutter-cap.r).toFixed(2);\n o.captionMoved=+((cap.t+cap.b)/2-sum[1]).toFixed(1);\n const beads=qa('.map-bead').map(b=>{const r=R(b);return {x:(r.l+r.r)/2,y:(r.t+r.b)/2,rad:r.w/2}});\n o.beadGap=+Math.min(...beads.map(b=>Math.hypot(Math.max(cap.l-b.x,0,b.x-cap.r),Math.max(cap.t-b.y,0,b.y-cap.b))-b.rad)).toFixed(1);\n const c=q('.map-trail'),k=c.width/W,d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let trailGap=Infinity;\n const x0=Math.max(0,Math.floor((cap.l-60)*k)),x1=Math.min(c.width,Math.ceil((cap.r+60)*k)),y0=Math.max(0,Math.floor((cap.t-60)*k)),y1=Math.min(c.height,Math.ceil((cap.b+60)*k));\n for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(d[(y*c.width+x)*4+3]>=100){const px=x/k,py=y/k;trailGap=Math.min(trailGap,Math.hypot(Math.max(cap.l-px,0,px-cap.r),Math.max(cap.t-py,0,py-cap.b)))}\n o.trailGap=+trailGap.toFixed(1);o.switchGap=+gap(cap,sw).toFixed(1);o.dockGap=+gap(cap,dock).toFixed(1);\n const spans=qa('.map-caption-line,.map-caption-fact,.map-caption-credit').map(s=>{const w=R(s).w,m=parseFloat(getComputedStyle(s).maxWidth);return {w:Math.round(w),max:Math.round(m)}});o.spans=spans;\n o.ok=o.words===null&&o.titleSize>=34&&o.cliffGap>=24&&Math.abs(o.titleRowOffset)<1.5&&Math.abs(o.headLeft-gutter)<1&&Math.abs(o.capRightGap)<1&&o.beadGap>=32&&o.trailGap>=32&&o.switchGap>=32&&o.dockGap>=0&&spans.every(s=>s.w<=s.max+1)&&head.t>=0&&cap.t>=0&&cap.b<=H;\n}else{\n o.headTop=Math.round(head.t);o.headLeft=Math.round(head.l);o.capLeft=Math.round(cap.l);o.capAboveDock=+(dock.t-cap.b).toFixed(1);o.titleSizeWant=+Math.min(64,Math.max(34,W*0.046)).toFixed(2);\n o.ok=o.words==='old'&&Math.abs(head.l-gutter)<1&&Math.abs(cap.l-gutter)<1&&head.t<=40&&cap.b<=dock.t&&Math.abs(o.titleSize-o.titleSizeWant)<0.1;\n}\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "intercept": [],
+  "go": "{{BASE}}/work",
+  "wait": 800
+ },
+ {
+  "eval": "sessionStorage.setItem('ft:armLoad','1')"
+ },
+ {
+  "go": "{{BASE}}/experience",
+  "wait": 400
+ },
+ {
+  "label": "a first load (a deep link) plays the entrance counted from the picture's showing: the title at 0.7 T, the trail from T",
+  "eval": "(async()=>{\nconst S=window.__sam;for(let i=0;i<200&&!S.done;i++)await new Promise(r=>setTimeout(r,100));\nconst [s6,s8,sT,s11,s32]=S.snaps;if(S.snaps.length<5)return JSON.stringify({ok:false,error:'snaps',n:S.snaps.length,anchor:S.anchor});\nconst inWin=S.gaps.filter(([n])=>n>=S.anchor&&n<=S.anchor+S.T+4000);const win=inWin.map(x=>x[1]);const sorted=[...win].sort((a,b)=>a-b);\n// a frame over 34 ms that is the heights' load (an idle callback that runs once, as soon as the change is over: it was there before the entrance) is told apart from one that is not\nconst idle=window.__loaf.filter(e=>e.sc.some(x=>/IdleRequestCallback/.test(x)));const long34=inWin.filter(x=>x[1]>34);// ... and from the frame after one of the sampler's own pixel reads (a snapshot reads two canvases: tens of ms the page does not spend)\nconst own34=long34.filter(x=>!idle.some(e=>x[0]>=e.s&&x[0]<=e.s+e.d+34)&&!S.snaps.some(sn=>x[0]>=S.anchor+sn.t&&x[0]<=S.anchor+sn.t+200));\nconst shifts=window.__ls.filter(e=>!e.input&&e.t>=S.anchor&&e.t<=S.anchor+S.T+4000);\nconst firstOf=f=>{const r=S.rows.find(f);return r?r.t:null};\n\nconst o={\n anchor:+S.anchor.toFixed(1),lagFromReveal:S.mode==='change'&&window.__playAt!==null?+(window.__playAt-S.anchor).toFixed(1):null,\n at06:{title:s6.title,label:s6.label,desc:s6.desc,pinsIn:s6.pinsIn,cream:s6.cream},\n at08:{title:s8.title+'/'+s8.titleTotal,label:s8.label,cream:s8.cream,pinsIn:s8.pinsIn},\n atT:{title:sT.title+'/'+sT.titleTotal,label:sT.label+'/'+sT.labelTotal,cream:sT.cream,pinsIn:sT.pinsIn},\n atT1100:{cream:s11.cream,share:+(s11.cream/Math.max(1,s32.cream)).toFixed(2),pinsIn:s11.pinsIn,orange:s11.orange},\n atT3200:{title:s32.title+'/'+s32.titleTotal,label:s32.label+'/'+s32.labelTotal,desc:s32.desc,lines:s32.lines,cream:s32.cream,orange:s32.orange,pinsIn:s32.pinsIn},\n firstLetterAt:firstOf(r=>r.title>0),firstCreamSnapAt:S.snaps.find(x=>x.cream>0)?.at??null,\n frames:win.length,medianGapMs:+sorted[Math.floor(sorted.length/2)].toFixed(1),maxGapMs:+sorted.at(-1).toFixed(1),over20:win.filter(x=>x>20).length,over34:long34.length,over34Idle:long34.length-own34.length,over34Own:own34.length,over34Own_at:own34.map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),over34At:inWin.filter(x=>x[1]>34).map(x=>[+(x[0]-S.anchor).toFixed(0),+x[1].toFixed(0)]),loaf:window.__loaf.filter(e=>e.s+e.d>=S.anchor&&e.s<=S.anchor+S.T+4000&&e.d>40).map(e=>({at:+(e.s-S.anchor).toFixed(0),d:+e.d.toFixed(0),b:+e.b.toFixed(0),sc:e.sc})),\n layoutShifts:shifts.length,layoutShiftSum:+shifts.reduce((a,e)=>a+e.v,0).toFixed(5),\n};\no.ok=s6.title===0&&s6.label===0&&s6.desc<0.05&&s6.lines.every(x=>x<0.05)&&s6.pinsIn===0&&s6.cream===0\n &&s8.title>=1&&s8.title<s8.titleTotal&&s8.cream===0&&s8.pinsIn===0\n &&sT.title===sT.titleTotal&&sT.cream<0.03*s32.cream\n &&s11.share>0.35&&s11.share<0.65&&s11.pinsIn>=3&&s11.pinsIn<=5&&s11.orange===0\n &&s32.title===s32.titleTotal&&s32.label===s32.labelTotal&&s32.desc>0.95&&s32.lines.every(x=>x>0.95)&&s32.pinsIn===s32.pins&&s32.orange>0&&s32.cream>0\n &&shifts.length===0&&o.over34Own===0;\nreturn JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "img.youtube.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "covers.openlibrary.org",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   }
+  ],
+  "go": "{{BASE}}/work",
+  "wait": 6500
+ },
+ {
+  "label": "glass-warm",
+  "eval": "new Promise(r=>{const t=setInterval(()=>{if(performance.getEntriesByName('glass-warm').length){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+ },
+ {
+  "label": "start the change, wait for T + 1000 ms",
+  "eval": "(async()=>{window.__t0=performance.now();(()=>{\nconst S=window.__sam={rows:[],snaps:[],gaps:[],anchor:null,mode:\"change\",T:2250,targets:[1350,1800,2250,3350,5450],next:0,done:false};\nconst q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst shown=sel=>{const l=qa(sel+' .map-letter');return [l.filter(x=>+getComputedStyle(x).opacity>0.5).length,l.length]};\nconst px=(sel,test)=>{const c=q(sel),x=c&&c.getContext('2d');if(!x)return 0;const d=x.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(test(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nconst orange=()=>px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150);\nconst row=(t,now)=>{const [tl,tt]=shown('.map-title'),[ll,lt]=shown('.map-caption-title');const pins=qa('.map-pin');return {t:+t.toFixed(1),title:tl,titleTotal:tt,label:ll,labelTotal:lt,desc:+getComputedStyle(q('.map-text')).opacity,lines:qa('.map-caption .map-rise').map(x=>+getComputedStyle(x).opacity),pinsIn:pins.filter(p=>!p.hasAttribute('data-wait')).length,pins:pins.length,state:q('.map-page')?.dataset.entrance}};\nlet last=performance.now();\nconst loop=now=>{S.gaps.push([now,now-last]);last=now;\n if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null)S.anchor=window.__playAt}\n if(S.anchor!==null&&q('.map-page')){const t=now-S.anchor,r=row(t,now);S.rows.push(r);\n  while(S.next<S.targets.length&&t>=S.targets[S.next]){S.snaps.push({at:S.targets[S.next],...r,cream:cream(),orange:orange()});S.next++}\n  if(t>S.T+4300){S.done=true;return}}\n requestAnimationFrame(loop)};\nrequestAnimationFrame(loop);return 'armed'})();window.__ftChange('/experience');\nfor(let i=0;i<300&&!(window.__sam.anchor!==null&&performance.now()-window.__sam.anchor>=3250);i++)await new Promise(r=>setTimeout(r,20));return JSON.stringify({anchor:window.__sam.anchor,now:performance.now()})})()"
+ },
+ {
+  "key": "a",
+  "vk": 65
+ },
+ {
+  "label": "a key press during the trail finishes the entrance at once",
+  "eval": "(async()=>{const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];await new Promise(r=>setTimeout(r,150));\nconst px=(sel,t)=>{const c=q(sel);const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(t(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nconst now=()=>({state:q('.map-page').dataset.entrance,mode:q('.map-page').dataset.mode,letters:qa('.map-letter').filter(x=>+getComputedStyle(x).opacity>0.95).length,total:qa('.map-letter').length,rise:qa('.map-rise').filter(x=>+getComputedStyle(x).opacity>0.95).length,riseTotal:qa('.map-rise').length,pinsIn:qa('.map-pin').filter(p=>!p.hasAttribute('data-wait')).length,pins:qa('.map-pin').length,cream:cream(),orange:px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150)});\nconst a=now();await new Promise(r=>setTimeout(r,3500));const b=now();\nconst o={soon:a,later:b,whole:a.cream>=0.97*b.cream};o.ok=a.state==='done'&&a.letters===a.total&&a.rise===a.riseTotal&&a.pinsIn===a.pins&&o.whole&&a.orange>0;return JSON.stringify(o)})()"
+ },
+ {
+  "go": "{{BASE}}/work",
+  "wait": 6500
+ },
+ {
+  "label": "glass-warm",
+  "eval": "new Promise(r=>{const t=setInterval(()=>{if(performance.getEntriesByName('glass-warm').length){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+ },
+ {
+  "label": "start the change again, wait for T + 1900 ms",
+  "eval": "(async()=>{window.__t0=performance.now();(()=>{\nconst S=window.__sam={rows:[],snaps:[],gaps:[],anchor:null,mode:\"change\",T:2250,targets:[1350,1800,2250,3350,5450],next:0,done:false};\nconst q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst shown=sel=>{const l=qa(sel+' .map-letter');return [l.filter(x=>+getComputedStyle(x).opacity>0.5).length,l.length]};\nconst px=(sel,test)=>{const c=q(sel),x=c&&c.getContext('2d');if(!x)return 0;const d=x.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(test(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nconst orange=()=>px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150);\nconst row=(t,now)=>{const [tl,tt]=shown('.map-title'),[ll,lt]=shown('.map-caption-title');const pins=qa('.map-pin');return {t:+t.toFixed(1),title:tl,titleTotal:tt,label:ll,labelTotal:lt,desc:+getComputedStyle(q('.map-text')).opacity,lines:qa('.map-caption .map-rise').map(x=>+getComputedStyle(x).opacity),pinsIn:pins.filter(p=>!p.hasAttribute('data-wait')).length,pins:pins.length,state:q('.map-page')?.dataset.entrance}};\nlet last=performance.now();\nconst loop=now=>{S.gaps.push([now,now-last]);last=now;\n if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null)S.anchor=window.__playAt}\n if(S.anchor!==null&&q('.map-page')){const t=now-S.anchor,r=row(t,now);S.rows.push(r);\n  while(S.next<S.targets.length&&t>=S.targets[S.next]){S.snaps.push({at:S.targets[S.next],...r,cream:cream(),orange:orange()});S.next++}\n  if(t>S.T+4300){S.done=true;return}}\n requestAnimationFrame(loop)};\nrequestAnimationFrame(loop);return 'armed'})();window.__ftChange('/experience');\nfor(let i=0;i<300&&!(window.__sam.anchor!==null&&performance.now()-window.__sam.anchor>=4150);i++)await new Promise(r=>setTimeout(r,20));return JSON.stringify({anchor:window.__sam.anchor,now:performance.now()})})()"
+ },
+ {
+  "click": "(()=>{const b=[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()"
+ },
+ {
+  "label": "a click on the switch during the trail finishes the entrance at once and goes into My climb",
+  "eval": "(async()=>{const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];await new Promise(r=>setTimeout(r,400));\nconst o={state:q('.map-page').dataset.entrance,mode:q('.map-page').dataset.mode,letters:qa('.map-letter').filter(x=>+getComputedStyle(x).opacity>0.95).length,total:qa('.map-letter').length,pinsIn:qa('.map-pin').filter(p=>!p.hasAttribute('data-wait')).length,pins:qa('.map-pin').length};\no.ok=o.state==='done'&&o.mode==='climb'&&o.letters===o.total&&o.pinsIn===o.pins;return JSON.stringify(o)})()"
+ },
+ {
+  "go": "{{BASE}}/work",
+  "wait": 6500
+ },
+ {
+  "label": "glass-warm",
+  "eval": "new Promise(r=>{const t=setInterval(()=>{if(performance.getEntriesByName('glass-warm').length){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+ },
+ {
+  "label": "start the change, wait for T + 1200 ms",
+  "eval": "(async()=>{window.__t0=performance.now();(()=>{\nconst S=window.__sam={rows:[],snaps:[],gaps:[],anchor:null,mode:\"change\",T:2250,targets:[1350,1800,2250,3350,5450],next:0,done:false};\nconst q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst shown=sel=>{const l=qa(sel+' .map-letter');return [l.filter(x=>+getComputedStyle(x).opacity>0.5).length,l.length]};\nconst px=(sel,test)=>{const c=q(sel),x=c&&c.getContext('2d');if(!x)return 0;const d=x.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(test(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nconst orange=()=>px('.map-radar',(r,g,b,a)=>a>40&&r>200&&g<150);\nconst row=(t,now)=>{const [tl,tt]=shown('.map-title'),[ll,lt]=shown('.map-caption-title');const pins=qa('.map-pin');return {t:+t.toFixed(1),title:tl,titleTotal:tt,label:ll,labelTotal:lt,desc:+getComputedStyle(q('.map-text')).opacity,lines:qa('.map-caption .map-rise').map(x=>+getComputedStyle(x).opacity),pinsIn:pins.filter(p=>!p.hasAttribute('data-wait')).length,pins:pins.length,state:q('.map-page')?.dataset.entrance}};\nlet last=performance.now();\nconst loop=now=>{S.gaps.push([now,now-last]);last=now;\n if(S.anchor===null){if(S.mode==='change'){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)S.anchor=e.startTime}else if(window.__playAt!==null)S.anchor=window.__playAt}\n if(S.anchor!==null&&q('.map-page')){const t=now-S.anchor,r=row(t,now);S.rows.push(r);\n  while(S.next<S.targets.length&&t>=S.targets[S.next]){S.snaps.push({at:S.targets[S.next],...r,cream:cream(),orange:orange()});S.next++}\n  if(t>S.T+4300){S.done=true;return}}\n requestAnimationFrame(loop)};\nrequestAnimationFrame(loop);return 'armed'})();window.__ftChange('/experience');\nfor(let i=0;i<300&&!(window.__sam.anchor!==null&&performance.now()-window.__sam.anchor>=3450);i++)await new Promise(r=>setTimeout(r,20));return JSON.stringify({anchor:window.__sam.anchor,now:performance.now()})})()"
+ },
+ {
+  "film": {
+   "ms": 30,
+   "tiles": true
+  }
+ },
+ {
+  "label": "a bead that has the focus is shown before the tip reaches it",
+  "eval": "(async()=>{const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst pin=qa('.map-pin').at(-1);const before={wait:pin.hasAttribute('data-wait'),disabled:pin.disabled,op:+getComputedStyle(pin).opacity,hasFocus:document.hasFocus()};\npin.focus();await new Promise(r=>setTimeout(r,150));\nconst after={wait:pin.hasAttribute('data-wait'),op:+getComputedStyle(pin).opacity,focused:document.activeElement===pin,focusVisible:pin.matches(':focus-visible')};\nreturn JSON.stringify({before,after,ok:before.wait&&after.wait&&after.focused&&after.op>0.3&&after.op>before.op})})()"
+ },
+ {
+  "go": "{{BASE}}/experience",
+  "wait": 400
+ },
+ {
+  "label": "coming back from My climb replays nothing: the words fade in as before, the trail is whole",
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst btn=n=>[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent===n);\nconst px=(sel,t)=>{const c=q(sel);const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(t(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst cream=()=>px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200);\nfor(let i=0;i<150&&!(q('.map-page').dataset.entrance==='done'&&btn('My climb')&&!btn('My climb').disabled);i++)await sleep(100);\nawait sleep(500);const before=cream();btn('My climb').click();await sleep(4500);const inClimb=['.map-heading','.map-caption'].map(s=>+getComputedStyle(q(s)).opacity);\nbtn('Overview').click();const names=new Set();const t0=performance.now();let mid=null;\nwhile(performance.now()-t0<2400){for(const a of document.getAnimations())if(/map-(letter|rise|fade)-in/.test(a.animationName||''))names.add(a.animationName);if(mid===null&&performance.now()-t0>250)mid=['.map-heading','.map-caption'].map(s=>+getComputedStyle(q(s)).opacity);await new Promise(r=>requestAnimationFrame(r))}\nconst after=cream();const o={entrance:q('.map-page').dataset.entrance,inClimb,fadingBack:mid,backIn:['.map-heading','.map-caption'].map(s=>+getComputedStyle(q(s)).opacity),replayed:[...names],pinsIn:qa('.map-pin').filter(p=>!p.hasAttribute('data-wait')).length,pins:qa('.map-pin').length,creamBefore:before,creamAfter:after};\no.ok=o.entrance==='done'&&inClimb.every(x=>x<0.05)&&o.fadingBack.every(x=>x>0&&x<1)&&o.backIn.every(x=>x===1)&&o.replayed.length===0&&o.pinsIn===o.pins&&after>=0.95*before;return JSON.stringify(o)})()"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": true,
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "img.youtube.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   },
+   {
+    "match": "covers.openlibrary.org",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAIAAAC0SDtlAAAAEUlEQVR4nGMIJREwjGoYFBoAlOaPcTDWMp0AAAAASUVORK5CYII="
+   }
+  ],
+  "go": "{{BASE}}/work",
+  "wait": 6500
+ },
+ {
+  "label": "reduced motion: no letters, no drawing; everything fades in together over about 200 ms when the reveal ends",
+  "eval": "(async()=>{const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst px=(sel,t)=>{const c=q(sel);const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let i=0;i<d.length;i+=4)if(t(d[i],d[i+1],d[i+2],d[i+3]))n++;return n};\nconst names=new Set(),rows=[];let anchor=null,idle=0;const t00=performance.now();window.__ftChange('/experience');\nawait new Promise(res=>{const f=now=>{if(anchor===null){const e=performance.getEntriesByName('arrival-go').at(-1);if(e)anchor=e.startTime}\n const p=q('.map-page');if(anchor!==null&&p){const t=now-anchor;for(const a of document.getAnimations())if(/map-(letter|rise|fade)-in/.test(a.animationName||''))names.add(a.animationName);\n  const ops=qa('.map-letter').map(x=>+getComputedStyle(x).opacity);rows.push({t:+t.toFixed(0),min:Math.min(...ops),max:Math.max(...ops),pinsIn:qa('.map-pin').filter(x=>!x.hasAttribute('data-wait')).length,state:p.dataset.entrance});if(t>1500)return res()}\n if(now-t00>12000)return res();requestAnimationFrame(f)};requestAnimationFrame(f)});\nconst last=rows.at(-1),firstShown=rows.find(r=>r.max>0.05),full=rows.find(r=>r.min>0.95);\nconst o={anchor,names:[...names],revealEnd:120,firstShownAt:firstShown?.t,fullAt:full?.t,fadeMs:firstShown&&full?full.t-firstShown.t:null,togetherMax:+Math.max(...rows.map(r=>r.max-r.min)).toFixed(2),pinsInAtFull:full?.pinsIn,pins:qa('.map-pin').length,\n cream:px('.map-trail',(r,g,b,a)=>a>=200&&r>=235&&g>=235&&b>=200),finalState:last?.state};\no.ok=o.names.every(n=>n==='map-fade-in')&&o.names.length>0&&firstShown&&firstShown.t>=100&&o.fadeMs>=120&&o.fadeMs<=320&&full&&full.pinsIn===o.pins&&o.cream>0;return JSON.stringify(o)})()"
+ },
+ {
+  "reduce": false,
+  "wait": 200
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "intercept": [],
+  "go": "{{BASE}}/work",
+  "wait": 800
+ },
+ {
+  "eval": "sessionStorage.setItem('ft:nocanvas','1');sessionStorage.setItem('ft:armLoad','1')"
+ },
+ {
+  "go": "{{BASE}}/experience",
+  "wait": 300
+ },
+ {
+  "label": "no canvas: the words still enter (old places), no trail and no beads",
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];\nconst S=window.__sam;for(let i=0;i<150&&!S.done;i++)await sleep(100);\nconst letters=qa('.map-letter'),shown=letters.filter(x=>+getComputedStyle(x).opacity>0.95).length;const first=S.rows.find(r=>r.title>0);\nconst o={engine:q('.map-page').dataset.engine,words:q('.map-page').dataset.words,state:q('.map-page').dataset.entrance,letters:[shown,letters.length],pins:qa('.map-pin').length,list:!!q('.map-fallback-list'),firstLetterAt:first?first.t:null,anchor:S.anchor};\no.ok=o.engine==='off'&&o.words==='old'&&o.pins===0&&o.list&&shown===letters.length&&first!==undefined&&first.t>=1400;return JSON.stringify(o)})()"
+ },
+ {
+  "eval": "sessionStorage.removeItem('ft:nocanvas')"
+ }
+]

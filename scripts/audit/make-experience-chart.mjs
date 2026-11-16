@@ -54,9 +54,9 @@ const words = (w, h, dpr, mobile, contrast = false) => [
 const t=cs('.map-title'),d=cs('.map-text'),l=cs('.map-caption-title'),n=cs('.map-caption-line');
 const vw=innerWidth,want=Math.min(64,Math.max(34,vw*0.046));const tc=a(t.color),dc=a(d.color),nc=a(n.color),lc=a(l.color);
 const info={title:{size:num(t.fontSize),want:+want.toFixed(2),transform:t.textTransform,alpha:tc.a,rgb:tc.rgb,tracking:t.letterSpacing},desc:{size:num(d.fontSize),alpha:+dc.a.toFixed(2)},label:{size:num(l.fontSize),rgb:lc.rgb,transform:l.textTransform,tracking:l.letterSpacing},line:{size:num(n.fontSize),alpha:+nc.a.toFixed(2)},
-switch:qa('.map-mode-button').map(b=>b.textContent),h1:q('h1').textContent};
+switch:qa('.map-mode-button').map(b=>b.textContent),h1:[...q('h1').querySelectorAll('.sr-only')].map(n=>n.textContent).join(''),h1Letters:q('h1').querySelector('[aria-hidden="true"]')?.getAttribute('aria-hidden')};
 const ok=Math.abs(info.title.size-want)<0.1&&t.textTransform==='uppercase'&&tc.a===1&&tc.rgb.join()==='253,252,230'&&info.desc.size===12.5&&Math.abs(dc.a-0.7)<0.01&&info.label.size===13&&lc.rgb.join()==='255,201,163'&&l.textTransform==='uppercase'&&info.line.size===11&&Math.abs(nc.a-0.62)<0.01
-&&tc.a>dc.a&&dc.a>nc.a&&info.switch.join('|')==='Overview|My climb'&&info.h1==='My experience';
+&&tc.a>dc.a&&dc.a>nc.a&&info.switch.join('|')==='Overview|My climb'&&info.h1==='My experience'&&info.h1Letters==='true';
 return JSON.stringify({...info,ok})})()`,
     label: `the words at ${w} x ${h}: title 4.6vw between 34 and 64 px, in capitals and the cream, description 12.5 px at 70%, label 13 px in warm light orange, line 11 px at 62%; the switch reads Overview, My climb`,
   },
@@ -65,9 +65,9 @@ return JSON.stringify({...info,ok})})()`,
 // A page title too long for the line (the schema caps it, but the page must hold even so): it is cut at the page's edge and never wraps, so it does not run
 // off the screen or into the switch.
 const titleGuard = {
-  eval: `(async()=>{${sleep}${R}${Q}const t=q('.map-title'),sw=R(q('.map-mode')),was=t.textContent;t.textContent='MY EXPERIENCE AND ALL THE REST OF IT';await sleep(150);
+  eval: `(async()=>{${sleep}${R}${Q}const t=q('.map-title'),sw=R(q('.map-mode')),was=t.innerHTML;t.textContent='MY EXPERIENCE AND ALL THE REST OF IT';await sleep(150);
 const r=R(t),fs=parseFloat(getComputedStyle(t).fontSize),o={rect:[r.l,r.t,r.r,r.b].map(Math.round),lines:+(r.h/fs).toFixed(2),cut:t.scrollWidth>t.clientWidth,overflowX:getComputedStyle(t).overflowX,switchClear:!hit(r,sw)};
-t.textContent=was;o.ok=r.r<=innerWidth-16+1&&o.lines<=1.3&&o.cut&&o.switchClear;return JSON.stringify(o)})()`,
+t.innerHTML=was;o.ok=r.r<=innerWidth-16+1&&o.lines<=1.3&&o.cut&&o.switchClear;return JSON.stringify(o)})()`,
   label: "320 x 568: a very long page title stays on one line, inside the page's edge and clear of the switch (cut at the edge)",
 };
 const wordsLeave = {

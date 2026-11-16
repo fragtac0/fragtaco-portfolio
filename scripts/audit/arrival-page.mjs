@@ -111,3 +111,26 @@ export const SNAP = `(() => {
 })()`;
 
 export const MASK_BOXES = `(() => { const out = []; for (const sel of ${JSON.stringify(RESTING)}) for (const el of document.querySelectorAll(sel)) { const r = el.getBoundingClientRect(); if (r.width > 0 && r.height > 0) out.push({ sel, x: r.x, y: r.y, w: r.width, h: r.height }); } return out; })()`;
+
+/**
+ * R56.6 (round 7 second look spec 8, the one exception to "nothing appears after the reveal"): on My experience the words, the trail and the milestones come in
+ * on a clock (the words from 0.7 of the reveal, the trail when it ends), so the arrival check leaves them out of its comparison: the boxes of the heading and of the
+ * mountain's block, and one box round the trail, its beads, the way ahead to the summit and the radar (the beads' envelope and the summit, 24 px out). Everything
+ * else on that page (the picture, the chart's frame, the grid, the dock and the switch) is compared as before.
+ */
+export const ENTRANCE_BOXES = `(() => {
+  const out = [];
+  const add = (sel, r) => { if (r.width > 0 && r.height > 0) out.push({ sel, x: r.x, y: r.y, w: r.width, h: r.height }); };
+  for (const sel of ['.map-heading', '.map-caption']) for (const el of document.querySelectorAll(sel)) add(sel, el.getBoundingClientRect());
+  const beads = [...document.querySelectorAll('.map-pin .map-bead')].map((b) => b.getBoundingClientRect());
+  const plane = document.querySelector('.map-plane');
+  if (beads.length && plane) {
+    const m = new DOMMatrixReadOnly(getComputedStyle(plane).transform === 'none' ? undefined : getComputedStyle(plane).transform);
+    const summit = m.transformPoint(new DOMPoint(500, 325));
+    const pad = 24;
+    const l = Math.min(summit.x, ...beads.map((r) => r.left)) - pad, t = Math.min(summit.y, ...beads.map((r) => r.top)) - pad;
+    const r = Math.max(summit.x, ...beads.map((q) => q.right)) + pad, b = Math.max(summit.y, ...beads.map((q) => q.bottom)) + pad;
+    out.push({ sel: '.map-trail (the trail, the beads, the way ahead, the radar)', x: l, y: t, w: r - l, h: b - t });
+  }
+  return out;
+})()`;

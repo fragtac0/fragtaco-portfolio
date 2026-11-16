@@ -19,6 +19,9 @@
 //   - from the click to the reveal's first frame: the hold (the `arrival-hold` to `arrival-go` marks of app/lib/page-change.ts) is at most 500 ms
 //     (a timer's slack of 30 ms is allowed), warm, and with every picture blocked (image requests held and never answered: the cap holds, the change
 //     ends, and what is late fades in).
+//   - R56.6 (round 7 second look spec 8): on My experience the words, the trail and the beads come in on a clock after the reveal begins (the one exception to "nothing appears
+//     after the reveal"), so for the change into it their boxes (the heading, the mountain's block, one box round the trail, its beads, the way ahead and the radar:
+//     `ENTRANCE_BOXES`) are left out of F against E and of E against L; everything else on that page is compared as before.
 // The script is split: the page's expressions are in arrival-page.mjs, Chrome and the held pictures in arrival-browser.mjs, the pixel and DOM comparisons in
 // arrival-pixels.mjs, arrival.json's steps in make-arrival-steps.mjs.
 // Timing-sensitive only in the click-to-reveal numbers: run it under the gate lock (see lanes-common.md in the build ledger). Pictures go to
@@ -27,7 +30,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import sharp from "sharp";
 import { arm, goAndWarm, sleep, withBrowser } from "./arrival-browser.mjs";
-import { DOCK_BOX, END, FREEZE, MASK_BOXES, PLAY, REST_RESULT, RING_ANIM, SNAP } from "./arrival-page.mjs";
+import { DOCK_BOX, END, ENTRANCE_BOXES, FREEZE, MASK_BOXES, PLAY, REST_RESULT, RING_ANIM, SNAP } from "./arrival-page.mjs";
 import { compare, domChanges, luma, sameBox } from "./arrival-pixels.mjs";
 import { glassMs } from "./glass-constants.mjs";
 import { writeSteps } from "./make-arrival-steps.mjs";
@@ -93,6 +96,8 @@ async function runChange(b, s, { photos, tag, blocked }) {
   const fAnim = await b.ev(RING_ANIM);
   const fPng = await b.shot();
   const masks = (await b.ev(MASK_BOXES)).map((m) => ({ ...m }));
+  // R56.6: My experience's words, trail and beads come in after the reveal (spec 8): left out of the comparison on that page only
+  const entrance = s.name === "portfolio-to-experience" ? (await b.ev(ENTRANCE_BOXES)).map((m) => ({ ...m })) : [];
   const t0 = Date.now();
   const end = await b.ev(END);
   const ePng = await b.shot();
@@ -112,8 +117,9 @@ async function runChange(b, s, { photos, tag, blocked }) {
   const [fl, el, ll] = await Promise.all([luma(fPng), luma(ePng), luma(lPng)]);
   const dpr = fl.w / (await b.ev("innerWidth"));
   const maskDev = masks.map((m) => ({ x0: Math.floor(m.x * dpr), y0: Math.floor(m.y * dpr), x1: Math.ceil((m.x + m.w) * dpr), y1: Math.ceil((m.y + m.h) * dpr) }));
-  const fe = compare(fl, el, []);
-  const elc = compare(el, ll, maskDev);
+  const entranceDev = entrance.map((m) => ({ x0: Math.floor(m.x * dpr), y0: Math.floor(m.y * dpr), x1: Math.ceil((m.x + m.w) * dpr), y1: Math.ceil((m.y + m.h) * dpr) }));
+  const fe = compare(fl, el, entranceDev);
+  const elc = compare(el, ll, [...maskDev, ...entranceDev]);
   // the coarse comparison gates the wall's canvas (a tile that appears shows there); the rings' own DOM is compared (pictures, items) and their drift is reported
   const wallDev = maskDev.filter((_, i) => masks[i].sel !== ".work-rings");
   const wallCoarse = wallDev.length ? compare(el, ll, wallDev) : { maskedMeanDiff: 0, maskedWorstCell: 0, maskedOverShare: 0 };
@@ -125,7 +131,7 @@ async function runChange(b, s, { photos, tag, blocked }) {
     .toFile(`${outDir}/${tag}-FEL.jpg`);
   const dockSame = sameBox(fDock.group ?? fDock.live, eDock.live) && sameBox(eDock.live, lDock.live);
   Object.assign(row, {
-    F_vs_E_pct: fe.pct,
+    F_vs_E_pct: entranceDev.length ? fe.pctOutside : fe.pct,
     E_vs_L_pct: elc.pct,
     E_vs_L_outside_resting_pct: elc.pctOutside,
     resting_boxes_coarse_mean_diff: elc.maskedMeanDiff,
@@ -134,6 +140,7 @@ async function runChange(b, s, { photos, tag, blocked }) {
     wall_canvas_coarse_worst_cell: wallCoarse.maskedWorstCell,
     wall_canvas_coarse_over_share_pct: wallCoarse.maskedOverShare,
     restingBoxes: masks.map((m) => m.sel),
+    entranceLeftOut: entrance.map((m) => m.sel),
     ringItemFirstFramePx: rest.maxFirstFramePx,
     ringItemsSampled: rest.items,
     ringDriftOver700msPx: rest.driftOver700msPx,
@@ -148,7 +155,7 @@ async function runChange(b, s, { photos, tag, blocked }) {
   });
   const noDom = dom.appeared.length + dom.disappeared.length + dom.resized.length + dom.swapped.length === 0 && !dom.ringsSwapped && dom.ringsFaded === 0 && !dom.wallSwapped;
   row.pass = {
-    F_vs_E: fe.pct < 0.5,
+    F_vs_E: (entranceDev.length ? fe.pctOutside : fe.pct) < 0.5,
     E_vs_L_outside: elc.pctOutside < 0.5,
     resting_first_frame: rest.maxFirstFramePx === null || rest.maxFirstFramePx <= 2,
     layout_shift: shifts.length === 0,

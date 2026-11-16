@@ -109,7 +109,10 @@
 .map-pin[data-wait] {
   opacity: 0;
 }
-.map-pin[data-wait]:not(:hover, :focus-visible) .map-bead {
+.map-pin[data-wait]:focus {
+  opacity: 1; /* a bead that has the focus is shown, whatever the trail has reached */
+}
+.map-pin[data-wait]:not(:hover, :focus) .map-bead {
   transform: scale(calc(var(--bs, 1) * 0.6));
 }
 .map-pin[data-enter] {
