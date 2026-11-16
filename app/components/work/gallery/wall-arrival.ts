@@ -92,6 +92,8 @@ export function arrivalOrder(cols: number, rows: number, count: number): number[
 
 /** What the engine knows while it waits to draw. */
 export interface StartFacts {
+  /** The plain links are the wall until the engine draws (a page that came in through a change): the first frame must show every tile whole. */
+  whole?: boolean;
   /** Pictures uploaded to the atlas so far. */
   pictures: number;
   /** Tiles in the wall. */
@@ -107,10 +109,12 @@ export interface StartFacts {
 /**
  * True when the first frame may be drawn: the 1.2 s deadline has passed, or the art is in and the atlas has its first
  * pictures (`FIRST_PICTURES`, or all of them for a small wall) or has nothing more to wait for (every picture failed,
- * or they are all in). A tile whose picture is not in yet shows its art, never an empty box.
+ * or they are all in). A tile whose picture is not in yet shows its art, never an empty box. When the links are showing as
+ * the wall (`whole`) it waits for every picture (or the deadline), so the hand-over from the links shows no tile on its art.
  */
 export function canStart(f: StartFacts): boolean {
   if (f.elapsedMs >= START_DEADLINE_MS) return true;
   if (!f.artReady) return false;
+  if (f.whole) return f.settled; // every picture is up or given up on: no tile is on its art under the links that fade out
   return f.settled || f.pictures >= Math.min(FIRST_PICTURES, f.count);
 }

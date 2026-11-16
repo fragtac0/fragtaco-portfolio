@@ -194,8 +194,9 @@
 .map-mode-button:hover {
   color: var(--ink-1);
 }
+/* Not pressable until the map's heights are in (a second after the page is shown), but not dimmed for it: a page that came in through a change
+   is finished when it is uncovered, and a toggle that lit up after the change would be a change in the page (round 7 change-arrival spec 5.3). */
 .map-mode-button:disabled {
-  opacity: 0.6;
   cursor: default;
 }
 .map-mode-button[aria-pressed="true"] {

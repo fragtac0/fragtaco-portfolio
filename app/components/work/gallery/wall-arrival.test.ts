@@ -174,6 +174,11 @@ describe("canStart", () => {
   it("never starts before the art under the tiles is in, until the deadline", () => {
     expect(canStart({ ...base, artReady: false, pictures: 21, settled: true, elapsedMs: 300 })).toBe(false);
   });
+  it("when the links are the wall (after a page change) it waits for every picture, not the first few", () => {
+    expect(canStart({ ...base, whole: true, pictures: 20 })).toBe(false);
+    expect(canStart({ ...base, whole: true, pictures: 21, settled: true })).toBe(true);
+    expect(canStart({ ...base, whole: true, pictures: 20, elapsedMs: 1200 })).toBe(true); // the deadline still holds
+  });
   it("goes ahead after 1.2 s whatever is missing", () => {
     expect(START_DEADLINE_MS).toBe(1200);
     expect(canStart({ ...base, artReady: false, elapsedMs: 1199 })).toBe(false);

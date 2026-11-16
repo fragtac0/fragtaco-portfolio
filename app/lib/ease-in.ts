@@ -13,3 +13,14 @@ export function easeInRate(elapsedMs: number, ms: number = EASE_IN_MS): number {
   const t = clamp01(elapsedMs / ms);
   return t * t * (3 - 2 * t);
 }
+
+/**
+ * How far motion that runs at `easeInRate` has got `elapsedMs` after it began, as the time it would have taken at full speed (an integral of
+ * the rate): a drift whose phase follows this starts from standstill and has its own speed from `ms` on, with no jump in position or in speed.
+ * (Scaling a drift's offset by the rate instead would slide the whole thing by the drift's radius while the rate climbs.)
+ */
+export function easeInTime(elapsedMs: number, ms: number = EASE_IN_MS): number {
+  if (elapsedMs <= 0) return 0;
+  const t = clamp01(elapsedMs / ms);
+  return ms * (t * t * t - (t * t * t * t) / 2) + Math.max(0, elapsedMs - ms);
+}

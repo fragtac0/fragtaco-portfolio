@@ -57,7 +57,8 @@ const SCENARIOS = [
   { name: "long-form-to-portfolio", start: "/work/long-form", link: `[...document.querySelectorAll('a')].find((a) => a.getAttribute('href') === '/work' && !a.closest('header')) ?? [...document.querySelectorAll('${HEADER} a')].find((a) => a.getAttribute('href') === '/work')` },
 ];
 // the parts of a page that are in resting motion once a change is over: their pixels are compared coarsely, their DOM is not compared
-const RESTING = [".work-rings", ".wall-canvas-host"];
+const RESTING = [".work-rings", ".wall-canvas-host", ".paint-host"];
+const COARSE_MEAN_MAX = 1.5; // luma levels: the boxes of the wall and the painting (their pictures are the same drawn two ways) may not differ by more than this on average
 const LUMA_STEP = 25;
 const HOLD_CAP_MS = 500;
 const HOLD_SLACK_MS = 30;
@@ -155,7 +156,7 @@ const REST_RESULT = `(() => {
 /** Every element of the page outside the rings and the canvases, with the box, the opacity and (pictures) the source: compared between E and L. */
 const SNAP = `(() => {
   const out = {};
-  const skip = (el) => el.closest('.work-rings, canvas, svg, [data-glass-warm], script, style, noscript, head');
+  const skip = (el) => el.closest('.work-rings, .paint-host, canvas, svg, [data-glass-warm], script, style, noscript, head');
   const path = (el) => { const p = []; for (let e = el; e && e !== document.body; e = e.parentElement) p.push(e.tagName[0] + [...e.parentElement.children].indexOf(e)); return p.reverse().join('/'); };
   for (const el of document.body.querySelectorAll('*')) {
     if (skip(el)) continue;
@@ -230,6 +231,8 @@ async function withBrowser(size, tag, fn) {
     return await fn({ send, ev, setPaused, shot: async () => Buffer.from((await send("Page.captureScreenshot", { format: "png", optimizeForSpeed: true })).result.data, "base64") });
   } finally {
     chrome.kill();
+    await sleep(400);
+    rmSync(profile, { recursive: true, force: true }); // the profile holds extension scripts that the repo's lint would read
   }
 }
 
@@ -418,6 +421,7 @@ async function runChange(b, s, { photos, tag, blocked }) {
     E_vs_L_outside: elc.pctOutside < 0.5,
     resting_first_frame: rest.maxFirstFramePx === null || rest.maxFirstFramePx <= 2,
     layout_shift: shifts.length === 0,
+    resting_coarse: wallCoarse.maskedMeanDiff < COARSE_MEAN_MAX,
     dom_unchanged: noDom,
     dock_same: dockSame,
     hold_cap: holdMs !== null && holdMs <= HOLD_CAP_MS + HOLD_SLACK_MS,

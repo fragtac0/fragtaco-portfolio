@@ -20,7 +20,7 @@
  */
 
 import type * as THREE from "three";
-import { easeInRate } from "../../../lib/ease-in";
+import { easeInTime } from "../../../lib/ease-in";
 import { watchContextLost } from "../../home/context-lost";
 import { createAtlas, type Atlas } from "./gallery-atlas";
 import { attachGalleryInput } from "./gallery-input";
@@ -157,9 +157,11 @@ function assemble(
   // the drift eases in from standstill over EASE_IN_MS once the wall has started to draw (round 7 change-arrival spec 5.3): its first frame is where the plain links were
   let driftFrom = Infinity;
   const offsetAt = (now: number): Pt => {
-    const raw = reduced ? { x: 0, y: 0 } : driftAt((now - t0) / 1000);
-    const k = easeInRate(now - driftFrom);
-    const d = { x: raw.x * k, y: raw.y * k };
+    // the drift's phase starts from standstill and picks up its own speed over EASE_IN_MS (not scaled in as an offset: that would slide the whole wall by
+    // the drift's radius); measured from where it begins, so the first frame is where the plain links were
+    const here = reduced ? { x: 0, y: 0 } : driftAt(easeInTime(now - driftFrom) / 1000);
+    const origin = reduced ? here : driftAt(0);
+    const d = { x: here.x - origin.x, y: here.y - origin.y };
     const n = rubberBand(pull, NUDGE_MAX_PX);
     return { x: d.x + n.x, y: d.y + n.y };
   };
@@ -185,6 +187,8 @@ function assemble(
     const uploaded = atlas.pump();
     if (!started) {
       const facts = {
+        // the links are the wall until this draws (a page that came in through a change): it must not start with a tile still on its art
+        whole: typeof opts.instant === "function" ? opts.instant() : opts.instant === true,
         pictures: atlas.uploaded(),
         count,
         settled: atlas.settled(),
