@@ -1,7 +1,7 @@
 // Writes scripts/audit/box-open.json (R55.2, Task 25): the home box holds the live scene and opening it is one move, on the production build.
-// Run: node scripts/audit/make-box-open.mjs [--only cost|focus] [--out <file>], then BASE=http://localhost:5181 node scripts/audit/cdp.mjs scripts/audit/box-open.json <outdir outside the repo>.
+// Run: node scripts/audit/make-box-open.mjs [--only cost|focus|framing] [--out <file>], then BASE=http://localhost:5181 node scripts/audit/cdp.mjs scripts/audit/box-open.json <outdir outside the repo>.
 //
-// For each box (the shelf and the wall) at 1440 by 900 (dpr 1) and 390 by 844 (phone, dpr 2, touch), a 60 fps film (a screencast: every frame the
+// For each box (the shelf and the wall) at 1440 by 900 (dpr 1), 1366 by 768 (dpr 1) and 390 by 844 (phone, dpr 2, touch), a 60 fps film (a screencast: every frame the
 // compositor makes) of opening by a click and of closing by Close, read frame by frame in the page against what the page recorded on its own
 // animation frames (`window.__bo`: the scene's place and size, its corners, the chrome's opacity, and which element is on top inside the frame):
 //   - `diffMaxFirst100msPct`: the share of the box's pixels (a channel 48 or more apart) that differ between the last frame before the move (the frame
@@ -22,6 +22,7 @@ import { writeFileSync } from "node:fs";
 
 import { BOX, OPEN_ATS, load, push, sizes, steps, toBlock, wait } from "./box-open-kit.mjs";
 import { focusCases, focusCasesLate } from "./box-open-focus.mjs";
+import { framingCases } from "./box-open-framing.mjs";
 
 
 for (const s of sizes)
@@ -173,6 +174,10 @@ for (const [name, b] of Object.entries(BOX)) {
 
 focusCasesLate(); // Review Focus 5 (a real background tab), the open scene across it, the wall's pan at the end of the move, reduced motion
 
+// ---- the reading box's framing (Task 30): the engine's projected boxes at three sizes, the picture over the move, a click while the scene fades in
+const framingFrom = steps.length;
+framingCases();
+
 // ---- the move's frame cost
 const costFrom = steps.length;
 const cost = [
@@ -218,14 +223,21 @@ for (const c of cost)
     push({ cpu: 1 });
   }
 
-// `--only cost` writes just the frame-cost steps above (the gate of Task 26/30: about 4 minutes instead of 15), `--only focus` just the Review Focus cases (RF1 to RF5, LATE, I1, M4, reduced motion: no plain-move films, no cost films; about 9 minutes); `--out <file>` writes to a file of its own; an unknown `--only` is an error
+// `--only cost` writes just the frame-cost steps above (the gate of Task 26/30: about 4 minutes instead of 15), `--only focus` just the Review Focus cases (RF1 to RF5, LATE, I1, M4, reduced motion: no plain-move films, no cost films; about 9 minutes), `--only framing` just the reading box's framing cases (Task 30); `--out <file>` writes to a file of its own; an unknown `--only` is an error
 const args = process.argv.slice(2);
 const onlyArg = args.includes("--only") ? args[args.indexOf("--only") + 1] : null;
-if (onlyArg !== null && onlyArg !== "cost" && onlyArg !== "focus") {
-  console.error(`make-box-open.mjs: unknown --only value "${onlyArg}" (one of cost, focus)`);
+if (onlyArg !== null && !["cost", "focus", "framing"].includes(onlyArg)) {
+  console.error(`make-box-open.mjs: unknown --only value "${onlyArg}" (one of cost, focus, framing)`);
   process.exit(1);
 }
 const outFile = args.includes("--out") ? args[args.indexOf("--out") + 1] : new URL("./box-open.json", import.meta.url).pathname;
-const out = onlyArg === "cost" ? steps.slice(costFrom) : onlyArg === "focus" ? steps.slice(focusFrom, costFrom) : steps;
+const out =
+  onlyArg === "cost"
+    ? steps.slice(costFrom)
+    : onlyArg === "focus"
+      ? steps.slice(focusFrom, framingFrom)
+      : onlyArg === "framing"
+        ? steps.slice(framingFrom, costFrom)
+        : steps;
 writeFileSync(outFile, JSON.stringify(out, null, 1) + "\n");
 console.log(`${outFile}: ${out.length} steps`);

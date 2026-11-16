@@ -11,6 +11,7 @@ export const BOX = {
 export const OPEN_ATS = [380, 420, 500, 560, 620, 680, 740, 800, 880, 960, 1100, 1500];
 export const sizes = [
   { name: "1440x900", size: [1440, 900], dpr: 1, mobile: false, touch: false },
+  { name: "1366x768", size: [1366, 768], dpr: 1, mobile: false, touch: false },
   { name: "390x844", size: [390, 844], dpr: 2, mobile: true, touch: true },
 ];
 // the helpers above are installed on every new document (they guard themselves), and a stall hook an earlier case set is cleared by the next load
