@@ -1,0 +1,1500 @@
+{
+ "round": "7 (second look, Task 30; part R55 gate record, RB6)",
+ "commit": "8b080f6 (R55.3n; the app code of the final head: R55.3o after it is the audit README only)",
+ "what": "The cost of the two live home boxes on the reading box's final framing (box-framing.ts: every book whole on its ledge, eased over the move), run on a production build of the final head on :5181, headless Chrome, no pictures. Files: scripts/audit/home-scroll.json (make-home-scroll.mjs, summed by sum-home-scroll.mjs: R33, R67, R72, RB8), the cost films of scripts/audit/box-open.json (make-box-open.mjs --only cost).",
+ "machine": "SHARED with lane A (controller A's builds and audits ran on the same machine between my lock holds, so every timed run held the shared gate lock, which serialised them; nothing else timed ran at the same time). Not a quiet machine. caffeinate -di kept the display awake for every run.",
+ "rule": {
+  "warm": "no frame over 34 ms in the slow and fast passes and the two holds, outside a painting change's window",
+  "cold": "R72: a cold run's outlier is set aside only when it does not repeat; a profile passes when at most one of its runs has a frame over 34 ms outside a change's window in the cold pass",
+  "heroChange": "RB8: the hero's painting change with a box on screen is no worse than the base (r55-hero-change-base.json, 6f98c1c)",
+  "frameGateRerun": "a frame gate that fails is re-run once under the lock before it counts"
+ },
+ "profiles": {
+  "desktop-cpu1": "1440x900, dpr 1, CPU as is",
+  "desktop-cpu4": "1440x900, dpr 2, CPU 4x slower",
+  "phone-cpu4": "390x844, dpr 2, touch, CPU 4x slower",
+  "phone-dpr3-cpu4": "390x844, dpr 3, touch, CPU 4x slower"
+ },
+ "homeScroll": {
+  "desktop-cpu1": [
+   {
+    "run": 1,
+    "cold": {
+     "maxMs": 16.8,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8910,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 4290,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1277,
+     "maxMs": 33.3,
+     "over20": 1,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   },
+   {
+    "run": 2,
+    "cold": {
+     "maxMs": 16.8,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 9020,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 4180,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1278,
+     "maxMs": 33.4,
+     "over20": 2,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   },
+   {
+    "run": 3,
+    "cold": {
+     "maxMs": 33.3,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8910,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 4290,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1277,
+     "maxMs": 83.3,
+     "over20": 1,
+     "over34": 1,
+     "over34OutsideAChangeWindow": 1,
+     "framesOver34": [
+      {
+       "pass": "slow",
+       "part": "down and hold",
+       "over34At": [
+        [
+         683,
+         83.3,
+         247
+        ]
+       ],
+       "outsideChangeWindow": [
+        [
+         683,
+         83.3,
+         247
+        ]
+       ]
+      }
+     ]
+    },
+    "changeBoxOnScreen": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   }
+  ],
+  "desktop-cpu4": [
+   {
+    "run": 1,
+    "cold": {
+     "maxMs": 50,
+     "framesOver34": [
+      {
+       "pass": "cold",
+       "part": "down and hold",
+       "over34At": [
+        [
+         2183,
+         50,
+         854
+        ]
+       ],
+       "outsideChangeWindow": []
+      }
+     ],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8910,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 4180,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1274,
+     "maxMs": 33.4,
+     "over20": 1,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1436,
+     "maxMs": 66.7,
+     "over20": 1,
+     "over34": 1,
+     "over34At": [
+      [
+       12166,
+       66.7,
+       555
+      ]
+     ],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   },
+   {
+    "run": 2,
+    "cold": {
+     "maxMs": 33.3,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8910,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 4290,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1276,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   },
+   {
+    "run": 3,
+    "cold": {
+     "maxMs": 33.3,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8910,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 4180,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1275,
+     "maxMs": 33.3,
+     "over20": 1,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   }
+  ],
+  "phone-cpu4": [
+   {
+    "run": 1,
+    "cold": {
+     "maxMs": 33.4,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8638,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 1863,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1872,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   },
+   {
+    "run": 2,
+    "cold": {
+     "maxMs": 33.4,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8551,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 1863,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1854,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   },
+   {
+    "run": 3,
+    "cold": {
+     "maxMs": 33.3,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8741,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 1863,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1899,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   }
+  ],
+  "phone-dpr3-cpu4": [
+   {
+    "run": 1,
+    "cold": {
+     "maxMs": 33.4,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8618,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 1863,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1863,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   },
+   {
+    "run": 2,
+    "cold": {
+     "maxMs": 33.3,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8556,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 1863,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1862,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   },
+   {
+    "run": 3,
+    "cold": {
+     "maxMs": 33.4,
+     "framesOver34": [],
+     "outsideChangeWindows": 0,
+     "draws": [
+      {
+       "part": "down and hold",
+       "shelf": {
+        "on": 85,
+        "off": 0
+       },
+       "wall": {
+        "on": 8442,
+        "off": 0
+       }
+      },
+      {
+       "part": "back up",
+       "shelf": {
+        "on": 0,
+        "off": 0
+       },
+       "wall": {
+        "on": 1863,
+        "off": 0
+       }
+      }
+     ],
+     "scenesLive": true
+    },
+    "warm": {
+     "passes": 8,
+     "frames": 1865,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34OutsideAChangeWindow": 0,
+     "framesOver34": []
+    },
+    "changeBoxOnScreen": {
+     "frames": 1439,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": [],
+     "windowsWorstMs": 16.8
+    },
+    "changeNoBox": {
+     "frames": 1440,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "over34At": []
+    }
+   }
+  ]
+ },
+ "homeScrollReruns": {
+  "note": "Two runs had one isolated frame over 34 ms outside a change window in their first attempt: desktop-cpu4 run 1, the hold 'change, box on screen', one frame of 66.7 ms at 12166 ms of the hold (page held at scroll 555, 6.3 s after one painting change and 3.7 s before the next, nothing moving); desktop-cpu1 run 3, the first 'slow' warm pass, one frame of 83.3 ms at 683 ms into the pass (scroll 247, before either box is near). Per the rule each was run again once under the lock: both ran with no frame over 34 ms outside a change window (below; the rerun of desktop-cpu4 run 1 has one 50 ms frame in its first 'slow' pass, going back to the hero at scroll 0, 17 ms before a hero painting change started: inside that change's window, the hero's own cost, RB8), and neither repeated in the other two runs of its profile, so they count as machine hitches on a shared machine, recorded here and not hidden. The first attempts stay in homeScroll.",
+  "reruns": [
+   {
+    "profile": "desktop-cpu4",
+    "run": 1,
+    "coldMaxMs": 33.3,
+    "warmMaxMs": 50,
+    "warmOver34": 1,
+    "warmOver34OutsideAChangeWindow": 0,
+    "changeBoxOnScreenMaxMs": 16.8,
+    "changeBoxOnScreenOver34": 0,
+    "changeNoBoxMaxMs": 16.8,
+    "changeNoBoxOver34": 0
+   },
+   {
+    "profile": "desktop-cpu1",
+    "run": 3,
+    "coldMaxMs": 33.4,
+    "warmMaxMs": 16.8,
+    "warmOver34": 0,
+    "warmOver34OutsideAChangeWindow": 0,
+    "changeBoxOnScreenMaxMs": 16.8,
+    "changeBoxOnScreenOver34": 0,
+    "changeNoBoxMaxMs": 16.8,
+    "changeNoBoxOver34": 0
+   }
+  ]
+ },
+ "verdict": {
+  "desktop-cpu1": "warm: no frame over 34 ms outside a change window in 3 of 3 runs after the one re-run; cold: 0 of 3 runs over 34 ms (max 16.8, 16.8, 33.4); PASS",
+  "desktop-cpu4": "warm: none after the one re-run; cold: 0 of 3 runs over 34 ms outside a change window (max 50, 33.3, 33.3: the 50 ms frame of run 1 is inside the hero's painting change window, 34 ms before the change's start, at scroll 854, the box arrival frames themselves are 33.3); PASS",
+  "phone-cpu4": "warm: none in 3 of 3; cold: 0 of 3 (max 33.4, 33.4, 33.3: the box's arrival frame at scroll about 390); PASS",
+  "phone-dpr3-cpu4": "warm: none in 3 of 3; cold: 0 of 3 (max 33.4, 33.3, 33.4); PASS"
+ },
+ "coldArrival": {
+  "concern": "Task 26 left the cold arrival frames at 33.3 ms, 0.7 ms under the 34 ms gate, and asked that the new framing not push them over.",
+  "found": "On the first build of the framing (99e90c7; its runs are not kept in the repo) the phone's arrival frame was 50 ms in 6 of 6 cold runs (phone-cpu4 and phone-dpr3-cpu4, at 617 ms into the pass, scroll 392 to 396; recorded in the traces: the box's first frame on screen carried a 9 ms resize and repaint of the dot field's canvas); desktop was 33.4 ms (no step). Cause: the box framing follows the camera, a phone's shelf starts at its left end (initialCamX = -maxX) but the prefit framed the row with the camera at 0, so the dot field's region (dotRegion, which depends on where the row is) was another size at the first frame on screen and the canvas was resized and repainted in it.",
+  "fixed": "R55.3n: the camera goes to where a run starts (homeCamera) before the prefit frames the row, and again in start() before its framing (one reframe, not two). The arrival frame is 33.3 ms again (two vsyncs): phone-cpu4 33.4, 33.4, 33.3; dpr 3 33.4, 33.3, 33.4; desktop-cpu4 33.3 to 33.4 (one run 50 ms inside a hero change window); gate not widened."
+ },
+ "heroChangeBoxOnScreen": {
+  "base": "docs/redesign/compare/round7/r55-hero-change-base.json (6f98c1c, the same tool, 3 runs): desktop-cpu4 box on screen worst 33.3 ms, 0 over 34 ms, 2 over 20 ms; phone-cpu4 worst 16.8, 0 over 34, 0 over 20",
+  "head": "this file (the holds of the three runs of each profile, first attempts): desktop-cpu4 box on screen, frames inside the change windows: worst 16.8, 0 over 34, 0 over 20 (3 runs, 1374 frames); phone-cpu4: worst 16.8, 0, 0 (1688 frames); phone-dpr3-cpu4: worst 16.8, 0, 0 (1749 frames); desktop-cpu1: worst 16.8, 0, 0",
+  "verdict": "no worse than the base on both profiles (worst frame and counts of frames over 34 and over 20 ms all no more than the base's). The one 66.7 ms frame in desktop-cpu4 run 1's hold was outside every change window (above) and did not repeat."
+ },
+ "boxOpenCostFilms": {
+  "command": "node scripts/audit/make-box-open.mjs --only cost --out <scratch>/bo-cost.json; BASE=http://localhost:5181 node scripts/audit/cdp.mjs <scratch>/bo-cost.json <outdir>, 3 runs under the lock (36 steps each); the cost steps of the whole box-open.json ran a fourth time on the way (max 16.8 in every case)",
+  "firstOpeningOfTheShelfAt1440x900Dpr2Cpu4": [
+   {
+    "run": 1,
+    "maxMs": 33.3,
+    "over20": 1,
+    "over34": 0
+   },
+   {
+    "run": 2,
+    "maxMs": 16.8,
+    "over20": 0,
+    "over34": 0
+   },
+   {
+    "run": 3,
+    "maxMs": 16.8,
+    "over20": 0,
+    "over34": 0
+   }
+  ],
+  "reading": "no frame over 34 ms in any of the 48 films (16 cases, 3 runs, about 90 frames each): 45 films have a worst gap of 16.8 ms and 3 have one frame of 33.3 ms (all in run 1: the shelf's first opening at 1440 by 900 dpr 2 CPU 4x, the shelf's closing there, and the wall's second opening there); the phone at dpr 3 is 16.8 ms in every film of every run. The shelf's first opening at dpr 2 CPU 4x (Task 25 I5 saw 83 ms there): max 33.3, 16.8, 16.8.",
+  "runs": [
+   [
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "open shelf (cold: the first move)",
+     "frames": 89,
+     "maxMs": 33.3,
+     "over20": 1,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.7,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "close shelf",
+     "frames": 89,
+     "maxMs": 33.3,
+     "over20": 1,
+     "over34": 0,
+     "firstFramesMs": [
+      33.3,
+      16.7,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "open shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.8,
+      16.6,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "close shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "open wall (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "close wall",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "open wall again",
+     "frames": 89,
+     "maxMs": 33.3,
+     "over20": 1,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "close wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "open shelf (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.6,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "close shelf",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "open shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "close shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.7,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "open wall (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "close wall",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.6,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "open wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.5,
+      16.8,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "close wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.7
+     ]
+    }
+   ],
+   [
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "open shelf (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.7,
+      16.6,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "close shelf",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.8,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "open shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.7,
+      16.6,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "close shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "open wall (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "close wall",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.6,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "open wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.7,
+      16.6,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "close wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "open shelf (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.7,
+      16.6,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "close shelf",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.6,
+      16.8,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "open shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "close shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "open wall (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "close wall",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "open wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.8,
+      16.6,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "close wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.7
+     ]
+    }
+   ],
+   [
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "open shelf (cold: the first move)",
+     "frames": 91,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "close shelf",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.7,
+      16.6,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "open shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 shelf",
+     "what": "close shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.7,
+      16.5,
+      16.8
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "open wall (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.8,
+      16.6,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "close wall",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "open wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 1440x900 dpr2 cpu4 wall",
+     "what": "close wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "open shelf (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.7,
+      16.6,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "close shelf",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "open shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.8,
+      16.6,
+      16.6,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 shelf",
+     "what": "close shelf again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "open wall (cold: the first move)",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.6,
+      16.8,
+      16.6,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "close wall",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.7,
+      16.6,
+      16.6
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "open wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.7
+     ]
+    },
+    {
+     "case": "cost 390x844 phone dpr3 cpu4 wall",
+     "what": "close wall again",
+     "frames": 90,
+     "maxMs": 16.8,
+     "over20": 0,
+     "over34": 0,
+     "firstFramesMs": [
+      16.7,
+      16.6,
+      16.7,
+      16.7
+     ]
+    }
+   ]
+  ]
+ },
+ "heroPaintingChangeNote": "The hero's own painting change frames (50 to 67 ms, also with the hero off screen) are carried to Task 20's whole-branch review per RB8; in the runs of this file the change windows held one 50 ms frame (desktop-cpu4 run 1, cold pass, at the first change); the warm passes and the holds held none."
+}
