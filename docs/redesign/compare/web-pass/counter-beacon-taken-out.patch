@@ -1,0 +1,195 @@
+diff --git a/app/components/page-view-tracker.tsx b/app/components/page-view-tracker.tsx
+index 03f3a63..879c9e0 100644
+--- a/app/components/page-view-tracker.tsx
++++ b/app/components/page-view-tracker.tsx
+@@ -1,29 +1,12 @@
+ import { useLocation } from "@remix-run/react";
+ import { useEffect } from "react";
+-import { normalizePageViewSource } from "../utils/page-view-source";
+-
+-let lastTrackedRouteKey: string | null = null;
++import { trackPageView } from "../utils/page-view-beacon";
+ 
+ export default function PageViewTracker() {
+   const location = useLocation();
+ 
+   useEffect(() => {
+-    const routeKey = `${location.pathname}?${location.search}`;
+-
+-    if (lastTrackedRouteKey === routeKey) {
+-      return;
+-    }
+-
+-    lastTrackedRouteKey = routeKey;
+-
+-    const searchParams = new URLSearchParams(location.search);
+-    const source = normalizePageViewSource(searchParams.get("source"));
+-
+-    void fetch(`/api/page-view?source=${encodeURIComponent(source)}`, {
+-      credentials: "same-origin",
+-      keepalive: true,
+-      method: "POST",
+-    }).catch(() => undefined);
++    trackPageView(location.pathname, location.search);
+   }, [location.pathname, location.search]);
+ 
+   return null;
+diff --git a/app/utils/page-view-beacon.ts b/app/utils/page-view-beacon.ts
+new file mode 100644
+index 0000000..9b92f37
+--- /dev/null
++++ b/app/utils/page-view-beacon.ts
+@@ -0,0 +1,49 @@
++import { whenIdle } from "./idle";
++import { normalizePageViewSource } from "./page-view-source";
++
++/** The longest the counter's request waits for a quiet moment: a busy page still counts its visit within this time. */
++export const PAGE_VIEW_IDLE_TIMEOUT_MS = 2000;
++
++let lastTrackedRouteKey: string | null = null;
++/** Requests waiting for a quiet moment: each is sent at once if the page is left first (a visit that ended early is still a visit). */
++const waiting = new Set<() => void>();
++let listening = false;
++
++function send(source: string) {
++  // Low priority: the counter must not compete with the pictures and scripts the visitor is waiting for (guide `deprioritize-background-fetches`).
++  void fetch(`/api/page-view?source=${encodeURIComponent(source)}`, {
++    credentials: "same-origin",
++    keepalive: true,
++    method: "POST",
++    priority: "low",
++  }).catch(() => undefined);
++}
++
++function flushOnLeave() {
++  for (const go of [...waiting]) go();
++}
++
++/**
++ * Counts one page view per route key, once the page is idle (`requestIdleCallback`, forced after 2 s; a timer where it is missing).
++ * Client only. The same key again (a re-render, the effect running twice) sends nothing.
++ */
++export function trackPageView(pathname: string, search: string): void {
++  const routeKey = `${pathname}?${search}`;
++  if (lastTrackedRouteKey === routeKey) return;
++  lastTrackedRouteKey = routeKey;
++
++  const source = normalizePageViewSource(new URLSearchParams(search).get("source"));
++  let cancel = () => {};
++  const go = () => {
++    cancel();
++    waiting.delete(go);
++    send(source);
++  };
++  waiting.add(go);
++  cancel = whenIdle(go, PAGE_VIEW_IDLE_TIMEOUT_MS);
++
++  if (!listening) {
++    listening = true;
++    window.addEventListener("pagehide", flushOnLeave);
++  }
++}
+diff --git a/app/utils/page-view-beacon.test.ts b/app/utils/page-view-beacon.test.ts
+new file mode 100644
+index 0000000..4985958
+--- /dev/null
++++ b/app/utils/page-view-beacon.test.ts
+@@ -0,0 +1,98 @@
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++
++/** A window with a controllable idle queue and the listeners the beacon adds. */
++function fakeWindow() {
++  const idle = new Map<number, { cb: () => void; timeout?: number }>();
++  const listeners = new Map<string, () => void>();
++  let next = 1;
++  vi.stubGlobal("window", {
++    requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => {
++      idle.set(next, { cb, timeout: opts?.timeout });
++      return next++;
++    },
++    cancelIdleCallback: (id: number) => void idle.delete(id),
++    addEventListener: (type: string, fn: () => void) => listeners.set(type, fn),
++  });
++  return {
++    idle,
++    runIdle: () => [...idle.values()].forEach((e) => e.cb()),
++    leave: () => listeners.get("pagehide")?.(),
++  };
++}
++
++beforeEach(() => {
++  vi.resetModules();
++  vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(new Response(null, { status: 200 }))));
++});
++afterEach(() => vi.unstubAllGlobals());
++
++const load = async () => (await import("./page-view-beacon")).trackPageView;
++
++describe("trackPageView (Task 35, the counter's request)", () => {
++  it("sends nothing until the page is idle, then one low-priority keepalive POST", async () => {
++    const win = fakeWindow();
++    const track = await load();
++    track("/work", "");
++    expect(fetch).not.toHaveBeenCalled();
++    expect([...win.idle.values()].map((e) => e.timeout)).toEqual([2000]);
++    win.runIdle();
++    expect(fetch).toHaveBeenCalledTimes(1);
++    expect(fetch).toHaveBeenCalledWith("/api/page-view?source=organic", {
++      credentials: "same-origin",
++      keepalive: true,
++      method: "POST",
++      priority: "low",
++    });
++  });
++
++  it("sends one request per route key, not one per call", async () => {
++    const win = fakeWindow();
++    const track = await load();
++    track("/work", "");
++    track("/work", "");
++    win.runIdle();
++    track("/work", "");
++    win.runIdle();
++    expect(fetch).toHaveBeenCalledTimes(1);
++    track("/experience", "");
++    win.runIdle();
++    expect(fetch).toHaveBeenCalledTimes(2);
++    track("/work", "?source=twitter");
++    win.runIdle();
++    expect(fetch).toHaveBeenCalledTimes(3);
++    expect(vi.mocked(fetch).mock.calls[2][0]).toBe("/api/page-view?source=twitter");
++  });
++
++  it("falls back to a timer where requestIdleCallback is missing", async () => {
++    const set = vi.fn((cb: () => void) => {
++      cb();
++      return 1;
++    });
++    vi.stubGlobal("window", { setTimeout: set, clearTimeout: () => {}, addEventListener: () => {} });
++    const track = await load();
++    track("/", "");
++    expect(set).toHaveBeenCalledWith(expect.any(Function), 120);
++    expect(fetch).toHaveBeenCalledTimes(1);
++  });
++
++  it("sends a waiting request at once when the page is left first, and never twice", async () => {
++    const win = fakeWindow();
++    const track = await load();
++    track("/work", "");
++    win.leave();
++    expect(fetch).toHaveBeenCalledTimes(1);
++    expect(win.idle.size).toBe(0);
++    win.runIdle();
++    win.leave();
++    expect(fetch).toHaveBeenCalledTimes(1);
++  });
++
++  it("does not throw when the request fails", async () => {
++    const win = fakeWindow();
++    vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new Error("offline"))));
++    const track = await load();
++    track("/work", "");
++    expect(() => win.runIdle()).not.toThrow();
++    await Promise.resolve();
++  });
++});

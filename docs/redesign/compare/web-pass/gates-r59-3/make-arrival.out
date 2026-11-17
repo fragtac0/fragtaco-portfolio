@@ -1,0 +1,13 @@
+{"name":"home-to-portfolio","size":"1512x982@2","ok":true,"F_E":0.002,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":11,"firstHoldMs":6,"blockedHoldMs":502,"blockedLate":"ground rings","fail":[]}
+{"name":"portfolio-to-long-form","size":"1512x982@2","ok":true,"F_E":0.002,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":15,"firstHoldMs":10,"blockedHoldMs":502,"blockedLate":"wall","fail":[]}
+{"name":"portfolio-to-short-form","size":"1512x982@2","ok":true,"F_E":0.002,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":0,"firstHoldMs":3,"blockedHoldMs":3,"blockedLate":"","fail":[]}
+{"name":"portfolio-to-experience","size":"1512x982@2","ok":true,"F_E":0,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":69,"firstHoldMs":35,"blockedHoldMs":501,"blockedLate":"map","fail":[]}
+{"name":"portfolio-to-home","size":"1512x982@2","ok":true,"F_E":0,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":76,"firstHoldMs":43,"blockedHoldMs":502,"blockedLate":"painting","fail":[]}
+{"name":"long-form-to-portfolio","size":"1512x982@2","ok":true,"F_E":0.003,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":14,"firstHoldMs":3,"blockedHoldMs":502,"blockedLate":"rings","fail":[]}
+{"name":"home-to-portfolio","size":"390x844@3","ok":true,"F_E":0.015,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":3,"firstHoldMs":8,"blockedHoldMs":502,"blockedLate":"ground rings","fail":[]}
+{"name":"portfolio-to-long-form","size":"390x844@3","ok":true,"F_E":0.015,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":17,"firstHoldMs":19,"blockedHoldMs":503,"blockedLate":"wall","fail":[]}
+{"name":"portfolio-to-short-form","size":"390x844@3","ok":true,"F_E":0.015,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":1,"firstHoldMs":2,"blockedHoldMs":2,"blockedLate":"","fail":[]}
+{"name":"portfolio-to-experience","size":"390x844@3","ok":true,"F_E":0,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":44,"firstHoldMs":38,"blockedHoldMs":503,"blockedLate":"map","fail":[]}
+{"name":"portfolio-to-home","size":"390x844@3","ok":true,"F_E":0.005,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":28,"firstHoldMs":31,"blockedHoldMs":502,"blockedLate":"painting","fail":[]}
+{"name":"long-form-to-portfolio","size":"390x844@3","ok":true,"F_E":0.015,"E_L_outside":0,"shifts":0,"dockSame":true,"holdMs":3,"firstHoldMs":11,"blockedHoldMs":501,"blockedLate":"rings","fail":[]}
+{"verdict":"PASS","runs":12}
