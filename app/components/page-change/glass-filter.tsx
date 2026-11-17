@@ -40,13 +40,23 @@ const KEEP: Record<"r" | "g" | "b", string> = {
 };
 const CHANNELS = ["r", "g", "b"] as const;
 
+/**
+ * The map's arithmetic composite: result = k1 * strength * direction + k2 * strength + k3 * direction + k4 (all 0 to 1).
+ * R130: the direction picture's neutral is the byte 128 (128 / 255, not 1/2: the vignette and the displacement both work on bytes), so
+ * k2 is minus that, and a neutral direction gives exactly 1/2 (the displacement map's no-push value) whatever the strength. With
+ * k2 = -1/2 each push was offset by 0.00196 times its scale, half a pixel once the red scale passed 255.
+ */
+export const MAP_K = { k1: 1, k2: -128 / 255, k3: 0, k4: 0.5 } as const;
+/** What the composite makes of a strength and a direction (both 0 to 1), as the filter computes it. */
+export const mapValue = (strength: number, direction: number) => MAP_K.k1 * strength * direction + MAP_K.k2 * strength + MAP_K.k3 * direction + MAP_K.k4;
+
 function Bend({ id }: { id: GlassFilterId }) {
   return (
     <filter id={id} x="0" y="0" width="1" height="1" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
       <feImage id={mapId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="strength" />
       <feImage id={vignetteId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="direction" />
-      {/* strength * direction - strength / 2 + 1 / 2: 1/2 plus the direction about the neutral grey times the strength (a strength of 0 is neutral) */}
-      <feComposite in="strength" in2="direction" operator="arithmetic" k1="1" k2="-0.5" k3="0" k4="0.5" result="map" />
+      {/* strength * direction - strength * 128 / 255 + 1 / 2: 1/2 plus the direction about its neutral byte (128) times the strength (R130; a strength of 0 is neutral) */}
+      <feComposite in="strength" in2="direction" operator="arithmetic" k1={MAP_K.k1} k2={MAP_K.k2} k3={MAP_K.k3} k4={MAP_K.k4} result="map" />
       {CHANNELS.map((c) => (
         <feDisplacementMap
           key={c}
