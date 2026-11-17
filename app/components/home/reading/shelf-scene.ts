@@ -48,8 +48,12 @@ export type RunSteps = (steps: Array<() => void>) => Promise<void>;
 /** A resize is repainted when it has held still this long. */
 const SPINE_RESIZE_MS = 140;
 
-/** Books painted per step, and textures uploaded per step. */
-const BOOKS_PER_STEP = 3;
+/**
+ * Books painted per step, and textures uploaded per step. One book a step: a step is one idle callback, and three books were 25 ms of work on
+ * this machine and about 100 ms on a phone-class CPU (4 times slower), a frame of their own in the first second of the home page; one book
+ * is a third of that (modern web pass, Task 35: docs/redesign/performance-2026-11.md).
+ */
+const BOOKS_PER_STEP = 1;
 const UPLOADS_PER_STEP = 3;
 
 /**
