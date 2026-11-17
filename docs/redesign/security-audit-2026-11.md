@@ -65,18 +65,31 @@ The advisories that reach the running site (not only the build or the tests), as
 
 | Package | Advisory | Fixed in | Status |
 | --- | --- | --- | --- |
-| `@remix-run/server-runtime` | denial of service through unbounded path expansion in the manifest endpoint (high); a possible CSRF on PUT, PATCH or DELETE document requests (low) | 2.17.5 | See "After the upgrade" |
-| `@remix-run/router`, `react-router`, `react-router-dom` | open redirect on a path that starts with `//` (moderate); an open redirect that leads to XSS (6.30.6); an arbitrary constructor through server-render error data (7.x) | 1.23.3, 6.30.6 | See "After the upgrade" |
-| `turbo-stream` | denial of service through reflected input in single fetch (high) | 3.0.0 | See "After the upgrade" |
-| `undici` | WebSocket and other denial of service (high, moderate, low) | 6.29.1 | See "After the upgrade" |
-| `zod` | memory exhaustion on oversized constrained collections (high) | 4.6.6 | See "After the upgrade" |
+| `@remix-run/server-runtime` | denial of service through unbounded path expansion in the manifest endpoint (high); a possible CSRF on PUT, PATCH or DELETE document requests (low) | 2.17.5 | Fixed: Remix 2.17.5 |
+| `@remix-run/router`, `react-router`, `react-router-dom` | open redirect on a path that starts with `//` (moderate); an open redirect that leads to XSS (6.30.6); an arbitrary constructor through server-render error data (7.x) | 1.23.3, 6.30.6 | Fixed for the redirects: `@remix-run/router` 1.23.4, `react-router` and `react-router-dom` 6.30.6 (pinned together). Left: the constructor-injection advisory on `react-router`, whose only fix is in 7.x (see below) |
+| `turbo-stream` | denial of service through reflected input in single fetch (high) | 3.0.0 | Left: Remix 2.17.5 pins `turbo-stream` 2.4.1 and the fix is a new major. The advisory is about Remix's "single fetch", which this site does not switch on |
+| `undici` | WebSocket and other denial of service (high, moderate, low) | 6.29.1 | Fixed: `undici` 6.29.1 |
+| `zod` | memory exhaustion on oversized constrained collections (high) | 4.6.6 | Fixed: `zod` 4.6.7 |
 | `@upstash/redis` | none listed | | Nothing to do |
 
-Everything else (about 230 of the 274 paths) is in tools that run on a developer's machine or in the build: Vite and its dev server, esbuild, PostCSS, `@remix-run/dev`'s helpers (tar, lodash, js-yaml, glob, minimatch, brace-expansion), vitest, ESLint and Babel. None of them is in the running site.
+Everything else was in tools that run on a developer's machine or in the build: Vite and its dev server, esbuild, PostCSS, `@remix-run/dev`'s helpers (tar, lodash, js-yaml, glob, minimatch, brace-expansion), vitest, ESLint and Babel. None of them is in the running site.
 
 ### After the upgrade
 
-(Written with the dependency commit, R59.2a.)
+One commit of its own (R59.2a), inside the major versions already in use, with typecheck, lint, the tests, the build, the round 7 gates and the security proof run after it. `yarn audit` went from 274 advisory paths (4 critical, 134 high, 114 moderate, 22 low) to 60 (3 critical, 20 high, 35 moderate, 2 low).
+
+What moved: Remix (`dev`, `node`, `react`, `serve`) 2.17.4 to 2.17.5; Vite 6.4.1 to 6.4.6 (the one the site builds with, and the one the tests use); `zod` 4.3.6 to 4.6.7; and, by re-resolving the lock file inside the ranges the packages already asked for (no range widened): `undici`, `postcss`, `body-parser`, `compression`, `morgan`, `proxy-addr`, `ws`, `lodash`, `js-yaml`, `valibot`, `postcss-selector-parser`, `brace-expansion`, `@babel/core`, `browserslist`, `baseline-browser-mapping`. Four pins in `package.json` (`resolutions`) force a fix that Remix's own exact pins would otherwise hold back: `@remix-run/router` 1.23.4, `react-router` and `react-router-dom` 6.30.6 (the same patch line, so the site never has two copies of the router), and `qs` 6.16.1 (the same major). Yarn warns that Remix asks for 6.30.4; the pin wins and the build and tests pass.
+
+What is left open, and why (60 paths in 13 packages):
+
+| Package | Where it is | Why it stays |
+| --- | --- | --- |
+| `tar` (critical, high, moderate), `toml` (high), `glob`, `estree-util-value-to-estree`, `esbuild` (0.17 and 0.21) | `@remix-run/dev`'s build helpers | Build tools; the fix is a new major (or, for esbuild, a new 0.x minor, which is a breaking change); never part of the running site. |
+| `tinypool` (critical), `vitest`, `@vitest/mocker`, `vite` 5.4 (the copy the vanilla-extract helper of `@remix-run/dev` brings) | the test runner and a build helper | Tests and build only; the fixes are majors. |
+| `minimatch` | ESLint's TypeScript helpers | Lint only; the fix is a new major. |
+| `ajv` 8.6.3 | `@vercel/static-config`, which reads the Vercel config at build | Pinned exactly by that package; forcing it onto ESLint's copy broke ESLint, and a build-time schema check is not exposed to visitors. |
+| `turbo-stream` 2.4.1 (high) | Remix's client and server data encoding | Pinned exactly by Remix 2.17.5; the fix is 3.x. The advisory is about "single fetch", which the site does not use. |
+| `react-router` 6.30.6 (moderate) | Remix's router | The only fix is in 7.x, a migration the spec rules out of this pass. The advisory is about error data that the server sends in the page and the client then rebuilds; the site's pages carry no user-written data. |
 
 ## Only you can do this
 
