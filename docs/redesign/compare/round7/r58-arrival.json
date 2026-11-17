@@ -7,20 +7,20 @@
    "name": "home-to-portfolio",
    "size": "1512x982@2",
    "first": {
-    "clickToHoldMs": 66,
-    "holdMs": 6,
-    "clickToRevealMs": 72,
+    "clickToHoldMs": 46,
+    "holdMs": 9,
+    "clickToRevealMs": 55,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 48,
+    "clickToHoldMs": 54,
     "holdMs": 6,
-    "clickToRevealMs": 54,
+    "clickToRevealMs": 60,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.002,
-    "E_vs_L_pct": 3.909,
+    "E_vs_L_pct": 3.911,
     "E_vs_L_outside_resting_pct": 0,
     "resting_boxes_coarse_mean_diff": 4.05,
     "wall_canvas_coarse_mean_diff": 0,
@@ -33,7 +33,7 @@
     "entranceHidden": [],
     "ringItemFirstFramePx": 0,
     "ringItemsSampled": 34,
-    "ringDriftOver700msPx": 12.96,
+    "ringDriftOver700msPx": 12.97,
     "layoutShifts": 0,
     "layoutShiftEntries": [],
     "dock": {
@@ -76,8 +76,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 256,
-    "overMs": 31,
+    "endToShotMs": 239,
+    "overMs": 17,
     "ringAnimations": {
      "F": {
       "n": 37,
@@ -142,15 +142,15 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 99,
-    "holdMs": 503,
-    "clickToRevealMs": 602,
+    "clickToHoldMs": 67,
+    "holdMs": 501,
+    "clickToRevealMs": 569,
     "lateAtReveal": "ground rings",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0,
     "E_vs_L_pct": 21.347,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 18.03,
+    "resting_boxes_coarse_mean_diff": 18.04,
     "wall_canvas_coarse_mean_diff": 0,
     "resting_boxes_coarse_worst_cell": 109.4,
     "wall_canvas_coarse_worst_cell": 0,
@@ -161,7 +161,7 @@
     "entranceHidden": [],
     "ringItemFirstFramePx": 0,
     "ringItemsSampled": 34,
-    "ringDriftOver700msPx": 12.98,
+    "ringDriftOver700msPx": 12.97,
     "layoutShifts": 0,
     "layoutShiftEntries": [],
     "dock": {
@@ -206,8 +206,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 239,
-    "overMs": 17,
+    "endToShotMs": 240,
+    "overMs": 19,
     "ringAnimations": {
      "F": {
       "n": 37,
@@ -278,25 +278,25 @@
    "name": "portfolio-to-long-form",
    "size": "1512x982@2",
    "first": {
-    "clickToHoldMs": 41,
-    "holdMs": 9,
-    "clickToRevealMs": 50,
+    "clickToHoldMs": 59,
+    "holdMs": 10,
+    "clickToRevealMs": 69,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 28,
-    "holdMs": 15,
-    "clickToRevealMs": 43,
+    "clickToHoldMs": 40,
+    "holdMs": 16,
+    "clickToRevealMs": 56,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.002,
-    "E_vs_L_pct": 0.18,
+    "E_vs_L_pct": 0.183,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.5,
-    "wall_canvas_coarse_mean_diff": 0.5,
-    "resting_boxes_coarse_worst_cell": 7.7,
-    "wall_canvas_coarse_worst_cell": 7.7,
+    "resting_boxes_coarse_mean_diff": 0.48,
+    "wall_canvas_coarse_mean_diff": 0.48,
+    "resting_boxes_coarse_worst_cell": 7.4,
+    "wall_canvas_coarse_worst_cell": 7.4,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".wall-canvas-host"
@@ -369,8 +369,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": true
     },
-    "endToShotMs": 252,
-    "overMs": 25,
+    "endToShotMs": 258,
+    "overMs": 32,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -397,18 +397,18 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 51,
+    "clickToHoldMs": 58,
     "holdMs": 502,
-    "clickToRevealMs": 553,
+    "clickToRevealMs": 560,
     "lateAtReveal": "wall",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.002,
     "E_vs_L_pct": 0,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.49,
-    "wall_canvas_coarse_mean_diff": 0.49,
-    "resting_boxes_coarse_worst_cell": 8.5,
-    "wall_canvas_coarse_worst_cell": 8.5,
+    "resting_boxes_coarse_mean_diff": 0.47,
+    "wall_canvas_coarse_mean_diff": 0.47,
+    "resting_boxes_coarse_worst_cell": 8.3,
+    "wall_canvas_coarse_worst_cell": 8.3,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".wall-canvas-host"
@@ -515,25 +515,25 @@
    "name": "portfolio-to-short-form",
    "size": "1512x982@2",
    "first": {
-    "clickToHoldMs": 47,
+    "clickToHoldMs": 67,
     "holdMs": 2,
-    "clickToRevealMs": 49,
+    "clickToRevealMs": 69,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 35,
-    "holdMs": 1,
-    "clickToRevealMs": 36,
+    "clickToHoldMs": 51,
+    "holdMs": 2,
+    "clickToRevealMs": 53,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.002,
-    "E_vs_L_pct": 0.049,
+    "E_vs_L_pct": 0.051,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.32,
-    "wall_canvas_coarse_mean_diff": 0.32,
-    "resting_boxes_coarse_worst_cell": 7.2,
-    "wall_canvas_coarse_worst_cell": 7.2,
+    "resting_boxes_coarse_mean_diff": 0.34,
+    "wall_canvas_coarse_mean_diff": 0.34,
+    "resting_boxes_coarse_worst_cell": 7.7,
+    "wall_canvas_coarse_worst_cell": 7.7,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".wall-canvas-host"
@@ -620,8 +620,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": true
     },
-    "endToShotMs": 331,
-    "overMs": 28,
+    "endToShotMs": 319,
+    "overMs": 25,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -648,18 +648,18 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 61,
-    "holdMs": 3,
-    "clickToRevealMs": 64,
+    "clickToHoldMs": 66,
+    "holdMs": 2,
+    "clickToRevealMs": 68,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.002,
-    "E_vs_L_pct": 0.049,
+    "E_vs_L_pct": 0.051,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.32,
-    "wall_canvas_coarse_mean_diff": 0.32,
-    "resting_boxes_coarse_worst_cell": 6.9,
-    "wall_canvas_coarse_worst_cell": 6.9,
+    "resting_boxes_coarse_mean_diff": 0.34,
+    "wall_canvas_coarse_mean_diff": 0.34,
+    "resting_boxes_coarse_worst_cell": 7.8,
+    "wall_canvas_coarse_worst_cell": 7.8,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".wall-canvas-host"
@@ -746,8 +746,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": true
     },
-    "endToShotMs": 332,
-    "overMs": 33,
+    "endToShotMs": 318,
+    "overMs": 21,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -780,16 +780,16 @@
    "name": "portfolio-to-experience",
    "size": "1512x982@2",
    "first": {
-    "clickToHoldMs": 49,
-    "holdMs": 42,
-    "clickToRevealMs": 90,
+    "clickToHoldMs": 54,
+    "holdMs": 40,
+    "clickToRevealMs": 94,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 37,
-    "holdMs": 69,
-    "clickToRevealMs": 107,
+    "clickToHoldMs": 47,
+    "holdMs": 70,
+    "clickToRevealMs": 116,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0,
@@ -853,8 +853,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 508,
-    "overMs": 32,
+    "endToShotMs": 506,
+    "overMs": 23,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -881,9 +881,9 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 47,
+    "clickToHoldMs": 52,
     "holdMs": 503,
-    "clickToRevealMs": 550,
+    "clickToRevealMs": 555,
     "lateAtReveal": "map",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.002,
@@ -949,8 +949,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 207,
-    "overMs": 20,
+    "endToShotMs": 221,
+    "overMs": 35,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -983,25 +983,25 @@
    "name": "portfolio-to-home",
    "size": "1512x982@2",
    "first": {
-    "clickToHoldMs": 122,
-    "holdMs": 38,
-    "clickToRevealMs": 160,
+    "clickToHoldMs": 90,
+    "holdMs": 37,
+    "clickToRevealMs": 128,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 45,
-    "holdMs": 63,
-    "clickToRevealMs": 109,
+    "clickToHoldMs": 51,
+    "holdMs": 45,
+    "clickToRevealMs": 96,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
-    "F_vs_E_pct": 0,
-    "E_vs_L_pct": 1.167,
+    "F_vs_E_pct": 0.001,
+    "E_vs_L_pct": 0.055,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.73,
-    "wall_canvas_coarse_mean_diff": 0.73,
-    "resting_boxes_coarse_worst_cell": 6,
-    "wall_canvas_coarse_worst_cell": 6,
+    "resting_boxes_coarse_mean_diff": 0.18,
+    "wall_canvas_coarse_mean_diff": 0.18,
+    "resting_boxes_coarse_worst_cell": 3.9,
+    "wall_canvas_coarse_worst_cell": 3.9,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".paint-host"
@@ -1046,8 +1046,8 @@
      "moved": [],
      "swapped": [],
      "faded": [
-      "div.edge-glow 0.620949->0.98665",
-      "div.edge-glow 0.879051->0.51335"
+      "div.edge-glow 0.587323->0.969331",
+      "div.edge-glow 0.912677->0.530669"
      ],
      "ringsSwapped": false,
      "ringsFaded": 0,
@@ -1055,8 +1055,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 502,
-    "overMs": 22,
+    "endToShotMs": 492,
+    "overMs": 28,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -1083,16 +1083,16 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 122,
-    "holdMs": 503,
-    "clickToRevealMs": 625,
+    "clickToHoldMs": 79,
+    "holdMs": 501,
+    "clickToRevealMs": 580,
     "lateAtReveal": "painting",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0,
     "E_vs_L_pct": 0,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.18,
-    "wall_canvas_coarse_mean_diff": 0.18,
+    "resting_boxes_coarse_mean_diff": 0.11,
+    "wall_canvas_coarse_mean_diff": 0.11,
     "resting_boxes_coarse_worst_cell": 2.7,
     "wall_canvas_coarse_worst_cell": 2.7,
     "wall_canvas_coarse_over_share_pct": 0,
@@ -1145,8 +1145,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 453,
-    "overMs": 21,
+    "endToShotMs": 444,
+    "overMs": 18,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -1179,24 +1179,24 @@
    "name": "long-form-to-portfolio",
    "size": "1512x982@2",
    "first": {
-    "clickToHoldMs": 58,
-    "holdMs": 2,
-    "clickToRevealMs": 60,
+    "clickToHoldMs": 63,
+    "holdMs": 4,
+    "clickToRevealMs": 67,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 35,
-    "holdMs": 8,
-    "clickToRevealMs": 43,
+    "clickToHoldMs": 49,
+    "holdMs": 4,
+    "clickToRevealMs": 53,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.003,
-    "E_vs_L_pct": 4.364,
+    "E_vs_L_pct": 4.386,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 4.09,
+    "resting_boxes_coarse_mean_diff": 4.08,
     "wall_canvas_coarse_mean_diff": 0,
-    "resting_boxes_coarse_worst_cell": 86.7,
+    "resting_boxes_coarse_worst_cell": 86.8,
     "wall_canvas_coarse_worst_cell": 0,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
@@ -1205,7 +1205,7 @@
     "entranceHidden": [],
     "ringItemFirstFramePx": 0,
     "ringItemsSampled": 34,
-    "ringDriftOver700msPx": 12.64,
+    "ringDriftOver700msPx": 12.73,
     "layoutShifts": 0,
     "layoutShiftEntries": [],
     "dock": {
@@ -1248,8 +1248,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 301,
-    "overMs": 18,
+    "endToShotMs": 309,
+    "overMs": 31,
     "ringAnimations": {
      "F": {
       "n": 37,
@@ -1314,17 +1314,17 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 58,
+    "clickToHoldMs": 68,
     "holdMs": 503,
-    "clickToRevealMs": 560,
+    "clickToRevealMs": 570,
     "lateAtReveal": "rings",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0,
-    "E_vs_L_pct": 2.443,
+    "E_vs_L_pct": 2.452,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 2.87,
+    "resting_boxes_coarse_mean_diff": 2.85,
     "wall_canvas_coarse_mean_diff": 0,
-    "resting_boxes_coarse_worst_cell": 82.3,
+    "resting_boxes_coarse_worst_cell": 82,
     "wall_canvas_coarse_worst_cell": 0,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
@@ -1376,8 +1376,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 302,
-    "overMs": 18,
+    "endToShotMs": 315,
+    "overMs": 30,
     "ringAnimations": {
      "F": {
       "n": 37,
@@ -1448,24 +1448,24 @@
    "name": "home-to-portfolio",
    "size": "390x844@3",
    "first": {
-    "clickToHoldMs": 61,
-    "holdMs": 8,
-    "clickToRevealMs": 69,
+    "clickToHoldMs": 56,
+    "holdMs": 9,
+    "clickToRevealMs": 65,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 33,
-    "holdMs": 4,
-    "clickToRevealMs": 38,
+    "clickToHoldMs": 40,
+    "holdMs": 3,
+    "clickToRevealMs": 43,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.015,
-    "E_vs_L_pct": 3.707,
+    "E_vs_L_pct": 3.808,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 3.49,
+    "resting_boxes_coarse_mean_diff": 3.58,
     "wall_canvas_coarse_mean_diff": 0,
-    "resting_boxes_coarse_worst_cell": 64.9,
+    "resting_boxes_coarse_worst_cell": 66.3,
     "wall_canvas_coarse_worst_cell": 0,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
@@ -1474,7 +1474,7 @@
     "entranceHidden": [],
     "ringItemFirstFramePx": 0,
     "ringItemsSampled": 15,
-    "ringDriftOver700msPx": 9.69,
+    "ringDriftOver700msPx": 10,
     "layoutShifts": 0,
     "layoutShiftEntries": [],
     "dock": {
@@ -1517,8 +1517,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 194,
-    "overMs": 19,
+    "endToShotMs": 200,
+    "overMs": 24,
     "ringAnimations": {
      "F": {
       "n": 17,
@@ -1550,19 +1550,19 @@
         "work-spin",
         0,
         "paused",
-        0.018
+        0.017
        ],
        [
         "work-unspin",
         0,
         "paused",
-        0.018
+        0.017
        ],
        [
         "work-unspin",
         0,
         "paused",
-        0.018
+        0.017
        ]
       ]
      }
@@ -1583,17 +1583,17 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 57,
-    "holdMs": 502,
-    "clickToRevealMs": 558,
+    "clickToHoldMs": 65,
+    "holdMs": 501,
+    "clickToRevealMs": 566,
     "lateAtReveal": "ground rings",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.014,
-    "E_vs_L_pct": 34.333,
+    "E_vs_L_pct": 34.349,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 28.76,
+    "resting_boxes_coarse_mean_diff": 28.77,
     "wall_canvas_coarse_mean_diff": 0,
-    "resting_boxes_coarse_worst_cell": 108.6,
+    "resting_boxes_coarse_worst_cell": 108.7,
     "wall_canvas_coarse_worst_cell": 0,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
@@ -1602,7 +1602,7 @@
     "entranceHidden": [],
     "ringItemFirstFramePx": 0,
     "ringItemsSampled": 15,
-    "ringDriftOver700msPx": 9.68,
+    "ringDriftOver700msPx": 9.66,
     "layoutShifts": 0,
     "layoutShiftEntries": [],
     "dock": {
@@ -1647,8 +1647,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 187,
-    "overMs": 24,
+    "endToShotMs": 188,
+    "overMs": 25,
     "ringAnimations": {
      "F": {
       "n": 17,
@@ -1719,25 +1719,25 @@
    "name": "portfolio-to-long-form",
    "size": "390x844@3",
    "first": {
-    "clickToHoldMs": 48,
-    "holdMs": 18,
-    "clickToRevealMs": 67,
+    "clickToHoldMs": 49,
+    "holdMs": 19,
+    "clickToRevealMs": 68,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 26,
-    "holdMs": 16,
-    "clickToRevealMs": 42,
+    "clickToHoldMs": 48,
+    "holdMs": 15,
+    "clickToRevealMs": 62,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.015,
-    "E_vs_L_pct": 0.359,
+    "E_vs_L_pct": 0.371,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.47,
-    "wall_canvas_coarse_mean_diff": 0.47,
-    "resting_boxes_coarse_worst_cell": 5.5,
-    "wall_canvas_coarse_worst_cell": 5.5,
+    "resting_boxes_coarse_mean_diff": 0.48,
+    "wall_canvas_coarse_mean_diff": 0.48,
+    "resting_boxes_coarse_worst_cell": 5.7,
+    "wall_canvas_coarse_worst_cell": 5.7,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".wall-canvas-host"
@@ -1810,8 +1810,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": true
     },
-    "endToShotMs": 197,
-    "overMs": 30,
+    "endToShotMs": 186,
+    "overMs": 21,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -1838,9 +1838,9 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 34,
+    "clickToHoldMs": 46,
     "holdMs": 502,
-    "clickToRevealMs": 536,
+    "clickToRevealMs": 547,
     "lateAtReveal": "wall",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.015,
@@ -1848,8 +1848,8 @@
     "E_vs_L_outside_resting_pct": 0,
     "resting_boxes_coarse_mean_diff": 0.34,
     "wall_canvas_coarse_mean_diff": 0.34,
-    "resting_boxes_coarse_worst_cell": 4.3,
-    "wall_canvas_coarse_worst_cell": 4.3,
+    "resting_boxes_coarse_worst_cell": 4.2,
+    "wall_canvas_coarse_worst_cell": 4.2,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".wall-canvas-host"
@@ -1922,8 +1922,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 233,
-    "overMs": 32,
+    "endToShotMs": 225,
+    "overMs": 25,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -1956,25 +1956,25 @@
    "name": "portfolio-to-short-form",
    "size": "390x844@3",
    "first": {
-    "clickToHoldMs": 56,
+    "clickToHoldMs": 55,
     "holdMs": 2,
-    "clickToRevealMs": 58,
+    "clickToRevealMs": 57,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 44,
+    "clickToHoldMs": 40,
     "holdMs": 0,
-    "clickToRevealMs": 44,
+    "clickToRevealMs": 40,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.015,
-    "E_vs_L_pct": 0.107,
+    "E_vs_L_pct": 0.11,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.44,
-    "wall_canvas_coarse_mean_diff": 0.44,
-    "resting_boxes_coarse_worst_cell": 4.8,
-    "wall_canvas_coarse_worst_cell": 4.8,
+    "resting_boxes_coarse_mean_diff": 0.47,
+    "wall_canvas_coarse_mean_diff": 0.47,
+    "resting_boxes_coarse_worst_cell": 5.8,
+    "wall_canvas_coarse_worst_cell": 5.8,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".wall-canvas-host"
@@ -2061,8 +2061,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": true
     },
-    "endToShotMs": 230,
-    "overMs": 26,
+    "endToShotMs": 228,
+    "overMs": 24,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -2089,18 +2089,18 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 66,
+    "clickToHoldMs": 62,
     "holdMs": 2,
-    "clickToRevealMs": 68,
+    "clickToRevealMs": 64,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.015,
-    "E_vs_L_pct": 0.108,
+    "E_vs_L_pct": 0.111,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.43,
-    "wall_canvas_coarse_mean_diff": 0.43,
-    "resting_boxes_coarse_worst_cell": 5.4,
-    "wall_canvas_coarse_worst_cell": 5.4,
+    "resting_boxes_coarse_mean_diff": 0.47,
+    "wall_canvas_coarse_mean_diff": 0.47,
+    "resting_boxes_coarse_worst_cell": 5.8,
+    "wall_canvas_coarse_worst_cell": 5.8,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".wall-canvas-host"
@@ -2187,8 +2187,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": true
     },
-    "endToShotMs": 234,
-    "overMs": 33,
+    "endToShotMs": 232,
+    "overMs": 29,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -2221,16 +2221,16 @@
    "name": "portfolio-to-experience",
    "size": "390x844@3",
    "first": {
-    "clickToHoldMs": 53,
-    "holdMs": 44,
-    "clickToRevealMs": 97,
+    "clickToHoldMs": 63,
+    "holdMs": 42,
+    "clickToRevealMs": 105,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 47,
+    "clickToHoldMs": 45,
     "holdMs": 48,
-    "clickToRevealMs": 95,
+    "clickToRevealMs": 93,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0,
@@ -2294,8 +2294,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 295,
-    "overMs": 34,
+    "endToShotMs": 285,
+    "overMs": 26,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -2322,9 +2322,9 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 41,
-    "holdMs": 501,
-    "clickToRevealMs": 542,
+    "clickToHoldMs": 63,
+    "holdMs": 504,
+    "clickToRevealMs": 567,
     "lateAtReveal": "map",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.015,
@@ -2390,8 +2390,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 189,
-    "overMs": 31,
+    "endToShotMs": 180,
+    "overMs": 26,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -2424,25 +2424,25 @@
    "name": "portfolio-to-home",
    "size": "390x844@3",
    "first": {
-    "clickToHoldMs": 77,
-    "holdMs": 28,
-    "clickToRevealMs": 104,
+    "clickToHoldMs": 93,
+    "holdMs": 33,
+    "clickToRevealMs": 126,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 48,
-    "holdMs": 30,
-    "clickToRevealMs": 78,
+    "clickToHoldMs": 51,
+    "holdMs": 26,
+    "clickToRevealMs": 76,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.001,
-    "E_vs_L_pct": 0.012,
+    "E_vs_L_pct": 0.002,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.21,
-    "wall_canvas_coarse_mean_diff": 0.21,
-    "resting_boxes_coarse_worst_cell": 5,
-    "wall_canvas_coarse_worst_cell": 5,
+    "resting_boxes_coarse_mean_diff": 0.22,
+    "wall_canvas_coarse_mean_diff": 0.22,
+    "resting_boxes_coarse_worst_cell": 2.8,
+    "wall_canvas_coarse_worst_cell": 2.8,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".paint-host"
@@ -2494,7 +2494,7 @@
      "wallDrawnAtL": false
     },
     "endToShotMs": 285,
-    "overMs": 29,
+    "overMs": 19,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -2521,18 +2521,18 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 78,
+    "clickToHoldMs": 83,
     "holdMs": 501,
-    "clickToRevealMs": 579,
+    "clickToRevealMs": 584,
     "lateAtReveal": "painting",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.001,
     "E_vs_L_pct": 0,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 0.06,
-    "wall_canvas_coarse_mean_diff": 0.06,
-    "resting_boxes_coarse_worst_cell": 2.4,
-    "wall_canvas_coarse_worst_cell": 2.4,
+    "resting_boxes_coarse_mean_diff": 0.11,
+    "wall_canvas_coarse_mean_diff": 0.11,
+    "resting_boxes_coarse_worst_cell": 2.8,
+    "wall_canvas_coarse_worst_cell": 2.8,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
      ".paint-host"
@@ -2583,8 +2583,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 277,
-    "overMs": 19,
+    "endToShotMs": 279,
+    "overMs": 27,
     "ringAnimations": {
      "F": {
       "n": 0,
@@ -2617,24 +2617,24 @@
    "name": "long-form-to-portfolio",
    "size": "390x844@3",
    "first": {
-    "clickToHoldMs": 40,
-    "holdMs": 7,
-    "clickToRevealMs": 47,
+    "clickToHoldMs": 39,
+    "holdMs": 11,
+    "clickToRevealMs": 51,
     "lateAtReveal": "",
     "frozenAtMs": 2233
    },
    "warm": {
-    "clickToHoldMs": 37,
-    "holdMs": 1,
-    "clickToRevealMs": 38,
+    "clickToHoldMs": 27,
+    "holdMs": 6,
+    "clickToRevealMs": 34,
     "lateAtReveal": "",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.015,
-    "E_vs_L_pct": 3.994,
+    "E_vs_L_pct": 4.052,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 3.19,
+    "resting_boxes_coarse_mean_diff": 3.05,
     "wall_canvas_coarse_mean_diff": 0,
-    "resting_boxes_coarse_worst_cell": 67.4,
+    "resting_boxes_coarse_worst_cell": 67.7,
     "wall_canvas_coarse_worst_cell": 0,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
@@ -2643,7 +2643,7 @@
     "entranceHidden": [],
     "ringItemFirstFramePx": 0,
     "ringItemsSampled": 15,
-    "ringDriftOver700msPx": 9.6,
+    "ringDriftOver700msPx": 9.67,
     "layoutShifts": 0,
     "layoutShiftEntries": [],
     "dock": {
@@ -2686,8 +2686,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 226,
-    "overMs": 29,
+    "endToShotMs": 223,
+    "overMs": 26,
     "ringAnimations": {
      "F": {
       "n": 17,
@@ -2719,19 +2719,19 @@
         "work-spin",
         0,
         "paused",
-        0.017
+        0.018
        ],
        [
         "work-unspin",
         0,
         "paused",
-        0.017
+        0.018
        ],
        [
         "work-unspin",
         0,
         "paused",
-        0.017
+        0.018
        ]
       ]
      }
@@ -2752,17 +2752,17 @@
     "ok": true
    },
    "blocked": {
-    "clickToHoldMs": 35,
-    "holdMs": 503,
-    "clickToRevealMs": 538,
+    "clickToHoldMs": 47,
+    "holdMs": 502,
+    "clickToRevealMs": 548,
     "lateAtReveal": "rings",
     "frozenAtMs": 2233,
     "F_vs_E_pct": 0.015,
-    "E_vs_L_pct": 2.291,
+    "E_vs_L_pct": 2.301,
     "E_vs_L_outside_resting_pct": 0,
-    "resting_boxes_coarse_mean_diff": 2.51,
+    "resting_boxes_coarse_mean_diff": 2.37,
     "wall_canvas_coarse_mean_diff": 0,
-    "resting_boxes_coarse_worst_cell": 54.6,
+    "resting_boxes_coarse_worst_cell": 51.9,
     "wall_canvas_coarse_worst_cell": 0,
     "wall_canvas_coarse_over_share_pct": 0,
     "restingBoxes": [
@@ -2771,7 +2771,7 @@
     "entranceHidden": [],
     "ringItemFirstFramePx": 0,
     "ringItemsSampled": 15,
-    "ringDriftOver700msPx": 9.6,
+    "ringDriftOver700msPx": 9.63,
     "layoutShifts": 0,
     "layoutShiftEntries": [],
     "dock": {
@@ -2814,8 +2814,8 @@
      "wallDrawnAtE": false,
      "wallDrawnAtL": false
     },
-    "endToShotMs": 222,
-    "overMs": 24,
+    "endToShotMs": 229,
+    "overMs": 33,
     "ringAnimations": {
      "F": {
       "n": 17,
