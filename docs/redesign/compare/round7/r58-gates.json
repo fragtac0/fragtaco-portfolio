@@ -70,5 +70,29 @@
   },
   "long tasks": "Before the preparation starts, the boot's own: 70 and 63 ms at 354 and 577 ms (React's hydration and an idle chunk). Inside the preparation (from the sheets' mark to glass-warm): none in two of the four loads, and one of 57 and 59 ms in the other two (at 3455 and 3162 ms, between the vignette's mark and the bend's, so in the bend's tile loop; the vignette itself, made in slices of 6 ms with a calm gap, shows none). At 1440 by 900, dpr 2, CPU 4x: only the boot's 50 ms task at 103 ms and a 73 ms frame at 89 ms (hydration); none in the preparation.",
   "reading": "The vignette's noise (the new work) adds no long task. In about every other load of the phone profile at CPU 4x one step of the tile loop takes 57 to 59 ms (about 15 ms unthrottled): over the 50 ms mark by a little; the loop already yields after each tile. Not split further."
+ },
+ "r58_6 (R130, production build of R58.6, under the lock)": {
+  "page-change.json (1440x900 dpr2, CPU 4x, 5 changes)": {
+   "load at start": "2.25",
+   "animMax ms": [
+    16.8,
+    16.8,
+    16.8,
+    16.8,
+    16.8
+   ],
+   "frames over 34 ms": 0,
+   "frames over 20 ms": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "bend on in every change, guard never tripped": true
+  },
+  "make-glass-cost.mjs 1512x982@2": "see r58-glass-cost.json r58_6: PASS, 266/273/274 ms renderer compositor, 170/173/174 ms display, load 1.57/1.98/2.25",
+  "make-tile-swaps.mjs": "see r58-tile-swaps.json: the step at fronts 0 to 0.07 is NOT gone (ratio 2.9 to 4.1 at two frames a run, the control 0.8 to 1.05); loads 2.9, 2.8, 2.7",
+  "not re-run": "the other gates of r58_4 (page-change-hook, -phone, glass audits, arrival): the change is three constants in the filter's composite, nothing else moved; production build tests 175 files, 2492 tests green"
  }
 }

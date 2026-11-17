@@ -705,5 +705,93 @@
     2313
    ]
   }
+ },
+ "r58_6": {
+  "what": "R58.6 (the map's composite centred on the neutral byte, Ruling R130), 1512x982@2, 3 runs, under the lock, the same tool and machine as r58_4; no base build re-run (the base numbers above are of the same hour's tool: 237/241/243 and 157/161/162)",
+  "pass": true,
+  "rendererCompositorMs": [
+   266,
+   273,
+   274
+  ],
+  "vizCompositorMs": [
+   170,
+   173,
+   174
+  ],
+  "gpuMainMs": [
+   543,
+   521,
+   542
+  ],
+  "rendererMainMs": [
+   177,
+   174,
+   176
+  ],
+  "presented": [
+   140,
+   137,
+   138
+  ],
+  "dropped": [
+   1,
+   1,
+   1
+  ],
+  "droppedAfterFirstFrame": [
+   0,
+   0,
+   0
+  ],
+  "droppedFrames": [
+   [
+    {
+     "fromClickMs": 33,
+     "fromStartMs": 27,
+     "firstFrame": true,
+     "state": "STATE_DROPPED"
+    }
+   ],
+   [
+    {
+     "fromClickMs": 28,
+     "fromStartMs": 11,
+     "firstFrame": true,
+     "state": "STATE_DROPPED"
+    }
+   ],
+   [
+    {
+     "fromClickMs": 29,
+     "fromStartMs": 12,
+     "firstFrame": true,
+     "state": "STATE_DROPPED"
+    }
+   ]
+  ],
+  "loadAverage": [
+   [
+    1.57,
+    1.87,
+    1.98
+   ],
+   [
+    1.98,
+    1.96,
+    2
+   ],
+   [
+    2.25,
+    2.03,
+    2.03
+   ]
+  ],
+  "windowMs": [
+   2329,
+   2313,
+   2314
+  ],
+  "reading": "limits 450 and 300: PASS (266/273/274 and 170/173/174 against R58.4's 272/271/270 and 174/175/175): the change in the arithmetic constants costs nothing. One dropped frame a run, the first (R125, 28 to 33 ms after the click), none after."
  }
 }

@@ -1,24 +1,25 @@
 {
- "what": "R58 step 7, no step at a tile swap (fix round of Task 32, after the review's I1 and I2): the mean absolute difference of a film frame to the frame before it at each tile swap of the bend, against the mean of its two neighbours' (per 16.7 ms of film time, floored at 0.2 grey levels), home to the portfolio at 1440 by 900, three runs, with the same change with no bend (the tab's own rule `ft-glass-bend=off`) as the control. Made by make-tile-swaps.mjs and sum-tile-swaps.mjs, under the gate lock, on the production build of R58.4 (early step 0.0125).",
+ "what": "R58 step 7, no step at a tile swap (fix round of Task 32, after the review's I1 and I2): the mean absolute difference of a film frame to the frame before it at each tile swap of the bend, against the mean of its two neighbours' (per 16.7 ms of film time, floored at 0.2 grey levels), home to the portfolio at 1440 by 900, three runs, with the same change with no bend (the tab's own rule `ft-glass-bend=off`) as the control. Made by make-tile-swaps.mjs and sum-tile-swaps.mjs, under the gate lock, on the production build of R58.6 (early step 0.0125, and the map's composite centred on the neutral byte 128, Ruling R130); loads at the start of the holds 2.9 (bend runs), 2.8 (control), 2.7 (strip).",
  "target": "ratio at most 1.5 (or 1.5 times the control's ratio there, floored at 1) at every swap",
  "audit_fix": "The first round's audit gave the recorder the animation's LINEAR progress (the CSS animation's timing function is the keyframes' own easing, so getComputedTiming().progress is the time fraction) and never applied the app's ease, so every tile, front and bend in the first record was wrong (labels repeated). It now applies the ease before the front and the bend, clamps the ladder as pickBendTile does and checks itself: `strictlyIncreasing` is true for every run below (the recovered tile numbers rise at every swap; `skippedTiles` lists where one frame moved two tiles). The first round's numbers, and Ruling R126 which rested on them, are withdrawn.",
  "tiles": "64 bend tiles: tiles 0 to 35 are the early ones, fronts -0.25 to 0.1875 every 0.0125 (BEND_EARLY_STEP), tiles 36 to 63 the ladder from HAND_OVER 0.2 at steps of 8% of the radius (TILE_RATIO 1.08). A swap's tile number is the real index into BEND_TILES.",
- "result": "Of the 48 swaps a run (tile 9, front -0.14, to tile 60, front 1.23; the numbers of the ones with the bend under 0.05 are in `swaps` but not in the worst), all are within 1.5 of their neighbours' change in all three runs but these: (1) tile 23, front 0.042, bend 0.91: ratio 3.6 to 4.0 in every run (3.45 at tile 24 in run 1, one frame later): NOT a tile swap, see `half_pixel_step` below; (2) tile 58, front 1.049, ratio 1.54 and 1.55 in runs 2 and 3 (0.84 in run 1; 1.58 to 1.68 in the strip's film and the counter-experiment's; the control there is 0.8 to 1.2; the step is 0.18 to 0.24 grey levels of 255 over its neighbours: invisible, the change itself is under 0.5 a frame there); (3) run 1 only, tiles 37 to 39 (fronts 0.22 to 0.26): ratio 1.70 with the control's own frames at the same time showing 2.0 (a screencast timing slip: runs 2 and 3 read 0.99 to 1.15 at the same swaps).",
+ "result": "R58.6 (Ruling R130) did NOT remove the step. Of the 48 swaps a run (tile 9, front -0.14, to tile 60, front 1.23), all are within 1.5 of their neighbours' change (or 1.5 times the control's) in all three runs except: (1) fronts -0.001 to 0.068 (bend 0.9 to 1.0), tiles 20 to 25: ratio 2.88 to 4.08 at TWO frames a run (run 1 tiles 21 and 24 and 25 [24 and 25 are one frame], run 2 tiles 20 and 23, run 3 tiles 22 and 23), excess 0.7 to 1.5 grey levels, control 0.8 to 1.05: not tile swaps (the frames either side are identical; the step is one colour of the whole page, green at 836 ms, red and blue at 867 ms in the strip's film), the same moments as before R58.6 (one frame a run at tile 23, ratio 3.6 to 4.0, excess 1.3 to 1.55); (2) tile 58, front 1.049, ratio 1.69 in run 3 (1.54 in run 2 and 0.97 in run 1; 0.2 grey levels over its neighbours; the control 0.8 to 1.2): the late swap of Ruling R131; (3) run 1 tile 39 (front 0.261): ratio 1.73 with the control's own frame at tile 41 reading 1.88 (a screencast slip: runs 2 and 3 read 1.07 and 0.98).",
  "half_pixel_step": {
   "finding": "The one-frame step at 'tile 23' is a step of the whole page, not of the bend: outside the blob the frame before and the frame after differ by 1.3 to 2 grey levels in every colour over the whole screen (the frames either side are identical to the bit; strip rows in r58-tile-swap-strip.jpg), once, at the frame where the red push's scale passes 255 (read each frame: 232.3 at 805 ms, 255.7 at 822 ms; the filter's map has a neutral byte of 128, not 127.5, so every push is shifted by 0.00196 x its scale in pixels, and at a scale of 255 that is half a pixel: the displacement map's nearest sample takes a whole pixel). It is not made by the tile ladder: it was at the same moment with early steps of 0.025 and 0.0125, and with the peak cut from 8.55% to 7% of the height (red scale 229, under 255) the same swap reads 1.12, 1.17 and 1.26 in the three runs (counter-experiment, not committed).",
   "since": "R58.1: the lens of R54 and R56 had a red scale under 255 at every size; the hero's liquid at 150% has 280 at 1440 by 900 (2 x 1.3 x 77 px x 1.4), 262 at 390 by 844 and 349 at the 96 px cap.",
-  "not_fixed": "Out of this round's scope (no new primitive; the owner picked the strength): options are a smaller red share (a peak cut to 7% of the height clears it at 900 high but changes the look), a bias cancelled by one feOffset per push (three more primitives in each filter, a per-frame cost), or accepting one half-pixel step of the page in the third of a second the bend ramps in. For the controller to rule."
+  "not_fixed": "Out of this round's scope (no new primitive; the owner picked the strength): options are a smaller red share (a peak cut to 7% of the height clears it at 900 high but changes the look), a bias cancelled by one feOffset per push (three more primitives in each filter, a per-frame cost), or accepting one half-pixel step of the page in the third of a second the bend ramps in. For the controller to rule.",
+  "r58_6": "Ruling R130 built: the arithmetic composite's k2 is -128/255, so the composite is centred on the direction picture's neutral byte (unit test: a neutral direction gives exactly 1/2 at damp 1, 0.5, 0.25, 0). It does not change the displacement map's bytes: the filter stores its result in 8 bits and 1/2 is 127.5, which rounds to 128 whichever constant is used, so a neutral map is the byte 128 (0.50196) at every damp, and the displacement map's own neutral is exactly 0.5, which no byte holds. Each push is therefore still offset by 0.00196 x its scale in device pixels, whatever the constants (the old k2 -1/2 also gave 128 at a neutral texel). Measured: the step is still there at the same moments (fronts 0 to 0.07), two frames a run now. The only no-cost levers are the look (the counter-experiment of R58.4, a peak cut to 7% of the height, red scale 229 at dpr 1: 1.12 to 1.26) or the cost (one feOffset per push, three primitives a filter). At a pixel ratio of 2 the crossing is at a scale of 127.5 in CSS px, so the owner's display crosses it with every colour; not measured here."
  },
  "early_step_history": {
   "0.05 (R58.1)": "not measurable: the first audit's labels were wrong. The swaps of the early tiles move the band by up to half a step (0.025 = 21 px at 1440 by 900).",
   "0.025 (first run of the fix round)": "early swaps (fronts -0.04 to 0.18) at ratio 1.2 to 4.4, 6 swaps a run over 1.5 against the control's 0.9 to 1.1: the brief's fallback was not enough.",
-  "0.0125 (this record)": "early swaps (fronts -0.14 to 0.2) 0.04 to 1.3 apart from tile 23: the fallback of Ruling R129."
+  "0.0125 (this record)": "early swaps (fronts -0.14 to 0.2) 0.04 to 1.3 apart from the step at fronts 0.0 to 0.07 (see half_pixel_step): the fallback of Ruling R129."
  },
  "runs": [
   {
    "run": 1,
-   "frames": 204,
-   "longestFrameGapMs": 36,
+   "frames": 201,
+   "longestFrameGapMs": 50,
    "strictlyIncreasing": true,
    "skippedTiles": [
     {
@@ -46,47 +47,47 @@
     {
      "tile": 9,
      "front": -0.143,
-     "sinceClickMs": 272,
+     "sinceClickMs": 248,
      "bend": 0,
-     "change": 0.13,
-     "ratio": 0.63,
-     "window": 0.94,
-     "excess": -0.02,
+     "change": 0.12,
+     "ratio": 0.62,
+     "window": 0.96,
+     "excess": -0.03,
      "control": {
-      "change": 0.12,
-      "ratio": 0.61,
-      "excess": -0.02
+      "change": 0.2,
+      "ratio": 1.01,
+      "excess": 0.04
      },
      "withinControl": true
     },
     {
      "tile": 10,
      "front": -0.131,
-     "sinceClickMs": 370,
+     "sinceClickMs": 348,
      "bend": 0,
-     "change": 0.09,
-     "ratio": 0.47,
-     "window": 1.1,
-     "excess": -0.02,
+     "change": 0.1,
+     "ratio": 0.49,
+     "window": 1.04,
+     "excess": -0.01,
      "control": {
-      "change": 0.01,
-      "ratio": 0.04,
-      "excess": -0.04
+      "change": 0.22,
+      "ratio": 1.09,
+      "excess": 0.06
      },
      "withinControl": true
     },
     {
      "tile": 11,
      "front": -0.116,
-     "sinceClickMs": 455,
+     "sinceClickMs": 431,
      "bend": 0,
      "change": 0.01,
      "ratio": 0.07,
-     "window": 0.08,
+     "window": 0.07,
      "excess": 0,
      "control": {
       "change": 0.01,
-      "ratio": 0.07,
+      "ratio": 0.05,
       "excess": 0
      },
      "withinControl": true
@@ -94,15 +95,15 @@
     {
      "tile": 12,
      "front": -0.104,
-     "sinceClickMs": 504,
+     "sinceClickMs": 481,
      "bend": 0,
      "change": 0.02,
-     "ratio": 0.11,
-     "window": 0.11,
+     "ratio": 0.09,
+     "window": 0.09,
      "excess": 0,
      "control": {
       "change": 0.02,
-      "ratio": 0.09,
+      "ratio": 0.08,
       "excess": 0
      },
      "withinControl": true
@@ -110,15 +111,15 @@
     {
      "tile": 13,
      "front": -0.089,
-     "sinceClickMs": 555,
+     "sinceClickMs": 531,
      "bend": 0,
      "change": 0.03,
      "ratio": 0.15,
      "window": 0.16,
      "excess": 0,
      "control": {
-      "change": 0.03,
-      "ratio": 0.15,
+      "change": 0.02,
+      "ratio": 0.12,
       "excess": 0
      },
      "withinControl": true
@@ -126,15 +127,15 @@
     {
      "tile": 14,
      "front": -0.078,
-     "sinceClickMs": 588,
+     "sinceClickMs": 564,
      "bend": 0,
-     "change": 0.03,
-     "ratio": 0.17,
-     "window": 0.22,
-     "excess": -0.01,
+     "change": 0.04,
+     "ratio": 0.18,
+     "window": 0.23,
+     "excess": 0,
      "control": {
-      "change": 0.04,
-      "ratio": 0.19,
+      "change": 0.03,
+      "ratio": 0.16,
       "excess": 0
      },
      "withinControl": true
@@ -142,15 +143,15 @@
     {
      "tile": 15,
      "front": -0.066,
-     "sinceClickMs": 621,
+     "sinceClickMs": 597,
      "bend": 0.02,
      "change": 0.05,
-     "ratio": 0.25,
+     "ratio": 0.24,
      "window": 0.28,
      "excess": 0,
      "control": {
-      "change": 0.05,
-      "ratio": 0.27,
+      "change": 0.04,
+      "ratio": 0.21,
       "excess": 0
      },
      "withinControl": true
@@ -158,15 +159,15 @@
     {
      "tile": 16,
      "front": -0.052,
-     "sinceClickMs": 655,
+     "sinceClickMs": 631,
      "bend": 0.08,
      "change": 0.07,
-     "ratio": 0.34,
-     "window": 0.39,
+     "ratio": 0.33,
+     "window": 0.38,
      "excess": 0,
      "control": {
-      "change": 0.07,
-      "ratio": 0.35,
+      "change": 0.05,
+      "ratio": 0.26,
       "excess": 0
      },
      "withinControl": true
@@ -174,47 +175,47 @@
     {
      "tile": 17,
      "front": -0.037,
-     "sinceClickMs": 688,
+     "sinceClickMs": 664,
      "bend": 0.18,
      "change": 0.09,
      "ratio": 0.47,
-     "window": 0.64,
+     "window": 0.65,
      "excess": -0.01,
      "control": {
-      "change": 0.09,
-      "ratio": 0.47,
-      "excess": 0
+      "change": 0.07,
+      "ratio": 0.34,
+      "excess": -0.01
      },
      "withinControl": true
     },
     {
      "tile": 18,
      "front": -0.029,
-     "sinceClickMs": 705,
+     "sinceClickMs": 681,
      "bend": 0.26,
      "change": 0.13,
-     "ratio": 0.64,
-     "window": 0.8,
+     "ratio": 0.65,
+     "window": 0.87,
      "excess": 0,
      "control": {
-      "change": 0.11,
-      "ratio": 0.53,
-      "excess": -0.01
+      "change": 0.09,
+      "ratio": 0.43,
+      "excess": 0
      },
      "withinControl": true
     },
     {
      "tile": 19,
      "front": -0.011,
-     "sinceClickMs": 738,
+     "sinceClickMs": 714,
      "bend": 0.43,
      "change": 0.16,
      "ratio": 0.69,
-     "window": 1.19,
+     "window": 0.87,
      "excess": -0.07,
      "control": {
-      "change": 0.15,
-      "ratio": 0.76,
+      "change": 0.11,
+      "ratio": 0.55,
       "excess": -0.01
      },
      "withinControl": true
@@ -222,15 +223,15 @@
     {
      "tile": 20,
      "front": -0.001,
-     "sinceClickMs": 755,
+     "sinceClickMs": 731,
      "bend": 0.53,
      "change": 0.3,
-     "ratio": 1.19,
-     "window": 1.19,
-     "excess": 0.05,
+     "ratio": 0.47,
+     "window": 3.07,
+     "excess": -0.33,
      "control": {
-      "change": 0.18,
-      "ratio": 0.88,
+      "change": 0.13,
+      "ratio": 0.65,
       "excess": -0.01
      },
      "withinControl": true
@@ -238,31 +239,31 @@
     {
      "tile": 21,
      "front": 0.009,
-     "sinceClickMs": 771,
+     "sinceClickMs": 749,
      "bend": 0.63,
-     "change": 0.34,
-     "ratio": 0.97,
-     "window": 1.19,
-     "excess": -0.01,
+     "change": 1.1,
+     "ratio": 3.07,
+     "window": 3.07,
+     "excess": 0.74,
      "control": {
-      "change": 0.22,
-      "ratio": 1.05,
+      "change": 0.16,
+      "ratio": 0.82,
       "excess": 0.01
      },
-     "withinControl": true
+     "withinControl": false
     },
     {
      "tile": 22,
      "front": 0.019,
-     "sinceClickMs": 787,
+     "sinceClickMs": 764,
      "bend": 0.73,
-     "change": 0.4,
-     "ratio": 0.99,
-     "window": 1.21,
-     "excess": 0,
+     "change": 0.42,
+     "ratio": 0.29,
+     "window": 4.53,
+     "excess": -1.03,
      "control": {
-      "change": 0.25,
-      "ratio": 0.94,
+      "change": 0.18,
+      "ratio": 0.91,
       "excess": -0.01
      },
      "withinControl": true
@@ -270,15 +271,15 @@
     {
      "tile": 23,
      "front": 0.042,
-     "sinceClickMs": 821,
+     "sinceClickMs": 797,
      "bend": 0.91,
-     "change": 0.38,
-     "ratio": 0.33,
-     "window": 3.45,
-     "excess": -0.79,
+     "change": 0.37,
+     "ratio": 0.22,
+     "window": 4.53,
+     "excess": -1.35,
      "control": {
-      "change": 0.38,
-      "ratio": 1.03,
+      "change": 0.27,
+      "ratio": 1.04,
       "excess": 0.01
      },
      "withinControl": true
@@ -286,127 +287,127 @@
     {
      "tile": 24,
      "front": 0.055,
-     "sinceClickMs": 837,
+     "sinceClickMs": 814,
      "bend": 0.97,
-     "change": 1.86,
-     "ratio": 3.45,
-     "window": 3.45,
-     "excess": 1.32,
+     "change": 1.66,
+     "ratio": 2.96,
+     "window": 2.96,
+     "excess": 1.1,
      "control": {
-      "change": 0.44,
+      "change": 0.31,
       "ratio": 0.96,
-      "excess": -0.02
+      "excess": -0.01
      },
      "withinControl": false
     },
     {
      "tile": 25,
      "front": 0.068,
-     "sinceClickMs": 855,
+     "sinceClickMs": 830,
      "bend": 1,
-     "change": 0.7,
-     "ratio": 0.53,
-     "window": 3.45,
-     "excess": -0.62,
+     "change": 1.66,
+     "ratio": 2.96,
+     "window": 2.96,
+     "excess": 1.1,
      "control": {
-      "change": 0.53,
-      "ratio": 0.94,
+      "change": 0.37,
+      "ratio": 0.93,
       "excess": -0.03
      },
-     "withinControl": true
+     "withinControl": false
     },
     {
      "tile": 26,
      "front": 0.081,
-     "sinceClickMs": 870,
+     "sinceClickMs": 847,
      "bend": 1,
-     "change": 0.77,
-     "ratio": 0.97,
-     "window": 0.97,
-     "excess": -0.02,
+     "change": 0.79,
+     "ratio": 0.95,
+     "window": 0.95,
+     "excess": -0.04,
      "control": {
-      "change": 0.69,
+      "change": 0.49,
       "ratio": 1.07,
-      "excess": 0.05
+      "excess": 0.03
      },
      "withinControl": true
     },
     {
      "tile": 28,
      "front": 0.096,
-     "sinceClickMs": 886,
+     "sinceClickMs": 863,
      "bend": 1,
-     "change": 0.77,
-     "ratio": 0.97,
-     "window": 0.97,
-     "excess": -0.02,
+     "change": 0.79,
+     "ratio": 0.95,
+     "window": 0.95,
+     "excess": -0.04,
      "control": {
-      "change": 0.76,
-      "ratio": 0.96,
-      "excess": -0.03
+      "change": 0.54,
+      "ratio": 0.93,
+      "excess": -0.04
      },
      "withinControl": true
     },
     {
      "tile": 29,
      "front": 0.111,
-     "sinceClickMs": 904,
+     "sinceClickMs": 880,
      "bend": 1,
-     "change": 1.35,
-     "ratio": 1.27,
-     "window": 1.27,
-     "excess": 0.29,
+     "change": 0.92,
+     "ratio": 0.85,
+     "window": 1.28,
+     "excess": -0.17,
      "control": {
-      "change": 0.89,
-      "ratio": 0.96,
-      "excess": -0.04
+      "change": 0.66,
+      "ratio": 0.97,
+      "excess": -0.02
      },
      "withinControl": true
     },
     {
      "tile": 30,
      "front": 0.126,
-     "sinceClickMs": 920,
+     "sinceClickMs": 899,
      "bend": 1,
-     "change": 1.23,
+     "change": 1.24,
      "ratio": 0.88,
-     "window": 1.27,
+     "window": 1.28,
      "excess": -0.17,
      "control": {
-      "change": 1.1,
+      "change": 0.82,
       "ratio": 1.05,
-      "excess": 0.05
+      "excess": 0.04
      },
      "withinControl": true
     },
     {
      "tile": 31,
      "front": 0.143,
-     "sinceClickMs": 938,
+     "sinceClickMs": 914,
      "bend": 1,
-     "change": 1.45,
-     "ratio": 0.97,
-     "window": 1.01,
-     "excess": -0.04,
+     "change": 1.43,
+     "ratio": 0.95,
+     "window": 1.03,
+     "excess": -0.08,
      "control": {
-      "change": 1.2,
-      "ratio": 0.97,
-      "excess": -0.04
+      "change": 0.91,
+      "ratio": 0.98,
+      "excess": -0.02
      },
      "withinControl": true
     },
     {
      "tile": 33,
      "front": 0.16,
-     "sinceClickMs": 953,
+     "sinceClickMs": 930,
      "bend": 1,
-     "change": 1.45,
-     "ratio": 0.97,
-     "window": 1.01,
-     "excess": -0.04,
+     "change": 1.43,
+     "ratio": 0.95,
+     "window": 1.03,
+     "excess": -0.08,
      "control": {
-      "change": 1.38,
-      "ratio": 0.96,
+      "change": 1.04,
+      "ratio": 0.94,
       "excess": -0.06
      },
      "withinControl": true
@@ -414,159 +415,159 @@
     {
      "tile": 34,
      "front": 0.179,
-     "sinceClickMs": 971,
+     "sinceClickMs": 947,
      "bend": 1,
-     "change": 2,
-     "ratio": 1.03,
+     "change": 2.03,
+     "ratio": 1.02,
      "window": 1.03,
-     "excess": 0.06,
+     "excess": 0.05,
      "control": {
-      "change": 1.69,
-      "ratio": 1.05,
-      "excess": 0.08
+      "change": 1.3,
+      "ratio": 1.06,
+      "excess": 0.07
      },
      "withinControl": true
     },
     {
      "tile": 35,
      "front": 0.198,
-     "sinceClickMs": 987,
+     "sinceClickMs": 964,
      "bend": 1,
-     "change": 2.12,
+     "change": 2.18,
      "ratio": 0.92,
-     "window": 1.03,
-     "excess": -0.18,
+     "window": 1.02,
+     "excess": -0.19,
      "control": {
-      "change": 1.84,
-      "ratio": 0.51,
-      "excess": -1.75
+      "change": 1.42,
+      "ratio": 0.97,
+      "excess": -0.04
      },
      "withinControl": true
     },
     {
      "tile": 37,
      "front": 0.218,
-     "sinceClickMs": 1005,
+     "sinceClickMs": 982,
      "bend": 1,
-     "change": 2.6,
-     "ratio": 0.59,
-     "window": 1.15,
-     "excess": -1.78,
+     "change": 2.72,
+     "ratio": 0.61,
+     "window": 1.12,
+     "excess": -1.72,
      "control": {
-      "change": 5.49,
-      "ratio": 1.07,
-      "excess": 0.36
+      "change": 1.62,
+      "ratio": 0.94,
+      "excess": -0.1
      },
      "withinControl": true
     },
     {
      "tile": 38,
      "front": 0.239,
-     "sinceClickMs": 1021,
+     "sinceClickMs": 998,
      "bend": 1,
-     "change": 6.65,
-     "ratio": 1.15,
-     "window": 1.7,
-     "excess": 0.86,
+     "change": 6.7,
+     "ratio": 1.12,
+     "window": 1.73,
+     "excess": 0.7,
      "control": {
-      "change": 8.4,
-      "ratio": 2.01,
-      "excess": 4.23
+      "change": 2.02,
+      "ratio": 0.55,
+      "excess": -1.67
      },
      "withinControl": true
     },
     {
      "tile": 39,
      "front": 0.261,
-     "sinceClickMs": 1037,
+     "sinceClickMs": 1014,
      "bend": 1,
-     "change": 8.98,
-     "ratio": 1.7,
-     "window": 1.7,
-     "excess": 3.69,
+     "change": 9.28,
+     "ratio": 1.73,
+     "window": 1.73,
+     "excess": 3.92,
      "control": {
-      "change": 2.86,
-      "ratio": 0.51,
-      "excess": -2.77
+      "change": 5.76,
+      "ratio": 1.11,
+      "excess": 0.58
      },
      "withinControl": false
     },
     {
      "tile": 41,
      "front": 0.284,
-     "sinceClickMs": 1055,
+     "sinceClickMs": 1030,
      "bend": 1,
-     "change": 3.92,
-     "ratio": 0.61,
-     "window": 1.7,
-     "excess": -2.54,
+     "change": 9.28,
+     "ratio": 1.73,
+     "window": 1.73,
+     "excess": 3.92,
      "control": {
-      "change": 2.85,
-      "ratio": 0.88,
-      "excess": -0.37
+      "change": 8.34,
+      "ratio": 1.88,
+      "excess": 3.91
      },
      "withinControl": true
     },
     {
      "tile": 42,
      "front": 0.308,
-     "sinceClickMs": 1070,
+     "sinceClickMs": 1048,
      "bend": 1,
-     "change": 3.95,
+     "change": 4.07,
      "ratio": 0.95,
-     "window": 0.98,
-     "excess": -0.23,
+     "window": 0.97,
+     "excess": -0.22,
      "control": {
-      "change": 3.59,
-      "ratio": 1.09,
-      "excess": 0.3
+      "change": 3.1,
+      "ratio": 0.55,
+      "excess": -2.51
      },
      "withinControl": true
     },
     {
      "tile": 43,
-     "front": 0.333,
-     "sinceClickMs": 1088,
+     "front": 0.334,
+     "sinceClickMs": 1064,
      "bend": 1,
-     "change": 4.43,
-     "ratio": 0.98,
-     "window": 1.05,
-     "excess": -0.07,
+     "change": 4.55,
+     "ratio": 0.97,
+     "window": 1.06,
+     "excess": -0.14,
      "control": {
-      "change": 3.74,
-      "ratio": 0.97,
-      "excess": -0.11
+      "change": 2.88,
+      "ratio": 0.89,
+      "excess": -0.37
      },
      "withinControl": true
     },
     {
      "tile": 44,
      "front": 0.36,
-     "sinceClickMs": 1105,
+     "sinceClickMs": 1081,
      "bend": 1,
-     "change": 5.05,
-     "ratio": 1.05,
-     "window": 1.05,
-     "excess": 0.22,
+     "change": 5.31,
+     "ratio": 1.06,
+     "window": 1.06,
+     "excess": 0.28,
      "control": {
-      "change": 4.11,
-      "ratio": 0.97,
-      "excess": -0.14
+      "change": 3.4,
+      "ratio": 0.99,
+      "excess": -0.05
      },
      "withinControl": true
     },
     {
      "tile": 45,
      "front": 0.387,
-     "sinceClickMs": 1120,
+     "sinceClickMs": 1097,
      "bend": 1,
-     "change": 5.24,
+     "change": 5.51,
      "ratio": 0.99,
-     "window": 1.05,
+     "window": 1.06,
      "excess": -0.03,
      "control": {
-      "change": 4.75,
-      "ratio": 1.05,
+      "change": 4.01,
+      "ratio": 1.06,
       "excess": 0.24
      },
      "withinControl": true
@@ -574,284 +575,320 @@
     {
      "tile": 46,
      "front": 0.443,
-     "sinceClickMs": 1154,
+     "sinceClickMs": 1130,
      "bend": 1,
-     "change": 5.94,
-     "ratio": 1.05,
-     "window": 1.05,
-     "excess": 0.28,
+     "change": 5.78,
+     "ratio": 0.97,
+     "window": 1.07,
+     "excess": -0.17,
      "control": {
-      "change": 4.81,
-      "ratio": 0.95,
-      "excess": -0.25
+      "change": 4.5,
+      "ratio": 0.96,
+      "excess": -0.17
      },
      "withinControl": true
     },
     {
      "tile": 47,
      "front": 0.473,
-     "sinceClickMs": 1171,
+     "sinceClickMs": 1149,
      "bend": 1,
-     "change": 5.84,
-     "ratio": 0.97,
-     "window": 1.05,
-     "excess": -0.16,
+     "change": 6.19,
+     "ratio": 0.98,
+     "window": 1.07,
+     "excess": -0.15,
      "control": {
       "change": 5.21,
-      "ratio": 1.04,
-      "excess": 0.22
+      "ratio": 1.12,
+      "excess": 0.56
      },
      "withinControl": true
     },
     {
      "tile": 48,
      "front": 0.503,
-     "sinceClickMs": 1188,
+     "sinceClickMs": 1164,
      "bend": 1,
-     "change": 6.05,
-     "ratio": 0.97,
+     "change": 6.29,
+     "ratio": 0.96,
      "window": 1.06,
-     "excess": -0.16,
+     "excess": -0.29,
      "control": {
-      "change": 5.17,
-      "ratio": 0.99,
-      "excess": -0.06
+      "change": 4.8,
+      "ratio": 0.96,
+      "excess": -0.21
      },
      "withinControl": true
     },
     {
      "tile": 49,
      "front": 0.534,
-     "sinceClickMs": 1203,
+     "sinceClickMs": 1182,
      "bend": 1,
-     "change": 6.05,
-     "ratio": 0.97,
+     "change": 6.97,
+     "ratio": 1.06,
      "window": 1.06,
-     "excess": -0.16,
+     "excess": 0.39,
      "control": {
-      "change": 5.26,
-      "ratio": 0.96,
-      "excess": -0.24
+      "change": 4.8,
+      "ratio": 0.95,
+      "excess": -0.23
      },
      "withinControl": true
     },
     {
      "tile": 50,
      "front": 0.595,
-     "sinceClickMs": 1237,
+     "sinceClickMs": 1214,
      "bend": 1,
-     "change": 6.3,
-     "ratio": 0.96,
-     "window": 1.1,
-     "excess": -0.28,
+     "change": 6.63,
+     "ratio": 0.95,
+     "window": 1.09,
+     "excess": -0.33,
      "control": {
       "change": 5.04,
-      "ratio": 0.94,
-      "excess": -0.33
+      "ratio": 0.96,
+      "excess": -0.2
      },
      "withinControl": true
     },
     {
      "tile": 51,
      "front": 0.626,
-     "sinceClickMs": 1254,
+     "sinceClickMs": 1232,
      "bend": 1,
-     "change": 6.72,
-     "ratio": 1.1,
-     "window": 1.1,
+     "change": 7.06,
+     "ratio": 1.09,
+     "window": 1.09,
      "excess": 0.59,
      "control": {
-      "change": 4.91,
-      "ratio": 0.96,
-      "excess": -0.19
+      "change": 5.2,
+      "ratio": 1.03,
+      "excess": 0.14
      },
      "withinControl": true
     },
     {
      "tile": 52,
      "front": 0.687,
-     "sinceClickMs": 1288,
+     "sinceClickMs": 1264,
      "bend": 1,
-     "change": 5.2,
-     "ratio": 0.91,
+     "change": 5.68,
+     "ratio": 0.93,
      "window": 1.07,
-     "excess": -0.5,
+     "excess": -0.42,
      "control": {
-      "change": 4.47,
-      "ratio": 0.94,
-      "excess": -0.29
+      "change": 4.49,
+      "ratio": 0.95,
+      "excess": -0.24
      },
      "withinControl": true
     },
     {
      "tile": 53,
      "front": 0.716,
-     "sinceClickMs": 1305,
+     "sinceClickMs": 1280,
      "bend": 1,
-     "change": 5.42,
-     "ratio": 1.07,
+     "change": 5.68,
+     "ratio": 0.93,
      "window": 1.07,
-     "excess": 0.35,
+     "excess": -0.42,
      "control": {
-      "change": 4.37,
-      "ratio": 0.98,
-      "excess": -0.07
+      "change": 4.38,
+      "ratio": 0.99,
+      "excess": -0.04
      },
      "withinControl": true
     },
     {
      "tile": 54,
      "front": 0.773,
-     "sinceClickMs": 1337,
+     "sinceClickMs": 1313,
      "bend": 1,
-     "change": 4.35,
-     "ratio": 0.93,
-     "window": 1.13,
-     "excess": -0.32,
+     "change": 5.3,
+     "ratio": 0.99,
+     "window": 1.07,
+     "excess": -0.04,
      "control": {
-      "change": 3.89,
-      "ratio": 0.99,
-      "excess": -0.03
+      "change": 4,
+      "ratio": 0.98,
+      "excess": -0.09
      },
      "withinControl": true
     },
     {
      "tile": 55,
      "front": 0.851,
-     "sinceClickMs": 1388,
+     "sinceClickMs": 1365,
      "bend": 1,
-     "change": 2.95,
+     "change": 3.39,
      "ratio": 0.93,
      "window": 1.16,
-     "excess": -0.21,
+     "excess": -0.24,
      "control": {
-      "change": 2.55,
-      "ratio": 0.99,
-      "excess": -0.03
+      "change": 3.11,
+      "ratio": 0.98,
+      "excess": -0.08
      },
      "withinControl": true
     },
     {
      "tile": 56,
      "front": 0.899,
-     "sinceClickMs": 1422,
+     "sinceClickMs": 1397,
      "bend": 1,
-     "change": 2.09,
+     "change": 2.37,
      "ratio": 0.84,
      "window": 1.16,
-     "excess": -0.39,
+     "excess": -0.47,
      "control": {
-      "change": 1.91,
-      "ratio": 1.12,
-      "excess": 0.21
+      "change": 2.46,
+      "ratio": 1.07,
+      "excess": 0.17
      },
      "withinControl": true
     },
     {
      "tile": 57,
      "front": 0.981,
-     "sinceClickMs": 1487,
+     "sinceClickMs": 1465,
      "bend": 1,
-     "change": 1.06,
-     "ratio": 0.87,
-     "window": 1.34,
-     "excess": -0.16,
+     "change": 1.14,
+     "ratio": 0.86,
+     "window": 1.32,
+     "excess": -0.19,
      "control": {
-      "change": 0.84,
-      "ratio": 1.07,
-      "excess": 0.06
+      "change": 1.09,
+      "ratio": 0.96,
+      "excess": -0.05
      },
      "withinControl": true
     },
     {
      "tile": 58,
      "front": 1.049,
-     "sinceClickMs": 1554,
+     "sinceClickMs": 1530,
      "bend": 1,
-     "change": 0.45,
-     "ratio": 0.84,
-     "window": 1.49,
-     "excess": -0.09,
+     "change": 0.59,
+     "ratio": 0.97,
+     "window": 0.97,
+     "excess": -0.02,
      "control": {
-      "change": 0.27,
-      "ratio": 1.2,
-      "excess": 0.05
+      "change": 0.4,
+      "ratio": 0.97,
+      "excess": -0.01
      },
      "withinControl": true
     },
     {
      "tile": 59,
      "front": 1.14,
-     "sinceClickMs": 1672,
+     "sinceClickMs": 1648,
      "bend": 1,
-     "change": 0.11,
-     "ratio": 0.55,
-     "window": 1,
+     "change": 0.12,
+     "ratio": 0.59,
+     "window": 1.06,
      "excess": -0.05,
      "control": {
       "change": 0.05,
       "ratio": 0.24,
-      "excess": 0.02
+      "excess": 0
      },
      "withinControl": true
     },
     {
      "tile": 60,
      "front": 1.226,
-     "sinceClickMs": 1837,
+     "sinceClickMs": 1814,
      "bend": 0.92,
      "change": 0.05,
-     "ratio": 0.23,
-     "window": 0.28,
+     "ratio": 0.24,
+     "window": 0.32,
      "excess": -0.04,
      "control": {
-      "change": 0.01,
-      "ratio": 0.03,
+      "change": 0,
+      "ratio": 0.02,
       "excess": 0
      },
      "withinControl": true
     }
    ],
-   "worstRatio": 3.45,
-   "worstWindow": 3.45,
-   "worstExcess": 3.69,
+   "worstRatio": 3.07,
+   "worstWindow": 4.53,
+   "worstExcess": 3.92,
    "overControl": [
+    {
+     "tile": 21,
+     "front": 0.009,
+     "ratio": 3.07,
+     "controlRatio": 0.82
+    },
     {
      "tile": 24,
      "front": 0.055,
-     "ratio": 3.45,
+     "ratio": 2.96,
      "controlRatio": 0.96
+    },
+    {
+     "tile": 25,
+     "front": 0.068,
+     "ratio": 2.96,
+     "controlRatio": 0.93
     },
     {
      "tile": 39,
      "front": 0.261,
-     "ratio": 1.7,
-     "controlRatio": 0.51
+     "ratio": 1.73,
+     "controlRatio": 1.11
     }
    ],
    "over1_5": [
     {
+     "tile": 21,
+     "front": 0.009,
+     "ratio": 3.07,
+     "excess": 0.74,
+     "change": 1.1,
+     "controlRatio": 0.82
+    },
+    {
      "tile": 24,
      "front": 0.055,
-     "ratio": 3.45,
-     "excess": 1.32,
-     "change": 1.86,
+     "ratio": 2.96,
+     "excess": 1.1,
+     "change": 1.66,
      "controlRatio": 0.96
+    },
+    {
+     "tile": 25,
+     "front": 0.068,
+     "ratio": 2.96,
+     "excess": 1.1,
+     "change": 1.66,
+     "controlRatio": 0.93
     },
     {
      "tile": 39,
      "front": 0.261,
-     "ratio": 1.7,
-     "excess": 3.69,
-     "change": 8.98,
-     "controlRatio": 0.51
+     "ratio": 1.73,
+     "excess": 3.92,
+     "change": 9.28,
+     "controlRatio": 1.11
+    },
+    {
+     "tile": 41,
+     "front": 0.284,
+     "ratio": 1.73,
+     "excess": 3.92,
+     "change": 9.28,
+     "controlRatio": 1.88
     }
    ]
   },
   {
    "run": 2,
-   "frames": 202,
-   "longestFrameGapMs": 34,
+   "frames": 203,
+   "longestFrameGapMs": 33,
    "strictlyIncreasing": true,
    "skippedTiles": [
     {
@@ -879,43 +916,43 @@
     {
      "tile": 9,
      "front": -0.143,
-     "sinceClickMs": 230,
+     "sinceClickMs": 233,
      "bend": 0,
-     "change": 0.12,
-     "ratio": 0.59,
-     "window": 0.8,
-     "excess": -0.02,
+     "change": 0.13,
+     "ratio": 0.63,
+     "window": 0.87,
+     "excess": -0.03,
      "control": {
       "change": 0.12,
-      "ratio": 0.61,
-      "excess": -0.03
+      "ratio": 0.59,
+      "excess": -0.04
      },
      "withinControl": true
     },
     {
      "tile": 10,
      "front": -0.131,
-     "sinceClickMs": 329,
+     "sinceClickMs": 333,
      "bend": 0,
      "change": 0.01,
      "ratio": 0.05,
-     "window": 0.47,
+     "window": 0.48,
      "excess": -0.04,
      "control": {
       "change": 0.01,
-      "ratio": 0.05,
-      "excess": -0.04
+      "ratio": 0.04,
+      "excess": -0.05
      },
      "withinControl": true
     },
     {
      "tile": 11,
      "front": -0.116,
-     "sinceClickMs": 413,
+     "sinceClickMs": 416,
      "bend": 0,
      "change": 0.02,
-     "ratio": 0.09,
-     "window": 0.11,
+     "ratio": 0.08,
+     "window": 0.09,
      "excess": 0,
      "control": {
       "change": 0.01,
@@ -927,11 +964,11 @@
     {
      "tile": 12,
      "front": -0.104,
-     "sinceClickMs": 463,
+     "sinceClickMs": 466,
      "bend": 0,
      "change": 0.02,
-     "ratio": 0.12,
-     "window": 0.14,
+     "ratio": 0.11,
+     "window": 0.13,
      "excess": 0,
      "control": {
       "change": 0.02,
@@ -943,15 +980,15 @@
     {
      "tile": 13,
      "front": -0.089,
-     "sinceClickMs": 512,
+     "sinceClickMs": 516,
      "bend": 0,
      "change": 0.03,
      "ratio": 0.17,
-     "window": 0.2,
+     "window": 0.19,
      "excess": 0,
      "control": {
       "change": 0.03,
-      "ratio": 0.15,
+      "ratio": 0.16,
       "excess": 0
      },
      "withinControl": true
@@ -959,11 +996,11 @@
     {
      "tile": 14,
      "front": -0.078,
-     "sinceClickMs": 546,
+     "sinceClickMs": 550,
      "bend": 0,
-     "change": 0.04,
-     "ratio": 0.22,
-     "window": 0.23,
+     "change": 0.05,
+     "ratio": 0.23,
+     "window": 0.25,
      "excess": 0,
      "control": {
       "change": 0.04,
@@ -975,15 +1012,15 @@
     {
      "tile": 15,
      "front": -0.066,
-     "sinceClickMs": 580,
+     "sinceClickMs": 583,
      "bend": 0.02,
-     "change": 0.06,
-     "ratio": 0.3,
-     "window": 0.32,
-     "excess": 0.01,
+     "change": 0.05,
+     "ratio": 0.27,
+     "window": 0.35,
+     "excess": -0.01,
      "control": {
-      "change": 0.05,
-      "ratio": 0.27,
+      "change": 0.06,
+      "ratio": 0.28,
       "excess": 0
      },
      "withinControl": true
@@ -991,15 +1028,15 @@
     {
      "tile": 16,
      "front": -0.052,
-     "sinceClickMs": 613,
+     "sinceClickMs": 616,
      "bend": 0.08,
      "change": 0.08,
-     "ratio": 0.42,
-     "window": 0.52,
+     "ratio": 0.4,
+     "window": 0.48,
      "excess": 0,
      "control": {
       "change": 0.07,
-      "ratio": 0.36,
+      "ratio": 0.37,
       "excess": 0
      },
      "withinControl": true
@@ -1007,15 +1044,15 @@
     {
      "tile": 17,
      "front": -0.037,
-     "sinceClickMs": 646,
+     "sinceClickMs": 650,
      "bend": 0.18,
      "change": 0.14,
-     "ratio": 0.68,
-     "window": 1.02,
-     "excess": -0.02,
+     "ratio": 0.7,
+     "window": 1.04,
+     "excess": -0.01,
      "control": {
-      "change": 0.1,
-      "ratio": 0.52,
+      "change": 0.11,
+      "ratio": 0.53,
       "excess": 0
      },
      "withinControl": true
@@ -1023,15 +1060,15 @@
     {
      "tile": 18,
      "front": -0.029,
-     "sinceClickMs": 663,
+     "sinceClickMs": 666,
      "bend": 0.26,
-     "change": 0.2,
-     "ratio": 1.02,
-     "window": 1.02,
-     "excess": 0.04,
+     "change": 0.21,
+     "ratio": 1.04,
+     "window": 1.04,
+     "excess": 0.05,
      "control": {
-      "change": 0.11,
-      "ratio": 0.57,
+      "change": 0.12,
+      "ratio": 0.6,
       "excess": 0
      },
      "withinControl": true
@@ -1039,15 +1076,15 @@
     {
      "tile": 19,
      "front": -0.011,
-     "sinceClickMs": 696,
+     "sinceClickMs": 700,
      "bend": 0.43,
-     "change": 0.37,
-     "ratio": 1.18,
-     "window": 1.18,
-     "excess": 0.06,
+     "change": 0.38,
+     "ratio": 0.53,
+     "window": 2.88,
+     "excess": -0.34,
      "control": {
-      "change": 0.16,
-      "ratio": 0.8,
+      "change": 0.17,
+      "ratio": 0.84,
       "excess": 0
      },
      "withinControl": true
@@ -1055,62 +1092,62 @@
     {
      "tile": 20,
      "front": -0.001,
-     "sinceClickMs": 713,
+     "sinceClickMs": 716,
      "bend": 0.53,
-     "change": 0.43,
-     "ratio": 0.97,
-     "window": 1.18,
-     "excess": -0.01,
+     "change": 1.25,
+     "ratio": 2.88,
+     "window": 2.88,
+     "excess": 0.81,
      "control": {
-      "change": 0.18,
-      "ratio": 0.9,
+      "change": 0.19,
+      "ratio": 0.95,
       "excess": -0.01
      },
-     "withinControl": true
+     "withinControl": false
     },
     {
      "tile": 21,
      "front": 0.009,
-     "sinceClickMs": 730,
+     "sinceClickMs": 733,
      "bend": 0.63,
-     "change": 0.51,
-     "ratio": 1.03,
-     "window": 1.19,
-     "excess": 0.02,
+     "change": 0.49,
+     "ratio": 0.29,
+     "window": 4.5,
+     "excess": -1.17,
      "control": {
-      "change": 0.22,
-      "ratio": 0.99,
-      "excess": 0
+      "change": 0.23,
+      "ratio": 0.98,
+      "excess": -0.01
      },
      "withinControl": true
     },
     {
      "tile": 22,
      "front": 0.019,
-     "sinceClickMs": 746,
+     "sinceClickMs": 749,
      "bend": 0.73,
-     "change": 0.56,
-     "ratio": 1.19,
-     "window": 1.19,
-     "excess": 0.09,
+     "change": 0.49,
+     "ratio": 0.29,
+     "window": 4.5,
+     "excess": -1.17,
      "control": {
-      "change": 0.27,
-      "ratio": 1.02,
-      "excess": 0
+      "change": 0.29,
+      "ratio": 1.03,
+      "excess": 0.01
      },
      "withinControl": true
     },
     {
      "tile": 23,
      "front": 0.042,
-     "sinceClickMs": 780,
+     "sinceClickMs": 783,
      "bend": 0.91,
-     "change": 2.15,
-     "ratio": 3.59,
-     "window": 3.59,
-     "excess": 1.55,
+     "change": 1.9,
+     "ratio": 2.95,
+     "window": 2.95,
+     "excess": 1.26,
      "control": {
-      "change": 0.36,
+      "change": 0.38,
       "ratio": 0.92,
       "excess": -0.03
      },
@@ -1119,31 +1156,31 @@
     {
      "tile": 24,
      "front": 0.055,
-     "sinceClickMs": 796,
+     "sinceClickMs": 800,
      "bend": 0.97,
-     "change": 0.76,
-     "ratio": 0.51,
-     "window": 3.59,
-     "excess": -0.75,
+     "change": 0.86,
+     "ratio": 0.61,
+     "window": 2.95,
+     "excess": -0.54,
      "control": {
-      "change": 0.48,
-      "ratio": 1.08,
-      "excess": 0.04
+      "change": 0.5,
+      "ratio": 1.07,
+      "excess": 0.03
      },
      "withinControl": true
     },
     {
      "tile": 25,
      "front": 0.068,
-     "sinceClickMs": 813,
+     "sinceClickMs": 816,
      "bend": 1,
-     "change": 0.87,
+     "change": 0.9,
      "ratio": 0.94,
      "window": 0.94,
      "excess": -0.05,
      "control": {
-      "change": 0.53,
-      "ratio": 0.94,
+      "change": 0.55,
+      "ratio": 0.93,
       "excess": -0.04
      },
      "withinControl": true
@@ -1151,79 +1188,79 @@
     {
      "tile": 26,
      "front": 0.081,
-     "sinceClickMs": 829,
+     "sinceClickMs": 833,
      "bend": 1,
-     "change": 1.08,
-     "ratio": 0.92,
-     "window": 1.21,
-     "excess": -0.09,
+     "change": 1.04,
+     "ratio": 0.86,
+     "window": 1.28,
+     "excess": -0.17,
      "control": {
-      "change": 0.65,
-      "ratio": 0.96,
-      "excess": -0.02
+      "change": 0.69,
+      "ratio": 0.98,
+      "excess": -0.01
      },
      "withinControl": true
     },
     {
      "tile": 28,
      "front": 0.096,
-     "sinceClickMs": 846,
+     "sinceClickMs": 849,
      "bend": 1,
-     "change": 1.47,
-     "ratio": 1.21,
-     "window": 1.21,
-     "excess": 0.25,
+     "change": 1.04,
+     "ratio": 0.86,
+     "window": 1.28,
+     "excess": -0.17,
      "control": {
-      "change": 0.82,
-      "ratio": 1.05,
-      "excess": 0.04
+      "change": 0.85,
+      "ratio": 1.04,
+      "excess": 0.03
      },
      "withinControl": true
     },
     {
      "tile": 29,
      "front": 0.111,
-     "sinceClickMs": 863,
+     "sinceClickMs": 866,
      "bend": 1,
-     "change": 1.35,
-     "ratio": 0.87,
-     "window": 1.21,
-     "excess": -0.2,
+     "change": 1.36,
+     "ratio": 0.89,
+     "window": 1.28,
+     "excess": -0.17,
      "control": {
-      "change": 0.91,
-      "ratio": 0.97,
-      "excess": -0.03
+      "change": 0.94,
+      "ratio": 0.98,
+      "excess": -0.02
      },
      "withinControl": true
     },
     {
      "tile": 30,
      "front": 0.126,
-     "sinceClickMs": 880,
+     "sinceClickMs": 883,
      "bend": 1,
-     "change": 1.63,
-     "ratio": 1.05,
-     "window": 1.05,
-     "excess": 0.08,
+     "change": 1.52,
+     "ratio": 0.93,
+     "window": 1.03,
+     "excess": -0.11,
      "control": {
-      "change": 1.05,
+      "change": 1.08,
       "ratio": 0.95,
-      "excess": -0.05
+      "excess": -0.06
      },
      "withinControl": true
     },
     {
      "tile": 31,
      "front": 0.143,
-     "sinceClickMs": 896,
+     "sinceClickMs": 900,
      "bend": 1,
-     "change": 1.76,
-     "ratio": 0.93,
-     "window": 1.05,
-     "excess": -0.14,
+     "change": 1.89,
+     "ratio": 1.03,
+     "window": 1.03,
+     "excess": 0.05,
      "control": {
-      "change": 1.3,
-      "ratio": 1.06,
+      "change": 1.33,
+      "ratio": 1.05,
       "excess": 0.07
      },
      "withinControl": true
@@ -1231,78 +1268,78 @@
     {
      "tile": 33,
      "front": 0.16,
-     "sinceClickMs": 913,
+     "sinceClickMs": 916,
      "bend": 1,
-     "change": 2.16,
-     "ratio": 1.05,
-     "window": 1.05,
-     "excess": 0.11,
+     "change": 2.17,
+     "ratio": 1.03,
+     "window": 1.03,
+     "excess": 0.07,
      "control": {
-      "change": 1.4,
-      "ratio": 0.95,
-      "excess": -0.07
-     },
-     "withinControl": true
-    },
-    {
-     "tile": 34,
-     "front": 0.179,
-     "sinceClickMs": 930,
-     "bend": 1,
-     "change": 2.35,
-     "ratio": 0.99,
-     "window": 1.05,
-     "excess": -0.02,
-     "control": {
-      "change": 1.63,
+      "change": 1.46,
       "ratio": 0.97,
       "excess": -0.05
      },
      "withinControl": true
     },
     {
+     "tile": 34,
+     "front": 0.179,
+     "sinceClickMs": 933,
+     "bend": 1,
+     "change": 2.31,
+     "ratio": 0.92,
+     "window": 1.03,
+     "excess": -0.2,
+     "control": {
+      "change": 1.67,
+      "ratio": 0.95,
+      "excess": -0.09
+     },
+     "withinControl": true
+    },
+    {
      "tile": 35,
      "front": 0.198,
-     "sinceClickMs": 946,
+     "sinceClickMs": 949,
      "bend": 1,
-     "change": 2.58,
-     "ratio": 0.9,
-     "window": 1.06,
-     "excess": -0.28,
+     "change": 2.31,
+     "ratio": 0.92,
+     "window": 1.03,
+     "excess": -0.2,
      "control": {
-      "change": 1.97,
-      "ratio": 1.02,
-      "excess": 0.03
+      "change": 2.08,
+      "ratio": 1.04,
+      "excess": 0.09
      },
      "withinControl": true
     },
     {
      "tile": 37,
      "front": 0.218,
-     "sinceClickMs": 964,
+     "sinceClickMs": 966,
      "bend": 1,
-     "change": 3.36,
-     "ratio": 1.06,
-     "window": 1.06,
-     "excess": 0.2,
+     "change": 3.37,
+     "ratio": 1.04,
+     "window": 1.04,
+     "excess": 0.13,
      "control": {
-      "change": 2.24,
-      "ratio": 0.97,
-      "excess": -0.08
+      "change": 2.31,
+      "ratio": 0.96,
+      "excess": -0.1
      },
      "withinControl": true
     },
     {
      "tile": 38,
      "front": 0.239,
-     "sinceClickMs": 980,
+     "sinceClickMs": 983,
      "bend": 1,
-     "change": 3.74,
-     "ratio": 1.03,
-     "window": 1.06,
-     "excess": 0.12,
+     "change": 3.63,
+     "ratio": 0.96,
+     "window": 1.07,
+     "excess": -0.15,
      "control": {
-      "change": 2.66,
+      "change": 2.73,
       "ratio": 1,
       "excess": 0
      },
@@ -1311,127 +1348,127 @@
     {
      "tile": 39,
      "front": 0.261,
-     "sinceClickMs": 997,
+     "sinceClickMs": 1000,
      "bend": 1,
-     "change": 3.88,
-     "ratio": 0.99,
-     "window": 1.03,
-     "excess": -0.05,
+     "change": 4.19,
+     "ratio": 1.07,
+     "window": 1.07,
+     "excess": 0.28,
      "control": {
-      "change": 3.08,
+      "change": 3.16,
       "ratio": 1.11,
-      "excess": 0.3
+      "excess": 0.32
      },
      "withinControl": true
     },
     {
      "tile": 41,
      "front": 0.284,
-     "sinceClickMs": 1013,
+     "sinceClickMs": 1016,
      "bend": 1,
-     "change": 4.12,
+     "change": 4.2,
      "ratio": 0.94,
-     "window": 1.08,
-     "excess": -0.28,
+     "window": 1.07,
+     "excess": -0.25,
      "control": {
-      "change": 2.91,
-      "ratio": 0.9,
-      "excess": -0.34
+      "change": 2.95,
+      "ratio": 0.89,
+      "excess": -0.37
      },
      "withinControl": true
     },
     {
      "tile": 42,
      "front": 0.308,
-     "sinceClickMs": 1030,
+     "sinceClickMs": 1033,
      "bend": 1,
-     "change": 4.91,
-     "ratio": 1.08,
-     "window": 1.08,
-     "excess": 0.38,
+     "change": 4.71,
+     "ratio": 0.98,
+     "window": 1.06,
+     "excess": -0.11,
      "control": {
-      "change": 3.43,
-      "ratio": 0.99,
-      "excess": -0.04
+      "change": 3.47,
+      "ratio": 0.98,
+      "excess": -0.05
      },
      "withinControl": true
     },
     {
      "tile": 43,
-     "front": 0.334,
-     "sinceClickMs": 1047,
+     "front": 0.333,
+     "sinceClickMs": 1049,
      "bend": 1,
-     "change": 4.94,
-     "ratio": 0.96,
-     "window": 1.08,
-     "excess": -0.2,
+     "change": 4.71,
+     "ratio": 0.98,
+     "window": 1.06,
+     "excess": -0.11,
      "control": {
-      "change": 4.01,
+      "change": 4.1,
       "ratio": 1.06,
-      "excess": 0.23
+      "excess": 0.25
      },
      "withinControl": true
     },
     {
      "tile": 44,
      "front": 0.36,
-     "sinceClickMs": 1063,
+     "sinceClickMs": 1066,
      "bend": 1,
-     "change": 5.37,
-     "ratio": 0.98,
-     "window": 1.1,
-     "excess": -0.12,
+     "change": 5.62,
+     "ratio": 0.99,
+     "window": 1.06,
+     "excess": -0.05,
      "control": {
-      "change": 4.14,
-      "ratio": 0.97,
-      "excess": -0.14
-     },
-     "withinControl": true
-    },
-    {
-     "tile": 45,
-     "front": 0.387,
-     "sinceClickMs": 1080,
-     "bend": 1,
-     "change": 6.05,
-     "ratio": 1.1,
-     "window": 1.1,
-     "excess": 0.54,
-     "control": {
-      "change": 4.55,
+      "change": 4.23,
       "ratio": 0.97,
       "excess": -0.12
      },
      "withinControl": true
     },
     {
+     "tile": 45,
+     "front": 0.387,
+     "sinceClickMs": 1083,
+     "bend": 1,
+     "change": 5.87,
+     "ratio": 0.97,
+     "window": 1.07,
+     "excess": -0.19,
+     "control": {
+      "change": 4.6,
+      "ratio": 0.97,
+      "excess": -0.16
+     },
+     "withinControl": true
+    },
+    {
      "tile": 46,
      "front": 0.443,
-     "sinceClickMs": 1113,
+     "sinceClickMs": 1118,
      "bend": 1,
-     "change": 6.01,
-     "ratio": 0.99,
-     "window": 1.05,
-     "excess": -0.06,
+     "change": 6.27,
+     "ratio": 0.97,
+     "window": 1.07,
+     "excess": -0.18,
      "control": {
-      "change": 4.89,
-      "ratio": 0.96,
-      "excess": -0.21
+      "change": 4.83,
+      "ratio": 0.95,
+      "excess": -0.24
      },
      "withinControl": true
     },
     {
      "tile": 47,
      "front": 0.473,
-     "sinceClickMs": 1130,
+     "sinceClickMs": 1134,
      "bend": 1,
-     "change": 6.49,
-     "ratio": 1.05,
-     "window": 1.05,
-     "excess": 0.3,
+     "change": 6.4,
+     "ratio": 0.95,
+     "window": 1.07,
+     "excess": -0.31,
      "control": {
-      "change": 4.99,
-      "ratio": 0.96,
+      "change": 4.84,
+      "ratio": 0.95,
       "excess": -0.23
      },
      "withinControl": true
@@ -1439,94 +1476,94 @@
     {
      "tile": 48,
      "front": 0.503,
-     "sinceClickMs": 1147,
+     "sinceClickMs": 1151,
      "bend": 1,
-     "change": 6.36,
-     "ratio": 0.98,
-     "window": 1.05,
-     "excess": -0.13,
+     "change": 7.14,
+     "ratio": 1.07,
+     "window": 1.07,
+     "excess": 0.45,
      "control": {
-      "change": 5.54,
-      "ratio": 1.08,
-      "excess": 0.39
+      "change": 5.32,
+      "ratio": 1.07,
+      "excess": 0.34
      },
      "withinControl": true
     },
     {
      "tile": 49,
      "front": 0.534,
-     "sinceClickMs": 1163,
+     "sinceClickMs": 1168,
      "bend": 1,
-     "change": 6.5,
-     "ratio": 0.98,
-     "window": 1.06,
-     "excess": -0.1,
+     "change": 6.98,
+     "ratio": 1,
+     "window": 1.07,
+     "excess": 0.02,
      "control": {
-      "change": 5.31,
-      "ratio": 0.96,
-      "excess": -0.21
+      "change": 5.11,
+      "ratio": 0.97,
+      "excess": -0.16
      },
      "withinControl": true
     },
     {
      "tile": 50,
      "front": 0.595,
-     "sinceClickMs": 1196,
+     "sinceClickMs": 1201,
      "bend": 1,
-     "change": 6.4,
-     "ratio": 1,
-     "window": 1.06,
-     "excess": -0.01,
+     "change": 7.12,
+     "ratio": 1.08,
+     "window": 1.08,
+     "excess": 0.54,
      "control": {
-      "change": 5.42,
+      "change": 5.06,
       "ratio": 1.04,
-      "excess": 0.19
+      "excess": 0.22
      },
      "withinControl": true
     },
     {
      "tile": 51,
      "front": 0.626,
-     "sinceClickMs": 1212,
+     "sinceClickMs": 1217,
      "bend": 1,
-     "change": 5.99,
-     "ratio": 1.01,
-     "window": 1.01,
-     "excess": 0.05,
+     "change": 6.38,
+     "ratio": 1,
+     "window": 1.08,
+     "excess": -0.02,
      "control": {
-      "change": 4.93,
-      "ratio": 0.96,
-      "excess": -0.21
+      "change": 4.45,
+      "ratio": 0.94,
+      "excess": -0.3
      },
      "withinControl": true
     },
     {
      "tile": 52,
      "front": 0.687,
-     "sinceClickMs": 1246,
+     "sinceClickMs": 1251,
      "bend": 1,
-     "change": 5.16,
-     "ratio": 0.99,
-     "window": 1.01,
-     "excess": -0.05,
+     "change": 5.97,
+     "ratio": 1.09,
+     "window": 1.09,
+     "excess": 0.47,
      "control": {
-      "change": 4.79,
+      "change": 4.38,
       "ratio": 1.04,
-      "excess": 0.17
+      "excess": 0.15
      },
      "withinControl": true
     },
     {
      "tile": 53,
      "front": 0.716,
-     "sinceClickMs": 1262,
+     "sinceClickMs": 1268,
      "bend": 1,
-     "change": 4.95,
-     "ratio": 1.01,
-     "window": 1.02,
-     "excess": 0.06,
+     "change": 5.33,
+     "ratio": 0.99,
+     "window": 1.09,
+     "excess": -0.06,
      "control": {
-      "change": 4.37,
+      "change": 4,
       "ratio": 0.98,
       "excess": -0.1
      },
@@ -1535,95 +1572,95 @@
     {
      "tile": 54,
      "front": 0.773,
-     "sinceClickMs": 1295,
+     "sinceClickMs": 1301,
      "bend": 1,
-     "change": 4.09,
-     "ratio": 1.02,
-     "window": 1.02,
-     "excess": 0.1,
+     "change": 5.12,
+     "ratio": 1.17,
+     "window": 1.17,
+     "excess": 0.75,
      "control": {
-      "change": 4.15,
-      "ratio": 1.09,
-      "excess": 0.35
+      "change": 3.68,
+      "ratio": 1.06,
+      "excess": 0.21
      },
      "withinControl": true
     },
     {
      "tile": 55,
      "front": 0.851,
-     "sinceClickMs": 1345,
+     "sinceClickMs": 1350,
      "bend": 1,
-     "change": 2.79,
-     "ratio": 1.05,
-     "window": 1.05,
-     "excess": 0.14,
+     "change": 3.38,
+     "ratio": 1.17,
+     "window": 1.17,
+     "excess": 0.48,
      "control": {
-      "change": 2.72,
-      "ratio": 1.09,
-      "excess": 0.23
+      "change": 2.47,
+      "ratio": 1.08,
+      "excess": 0.17
      },
      "withinControl": true
     },
     {
      "tile": 56,
      "front": 0.899,
-     "sinceClickMs": 1378,
+     "sinceClickMs": 1383,
      "bend": 1,
-     "change": 2.12,
-     "ratio": 0.85,
-     "window": 1.2,
-     "excess": -0.38,
+     "change": 2.36,
+     "ratio": 1.13,
+     "window": 1.13,
+     "excess": 0.28,
      "control": {
-      "change": 1.78,
+      "change": 1.66,
       "ratio": 1.02,
-      "excess": 0.04
+      "excess": 0.03
      },
      "withinControl": true
     },
     {
      "tile": 57,
      "front": 0.981,
-     "sinceClickMs": 1447,
+     "sinceClickMs": 1450,
      "bend": 1,
-     "change": 1.08,
-     "ratio": 1.21,
-     "window": 1.21,
-     "excess": 0.18,
+     "change": 1.24,
+     "ratio": 1.31,
+     "window": 1.31,
+     "excess": 0.29,
      "control": {
-      "change": 0.9,
-      "ratio": 1.21,
-      "excess": 0.16
+      "change": 0.83,
+      "ratio": 1.18,
+      "excess": 0.12
      },
      "withinControl": true
     },
     {
      "tile": 58,
      "front": 1.049,
-     "sinceClickMs": 1513,
+     "sinceClickMs": 1516,
      "bend": 1,
-     "change": 0.52,
+     "change": 0.56,
      "ratio": 1.54,
      "window": 1.54,
-     "excess": 0.18,
+     "excess": 0.2,
      "control": {
-      "change": 0.27,
-      "ratio": 1.17,
-      "excess": 0.04
+      "change": 0.25,
+      "ratio": 1.15,
+      "excess": 0.03
      },
      "withinControl": true
     },
     {
      "tile": 59,
      "front": 1.14,
-     "sinceClickMs": 1630,
+     "sinceClickMs": 1633,
      "bend": 1,
      "change": 0.21,
-     "ratio": 1.06,
-     "window": 1.06,
-     "excess": 0.13,
+     "ratio": 1.07,
+     "window": 1.07,
+     "excess": 0.12,
      "control": {
-      "change": 0.05,
-      "ratio": 0.23,
+      "change": 0.04,
+      "ratio": 0.22,
       "excess": 0.02
      },
      "withinControl": true
@@ -1631,12 +1668,12 @@
     {
      "tile": 60,
      "front": 1.226,
-     "sinceClickMs": 1796,
+     "sinceClickMs": 1801,
      "bend": 0.92,
-     "change": 0.12,
-     "ratio": 0.27,
-     "window": 4.39,
-     "excess": -0.34,
+     "change": 0.14,
+     "ratio": 0.32,
+     "window": 4.06,
+     "excess": -0.29,
      "control": {
       "change": 0.01,
       "ratio": 0.03,
@@ -1645,46 +1682,60 @@
      "withinControl": true
     }
    ],
-   "worstRatio": 3.59,
-   "worstWindow": 4.39,
-   "worstExcess": 1.55,
+   "worstRatio": 2.95,
+   "worstWindow": 4.5,
+   "worstExcess": 1.26,
    "overControl": [
+    {
+     "tile": 20,
+     "front": -0.001,
+     "ratio": 2.88,
+     "controlRatio": 0.95
+    },
     {
      "tile": 23,
      "front": 0.042,
-     "ratio": 3.59,
+     "ratio": 2.95,
      "controlRatio": 0.92
     }
    ],
    "over1_5": [
     {
+     "tile": 20,
+     "front": -0.001,
+     "ratio": 2.88,
+     "excess": 0.81,
+     "change": 1.25,
+     "controlRatio": 0.95
+    },
+    {
      "tile": 23,
      "front": 0.042,
-     "ratio": 3.59,
-     "excess": 1.55,
-     "change": 2.15,
+     "ratio": 2.95,
+     "excess": 1.26,
+     "change": 1.9,
      "controlRatio": 0.92
     },
     {
      "tile": 58,
      "front": 1.049,
      "ratio": 1.54,
-     "excess": 0.18,
-     "change": 0.52,
-     "controlRatio": 1.17
+     "excess": 0.2,
+     "change": 0.56,
+     "controlRatio": 1.15
     }
    ]
   },
   {
    "run": 3,
    "frames": 203,
-   "longestFrameGapMs": 34,
+   "longestFrameGapMs": 33,
    "strictlyIncreasing": true,
    "skippedTiles": [
     {
-     "k": 18,
-     "from": 25,
-     "to": 27
+     "k": 19,
+     "from": 26,
+     "to": 28
     },
     {
      "k": 23,
@@ -1706,15 +1757,15 @@
     {
      "tile": 9,
      "front": -0.143,
-     "sinceClickMs": 222,
+     "sinceClickMs": 226,
      "bend": 0,
      "change": 0.13,
-     "ratio": 0.67,
-     "window": 0.93,
+     "ratio": 0.64,
+     "window": 0.79,
      "excess": -0.02,
      "control": {
       "change": 0.14,
-      "ratio": 0.7,
+      "ratio": 0.69,
       "excess": -0.01
      },
      "withinControl": true
@@ -1722,31 +1773,31 @@
     {
      "tile": 10,
      "front": -0.131,
-     "sinceClickMs": 322,
+     "sinceClickMs": 326,
      "bend": 0,
-     "change": 0.09,
-     "ratio": 0.47,
-     "window": 1.03,
-     "excess": -0.02,
+     "change": 0.01,
+     "ratio": 0.05,
+     "window": 0.51,
+     "excess": -0.05,
      "control": {
-      "change": 0.09,
-      "ratio": 0.46,
-      "excess": -0.02
+      "change": 0.11,
+      "ratio": 0.53,
+      "excess": 0
      },
      "withinControl": true
     },
     {
      "tile": 11,
      "front": -0.116,
-     "sinceClickMs": 407,
+     "sinceClickMs": 408,
      "bend": 0,
      "change": 0.02,
      "ratio": 0.08,
-     "window": 0.1,
+     "window": 0.09,
      "excess": 0,
      "control": {
       "change": 0.01,
-      "ratio": 0.05,
+      "ratio": 0.07,
       "excess": 0
      },
      "withinControl": true
@@ -1754,15 +1805,15 @@
     {
      "tile": 12,
      "front": -0.104,
-     "sinceClickMs": 457,
+     "sinceClickMs": 459,
      "bend": 0,
      "change": 0.02,
      "ratio": 0.11,
-     "window": 0.13,
+     "window": 0.14,
      "excess": 0,
      "control": {
       "change": 0.02,
-      "ratio": 0.09,
+      "ratio": 0.11,
       "excess": 0
      },
      "withinControl": true
@@ -1770,10 +1821,10 @@
     {
      "tile": 13,
      "front": -0.089,
-     "sinceClickMs": 506,
+     "sinceClickMs": 508,
      "bend": 0,
-     "change": 0.03,
-     "ratio": 0.17,
+     "change": 0.04,
+     "ratio": 0.18,
      "window": 0.19,
      "excess": 0,
      "control": {
@@ -1790,11 +1841,11 @@
      "bend": 0,
      "change": 0.04,
      "ratio": 0.22,
-     "window": 0.25,
+     "window": 0.26,
      "excess": 0,
      "control": {
       "change": 0.04,
-      "ratio": 0.18,
+      "ratio": 0.19,
       "excess": 0
      },
      "withinControl": true
@@ -1802,15 +1853,15 @@
     {
      "tile": 15,
      "front": -0.066,
-     "sinceClickMs": 572,
+     "sinceClickMs": 574,
      "bend": 0.02,
      "change": 0.05,
-     "ratio": 0.25,
-     "window": 0.31,
-     "excess": 0,
+     "ratio": 0.27,
+     "window": 0.33,
+     "excess": -0.01,
      "control": {
       "change": 0.05,
-      "ratio": 0.24,
+      "ratio": 0.26,
       "excess": 0
      },
      "withinControl": true
@@ -1818,206 +1869,206 @@
     {
      "tile": 16,
      "front": -0.052,
-     "sinceClickMs": 605,
+     "sinceClickMs": 607,
      "bend": 0.08,
      "change": 0.07,
      "ratio": 0.33,
-     "window": 0.42,
-     "excess": -0.01,
+     "window": 0.43,
+     "excess": 0,
      "control": {
       "change": 0.06,
-      "ratio": 0.3,
-      "excess": 0
+      "ratio": 0.31,
+      "excess": -0.01
      },
      "withinControl": true
     },
     {
      "tile": 17,
      "front": -0.037,
-     "sinceClickMs": 639,
+     "sinceClickMs": 641,
      "bend": 0.18,
-     "change": 0.14,
-     "ratio": 0.68,
-     "window": 1.01,
-     "excess": -0.02,
+     "change": 0.13,
+     "ratio": 0.66,
+     "window": 1.11,
+     "excess": -0.03,
      "control": {
       "change": 0.09,
       "ratio": 0.45,
-      "excess": 0.01
+      "excess": 0
      },
      "withinControl": true
     },
     {
      "tile": 18,
      "front": -0.029,
-     "sinceClickMs": 655,
+     "sinceClickMs": 657,
      "bend": 0.26,
-     "change": 0.14,
-     "ratio": 0.68,
-     "window": 1.01,
-     "excess": -0.02,
+     "change": 0.13,
+     "ratio": 0.66,
+     "window": 1.11,
+     "excess": -0.03,
      "control": {
       "change": 0.1,
-      "ratio": 0.5,
-      "excess": 0
+      "ratio": 0.51,
+      "excess": -0.01
      },
      "withinControl": true
     },
     {
      "tile": 19,
      "front": -0.011,
-     "sinceClickMs": 689,
+     "sinceClickMs": 690,
      "bend": 0.43,
-     "change": 0.37,
-     "ratio": 1.18,
-     "window": 1.18,
-     "excess": 0.05,
+     "change": 0.18,
+     "ratio": 0.61,
+     "window": 1.11,
+     "excess": -0.11,
      "control": {
-      "change": 0.15,
-      "ratio": 0.73,
-      "excess": 0.01
+      "change": 0.14,
+      "ratio": 0.69,
+      "excess": -0.01
      },
      "withinControl": true
     },
     {
      "tile": 20,
      "front": -0.001,
-     "sinceClickMs": 706,
+     "sinceClickMs": 707,
      "bend": 0.53,
-     "change": 0.43,
-     "ratio": 0.98,
-     "window": 1.18,
-     "excess": -0.01,
+     "change": 0.36,
+     "ratio": 0.48,
+     "window": 3.12,
+     "excess": -0.39,
      "control": {
-      "change": 0.15,
-      "ratio": 0.77,
-      "excess": -0.01
+      "change": 0.17,
+      "ratio": 0.83,
+      "excess": 0
      },
      "withinControl": true
     },
     {
      "tile": 21,
      "front": 0.009,
-     "sinceClickMs": 722,
+     "sinceClickMs": 724,
      "bend": 0.63,
-     "change": 0.43,
-     "ratio": 0.98,
-     "window": 1.18,
-     "excess": -0.01,
+     "change": 0.49,
+     "ratio": 0.3,
+     "window": 4.08,
+     "excess": -1.15,
      "control": {
-      "change": 0.18,
-      "ratio": 0.89,
-      "excess": -0.02
+      "change": 0.2,
+      "ratio": 1.01,
+      "excess": 0
      },
      "withinControl": true
     },
     {
      "tile": 22,
      "front": 0.019,
-     "sinceClickMs": 739,
+     "sinceClickMs": 741,
      "bend": 0.73,
-     "change": 0.56,
-     "ratio": 1.19,
-     "window": 1.19,
-     "excess": 0.09,
+     "change": 1.95,
+     "ratio": 4.08,
+     "window": 4.08,
+     "excess": 1.47,
      "control": {
-      "change": 0.23,
-      "ratio": 1.09,
-      "excess": 0.02
+      "change": 0.24,
+      "ratio": 0.99,
+      "excess": 0
      },
-     "withinControl": true
+     "withinControl": false
     },
     {
      "tile": 23,
      "front": 0.042,
-     "sinceClickMs": 774,
+     "sinceClickMs": 776,
      "bend": 0.91,
-     "change": 2.15,
-     "ratio": 3.58,
-     "window": 3.58,
-     "excess": 1.55,
+     "change": 1.9,
+     "ratio": 2.99,
+     "window": 2.99,
+     "excess": 1.27,
      "control": {
-      "change": 0.31,
-      "ratio": 0.98,
-      "excess": -0.01
+      "change": 0.35,
+      "ratio": 1.05,
+      "excess": 0.02
      },
      "withinControl": false
     },
     {
      "tile": 24,
      "front": 0.055,
-     "sinceClickMs": 790,
+     "sinceClickMs": 792,
      "bend": 0.97,
-     "change": 0.77,
-     "ratio": 0.51,
-     "window": 3.58,
-     "excess": -0.75,
+     "change": 0.8,
+     "ratio": 0.56,
+     "window": 2.99,
+     "excess": -0.62,
      "control": {
       "change": 0.39,
-      "ratio": 1,
-      "excess": 0
+      "ratio": 0.96,
+      "excess": -0.02
      },
      "withinControl": true
     },
     {
      "tile": 25,
      "front": 0.068,
-     "sinceClickMs": 807,
+     "sinceClickMs": 809,
      "bend": 1,
-     "change": 0.87,
-     "ratio": 0.83,
-     "window": 1.31,
-     "excess": -0.18,
+     "change": 0.96,
+     "ratio": 1.04,
+     "window": 1.04,
+     "excess": 0.04,
      "control": {
-      "change": 0.45,
-      "ratio": 0.99,
-      "excess": -0.01
+      "change": 0.47,
+      "ratio": 0.95,
+      "excess": -0.03
      },
      "withinControl": true
     },
     {
-     "tile": 27,
+     "tile": 26,
      "front": 0.081,
-     "sinceClickMs": 823,
+     "sinceClickMs": 825,
      "bend": 1,
-     "change": 1.33,
-     "ratio": 1.31,
-     "window": 1.31,
-     "excess": 0.32,
+     "change": 1.04,
+     "ratio": 0.87,
+     "window": 1.16,
+     "excess": -0.16,
      "control": {
-      "change": 0.53,
-      "ratio": 0.93,
-      "excess": -0.04
+      "change": 0.6,
+      "ratio": 1.04,
+      "excess": 0.02
      },
      "withinControl": true
     },
     {
      "tile": 28,
-     "front": 0.095,
-     "sinceClickMs": 839,
+     "front": 0.096,
+     "sinceClickMs": 842,
      "bend": 1,
-     "change": 1.17,
-     "ratio": 0.87,
-     "window": 1.31,
-     "excess": -0.18,
+     "change": 1.44,
+     "ratio": 1.16,
+     "window": 1.16,
+     "excess": 0.2,
      "control": {
-      "change": 0.7,
-      "ratio": 1.06,
-      "excess": 0.04
+      "change": 0.68,
+      "ratio": 0.96,
+      "excess": -0.03
      },
      "withinControl": true
     },
     {
      "tile": 29,
      "front": 0.111,
-     "sinceClickMs": 856,
+     "sinceClickMs": 859,
      "bend": 1,
-     "change": 1.36,
+     "change": 1.44,
      "ratio": 0.97,
-     "window": 1.05,
-     "excess": -0.05,
+     "window": 1.16,
+     "excess": -0.04,
      "control": {
-      "change": 0.77,
+      "change": 0.81,
       "ratio": 0.97,
       "excess": -0.03
      },
@@ -2026,176 +2077,176 @@
     {
      "tile": 30,
      "front": 0.126,
-     "sinceClickMs": 873,
+     "sinceClickMs": 875,
      "bend": 1,
-     "change": 1.63,
-     "ratio": 1.05,
-     "window": 1.05,
-     "excess": 0.08,
+     "change": 1.52,
+     "ratio": 0.95,
+     "window": 0.97,
+     "excess": -0.08,
      "control": {
-      "change": 0.91,
-      "ratio": 0.96,
-      "excess": -0.04
+      "change": 1,
+      "ratio": 1.06,
+      "excess": 0.05
      },
      "withinControl": true
     },
     {
      "tile": 31,
      "front": 0.143,
-     "sinceClickMs": 890,
+     "sinceClickMs": 892,
      "bend": 1,
-     "change": 1.76,
-     "ratio": 0.93,
-     "window": 1.05,
-     "excess": -0.13,
+     "change": 1.77,
+     "ratio": 0.92,
+     "window": 1.14,
+     "excess": -0.15,
      "control": {
-      "change": 1.12,
-      "ratio": 1.06,
-      "excess": 0.06
+      "change": 1.09,
+      "ratio": 0.95,
+      "excess": -0.05
      },
      "withinControl": true
     },
     {
      "tile": 33,
      "front": 0.16,
-     "sinceClickMs": 906,
+     "sinceClickMs": 909,
      "bend": 1,
-     "change": 2.15,
-     "ratio": 1.04,
-     "window": 1.04,
-     "excess": 0.09,
+     "change": 2.32,
+     "ratio": 1.14,
+     "window": 1.14,
+     "excess": 0.29,
      "control": {
-      "change": 1.21,
-      "ratio": 0.96,
-      "excess": -0.05
+      "change": 1.27,
+      "ratio": 0.97,
+      "excess": -0.04
      },
      "withinControl": true
     },
     {
      "tile": 34,
      "front": 0.179,
-     "sinceClickMs": 923,
+     "sinceClickMs": 926,
      "bend": 1,
-     "change": 2.36,
-     "ratio": 1,
-     "window": 1.04,
-     "excess": 0,
+     "change": 2.3,
+     "ratio": 0.92,
+     "window": 1.14,
+     "excess": -0.2,
      "control": {
-      "change": 1.41,
-      "ratio": 0.96,
-      "excess": -0.06
+      "change": 1.55,
+      "ratio": 1.04,
+      "excess": 0.06
      },
      "withinControl": true
     },
     {
      "tile": 35,
      "front": 0.198,
-     "sinceClickMs": 940,
+     "sinceClickMs": 942,
      "bend": 1,
-     "change": 2.57,
-     "ratio": 0.9,
-     "window": 1.06,
-     "excess": -0.29,
+     "change": 2.67,
+     "ratio": 0.91,
+     "window": 1.13,
+     "excess": -0.27,
      "control": {
-      "change": 1.73,
-      "ratio": 1.06,
-      "excess": 0.09
+      "change": 1.7,
+      "ratio": 0.97,
+      "excess": -0.06
      },
      "withinControl": true
     },
     {
      "tile": 37,
      "front": 0.218,
-     "sinceClickMs": 957,
+     "sinceClickMs": 959,
      "bend": 1,
-     "change": 3.36,
-     "ratio": 1.06,
-     "window": 1.06,
-     "excess": 0.2,
+     "change": 3.57,
+     "ratio": 1.13,
+     "window": 1.13,
+     "excess": 0.42,
      "control": {
-      "change": 1.87,
+      "change": 1.97,
       "ratio": 0.94,
-      "excess": -0.11
+      "excess": -0.12
      },
      "withinControl": true
     },
     {
      "tile": 38,
      "front": 0.239,
-     "sinceClickMs": 974,
+     "sinceClickMs": 976,
      "bend": 1,
-     "change": 3.76,
-     "ratio": 1.04,
-     "window": 1.06,
-     "excess": 0.15,
+     "change": 3.65,
+     "ratio": 0.97,
+     "window": 1.13,
+     "excess": -0.11,
      "control": {
-      "change": 2.23,
-      "ratio": 0.95,
-      "excess": -0.12
+      "change": 2.48,
+      "ratio": 1.05,
+      "excess": 0.13
      },
      "withinControl": true
     },
     {
      "tile": 39,
      "front": 0.261,
-     "sinceClickMs": 991,
+     "sinceClickMs": 992,
      "bend": 1,
-     "change": 3.85,
+     "change": 3.94,
      "ratio": 0.98,
-     "window": 1.04,
-     "excess": -0.09,
+     "window": 1.02,
+     "excess": -0.1,
      "control": {
-      "change": 2.83,
-      "ratio": 1.1,
-      "excess": 0.26
+      "change": 2.75,
+      "ratio": 1,
+      "excess": 0.01
      },
      "withinControl": true
     },
     {
      "tile": 41,
      "front": 0.284,
-     "sinceClickMs": 1007,
+     "sinceClickMs": 1008,
      "bend": 1,
-     "change": 4.12,
-     "ratio": 0.94,
-     "window": 1.09,
-     "excess": -0.27,
+     "change": 4.44,
+     "ratio": 1.02,
+     "window": 1.02,
+     "excess": 0.11,
      "control": {
-      "change": 2.91,
-      "ratio": 1.02,
-      "excess": 0.04
+      "change": 2.99,
+      "ratio": 1.01,
+      "excess": 0.02
      },
      "withinControl": true
     },
     {
      "tile": 42,
-     "front": 0.309,
-     "sinceClickMs": 1024,
+     "front": 0.308,
+     "sinceClickMs": 1025,
      "bend": 1,
-     "change": 4.93,
-     "ratio": 1.09,
-     "window": 1.09,
-     "excess": 0.41,
+     "change": 4.72,
+     "ratio": 0.98,
+     "window": 1.02,
+     "excess": -0.08,
      "control": {
-      "change": 2.9,
-      "ratio": 0.88,
-      "excess": -0.38
+      "change": 3.18,
+      "ratio": 0.98,
+      "excess": -0.07
      },
      "withinControl": true
     },
     {
      "tile": 43,
      "front": 0.334,
-     "sinceClickMs": 1041,
+     "sinceClickMs": 1042,
      "bend": 1,
-     "change": 4.92,
-     "ratio": 0.95,
-     "window": 1.09,
-     "excess": -0.23,
+     "change": 5.17,
+     "ratio": 0.97,
+     "window": 1.07,
+     "excess": -0.16,
      "control": {
-      "change": 3.65,
-      "ratio": 1.1,
-      "excess": 0.33
+      "change": 3.52,
+      "ratio": 0.99,
+      "excess": -0.02
      },
      "withinControl": true
     },
@@ -2204,158 +2255,158 @@
      "front": 0.36,
      "sinceClickMs": 1058,
      "bend": 1,
-     "change": 5.37,
-     "ratio": 0.98,
-     "window": 1.09,
-     "excess": -0.1,
+     "change": 5.93,
+     "ratio": 1.07,
+     "window": 1.07,
+     "excess": 0.4,
      "control": {
-      "change": 3.76,
-      "ratio": 0.96,
-      "excess": -0.15
-     },
-     "withinControl": true
-    },
-    {
-     "tile": 45,
-     "front": 0.387,
-     "sinceClickMs": 1074,
-     "bend": 1,
-     "change": 6.01,
-     "ratio": 1.09,
-     "window": 1.09,
-     "excess": 0.49,
-     "control": {
-      "change": 4.16,
+      "change": 3.9,
       "ratio": 0.97,
       "excess": -0.12
      },
      "withinControl": true
     },
     {
+     "tile": 45,
+     "front": 0.387,
+     "sinceClickMs": 1075,
+     "bend": 1,
+     "change": 5.9,
+     "ratio": 0.98,
+     "window": 1.07,
+     "excess": -0.1,
+     "control": {
+      "change": 4.54,
+      "ratio": 1.06,
+      "excess": 0.27
+     },
+     "withinControl": true
+    },
+    {
      "tile": 46,
      "front": 0.443,
-     "sinceClickMs": 1106,
+     "sinceClickMs": 1107,
      "bend": 1,
-     "change": 6.01,
-     "ratio": 0.99,
-     "window": 1.05,
-     "excess": -0.08,
+     "change": 6.08,
+     "ratio": 0.97,
+     "window": 1.07,
+     "excess": -0.21,
      "control": {
-      "change": 4.93,
+      "change": 5.02,
       "ratio": 1.02,
-      "excess": 0.08
+      "excess": 0.12
      },
      "withinControl": true
     },
     {
      "tile": 47,
      "front": 0.473,
-     "sinceClickMs": 1123,
+     "sinceClickMs": 1126,
      "bend": 1,
-     "change": 6.49,
-     "ratio": 1.05,
-     "window": 1.05,
-     "excess": 0.32,
+     "change": 6.4,
+     "ratio": 0.96,
+     "window": 1.07,
+     "excess": -0.29,
      "control": {
-      "change": 4.9,
-      "ratio": 0.96,
-      "excess": -0.22
+      "change": 5.18,
+      "ratio": 1.04,
+      "excess": 0.21
      },
      "withinControl": true
     },
     {
      "tile": 48,
      "front": 0.503,
-     "sinceClickMs": 1140,
+     "sinceClickMs": 1142,
      "bend": 1,
-     "change": 6.33,
+     "change": 6.71,
      "ratio": 0.97,
-     "window": 1.05,
-     "excess": -0.18,
+     "window": 1.1,
+     "excess": -0.2,
      "control": {
-      "change": 5.3,
-      "ratio": 1.05,
-      "excess": 0.25
+      "change": 4.93,
+      "ratio": 0.96,
+      "excess": -0.19
      },
      "withinControl": true
     },
     {
      "tile": 49,
      "front": 0.534,
-     "sinceClickMs": 1156,
+     "sinceClickMs": 1158,
      "bend": 1,
-     "change": 6.53,
-     "ratio": 0.99,
-     "window": 1.06,
-     "excess": -0.06,
+     "change": 7.42,
+     "ratio": 1.1,
+     "window": 1.1,
+     "excess": 0.67,
      "control": {
-      "change": 5.19,
-      "ratio": 0.98,
-      "excess": -0.11
+      "change": 5.05,
+      "ratio": 0.97,
+      "excess": -0.15
      },
      "withinControl": true
     },
     {
      "tile": 50,
      "front": 0.595,
-     "sinceClickMs": 1189,
+     "sinceClickMs": 1191,
      "bend": 1,
-     "change": 6.43,
-     "ratio": 1.01,
-     "window": 1.06,
-     "excess": 0.03,
+     "change": 6.7,
+     "ratio": 0.99,
+     "window": 1.1,
+     "excess": -0.09,
      "control": {
-      "change": 5.86,
-      "ratio": 1.12,
-      "excess": 0.63
+      "change": 5.26,
+      "ratio": 1.02,
+      "excess": 0.12
      },
      "withinControl": true
     },
     {
      "tile": 51,
      "front": 0.626,
-     "sinceClickMs": 1207,
+     "sinceClickMs": 1209,
      "bend": 1,
-     "change": 5.95,
-     "ratio": 1,
-     "window": 1.01,
-     "excess": 0,
+     "change": 6.79,
+     "ratio": 1.1,
+     "window": 1.1,
+     "excess": 0.6,
      "control": {
-      "change": 5.14,
-      "ratio": 0.95,
-      "excess": -0.27
+      "change": 4.81,
+      "ratio": 0.96,
+      "excess": -0.2
      },
      "withinControl": true
     },
     {
      "tile": 52,
      "front": 0.687,
-     "sinceClickMs": 1241,
+     "sinceClickMs": 1242,
      "bend": 1,
-     "change": 5.17,
-     "ratio": 0.99,
-     "window": 1.01,
-     "excess": -0.05,
+     "change": 5.59,
+     "ratio": 0.98,
+     "window": 1.09,
+     "excess": -0.1,
      "control": {
-      "change": 5.17,
-      "ratio": 1.09,
-      "excess": 0.43
+      "change": 4.47,
+      "ratio": 1,
+      "excess": 0.01
      },
      "withinControl": true
     },
     {
      "tile": 53,
      "front": 0.716,
-     "sinceClickMs": 1257,
+     "sinceClickMs": 1259,
      "bend": 1,
-     "change": 4.95,
-     "ratio": 1.01,
-     "window": 1.02,
-     "excess": 0.07,
+     "change": 5.69,
+     "ratio": 1.09,
+     "window": 1.09,
+     "excess": 0.48,
      "control": {
-      "change": 4.51,
+      "change": 4.15,
       "ratio": 0.95,
-      "excess": -0.25
+      "excess": -0.23
      },
      "withinControl": true
     },
@@ -2364,77 +2415,77 @@
      "front": 0.773,
      "sinceClickMs": 1291,
      "bend": 1,
-     "change": 4.1,
-     "ratio": 1.03,
-     "window": 1.03,
-     "excess": 0.12,
+     "change": 4.79,
+     "ratio": 1.06,
+     "window": 1.06,
+     "excess": 0.28,
      "control": {
-      "change": 4.41,
-      "ratio": 1.07,
-      "excess": 0.27
+      "change": 3.82,
+      "ratio": 0.98,
+      "excess": -0.08
      },
      "withinControl": true
     },
     {
      "tile": 55,
      "front": 0.851,
-     "sinceClickMs": 1340,
+     "sinceClickMs": 1341,
      "bend": 1,
-     "change": 2.8,
-     "ratio": 1.05,
-     "window": 1.05,
-     "excess": 0.15,
+     "change": 3.19,
+     "ratio": 1.08,
+     "window": 1.08,
+     "excess": 0.23,
      "control": {
-      "change": 3.16,
-      "ratio": 1.05,
-      "excess": 0.16
+      "change": 2.7,
+      "ratio": 0.96,
+      "excess": -0.12
      },
      "withinControl": true
     },
     {
      "tile": 56,
      "front": 0.899,
-     "sinceClickMs": 1374,
+     "sinceClickMs": 1375,
      "bend": 1,
-     "change": 2.2,
-     "ratio": 1.2,
-     "window": 1.2,
-     "excess": 0.37,
+     "change": 2.33,
+     "ratio": 1.1,
+     "window": 1.1,
+     "excess": 0.21,
      "control": {
       "change": 2.02,
-      "ratio": 0.91,
-      "excess": -0.21
+      "ratio": 1.01,
+      "excess": 0.03
      },
      "withinControl": true
     },
     {
      "tile": 57,
      "front": 0.981,
-     "sinceClickMs": 1439,
+     "sinceClickMs": 1441,
      "bend": 1,
-     "change": 1.08,
-     "ratio": 1.21,
-     "window": 1.21,
-     "excess": 0.19,
+     "change": 1.17,
+     "ratio": 1.2,
+     "window": 1.2,
+     "excess": 0.2,
      "control": {
-      "change": 0.99,
-      "ratio": 0.98,
-      "excess": -0.02
+      "change": 0.89,
+      "ratio": 0.92,
+      "excess": -0.08
      },
      "withinControl": true
     },
     {
      "tile": 58,
      "front": 1.049,
-     "sinceClickMs": 1506,
+     "sinceClickMs": 1508,
      "bend": 1,
-     "change": 0.52,
-     "ratio": 1.55,
-     "window": 1.55,
-     "excess": 0.18,
+     "change": 0.6,
+     "ratio": 1.69,
+     "window": 1.69,
+     "excess": 0.24,
      "control": {
-      "change": 0.29,
-      "ratio": 0.82,
+      "change": 0.28,
+      "ratio": 0.83,
       "excess": -0.06
      },
      "withinControl": false
@@ -2442,15 +2493,15 @@
     {
      "tile": 59,
      "front": 1.14,
-     "sinceClickMs": 1624,
+     "sinceClickMs": 1625,
      "bend": 1,
      "change": 0.21,
      "ratio": 1.07,
      "window": 1.07,
-     "excess": 0.13,
+     "excess": 0.12,
      "control": {
       "change": 0.04,
-      "ratio": 0.2,
+      "ratio": 0.19,
       "excess": -0.01
      },
      "withinControl": true
@@ -2460,51 +2511,65 @@
      "front": 1.226,
      "sinceClickMs": 1791,
      "bend": 0.92,
-     "change": 0.12,
-     "ratio": 0.27,
-     "window": 4.4,
-     "excess": -0.34,
+     "change": 0.13,
+     "ratio": 0.28,
+     "window": 4.32,
+     "excess": -0.33,
      "control": {
       "change": 0.01,
-      "ratio": 0.04,
+      "ratio": 0.03,
       "excess": 0
      },
      "withinControl": true
     }
    ],
-   "worstRatio": 3.58,
-   "worstWindow": 4.4,
-   "worstExcess": 1.55,
+   "worstRatio": 4.08,
+   "worstWindow": 4.32,
+   "worstExcess": 1.47,
    "overControl": [
+    {
+     "tile": 22,
+     "front": 0.019,
+     "ratio": 4.08,
+     "controlRatio": 0.99
+    },
     {
      "tile": 23,
      "front": 0.042,
-     "ratio": 3.58,
-     "controlRatio": 0.98
+     "ratio": 2.99,
+     "controlRatio": 1.05
     },
     {
      "tile": 58,
      "front": 1.049,
-     "ratio": 1.55,
-     "controlRatio": 0.82
+     "ratio": 1.69,
+     "controlRatio": 0.83
     }
    ],
    "over1_5": [
     {
+     "tile": 22,
+     "front": 0.019,
+     "ratio": 4.08,
+     "excess": 1.47,
+     "change": 1.95,
+     "controlRatio": 0.99
+    },
+    {
      "tile": 23,
      "front": 0.042,
-     "ratio": 3.58,
-     "excess": 1.55,
-     "change": 2.15,
-     "controlRatio": 0.98
+     "ratio": 2.99,
+     "excess": 1.27,
+     "change": 1.9,
+     "controlRatio": 1.05
     },
     {
      "tile": 58,
      "front": 1.049,
-     "ratio": 1.55,
-     "excess": 0.18,
-     "change": 0.52,
-     "controlRatio": 0.82
+     "ratio": 1.69,
+     "excess": 0.24,
+     "change": 0.6,
+     "controlRatio": 0.83
     }
    ]
   }
