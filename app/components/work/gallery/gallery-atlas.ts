@@ -178,6 +178,7 @@ export function createAtlas(
       const i = order[next++];
       const img = new Image();
       img.crossOrigin = "anonymous";
+      img.referrerPolicy = "no-referrer"; // YouTube is told nothing about the page the thumbnail is for
       images.add(img);
       inFlight++;
       img.onload = () => {

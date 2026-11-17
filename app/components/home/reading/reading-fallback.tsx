@@ -94,6 +94,7 @@ export default function ReadingFallback({ books }: ReadingFallbackProps) {
                   <img
                     className="fb-cover"
                     src={coverUrl(b.isbn)}
+                    referrerPolicy="no-referrer"
                     alt=""
                     loading="lazy"
                     decoding="async"

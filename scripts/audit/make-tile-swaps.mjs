@@ -42,7 +42,7 @@ window.__swapRec=()=>{window.__swaps=[];window.__frames=[];window.__fprev=null;w
  for(const m of maps){if(m)window.__swapObs.observe(m,{attributes:true,attributeFilter:['href']})}
  return maps.map(Boolean)};
 // run on every film frame (cdp.mjs film.analyze)
-window.__fd=async(b64,meta)=>{const bmp=await createImageBitmap(await (await fetch('data:image/jpeg;base64,'+b64)).blob());
+window.__fd=async(b64,meta)=>{const bmp=await createImageBitmap(new Blob([Uint8Array.from(atob(b64),c=>c.charCodeAt(0))],{type:'image/jpeg'}));
  const c=new OffscreenCanvas(160,100),x=c.getContext('2d',{willReadFrequently:true});x.drawImage(bmp,0,0,160,100);const d=x.getImageData(0,0,160,100).data;
  const g=new Float32Array(160*100);for(let i=0;i<g.length;i++)g[i]=0.2126*d[i*4]+0.7152*d[i*4+1]+0.0722*d[i*4+2];
  let diff=null;if(window.__fprev){let s=0;for(let i=0;i<g.length;i++)s+=Math.abs(g[i]-window.__fprev[i]);diff=s/g.length}

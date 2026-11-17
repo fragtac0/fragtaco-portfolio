@@ -9,12 +9,13 @@ import {
   useNavigate,
   useRouteLoaderData,
 } from "@remix-run/react";
-import { useEffect, useLayoutEffect, type PropsWithChildren } from "react";
+import { useEffect, useLayoutEffect, useState, type PropsWithChildren } from "react";
 import SpineFonts from "./components/spine-fonts";
 import PageViewTracker from "./components/page-view-tracker";
 import { preloadImage } from "./components/home/hero/painting-cycle";
 import { recallPainting } from "./components/home/hero/painting-memory";
-import { INTRO_HEAD_SCRIPT } from "./lib/intro-session";
+import { INTRO_HEAD_SCRIPT, keepIntroScript } from "./lib/intro-session";
+import { useNonce } from "./lib/nonce";
 import GlassFilter from "./components/page-change/glass-filter";
 import { prepareGlassWhenIdle } from "./components/page-change/glass-prepare";
 import { watchPresses } from "./lib/change-finish";
@@ -55,6 +56,14 @@ export function Layout({ children }: PropsWithChildren) {
   // that adds it before first paint is rendered on the home route alone.
   // <html> carries suppressHydrationWarning because that script adds `intro` before hydration.
   const isHome = useLocation().pathname === "/";
+  // The content policy gives every script of the server's HTML the response's nonce (null in the browser, where the scripts have run).
+  const nonce = useNonce();
+  // The intro script is the server's alone. A script element that React makes in the browser never runs (React makes it through innerHTML
+  // so that it stays inert), and writing its text is the one thing Trusted Types would refuse: so after the first render, which adopts the
+  // server's element, it is never made again. It is dropped for good the first time the visitor leaves "/" (a later return to "/" is a
+  // client-side page change, which the hero treats as "late": joinLoader in lib/intro-session.ts).
+  const [introScript, setIntroScript] = useState(isHome);
+  if (keepIntroScript(introScript, isHome) !== introScript) setIntroScript(false);
   // The painting the home loader picked, preloaded from the HTML with high priority. When the hero
   // already remembers a painting (a client-side return to "/") that one is shown instead, so the
   // pick is not fetched for nothing. On the server and during hydration nothing is remembered yet,
@@ -68,7 +77,7 @@ export function Layout({ children }: PropsWithChildren) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {isHome ? <script dangerouslySetInnerHTML={{ __html: INTRO_HEAD_SCRIPT }} /> : null}
+        {isHome && introScript ? <script nonce={nonce} dangerouslySetInnerHTML={{ __html: INTRO_HEAD_SCRIPT }} /> : null}
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
@@ -78,8 +87,8 @@ export function Layout({ children }: PropsWithChildren) {
       </head>
       <body>
         {children}
-        <ScrollRestoration />
-        <Scripts />
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
       </body>
     </html>
   );

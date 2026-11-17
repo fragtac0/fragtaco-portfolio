@@ -36,7 +36,7 @@ export const HELPERS = `(() => {
   };
   // run on every film frame (cdp.mjs film.analyze): the picture in the scene's frame (inner 70%), and the picture in the compared region against the last frame before the click
   window.__boA = async (b64, meta) => {
-    const bmp = await createImageBitmap(await (await fetch('data:image/jpeg;base64,' + b64)).blob());
+    const bmp = await createImageBitmap(new Blob([Uint8Array.from(atob(b64),c=>c.charCodeAt(0))],{type:'image/jpeg'}));
     const k = bmp.width / innerWidth, c = new OffscreenCanvas(bmp.width, bmp.height), x = c.getContext('2d', { willReadFrequently: true });
     x.drawImage(bmp, 0, 0);
     const ts = meta.ts - (window.__boOff || 0);

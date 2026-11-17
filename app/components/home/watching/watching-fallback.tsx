@@ -47,6 +47,7 @@ export default function WatchingFallback({ videos, onPick }: WatchingFallbackPro
               <img
                 className="fb-thumb"
                 src={thumbUrl(v, "mq")}
+                referrerPolicy="no-referrer"
                 alt=""
                 width={320}
                 height={180}

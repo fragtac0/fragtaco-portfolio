@@ -58,6 +58,15 @@ export const INTRO_HEAD_SCRIPT = [
 ].join("");
 
 /**
+ * Whether the head script's element stays in the page. The server renders it on "/" (the first render in the browser adopts it); it is
+ * never made again by the browser: React makes a script element through innerHTML so that it stays inert (it would not run), and
+ * Trusted Types refuses that write. So it is kept only while the visitor has stayed on "/" since the page was loaded there.
+ */
+export function keepIntroScript(kept: boolean, isHome: boolean): boolean {
+  return kept && isHome;
+}
+
+/**
  * How the hero's script meets the loader. `t0` is the head script's start time (undefined when it
  * never ran), `now` the same clock, `locked` whether html.intro is still present.
  * - skip: the intro is skipped (seen, reduced motion, deep link).

@@ -1,12 +1,9 @@
 import type { CSSProperties } from "react";
-import lockupSvg from "./fragtaco-lockup.svg?raw";
+import { LOGO_NODES } from "./logo-nodes";
 import "./loader.css";
 
-// The SVG file is a complete <svg>; the logo element is rendered by React, so only its inner
-// markup is injected: the <defs> (fragCut mask), one .gw group (फ्रैग) and four .gl groups (T A C O).
-const LOGO_INNER = lockupSvg
-  .replace(/^[\s\S]*?<svg\b[^>]*>/, "")
-  .replace(/<\/svg>\s*$/, "");
+// The SVG file is a complete <svg>; the logo element is rendered by React, and its inner elements are made from the file
+// (logo-nodes.tsx): the <defs> (fragCut mask), one .gw group (फ्रैग) and four .gl groups (T A C O).
 
 interface LockupProps {
   name: string;
@@ -38,8 +35,9 @@ export default function Lockup({ name, roles }: LockupProps) {
           viewBox="465 227 1228 296"
           role="img"
           aria-label="FragTaco"
-          dangerouslySetInnerHTML={{ __html: LOGO_INNER }}
-        />
+        >
+          {LOGO_NODES}
+        </svg>
         <p className="roles">{roles}</p>
       </div>
     </div>

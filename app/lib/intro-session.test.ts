@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEEP_LINKS, INTRO_HEAD_SCRIPT, INTRO_KEY, introMode, joinLoader } from "./intro-session";
+import { DEEP_LINKS, INTRO_HEAD_SCRIPT, INTRO_KEY, introMode, joinLoader, keepIntroScript } from "./intro-session";
 import { INTRO_LOCK_MS } from "../components/home/hero/loader-timeline";
 
 const base = { seen: false, hash: "", reducedMotion: false };
@@ -182,5 +182,21 @@ describe("joinLoader", () => {
   });
   it("is late when the failsafe already removed the class, whatever the clock says", () => {
     expect(joinLoader({ ...base, locked: false })).toBe("late");
+  });
+});
+
+describe("keepIntroScript", () => {
+  it("keeps the server's script element while the visitor stays on the home page", () => {
+    expect(keepIntroScript(true, true)).toBe(true);
+  });
+  it("drops it when the visitor leaves, and never brings it back on a return (a script element React makes in the browser is inert, and writing its text is what Trusted Types refuses)", () => {
+    expect(keepIntroScript(true, false)).toBe(false);
+    expect(keepIntroScript(false, true)).toBe(false);
+    expect(keepIntroScript(false, false)).toBe(false);
+  });
+  it("starts from nothing on a first load of another page: the server sent no script, so the browser makes none", () => {
+    let kept = false; // useState(isHome) on "/work"
+    for (const isHome of [false, true, false, true]) kept = keepIntroScript(kept, isHome);
+    expect(kept).toBe(false);
   });
 });

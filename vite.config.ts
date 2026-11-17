@@ -6,7 +6,8 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [
     tailwindcss(),
-    remix({ presets: [vercelPreset()] }),
+    // a test beside a route (app/routes/api.csp-report.test.ts) is a test, not a route
+    remix({ presets: [vercelPreset()], ignoredRouteFiles: ["**/*.test.ts"] }),
   ],
   build: {
     // Font files are never inlined as data: addresses (the small subsets would be): every face is a file on this site, so the content

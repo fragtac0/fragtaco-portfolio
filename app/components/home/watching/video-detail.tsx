@@ -253,6 +253,7 @@ const VideoDetail = forwardRef<VideoDetailHandle, VideoDetailProps>(function Vid
         {video ? (
           <img
             src={thumbUrl(video, "sd")}
+            referrerPolicy="no-referrer"
             alt=""
             onError={(e) => {
               // the larger thumbnail is missing: the one every video has takes its place

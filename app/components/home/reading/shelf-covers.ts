@@ -133,6 +133,7 @@ export function createCoverQueue(deps: CoverQueueDeps): CoverQueue {
     load(tex, d) {
       const img = new Image();
       img.crossOrigin = "anonymous";
+      img.referrerPolicy = "no-referrer"; // Open Library is told nothing about the page the cover is for
       img.onload = () => {
         if (deps.disposed() || img.naturalWidth <= 10) return;
         // decode now, off the main thread, so painting it later does not stall on the JPEG

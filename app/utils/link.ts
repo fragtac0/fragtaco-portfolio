@@ -4,6 +4,6 @@ export function isExternalHref(href: string) {
 
 export function externalLinkProps(href: string) {
   return isExternalHref(href)
-    ? { rel: "noreferrer", target: "_blank" }
+    ? { rel: "noopener noreferrer", target: "_blank" }
     : {};
 }

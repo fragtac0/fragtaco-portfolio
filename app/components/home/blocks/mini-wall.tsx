@@ -15,7 +15,7 @@ export default function MiniWall({ videos }: { videos: SiteVideo[] }) {
         {columns.map((ids, c) => (
           <div key={c} className="mw-col">
             {[...ids, ...ids].map((id, k) => (
-              <img key={k} src={miniThumbUrl(id)} alt="" loading="lazy" decoding="async" />
+              <img key={k} src={miniThumbUrl(id)} referrerPolicy="no-referrer" alt="" loading="lazy" decoding="async" />
             ))}
           </div>
         ))}

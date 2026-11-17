@@ -38,7 +38,7 @@ const ARROWS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home
  * A page that comes in through a change (round 7 change-arrival spec 5.1, reversing R75 and R77 there) is that second case from
  * the first frame: the links are the wall, every tile at its final place with its picture (the reveal waits for the pictures), and the
  * engine starts when the change is over, draws the same whole tiles with no arrival (`instant`) and the links fade out under them.
- * A click or tap on the canvas opens the tile's link in a new tab through that link, so `rel="noreferrer"`
+ * A click or tap on the canvas opens the tile's link in a new tab through that link, so `rel="noopener noreferrer"`
  * and the browser's own new-tab handling apply. Hovering a tile shows its title and year at the lower left.
  */
 export default function VideoWall({ kind, items }: VideoWallProps) {
@@ -197,7 +197,7 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
                 style={srcs[i] === arts[i] ? undefined : { backgroundImage: `url("${arts[i]}")` }}
                 href={video.url}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 aria-label={`${video.title}, for ${video.for}, ${video.year}`}
                 onKeyDown={(event) => onKeyDown(event, i)}
                 onFocus={(event) => onFocus(event, i)}
@@ -213,6 +213,7 @@ export default function VideoWall({ kind, items }: VideoWallProps) {
                   ref={(img) => shapeCover(img, video.id, tall)}
                   src={srcs[i]}
                   crossOrigin="anonymous"
+                  referrerPolicy="no-referrer"
                   alt=""
                   loading={byChange ? undefined : "lazy"}
                   decoding="async"

@@ -7,6 +7,7 @@ Working folder for the home page redesign and the polish pass that followed it: 
 | [feedback-log.md](feedback-log.md) | Every round of feedback, what changed in response, decisions so far, the build lines and the measured table. Start here. |
 | [audit-2026-11-11.md](audit-2026-11-11.md) | The 11 November 2026 audit of the built site: 65 findings with evidence (ids such as K-10, T-04). |
 | [changes-2026-11.md](changes-2026-11.md) | One row per audit finding fixed: what changed, where, and the commit. |
+| [security-audit-2026-11.md](security-audit-2026-11.md) | The security audit of the site (modern web pass, Task 34): each finding with its evidence, what was done, what was left and why, the header set as sent, and what only the owner can do. The proof is `scripts/audit/security.mjs` (record: `compare/web-pass/security.json`). |
 | [deferred-review-notes.md](deferred-review-notes.md) | The 116 small review notes deferred during the build (D-ids). None is left open: each is fixed or closed with a reason. |
 | [compare/](compare/) | Before and after screenshots for the polish pass. The comparison page (`compare/index.html`) is added at the end of the build. |
 | [mockups/home-v4.html](mockups/home-v4.html) | Signed-off mockup. The build matches this. |

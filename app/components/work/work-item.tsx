@@ -92,12 +92,13 @@ export default function WorkItem({ entry, ring, place, lazy = false }: WorkItemP
         className="work-item-face work-cover"
         href={v.url}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
         aria-label={`${v.title}, for ${v.for}, ${v.year}`}
       >
         <img
           ref={(img) => shapeCover(img, v.id, entry.tall)}
           src={coverUrl(v, entry.tall, sharp)}
+          referrerPolicy="no-referrer"
           width={width}
           height={height}
           alt=""

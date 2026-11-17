@@ -71,6 +71,7 @@ export function createThumbs(
       if (disposed) return resolve(null);
       const img = new Image();
       img.crossOrigin = "anonymous";
+      img.referrerPolicy = "no-referrer"; // YouTube is told nothing about the page the thumbnail is for
       img.onload = () => resolve(img);
       img.onerror = () => {
         drop(img); // a failed image is not kept

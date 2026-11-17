@@ -66,7 +66,7 @@ await send("Page.enable"); await send("Runtime.enable"); await send("Network.ena
 // HSV saturation 0.45 or more and value 0.16 or more (bright enough to read as a colour, not just a warm black).
 const PIXEL_SAMPLER = (b64, cols, rows) => `(async()=>{
   const cols = ${cols}, rows = ${rows};
-  const bmp = await createImageBitmap(await (await fetch("data:image/png;base64,${b64}")).blob());
+  const bmp = await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/png"}));
   const c = new OffscreenCanvas(bmp.width, bmp.height), x = c.getContext("2d", { willReadFrequently: true });
   x.drawImage(bmp, 0, 0); const { data, width, height } = x.getImageData(0, 0, bmp.width, bmp.height);
   const limit = 0.2126 * 42 + 0.7152 * 40 + 0.0722 * 38; let dark = 0, strict = 0, orange = 0, orangeLoose = 0, maxL = 0;
@@ -86,17 +86,17 @@ const PIXEL_SAMPLER = (b64, cols, rows) => `(async()=>{
 })()`;
 // Runs inside the page on a JPEG frame: the share of 48 by 30 cells whose luma is under `dark`, and the mean luma.
 // `box` is {x, y, w, h} in CSS pixels (or null: the whole frame); the frame's scale to CSS pixels is read from the frame itself.
-const FILM_LUMA = (b64, dark, box) => `(async()=>{const b=await createImageBitmap(await (await fetch("data:image/jpeg;base64,${b64}")).blob());const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
+const FILM_LUMA = (b64, dark, box) => `(async()=>{const b=await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/jpeg"}));const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
   const bx=${JSON.stringify(box ?? null)},k=b.width/innerWidth;if(bx)x.drawImage(b,bx.x*k,bx.y*k,bx.w*k,bx.h*k,0,0,48,30);else x.drawImage(b,0,0,48,30);
   const d=x.getImageData(0,0,48,30).data;let under=0,sum=0,sq=0;for(let i=0;i<d.length;i+=4){const l=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2];sum+=l;sq+=l*l;if(l<${dark})under++}const m=sum/1440;return [under/1440,m,Math.sqrt(Math.max(0,sq/1440-m*m))]})()`;
 // Runs inside the page on a JPEG frame: its 48 by 30 luma cells (over `box`, or the whole frame), as a JSON array. Used by the `film` step's `blink` check.
-const FILM_CELLS = (b64, box) => `(async()=>{const b=await createImageBitmap(await (await fetch("data:image/jpeg;base64,${b64}")).blob());const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
+const FILM_CELLS = (b64, box) => `(async()=>{const b=await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/jpeg"}));const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
   const bx=${JSON.stringify(box ?? null)},k=b.width/innerWidth;if(bx)x.drawImage(b,bx.x*k,bx.y*k,bx.w*k,bx.h*k,0,0,48,30);else x.drawImage(b,0,0,48,30);
   const d=x.getImageData(0,0,48,30).data,o=[];for(let i=0;i<d.length;i+=4)o.push(Math.round(0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2]));return JSON.stringify(o)})()`;
 // Runs inside the page on a JPEG frame of a video wall: the luma at a 7 by 5 grid of points in the middle 70% of every tile (`g` is the wall's
 // grid, data-grid). runFilm compares each frame with a reference frame taken before any tile is on screen: a tile is showing when it differs
 // from the ground behind it (the ground is a glow, not flat, so the spread inside a tile cannot tell a tile from the ground).
-const TILE_SAMPLES = (b64, g) => `(async()=>{const g=${JSON.stringify(g)};const b=await createImageBitmap(await (await fetch("data:image/jpeg;base64,${b64}")).blob());
+const TILE_SAMPLES = (b64, g) => `(async()=>{const g=${JSON.stringify(g)};const b=await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/jpeg"}));
   const k=b.width/innerWidth,c=new OffscreenCanvas(b.width,b.height),x=c.getContext("2d",{willReadFrequently:true});x.drawImage(b,0,0);const out=[];
   for(let i=0;i<g.count;i++){const row=Math.floor(i/g.cols),col=i%g.cols;const tx=g.originX+col*(g.tileW+g.gap)+(row===g.rows-1?g.lastRowOffset:0),ty=g.originY+row*(g.tileH+g.gap);
    const x0=Math.round((tx+g.tileW*.15)*k),y0=Math.round((ty+g.tileH*.15)*k),w=Math.max(2,Math.round(g.tileW*.7*k)),h=Math.max(2,Math.round(g.tileH*.7*k));
@@ -108,7 +108,7 @@ const TILE_SAMPLES = (b64, g) => `(async()=>{const g=${JSON.stringify(g)};const 
 // laid over every pixel of the box (the screenshot is taken with the text hidden, so the pixels are the picture behind it): the worst, the 1st percentile,
 // the mean, and the brightest pixel's luma. Used by the `contrast` step.
 const CONTRAST = (b64, boxes) => `(async()=>{
-  const bmp = await createImageBitmap(await (await fetch("data:image/png;base64,${b64}")).blob());
+  const bmp = await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/png"}));
   const c = new OffscreenCanvas(bmp.width, bmp.height), x = c.getContext("2d", { willReadFrequently: true });
   x.drawImage(bmp, 0, 0); const k = bmp.width / innerWidth;
   const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
