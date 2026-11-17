@@ -66,9 +66,10 @@ describe("pickTile", () => {
 });
 
 describe("pickBendTile", () => {
-  it("has a tile every 0.05 from behind the middle to HAND_OVER, then every tile of the ladder (R58: the noise is fixed on the screen, so the steps are the 4% ones)", () => {
+  it("has a tile every 0.025 from behind the middle to HAND_OVER, then every tile of the ladder (R58, R129: the tiles hold the strength only, the noise is fixed on the screen)", () => {
     expect(BEND_EARLY[0]).toBe(-0.25);
-    expect(BEND_EARLY.length).toBeGreaterThan(7);
+    expect(BEND_EARLY.length).toBeGreaterThan(16);
+    expect(BEND_EARLY_STEP).toBeLessThanOrEqual(0.025);
     for (let i = 1; i < BEND_EARLY.length; i++) expect(BEND_EARLY[i] - BEND_EARLY[i - 1]).toBeCloseTo(BEND_EARLY_STEP, 9);
     expect(BEND_EARLY[BEND_EARLY.length - 1]).toBeLessThan(HAND_OVER);
     expect(BEND_TILES[BEND_EARLY.length]).toBe(HAND_OVER);

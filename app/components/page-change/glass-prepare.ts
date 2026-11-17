@@ -1,8 +1,9 @@
 /**
  * Makes the glass front's pictures, in idle time, once per page load (follow-ups spec 4; the tiles are explained in glass-field.ts):
  * sheets of tiles for the new page's mask, the glow and the shade, the bend's tiles (data addresses; each SVG filter of
- * glass-filter.tsx has one map picture whose source glass-run.ts swaps to the tile for the front, R56), and the vignette that damps the
- * bend towards the screen's edges (glass-vignette.ts, made again when the screen changes size). Then `warmGlass` runs the bend's
+ * glass-filter.tsx has one map picture whose source glass-run.ts swaps to the tile for the front, R56; R58: a tile holds the push's
+ * strength only), and the vignette (glass-vignette.ts: the hero's noise gradient, fixed on the screen, damped towards the screen's edges;
+ * made again when the screen changes size, a few rows at a time as it costs more than the tiles do: R129). Then `warmGlass` runs the bend's
  * filters once where nobody sees them, so the first change after a load does no first-time work (R56, spec 4).
  *
  * The work is done a tile at a time with a gap between (so none is a long task) and it stops while a change runs (the marks on
@@ -18,7 +19,7 @@ import { BEND_TILES, sheetLayout, tileCell, TILES } from "./glass-field";
 import { bendPxFor, isChromium } from "./glass-math";
 import { bendTilePixels } from "./glass-texture";
 import { calm, mark, ready, SHEET_COLS } from "./glass-state";
-import { maxPush, vignettePixels, vignetteSize } from "./glass-vignette";
+import { maxPush, vignetteRows, vignetteSize } from "./glass-vignette";
 import { warmGlass } from "./glass-warm";
 
 // the same names, as before the split (glass-run.ts reads them from here)
@@ -104,11 +105,24 @@ function injectGradients(): void {
 /** The address of the vignette picture in the filters now (a blob address; revoked when a new one takes its place). */
 let vignetteUrl: string | null = null;
 
+/** How long the vignette's noise is made for at a time, in ms, before a calm gap (every row costs the same: no long task). */
+const VIGNETTE_SLICE_MS = 6;
+
 /** Makes the vignette for a screen `w` by `h` and gives it to both bend filters. Returns whether it is in. */
 async function makeVignette(w: number, h: number): Promise<boolean> {
   const size = vignetteSize(w, h);
   const { canvas, ctx } = canvasOf(size.w, size.h);
-  ctx.putImageData(new ImageData(vignettePixels(w, h, maxPush(bendPxFor(h))), size.w, size.h), 0, 0);
+  const pixels = new Uint8ClampedArray(size.w * size.h * 4);
+  const push = maxPush(bendPxFor(h));
+  for (let y = 0; y < size.h; ) {
+    const until = performance.now() + VIGNETTE_SLICE_MS;
+    while (y < size.h && performance.now() < until) {
+      vignetteRows(pixels, w, h, push, y, y + 1);
+      y++;
+    }
+    if (y < size.h) await calm();
+  }
+  ctx.putImageData(new ImageData(pixels, size.w, size.h), 0, 0);
   const url = await toBlobUrl(canvas);
   for (const f of [GLASS_IDS.old, GLASS_IDS.new]) {
     const el = document.getElementById(vignetteId(f));
@@ -130,21 +144,24 @@ async function makeVignette(w: number, h: number): Promise<boolean> {
 }
 
 let remaking = false;
-/** Makes the vignette again for this screen's size (a window that was resized, a phone turned): not while a change runs, and one at a time. */
+/**
+ * Makes the vignette again for this screen's size (a window that was resized, a phone turned): not while a change runs, and one at a
+ * time. It takes a while now (the noise, a few rows at a time), so a screen that was resized meanwhile gets another round, a few at most.
+ */
 export async function refreshVignette(): Promise<void> {
   if (remaking || !ready.bend) return;
   remaking = true;
   try {
-    await calm();
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    if (ready.vignette?.w !== w || ready.vignette.h !== h) {
+    for (let round = 0; round < 4; round++) {
+      await calm();
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (ready.vignette?.w === w && ready.vignette.h === h) break;
       ready.warm = false; // a new size: the filters have first-time work to do again
-      if (await makeVignette(w, h)) {
-        remaking = false;
-        void warmGlass();
-      }
+      if (!(await makeVignette(w, h))) return;
     }
+    remaking = false;
+    void warmGlass();
   } catch {
     /* the bend stays off for this size */
   } finally {
@@ -194,7 +211,7 @@ export function prepareGlass(): void {
         const { canvas, ctx } = canvasOf(BEND_N, BEND_N);
         ctx.putImageData(new ImageData(bendTilePixels(BEND_N, BEND_TILES[i]), BEND_N, BEND_N), 0, 0);
         tiles.push(canvas.toDataURL("image/png"));
-        await calm(); // a noise tile costs more to make than a lens tile did: a gap after each one
+        await calm(); // a gap after each tile, so none of them is a long task
       }
       for (const url of tiles) kept.push(warm(url));
       ready.bendTiles = tiles;
@@ -205,6 +222,7 @@ export function prepareGlass(): void {
         window.clearTimeout(timer);
         timer = window.setTimeout(() => void refreshVignette(), 250);
       });
+      await refreshVignette(); // a screen that changed size while the tiles were made (it warms the new size itself)
       await warmGlass();
     } catch {
       /* no bend */

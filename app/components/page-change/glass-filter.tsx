@@ -6,11 +6,12 @@
  * As in the tenth preview, each picture is pushed on its own: the old page by the push at its place and the new page by minus
  * the push (R58: both whole, `BEND_NEW` is 1), before the soft mask mixes them (CSS applies a filter before a mask), and each colour
  * is pushed by its own share (`SPLIT`, the hero painting's: red 1.4 times green, blue 1/1.4 times) so the glass shows a red and blue
- * fringe. The push is the hero's liquid, a noise gradient with a wake behind the front (R58, glass-noise.ts and glass-texture.ts; the
- * 17 November design), where it was a radial lens. So each filter makes the
- * displacement map, damps it to neutral towards the screen's edges (the vignette, glass-vignette.ts: a displacement filter reads nothing
- * from outside the picture, so a push there would cut the page off along the edge), pushes the picture three times, keeps one colour of
- * each push and adds them. `color-interpolation-filters` is sRGB so grey stays exactly neutral.
+ * fringe. The push is the hero's liquid, a noise gradient with a wake behind the front (R58, glass-noise.ts; the 17 November design),
+ * where it was a radial lens. So each filter makes the displacement map from two pictures, multiplies them (R129: the direction picture
+ * is the hero's noise gradient fixed on the screen and damped to neutral towards the screen's edges, glass-vignette.ts, a displacement
+ * filter reading nothing from outside the picture, so a push there would cut the page off along the edge; the tile for the front holds
+ * only the strength, glass-texture.ts), pushes the picture three times, keeps one colour of each push and adds them.
+ * `color-interpolation-filters` is sRGB so grey stays exactly neutral.
  *
  * R56: the map is ONE picture per filter: one `feImage` whose source is swapped to the tile for the front when the front moves on to the
  * next (glass-prepare.ts makes the tiles, glass-run.ts moves and sizes the picture each frame; a tile reaches past the screen's farthest
@@ -42,10 +43,10 @@ const CHANNELS = ["r", "g", "b"] as const;
 function Bend({ id }: { id: GlassFilterId }) {
   return (
     <filter id={id} x="0" y="0" width="1" height="1" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
-      <feImage id={mapId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="raw" />
-      <feImage id={vignetteId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="damp" />
-      {/* raw * damp - damp / 2 + 1 / 2: the push times the vignette about the neutral grey */}
-      <feComposite in="raw" in2="damp" operator="arithmetic" k1="1" k2="0" k3="-0.5" k4="0.5" result="map" />
+      <feImage id={mapId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="strength" />
+      <feImage id={vignetteId(id)} x="0" y="0" width="0" height="0" preserveAspectRatio="none" result="direction" />
+      {/* strength * direction - strength / 2 + 1 / 2: 1/2 plus the direction about the neutral grey times the strength (a strength of 0 is neutral) */}
+      <feComposite in="strength" in2="direction" operator="arithmetic" k1="1" k2="-0.5" k3="0" k4="0.5" result="map" />
       {CHANNELS.map((c) => (
         <feDisplacementMap
           key={c}

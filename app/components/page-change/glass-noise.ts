@@ -3,7 +3,7 @@
  * 4.1 and 4.2). The painting's own change (`home/hero/paint-shaders.ts`) pushes each pixel along the gradient of a smooth noise, so the
  * push has no single direction, and it is strongest at the front and trails off in a wake behind it. The page change's bend does the
  * same: `fbm` is that shader's `h`, `n` and `fbm`, `noiseGradient` its push direction and `noiseStrength` its strength at a distance
- * from the front. Pure, no DOM: glass-texture.ts bakes the result into the bend's tiles.
+ * from the front. Pure, no DOM: `noiseGradient` goes into the vignette's picture (glass-vignette.ts, fixed on the screen) and `noiseStrength` into the bend's tiles (glass-texture.ts), R129.
  */
 import { newShare } from "./glass-field";
 

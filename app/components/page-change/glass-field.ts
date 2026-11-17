@@ -53,14 +53,16 @@ export const turnFor = (radius: number) => {
 };
 
 /**
- * The bend's ladder of front radii: every tile of `TILES` from `HAND_OVER` up (R58: the hero's noise is fixed on the screen while a tile
- * is scaled onto the front, so the bend uses the whole ladder, steps of 4% at most, and the noise slides by less when the tile changes;
- * the lens needed every other one). Below `HAND_OVER` the bend is already strong while the front is only a small blob (the hero's
- * liquid starts from the middle), and a tile cannot be shrunk onto a front that small, so there is a tile every `BEND_EARLY_STEP` of a
- * farthest-corner distance from before the front has left the middle: nearest wins, never more than half a step from the front.
- * Step 7 of the plan measures the step at every swap (`docs/redesign/compare/round7/r58-tile-swaps.json`).
+ * The bend's ladder of front radii: every tile of `TILES` from `HAND_OVER` up (steps of 4% at most; the lens needed every other one).
+ * R58 and R129: a bend tile holds only the push's strength, a smooth profile along the front; the hero's noise is in the vignette's
+ * picture (glass-vignette.ts), fixed on the screen, so nothing slides when the tile changes and the scaled tile moves only the band's
+ * edge. Below `HAND_OVER` the bend is already strong while the front is only a small blob (the hero's liquid starts from the middle),
+ * and a tile cannot be shrunk onto a front that small, so there is a tile every `BEND_EARLY_STEP` of a farthest-corner distance from
+ * before the front has left the middle: nearest wins, never more than half a step from the front, and the band jumps by one step at
+ * a swap, so the step is small (0.025, was 0.05: the swaps of the early tiles were over 1.5 times the control's). Step 7 of the plan
+ * measures the step at every swap (`docs/redesign/compare/round7/r58-tile-swaps.json`).
  */
-export const BEND_EARLY_STEP = 0.05;
+export const BEND_EARLY_STEP = 0.025;
 const BEND_FIRST = -0.25;
 const earlyBend = (): number[] => {
   const out: number[] = [];
