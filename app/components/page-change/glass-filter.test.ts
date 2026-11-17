@@ -38,7 +38,7 @@ describe("the bend's filters (R56: one map picture each)", () => {
     });
   }
 
-  it("a neutral direction (byte 128) gives exactly no push at every strength, damp 1 and 0.5 included (R130)", () => {
+  it("the arithmetic gives a neutral direction (byte 128) exactly the displacement map's no-push value at every strength, damp 1 and 0.5 included (R130; 8-bit storage still rounds it to 128, see the filter's comment)", () => {
     // the map's value minus 1/2 is the push in units of the scale; a displacement map byte of 128 / 255 is the vignette's neutral
     for (const damp of [1, 0.5, 0.25, 0]) for (const strength of [0, 0.3, 1]) expect(mapValue(strength * damp, 128 / 255) - 0.5).toBeCloseTo(0, 14);
     // the old constant (k2 = -1/2) left 0.00196 of the strength: half a pixel at a scale of 255

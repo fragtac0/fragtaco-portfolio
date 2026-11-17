@@ -42,9 +42,10 @@ const CHANNELS = ["r", "g", "b"] as const;
 
 /**
  * The map's arithmetic composite: result = k1 * strength * direction + k2 * strength + k3 * direction + k4 (all 0 to 1).
- * R130: the direction picture's neutral is the byte 128 (128 / 255, not 1/2: the vignette and the displacement both work on bytes), so
- * k2 is minus that, and a neutral direction gives exactly 1/2 (the displacement map's no-push value) whatever the strength. With
- * k2 = -1/2 each push was offset by 0.00196 times its scale, half a pixel once the red scale passed 255.
+ * R130: the direction picture's neutral is the byte 128 (128 / 255, not 1/2), so k2 is minus that and the arithmetic gives exactly 1/2
+ * for a neutral direction whatever the strength (k2 = -1/2 left 0.00196 of the strength). The filter keeps the result in 8 bits, though,
+ * and 1/2 is 127.5: it rounds to the byte 128 either way, so the displacement map still reads a neutral texel as 128 / 255 and every push
+ * is offset by 0.00196 times its scale (measured in R58.6: the page's one-frame colour steps near the front's start are still there).
  */
 export const MAP_K = { k1: 1, k2: -128 / 255, k3: 0, k4: 0.5 } as const;
 /** What the composite makes of a strength and a direction (both 0 to 1), as the filter computes it. */
