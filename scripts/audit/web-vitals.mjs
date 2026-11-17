@@ -21,6 +21,8 @@ const SETTLE_MS = Number(process.env.SETTLE_MS ?? 5600);
 // THROTTLE=1: a slow network (150 ms round trip, 1.6 Mbit/s down), where what a preload or a request chain costs becomes visible.
 const THROTTLE = process.env.THROTTLE === "1";
 // SIZES_ONLY=1440x900: only that size
+// CPU=4: the page runs on a CPU four times slower (a phone-class device; the gates of round 7 use it), so work that is 20 ms here shows as 80 ms.
+const CPU = Number(process.env.CPU ?? 1);
 
 // Runs in the page before any of its own scripts.
 const OBSERVE = `(() => {
@@ -69,7 +71,7 @@ async function oneRun(page, size) {
     const bfNotUsed = [];
     c.on("Network.requestWillBeSent", (p) => {
       t0 ??= p.timestamp;
-      reqs.set(p.requestId, { url: p.request.url, type: p.type ?? "Other", bytes: 0, done: false, startMs: (p.timestamp - t0) * 1000 });
+      reqs.set(p.requestId, { url: p.request.url, type: p.type ?? "Other", bytes: 0, done: false, startMs: (p.timestamp - t0) * 1000, priority: p.request.initialPriority });
     });
     c.on("Network.responseReceived", (p) => {
       const r = reqs.get(p.requestId);
@@ -84,9 +86,11 @@ async function oneRun(page, size) {
       if (r) r.failed = p.errorText;
     });
     c.on("Page.backForwardCacheNotUsed", (p) => bfNotUsed.push(...(p.notRestoredExplanations ?? []).map((x) => x.reason)));
+    if (CPU > 1) await c.send("Emulation.setCPUThrottlingRate", { rate: CPU });
     if (THROTTLE) await c.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: (1.6 * 1024 * 1024) / 8, uploadThroughput: (750 * 1024) / 8 });
     await c.send("Page.addScriptToEvaluateOnNewDocument", { source: OBSERVE });
     const load = loadavg()[0];
+    const load3 = loadavg().map((x) => round(x, 2)); // the 1, 5 and 15 minute averages
     await c.send("Page.navigate", { url: BASE + page });
     await sleep(SETTLE_MS);
     const w = await c.evaluate(READ);
@@ -99,6 +103,15 @@ async function oneRun(page, size) {
       bump(byType, r.type, r.bytes);
       if (r.failed) failed.push(r.url.slice(0, 120) + " " + r.failed);
     }
+    // the biggest requests of the page's first five seconds (origin and path only), what the first screen is made of
+    const largest = [...reqs.values()]
+      .filter((r) => /^https?:/.test(r.url) && r.bytes > 0)
+      .sort((x, y) => y.bytes - x.bytes)
+      .slice(0, 6)
+      .map((r) => ({ url: new URL(r.url).origin.replace(/localhost:\d+/, "localhost") + new URL(r.url).pathname.slice(0, 90), type: r.type, bytes: r.bytes, startMs: round(r.startMs), endMs: round(r.endMs) }));
+    // the page-view counter: when its request left, how long it took and the priority the browser gave it
+    const counterReq = [...reqs.values()].find((r) => r.url.includes("/api/page-view"));
+    const counter = counterReq ? { startMs: round(counterReq.startMs), endMs: round(counterReq.endMs), priority: counterReq.priority } : null;
     const fontFiles = [...reqs.values()].filter((r) => r.type === "Font").map((r) => ({ file: new URL(r.url).pathname.split("/").pop(), origin: new URL(r.url).origin, bytes: r.bytes, startMs: round(r.startMs), endMs: round(r.endMs), beforeLcp: r.endMs != null && r.endMs <= w.lcp }));
     const tbt = w.tasks.filter(([s]) => s >= (w.fcp ?? 0) && s <= WINDOW_MS).reduce((a, [, d]) => a + Math.max(0, d - 50), 0);
     // The back/forward cache: leave for another document of the site, come back, and see whether this very page object is still there.
@@ -115,9 +128,11 @@ async function oneRun(page, size) {
       longFrames: w.frames.filter((f) => f.startMs <= WINDOW_MS),
       fontsAtLcp: w.fontsAtLcp,
       fontFiles, headingFamilies: w.headingFamilies, bodyFamily: w.bodyFamily,
-      requests: { byOrigin, byType, total: reqs.size, failed },
+      requests: { byOrigin, byType, total: reqs.size, failed, largest },
+      counter,
       bfcache: { restored, reasons: [...new Set(bfNotUsed)] },
       loadAverage: round(load, 2),
+      load1_5_15: load3,
     };
   } finally {
     await c.close();
@@ -139,4 +154,4 @@ for (const size of SIZES) {
     console.log(`${size.name} ${page}: LCP ${med.lcpMs} ms (${runs.map((r) => r.lcpMs).join(", ")}) CLS ${med.cls} TBT ${med.tbtMs} bfcache ${runs.map((r) => r.bfcache.restored).join("/")} ${runs[0].lcpElement}`);
   }
 }
-writeFileSync(out, JSON.stringify({ base: BASE.replace(/localhost:\d+/, "localhost"), chrome: "headless, fresh profile per run", runsPerCase: RUNS, throttle: THROTTLE ? "150 ms, 1.6 Mbit/s" : "none", windowMs: WINDOW_MS, results }, null, 1));
+writeFileSync(out, JSON.stringify({ base: BASE.replace(/localhost:\d+/, "localhost"), chrome: "headless, fresh profile per run", runsPerCase: RUNS, throttle: THROTTLE ? "150 ms, 1.6 Mbit/s" : "none", cpu: CPU === 1 ? "none" : `${CPU}x slower`, windowMs: WINDOW_MS, results }, null, 1));

@@ -29,6 +29,30 @@ describe("vercel.json (the headers of the static files; remix-serve does not app
       expect(value(`/${dir}/(.*)`, "Cross-Origin-Resource-Policy"), dir).toBe("same-origin");
   });
 
+  it("lets a returning visitor keep the pictures of public/ for a day instead of asking about each one on every visit (Task 35)", () => {
+    for (const dir of ["paintings", "mars", "grounds", "portraits", "stack"])
+      expect(value(`/${dir}/(.*)`, "Cache-Control"), dir).toBe("public, max-age=86400, stale-while-revalidate=604800");
+  });
+
+  it("leaves the hashed files under /assets/ and every other path to Vercel's own caching (a year, immutable, for the hashed files)", () => {
+    const withCache = config.headers.filter((r) => r.headers.some((h) => h.key.toLowerCase() === "cache-control")).map((r) => r.source);
+    expect(withCache.sort()).toEqual(["/grounds/(.*)", "/mars/(.*)", "/paintings/(.*)", "/portraits/(.*)", "/stack/(.*)"]);
+    expect(value("/assets/(.*)", "Cache-Control")).toBeUndefined();
+    expect(value("/(.*)", "Cache-Control")).toBeUndefined();
+  });
+
+  it("promises no more than an unhashed file can (no `immutable`; a fresh period, then a longer stale one)", () => {
+    for (const r of config.headers) {
+      const v = r.headers.find((h) => h.key.toLowerCase() === "cache-control")?.value;
+      if (!v) continue;
+      expect(v).not.toMatch(/immutable/);
+      const age = Number(/max-age=(\d+)/.exec(v)?.[1]);
+      const stale = Number(/stale-while-revalidate=(\d+)/.exec(v)?.[1]);
+      expect(age).toBeGreaterThan(0);
+      expect(stale).toBeGreaterThan(age);
+    }
+  });
+
   it("sends no header that belongs to documents (the document folder /work/ holds routes, and is not named; the policy needs a nonce made per response, so it is made by the server)", () => {
     const keys = config.headers.flatMap((r) => r.headers.map((h) => h.key.toLowerCase()));
     for (const k of ["content-security-policy", "reporting-endpoints", "permissions-policy", "x-frame-options", "cross-origin-opener-policy"]) expect(keys).not.toContain(k);
