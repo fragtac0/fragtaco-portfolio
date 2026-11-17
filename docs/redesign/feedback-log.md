@@ -794,6 +794,30 @@ So: the join, the whole-branch review (Task 20), the comparison page and status 
 
 How "cleanup git" is read (the coordinator's reading, told to him and not contradicted): the stacked pull requests are marked merged or closed, the merged branches are deleted, the README and docs are tidied; the commit history on main is not rewritten. Content he has not confirmed (the role dates on My experience, the short form links, the wording of the moments) goes live as it is and is listed in the handover.
 
+### The modern web pass: the design, and the calls made for him (2026-11-17)
+
+He asked for three things on 16 November (modernize, a security audit with improvements, performance) and on 17 November answered "All together": the pass is done before the release and the security fixes are applied on the coordinator's judgment and reported. He gave no further feedback on the pass; what follows is the coordinator's design, made from the code and the skill's guides while Task 32 was building. Design and plan: `docs/superpowers/specs/2026-11-17-modern-web-pass-design.md`, `docs/superpowers/plans/2026-11-17-modern-web-pass.md` (part R59, branch `r7/r59-web-pass`, Tasks 33 to 36).
+
+What the site was found to be on 17 November: no security headers set anywhere; no secret in the public repository's history; two places where a fixed string is written as HTML; three third parties a visitor's browser talks to (Google Fonts, YouTube thumbnails, Open Library covers); a view counter that accepts a request from any site; a legacy scan of `app/` with two findings, one of them a false alarm.
+
+| Task | What it does |
+|---|---|
+| 33 | Measures every page first (the record all later changes are judged against), then serves the eleven font families from the site itself instead of Google. |
+| 34 | Security: the full set of headers, a strict rule on which scripts may run (a fresh nonce on every response), a small endpoint that logs violations, the counter closed to other sites, dependency patches, and a written audit. |
+| 35 | Performance: only what the measurements show, each change measured before and after and taken out again if it gains nothing. |
+| 36 | Modernize: the scan's findings and a sweep of the code against the skill's guides, every hit listed as changed or left with the reason. |
+
+The calls made for him, each with its cost if wrong:
+
+| Call | Cost if wrong |
+|---|---|
+| Rules are enforced, not only reported, wherever an automated run over every page and page change is clean | A blocked picture or script on a browser the run did not cover; the report endpoint shows it and one header line turns the rule back to report-only |
+| The fonts move to the site's own origin | A few hundred KB more in the build; one commit to go back |
+| Trusted Types may ship in report-only form if the run is not clean | The strongest injection defence watches and does not block, on a site with no visitor-written content |
+| No accessibility audit, no service worker, no speculation rules, no move to React Router 7 in this pass | Listed for him as possible later rounds |
+
+The standing rule holds through the pass: polish must not change the look. Every task that touches what a visitor sees takes pictures before and after.
+
 ## Round 7: final status (17 November 2026)
 
 Round 7 is built, reviewed and joined into one branch. This section is the summary for someone who has not followed the build. It was written after the whole-branch review and its fix wave (R57.1) and before Task 32 (the page change's edge look that Aditya picked from the eleventh preview) and the modern web pass, so neither is in it.
