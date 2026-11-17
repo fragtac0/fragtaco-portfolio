@@ -2145,11 +2145,11 @@
  "proof": {
   "mode": "proof",
   "base": "the production build served by remix-serve (address not recorded)",
-  "at": "2026-11-17T06:24:39.796Z",
+  "at": "2026-11-17T06:55:10.623Z",
   "loadAverage": [
-   3.38,
-   3.53,
-   4.07
+   3.92,
+   5.99,
+   6.95
   ],
   "headers": [
    {
@@ -2184,26 +2184,26 @@
       "type": "module",
       "nonceOk": true,
       "inline": true,
-      "sample": "import \"/assets/manifest-a25f1780.js\";\ni"
+      "sample": "import \"/assets/manifest-46cff509.js\";\ni"
      }
     ],
     "document": [
      {
       "header": "Content-Security-Policy",
       "want": "contains default-src 'self' | 'strict-dynamic' | 'report-sample' | object-src 'none' | base-uri 'none' | frame-ancestors 'none' | form-action 'self' | font-src 'self' | report-to csp | report-uri /api/csp-report | style-src 'self' 'unsafe-inline'",
-      "got": "default-src 'self'; script-src 'nonce-kkgFcGmo73PeFivh8AE3/Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-iRJseohxLA5o5cNMGUisBw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy (script-src)",
       "want": "script-src 'nonce-<16 random bytes>' 'strict-dynamic' 'report-sample' and nothing else (no unsafe-inline, unsafe-eval, https:)",
-      "got": "default-src 'self'; script-src 'nonce-kkgFcGmo73PeFivh8AE3/Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-iRJseohxLA5o5cNMGUisBw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy",
       "want": "contains require-trusted-types-for 'script'",
-      "got": "default-src 'self'; script-src 'nonce-kkgFcGmo73PeFivh8AE3/Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-iRJseohxLA5o5cNMGUisBw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
@@ -2278,7 +2278,7 @@
       }
      ]
     },
-    "csp": "default-src 'self'; script-src 'nonce-kkgFcGmo73PeFivh8AE3/Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+    "csp": "default-src 'self'; script-src 'nonce-iRJseohxLA5o5cNMGUisBw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
     "cspReportOnly": null
    },
    {
@@ -2306,26 +2306,26 @@
       "type": "module",
       "nonceOk": true,
       "inline": true,
-      "sample": "import \"/assets/manifest-a25f1780.js\";\ni"
+      "sample": "import \"/assets/manifest-46cff509.js\";\ni"
      }
     ],
     "document": [
      {
       "header": "Content-Security-Policy",
       "want": "contains default-src 'self' | 'strict-dynamic' | 'report-sample' | object-src 'none' | base-uri 'none' | frame-ancestors 'none' | form-action 'self' | font-src 'self' | report-to csp | report-uri /api/csp-report | style-src 'self' 'unsafe-inline'",
-      "got": "default-src 'self'; script-src 'nonce-wiMiutreBzdznjFTfvyhmQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-yF2qF2wbi2whgcEddPWAZQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy (script-src)",
       "want": "script-src 'nonce-<16 random bytes>' 'strict-dynamic' 'report-sample' and nothing else (no unsafe-inline, unsafe-eval, https:)",
-      "got": "default-src 'self'; script-src 'nonce-wiMiutreBzdznjFTfvyhmQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-yF2qF2wbi2whgcEddPWAZQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy",
       "want": "contains require-trusted-types-for 'script'",
-      "got": "default-src 'self'; script-src 'nonce-wiMiutreBzdznjFTfvyhmQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-yF2qF2wbi2whgcEddPWAZQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
@@ -2400,7 +2400,7 @@
       }
      ]
     },
-    "csp": "default-src 'self'; script-src 'nonce-wiMiutreBzdznjFTfvyhmQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+    "csp": "default-src 'self'; script-src 'nonce-yF2qF2wbi2whgcEddPWAZQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
     "cspReportOnly": null
    },
    {
@@ -2428,26 +2428,26 @@
       "type": "module",
       "nonceOk": true,
       "inline": true,
-      "sample": "import \"/assets/manifest-a25f1780.js\";\ni"
+      "sample": "import \"/assets/manifest-46cff509.js\";\ni"
      }
     ],
     "document": [
      {
       "header": "Content-Security-Policy",
       "want": "contains default-src 'self' | 'strict-dynamic' | 'report-sample' | object-src 'none' | base-uri 'none' | frame-ancestors 'none' | form-action 'self' | font-src 'self' | report-to csp | report-uri /api/csp-report | style-src 'self' 'unsafe-inline'",
-      "got": "default-src 'self'; script-src 'nonce-/zg8kKsvNjLO7vSJkU/z/w==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-EoZxod6RFsZ/pQ2oQU4okw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy (script-src)",
       "want": "script-src 'nonce-<16 random bytes>' 'strict-dynamic' 'report-sample' and nothing else (no unsafe-inline, unsafe-eval, https:)",
-      "got": "default-src 'self'; script-src 'nonce-/zg8kKsvNjLO7vSJkU/z/w==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-EoZxod6RFsZ/pQ2oQU4okw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy",
       "want": "contains require-trusted-types-for 'script'",
-      "got": "default-src 'self'; script-src 'nonce-/zg8kKsvNjLO7vSJkU/z/w==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-EoZxod6RFsZ/pQ2oQU4okw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
@@ -2522,7 +2522,7 @@
       }
      ]
     },
-    "csp": "default-src 'self'; script-src 'nonce-/zg8kKsvNjLO7vSJkU/z/w==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+    "csp": "default-src 'self'; script-src 'nonce-EoZxod6RFsZ/pQ2oQU4okw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
     "cspReportOnly": null
    },
    {
@@ -2550,26 +2550,26 @@
       "type": "module",
       "nonceOk": true,
       "inline": true,
-      "sample": "import \"/assets/manifest-a25f1780.js\";\ni"
+      "sample": "import \"/assets/manifest-46cff509.js\";\ni"
      }
     ],
     "document": [
      {
       "header": "Content-Security-Policy",
       "want": "contains default-src 'self' | 'strict-dynamic' | 'report-sample' | object-src 'none' | base-uri 'none' | frame-ancestors 'none' | form-action 'self' | font-src 'self' | report-to csp | report-uri /api/csp-report | style-src 'self' 'unsafe-inline'",
-      "got": "default-src 'self'; script-src 'nonce-pRejauGokkiFTZdvJAGQgA==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-42TtJ2h0MNW+BsDNf/Ut8Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy (script-src)",
       "want": "script-src 'nonce-<16 random bytes>' 'strict-dynamic' 'report-sample' and nothing else (no unsafe-inline, unsafe-eval, https:)",
-      "got": "default-src 'self'; script-src 'nonce-pRejauGokkiFTZdvJAGQgA==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-42TtJ2h0MNW+BsDNf/Ut8Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy",
       "want": "contains require-trusted-types-for 'script'",
-      "got": "default-src 'self'; script-src 'nonce-pRejauGokkiFTZdvJAGQgA==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-42TtJ2h0MNW+BsDNf/Ut8Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
@@ -2644,7 +2644,7 @@
       }
      ]
     },
-    "csp": "default-src 'self'; script-src 'nonce-pRejauGokkiFTZdvJAGQgA==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+    "csp": "default-src 'self'; script-src 'nonce-42TtJ2h0MNW+BsDNf/Ut8Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
     "cspReportOnly": null
    },
    {
@@ -2672,26 +2672,26 @@
       "type": "module",
       "nonceOk": true,
       "inline": true,
-      "sample": "import \"/assets/manifest-a25f1780.js\";\ni"
+      "sample": "import \"/assets/manifest-46cff509.js\";\ni"
      }
     ],
     "document": [
      {
       "header": "Content-Security-Policy",
       "want": "contains default-src 'self' | 'strict-dynamic' | 'report-sample' | object-src 'none' | base-uri 'none' | frame-ancestors 'none' | form-action 'self' | font-src 'self' | report-to csp | report-uri /api/csp-report | style-src 'self' 'unsafe-inline'",
-      "got": "default-src 'self'; script-src 'nonce-EGRzwqv7eSP2SVi1NI+IMw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-7KCYNdIidTFYdpczkiZsBQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy (script-src)",
       "want": "script-src 'nonce-<16 random bytes>' 'strict-dynamic' 'report-sample' and nothing else (no unsafe-inline, unsafe-eval, https:)",
-      "got": "default-src 'self'; script-src 'nonce-EGRzwqv7eSP2SVi1NI+IMw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-7KCYNdIidTFYdpczkiZsBQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
       "header": "Content-Security-Policy",
       "want": "contains require-trusted-types-for 'script'",
-      "got": "default-src 'self'; script-src 'nonce-EGRzwqv7eSP2SVi1NI+IMw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+      "got": "default-src 'self'; script-src 'nonce-7KCYNdIidTFYdpczkiZsBQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
       "ok": true
      },
      {
@@ -2766,7 +2766,7 @@
       }
      ]
     },
-    "csp": "default-src 'self'; script-src 'nonce-EGRzwqv7eSP2SVi1NI+IMw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+    "csp": "default-src 'self'; script-src 'nonce-7KCYNdIidTFYdpczkiZsBQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
     "cspReportOnly": null
    }
   ],
@@ -2847,7 +2847,7 @@
    },
    {
     "kind": "script",
-    "path": "/assets/_index-2jLg8mIS.js",
+    "path": "/assets/_index-DNwricV5.js",
     "from": "vercel.json (read, not served: remix-serve does not apply it)",
     "headers": {
      "x-content-type-options": "nosniff",
@@ -2912,7 +2912,7 @@
    {
     "page": "/",
     "size": "1440x900",
-    "requests": 525,
+    "requests": 526,
     "docs": [
      {
       "url": "http://localhost:5180/",
@@ -2921,12 +2921,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:24:44 GMT",
+       "date": "Tue, 17 Nov 2026 06:55:14 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, no-cache",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-0W29UrRvPp6BJyThInVmyg==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-xSUHRCP9mSTQOqEqseNu4g==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -2950,7 +2950,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:24:44 GMT",
+       "date": "Tue, 17 Nov 2026 06:55:15 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -2962,12 +2962,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:25:44 GMT",
+       "date": "Tue, 17 Nov 2026 06:56:15 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, no-cache",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-3AcFnvEB0i/d/7TwDKGh6Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-YWqpwMUZgNYoAd+vkyKq3g==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -2991,7 +2991,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:25:44 GMT",
+       "date": "Tue, 17 Nov 2026 06:56:15 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3011,15 +3011,15 @@
       }
      },
      "http://localhost:5180": {
-      "count": 102,
+      "count": 103,
       "types": {
        "Document": 2,
        "Image": 12,
        "Stylesheet": 18,
-       "Font": 30,
        "Script": 31,
-       "Other": 1,
-       "Fetch": 8
+       "Font": 31,
+       "Fetch": 8,
+       "Other": 1
       }
      },
      "data:": {
@@ -3028,10 +3028,16 @@
        "Image": 113
       }
      },
-     "https://ia600606.us.archive.org": {
-      "count": 1,
+     "https://i.ytimg.com": {
+      "count": 220,
       "types": {
-       "Image": 1
+       "Image": 220
+      }
+     },
+     "https://ia800606.us.archive.org": {
+      "count": 2,
+      "types": {
+       "Image": 2
       }
      },
      "https://ia800603.us.archive.org": {
@@ -3046,12 +3052,6 @@
        "Image": 2
       }
      },
-     "https://i.ytimg.com": {
-      "count": 220,
-      "types": {
-       "Image": 220
-      }
-     },
      "https://ia800104.us.archive.org": {
       "count": 2,
       "types": {
@@ -3059,9 +3059,9 @@
       }
      },
      "https://ia800806.us.archive.org": {
-      "count": 2,
+      "count": 1,
       "types": {
-       "Image": 2
+       "Image": 1
       }
      },
      "https://ia601009.us.archive.org": {
@@ -3070,13 +3070,31 @@
        "Image": 1
       }
      },
-     "https://ia601909.us.archive.org": {
+     "https://ia801909.us.archive.org": {
+      "count": 1,
+      "types": {
+       "Image": 1
+      }
+     },
+     "https://ia800507.us.archive.org": {
       "count": 2,
       "types": {
        "Image": 2
       }
      },
-     "https://ia600507.us.archive.org": {
+     "https://ia800505.us.archive.org": {
+      "count": 2,
+      "types": {
+       "Image": 2
+      }
+     },
+     "https://ia600609.us.archive.org": {
+      "count": 2,
+      "types": {
+       "Image": 2
+      }
+     },
+     "https://ia800409.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
@@ -3088,37 +3106,19 @@
        "Image": 2
       }
      },
-     "https://ia800609.us.archive.org": {
-      "count": 1,
-      "types": {
-       "Image": 1
-      }
-     },
-     "https://ia600409.us.archive.org": {
-      "count": 1,
-      "types": {
-       "Image": 1
-      }
-     },
-     "https://ia800505.us.archive.org": {
-      "count": 2,
-      "types": {
-       "Image": 2
-      }
-     },
      "blob:": {
       "count": 14,
       "types": {
        "Image": 14
       }
      },
-     "https://ia800606.us.archive.org": {
+     "https://ia600603.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia600603.us.archive.org": {
+     "https://ia600806.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
@@ -3130,19 +3130,13 @@
        "Image": 1
       }
      },
-     "https://ia800507.us.archive.org": {
+     "https://ia601909.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia600609.us.archive.org": {
-      "count": 1,
-      "types": {
-       "Image": 1
-      }
-     },
-     "https://ia800409.us.archive.org": {
+     "https://ia600409.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
@@ -3153,33 +3147,32 @@
      "Image": 435,
      "Document": 2,
      "Stylesheet": 18,
-     "Font": 30,
      "Script": 31,
-     "Other": 1,
-     "Fetch": 8
+     "Font": 31,
+     "Fetch": 8,
+     "Other": 1
     },
     "thirdParty": {
      "https://covers.openlibrary.org Image": 28,
      "https://archive.org Image": 24,
-     "https://ia600606.us.archive.org Image": 1,
+     "https://i.ytimg.com Image": 220,
+     "https://ia800606.us.archive.org Image": 2,
      "https://ia800603.us.archive.org Image": 1,
      "https://ia800100.us.archive.org Image": 2,
-     "https://i.ytimg.com Image": 220,
      "https://ia800104.us.archive.org Image": 2,
-     "https://ia800806.us.archive.org Image": 2,
+     "https://ia800806.us.archive.org Image": 1,
      "https://ia601009.us.archive.org Image": 1,
-     "https://ia601909.us.archive.org Image": 2,
-     "https://ia600507.us.archive.org Image": 1,
-     "https://ia600505.us.archive.org Image": 2,
-     "https://ia800609.us.archive.org Image": 1,
-     "https://ia600409.us.archive.org Image": 1,
+     "https://ia801909.us.archive.org Image": 1,
+     "https://ia800507.us.archive.org Image": 2,
      "https://ia800505.us.archive.org Image": 2,
-     "https://ia800606.us.archive.org Image": 1,
+     "https://ia600609.us.archive.org Image": 2,
+     "https://ia800409.us.archive.org Image": 1,
+     "https://ia600505.us.archive.org Image": 2,
      "https://ia600603.us.archive.org Image": 1,
+     "https://ia600806.us.archive.org Image": 1,
      "https://ia801009.us.archive.org Image": 1,
-     "https://ia800507.us.archive.org Image": 1,
-     "https://ia600609.us.archive.org Image": 1,
-     "https://ia800409.us.archive.org Image": 1
+     "https://ia601909.us.archive.org Image": 1,
+     "https://ia600409.us.archive.org Image": 1
     },
     "bad": [],
     "abandoned": {
@@ -3209,12 +3202,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:25:50 GMT",
+       "date": "Tue, 17 Nov 2026 06:56:21 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, max-age=900",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-xg7c7shRtEN+IfLmyX2DgA==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-vD8u4W8mN4/r9ccMEPLnIA==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -3238,7 +3231,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:25:50 GMT",
+       "date": "Tue, 17 Nov 2026 06:56:21 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3251,8 +3244,8 @@
        "Document": 2,
        "Stylesheet": 8,
        "Image": 11,
-       "Script": 18,
        "Font": 2,
+       "Script": 18,
        "Fetch": 1,
        "Other": 1
       }
@@ -3280,8 +3273,8 @@
      "Document": 2,
      "Stylesheet": 8,
      "Image": 95,
-     "Script": 18,
      "Font": 2,
+     "Script": 18,
      "Fetch": 1,
      "Other": 1
     },
@@ -3316,12 +3309,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:26:06 GMT",
+       "date": "Tue, 17 Nov 2026 06:56:37 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, max-age=900",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-XFaCtBaWAylPjrxA8TEfoQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-mIX7qF2dqqQkBjGyiDkSGQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -3345,7 +3338,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:26:06 GMT",
+       "date": "Tue, 17 Nov 2026 06:56:37 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3358,8 +3351,8 @@
        "Document": 1,
        "Stylesheet": 10,
        "Image": 3,
-       "Script": 21,
        "Font": 4,
+       "Script": 21,
        "Other": 1,
        "Fetch": 1
       }
@@ -3387,8 +3380,8 @@
      "Document": 1,
      "Stylesheet": 10,
      "Image": 107,
-     "Script": 21,
      "Font": 4,
+     "Script": 21,
      "Other": 1,
      "Fetch": 1
     },
@@ -3423,12 +3416,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:26:21 GMT",
+       "date": "Tue, 17 Nov 2026 06:56:52 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, max-age=900",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-IMLFbTtY7cGR2opjTZ8IMw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-AUt1CDy5KC+XhqEmF0wfQQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -3452,7 +3445,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:26:21 GMT",
+       "date": "Tue, 17 Nov 2026 06:56:52 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3467,8 +3460,8 @@
        "Image": 3,
        "Font": 4,
        "Script": 21,
-       "Fetch": 1,
-       "Other": 1
+       "Other": 1,
+       "Fetch": 1
       }
      },
      "data:": {
@@ -3490,8 +3483,8 @@
      "Image": 100,
      "Font": 4,
      "Script": 21,
-     "Fetch": 1,
-     "Other": 1
+     "Other": 1,
+     "Fetch": 1
     },
     "thirdParty": {},
     "bad": [],
@@ -3522,12 +3515,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:26:37 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:08 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, max-age=300",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-Gwld45lG5G2JkyhnYvOtHQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-63JyJ5x//qCh1tZafytLrA==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -3551,7 +3544,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:26:37 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:08 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3752,7 +3745,7 @@
       "settled": true
      }
     ],
-    "requests": 1346,
+    "requests": 1350,
     "docs": [
      {
       "url": "http://localhost:5180/",
@@ -3761,12 +3754,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:26:53 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:24 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, no-cache",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-7vXLuZIeljrqtoxTgH4eVg==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-Oh8MxnH6U3PE69pHyCw6Zg==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -3790,7 +3783,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:26:53 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:24 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3808,7 +3801,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:00 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:31 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -3826,7 +3819,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:00 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:31 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3844,7 +3837,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:04 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:35 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -3862,7 +3855,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:04 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:35 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3877,7 +3870,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:27:00 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:31 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -3895,7 +3888,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:07 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:38 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3913,7 +3906,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:11 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:42 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -3931,7 +3924,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:11 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:42 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3946,7 +3939,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:27:00 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:31 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -3964,7 +3957,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:15 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:46 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -3981,7 +3974,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:18 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:49 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4000,7 +3993,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:18 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:49 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4018,7 +4011,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:18 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:50 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4033,7 +4026,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:27:00 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:31 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4051,7 +4044,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:22 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:53 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4069,7 +4062,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:26 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:57 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4087,7 +4080,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:26 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:57 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4102,7 +4095,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:27:04 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:35 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4120,7 +4113,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:29 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:00 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4137,7 +4130,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:33 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:04 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4154,7 +4147,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:37 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:08 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4171,7 +4164,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:40 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:11 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4189,7 +4182,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:40 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:11 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4206,7 +4199,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:44 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:15 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4224,7 +4217,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:47 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:19 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4242,7 +4235,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:47 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:19 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4257,7 +4250,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:27:11 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:42 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4275,7 +4268,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:51 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:22 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4292,7 +4285,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:55 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:26 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4310,7 +4303,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:55 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:26 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4327,7 +4320,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:27:58 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:30 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4345,7 +4338,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:02 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:33 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4363,7 +4356,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:02 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:33 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4378,7 +4371,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:27:18 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:49 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4396,7 +4389,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:06 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:37 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4414,7 +4407,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:06 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:37 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4432,7 +4425,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:09 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:40 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4450,7 +4443,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:09 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:40 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4465,7 +4458,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:27:18 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:49 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4483,7 +4476,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:13 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:44 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4501,7 +4494,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:13 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:44 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4519,7 +4512,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:17 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:49 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4537,7 +4530,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:17 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:49 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4552,7 +4545,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:27:11 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:42 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4570,7 +4563,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:22 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:53 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4588,7 +4581,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:26 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:58 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4606,7 +4599,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:26 GMT",
+       "date": "Tue, 17 Nov 2026 06:58:58 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4621,7 +4614,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:27:18 GMT",
+       "date": "Tue, 17 Nov 2026 06:57:49 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4639,7 +4632,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:31 GMT",
+       "date": "Tue, 17 Nov 2026 06:59:02 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4657,7 +4650,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:31 GMT",
+       "date": "Tue, 17 Nov 2026 06:59:02 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4675,7 +4668,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:35 GMT",
+       "date": "Tue, 17 Nov 2026 06:59:07 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -4693,7 +4686,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:35 GMT",
+       "date": "Tue, 17 Nov 2026 06:59:07 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4713,14 +4706,14 @@
       }
      },
      "http://localhost:5180": {
-      "count": 250,
+      "count": 254,
       "types": {
        "Fetch": 79,
        "Document": 1,
-       "Image": 116,
+       "Image": 120,
        "Stylesheet": 12,
-       "Script": 27,
        "Font": 14,
+       "Script": 27,
        "Other": 1
       }
      },
@@ -4736,13 +4729,13 @@
        "Image": 601
       }
      },
-     "https://ia600606.us.archive.org": {
+     "https://ia800606.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia600603.us.archive.org": {
+     "https://ia800603.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
@@ -4754,7 +4747,7 @@
        "Image": 3
       }
      },
-     "https://ia600104.us.archive.org": {
+     "https://ia800104.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
@@ -4773,39 +4766,39 @@
       }
      },
      "https://ia601909.us.archive.org": {
-      "count": 1,
-      "types": {
-       "Image": 1
-      }
-     },
-     "https://ia800507.us.archive.org": {
-      "count": 3,
-      "types": {
-       "Image": 3
-      }
-     },
-     "https://ia800505.us.archive.org": {
       "count": 2,
       "types": {
        "Image": 2
       }
      },
-     "https://ia800609.us.archive.org": {
+     "https://ia600507.us.archive.org": {
+      "count": 2,
+      "types": {
+       "Image": 2
+      }
+     },
+     "https://ia800505.us.archive.org": {
+      "count": 5,
+      "types": {
+       "Image": 5
+      }
+     },
+     "https://ia600609.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia800409.us.archive.org": {
+     "https://ia600409.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
      "https://ia600505.us.archive.org": {
-      "count": 4,
+      "count": 1,
       "types": {
-       "Image": 4
+       "Image": 1
       }
      },
      "blob:": {
@@ -4815,38 +4808,45 @@
       }
      },
      "https://ia801909.us.archive.org": {
-      "count": 2,
+      "count": 1,
       "types": {
-       "Image": 2
+       "Image": 1
+      }
+     },
+     "https://ia800507.us.archive.org": {
+      "count": 1,
+      "types": {
+       "Image": 1
       }
      }
     },
     "byType": {
-     "Image": 1212,
+     "Image": 1216,
      "Fetch": 79,
      "Document": 1,
      "Stylesheet": 12,
-     "Script": 27,
      "Font": 14,
+     "Script": 27,
      "Other": 1
     },
     "thirdParty": {
      "https://covers.openlibrary.org Image": 56,
      "https://archive.org Image": 34,
      "https://i.ytimg.com Image": 601,
-     "https://ia600606.us.archive.org Image": 1,
-     "https://ia600603.us.archive.org Image": 1,
+     "https://ia800606.us.archive.org Image": 1,
+     "https://ia800603.us.archive.org Image": 1,
      "https://ia800100.us.archive.org Image": 3,
-     "https://ia600104.us.archive.org Image": 1,
+     "https://ia800104.us.archive.org Image": 1,
      "https://ia800806.us.archive.org Image": 1,
      "https://ia601009.us.archive.org Image": 1,
-     "https://ia601909.us.archive.org Image": 1,
-     "https://ia800507.us.archive.org Image": 3,
-     "https://ia800505.us.archive.org Image": 2,
-     "https://ia800609.us.archive.org Image": 1,
-     "https://ia800409.us.archive.org Image": 1,
-     "https://ia600505.us.archive.org Image": 4,
-     "https://ia801909.us.archive.org Image": 2
+     "https://ia601909.us.archive.org Image": 2,
+     "https://ia600507.us.archive.org Image": 2,
+     "https://ia800505.us.archive.org Image": 5,
+     "https://ia600609.us.archive.org Image": 1,
+     "https://ia600409.us.archive.org Image": 1,
+     "https://ia600505.us.archive.org Image": 1,
+     "https://ia801909.us.archive.org Image": 1,
+     "https://ia800507.us.archive.org Image": 1
     },
     "bad": [],
     "abandoned": {
@@ -4855,14 +4855,14 @@
       "https://covers.openlibrary.org": 14,
       "https://archive.org": 5,
       "https://ia801909.us.archive.org": 1,
-      "https://ia600505.us.archive.org": 1,
+      "https://ia800507.us.archive.org": 1,
       "https://ia800505.us.archive.org": 1
      }
     },
     "violations": [],
     "features": {
      "canvas:webgl2": 22,
-     "canvas:2d": 512,
+     "canvas:2d": 513,
      "canvas:webgl": 13
     },
     "consoleErrors": [],
@@ -4882,12 +4882,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:28:41 GMT",
+       "date": "Tue, 17 Nov 2026 06:59:12 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, no-cache",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-FqTQE2GYif/bZISYYzYa7w==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-+G85Zwgjzi1Jel8k/cXDng==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -4911,7 +4911,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:28:41 GMT",
+       "date": "Tue, 17 Nov 2026 06:59:13 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4923,12 +4923,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:29:41 GMT",
+       "date": "Tue, 17 Nov 2026 07:00:13 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, no-cache",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-Rjz97S4Nf6xvNJAVoWjpPg==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-FMbVZD7xHK7dMuhqQDdSlQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -4952,7 +4952,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:29:41 GMT",
+       "date": "Tue, 17 Nov 2026 07:00:13 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -4989,28 +4989,28 @@
        "Image": 113
       }
      },
-     "https://ia600606.us.archive.org": {
-      "count": 1,
+     "https://ia800606.us.archive.org": {
+      "count": 2,
       "types": {
-       "Image": 1
+       "Image": 2
       }
      },
      "https://ia600603.us.archive.org": {
+      "count": 2,
+      "types": {
+       "Image": 2
+      }
+     },
+     "https://ia600100.us.archive.org": {
+      "count": 2,
+      "types": {
+       "Image": 2
+      }
+     },
+     "https://ia600104.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
-      }
-     },
-     "https://ia800100.us.archive.org": {
-      "count": 2,
-      "types": {
-       "Image": 2
-      }
-     },
-     "https://ia800104.us.archive.org": {
-      "count": 2,
-      "types": {
-       "Image": 2
       }
      },
      "https://ia800806.us.archive.org": {
@@ -5019,25 +5019,25 @@
        "Image": 2
       }
      },
-     "https://ia601009.us.archive.org": {
-      "count": 2,
-      "types": {
-       "Image": 2
-      }
-     },
-     "https://ia601909.us.archive.org": {
+     "https://ia801009.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia800507.us.archive.org": {
+     "https://ia801909.us.archive.org": {
       "count": 2,
       "types": {
        "Image": 2
       }
      },
-     "https://ia800505.us.archive.org": {
+     "https://ia600507.us.archive.org": {
+      "count": 2,
+      "types": {
+       "Image": 2
+      }
+     },
+     "https://ia600505.us.archive.org": {
       "count": 2,
       "types": {
        "Image": 2
@@ -5055,12 +5055,6 @@
        "Image": 1
       }
      },
-     "https://ia600505.us.archive.org": {
-      "count": 2,
-      "types": {
-       "Image": 2
-      }
-     },
      "blob:": {
       "count": 14,
       "types": {
@@ -5073,22 +5067,22 @@
        "Image": 111
       }
      },
-     "https://ia800606.us.archive.org": {
+     "https://ia800104.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia800603.us.archive.org": {
+     "https://ia601009.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia801909.us.archive.org": {
-      "count": 1,
+     "https://ia800505.us.archive.org": {
+      "count": 2,
       "types": {
-       "Image": 1
+       "Image": 2
       }
      },
      "https://ia800409.us.archive.org": {
@@ -5110,22 +5104,21 @@
     "thirdParty": {
      "https://covers.openlibrary.org Image": 28,
      "https://archive.org Image": 24,
-     "https://ia600606.us.archive.org Image": 1,
-     "https://ia600603.us.archive.org Image": 1,
-     "https://ia800100.us.archive.org Image": 2,
-     "https://ia800104.us.archive.org Image": 2,
+     "https://ia800606.us.archive.org Image": 2,
+     "https://ia600603.us.archive.org Image": 2,
+     "https://ia600100.us.archive.org Image": 2,
+     "https://ia600104.us.archive.org Image": 1,
      "https://ia800806.us.archive.org Image": 2,
-     "https://ia601009.us.archive.org Image": 2,
-     "https://ia601909.us.archive.org Image": 1,
-     "https://ia800507.us.archive.org Image": 2,
-     "https://ia800505.us.archive.org Image": 2,
+     "https://ia801009.us.archive.org Image": 1,
+     "https://ia801909.us.archive.org Image": 2,
+     "https://ia600507.us.archive.org Image": 2,
+     "https://ia600505.us.archive.org Image": 2,
      "https://ia800609.us.archive.org Image": 2,
      "https://ia600409.us.archive.org Image": 1,
-     "https://ia600505.us.archive.org Image": 2,
      "https://i.ytimg.com Image": 111,
-     "https://ia800606.us.archive.org Image": 1,
-     "https://ia800603.us.archive.org Image": 1,
-     "https://ia801909.us.archive.org Image": 1,
+     "https://ia800104.us.archive.org Image": 1,
+     "https://ia601009.us.archive.org Image": 1,
+     "https://ia800505.us.archive.org Image": 2,
      "https://ia800409.us.archive.org Image": 1
     },
     "bad": [],
@@ -5156,12 +5149,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:29:48 GMT",
+       "date": "Tue, 17 Nov 2026 07:00:19 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, max-age=900",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-PYlxxtXwG3ke4yywvMrvJw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-kTuwm6pqLI10h3eiulNhsA==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -5185,7 +5178,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:29:48 GMT",
+       "date": "Tue, 17 Nov 2026 07:00:19 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5198,8 +5191,8 @@
        "Document": 2,
        "Stylesheet": 8,
        "Image": 11,
-       "Script": 18,
        "Font": 2,
+       "Script": 18,
        "Fetch": 1,
        "Other": 1
       }
@@ -5227,8 +5220,8 @@
      "Document": 2,
      "Stylesheet": 8,
      "Image": 77,
-     "Script": 18,
      "Font": 2,
+     "Script": 18,
      "Fetch": 1,
      "Other": 1
     },
@@ -5263,12 +5256,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:30:03 GMT",
+       "date": "Tue, 17 Nov 2026 07:00:35 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, max-age=900",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-2rjJ40lANkEcjOPwZKIiqg==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-D7/ZvVY5ZN8Z/H4fweY+bg==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -5292,7 +5285,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:30:04 GMT",
+       "date": "Tue, 17 Nov 2026 07:00:35 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5305,10 +5298,10 @@
        "Document": 1,
        "Stylesheet": 10,
        "Image": 3,
-       "Font": 4,
        "Script": 21,
-       "Other": 1,
-       "Fetch": 1
+       "Font": 4,
+       "Fetch": 1,
+       "Other": 1
       }
      },
      "data:": {
@@ -5334,10 +5327,10 @@
      "Document": 1,
      "Stylesheet": 10,
      "Image": 105,
-     "Font": 4,
      "Script": 21,
-     "Other": 1,
-     "Fetch": 1
+     "Font": 4,
+     "Fetch": 1,
+     "Other": 1
     },
     "thirdParty": {
      "https://i.ytimg.com Image": 21
@@ -5370,12 +5363,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:30:19 GMT",
+       "date": "Tue, 17 Nov 2026 07:00:50 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, max-age=900",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-g6CNtFrX0QVSvTBuV5yPXw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-0MXlyPKPsag9KfZ4H8uF5Q==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -5399,7 +5392,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:30:19 GMT",
+       "date": "Tue, 17 Nov 2026 07:00:51 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5414,8 +5407,8 @@
        "Image": 3,
        "Font": 4,
        "Script": 21,
-       "Other": 1,
-       "Fetch": 1
+       "Fetch": 1,
+       "Other": 1
       }
      },
      "data:": {
@@ -5437,8 +5430,8 @@
      "Image": 98,
      "Font": 4,
      "Script": 21,
-     "Other": 1,
-     "Fetch": 1
+     "Fetch": 1,
+     "Other": 1
     },
     "thirdParty": {},
     "bad": [],
@@ -5469,12 +5462,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:30:35 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:06 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, max-age=300",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-+8eUWQhDuPSTt7sFuaNIUg==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-BySXC4U/hQzm3ADKVgXbIQ==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -5498,7 +5491,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:30:35 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:06 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5699,7 +5692,7 @@
       "settled": true
      }
     ],
-    "requests": 826,
+    "requests": 829,
     "docs": [
      {
       "url": "http://localhost:5180/",
@@ -5708,12 +5701,12 @@
       "headers": {
        "connection": "keep-alive",
        "content-encoding": "br",
-       "date": "Tue, 17 Nov 2026 06:30:51 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:22 GMT",
        "keep-alive": "timeout=5",
        "transfer-encoding": "chunked",
        "vary": "Accept-Encoding",
        "cache-control": "private, no-cache",
-       "content-security-policy": "default-src 'self'; script-src 'nonce-VTX30THVpFWXN5bxFli8zg==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
+       "content-security-policy": "default-src 'self'; script-src 'nonce-PYI+/f7bXgoHDsp41BBfOw==' 'strict-dynamic' 'report-sample'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://i.ytimg.com https://covers.openlibrary.org https://archive.org https://*.archive.org; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; report-to csp; report-uri /api/csp-report",
        "content-type": "text/html; charset=utf-8",
        "cross-origin-opener-policy": "same-origin-allow-popups",
        "cross-origin-resource-policy": "same-origin",
@@ -5737,7 +5730,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:30:51 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:22 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5755,7 +5748,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:30:58 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:29 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -5773,7 +5766,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:30:58 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:29 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5791,7 +5784,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:01 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:33 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -5809,7 +5802,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:01 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:33 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5824,7 +5817,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:30:58 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:29 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -5842,7 +5835,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:05 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:36 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5860,7 +5853,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:09 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:40 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -5878,7 +5871,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:09 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:40 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5893,7 +5886,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:30:58 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:29 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -5911,7 +5904,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:13 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:44 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5928,7 +5921,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:16 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:48 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -5947,7 +5940,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:16 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:48 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -5965,7 +5958,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:16 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:48 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -5980,7 +5973,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:30:58 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:29 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -5998,7 +5991,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:20 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:51 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6016,7 +6009,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:24 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:55 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6034,7 +6027,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:24 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:55 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6049,7 +6042,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:31:01 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:33 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6067,7 +6060,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:27 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:59 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6084,7 +6077,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:31 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:02 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6101,7 +6094,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:35 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:06 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6118,7 +6111,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:38 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:09 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6136,7 +6129,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:38 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:09 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6153,7 +6146,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:42 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:13 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6171,7 +6164,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:45 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:17 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6189,7 +6182,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:45 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:17 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6204,7 +6197,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:31:09 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:40 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6222,7 +6215,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:49 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:20 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6239,7 +6232,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:53 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:24 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6257,7 +6250,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:53 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:24 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6274,7 +6267,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:31:56 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:27 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6292,7 +6285,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:00 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:31 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6310,7 +6303,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:00 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:31 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6325,7 +6318,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:31:16 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:48 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6343,7 +6336,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:03 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:35 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6361,7 +6354,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:04 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:35 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6379,7 +6372,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:07 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:38 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6397,7 +6390,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:07 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:38 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6412,7 +6405,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:31:16 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:48 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6430,7 +6423,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:11 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:42 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6448,7 +6441,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:11 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:42 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6466,7 +6459,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:15 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:46 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6484,7 +6477,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:15 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:46 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6499,7 +6492,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:31:09 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:40 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6517,7 +6510,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:20 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:51 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6535,7 +6528,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:24 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:55 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6553,7 +6546,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:24 GMT",
+       "date": "Tue, 17 Nov 2026 07:02:56 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6568,7 +6561,7 @@
        "cross-origin-resource-policy": "same-origin",
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
-       "date": "Tue, 17 Nov 2026 06:31:16 GMT",
+       "date": "Tue, 17 Nov 2026 07:01:48 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6586,7 +6579,7 @@
        "referrer-policy": "strict-origin-when-cross-origin",
        "x-content-type-options": "nosniff",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:29 GMT",
+       "date": "Tue, 17 Nov 2026 07:03:00 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6604,7 +6597,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:29 GMT",
+       "date": "Tue, 17 Nov 2026 07:03:00 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6622,7 +6615,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:33 GMT",
+       "date": "Tue, 17 Nov 2026 07:03:04 GMT",
        "x-remix-response": "yes",
        "content-type": "application/json; charset=utf-8",
        "vary": "Accept-Encoding"
@@ -6640,7 +6633,7 @@
        "x-content-type-options": "nosniff",
        "referrer-policy": "strict-origin-when-cross-origin",
        "keep-alive": "timeout=5",
-       "date": "Tue, 17 Nov 2026 06:32:33 GMT",
+       "date": "Tue, 17 Nov 2026 07:03:04 GMT",
        "content-type": "application/json; charset=utf-8",
        "vary": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site, Accept-Encoding"
       }
@@ -6660,11 +6653,11 @@
       }
      },
      "http://localhost:5180": {
-      "count": 248,
+      "count": 251,
       "types": {
        "Fetch": 79,
        "Document": 1,
-       "Image": 114,
+       "Image": 117,
        "Stylesheet": 12,
        "Script": 27,
        "Font": 14,
@@ -6677,25 +6670,25 @@
        "Image": 309
       }
      },
-     "https://ia800606.us.archive.org": {
+     "https://ia600606.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia600603.us.archive.org": {
+     "https://ia800603.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia800100.us.archive.org": {
-      "count": 3,
+     "https://ia600100.us.archive.org": {
+      "count": 2,
       "types": {
-       "Image": 3
+       "Image": 2
       }
      },
-     "https://ia600104.us.archive.org": {
+     "https://ia800104.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
@@ -6707,28 +6700,28 @@
        "Image": 1
       }
      },
-     "https://ia801009.us.archive.org": {
+     "https://ia601009.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia601909.us.archive.org": {
+     "https://ia801909.us.archive.org": {
       "count": 2,
       "types": {
        "Image": 2
       }
      },
-     "https://ia600507.us.archive.org": {
+     "https://ia800507.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
       }
      },
-     "https://ia600505.us.archive.org": {
-      "count": 4,
+     "https://ia800505.us.archive.org": {
+      "count": 3,
       "types": {
-       "Image": 4
+       "Image": 3
       }
      },
      "https://ia800609.us.archive.org": {
@@ -6755,19 +6748,25 @@
        "Image": 147
       }
      },
-     "https://ia800507.us.archive.org": {
+     "https://ia600507.us.archive.org": {
       "count": 2,
       "types": {
        "Image": 2
       }
      },
-     "https://ia800505.us.archive.org": {
-      "count": 2,
+     "https://ia600505.us.archive.org": {
+      "count": 3,
       "types": {
-       "Image": 2
+       "Image": 3
       }
      },
-     "https://ia801909.us.archive.org": {
+     "https://ia800100.us.archive.org": {
+      "count": 1,
+      "types": {
+       "Image": 1
+      }
+     },
+     "https://ia601909.us.archive.org": {
       "count": 1,
       "types": {
        "Image": 1
@@ -6775,7 +6774,7 @@
      }
     },
     "byType": {
-     "Image": 692,
+     "Image": 695,
      "Fetch": 79,
      "Document": 1,
      "Stylesheet": 12,
@@ -6786,21 +6785,22 @@
     "thirdParty": {
      "https://covers.openlibrary.org Image": 56,
      "https://archive.org Image": 34,
-     "https://ia800606.us.archive.org Image": 1,
-     "https://ia600603.us.archive.org Image": 1,
-     "https://ia800100.us.archive.org Image": 3,
-     "https://ia600104.us.archive.org Image": 1,
+     "https://ia600606.us.archive.org Image": 1,
+     "https://ia800603.us.archive.org Image": 1,
+     "https://ia600100.us.archive.org Image": 2,
+     "https://ia800104.us.archive.org Image": 1,
      "https://ia800806.us.archive.org Image": 1,
-     "https://ia801009.us.archive.org Image": 1,
-     "https://ia601909.us.archive.org Image": 2,
-     "https://ia600507.us.archive.org Image": 1,
-     "https://ia600505.us.archive.org Image": 4,
+     "https://ia601009.us.archive.org Image": 1,
+     "https://ia801909.us.archive.org Image": 2,
+     "https://ia800507.us.archive.org Image": 1,
+     "https://ia800505.us.archive.org Image": 3,
      "https://ia800609.us.archive.org Image": 1,
      "https://ia800409.us.archive.org Image": 1,
      "https://i.ytimg.com Image": 147,
-     "https://ia800507.us.archive.org Image": 2,
-     "https://ia800505.us.archive.org Image": 2,
-     "https://ia801909.us.archive.org Image": 1
+     "https://ia600507.us.archive.org Image": 2,
+     "https://ia600505.us.archive.org Image": 3,
+     "https://ia800100.us.archive.org Image": 1,
+     "https://ia601909.us.archive.org Image": 1
     },
     "bad": [],
     "abandoned": {
@@ -6808,14 +6808,14 @@
      "byOrigin": {
       "https://covers.openlibrary.org": 14,
       "https://archive.org": 5,
-      "https://ia800507.us.archive.org": 1,
-      "https://ia800505.us.archive.org": 2
+      "https://ia600507.us.archive.org": 1,
+      "https://ia600505.us.archive.org": 2
      }
     },
     "violations": [],
     "features": {
      "canvas:webgl2": 22,
-     "canvas:2d": 515,
+     "canvas:2d": 514,
      "canvas:webgl": 9
     },
     "consoleErrors": [],
@@ -6827,10 +6827,26 @@
   "reportRoundTrip": {
    "violationEvent": true,
    "reached": true,
-   "line": "csp-report [{\"age\":0,\"body\":{\"blockedURL\":\"https://csp-probe.invalid/probe.png\",\"disposition\":\"enforce\",\"documentURL\":\"https://localhost:63620/experience\",\"effectiveDirective\":\"img-src\",\"referrer\":\"\",\"sample\":\"\",\"statusCode\":200},\"type\":\"csp-violation\",\"url\":\"https://localhost:63620/experience\",\"user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36\"}]",
-   "waitedMs": 124
+   "line": "csp-report [{\"age\":0,\"body\":{\"blockedURL\":\"https://csp-probe.invalid/probe.png\",\"disposition\":\"enforce\",\"documentURL\":\"https://localhost:50687/experience\",\"effectiveDirective\":\"img-src\",\"referrer\":\"\",\"sample\":\"\",\"statusCode\":200},\"type\":\"csp-violation\",\"url\":\"https://localhost:50687/experience\",\"user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36\"}]",
+   "waitedMs": 102
   },
   "failures": [],
   "ok": true
+ },
+ "proofBeforeDependencyUpgrade": {
+  "at": "2026-11-17T06:24:39.796Z",
+  "ok": true,
+  "failures": [],
+  "loadAverage": [
+   3.38,
+   3.53,
+   4.07
+  ],
+  "reportRoundTrip": {
+   "violationEvent": true,
+   "reached": true,
+   "waitedMs": 124
+  },
+  "note": "the same run on the R59.2 build (be039d3), before the dependency commit; the full record of that run is not kept, this one is the same checks"
  }
 }
