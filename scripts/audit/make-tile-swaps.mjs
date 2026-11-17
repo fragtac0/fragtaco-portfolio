@@ -8,10 +8,10 @@
 //   node scripts/audit/make-tile-swaps.mjs                      writes tile-swaps.json
 //   BASE=http://localhost:5180 node scripts/audit/cdp.mjs scripts/audit/tile-swaps.json <outdir> > <out.txt>
 // The lines whose label starts with `swaps` carry the numbers: every film frame (time since the click, mean absolute difference to the frame
-// before) and every write of the map picture's source (time since the click, the eased progress, the front's radius and the tile). NOBEND=1 writes the
+// before) and every write of the map picture's source (time since the click, the linear progress, the front's radius through the app's ease and the tile), and whether the tiles recovered strictly increase (`strictlyIncreasing`: the audit's own check). NOBEND=1 writes the
 // control (the tab's own rule `ft-glass-bend=off`: the same change with no bend, so no tile swaps of the bend), and sum-tile-swaps.mjs puts the two together.
 import { writeFileSync } from "node:fs";
-import { deflateSync } from "node:zlib";
+import { GENERATED } from "./generated-png.mjs";
 import { sourceNumber } from "./glass-constants.mjs";
 
 // the numbers the in-page report needs to name the tile and the front's radius at each swap, read from the app's own source
@@ -22,7 +22,7 @@ const RATIO = sourceNumber("app/components/page-change/glass-field.ts", /TILE_RA
 const BAND = sourceNumber("app/components/page-change/glass-math.ts", /band:\s*([\d.]+)/, "GLASS.band");
 const WARP = sourceNumber("app/components/page-change/glass-math.ts", /WARP\s*=\s*([\d.]+)/, "WARP");
 const UNC = sourceNumber("app/components/page-change/glass-math.ts", /UNCOVERED_AT\s*=\s*([\d.]+)/, "UNCOVERED_AT");
-
+const TOP = sourceNumber("app/components/page-change/glass-field.ts", /TILE_TOP\s*=\s*([\d.]+)/, "TILE_TOP");
 
 const init = (consts) => `
 window.__K=${JSON.stringify(consts)};
@@ -32,7 +32,8 @@ window.__wait=(f,ms)=>new Promise(res=>{const t0=performance.now();const iv=setI
 window.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}
  __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);
  setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});
-// the recorder: the moments the bend's map pictures change their source (epoch ms), with the glass animation's eased progress then
+// the recorder: the moments the bend's map pictures change their source (epoch ms), with the glass animation's LINEAR progress then (the animation's
+// timing function is the keyframes' own easing, so getComputedTiming().progress is the time fraction: the report applies the app's ease, R58 fix round I2)
 window.__swapRec=()=>{window.__swaps=[];window.__frames=[];window.__fprev=null;window.__swapObs?.disconnect();
  const maps=['ft-glass-old-map','ft-glass-new-map'].map(id=>document.getElementById(id));
  window.__swapObs=new MutationObserver(list=>{for(const m of list){if(m.target.id!=='ft-glass-old-map')continue;
@@ -51,49 +52,18 @@ window.__swapFrames=tile=>{const R=JSON.parse(__swapReport());const s=R.swaps.sl
 window.__swapReport=()=>{const F=window.__frames,K=window.__K,A=window.__clickAt;
  const ease=t=>{const bz=(u,a,b)=>{const v=1-u;return 3*a*v*v*u+3*b*v*u*u+u*u*u};let lo=0,hi=1;for(let i=0;i<30;i++){const m=(lo+hi)/2;if(bz(m,0.65,0.35)<t)lo=m;else hi=m}return bz((lo+hi)/2,0,1)};
  const start=-K.band,clear=(1+K.band)/(1-K.warp),span=(clear-start)/ease(K.unc);const nEarly=Math.ceil((K.hand-K.first)/K.step-1e-9);
- const radiusAt=p=>start+p*span;const tileAt=r=>r<K.hand?Math.min(nEarly-1,Math.max(0,Math.round((r-K.first)/K.step))):nEarly+Math.max(0,Math.round(Math.log(r/K.hand)/Math.log(K.ratio)));
- const sm=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};const bendAt=p=>sm(0.05,0.15,p)*(1-sm(0.93,1,p));
+ let nLadder=0;for(let r=K.hand;;r*=K.ratio){nLadder++;if(r>=K.top)break}
+ // the app's own arithmetic (glass-run.ts: frontAt(t) = easeGlass first; glass-field.ts: pickBendTile, the ladder clamped to its last tile)
+ const radiusAt=p=>start+ease(p)*span;const tileAt=r=>r<K.hand?Math.min(nEarly-1,Math.max(0,Math.round((r-K.first)/K.step))):nEarly+Math.min(nLadder-1,Math.max(0,Math.round(Math.log(r/K.hand)/Math.log(K.ratio))));
+ const sm=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};const bendAt=p=>sm(0.05,0.15,ease(p))*(1-sm(0.93,1,ease(p)));
  const swaps=window.__swaps.map((s,k)=>{const r=s.p==null?null:radiusAt(s.p);return{k,sinceClickMs:Math.round(s.t-A),p:s.p==null?null:+s.p.toFixed(3),front:r==null?null:+r.toFixed(3),tile:r==null?null:tileAt(r),bend:s.p==null?null:+bendAt(s.p).toFixed(2)}});
- // every frame: the film time since the click, and the mean absolute difference to the frame before it (grey levels, 0 to 255)
+ // the audit checks itself: a swap is a write of a NEW tile, so the recovered tiles must strictly increase (a repeat or a step back means the labels are wrong)
+ const tiles=swaps.map(x=>x.tile);const notIncreasing=[];for(let i=1;i<tiles.length;i++)if(!(tiles[i]>tiles[i-1]))notIncreasing.push({k:i,tile:tiles[i],after:tiles[i-1]});
+ const skipped=[];for(let i=1;i<tiles.length;i++)if(tiles[i]>tiles[i-1]+1)skipped.push({k:i,from:tiles[i-1],to:tiles[i]});
+ // every film frame: the film time since the click, and the mean absolute difference to the frame before it (grey levels, 0 to 255)
  const frames=F.map((f,i)=>[Math.round(f.ts-A),i&&f.d!=null?+f.d.toFixed(3):null]);
- return JSON.stringify({clickAt:A,frames,swaps})};
+ return JSON.stringify({clickAt:A,frames,swaps,strictlyIncreasing:notIncreasing.length===0,notIncreasing,skipped})};
 `.trim();
-
-// generated pictures for the thumbnail hosts (a diagonal band pattern), so the film shows no thumbnail and uses no network
-function patternPng() {
-  const [w, h] = [64, 36];
-  const raw = Buffer.alloc((w * 3 + 1) * h);
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const base = [[200, 90, 60], [60, 140, 200], [230, 200, 80], [90, 90, 110]][Math.floor((x + y) / 6) % 4];
-      const edge = x < 2 || y < 2 || x >= w - 2 || y >= h - 2 || Math.abs(x - w / 2) < 1 || Math.abs(y - h / 2) < 1;
-      for (let c = 0; c < 3; c++) raw[y * (w * 3 + 1) + 1 + x * 3 + c] = edge ? 245 : base[c];
-    }
-  }
-  const crc = (buf) => {
-    let crcv = 0xffffffff;
-    for (const b of buf) {
-      let c = (crcv ^ b) & 0xff;
-      for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-      crcv = (crcv >>> 8) ^ c;
-    }
-    return (crcv ^ 0xffffffff) >>> 0;
-  };
-  const chunk = (type, data) => {
-    const len = Buffer.alloc(4);
-    len.writeUInt32BE(data.length);
-    const body = Buffer.concat([Buffer.from(type), data]);
-    const sum = Buffer.alloc(4);
-    sum.writeUInt32BE(crc(body));
-    return Buffer.concat([len, body, sum]);
-  };
-  const head = Buffer.alloc(13);
-  head.writeUInt32BE(w, 0);
-  head.writeUInt32BE(h, 4);
-  head.set([8, 2, 0, 0, 0], 8);
-  return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk("IHDR", head), chunk("IDAT", deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]).toString("base64");
-}
-const GENERATED = ["ytimg.com", "img.youtube.com", "covers.openlibrary.org"].map((match) => ({ match, status: 200, type: "image/png", body: patternPng() }));
 
 const CLICK = "window.__clickAt=Date.now();document.querySelector('a[href=\"/work\"]').click()";
 const RUNS = Number(process.env.RUNS ?? 3);
@@ -110,7 +80,7 @@ const film = (n) => [
   { label: `swaps ${n}`, eval: "__swapReport()" },
 ];
 const steps = [
-  { size: [1440, 900], dpr: 1, init: init({ noBend: process.env.NOBEND === "1", step: STEP, first: FIRST, hand: HAND, ratio: RATIO, band: BAND, warp: WARP, unc: UNC }), intercept: GENERATED, go: "{{BASE}}/", wait: 6000 },
+  { size: [1440, 900], dpr: 1, init: init({ noBend: process.env.NOBEND === "1", step: STEP, first: FIRST, hand: HAND, ratio: RATIO, top: TOP, band: BAND, warp: WARP, unc: UNC }), intercept: GENERATED, go: "{{BASE}}/", wait: 6000 },
   { label: "wait for glass-warm", eval: "__wait(()=>performance.getEntriesByName('glass-warm').length>=1,30000)" },
   ...Array.from({ length: RUNS }, (_, i) => film(i + 1)).flat(),
   ...(STRIP.length

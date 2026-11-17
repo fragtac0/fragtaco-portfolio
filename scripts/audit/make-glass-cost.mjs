@@ -194,12 +194,13 @@ async function oneRun(n) {
     // boxes in it). It is a dropped frame that falls within 50 ms of the start mark (every run of the baseline has one at 11 to 29 ms from it, 25 to 41 ms from the click: the frame in which the transition takes its pictures). Every dropped frame is listed with
     // where it falls: ms from the click (the `pc-click` mark) and from the start mark, and whether it is the first frame.
     const tClick = events.find((e) => e.name === "pc-click")?.ts ?? null;
+    // (R127: at most ONE frame is exempt, the earliest dropped frame, and only when it falls within 50 ms of the start mark: a second drop in those 50 ms counts)
     const droppedFrames = inWindow
       .filter((f) => f.state.startsWith("STATE_DROPPED"))
-      .map((f) => ({
+      .map((f, i) => ({
         fromClickMs: tClick == null ? null : Math.round((f.begin - tClick) / 1000),
         fromStartMs: Math.round((f.begin - t0) / 1000),
-        firstFrame: f.begin - t0 < 50000,
+        firstFrame: i === 0 && f.begin - t0 < 50000,
         state: f.state,
       }));
     const dropped = droppedFrames.length;

@@ -59,10 +59,10 @@ export const turnFor = (radius: number) => {
  * edge. Below `HAND_OVER` the bend is already strong while the front is only a small blob (the hero's liquid starts from the middle),
  * and a tile cannot be shrunk onto a front that small, so there is a tile every `BEND_EARLY_STEP` of a farthest-corner distance from
  * before the front has left the middle: nearest wins, never more than half a step from the front, and the band jumps by one step at
- * a swap, so the step is small (0.025, was 0.05: the swaps of the early tiles were over 1.5 times the control's). Step 7 of the plan
+ * a swap, so the step is small (0.0125; it was 0.05, and at 0.025 the early swaps were still 1.9 to 4.4 times their neighbours' change where the control's were 1.0). Step 7 of the plan
  * measures the step at every swap (`docs/redesign/compare/round7/r58-tile-swaps.json`).
  */
-export const BEND_EARLY_STEP = 0.025;
+export const BEND_EARLY_STEP = 0.0125;
 const BEND_FIRST = -0.25;
 const earlyBend = (): number[] => {
   const out: number[] = [];

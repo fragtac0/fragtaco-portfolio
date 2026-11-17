@@ -6,7 +6,8 @@
 // `window` the largest of that ratio over the frame and the one each side (the film's clock and the page's can be a frame apart), and `excess`
 // the frame's change less its neighbours' mean, in grey levels (how big the step is, not how big it is against the change round it).
 // The control is the same change with no bend (no swaps of the bend: the edge's mask, glow and shade tiles still change): its ratio and excess at the
-// same times since the click say how much of a swap's ratio belongs to the change itself.
+// same times since the click say how much of a swap's ratio belongs to the change itself. A swap passes when its ratio is at most 1.5, or at most 1.5 times the
+// control's ratio there (floored at 1): `withinControl`. A run whose recovered tiles do not strictly increase is flagged (`strictlyIncreasing` false): its labels are wrong.
 import { readFileSync, writeFileSync } from "node:fs";
 
 const args = process.argv.slice(2);
@@ -52,6 +53,7 @@ function swapRows(run, ctl) {
       const c = at(ctl.frames, j);
       row.control = { change: +(c?.change ?? 0).toFixed(2), ratio: +(c?.ratio ?? 0).toFixed(2), excess: +(c?.excess ?? 0).toFixed(2) };
     }
+    row.withinControl = row.ratio <= 1.5 * Math.max(1, row.control?.ratio ?? 1);
     return row;
   });
 }
@@ -64,14 +66,17 @@ const runs = bend.map((run, k) => {
     run: k + 1,
     frames: run.frames.length,
     longestFrameGapMs: Math.max(...run.frames.slice(1).map((f, i) => f[0] - run.frames[i][0])),
+    strictlyIncreasing: run.strictlyIncreasing,
+    skippedTiles: run.skipped,
     swaps: rows,
     worstRatio: Math.max(...seen.map((r) => r.ratio)),
     worstWindow: Math.max(...seen.map((r) => r.window)),
     worstExcess: Math.max(...seen.map((r) => r.excess)),
+    overControl: seen.filter((r) => !r.withinControl).map((r) => ({ tile: r.tile, front: r.front, ratio: r.ratio, controlRatio: r.control?.ratio })),
     over1_5: seen.filter((r) => r.ratio > 1.5).map((r) => ({ tile: r.tile, front: r.front, ratio: r.ratio, excess: r.excess, change: r.change, controlRatio: r.control?.ratio })),
   };
 });
-const record = { what: "R58 step 7: mean absolute difference of a film frame to the frame before it at each tile swap of the bend, against its neighbours (see sum-tile-swaps.mjs)", target: "ratio at most 1.5 at every swap", runs };
-console.log(JSON.stringify({ worstRatioByRun: runs.map((r) => r.worstRatio), worstExcessByRun: runs.map((r) => r.worstExcess), over1_5ByRun: runs.map((r) => r.over1_5.length) }));
+const record = { what: "R58 step 7: mean absolute difference of a film frame to the frame before it at each tile swap of the bend, against its neighbours (see sum-tile-swaps.mjs)", target: "ratio at most 1.5 (or 1.5 times the control's, floored at 1) at every swap", runs };
+console.log(JSON.stringify({ worstRatioByRun: runs.map((r) => r.worstRatio), worstExcessByRun: runs.map((r) => r.worstExcess), over1_5ByRun: runs.map((r) => r.over1_5.length), overControlByRun: runs.map((r) => r.overControl.length), strictlyIncreasing: runs.map((r) => r.strictlyIncreasing) }));
 for (const r of runs) console.log(`run ${r.run}: ` + r.swaps.map((s) => `${s.tile}@${s.front}:${s.ratio}/${s.excess}${s.control ? `(c ${s.control.ratio}/${s.control.excess})` : ""}`).join(" "));
 if (out) writeFileSync(out, JSON.stringify(record, null, 1) + "\n");
