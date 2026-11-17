@@ -908,6 +908,14 @@ Lane A, in the order they were made (R51 to R125):
 - **R123** (R56, dock): The dock's tint and the removed drop shadow apply on every page (one dock persists across changes); a before/after of the dock on home, a wall and experience goes to the owner's list. Cost if wrong: one token and one shadow.
 - **R124** (R56, dock): The dock tint is 0.61 (the lowest 0.01 step where every label keeps 4.5:1 over the worst tile; 390x844 at 4.51). Cost if wrong: one token (owner list with R123).
 - **R125 (the edge look)** (Task 32, the edge look): The page change's bend is the hero painting's liquid at 150% on both pages (noise push, split 1.4 / 1 / 0.714, peak 8.55% of the viewport's height capped at 96 px, full share on the arriving page); it replaces the second look's half push on the arriving page, which was written for the lens. Spec docs/superpowers/specs/2026-11-17-round7-edge-look-design.md, plan docs/superpowers/plans/2026-11-17-round7-edge-look.md (Task 32, part R58, branch r7/r58-edge-look from the top branch after Task 21, own Opus review). Cost if wrong: one task to change the rule to look C (calm arrival) or the strength.
+- **R125 (the dropped-frame rule)** (the join): the glass cost gate's no-dropped-frame rule leaves out the change's first frame, where a change from home takes its pictures with the live boxes. A quiet-machine baseline (17 November, load about 1.4) confirmed it: the lens before Task 32 dropped exactly one frame a run, the first. Cost if wrong: one dropped frame at a click away from home.
+- **R126** (Task 32): withdrawn (it kept the early bend step at 0.05 on mislabelled audit data).
+- **R127** (Task 32): "the first frame" under the dropped-frame rule is the earliest dropped frame within 50 ms of the change's start mark; the cost tool applies it and lists every dropped frame's time. Cost if wrong: a late first frame could hide a real drop.
+- **R128** (Task 32): a tile swap that visibly reshuffles the fringe is not accepted. Cost if wrong: more tiles or a little more preparation.
+- **R129** (Task 32): the noise lives in the screen-fixed vignette picture and the bend tiles carry only the strength, so the noise stays put across swaps at no per-frame cost; the early step is 0.0125. Cost if wrong: more early tiles to make and warm.
+- **R130** (Task 32): the composite is centred on the map's real neutral byte. It is harmless but did not remove the half-pixel step it aimed at (the filter's 8-bit intermediates cannot hold 0.5). Cost if wrong: none.
+- **R131** (Task 32): the late swap at front 1.05 (1.5 to 1.7 times its neighbours, 0.2 grey levels at the corners) is accepted as invisible. Cost if wrong: a faint corner flicker late in the change.
+- **R132** (Task 32): one whole-page half-pixel step of one colour, 0.7 to 1.5 grey levels, as the bend ramps in (about 0.8 s into the change at 1440 by 900), is accepted: it cannot be removed without a per-frame cost or a weaker look. Cost if wrong: a faint one-frame colour flick early in the change (owner's eye).
 - **R125 (the same number used again: the dropped-frame rule)** (the join): The glass cost gate's no-dropped-frame rule excludes the change's first (commit/snapshot) frame, as the 34 ms gate already does (R31): on the joined branch the home page's live WebGL boxes cost one dropped frame when the change takes its pictures; Task 20's reviewer and the owner's device check get it. Cost if wrong: one dropped frame at the click on a change from home.
 
 Lane B (the live boxes), RB1 to RB12 (the coordinator's text numbered the process rule RB6; it is RB7 here):
@@ -926,6 +934,7 @@ Lane B (the live boxes), RB1 to RB12 (the coordinator's text numbered the proces
 - **RB12** (R55, Task 30): At 844x390 the opening's first-100 ms box diff reads 9.1%, constant from the first frame, because the floating dock pill lies over the box before the click and hides at the click (seen on the sheet); the scene's own picture does not change at the click (RF5 0%), so spec 6.2's under-1% rule is met for the box's picture. Cost if wrong: a visible change at the click on landscape phones (owner device check).
 
 **For Aditya to check by eye or on a device**
+- The page change's new look (Task 32, R58): whether it reads as the hero's liquid on your screens; the push on phones (72 px at 844 high) smears the map's chart labels near the edges mid-change; one faint half-pixel colour flick about 0.8 s in (R132); Safari, Firefox, 120 Hz and a real iPhone not seen.
 
 On a device (Chromium on your Mac is the setup the numbers come from):
 
