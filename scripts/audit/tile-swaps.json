@@ -1,0 +1,108 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "window.__K={\"noBend\":false,\"step\":0.05,\"first\":-0.25,\"hand\":0.2,\"ratio\":1.08,\"band\":0.15,\"warp\":0.12,\"unc\":0.95};\ntry{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1');}catch(e){}\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__wait=(f,ms)=>new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{let v=false;try{v=f()}catch(e){}if(v||performance.now()-t0>ms){clearInterval(iv);res(!!v)}},50)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});\n// the recorder: the moments the bend's map pictures change their source (epoch ms), with the glass animation's eased progress then\nwindow.__swapRec=()=>{window.__swaps=[];window.__frames=[];window.__fprev=null;window.__swapObs?.disconnect();\n const maps=['ft-glass-old-map','ft-glass-new-map'].map(id=>document.getElementById(id));\n window.__swapObs=new MutationObserver(list=>{for(const m of list){if(m.target.id!=='ft-glass-old-map')continue;\n  const a=document.getAnimations().find(x=>x.animationName==='glass-p');const p=a?a.effect.getComputedTiming().progress:null;\n  window.__swaps.push({t:Date.now(),p})}});\n for(const m of maps){if(m)window.__swapObs.observe(m,{attributes:true,attributeFilter:['href']})}\n return maps.map(Boolean)};\n// run on every film frame (cdp.mjs film.analyze)\nwindow.__fd=async(b64,meta)=>{const bmp=await createImageBitmap(await (await fetch('data:image/jpeg;base64,'+b64)).blob());\n const c=new OffscreenCanvas(160,100),x=c.getContext('2d',{willReadFrequently:true});x.drawImage(bmp,0,0,160,100);const d=x.getImageData(0,0,160,100).data;\n const g=new Float32Array(160*100);for(let i=0;i<g.length;i++)g[i]=0.2126*d[i*4]+0.7152*d[i*4+1]+0.0722*d[i*4+2];\n let diff=null;if(window.__fprev){let s=0;for(let i=0;i<g.length;i++)s+=Math.abs(g[i]-window.__fprev[i]);diff=s/g.length}\n window.__fprev=g;window.__frames.push({ts:meta.ts,d:diff})};\n// the frame numbers round a swap (for a film strip): the swap that writes the tile numbered tile (the first such), two frames before to two after\nwindow.__swapFrames=tile=>{const R=JSON.parse(__swapReport());const s=R.swaps.slice(1).find(x=>x.tile===tile);if(!s)return[];let i=R.frames.findIndex(f=>f[0]>=s.sinceClickMs);if(i<0)return[];return[i-2,i-1,i,i+1,i+2]};\nwindow.__swapReport=()=>{const F=window.__frames,K=window.__K,A=window.__clickAt;\n const ease=t=>{const bz=(u,a,b)=>{const v=1-u;return 3*a*v*v*u+3*b*v*u*u+u*u*u};let lo=0,hi=1;for(let i=0;i<30;i++){const m=(lo+hi)/2;if(bz(m,0.65,0.35)<t)lo=m;else hi=m}return bz((lo+hi)/2,0,1)};\n const start=-K.band,clear=(1+K.band)/(1-K.warp),span=(clear-start)/ease(K.unc);const nEarly=Math.ceil((K.hand-K.first)/K.step-1e-9);\n const radiusAt=p=>start+p*span;const tileAt=r=>r<K.hand?Math.min(nEarly-1,Math.max(0,Math.round((r-K.first)/K.step))):nEarly+Math.max(0,Math.round(Math.log(r/K.hand)/Math.log(K.ratio)));\n const sm=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};const bendAt=p=>sm(0.05,0.15,p)*(1-sm(0.93,1,p));\n const swaps=window.__swaps.map((s,k)=>{const r=s.p==null?null:radiusAt(s.p);return{k,sinceClickMs:Math.round(s.t-A),p:s.p==null?null:+s.p.toFixed(3),front:r==null?null:+r.toFixed(3),tile:r==null?null:tileAt(r),bend:s.p==null?null:+bendAt(s.p).toFixed(2)}});\n // every frame: the film time since the click, and the mean absolute difference to the frame before it (grey levels, 0 to 255)\n const frames=F.map((f,i)=>[Math.round(f.ts-A),i&&f.d!=null?+f.d.toFixed(3):null]);\n return JSON.stringify({clickAt:A,frames,swaps})};",
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAAEAAAAAkCAIAAAC2bqvFAAABEklEQVR4nO2YwQ3DIBAEXRhF5H1FuJIURiXpgH8eRBFcjqAoO4qIQPe1NWNbI8NRFl/HrwG+XQ+BbClbStfs5pYvbsxON/Xadto7lFIk93nl8QIEfRUg6L0ARB8KSOgnAsJn5gRU9GbnUED7xlsBIf1QQP69PgW09LEA1AqCPhDgWkHQewGIPhSQ0E8EtK0g6LOloYC8FQT9UIBoBUEfC0CtIOgDAa4VBL0XgOhDAQn9REDbCoK+/ib+0YYGKl37BoTPvk4gALWC2+t1AlwrCHovANGHAhL6iYC2FQR9sKkn6J2AkH4oQLSCoI8FoFbsc6GYpxOA6Pe50DueoYC8FQT9Phf6pBX7XCjm6QTWXcsL3AEs+jVmJd72oAAAAABJRU5ErkJggg=="
+   },
+   {
+    "match": "img.youtube.com",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAAEAAAAAkCAIAAAC2bqvFAAABEklEQVR4nO2YwQ3DIBAEXRhF5H1FuJIURiXpgH8eRBFcjqAoO4qIQPe1NWNbI8NRFl/HrwG+XQ+BbClbStfs5pYvbsxON/Xadto7lFIk93nl8QIEfRUg6L0ARB8KSOgnAsJn5gRU9GbnUED7xlsBIf1QQP69PgW09LEA1AqCPhDgWkHQewGIPhSQ0E8EtK0g6LOloYC8FQT9UIBoBUEfC0CtIOgDAa4VBL0XgOhDAQn9REDbCoK+/ib+0YYGKl37BoTPvk4gALWC2+t1AlwrCHovANGHAhL6iYC2FQR9sKkn6J2AkH4oQLSCoI8FoFbsc6GYpxOA6Pe50DueoYC8FQT9Phf6pBX7XCjm6QTWXcsL3AEs+jVmJd72oAAAAABJRU5ErkJggg=="
+   },
+   {
+    "match": "covers.openlibrary.org",
+    "status": 200,
+    "type": "image/png",
+    "body": "iVBORw0KGgoAAAANSUhEUgAAAEAAAAAkCAIAAAC2bqvFAAABEklEQVR4nO2YwQ3DIBAEXRhF5H1FuJIURiXpgH8eRBFcjqAoO4qIQPe1NWNbI8NRFl/HrwG+XQ+BbClbStfs5pYvbsxON/Xadto7lFIk93nl8QIEfRUg6L0ARB8KSOgnAsJn5gRU9GbnUED7xlsBIf1QQP69PgW09LEA1AqCPhDgWkHQewGIPhSQ0E8EtK0g6LOloYC8FQT9UIBoBUEfC0CtIOgDAa4VBL0XgOhDAQn9REDbCoK+/ib+0YYGKl37BoTPvk4gALWC2+t1AlwrCHovANGHAhL6iYC2FQR9sKkn6J2AkH4oQLSCoI8FoFbsc6GYpxOA6Pe50DueoYC8FQT9Phf6pBX7XCjm6QTWXcsL3AEs+jVmJd72oAAAAABJRU5ErkJggg=="
+   }
+  ],
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "wait for glass-warm",
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=1,30000)"
+ },
+ {
+  "label": "run 1: back to home (the hook)",
+  "eval": "__jump('/')"
+ },
+ {
+  "wait": 800
+ },
+ {
+  "label": "run 1: recorder armed (old and new map found)",
+  "eval": "JSON.stringify(__swapRec())"
+ },
+ {
+  "label": "film 1: home to the portfolio in real time",
+  "film": {
+   "ms": 3400,
+   "eval": "window.__clickAt=Date.now();document.querySelector('a[href=\"/work\"]').click()",
+   "analyze": "window.__fd",
+   "quality": 70
+  }
+ },
+ {
+  "label": "swaps 1",
+  "eval": "__swapReport()"
+ },
+ {
+  "label": "run 2: back to home (the hook)",
+  "eval": "__jump('/')"
+ },
+ {
+  "wait": 800
+ },
+ {
+  "label": "run 2: recorder armed (old and new map found)",
+  "eval": "JSON.stringify(__swapRec())"
+ },
+ {
+  "label": "film 2: home to the portfolio in real time",
+  "film": {
+   "ms": 3400,
+   "eval": "window.__clickAt=Date.now();document.querySelector('a[href=\"/work\"]').click()",
+   "analyze": "window.__fd",
+   "quality": 70
+  }
+ },
+ {
+  "label": "swaps 2",
+  "eval": "__swapReport()"
+ },
+ {
+  "label": "run 3: back to home (the hook)",
+  "eval": "__jump('/')"
+ },
+ {
+  "wait": 800
+ },
+ {
+  "label": "run 3: recorder armed (old and new map found)",
+  "eval": "JSON.stringify(__swapRec())"
+ },
+ {
+  "label": "film 3: home to the portfolio in real time",
+  "film": {
+   "ms": 3400,
+   "eval": "window.__clickAt=Date.now();document.querySelector('a[href=\"/work\"]').click()",
+   "analyze": "window.__fd",
+   "quality": 70
+  }
+ },
+ {
+  "label": "swaps 3",
+  "eval": "__swapReport()"
+ }
+]

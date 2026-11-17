@@ -1,0 +1,358 @@
+{
+ "what": "R58 cost gate (the edge look, Task 32): busy time of the top-level tasks on the renderer compositor and the display compositor inside one warmed change from home to the portfolio page, as r56-glass-cost.json (scripts/audit/make-glass-cost.mjs): the base (d475806, the lens, served from a scratch build on another port) and R58.1 side by side, three runs at each size, run under the gate lock, interleaved. Gate: renderer compositor at most 450 ms, display compositor at most 300 ms, no dropped frame after the change's first frame (R125). make-glass-cost.mjs now lists every dropped frame with its time from the click and from the start mark, and `loadAverage` is the 1, 5 and 15 minute load average (os.loadavg) at the end of each run.",
+ "date": "2026-11-17",
+ "gate": {
+  "rendererCompositorMs": 450,
+  "vizCompositorMs": 300,
+  "runsPerSize": 3
+ },
+ "base_d475806": {
+  "1512x982@2": {
+   "pass": true,
+   "rendererCompositorMs": [
+    237,
+    239,
+    243
+   ],
+   "vizCompositorMs": [
+    158,
+    160,
+    162
+   ],
+   "gpuMainMs": [
+    525,
+    515,
+    513
+   ],
+   "rendererMainMs": [
+    172,
+    169,
+    170
+   ],
+   "presented": [
+    139,
+    138,
+    138
+   ],
+   "dropped": [
+    1,
+    1,
+    1
+   ],
+   "droppedAfterFirstFrame": [
+    0,
+    0,
+    0
+   ],
+   "droppedFrames": [
+    [
+     {
+      "fromClickMs": 39,
+      "fromStartMs": 29,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ],
+    [
+     {
+      "fromClickMs": 27,
+      "fromStartMs": 13,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ],
+    [
+     {
+      "fromClickMs": 31,
+      "fromStartMs": 12,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ]
+   ],
+   "loadAverage": [
+    [
+     2.23,
+     2.29,
+     2.09
+    ],
+    [
+     2.4,
+     2.32,
+     2.11
+    ],
+    [
+     2.46,
+     2.33,
+     2.12
+    ]
+   ],
+   "windowMs": [
+    2331,
+    2315,
+    2314
+   ]
+  },
+  "1920x1080@1": {
+   "pass": true,
+   "rendererCompositorMs": [
+    286,
+    287,
+    291
+   ],
+   "vizCompositorMs": [
+    183,
+    183,
+    187
+   ],
+   "gpuMainMs": [
+    573,
+    578,
+    564
+   ],
+   "rendererMainMs": [
+    171,
+    166,
+    173
+   ],
+   "presented": [
+    138,
+    138,
+    140
+   ],
+   "dropped": [
+    1,
+    1,
+    1
+   ],
+   "droppedAfterFirstFrame": [
+    0,
+    0,
+    0
+   ],
+   "droppedFrames": [
+    [
+     {
+      "fromClickMs": 26,
+      "fromStartMs": 12,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ],
+    [
+     {
+      "fromClickMs": 39,
+      "fromStartMs": 12,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ],
+    [
+     {
+      "fromClickMs": 35,
+      "fromStartMs": 29,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ]
+   ],
+   "loadAverage": [
+    [
+     1.82,
+     2.13,
+     2.05
+    ],
+    [
+     1.41,
+     2.03,
+     2.02
+    ],
+    [
+     1.17,
+     1.94,
+     1.99
+    ]
+   ],
+   "windowMs": [
+    2314,
+    2314,
+    2331
+   ]
+  }
+ },
+ "r58_1": {
+  "1512x982@2": {
+   "pass": true,
+   "rendererCompositorMs": [
+    251,
+    244,
+    253
+   ],
+   "vizCompositorMs": [
+    162,
+    162,
+    165
+   ],
+   "gpuMainMs": [
+    517,
+    504,
+    524
+   ],
+   "rendererMainMs": [
+    175,
+    170,
+    172
+   ],
+   "presented": [
+    140,
+    138,
+    139
+   ],
+   "dropped": [
+    1,
+    1,
+    1
+   ],
+   "droppedAfterFirstFrame": [
+    0,
+    0,
+    0
+   ],
+   "droppedFrames": [
+    [
+     {
+      "fromClickMs": 37,
+      "fromStartMs": 29,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ],
+    [
+     {
+      "fromClickMs": 26,
+      "fromStartMs": 13,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ],
+    [
+     {
+      "fromClickMs": 25,
+      "fromStartMs": 13,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ]
+   ],
+   "loadAverage": [
+    [
+     1.98,
+     2.23,
+     2.08
+    ],
+    [
+     1.48,
+     2.1,
+     2.04
+    ],
+    [
+     1.91,
+     2.18,
+     2.07
+    ]
+   ],
+   "windowMs": [
+    2331,
+    2313,
+    2315
+   ]
+  },
+  "1920x1080@1": {
+   "pass": true,
+   "rendererCompositorMs": [
+    297,
+    296,
+    302
+   ],
+   "vizCompositorMs": [
+    187,
+    187,
+    193
+   ],
+   "gpuMainMs": [
+    562,
+    587,
+    556
+   ],
+   "rendererMainMs": [
+    165,
+    175,
+    179
+   ],
+   "presented": [
+    139,
+    137,
+    140
+   ],
+   "dropped": [
+    1,
+    1,
+    1
+   ],
+   "droppedAfterFirstFrame": [
+    0,
+    0,
+    0
+   ],
+   "droppedFrames": [
+    [
+     {
+      "fromClickMs": 26,
+      "fromStartMs": 13,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ],
+    [
+     {
+      "fromClickMs": 29,
+      "fromStartMs": 12,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ],
+    [
+     {
+      "fromClickMs": 33,
+      "fromStartMs": 27,
+      "firstFrame": true,
+      "state": "STATE_DROPPED"
+     }
+    ]
+   ],
+   "loadAverage": [
+    [
+     1.21,
+     1.91,
+     1.98
+    ],
+    [
+     1.08,
+     1.85,
+     1.95
+    ],
+    [
+     1.21,
+     1.83,
+     1.94
+    ]
+   ],
+   "windowMs": [
+    2316,
+    2313,
+    2330
+   ]
+  }
+ },
+ "reading": "R58.1 costs 5 to 14 ms more renderer compositor time and 2 to 6 ms more display compositor time than the lens at both sizes (251/244/253 against 237/239/243 and 297/296/302 against 286/287/291; 162/162/165 against 158/160/162 and 187/187/193 against 183/183/187): the limits are 450 and 300. Every run of both builds has exactly one dropped frame, 11 to 29 ms after the start mark and 25 to 41 ms after the click (the frame in which the transition takes its pictures, R125); none after it. (An earlier pair of sets the same hour, with the first version of the tool that counted frames wrongly, is not kept.)"
+}

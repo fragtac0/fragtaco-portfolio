@@ -9,7 +9,7 @@
 // /work (categories toplevel, benchmark, viz, gpu, cc, blink.user_timing, __metadata) between two `performance.mark`s (`pc-start` when `data-change-kind`
 // goes on <html>, `pc-end` when it comes off) and prints, for that window, the busy time of the top-level tasks on `Renderer/Compositor` and
 // `GPU Process/VizCompositorThread`, and the counts of the `PipelineReporter` states (a frame is presented when its state is STATE_PRESENTED_ALL or
-// _PARTIAL; STATE_DROPPED* is a frame that was not). The gate: compositor at most 450 ms, viz at most 300 ms, no dropped frame; `--json` writes the
+// _PARTIAL; STATE_DROPPED* is a frame that was not). The gate: compositor at most 450 ms, viz at most 300 ms, no dropped frame after the change's first frame (R125: the first frame is left out, and every dropped frame is listed with its time from the click and from the start mark); `--json` writes the
 // rows and the verdict. Every row also names the slices behind the GPU process's main thread (`CrGpuMain`) busy time (`gpuMainTop`: the five
 // names with the most self time inside the window, and the self time split into waits (names with Backpressure, WaitFor, Wait, Sleep or Idle in them: the thread blocked on the display or on the GPU, not work) and work; `--gpu-detail` adds the GPU service and ANGLE categories to the trace so that the work inside
 // a task has names, at some cost to the trace itself). Timing-sensitive: run it under the gate lock (see lanes-common.md in the build ledger).
@@ -50,6 +50,7 @@ const CHANGE = (href, marked) => `(async () => {
     if (run) requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
+  ${marked ? "performance.mark('pc-click');" : ""}
   a.click();
   await new Promise((r) => setTimeout(r, 3600));
   run = false;
@@ -181,14 +182,30 @@ async function oneRun(n) {
       };
     };
     const gpuSlices = slices("GPU Process/CrGpuMain");
+    // every frame the compositor reported in the window: the PipelineReporter events that carry a state, in time order (an event's ts is the frame's)
+    const inWindow = events
+      .filter((e) => e.name === "PipelineReporter" && e.ts >= t0 && e.ts <= t1)
+      .map((e) => ({ begin: e.ts, state: (e.args?.chrome_frame_reporter ?? e.args?.frame_reporter ?? {}).state }))
+      .filter((f) => f.state)
+      .sort((a, b) => a.begin - b.begin);
     const states = {};
-    for (const e of events) {
-      if (e.name !== "PipelineReporter" || e.ts < t0 || e.ts > t1) continue;
-      const a = e.args?.chrome_frame_reporter ?? e.args?.frame_reporter ?? {};
-      if (a.state) states[a.state] = (states[a.state] || 0) + 1;
-    }
-    const dropped = Object.entries(states).filter(([k]) => k.startsWith("STATE_DROPPED")).reduce((s, [, v]) => s + v, 0);
+    for (const f of inWindow) states[f.state] = (states[f.state] || 0) + 1;
+    // R125 (the dropped-frame rule): the change's first frame is left out of "no dropped frame" (a change from home takes its pictures of the live
+    // boxes in it). It is a dropped frame that falls within 50 ms of the start mark (every run of the baseline has one at 11 to 29 ms from it, 25 to 41 ms from the click: the frame in which the transition takes its pictures). Every dropped frame is listed with
+    // where it falls: ms from the click (the `pc-click` mark) and from the start mark, and whether it is the first frame.
+    const tClick = events.find((e) => e.name === "pc-click")?.ts ?? null;
+    const droppedFrames = inWindow
+      .filter((f) => f.state.startsWith("STATE_DROPPED"))
+      .map((f) => ({
+        fromClickMs: tClick == null ? null : Math.round((f.begin - tClick) / 1000),
+        fromStartMs: Math.round((f.begin - t0) / 1000),
+        firstFrame: f.begin - t0 < 50000,
+        state: f.state,
+      }));
+    const dropped = droppedFrames.length;
+    const droppedAfterFirst = droppedFrames.filter((d) => !d.firstFrame).length;
     const presented = Object.entries(states).filter(([k]) => k.startsWith("STATE_PRESENTED")).reduce((s, [, v]) => s + v, 0);
+    const loadAverage = (await import("node:os")).loadavg().map((v) => +v.toFixed(2));
     const ms = (k) => Math.round(busy[k] ?? 0);
     const row = {
       run: n,
@@ -203,11 +220,14 @@ async function oneRun(n) {
       gpuMainTop: gpuSlices.top,
       presented,
       dropped,
+      droppedAfterFirst,
+      droppedFrames,
+      loadAverage,
       states,
       change,
     };
     row.pass =
-      row.rendererCompositorMs <= GATE.rendererCompositorMs && row.vizCompositorMs <= GATE.vizCompositorMs && dropped === 0 && presented > 0 && change.bend === "bend";
+      row.rendererCompositorMs <= GATE.rendererCompositorMs && row.vizCompositorMs <= GATE.vizCompositorMs && droppedAfterFirst === 0 && presented > 0 && change.bend === "bend";
     ws.close();
     return row;
   } finally {
@@ -230,5 +250,5 @@ const verdict = {
   runs: rows,
   pass: rows.length === RUNS && rows.every((r) => r.pass === true),
 };
-console.log(`${LABEL || "cost"} ${verdict.size}: ${verdict.pass ? "PASS" : "FAIL"} (renderer compositor ${rows.map((r) => r.rendererCompositorMs).join("/")} ms, viz ${rows.map((r) => r.vizCompositorMs).join("/")} ms, dropped ${rows.map((r) => r.dropped).join("/")})`);
+console.log(`${LABEL || "cost"} ${verdict.size}: ${verdict.pass ? "PASS" : "FAIL"} (renderer compositor ${rows.map((r) => r.rendererCompositorMs).join("/")} ms, viz ${rows.map((r) => r.vizCompositorMs).join("/")} ms, dropped ${rows.map((r) => r.dropped).join("/")}, after the first frame ${rows.map((r) => r.droppedAfterFirst).join("/")}, load ${rows.map((r) => r.loadAverage?.[0]).join("/")})`);
 if (JSON_OUT) writeFileSync(JSON_OUT, JSON.stringify(verdict, null, 1));

@@ -1,0 +1,1463 @@
+{
+ "what": "R58 step 7: mean absolute difference of a film frame to the frame before it at each tile swap of the bend, against its neighbours (see sum-tile-swaps.mjs)",
+ "target": "ratio at most 1.5 at every swap",
+ "runs": [
+  {
+   "run": 1,
+   "frames": 202,
+   "longestFrameGapMs": 34,
+   "swaps": [
+    {
+     "tile": 6,
+     "front": 0.055,
+     "sinceClickMs": 416,
+     "bend": 0.98,
+     "change": 0.01,
+     "ratio": 0.06,
+     "window": 0.06,
+     "excess": 0,
+     "control": {
+      "change": 0.01,
+      "ratio": 0.05,
+      "excess": 0
+     }
+    },
+    {
+     "tile": 8,
+     "front": 0.174,
+     "sinceClickMs": 600,
+     "bend": 1,
+     "change": 0.05,
+     "ratio": 0.26,
+     "window": 0.28,
+     "excess": 0,
+     "control": {
+      "change": 0.04,
+      "ratio": 0.2,
+      "excess": 0
+     }
+    },
+    {
+     "tile": 12,
+     "front": 0.25,
+     "sinceClickMs": 716,
+     "bend": 1,
+     "change": 0.38,
+     "ratio": 1.92,
+     "window": 1.92,
+     "excess": 0.2,
+     "control": {
+      "change": 0.11,
+      "ratio": 0.54,
+      "excess": 0
+     }
+    },
+    {
+     "tile": 14,
+     "front": 0.304,
+     "sinceClickMs": 800,
+     "bend": 1,
+     "change": 1.01,
+     "ratio": 1.06,
+     "window": 2.05,
+     "excess": 0.06,
+     "control": {
+      "change": 0.24,
+      "ratio": 0.95,
+      "excess": -0.01
+     }
+    },
+    {
+     "tile": 16,
+     "front": 0.347,
+     "sinceClickMs": 866,
+     "bend": 1,
+     "change": 1.34,
+     "ratio": 1.86,
+     "window": 1.86,
+     "excess": 0.62,
+     "control": {
+      "change": 0.5,
+      "ratio": 0.95,
+      "excess": -0.03
+     }
+    },
+    {
+     "tile": 17,
+     "front": 0.38,
+     "sinceClickMs": 916,
+     "bend": 1,
+     "change": 1.92,
+     "ratio": 1.69,
+     "window": 1.69,
+     "excess": 0.78,
+     "control": {
+      "change": 0.82,
+      "ratio": 0.95,
+      "excess": -0.04
+     }
+    },
+    {
+     "tile": 19,
+     "front": 0.434,
+     "sinceClickMs": 1000,
+     "bend": 1,
+     "change": 7.31,
+     "ratio": 1.31,
+     "window": 1.66,
+     "excess": 1.71,
+     "control": {
+      "change": 1.62,
+      "ratio": 0.55,
+      "excess": -1.32
+     }
+    },
+    {
+     "tile": 19,
+     "front": 0.445,
+     "sinceClickMs": 1017,
+     "bend": 1,
+     "change": 9.24,
+     "ratio": 1.66,
+     "window": 1.66,
+     "excess": 3.66,
+     "control": {
+      "change": 4.37,
+      "ratio": 1.11,
+      "excess": 0.45
+     }
+    },
+    {
+     "tile": 20,
+     "front": 0.456,
+     "sinceClickMs": 1033,
+     "bend": 1,
+     "change": 3.84,
+     "ratio": 0.56,
+     "window": 1.66,
+     "excess": -3.03,
+     "control": {
+      "change": 6.23,
+      "ratio": 1.82,
+      "excess": 2.81
+     }
+    },
+    {
+     "tile": 20,
+     "front": 0.466,
+     "sinceClickMs": 1050,
+     "bend": 1,
+     "change": 4.49,
+     "ratio": 1.07,
+     "window": 1.07,
+     "excess": 0.29,
+     "control": {
+      "change": 2.46,
+      "ratio": 0.57,
+      "excess": -1.84
+     }
+    },
+    {
+     "tile": 20,
+     "front": 0.477,
+     "sinceClickMs": 1066,
+     "bend": 1,
+     "change": 4.57,
+     "ratio": 0.96,
+     "window": 1.07,
+     "excess": -0.19,
+     "control": {
+      "change": 2.37,
+      "ratio": 0.87,
+      "excess": -0.35
+     }
+    },
+    {
+     "tile": 21,
+     "front": 0.488,
+     "sinceClickMs": 1083,
+     "bend": 1,
+     "change": 5.02,
+     "ratio": 0.97,
+     "window": 1.05,
+     "excess": -0.14,
+     "control": {
+      "change": 3,
+      "ratio": 1.08,
+      "excess": 0.23
+     }
+    },
+    {
+     "tile": 21,
+     "front": 0.499,
+     "sinceClickMs": 1099,
+     "bend": 1,
+     "change": 5.74,
+     "ratio": 1.05,
+     "window": 1.05,
+     "excess": 0.27,
+     "control": {
+      "change": 3.17,
+      "ratio": 0.98,
+      "excess": -0.08
+     }
+    },
+    {
+     "tile": 21,
+     "front": 0.51,
+     "sinceClickMs": 1116,
+     "bend": 1,
+     "change": 5.91,
+     "ratio": 0.96,
+     "window": 1.05,
+     "excess": -0.25,
+     "control": {
+      "change": 3.48,
+      "ratio": 0.98,
+      "excess": -0.07
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.531,
+     "sinceClickMs": 1149,
+     "bend": 1,
+     "change": 6.61,
+     "ratio": 1.02,
+     "window": 1.05,
+     "excess": 0.13,
+     "control": {
+      "change": 4.14,
+      "ratio": 1.05,
+      "excess": 0.19
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.542,
+     "sinceClickMs": 1166,
+     "bend": 1,
+     "change": 6.39,
+     "ratio": 0.97,
+     "window": 1.02,
+     "excess": -0.23,
+     "control": {
+      "change": 3.95,
+      "ratio": 0.94,
+      "excess": -0.24
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.553,
+     "sinceClickMs": 1182,
+     "bend": 1,
+     "change": 6.64,
+     "ratio": 0.97,
+     "window": 1.07,
+     "excess": -0.23,
+     "control": {
+      "change": 4.25,
+      "ratio": 1.03,
+      "excess": 0.13
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.564,
+     "sinceClickMs": 1199,
+     "bend": 1,
+     "change": 7.34,
+     "ratio": 1.07,
+     "window": 1.07,
+     "excess": 0.46,
+     "control": {
+      "change": 4.3,
+      "ratio": 0.99,
+      "excess": -0.05
+     }
+    },
+    {
+     "tile": 23,
+     "front": 0.585,
+     "sinceClickMs": 1233,
+     "bend": 1,
+     "change": 6.76,
+     "ratio": 0.97,
+     "window": 1.05,
+     "excess": -0.23,
+     "control": {
+      "change": 4.98,
+      "ratio": 1.14,
+      "excess": 0.62
+     }
+    },
+    {
+     "tile": 23,
+     "front": 0.596,
+     "sinceClickMs": 1250,
+     "bend": 1,
+     "change": 6.85,
+     "ratio": 1.05,
+     "window": 1.05,
+     "excess": 0.33,
+     "control": {
+      "change": 4.29,
+      "ratio": 0.94,
+      "excess": -0.26
+     }
+    },
+    {
+     "tile": 24,
+     "front": 0.618,
+     "sinceClickMs": 1283,
+     "bend": 1,
+     "change": 5.77,
+     "ratio": 0.93,
+     "window": 1.11,
+     "excess": -0.46,
+     "control": {
+      "change": 4.41,
+      "ratio": 1.11,
+      "excess": 0.42
+     }
+    },
+    {
+     "tile": 24,
+     "front": 0.629,
+     "sinceClickMs": 1300,
+     "bend": 1,
+     "change": 6.18,
+     "ratio": 1.11,
+     "window": 1.11,
+     "excess": 0.62,
+     "control": {
+      "change": 3.85,
+      "ratio": 0.94,
+      "excess": -0.23
+     }
+    },
+    {
+     "tile": 24,
+     "front": 0.65,
+     "sinceClickMs": 1333,
+     "bend": 1,
+     "change": 5.15,
+     "ratio": 1.03,
+     "window": 1.06,
+     "excess": 0.15,
+     "control": {
+      "change": 3.89,
+      "ratio": 1.1,
+      "excess": 0.36
+     }
+    },
+    {
+     "tile": 25,
+     "front": 0.683,
+     "sinceClickMs": 1383,
+     "bend": 1,
+     "change": 3.63,
+     "ratio": 1.11,
+     "window": 1.11,
+     "excess": 0.35,
+     "control": {
+      "change": 2.8,
+      "ratio": 1.06,
+      "excess": 0.16
+     }
+    },
+    {
+     "tile": 25,
+     "front": 0.704,
+     "sinceClickMs": 1417,
+     "bend": 1,
+     "change": 2.78,
+     "ratio": 1.17,
+     "window": 1.17,
+     "excess": 0.4,
+     "control": {
+      "change": 1.85,
+      "ratio": 0.94,
+      "excess": -0.12
+     }
+    },
+    {
+     "tile": 26,
+     "front": 0.748,
+     "sinceClickMs": 1483,
+     "bend": 1,
+     "change": 1.64,
+     "ratio": 1.41,
+     "window": 1.41,
+     "excess": 0.48,
+     "control": {
+      "change": 0.93,
+      "ratio": 1.01,
+      "excess": 0.01
+     }
+    },
+    {
+     "tile": 27,
+     "front": 0.791,
+     "sinceClickMs": 1550,
+     "bend": 1,
+     "change": 0.91,
+     "ratio": 1.98,
+     "window": 1.98,
+     "excess": 0.45,
+     "control": {
+      "change": 0.27,
+      "ratio": 0.82,
+      "excess": -0.06
+     }
+    },
+    {
+     "tile": 28,
+     "front": 0.867,
+     "sinceClickMs": 1666,
+     "bend": 1,
+     "change": 0.44,
+     "ratio": 2.19,
+     "window": 2.19,
+     "excess": 0.3,
+     "control": {
+      "change": 0.04,
+      "ratio": 0.2,
+      "excess": -0.01
+     }
+    },
+    {
+     "tile": 30,
+     "front": 0.975,
+     "sinceClickMs": 1833,
+     "bend": 1,
+     "change": 0.26,
+     "ratio": 0.53,
+     "window": 4.63,
+     "excess": -0.23,
+     "control": {
+      "change": 0.01,
+      "ratio": 0.04,
+      "excess": 0
+     }
+    }
+   ],
+   "worstRatio": 2.19,
+   "worstWindow": 4.63,
+   "worstExcess": 3.66,
+   "over1_5": [
+    {
+     "tile": 12,
+     "front": 0.25,
+     "ratio": 1.92,
+     "excess": 0.2,
+     "change": 0.38,
+     "controlRatio": 0.54
+    },
+    {
+     "tile": 16,
+     "front": 0.347,
+     "ratio": 1.86,
+     "excess": 0.62,
+     "change": 1.34,
+     "controlRatio": 0.95
+    },
+    {
+     "tile": 17,
+     "front": 0.38,
+     "ratio": 1.69,
+     "excess": 0.78,
+     "change": 1.92,
+     "controlRatio": 0.95
+    },
+    {
+     "tile": 19,
+     "front": 0.445,
+     "ratio": 1.66,
+     "excess": 3.66,
+     "change": 9.24,
+     "controlRatio": 1.11
+    },
+    {
+     "tile": 27,
+     "front": 0.791,
+     "ratio": 1.98,
+     "excess": 0.45,
+     "change": 0.91,
+     "controlRatio": 0.82
+    },
+    {
+     "tile": 28,
+     "front": 0.867,
+     "ratio": 2.19,
+     "excess": 0.3,
+     "change": 0.44,
+     "controlRatio": 0.2
+    }
+   ]
+  },
+  {
+   "run": 2,
+   "frames": 202,
+   "longestFrameGapMs": 34,
+   "swaps": [
+    {
+     "tile": 6,
+     "front": 0.055,
+     "sinceClickMs": 374,
+     "bend": 0.98,
+     "change": 0.01,
+     "ratio": 0.06,
+     "window": 0.07,
+     "excess": 0,
+     "control": {
+      "change": 0.01,
+      "ratio": 0.07,
+      "excess": 0
+     }
+    },
+    {
+     "tile": 8,
+     "front": 0.174,
+     "sinceClickMs": 559,
+     "bend": 1,
+     "change": 0.05,
+     "ratio": 0.25,
+     "window": 0.29,
+     "excess": 0,
+     "control": {
+      "change": 0.05,
+      "ratio": 0.26,
+      "excess": 0.01
+     }
+    },
+    {
+     "tile": 12,
+     "front": 0.25,
+     "sinceClickMs": 674,
+     "bend": 1,
+     "change": 0.13,
+     "ratio": 0.43,
+     "window": 2.46,
+     "excess": -0.18,
+     "control": {
+      "change": 0.13,
+      "ratio": 0.64,
+      "excess": -0.01
+     }
+    },
+    {
+     "tile": 14,
+     "front": 0.304,
+     "sinceClickMs": 759,
+     "bend": 1,
+     "change": 1.11,
+     "ratio": 1,
+     "window": 2.21,
+     "excess": 0,
+     "control": {
+      "change": 0.32,
+      "ratio": 1.07,
+      "excess": 0.02
+     }
+    },
+    {
+     "tile": 16,
+     "front": 0.347,
+     "sinceClickMs": 826,
+     "bend": 1,
+     "change": 1.65,
+     "ratio": 2.29,
+     "window": 2.29,
+     "excess": 0.93,
+     "control": {
+      "change": 0.62,
+      "ratio": 0.98,
+      "excess": -0.01
+     }
+    },
+    {
+     "tile": 17,
+     "front": 0.38,
+     "sinceClickMs": 875,
+     "bend": 1,
+     "change": 2.23,
+     "ratio": 1.98,
+     "window": 1.98,
+     "excess": 1.1,
+     "control": {
+      "change": 0.96,
+      "ratio": 0.95,
+      "excess": -0.05
+     }
+    },
+    {
+     "tile": 19,
+     "front": 0.434,
+     "sinceClickMs": 959,
+     "bend": 1,
+     "change": 3.74,
+     "ratio": 1.28,
+     "window": 1.28,
+     "excess": 0.81,
+     "control": {
+      "change": 2.11,
+      "ratio": 1.07,
+      "excess": 0.14
+     }
+    },
+    {
+     "tile": 19,
+     "front": 0.445,
+     "sinceClickMs": 975,
+     "bend": 1,
+     "change": 3.87,
+     "ratio": 1,
+     "window": 1.28,
+     "excess": 0.01,
+     "control": {
+      "change": 2.27,
+      "ratio": 0.99,
+      "excess": -0.03
+     }
+    },
+    {
+     "tile": 20,
+     "front": 0.456,
+     "sinceClickMs": 991,
+     "bend": 1,
+     "change": 3.99,
+     "ratio": 0.96,
+     "window": 1,
+     "excess": -0.15,
+     "control": {
+      "change": 2.5,
+      "ratio": 1.03,
+      "excess": 0.06
+     }
+    },
+    {
+     "tile": 20,
+     "front": 0.466,
+     "sinceClickMs": 1009,
+     "bend": 1,
+     "change": 4.4,
+     "ratio": 0.98,
+     "window": 1.03,
+     "excess": -0.08,
+     "control": {
+      "change": 2.59,
+      "ratio": 0.97,
+      "excess": -0.09
+     }
+    },
+    {
+     "tile": 20,
+     "front": 0.477,
+     "sinceClickMs": 1026,
+     "bend": 1,
+     "change": 4.97,
+     "ratio": 1.03,
+     "window": 1.03,
+     "excess": 0.16,
+     "control": {
+      "change": 2.87,
+      "ratio": 0.99,
+      "excess": -0.03
+     }
+    },
+    {
+     "tile": 21,
+     "front": 0.488,
+     "sinceClickMs": 1042,
+     "bend": 1,
+     "change": 5.21,
+     "ratio": 0.99,
+     "window": 1.03,
+     "excess": -0.05,
+     "control": {
+      "change": 3.21,
+      "ratio": 0.97,
+      "excess": -0.08
+     }
+    },
+    {
+     "tile": 21,
+     "front": 0.499,
+     "sinceClickMs": 1059,
+     "bend": 1,
+     "change": 5.56,
+     "ratio": 0.96,
+     "window": 1.04,
+     "excess": -0.23,
+     "control": {
+      "change": 3.72,
+      "ratio": 1.07,
+      "excess": 0.24
+     }
+    },
+    {
+     "tile": 21,
+     "front": 0.51,
+     "sinceClickMs": 1075,
+     "bend": 1,
+     "change": 6.38,
+     "ratio": 1.04,
+     "window": 1.05,
+     "excess": 0.26,
+     "control": {
+      "change": 3.75,
+      "ratio": 0.95,
+      "excess": -0.2
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.531,
+     "sinceClickMs": 1108,
+     "bend": 1,
+     "change": 6.3,
+     "ratio": 0.93,
+     "window": 1.06,
+     "excess": -0.49,
+     "control": {
+      "change": 4.27,
+      "ratio": 1.03,
+      "excess": 0.14
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.542,
+     "sinceClickMs": 1124,
+     "bend": 1,
+     "change": 6.3,
+     "ratio": 0.93,
+     "window": 1.06,
+     "excess": -0.49,
+     "control": {
+      "change": 4.06,
+      "ratio": 0.94,
+      "excess": -0.24
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.553,
+     "sinceClickMs": 1141,
+     "bend": 1,
+     "change": 6.79,
+     "ratio": 0.97,
+     "window": 1.06,
+     "excess": -0.19,
+     "control": {
+      "change": 4.33,
+      "ratio": 0.98,
+      "excess": -0.07
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.564,
+     "sinceClickMs": 1158,
+     "bend": 1,
+     "change": 7.06,
+     "ratio": 0.97,
+     "window": 1.11,
+     "excess": -0.21,
+     "control": {
+      "change": 4.75,
+      "ratio": 1.05,
+      "excess": 0.22
+     }
+    },
+    {
+     "tile": 23,
+     "front": 0.585,
+     "sinceClickMs": 1192,
+     "bend": 1,
+     "change": 6.82,
+     "ratio": 0.96,
+     "window": 1.11,
+     "excess": -0.32,
+     "control": {
+      "change": 4.32,
+      "ratio": 0.95,
+      "excess": -0.24
+     }
+    },
+    {
+     "tile": 23,
+     "front": 0.596,
+     "sinceClickMs": 1209,
+     "bend": 1,
+     "change": 6.55,
+     "ratio": 0.97,
+     "window": 1.08,
+     "excess": -0.22,
+     "control": {
+      "change": 4.41,
+      "ratio": 1.04,
+      "excess": 0.16
+     }
+    },
+    {
+     "tile": 24,
+     "front": 0.618,
+     "sinceClickMs": 1242,
+     "bend": 1,
+     "change": 5.86,
+     "ratio": 0.93,
+     "window": 1.08,
+     "excess": -0.43,
+     "control": {
+      "change": 3.87,
+      "ratio": 0.94,
+      "excess": -0.23
+     }
+    },
+    {
+     "tile": 24,
+     "front": 0.629,
+     "sinceClickMs": 1259,
+     "bend": 1,
+     "change": 5.86,
+     "ratio": 1.02,
+     "window": 1.02,
+     "excess": 0.11,
+     "control": {
+      "change": 4.04,
+      "ratio": 1.07,
+      "excess": 0.27
+     }
+    },
+    {
+     "tile": 24,
+     "front": 0.65,
+     "sinceClickMs": 1292,
+     "bend": 1,
+     "change": 5.28,
+     "ratio": 1.06,
+     "window": 1.06,
+     "excess": 0.29,
+     "control": {
+      "change": 3.35,
+      "ratio": 0.97,
+      "excess": -0.09
+     }
+    },
+    {
+     "tile": 25,
+     "front": 0.683,
+     "sinceClickMs": 1343,
+     "bend": 1,
+     "change": 3.67,
+     "ratio": 1.1,
+     "window": 1.1,
+     "excess": 0.34,
+     "control": {
+      "change": 2.27,
+      "ratio": 0.98,
+      "excess": -0.05
+     }
+    },
+    {
+     "tile": 25,
+     "front": 0.704,
+     "sinceClickMs": 1376,
+     "bend": 1,
+     "change": 2.97,
+     "ratio": 1.28,
+     "window": 1.28,
+     "excess": 0.65,
+     "control": {
+      "change": 1.64,
+      "ratio": 0.99,
+      "excess": -0.01
+     }
+    },
+    {
+     "tile": 26,
+     "front": 0.747,
+     "sinceClickMs": 1442,
+     "bend": 1,
+     "change": 1.64,
+     "ratio": 1.4,
+     "window": 1.4,
+     "excess": 0.46,
+     "control": {
+      "change": 0.76,
+      "ratio": 1.06,
+      "excess": 0.04
+     }
+    },
+    {
+     "tile": 27,
+     "front": 0.791,
+     "sinceClickMs": 1509,
+     "bend": 1,
+     "change": 0.86,
+     "ratio": 1.81,
+     "window": 1.81,
+     "excess": 0.38,
+     "control": {
+      "change": 0.28,
+      "ratio": 1.29,
+      "excess": 0.06
+     }
+    },
+    {
+     "tile": 28,
+     "front": 0.866,
+     "sinceClickMs": 1626,
+     "bend": 1,
+     "change": 0.47,
+     "ratio": 2.33,
+     "window": 2.33,
+     "excess": 0.33,
+     "control": {
+      "change": 0.05,
+      "ratio": 0.23,
+      "excess": 0.02
+     }
+    },
+    {
+     "tile": 30,
+     "front": 0.975,
+     "sinceClickMs": 1792,
+     "bend": 1,
+     "change": 0.26,
+     "ratio": 0.56,
+     "window": 4.35,
+     "excess": -0.2,
+     "control": {
+      "change": 0.01,
+      "ratio": 0.03,
+      "excess": 0
+     }
+    }
+   ],
+   "worstRatio": 2.33,
+   "worstWindow": 4.35,
+   "worstExcess": 1.1,
+   "over1_5": [
+    {
+     "tile": 16,
+     "front": 0.347,
+     "ratio": 2.29,
+     "excess": 0.93,
+     "change": 1.65,
+     "controlRatio": 0.98
+    },
+    {
+     "tile": 17,
+     "front": 0.38,
+     "ratio": 1.98,
+     "excess": 1.1,
+     "change": 2.23,
+     "controlRatio": 0.95
+    },
+    {
+     "tile": 27,
+     "front": 0.791,
+     "ratio": 1.81,
+     "excess": 0.38,
+     "change": 0.86,
+     "controlRatio": 1.29
+    },
+    {
+     "tile": 28,
+     "front": 0.866,
+     "ratio": 2.33,
+     "excess": 0.33,
+     "change": 0.47,
+     "controlRatio": 0.23
+    }
+   ]
+  },
+  {
+   "run": 3,
+   "frames": 202,
+   "longestFrameGapMs": 34,
+   "swaps": [
+    {
+     "tile": 6,
+     "front": 0.055,
+     "sinceClickMs": 378,
+     "bend": 0.98,
+     "change": 0.01,
+     "ratio": 0.05,
+     "window": 0.06,
+     "excess": 0,
+     "control": {
+      "change": 0.01,
+      "ratio": 0.06,
+      "excess": 0
+     }
+    },
+    {
+     "tile": 8,
+     "front": 0.174,
+     "sinceClickMs": 563,
+     "bend": 1,
+     "change": 0.05,
+     "ratio": 0.25,
+     "window": 0.29,
+     "excess": 0,
+     "control": {
+      "change": 0.05,
+      "ratio": 0.26,
+      "excess": 0
+     }
+    },
+    {
+     "tile": 12,
+     "front": 0.25,
+     "sinceClickMs": 680,
+     "bend": 1,
+     "change": 0.52,
+     "ratio": 2.5,
+     "window": 2.5,
+     "excess": 0.31,
+     "control": {
+      "change": 0.13,
+      "ratio": 0.66,
+      "excess": 0
+     }
+    },
+    {
+     "tile": 14,
+     "front": 0.304,
+     "sinceClickMs": 763,
+     "bend": 1,
+     "change": 1.1,
+     "ratio": 1.02,
+     "window": 2.16,
+     "excess": 0.02,
+     "control": {
+      "change": 0.32,
+      "ratio": 1.06,
+      "excess": 0.02
+     }
+    },
+    {
+     "tile": 16,
+     "front": 0.347,
+     "sinceClickMs": 829,
+     "bend": 1,
+     "change": 1.61,
+     "ratio": 2.24,
+     "window": 2.24,
+     "excess": 0.89,
+     "control": {
+      "change": 0.61,
+      "ratio": 0.97,
+      "excess": -0.02
+     }
+    },
+    {
+     "tile": 17,
+     "front": 0.38,
+     "sinceClickMs": 878,
+     "bend": 1,
+     "change": 0.93,
+     "ratio": 0.62,
+     "window": 1.98,
+     "excess": -0.57,
+     "control": {
+      "change": 0.96,
+      "ratio": 0.96,
+      "excess": -0.04
+     }
+    },
+    {
+     "tile": 19,
+     "front": 0.434,
+     "sinceClickMs": 962,
+     "bend": 1,
+     "change": 3.66,
+     "ratio": 1.26,
+     "window": 1.26,
+     "excess": 0.74,
+     "control": {
+      "change": 2.1,
+      "ratio": 1.06,
+      "excess": 0.12
+     }
+    },
+    {
+     "tile": 19,
+     "front": 0.445,
+     "sinceClickMs": 979,
+     "bend": 1,
+     "change": 3.86,
+     "ratio": 1.02,
+     "window": 1.26,
+     "excess": 0.07,
+     "control": {
+      "change": 2.29,
+      "ratio": 1,
+      "excess": 0
+     }
+    },
+    {
+     "tile": 20,
+     "front": 0.456,
+     "sinceClickMs": 995,
+     "bend": 1,
+     "change": 3.92,
+     "ratio": 0.96,
+     "window": 1.02,
+     "excess": -0.18,
+     "control": {
+      "change": 2.49,
+      "ratio": 1.02,
+      "excess": 0.05
+     }
+    },
+    {
+     "tile": 20,
+     "front": 0.466,
+     "sinceClickMs": 1012,
+     "bend": 1,
+     "change": 4.34,
+     "ratio": 0.98,
+     "window": 1.04,
+     "excess": -0.09,
+     "control": {
+      "change": 2.59,
+      "ratio": 0.97,
+      "excess": -0.09
+     }
+    },
+    {
+     "tile": 20,
+     "front": 0.477,
+     "sinceClickMs": 1029,
+     "bend": 1,
+     "change": 4.94,
+     "ratio": 1.04,
+     "window": 1.04,
+     "excess": 0.21,
+     "control": {
+      "change": 2.87,
+      "ratio": 0.99,
+      "excess": -0.02
+     }
+    },
+    {
+     "tile": 21,
+     "front": 0.488,
+     "sinceClickMs": 1045,
+     "bend": 1,
+     "change": 5.12,
+     "ratio": 0.98,
+     "window": 1.04,
+     "excess": -0.09,
+     "control": {
+      "change": 3.19,
+      "ratio": 0.97,
+      "excess": -0.11
+     }
+    },
+    {
+     "tile": 21,
+     "front": 0.499,
+     "sinceClickMs": 1062,
+     "bend": 1,
+     "change": 5.49,
+     "ratio": 0.96,
+     "window": 1.04,
+     "excess": -0.22,
+     "control": {
+      "change": 3.73,
+      "ratio": 1.07,
+      "excess": 0.25
+     }
+    },
+    {
+     "tile": 21,
+     "front": 0.51,
+     "sinceClickMs": 1078,
+     "bend": 1,
+     "change": 5.49,
+     "ratio": 0.96,
+     "window": 1.04,
+     "excess": -0.22,
+     "control": {
+      "change": 3.77,
+      "ratio": 0.96,
+      "excess": -0.18
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.531,
+     "sinceClickMs": 1111,
+     "bend": 1,
+     "change": 6.57,
+     "ratio": 1.06,
+     "window": 1.06,
+     "excess": 0.36,
+     "control": {
+      "change": 4.16,
+      "ratio": 1.04,
+      "excess": 0.15
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.542,
+     "sinceClickMs": 1130,
+     "bend": 1,
+     "change": 6.81,
+     "ratio": 1.06,
+     "window": 1.06,
+     "excess": 0.39,
+     "control": {
+      "change": 4.08,
+      "ratio": 0.95,
+      "excess": -0.21
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.553,
+     "sinceClickMs": 1147,
+     "bend": 1,
+     "change": 6.7,
+     "ratio": 0.98,
+     "window": 1.06,
+     "excess": -0.15,
+     "control": {
+      "change": 4.33,
+      "ratio": 0.98,
+      "excess": -0.08
+     }
+    },
+    {
+     "tile": 22,
+     "front": 0.564,
+     "sinceClickMs": 1163,
+     "bend": 1,
+     "change": 6.89,
+     "ratio": 0.97,
+     "window": 1.12,
+     "excess": -0.25,
+     "control": {
+      "change": 4.75,
+      "ratio": 1.05,
+      "excess": 0.22
+     }
+    },
+    {
+     "tile": 23,
+     "front": 0.585,
+     "sinceClickMs": 1195,
+     "bend": 1,
+     "change": 6.69,
+     "ratio": 0.95,
+     "window": 1.12,
+     "excess": -0.33,
+     "control": {
+      "change": 4.3,
+      "ratio": 0.94,
+      "excess": -0.28
+     }
+    },
+    {
+     "tile": 23,
+     "front": 0.596,
+     "sinceClickMs": 1212,
+     "bend": 1,
+     "change": 6.46,
+     "ratio": 0.97,
+     "window": 1.08,
+     "excess": -0.18,
+     "control": {
+      "change": 4.45,
+      "ratio": 1.05,
+      "excess": 0.2
+     }
+    },
+    {
+     "tile": 24,
+     "front": 0.618,
+     "sinceClickMs": 1247,
+     "bend": 1,
+     "change": 5.78,
+     "ratio": 0.94,
+     "window": 1.08,
+     "excess": -0.4,
+     "control": {
+      "change": 3.87,
+      "ratio": 0.94,
+      "excess": -0.24
+     }
+    },
+    {
+     "tile": 24,
+     "front": 0.629,
+     "sinceClickMs": 1263,
+     "bend": 1,
+     "change": 5.77,
+     "ratio": 1.02,
+     "window": 1.02,
+     "excess": 0.09,
+     "control": {
+      "change": 4.04,
+      "ratio": 1.07,
+      "excess": 0.27
+     }
+    },
+    {
+     "tile": 24,
+     "front": 0.65,
+     "sinceClickMs": 1296,
+     "bend": 1,
+     "change": 5.21,
+     "ratio": 1.06,
+     "window": 1.06,
+     "excess": 0.28,
+     "control": {
+      "change": 3.34,
+      "ratio": 0.97,
+      "excess": -0.09
+     }
+    },
+    {
+     "tile": 25,
+     "front": 0.683,
+     "sinceClickMs": 1347,
+     "bend": 1,
+     "change": 3.64,
+     "ratio": 1.1,
+     "window": 1.1,
+     "excess": 0.34,
+     "control": {
+      "change": 2.28,
+      "ratio": 0.98,
+      "excess": -0.04
+     }
+    },
+    {
+     "tile": 25,
+     "front": 0.704,
+     "sinceClickMs": 1380,
+     "bend": 1,
+     "change": 2.96,
+     "ratio": 1.28,
+     "window": 1.28,
+     "excess": 0.65,
+     "control": {
+      "change": 1.63,
+      "ratio": 0.99,
+      "excess": -0.02
+     }
+    },
+    {
+     "tile": 26,
+     "front": 0.748,
+     "sinceClickMs": 1446,
+     "bend": 1,
+     "change": 1.63,
+     "ratio": 1.4,
+     "window": 1.4,
+     "excess": 0.47,
+     "control": {
+      "change": 0.76,
+      "ratio": 1.06,
+      "excess": 0.04
+     }
+    },
+    {
+     "tile": 27,
+     "front": 0.791,
+     "sinceClickMs": 1513,
+     "bend": 1,
+     "change": 0.86,
+     "ratio": 1.81,
+     "window": 1.81,
+     "excess": 0.39,
+     "control": {
+      "change": 0.27,
+      "ratio": 1.29,
+      "excess": 0.06
+     }
+    },
+    {
+     "tile": 28,
+     "front": 0.866,
+     "sinceClickMs": 1630,
+     "bend": 1,
+     "change": 0.47,
+     "ratio": 2.33,
+     "window": 2.33,
+     "excess": 0.33,
+     "control": {
+      "change": 0.05,
+      "ratio": 0.23,
+      "excess": 0.02
+     }
+    },
+    {
+     "tile": 30,
+     "front": 0.975,
+     "sinceClickMs": 1797,
+     "bend": 1,
+     "change": 0.26,
+     "ratio": 0.56,
+     "window": 4.35,
+     "excess": -0.2,
+     "control": {
+      "change": 0.01,
+      "ratio": 0.03,
+      "excess": 0
+     }
+    }
+   ],
+   "worstRatio": 2.5,
+   "worstWindow": 4.35,
+   "worstExcess": 0.89,
+   "over1_5": [
+    {
+     "tile": 12,
+     "front": 0.25,
+     "ratio": 2.5,
+     "excess": 0.31,
+     "change": 0.52,
+     "controlRatio": 0.66
+    },
+    {
+     "tile": 16,
+     "front": 0.347,
+     "ratio": 2.24,
+     "excess": 0.89,
+     "change": 1.61,
+     "controlRatio": 0.97
+    },
+    {
+     "tile": 27,
+     "front": 0.791,
+     "ratio": 1.81,
+     "excess": 0.39,
+     "change": 0.86,
+     "controlRatio": 1.29
+    },
+    {
+     "tile": 28,
+     "front": 0.866,
+     "ratio": 2.33,
+     "excess": 0.33,
+     "change": 0.47,
+     "controlRatio": 0.23
+    }
+   ]
+  }
+ ],
+ "build": "R58.1 (0b38e1b), BEND_EARLY_STEP 0.05 (not changed: the early swaps, fronts under 0.2, are at ratio 0.06 to 0.26)",
+ "how": "home to the portfolio at 1440 by 900, dpr 1, screencast of every frame, three runs; control = the same change with the tab rule ft-glass-bend=off (no bend). make-tile-swaps.mjs, sum-tile-swaps.mjs. Run under the gate lock, load average 1.6 to 1.8.",
+ "reading": "A ratio over 1.5 occurs at some swaps of fronts 0.25 to 0.38 and 0.75 to 0.87 (2 to 6 of 28 swaps a run), where the picture changes by under 2 grey levels a frame, so the ratio is large for a small step: the step (excess over its neighbours) at those swaps is 0.2 to 1.1 grey levels of 255 (the whole-frame mean; one frame in run 1 reads 3.66 beside a frame that reads 0.56, a screencast timing slip), and the control (no bend) has ratios of 0.2 to 1.3 at the same moments. The swaps from front 0.43 to 0.7, where the picture changes by 4 to 8 levels a frame, are at ratio 0.93 to 1.28. The cause is the 8% jump of the noise pattern (a tile scaled 1.04 to 0.96 of its own size at a swap). The target of 1.5 is therefore missed at those swaps; r58-tile-swap-strip.jpg is the film strip of the worst (tile 16, front 0.35) and of a late one (tile 28), for a ruling by eye.",
+ "filmStrip": "r58-tile-swap-strip.jpg: for tile 16 (swap at 915 ms) and tile 28 (1730 ms) the five frames from two before the swap to two after, at 60 fps, with the difference to the frame before each, times 10. Generated pictures, no thumbnails."
+}

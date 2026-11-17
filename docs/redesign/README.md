@@ -13,6 +13,7 @@ Working folder for the home page redesign and the polish pass that followed it: 
 | [mockups/home-v3.html](mockups/home-v3.html) | Previous mockup, kept for comparison. |
 | [mockups/home-v2.html](mockups/home-v2.html) | Earlier mockup, kept for comparison. |
 | [mockups/home-v1.html](mockups/home-v1.html) | First mockup, kept for comparison. |
+| [round7-preview-11/](round7-preview-11/index.html) | The eleventh preview (17 November): looks for the page change's edge (the lens as built, the hero painting's liquid, a calm arrival, a colour fringe only). The hero liquid at 150% was picked and built as R58; its pictures, cost and tile-swap records are `compare/round7/r58-*` (the sheet `r58-edge-look-sheet.jpg` is made with generated pictures). |
 | [screenshots/](screenshots/) | v3 and v4 screenshots, desktop and phone. |
 | [assets/](assets/) | The logo lockup as an SVG. |
 

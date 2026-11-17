@@ -28,6 +28,8 @@ Two more of his points (the walls arriving late, the dock dropping and coming ba
 
 ## 4. The dock on the portfolio page (task 29)
 
+> Superseded for the bend (17 November, R58): the bend is the hero painting's liquid at 150%, both pages pushed alike, not R56's radial lens with half the push on the arriving page; see `2026-11-17-round7-edge-look-design.md`. This section's dock rules stand.
+
 - The mask on the video rings, the pointer block and the keep-out's variables go. A thumbnail that turns through the dock's place passes under the dock and is seen through its glass, blurred as the glass blurs everything else.
 - The rings are planned for the whole screen again: `coverage()` counts every tile in full. No audit size gets smaller tiles or fewer tiles than today; the 40 px room round the title block stays.
 - The tabs stay readable: every label and icon of the dock keeps a contrast of at least 4.5 to 1 against what is behind it with the brightest thumbnail of the set under the dock. If the glass as it is does not give that, its tint is raised just enough, on every page alike, and the before and after values are recorded.

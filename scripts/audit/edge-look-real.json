@@ -1,0 +1,548 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__wait=(f,ms)=>new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{let v=false;try{v=f()}catch(e){}if(v||performance.now()-t0>ms){clearInterval(iv);res(!!v)}},50)});\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>5000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(JSON.stringify({anims:document.getAnimations().length,glass:document.documentElement.dataset.glass||null}))},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "wait for the 1th glass-warm mark",
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=1,30000)"
+ },
+ {
+  "label": "local-r58-1440x900-home-to-portfolio-30: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-1440x900-home-to-portfolio-30 (t=0.3)",
+  "eval": "__hold('/work',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1440x900-home-to-portfolio-30-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1440x900-home-to-portfolio-30"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1440x900-home-to-portfolio-50: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-1440x900-home-to-portfolio-50 (t=0.5)",
+  "eval": "__hold('/work',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1440x900-home-to-portfolio-50-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1440x900-home-to-portfolio-50"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1440x900-home-to-portfolio-70: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-1440x900-home-to-portfolio-70 (t=0.7)",
+  "eval": "__hold('/work',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1440x900-home-to-portfolio-70-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1440x900-home-to-portfolio-70"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1440x900-portfolio-to-experience-30: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-1440x900-portfolio-to-experience-30 (t=0.3)",
+  "eval": "__hold('/experience',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1440x900-portfolio-to-experience-30-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1440x900-portfolio-to-experience-30"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1440x900-portfolio-to-experience-50: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-1440x900-portfolio-to-experience-50 (t=0.5)",
+  "eval": "__hold('/experience',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1440x900-portfolio-to-experience-50-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1440x900-portfolio-to-experience-50"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1440x900-portfolio-to-experience-70: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-1440x900-portfolio-to-experience-70 (t=0.7)",
+  "eval": "__hold('/experience',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1440x900-portfolio-to-experience-70-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1440x900-portfolio-to-experience-70"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "resize the window to 1100 by 700 (the vignette and the warm-up are made again for it)",
+  "size": [
+   1100,
+   700
+  ],
+  "dpr": 1
+ },
+ {
+  "label": "wait for the 2th glass-warm mark",
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=2,30000)"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-home-to-portfolio-30: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-home-to-portfolio-30 (t=0.3)",
+  "eval": "__hold('/work',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1100x700-after-resize-home-to-portfolio-30-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1100x700-after-resize-home-to-portfolio-30"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-home-to-portfolio-50: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-home-to-portfolio-50 (t=0.5)",
+  "eval": "__hold('/work',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1100x700-after-resize-home-to-portfolio-50-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1100x700-after-resize-home-to-portfolio-50"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-home-to-portfolio-70: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-home-to-portfolio-70 (t=0.7)",
+  "eval": "__hold('/work',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1100x700-after-resize-home-to-portfolio-70-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1100x700-after-resize-home-to-portfolio-70"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-portfolio-to-experience-30: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-portfolio-to-experience-30 (t=0.3)",
+  "eval": "__hold('/experience',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1100x700-after-resize-portfolio-to-experience-30-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1100x700-after-resize-portfolio-to-experience-30"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-portfolio-to-experience-50: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-portfolio-to-experience-50 (t=0.5)",
+  "eval": "__hold('/experience',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1100x700-after-resize-portfolio-to-experience-50-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1100x700-after-resize-portfolio-to-experience-50"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-portfolio-to-experience-70: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-1100x700-after-resize-portfolio-to-experience-70 (t=0.7)",
+  "eval": "__hold('/experience',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-1100x700-after-resize-portfolio-to-experience-70-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-1100x700-after-resize-portfolio-to-experience-70"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__wait=(f,ms)=>new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{let v=false;try{v=f()}catch(e){}if(v||performance.now()-t0>ms){clearInterval(iv);res(!!v)}},50)});\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>5000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(JSON.stringify({anims:document.getAnimations().length,glass:document.documentElement.dataset.glass||null}))},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
+  "go": "{{BASE}}/",
+  "wait": 6000,
+  "label": "phone 390 by 844"
+ },
+ {
+  "label": "wait for the 1th glass-warm mark",
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=1,30000)"
+ },
+ {
+  "label": "local-r58-390x844-home-to-portfolio-30: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-390x844-home-to-portfolio-30 (t=0.3)",
+  "eval": "__hold('/work',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-390x844-home-to-portfolio-30-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-390x844-home-to-portfolio-30"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-390x844-home-to-portfolio-50: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-390x844-home-to-portfolio-50 (t=0.5)",
+  "eval": "__hold('/work',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-390x844-home-to-portfolio-50-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-390x844-home-to-portfolio-50"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-390x844-home-to-portfolio-70: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-390x844-home-to-portfolio-70 (t=0.7)",
+  "eval": "__hold('/work',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-390x844-home-to-portfolio-70-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-390x844-home-to-portfolio-70"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-390x844-portfolio-to-experience-30: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-390x844-portfolio-to-experience-30 (t=0.3)",
+  "eval": "__hold('/experience',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-390x844-portfolio-to-experience-30-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-390x844-portfolio-to-experience-30"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-390x844-portfolio-to-experience-50: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-390x844-portfolio-to-experience-50 (t=0.5)",
+  "eval": "__hold('/experience',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-390x844-portfolio-to-experience-50-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-390x844-portfolio-to-experience-50"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-390x844-portfolio-to-experience-70: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-390x844-portfolio-to-experience-70 (t=0.7)",
+  "eval": "__hold('/experience',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-390x844-portfolio-to-experience-70-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-390x844-portfolio-to-experience-70"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__wait=(f,ms)=>new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{let v=false;try{v=f()}catch(e){}if(v||performance.now()-t0>ms){clearInterval(iv);res(!!v)}},50)});\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>5000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(JSON.stringify({anims:document.getAnimations().length,glass:document.documentElement.dataset.glass||null}))},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
+  "go": "{{BASE}}/",
+  "wait": 6000,
+  "label": "phone 320 by 568"
+ },
+ {
+  "label": "wait for the 1th glass-warm mark",
+  "eval": "__wait(()=>performance.getEntriesByName('glass-warm').length>=1,30000)"
+ },
+ {
+  "label": "local-r58-320x568-home-to-portfolio-30: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-320x568-home-to-portfolio-30 (t=0.3)",
+  "eval": "__hold('/work',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-320x568-home-to-portfolio-30-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-320x568-home-to-portfolio-30"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-320x568-home-to-portfolio-50: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-320x568-home-to-portfolio-50 (t=0.5)",
+  "eval": "__hold('/work',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-320x568-home-to-portfolio-50-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-320x568-home-to-portfolio-50"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-320x568-home-to-portfolio-70: to the start page",
+  "eval": "__jump('/')"
+ },
+ {
+  "label": "local-r58-320x568-home-to-portfolio-70 (t=0.7)",
+  "eval": "__hold('/work',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-320x568-home-to-portfolio-70-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-320x568-home-to-portfolio-70"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-320x568-portfolio-to-experience-30: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-320x568-portfolio-to-experience-30 (t=0.3)",
+  "eval": "__hold('/experience',0.3)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-320x568-portfolio-to-experience-30-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-320x568-portfolio-to-experience-30"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-320x568-portfolio-to-experience-50: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-320x568-portfolio-to-experience-50 (t=0.5)",
+  "eval": "__hold('/experience',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-320x568-portfolio-to-experience-50-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-320x568-portfolio-to-experience-50"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "local-r58-320x568-portfolio-to-experience-70: to the start page",
+  "eval": "__jump('/work')"
+ },
+ {
+  "label": "local-r58-320x568-portfolio-to-experience-70 (t=0.7)",
+  "eval": "__hold('/experience',0.7)"
+ },
+ {
+  "wait": 120,
+  "shot": "local-r58-320x568-portfolio-to-experience-70-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "local-r58-320x568-portfolio-to-experience-70"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "errors",
+  "eval": "JSON.stringify(__errs)"
+ }
+]
