@@ -31,7 +31,7 @@ The audit tools that produced the screenshots and the numbers are in `scripts/au
 
 ## Viewing the mockups
 
-They need a local web server (WebGL will not read images from `file://`) and an internet connection (fonts, three.js, YouTube thumbnails and Open Library covers load from their CDNs).
+They need a local web server (WebGL will not read images from `file://`) and an internet connection (three.js, YouTube thumbnails and Open Library covers load from their CDNs; the fonts of the site itself are served from its own origin since R59.1, the mockups still load theirs from Google Fonts).
 
 ```bash
 python3 -m http.server 5181 --directory docs/redesign/mockups

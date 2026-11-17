@@ -22,21 +22,15 @@ import { watchHistory } from "./lib/history-change";
 import { changePage, finishChange, isPageSettled, pageCommitted } from "./lib/page-change";
 import glassHref from "./components/page-change/glass.css?url";
 import pageTransitionHref from "./components/page-transition.css?url";
+import { FONT_PRELOADS, INTERFACE_FONT_SHEETS } from "./styles/fonts";
 import appStylesHref from "./styles/tailwind.css?url";
 import tokensHref from "./styles/tokens.css?url";
 import type { loader as homeLoader } from "./routes/_index";
 
 export const links: LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Doto:wght@400..900&family=IBM+Plex+Mono:wght@400;500;600&family=Lora:wght@500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Tektur:wght@500;600;700;800&display=swap",
-  },
+  // fonts from the site's own origin (styles/fonts.ts); a preloaded font file (none today, see FONT_PRELOADS) needs crossorigin even here
+  ...(FONT_PRELOADS.root ?? []).map((href) => ({ rel: "preload", href, as: "font", type: "font/woff2", crossOrigin: "anonymous" as const })),
+  ...INTERFACE_FONT_SHEETS.map((href) => ({ rel: "stylesheet", href })),
   { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
   { rel: "icon", type: "image/png", sizes: "64x64", href: "/favicon.png" },
   { rel: "shortcut icon", href: "/favicon.ico" },

@@ -8,7 +8,7 @@
   "nocache": true,
   "intercept": [
    {
-    "match": "family=Archivo",
+    "match": "fonts-spine",
     "delay": 7500
    }
   ],

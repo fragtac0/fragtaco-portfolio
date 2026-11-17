@@ -12,7 +12,7 @@
   "nocache": true,
   "intercept": [
    {
-    "match": "family=Archivo",
+    "match": "fonts-spine",
     "delay": 7500
    }
   ],
@@ -45,7 +45,7 @@
   "nocache": true,
   "intercept": [
    {
-    "match": "fonts.gstatic.com",
+    "match": ".woff2",
     "delay": 8000
    }
   ],
@@ -80,7 +80,7 @@
   "cpu": 4,
   "intercept": [
    {
-    "match": "family=Archivo",
+    "match": "fonts-spine",
     "delay": 7500
    }
   ],
@@ -107,7 +107,7 @@
   "cpu": 6,
   "intercept": [
    {
-    "match": "family=Archivo",
+    "match": "fonts-spine",
     "delay": 7500
    }
   ],
@@ -134,7 +134,7 @@
   "cpu": 6,
   "intercept": [
    {
-    "match": "fonts.gstatic.com",
+    "match": ".woff2",
     "delay": 8000
    }
   ],

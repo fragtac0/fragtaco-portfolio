@@ -711,6 +711,61 @@
     "@eslint/core" "^0.17.0"
     levn "^0.4.1"
 
+"@fontsource-variable/archivo@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/archivo/-/archivo-5.3.0.tgz#23048b3182b66023f52a36761795f79e13c6e284"
+  integrity sha512-HogK8FJelrD1o7TlZlkIVtHgc20bO5PZRWE7mUeUTdMN055alznQV6/00J00IBeu8FQAH4s3zW9UJNvKExXf+g==
+
+"@fontsource-variable/bodoni-moda@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/bodoni-moda/-/bodoni-moda-5.3.0.tgz#a61d65957b893ad4c0bd4d49dfcb82c19977cef5"
+  integrity sha512-yTDXk4+/J8I20KjtkHBbXDQNeE5PR3BZa0gv/YRza+kyxsz+mmg0la/n/hsr6+WvSfVP7Lc8lRTjHGIYwBW43A==
+
+"@fontsource-variable/doto@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/doto/-/doto-5.3.0.tgz#091741a914dd192b8fc1bf896595297c232d0e67"
+  integrity sha512-mzvYblQT8AD0tOdBvni6+5E25LMKXKDVqbUutGafV78rIIq1w9s4G1IBpDcHJp+u2+dzsO3zCSm75mBQLguJjw==
+
+"@fontsource-variable/lora@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/lora/-/lora-5.3.0.tgz#a95e1aa6e2d35461f3b0f48377efae7d93a9ba92"
+  integrity sha512-2ph8KiZ8Bn141hWuC3ErtpJ+Ui8p2MJQn8TJNRSRmLmnCIOCtHfiBM9R7WLRPeUG/q6hXyHOxWQ8DvRSX+ixvQ==
+
+"@fontsource-variable/newsreader@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/newsreader/-/newsreader-5.3.0.tgz#3a54ac809b3cfb97d94ae6ad5ce6d5290529f609"
+  integrity sha512-rrzYi43qMpbzwuFtf9OkWH8sxAPVPcQQQEwXpPtwaKYeJ8yVg5aLs5kawmo1f2Q1t1M38TLmEKCkGVDsYwgdFw==
+
+"@fontsource-variable/space-grotesk@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/space-grotesk/-/space-grotesk-5.3.0.tgz#f35f8915850afbefe92b0fe15b1db49928e55186"
+  integrity sha512-2IxmvfB08i9vnGB3Ym/AXvhRE+8XOjWMXIyDum03c+tPwH0FUoMNQfGpU8NXPxjbws0Vvss3AH0Zqt4oJBBAdw==
+
+"@fontsource-variable/tektur@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/tektur/-/tektur-5.3.0.tgz#94c90c13abfa76289d7c118c6bf36c9fa1938615"
+  integrity sha512-aTiP3FWurF3A7kIr3PyHib27A9PLurrkHfu6UwCv1eCHyi7k9AyPBhIspGH8n6fDWrpqFXqpWZ+zev/MbPZ/4A==
+
+"@fontsource-variable/unbounded@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/unbounded/-/unbounded-5.3.0.tgz#23f6c61b8d28d969631b38914e0d9ee1bde1daa0"
+  integrity sha512-ea565Ncn4r7gPdBEHcmaF31V11hDfkL7b/JCklLobQbMfbu2ZZQrVWNgdeEFWFLqNh36yhieZWOgxdAnMTzrLg==
+
+"@fontsource/ibm-plex-mono@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource/ibm-plex-mono/-/ibm-plex-mono-5.3.0.tgz#1879699d104602d5331e28e103f33c3b1b766b17"
+  integrity sha512-eTgnZjZEGk1QtD3ZstF+Vclo2HLAni8YMy34/DxllwZvyz1lR/1RF/xTiAquOBO7MvqBx8D2Ig2WCPMVfdZu7Q==
+
+"@fontsource/space-mono@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource/space-mono/-/space-mono-5.3.0.tgz#6e45e0284066e6f637c35bd7af0469ce13817c60"
+  integrity sha512-FrpBMOVWn3PRdRHlrZWC55X3kZG/2BTH7SM5ZyS/bky3iKya2BturI5lk+t0RoDQL2JyHzURsVq/EisCsxpI5A==
+
+"@fontsource/young-serif@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource/young-serif/-/young-serif-5.3.0.tgz#7dd13c24577a41ab3cbd2aa33a6779bce5ff3367"
+  integrity sha512-/ay2kPm7QzGKW/9tL7UVh+B5meX3J6gh2PLnHV2ohlIbQSMRGTuyzNNVWpzsHc3P3bcpMm1IPfuO7GRtFrXWvQ==
+
 "@humanfs/core@^0.19.2":
   version "0.19.2"
   resolved "https://registry.npmjs.org/@humanfs/core/-/core-0.19.2.tgz"

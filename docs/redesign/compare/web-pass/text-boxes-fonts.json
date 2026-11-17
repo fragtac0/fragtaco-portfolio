@@ -1,0 +1,394 @@
+{
+ "what": "text boxes before (Google Fonts) and after (self-hosted Fontsource), compared by scripts/audit/text-boxes.mjs: the text of every element, the six spine faces and the interface faces set in spans; places are compared under reduced motion, sizes always; tolerance 0.05 px. The /#reading cases are from a second after run (see note).",
+ "cases": 48,
+ "boxes": 6714,
+ "maxDifferencePx": 0.05,
+ "differing": 0,
+ "cases_detail": [
+  {
+   "page": "/work",
+   "size": "1440x900",
+   "reducedMotion": false,
+   "boxes": 79,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/long-form",
+   "size": "1440x900",
+   "reducedMotion": false,
+   "boxes": 46,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/short-form",
+   "size": "1440x900",
+   "reducedMotion": false,
+   "boxes": 46,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/experience",
+   "size": "1440x900",
+   "reducedMotion": false,
+   "boxes": 110,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work",
+   "size": "1440x900",
+   "reducedMotion": true,
+   "boxes": 79,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/long-form",
+   "size": "1440x900",
+   "reducedMotion": true,
+   "boxes": 46,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/short-form",
+   "size": "1440x900",
+   "reducedMotion": true,
+   "boxes": 46,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/experience",
+   "size": "1440x900",
+   "reducedMotion": true,
+   "boxes": 110,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work",
+   "size": "390x844",
+   "reducedMotion": false,
+   "boxes": 60,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/long-form",
+   "size": "390x844",
+   "reducedMotion": false,
+   "boxes": 45,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/short-form",
+   "size": "390x844",
+   "reducedMotion": false,
+   "boxes": 45,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/experience",
+   "size": "390x844",
+   "reducedMotion": false,
+   "boxes": 110,
+   "maxDifferencePx": 0.05,
+   "differing": 0
+  },
+  {
+   "page": "/work",
+   "size": "390x844",
+   "reducedMotion": true,
+   "boxes": 60,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/long-form",
+   "size": "390x844",
+   "reducedMotion": true,
+   "boxes": 45,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/short-form",
+   "size": "390x844",
+   "reducedMotion": true,
+   "boxes": 45,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/experience",
+   "size": "390x844",
+   "reducedMotion": true,
+   "boxes": 110,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work",
+   "size": "320x568",
+   "reducedMotion": false,
+   "boxes": 60,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/long-form",
+   "size": "320x568",
+   "reducedMotion": false,
+   "boxes": 45,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/short-form",
+   "size": "320x568",
+   "reducedMotion": false,
+   "boxes": 45,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/experience",
+   "size": "320x568",
+   "reducedMotion": false,
+   "boxes": 110,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work",
+   "size": "320x568",
+   "reducedMotion": true,
+   "boxes": 60,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/long-form",
+   "size": "320x568",
+   "reducedMotion": true,
+   "boxes": 45,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/work/short-form",
+   "size": "320x568",
+   "reducedMotion": true,
+   "boxes": 45,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/experience",
+   "size": "320x568",
+   "reducedMotion": true,
+   "boxes": 110,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/",
+   "size": "1440x900",
+   "reducedMotion": false,
+   "boxes": 212,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#reading",
+   "size": "1440x900",
+   "reducedMotion": false,
+   "boxes": 216,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#watching",
+   "size": "1440x900",
+   "reducedMotion": false,
+   "boxes": 216,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#about",
+   "size": "1440x900",
+   "reducedMotion": false,
+   "boxes": 212,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/",
+   "size": "1440x900",
+   "reducedMotion": true,
+   "boxes": 212,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#reading",
+   "size": "1440x900",
+   "reducedMotion": true,
+   "boxes": 216,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#watching",
+   "size": "1440x900",
+   "reducedMotion": true,
+   "boxes": 216,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#about",
+   "size": "1440x900",
+   "reducedMotion": true,
+   "boxes": 212,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/",
+   "size": "390x844",
+   "reducedMotion": false,
+   "boxes": 211,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#reading",
+   "size": "390x844",
+   "reducedMotion": false,
+   "boxes": 214,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#watching",
+   "size": "390x844",
+   "reducedMotion": false,
+   "boxes": 214,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#about",
+   "size": "390x844",
+   "reducedMotion": false,
+   "boxes": 211,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/",
+   "size": "390x844",
+   "reducedMotion": true,
+   "boxes": 211,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#reading",
+   "size": "390x844",
+   "reducedMotion": true,
+   "boxes": 214,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#watching",
+   "size": "390x844",
+   "reducedMotion": true,
+   "boxes": 214,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#about",
+   "size": "390x844",
+   "reducedMotion": true,
+   "boxes": 211,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/",
+   "size": "320x568",
+   "reducedMotion": false,
+   "boxes": 211,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#reading",
+   "size": "320x568",
+   "reducedMotion": false,
+   "boxes": 214,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#watching",
+   "size": "320x568",
+   "reducedMotion": false,
+   "boxes": 214,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#about",
+   "size": "320x568",
+   "reducedMotion": false,
+   "boxes": 211,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/",
+   "size": "320x568",
+   "reducedMotion": true,
+   "boxes": 211,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#reading",
+   "size": "320x568",
+   "reducedMotion": true,
+   "boxes": 214,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#watching",
+   "size": "320x568",
+   "reducedMotion": true,
+   "boxes": 214,
+   "maxDifferencePx": 0,
+   "differing": 0
+  },
+  {
+   "page": "/#about",
+   "size": "320x568",
+   "reducedMotion": true,
+   "boxes": 211,
+   "maxDifferencePx": 0,
+   "differing": 0
+  }
+ ],
+ "note": "One probe (Lora 500 at 390x844 on /experience, normal motion) read 286.5 in the before run and 286.45 in every other run, before and after: noise of the before run (0.05, the tolerance). One /#reading case at 1440x900 under reduced motion differed in y by 848 px in one after run (the page was in another scroll state; every width and height equal) and matched when run again; the /#reading cases here are that second run."
+}
