@@ -194,7 +194,7 @@ export function prepareGlass(): void {
         const { canvas, ctx } = canvasOf(BEND_N, BEND_N);
         ctx.putImageData(new ImageData(bendTilePixels(BEND_N, BEND_TILES[i]), BEND_N, BEND_N), 0, 0);
         tiles.push(canvas.toDataURL("image/png"));
-        if (i % 2 === 1) await calm();
+        await calm(); // a noise tile costs more to make than a lens tile did: a gap after each one
       }
       for (const url of tiles) kept.push(warm(url));
       ready.bendTiles = tiles;

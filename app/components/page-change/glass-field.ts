@@ -53,11 +53,12 @@ export const turnFor = (radius: number) => {
 };
 
 /**
- * The bend's ladder of front radii. Every other tile of `TILES` serves it from `HAND_OVER` up (its pictures are smoother, so a ladder
- * with twice the ratio, 8% each way at most, does). Below it the bend is already strong while the front is only a small blob
- * (the tenth preview pinches the middle from the start), and a tile cannot be shrunk onto a front that small, so there is a tile
- * every `BEND_EARLY_STEP` of a farthest-corner distance from before the front has left the middle: nearest wins, never more than
- * half a step (about 20 px) from the front.
+ * The bend's ladder of front radii: every tile of `TILES` from `HAND_OVER` up (R58: the hero's noise is fixed on the screen while a tile
+ * is scaled onto the front, so the bend uses the whole ladder, steps of 4% at most, and the noise slides by less when the tile changes;
+ * the lens needed every other one). Below `HAND_OVER` the bend is already strong while the front is only a small blob (the hero's
+ * liquid starts from the middle), and a tile cannot be shrunk onto a front that small, so there is a tile every `BEND_EARLY_STEP` of a
+ * farthest-corner distance from before the front has left the middle: nearest wins, never more than half a step from the front.
+ * Step 7 of the plan measures the step at every swap (`docs/redesign/compare/round7/r58-tile-swaps.json`).
  */
 export const BEND_EARLY_STEP = 0.05;
 const BEND_FIRST = -0.25;
@@ -67,16 +68,16 @@ const earlyBend = (): number[] => {
   return out;
 };
 export const BEND_EARLY: readonly number[] = earlyBend();
-export const BEND_TILES: readonly number[] = [...BEND_EARLY, ...TILES.filter((_, i) => i % 2 === 0)];
+export const BEND_TILES: readonly number[] = [...BEND_EARLY, ...TILES];
 
-/** The bend's tile (its index into `BEND_TILES`) for a front at `radius` and the scale that puts its edge there. */
+/** The bend's tile (its index into `BEND_TILES`) for a front at `radius` and the scale that puts its edge there (within 4% of 1 from `HAND_OVER` on). */
 export function pickBendTile(radius: number): { index: number; scale: number } {
   if (radius < HAND_OVER) {
     const index = Math.min(BEND_EARLY.length - 1, Math.max(0, Math.round((radius - BEND_FIRST) / BEND_EARLY_STEP)));
     return { index, scale: 1 };
   }
   const n = BEND_EARLY.length;
-  const k = Math.min(BEND_TILES.length - n - 1, Math.max(0, Math.round(Math.log(radius / HAND_OVER) / (2 * Math.log(TILE_RATIO)))));
+  const k = Math.min(TILES.length - 1, Math.max(0, Math.round(Math.log(radius / HAND_OVER) / Math.log(TILE_RATIO))));
   return { index: n + k, scale: radius / BEND_TILES[n + k] };
 }
 

@@ -7,7 +7,7 @@
  * push inwards: the picture never looks further than the distance to its own edge.
  */
 import { SPLIT } from "./glass-math";
-import { BEND_MAX } from "./glass-texture";
+import { BEND_RANGE } from "./glass-texture";
 
 /** How many times the biggest push the vignette takes to get to 1 (a smoothstep is never steeper than 1.5 times its average). */
 export const DAMP = 1.5;
@@ -15,7 +15,7 @@ export const DAMP = 1.5;
 export const VIGNETTE_CELL = 4;
 
 /** The biggest distance the bend can take a pixel from, in CSS px, for a peak push of `peakPx` (the red channel is pushed furthest). */
-export const maxPush = (peakPx: number) => peakPx * SPLIT.r * BEND_MAX;
+export const maxPush = (peakPx: number) => peakPx * SPLIT.r * BEND_RANGE;
 
 /** The vignette at `distance` px from the nearest edge of the screen: 0 at the edge, 1 from `DAMP * maxPush` inwards, smooth between. */
 export function edgeDamp(distance: number, maxPushPx: number): number {

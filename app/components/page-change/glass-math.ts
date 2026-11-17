@@ -2,8 +2,10 @@
  * The pure part of the liquid-glass page change (round 7 follow-ups spec 4, the tenth preview's shader with "Wider" and
  * "Stronger" chosen): where the front is and how hard the picture bends at it, at a given moment of the change. The front
  * crosses the screen from the middle outward: a wide soft edge (a band that is the same width in pixels all the way, as in the
- * preview) that wanders from a circle, a cream glow at its middle, a slightly darker glass, and just at the edge the two pictures
- * bend as though seen through thick glass (the old one pushed outward, the new one inward, red further than blue).
+ * preview) that wanders from a circle, a cream glow at its middle, a slightly darker glass, and at the edge, and in a wake behind
+ * it, the two pictures bend like the hero painting's own change (R58, `docs/superpowers/specs/2026-11-17-round7-edge-look-design.md`):
+ * a push along the gradient of a smooth noise (glass-noise.ts), at 150% of R54's strength, the old page one way and the new page
+ * the other, red pushed further than blue (the hero's split). It is a liquid warp with a colour fringe, not a ring.
  *
  * Every length here is in "far" units: farthest-corner distances (`ChangePlan.radius`), so the same numbers fit every screen.
  * glass.css draws the early reveal from one number, `--glass-p`, the eased progress, which a CSS animation with the same curve
@@ -15,13 +17,13 @@ export const GLASS = {
   ms: 2250,
   /** Half-width of the soft edge, as a share of the farthest-corner distance: the same width in pixels at every moment. */
   band: 0.15,
-  /** The bend's peak push, as a share of the viewport's height (the preview's 0.03 times its bend of 1.9), ... */
-  bendShare: 0.057,
-  /** ... capped at this many CSS px. */
-  bendMaxPx: 64,
+  /** The bend's peak push, as a share of the viewport's height (R58: 150% of R54's 0.057, the strength he chose from the eleventh preview), ... */
+  bendShare: 0.0855,
+  /** ... capped at this many CSS px (150% of 64). */
+  bendMaxPx: 96,
 } as const;
 
-/** The bend's peak push in CSS px for a viewport this high: 5.7% of it, rounded, never more than 64 px (51 px at 900). */
+/** The bend's peak push in CSS px for a viewport this high: 8.55% of it, rounded, never more than 96 px (77 px at 900, 49 at 568). */
 export function bendPxFor(viewportHeight: number): number {
   return Math.min(GLASS.bendMaxPx, Math.round(GLASS.bendShare * viewportHeight));
 }
@@ -34,21 +36,22 @@ export function bendPxFor(viewportHeight: number): number {
 export const WARP = 0.12;
 
 /**
- * R56: the share of the push each picture gets. The page being left keeps the whole bend (and its colour split); the page arriving
- * is pushed by half of it (spec 4: at the full push it slid the new page's content inward by up to 5.7% of the screen's height and
- * back as the edge passed). The colour split keeps its proportions, as all three colours are scaled alike.
+ * The share of the push each picture gets. R58 (the 17 November design, 4.4): both pages are pushed alike, the page being left by
+ * `+push` and the arriving page by `-push`, each at the whole share. (R56's half for the arriving page was written for the lens, which
+ * slid the whole arriving page inward and back; the hero's liquid has no such slide, and the arriving page wobbling in the wake until
+ * the front has passed is the look he picked. Look C of the eleventh preview, a calm arrival, is the fallback: one number.)
  */
 export const BEND_OLD = 1;
-export const BEND_NEW = 0.5;
+export const BEND_NEW = 1;
 
-/** The colour split: the rim of the glass pushes red this many times as far as green, and blue this many times. */
-export const SPLIT = { r: 1.29, g: 1, b: 0.71 } as const;
+/** The colour split, the hero painting's: the rim of the glass pushes red 1.4 times as far as green, and blue 1/1.4 times. */
+export const SPLIT = { r: 1.4, g: 1, b: 1 / 1.4 } as const;
 
 /**
  * One colour's displacement scale in one bend filter: the push's direction (`sign`: +1 for the page being left, -1 for the page
  * arriving), the filter's share of the push (`BEND_OLD` or `BEND_NEW`), the push at this moment in px (`peak`: the bend's peak times its
- * profile, times the map's own range) and the colour's share of it (`SPLIT`). One place for the arithmetic, so that the arriving
- * filter's scales are `BEND_NEW` times the old one's whatever else changes.
+ * strength at this moment, times the map's own range) and the colour's share of it (`SPLIT`). One place for the arithmetic, so that the two
+ * filters' scales stay in step (`BEND_NEW` times the old one's) whatever else changes.
  */
 export const pushScale = (sign: 1 | -1, share: number, peak: number, split: number) => sign * share * peak * split;
 
@@ -58,14 +61,6 @@ export const pushScale = (sign: 1 | -1, share: number, peak: number, split: numb
  */
 const CURVE = [0.65, 0, 0.35, 1] as const;
 export const GLASS_EASING = `cubic-bezier(${CURVE.join(", ")})`;
-
-/**
- * The push at `x` half-bands from the front, as a share of the peak push: a bell at the front plus a lens term that is odd in `x`
- * (the picture is pushed further outside the front than inside). The tenth preview's `bell * 0.03 + lens * 0.022`, over its 0.03.
- */
-export function bendProfile(x: number): number {
-  return (Math.exp(-1.6 * x * x) * 0.03 + x * Math.exp(-0.9 * x * x) * 0.022) / 0.03;
-}
 
 /** The cream glow's strength at `x` half-bands from the front: a glint at the front and a fainter one at the outer rim. */
 export function glowAt(x: number): number {

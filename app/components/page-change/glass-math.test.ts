@@ -4,7 +4,6 @@ import {
   BEND_OLD,
   bendAt,
   bendPxFor,
-  bendProfile,
   easeGlass,
   FRONT_CLEAR,
   FRONT_START,
@@ -26,42 +25,25 @@ import {
 const radial = { radius: 1000 };
 
 describe("GLASS", () => {
-  it("holds the follow-up spec's numbers (4) with the second look's length (spec 5): 2.25 s, a 15% band, a bend of 5.7% of the height capped at 64 px, a 12% wander, a colour split", () => {
-    expect(GLASS).toEqual({ ms: 2250, band: 0.15, bendShare: 0.057, bendMaxPx: 64 });
+  it("holds the follow-up spec's numbers (4) with the second look's length (spec 5) and the 17 November design's strength (R58): 2.25 s, a 15% band, a bend of 8.55% of the height capped at 96 px, a 12% wander, the hero's colour split", () => {
+    expect(GLASS).toEqual({ ms: 2250, band: 0.15, bendShare: 0.0855, bendMaxPx: 96 });
     expect(WARP).toBe(0.12);
-    expect(SPLIT).toEqual({ r: 1.29, g: 1, b: 0.71 });
+    expect(SPLIT.r).toBeCloseTo(1.4, 9);
+    expect(SPLIT.g).toBe(1);
+    expect(SPLIT.b).toBeCloseTo(1 / 1.4, 9);
     expect(UNCOVERED_AT).toBe(0.95);
     expect(GLASS_EASING).toBe("cubic-bezier(0.65, 0, 0.35, 1)");
   });
 });
 
 describe("bendPxFor", () => {
-  it("is 5.7% of the viewport's height, rounded, and never more than 64 px", () => {
-    expect(bendPxFor(900)).toBe(51);
-    expect(bendPxFor(844)).toBe(48);
-    expect(bendPxFor(2000)).toBe(64);
-    expect(bendPxFor(1125)).toBe(64);
+  it("is 8.55% of the viewport's height (150% of R54's 5.7%), rounded, and never more than 96 px", () => {
+    expect(bendPxFor(900)).toBe(77);
+    expect(bendPxFor(844)).toBe(72);
+    expect(bendPxFor(568)).toBe(49);
+    expect(bendPxFor(1200)).toBe(96);
+    expect(bendPxFor(2000)).toBe(96);
     expect(bendPxFor(0)).toBe(0);
-  });
-});
-
-describe("bendProfile", () => {
-  it("is 1 at the front, and the push changes side with x (the lens): larger outside, smaller inside", () => {
-    expect(bendProfile(0)).toBe(1);
-    expect(bendProfile(0.3)).toBeGreaterThan(1);
-    expect(bendProfile(-0.3)).toBeLessThan(1);
-    expect(bendProfile(0.5)).toBeGreaterThan(bendProfile(-0.5));
-    // the lens term is odd in x, the bell term even
-    const bell = (x: number) => Math.exp(-1.6 * x * x);
-    for (const x of [0.2, 0.7, 1.3]) expect(bendProfile(x) + bendProfile(-x)).toBeCloseTo(2 * bell(x), 9);
-  });
-  it("is the tenth preview's push: (exp(-1.6 x^2) * 0.03 + x * exp(-0.9 x^2) * 0.022) / 0.03", () => {
-    for (const x of [-2, -1, -0.3, 0.3, 1, 2]) {
-      expect(bendProfile(x)).toBeCloseTo((Math.exp(-1.6 * x * x) * 0.03 + x * Math.exp(-0.9 * x * x) * 0.022) / 0.03, 12);
-    }
-  });
-  it("is under 0.02 beyond three half-bands, both sides", () => {
-    for (const x of [3, 3.5, 5, -3, -3.5, -5]) expect(Math.abs(bendProfile(x))).toBeLessThan(0.02);
   });
 });
 
@@ -219,21 +201,22 @@ describe("judgeGlass", () => {
   });
 });
 
-describe("BEND_NEW (R56)", () => {
-  it("the arriving page gets half of the push; the page being left has all of it", () => {
-    expect(BEND_NEW).toBe(0.5);
+describe("BEND_NEW (R58)", () => {
+  it("both pages get the whole push (the 17 November design, 4.4; R56's half was for the lens)", () => {
+    expect(BEND_NEW).toBe(1);
     expect(BEND_OLD).toBe(1);
   });
 });
 
-describe("pushScale (R56)", () => {
-  const peak = 2 * 1.1 * 40; // any push in px
-  it("the arriving filter's scales are BEND_NEW times the old one's, with the opposite sign, for every colour", () => {
+describe("pushScale (R56, R58)", () => {
+  const peak = 2 * 1.3 * 40; // any push in px
+  it("the arriving filter's scales are the old one's with the opposite sign, for every colour", () => {
     for (const split of [SPLIT.r, SPLIT.g, SPLIT.b]) {
       const old = pushScale(1, BEND_OLD, peak, split);
       const arriving = pushScale(-1, BEND_NEW, peak, split);
       expect(arriving).toBeCloseTo(-BEND_NEW * old, 10);
     }
+    expect(pushScale(-1, BEND_NEW, 100, SPLIT.r)).toBe(-pushScale(1, BEND_OLD, 100, SPLIT.r));
   });
   it("keeps the colour split's proportions in both filters", () => {
     for (const [sign, share] of [[1, BEND_OLD], [-1, BEND_NEW]] as const) {

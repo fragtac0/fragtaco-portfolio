@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { bendPxFor, SPLIT } from "./glass-math";
-import { BEND_MAX } from "./glass-texture";
+import { BEND_RANGE } from "./glass-texture";
 import { DAMP, edgeDamp, maxPush, VIGNETTE_CELL, vignettePixels, vignetteSize } from "./glass-vignette";
 
 describe("maxPush", () => {
-  it("is the peak push times the red split times the profile's maximum (more than 71 px at 900 high, where the peak is 51)", () => {
-    expect(maxPush(51)).toBeCloseTo(51 * SPLIT.r * BEND_MAX, 9);
-    expect(maxPush(bendPxFor(900))).toBeGreaterThan(71);
+  it("is the peak push times the red split times the map's range (77 * 1.4 * 1.3 at 900 high)", () => {
+    expect(maxPush(77)).toBeCloseTo(77 * 1.4 * 1.3, 6);
+    expect(maxPush(51)).toBeCloseTo(51 * SPLIT.r * BEND_RANGE, 9);
+    expect(maxPush(bendPxFor(900))).toBeGreaterThan(140);
     expect(maxPush(0)).toBe(0);
   });
 });

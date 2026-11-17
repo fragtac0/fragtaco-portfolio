@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   BEND_EARLY,
+  BEND_EARLY_STEP,
   BEND_TILES,
   fieldAt,
   HALF,
@@ -65,27 +66,34 @@ describe("pickTile", () => {
 });
 
 describe("pickBendTile", () => {
-  it("has a tile every 0.05 from behind the middle to HAND_OVER, then every other tile of the ladder", () => {
+  it("has a tile every 0.05 from behind the middle to HAND_OVER, then every tile of the ladder (R58: the noise is fixed on the screen, so the steps are the 4% ones)", () => {
     expect(BEND_EARLY[0]).toBe(-0.25);
     expect(BEND_EARLY.length).toBeGreaterThan(7);
-    for (let i = 1; i < BEND_EARLY.length; i++) expect(BEND_EARLY[i] - BEND_EARLY[i - 1]).toBeCloseTo(0.05, 9);
+    for (let i = 1; i < BEND_EARLY.length; i++) expect(BEND_EARLY[i] - BEND_EARLY[i - 1]).toBeCloseTo(BEND_EARLY_STEP, 9);
     expect(BEND_EARLY[BEND_EARLY.length - 1]).toBeLessThan(HAND_OVER);
     expect(BEND_TILES[BEND_EARLY.length]).toBe(HAND_OVER);
+    expect(BEND_TILES.length).toBe(BEND_EARLY.length + TILES.length);
     for (let i = 1; i < BEND_TILES.length; i++) expect(BEND_TILES[i]).toBeGreaterThan(BEND_TILES[i - 1]);
   });
-  it("puts a small front within half a step of a tile, and a larger one on a scaled tile within 8%", () => {
+  it("puts a small front within half a step of a tile, and a larger one on a scaled tile within 4%", () => {
     for (let r = -0.3; r < HAND_OVER; r += 0.007) {
       const p = pickBendTile(r);
       expect(p.scale).toBe(1);
-      expect(Math.abs(BEND_TILES[p.index] - Math.min(Math.max(r, -0.25), BEND_EARLY[BEND_EARLY.length - 1]))).toBeLessThanOrEqual(0.0251);
+      expect(Math.abs(BEND_TILES[p.index] - Math.min(Math.max(r, -0.25), BEND_EARLY[BEND_EARLY.length - 1]))).toBeLessThanOrEqual(BEND_EARLY_STEP / 2 + 1e-4);
     }
     for (let r = HAND_OVER; r < 1.5; r += 0.011) {
       const p = pickBendTile(r);
       expect(BEND_TILES[p.index] * p.scale).toBeCloseTo(r, 9);
-      expect(p.scale).toBeGreaterThan(1 / 1.09);
-      expect(p.scale).toBeLessThan(1.09);
+      expect(p.scale).toBeGreaterThan(1 / 1.045);
+      expect(p.scale).toBeLessThan(1.045);
     }
     expect(pickBendTile(9).index).toBe(BEND_TILES.length - 1);
+  });
+  it("never scales a tile by more than 4% from HAND_OVER to TILE_TOP", () => {
+    for (let k = 0; k < 200; k++) {
+      const r = HAND_OVER + ((TILE_TOP - HAND_OVER) * k) / 199;
+      expect(Math.abs(pickBendTile(r).scale - 1)).toBeLessThanOrEqual(0.04);
+    }
   });
 });
 

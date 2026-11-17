@@ -4,8 +4,10 @@
  * moves their pieces each frame.
  *
  * As in the tenth preview, each picture is pushed on its own: the old page by the push at its place and the new page by minus
- * the push (and, R56, by half of it: `BEND_NEW`), before the soft mask mixes them (CSS applies a filter before a mask), and each colour
- * is pushed by its own share (`SPLIT`: red furthest, blue least) so the rim of the glass shows a fringe. So each filter makes the
+ * the push (R58: both whole, `BEND_NEW` is 1), before the soft mask mixes them (CSS applies a filter before a mask), and each colour
+ * is pushed by its own share (`SPLIT`, the hero painting's: red 1.4 times green, blue 1/1.4 times) so the glass shows a red and blue
+ * fringe. The push is the hero's liquid, a noise gradient with a wake behind the front (R58, glass-noise.ts and glass-texture.ts; the
+ * 17 November design), where it was a radial lens. So each filter makes the
  * displacement map, damps it to neutral towards the screen's edges (the vignette, glass-vignette.ts: a displacement filter reads nothing
  * from outside the picture, so a push there would cut the page off along the edge), pushes the picture three times, keeps one colour of
  * each push and adds them. `color-interpolation-filters` is sRGB so grey stays exactly neutral.

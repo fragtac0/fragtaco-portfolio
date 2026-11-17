@@ -16,7 +16,7 @@ import { HALF, pickBendTile, pickTile, sheetLayout, tileCell, TILES } from "./gl
 import { createGuard, createSession } from "./glass-guard";
 import { BEND_NEW, BEND_OLD, bendPxFor, frontAt, judgeGlass, pushScale, SPLIT } from "./glass-math";
 import { ready, refreshVignette, SHEET_COLS } from "./glass-prepare";
-import { BEND_MAX } from "./glass-texture";
+import { BEND_RANGE } from "./glass-texture";
 
 /** Sets an attribute only when it changes (a write to an SVG filter's attribute makes the filter be walked again). */
 const setAttr = (el: Element | null, name: string, value: string) => {
@@ -53,7 +53,7 @@ interface BendFilter {
   pushes: Array<Element | null>;
   /** The push's direction: +1 for the old page, -1 for the new. */
   sign: 1 | -1;
-  /** The filter's share of the push: `BEND_OLD` for the old page, `BEND_NEW` (half) for the new. */
+  /** The filter's share of the push: `BEND_OLD` for the old page, `BEND_NEW` for the new (R58: both whole). */
   share: number;
 }
 const bendFilter = (id: GlassFilterId, sign: 1 | -1, share: number): BendFilter => ({
@@ -193,7 +193,7 @@ export function startGlass(t: { ready: Promise<void> }, plan: ChangePlan): () =>
     if (filters.length) {
       // the one map picture of each filter: the tile for the front (its source swapped when the front moves on to the next tile) laid over
       // the screen (a tile reaches past the farthest corner), and the three pushes
-      const peak = 2 * BEND_MAX * bendPxFor(plan.vh) * f.bend;
+      const peak = 2 * BEND_RANGE * bendPxFor(plan.vh) * f.bend;
       const bp = pickBendTile(f.radius / far);
       const side = 2 * HALF * far * bp.scale;
       const geometry = {
