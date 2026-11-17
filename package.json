@@ -17,6 +17,7 @@
     "sync:work": "vite-node --config scripts/vite.sync.config.ts scripts/sync-work.ts",
     "paintings": "node scripts/make-paintings.mjs",
     "mars": "node scripts/make-mars.mjs",
+    "fonts": "node scripts/fonts/build-font-css.mjs",
     "lint": "eslint . --cache --cache-location .cache/eslint",
     "check": "npm run typecheck && npm run lint && npm run build"
   },

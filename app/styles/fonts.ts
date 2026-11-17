@@ -10,7 +10,8 @@ export const INTERFACE_FONT_SHEETS: string[] = [interfaceSheet];
 export const SPINE_FONT_SHEETS: string[] = [spineSheet];
 
 /**
- * The font files a route preloads from the HTML: route id to at most two woff2 URLs (the performance guide: "DON'T preload all fonts").
+ * The font files the root route preloads from the HTML: at most two woff2 URLs (the performance guide: "DON'T preload all fonts"). One list,
+ * read only by the root's links() (app/root.tsx); a route that wants its own preload maps its own list in its own links().
  * Empty on purpose. The baseline (docs/redesign/compare/web-pass/baseline.json) found the same two files drawing every page's first
  * screen, Doto's Latin file (@fontsource-variable/doto/files/doto-latin-wght-normal.woff2) and IBM Plex Mono 400's Latin file
  * (@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2), and preloading them was measured (web-vitals.mjs with
@@ -18,4 +19,4 @@ export const SPINE_FONT_SHEETS: string[] = [spineSheet];
  * came 120 to 180 ms later on the text pages (/experience 700 ms to 876 ms), because the font bytes go ahead of the render-blocking
  * stylesheets. Round 7 rule: a preload that makes LCP worse is taken out. Add a file here only with a measured LCP gain.
  */
-export const FONT_PRELOADS: Record<string, string[]> = {};
+export const FONT_PRELOADS: string[] = [];

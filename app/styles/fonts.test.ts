@@ -10,15 +10,15 @@ const familiesIn = (text: string) => new Set([...text.matchAll(/font-family:"([^
 describe("the site's fonts", () => {
   it("no page asks another origin for a font or a stylesheet", () => {
     for (const href of [...INTERFACE_FONT_SHEETS, ...SPINE_FONT_SHEETS]) expect(onThisSite(href)).toBe(true);
-    for (const files of Object.values(FONT_PRELOADS)) for (const href of files) expect(onThisSite(href)).toBe(true);
+    for (const href of FONT_PRELOADS) expect(onThisSite(href)).toBe(true);
   });
 
   it("at most two font files are preloaded for a page", () => {
-    for (const files of Object.values(FONT_PRELOADS)) expect(files.length).toBeLessThanOrEqual(2);
+    expect(FONT_PRELOADS.length).toBeLessThanOrEqual(2);
   });
 
   it("a preloaded file is a woff2 on this site (none is preloaded today: the measured LCP was worse, see fonts.ts)", () => {
-    for (const files of Object.values(FONT_PRELOADS)) for (const href of files) expect(href).toMatch(/^\/.*\.woff2(\?|$)/);
+    for (const href of FONT_PRELOADS) expect(href).toMatch(/^\/.*\.woff2(\?|$)/);
   });
 
   it("the interface sheet declares the five interface families by the names the site asks for, and no spine family", () => {

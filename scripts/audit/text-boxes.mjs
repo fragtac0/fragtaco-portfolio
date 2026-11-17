@@ -45,8 +45,12 @@ const SPINE_FACES = [
   ...[500, 600, 700, 800].map((w) => [`${w} 20px "Tektur"`, null, "Tektur 2026 Hamburgefonstiv"]),
 ];
 
+// The keywords the book spines give a canvas's fontStretch for a width in percent (spine-paint.ts STRETCH_KEYWORDS).
+const STRETCH_KEYWORDS = [[50, "ultra-condensed"], [62.5, "extra-condensed"], [75, "condensed"], [87.5, "semi-condensed"], [100, "normal"], [112.5, "semi-expanded"], [125, "expanded"], [150, "extra-expanded"], [200, "ultra-expanded"]];
+
 const PAGE_SCRIPT = `(async () => {
   const r2 = (n) => Math.round(n * 100) / 100;
+  const STRETCH_KEYWORDS = ${JSON.stringify(STRETCH_KEYWORDS)};
   const link = document.querySelector("link[data-spine-fonts]");
   for (let i = 0; i < 40 && link && link.media !== "all"; i++) await new Promise((r) => setTimeout(r, 100));
   await document.fonts.ready;
@@ -91,10 +95,12 @@ const PAGE_SCRIPT = `(async () => {
     host.appendChild(s);
     const b = s.getBoundingClientRect();
     cv.font = face;
+    // as the spines set it (spine-paint.ts setFace): the nearest keyword of the width, "normal" when there is none
+    cv.fontStretch = stretch ? STRETCH_KEYWORDS.reduce((a, b) => (Math.abs(b[0] - parseFloat(stretch)) < Math.abs(a[0] - parseFloat(stretch)) ? b : a))[1] : "normal";
     spine[face + (stretch ? " @" + stretch : "") + " | " + label] = [r2(b.width), r2(b.height), r2(cv.measureText(label).width), document.fonts.check(face, label)];
   }
   host.remove();
-  const loaded = [...document.fonts].filter((f) => f.status === "loaded").map((f) => f.family + " " + f.weight + " " + f.style);
+  const loaded = [...document.fonts].filter((f) => f.status === "loaded").map((f) => [f.family, f.weight, f.style, f.stretch].join("|"));
   return { texts, spine, loaded };
 })()`;
 
@@ -120,6 +126,21 @@ async function record(out, pages) {
   writeFileSync(out, JSON.stringify({ cases }, null, 0));
 }
 
+// Does a loaded face (family|weight|style|stretch, weight and stretch as a number or a range "a b" / "a% b%") cover the probe's face?
+const covers = (range, v) => {
+  const [lo, hi = lo] = String(range).split(/\s+/).map(parseFloat);
+  return v >= lo && v <= hi;
+};
+function loadedFor(spineKey, loaded) {
+  const m = /^(italic )?(\d+) \d+px "([^"]+)"(?: @(\d+(?:\.\d+)?)%)? \|/.exec(spineKey);
+  if (!m) return true;
+  const [, italic, weight, family, stretch] = m;
+  return loaded.some((l) => {
+    const [fam, w, style, st] = l.split("|");
+    return fam === family && covers(w, Number(weight)) && (style === "italic") === Boolean(italic) && (!stretch || covers(st, Number(stretch)));
+  });
+}
+
 function compare(a, b) {
   const A = JSON.parse(readFileSync(a, "utf8")).cases;
   const B = JSON.parse(readFileSync(b, "utf8")).cases;
@@ -132,6 +153,16 @@ function compare(a, b) {
       console.log(`MISSING ${tag}`);
       diffs++;
       continue;
+    }
+    // the comparison must not pass on two fallbacks: every probed face is a loaded face (family, a weight range covering it, the style and,
+    // for the spines' widths, a width range covering it) and document.fonts.check says so, on both sides
+    for (const [side, c] of [["before", ca], ["after", cb]]) {
+      for (const k of Object.keys(c.spine)) {
+        if (!loadedFor(k, c.loaded) || c.spine[k][3] !== true) {
+          diffs++;
+          console.log(`NOT LOADED (${side}) ${tag} ${k}`);
+        }
+      }
     }
     for (const part of ["texts", "spine"]) {
       for (const k of new Set([...Object.keys(ca[part]), ...Object.keys(cb[part])])) {

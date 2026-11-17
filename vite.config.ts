@@ -10,8 +10,9 @@ export default defineConfig({
   ],
   build: {
     // Font files are never inlined as data: addresses (the small subsets would be): every face is a file on this site, so the content
-    // policy of the security pass can say font-src 'self'. Everything else keeps Vite's default limit (4 KiB).
-    assetsInlineLimit: (file, content) => (file.endsWith(".woff2") ? false : content.length < 4096),
+    // policy of the security pass can say font-src 'self'. Everything else keeps Vite's own decision (undefined means "use the default":
+    // its 4 KiB limit and its other guards).
+    assetsInlineLimit: (file) => (file.endsWith(".woff2") ? false : undefined),
   },
   optimizeDeps: {
     include: [

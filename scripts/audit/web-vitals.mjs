@@ -50,6 +50,7 @@ const READ = `(() => {
 })()`;
 
 const median = (a) => {
+  if (!a.length) return null; // no run had the value (a run with no LCP entry is left out, not counted as 0)
   const s = [...a].sort((x, y) => x - y);
   return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
 };
@@ -133,7 +134,7 @@ for (const size of SIZES) {
   for (const page of PAGES) {
     const runs = [];
     for (let i = 0; i < RUNS; i++) runs.push(await oneRun(page, size));
-    const med = { lcpMs: median(runs.map((r) => r.lcpMs ?? 0)), cls: median(runs.map((r) => r.cls)), tbtMs: median(runs.map((r) => r.tbtMs)) };
+    const med = { lcpMs: median(runs.map((r) => r.lcpMs).filter((x) => x != null)), cls: median(runs.map((r) => r.cls)), tbtMs: median(runs.map((r) => r.tbtMs)) };
     results.push({ page, size: size.name, dpr: size.dpr, mobile: size.mobile, runs, median: med, spread: { lcpMs: spread(runs, "lcpMs"), cls: spread(runs, "cls"), tbtMs: spread(runs, "tbtMs") } });
     console.log(`${size.name} ${page}: LCP ${med.lcpMs} ms (${runs.map((r) => r.lcpMs).join(", ")}) CLS ${med.cls} TBT ${med.tbtMs} bfcache ${runs.map((r) => r.bfcache.restored).join("/")} ${runs[0].lcpElement}`);
   }

@@ -2,9 +2,10 @@
 // files Google Fonts serves). Re-run after changing a package or the list below:  node scripts/fonts/build-font-css.mjs
 // Why a script and not the packages' own stylesheets: the variable packages name their family "Archivo Variable", "Doto Variable" ...,
 // and the site (its CSS and the book spines' canvas code) asks for "Archivo", "Doto" ...; the names are kept as the site uses them.
+// `--check` writes nothing and exits 1 when a committed file differs from what this script makes (app/styles/fonts-generated.test.ts runs it).
 // Each block keeps the package's unicode-range (so a visitor downloads only the subsets the text needs), takes the weight (and width)
 // range the two Google stylesheets asked for, keeps `font-display: swap`, and points at the woff2 file only.
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const NM = "node_modules";
 // [package, family the site uses, [stylesheets of the package], font-weight descriptor (null: the package's own), font-stretch descriptor]
@@ -58,9 +59,18 @@ const head = (what) =>
 const licences = [...INTERFACE, ...SPINE]
   .map(([pkg, family]) => `${"=".repeat(78)}\n${family} (${pkg}, SIL Open Font License 1.1)\n${"=".repeat(78)}\n\n${readFileSync(`${NM}/${pkg}/LICENSE`, "utf8").trim()}\n`)
   .join("\n");
-writeFileSync(
-  "public/font-licences.txt",
-  `The typefaces of this site are free software under the SIL Open Font License 1.1, from the Fontsource packages of the Google Fonts families.\n\n${licences}`,
-);
-writeFileSync("app/styles/fonts-interface.css", head("the interface faces") + blocks(INTERFACE));
-writeFileSync("app/styles/fonts-spine.css", head("the book-spine faces (art, not interface)") + blocks(SPINE));
+const files = {
+  "public/font-licences.txt": `The typefaces of this site are free software under the SIL Open Font License 1.1, from the Fontsource packages of the Google Fonts families.\n\n${licences}`,
+  "app/styles/fonts-interface.css": head("the interface faces") + blocks(INTERFACE),
+  "app/styles/fonts-spine.css": head("the book-spine faces (art, not interface)") + blocks(SPINE),
+};
+if (process.argv.includes("--check")) {
+  const stale = Object.entries(files).filter(([path, text]) => !existsSync(path) || readFileSync(path, "utf8") !== text).map(([path]) => path);
+  if (stale.length) {
+    console.error(`out of step with the generator (run: yarn fonts): ${stale.join(", ")}`);
+    process.exit(1);
+  }
+  console.log("the generated font files match the generator");
+} else {
+  for (const [path, text] of Object.entries(files)) writeFileSync(path, text);
+}
