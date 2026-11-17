@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Round 7 preview 11: the page change's edge</title>
+<style>
+  :root { --ground: #0e0e0d; --cream: #fdfce6; --accent: #fc4c00; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--cream); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  canvas#view { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; cursor: pointer; }
+  .panel { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(880px, calc(100vw - 32px)); padding: 12px 14px; border-radius: 16px; background: rgba(14, 14, 13, 0.86); border: 1px solid rgba(253, 252, 230, 0.18); backdrop-filter: blur(10px); }
+  .looks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .looks button { font: inherit; text-align: left; color: var(--cream); background: rgba(253, 252, 230, 0.06); border: 1px solid rgba(253, 252, 230, 0.18); border-radius: 10px; padding: 8px 10px; cursor: pointer; }
+  .looks button b { display: block; font-size: 15px; }
+  .looks button span { color: rgba(253, 252, 230, 0.72); font-size: 12px; }
+  .looks button[aria-pressed="true"] { background: rgba(252, 76, 0, 0.2); border-color: var(--accent); }
+  .looks button:focus-visible, .row button:focus-visible, input:focus-visible { outline: 2px solid var(--cream); outline-offset: 2px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 10px; }
+  .row button { font: inherit; color: var(--ground); background: var(--cream); border: 0; border-radius: 999px; padding: 6px 16px; cursor: pointer; font-weight: 600; }
+  .row label { display: flex; align-items: center; gap: 8px; color: rgba(253, 252, 230, 0.86); }
+  .row input[type="range"] { width: 150px; accent-color: var(--accent); }
+  .row output { min-width: 3.2em; font-variant-numeric: tabular-nums; }
+  .note { margin: 8px 0 0; color: rgba(253, 252, 230, 0.62); font-size: 12px; }
+  @media (max-width: 640px) { .looks { grid-template-columns: repeat(2, 1fr); } .looks button span { display: none; } }
+</style>
+</head>
+<body>
+<canvas id="view" aria-label="A page change playing with the chosen look. Click to play it again."></canvas>
+<div class="panel">
+  <div class="looks" role="group" aria-label="Look of the edge">
+    <button data-look="0" aria-pressed="false"><b>A As built</b><span>The ring-shaped lens on the site today</span></button>
+    <button data-look="1" aria-pressed="true"><b>B Hero liquid</b><span>The paintings' refraction, both pages</span></button>
+    <button data-look="2" aria-pressed="false"><b>C Liquid, calm arrival</b><span>The same, gentler on the new page</span></button>
+    <button data-look="3" aria-pressed="false"><b>D Colour fringe only</b><span>No bending, only red and blue part</span></button>
+  </div>
+  <div class="row">
+    <button id="play">Play</button>
+    <label><input type="checkbox" id="loop" checked> Keep playing</label>
+    <label>Hold at <input type="range" id="scrub" min="0" max="1000" value="0"> <output id="scrubOut">off</output></label>
+    <label>Strength <input type="range" id="strength" min="30" max="200" value="100"> <output id="strengthOut">100%</output></label>
+  </div>
+  <p class="note">Keys: 1 to 4 choose a look, space plays. The change runs 2.25 s, as on the site. The three pages are stand-ins drawn for this preview; the edge, its path and its numbers are the site's own.</p>
+</div>
+<script>
+(() => {
+  "use strict";
+  const canvas = document.getElementById("view");
+  const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
+  if (!gl) { document.querySelector(".note").textContent = "This browser cannot draw the preview (no WebGL)."; return; }
+
+  // ---- the site's numbers (app/components/page-change/glass-math.ts and glass-field.ts)
+  const MS = 2250, BAND = 0.15, WARP = 0.12, UNCOVERED_AT = 0.95, HAND_OVER = 0.2, TURN = 25 * Math.PI / 180;
+  const bez = (t, a, b) => { const u = 1 - t; return 3 * a * u * u * t + 3 * b * u * t * t + t * t * t; };
+  const ease = (t) => { if (t <= 0) return 0; if (t >= 1) return 1; let lo = 0, hi = 1; for (let i = 0; i < 24; i++) { const m = (lo + hi) / 2; if (bez(m, 0.65, 0.35) < t) lo = m; else hi = m; } return bez((lo + hi) / 2, 0, 1); };
+  const FRONT_START = -BAND, FRONT_CLEAR = (1 + BAND) / (1 - WARP), SPAN = (FRONT_CLEAR - FRONT_START) / ease(UNCOVERED_AT);
+  const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const bendAt = (p) => smooth(0.05, 0.15, p) * (1 - smooth(0.93, 1, p));
+  const turnFor = (r) => TURN * Math.min(1, Math.max(0, (1 / HAND_OVER - 1 / Math.max(r, 1e-6)) / (1 / HAND_OVER - 1 / FRONT_CLEAR)));
+
+  const VERT = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
+  const FRAG = `precision highp float;
+  uniform sampler2D uA,uB;uniform vec2 uRes;uniform float uFront,uTurn,uBend,uPeak,uLook,uFade,uFar;
+  float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),f.x),f.y);}
+  float fbm(vec2 p){return n(p)*.55+n(p*2.03+7.1)*.3+n(p*4.07-3.7)*.15;}
+  vec3 pick(sampler2D t,vec2 px,vec2 off,vec3 k){
+    return vec3(texture2D(t,(px+off*k.r)/uRes).r,texture2D(t,(px+off*k.g)/uRes).g,texture2D(t,(px+off*k.b)/uRes).b);
+  }
+  void main(){
+    vec2 px=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);
+    vec2 c=px-uRes*.5;float len=max(length(c),1e-4);vec2 dir=c/len;
+    float rho=len/uFar,th=atan(c.y,c.x);
+    float wander=.56*cos(5.*(th-uTurn)+.7)+.44*cos(6.*(th+.7*uTurn)+2.1);
+    float D=rho+${WARP}*max(0.,uFront)*smoothstep(.1,.6,rho)*wander;
+    float x=(D-uFront)/${BAND};
+    float mB=1.-smoothstep(-1.,1.,x);
+    // the vignette: no push near the screen's edge (a displacement filter reads nothing from outside the picture)
+    float edge=min(min(px.x,px.y),min(uRes.x-px.x,uRes.y-px.y));
+    float push=uPeak*uBend*smoothstep(0.,uPeak*1.4,edge);
+    float lens=(exp(-1.6*x*x)*.03+x*exp(-.9*x*x)*.022)/.03;
+    vec3 A,B;
+    if(uLook<.5){ // A: the radial lens as built
+      vec2 off=dir*lens*push;
+      A=pick(uA,px,off,vec3(1.29,1.,.71));B=pick(uB,px,-.5*off,vec3(1.29,1.,.71));
+    }else if(uLook<2.5){ // B and C: the hero painting's noise push
+      vec2 q=c/uRes.y*3.1;float e=.02,f0=fbm(q);
+      vec2 nrm=vec2(fbm(q+vec2(e,0.))-f0,fbm(q+vec2(0.,e))-f0)/e/1.6;
+      nrm*=min(1.,1./max(length(nrm),1e-4));
+      float band=1.-abs(mB*2.-1.),wake=smoothstep(-3.7,0.,x)*mB;
+      vec3 k=vec3(1.4,1.,1./1.4);
+      A=pick(uA,px,nrm*(band+.6*wake)*push,k);
+      B=uLook<1.5?pick(uB,px,-nrm*(band+.6*wake)*push,k):pick(uB,px,-.5*nrm*band*push,k);
+    }else{ // D: colour fringe only, shapes stay
+      vec2 off=dir*lens*push;
+      A=pick(uA,px,off,vec3(.35,0.,-.35));B=pick(uB,px,off,vec3(-.175,0.,.175));
+    }
+    vec3 col=mix(A,B,mB);
+    float glow=.16*exp(-30.*x*x)+.05*exp(-14.*(x-.9)*(x-.9));
+    float shade=.1*exp(-1.6*x*x)*(1.-exp(-30.*x*x));
+    col=(col+vec3(.992,.988,.902)*glow*uFade)*(1.-shade*uFade);
+    gl_FragColor=vec4(col,1.);
+  }`;
+  const compile = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, "p");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = {};
+  for (const name of ["uA", "uB", "uRes", "uFront", "uTurn", "uBend", "uPeak", "uLook", "uFade", "uFar"]) U[name] = gl.getUniformLocation(prog, name);
+
+  // ---- three stand-in pages, drawn on 2D canvases (no real thumbnails or covers)
+  const rng = (seed) => () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const CREAM = "253, 252, 230";
+  function dock(g, W, H, s, active) {
+    const names = ["Home", "My portfolio", "My experience", "Contact"];
+    g.font = `600 ${15 * s}px system-ui, sans-serif`;
+    const widths = names.map((nm) => g.measureText(nm).width + 34 * s);
+    const w = widths.reduce((a, b) => a + b, 0) + 16 * s, h = 52 * s, x = (W - w) / 2, y = H * 0.045;
+    g.fillStyle = "rgba(30, 30, 28, 0.86)"; g.strokeStyle = `rgba(${CREAM}, 0.22)`; g.lineWidth = 1 * s;
+    g.beginPath(); g.roundRect(x, y, w, h, h / 2); g.fill(); g.stroke();
+    let cx = x + 8 * s;
+    names.forEach((nm, i) => {
+      if (i === active) { g.fillStyle = "rgba(252, 76, 0, 0.22)"; g.beginPath(); g.roundRect(cx, y + 7 * s, widths[i], h - 14 * s, (h - 14 * s) / 2); g.fill(); }
+      g.fillStyle = `rgba(${CREAM}, ${i === active ? 0.95 : 0.72})`; g.textBaseline = "middle"; g.fillText(nm, cx + 17 * s, y + h / 2 + 1 * s);
+      cx += widths[i];
+    });
+  }
+  function pageHome(g, W, H, s) {
+    const sky = g.createLinearGradient(0, 0, W * 0.3, H);
+    sky.addColorStop(0, "#16283a"); sky.addColorStop(0.45, "#6d4a3a"); sky.addColorStop(0.78, "#d08a3c"); sky.addColorStop(1, "#2a1a14");
+    g.fillStyle = sky; g.fillRect(0, 0, W, H);
+    const r = rng(7);
+    for (let i = 0; i < 420; i++) { // brush marks, so there is detail for the edge to bend
+      const x = r() * W, y = r() * H, rx = (20 + r() * 110) * s, ry = (4 + r() * 16) * s;
+      g.fillStyle = `hsla(${[18, 32, 205, 190, 42][i % 5] + r() * 14}, ${40 + r() * 35}%, ${22 + r() * 48}%, ${0.1 + r() * 0.22})`;
+      g.beginPath(); g.ellipse(x, y, rx, ry, -0.5 + r() * 0.5, 0, 6.3); g.fill();
+    }
+    const fade = g.createLinearGradient(0, H * 0.55, 0, H); fade.addColorStop(0, "rgba(14, 14, 13, 0)"); fade.addColorStop(1, "rgba(14, 14, 13, 0.92)");
+    g.fillStyle = fade; g.fillRect(0, 0, W, H);
+    g.fillStyle = `rgba(${CREAM}, 0.96)`; g.textBaseline = "alphabetic";
+    g.font = `800 ${150 * s}px system-ui, sans-serif`; g.fillText("FragTaco", W * 0.07, H * 0.6);
+    g.font = `500 ${24 * s}px system-ui, sans-serif`; g.fillStyle = `rgba(${CREAM}, 0.8)`;
+    g.fillText("Video editor. Long form, short form and the cuts in between.", W * 0.075, H * 0.6 + 52 * s);
+    dock(g, W, H, s, 0);
+  }
+  function pagePortfolio(g, W, H, s) {
+    g.fillStyle = "#0e0e0d"; g.fillRect(0, 0, W, H);
+    g.fillStyle = `rgba(${CREAM}, 0.95)`; g.textBaseline = "alphabetic"; g.font = `750 ${64 * s}px system-ui, sans-serif`;
+    g.fillText("My portfolio", W * 0.06, H * 0.24);
+    g.font = `500 ${18 * s}px system-ui, sans-serif`; g.fillStyle = `rgba(${CREAM}, 0.72)`;
+    g.fillText("Long form and short form, sorted by channel", W * 0.062, H * 0.24 + 34 * s);
+    const r = rng(23), cols = 5, rows = 3, gap = 18 * s, x0 = W * 0.06, y0 = H * 0.36;
+    const tw = (W * 0.88 - gap * (cols - 1)) / cols, th = Math.min(tw * 9 / 16, (H * 0.58 - gap * (rows - 1)) / rows);
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+      const x = x0 + i * (tw + gap), y = y0 + j * (th + gap), hue = Math.floor(r() * 360);
+      const gr = g.createLinearGradient(x, y, x + tw, y + th);
+      gr.addColorStop(0, `hsl(${hue}, 70%, ${45 + r() * 20}%)`); gr.addColorStop(1, `hsl(${(hue + 50) % 360}, 65%, ${18 + r() * 14}%)`);
+      g.save(); g.beginPath(); g.roundRect(x, y, tw, th, 12 * s); g.clip();
+      g.fillStyle = gr; g.fillRect(x, y, tw, th);
+      g.fillStyle = `hsla(${(hue + 180) % 360}, 80%, 70%, 0.85)`; g.beginPath(); g.arc(x + tw * (0.25 + r() * 0.5), y + th * (0.3 + r() * 0.4), th * (0.16 + r() * 0.18), 0, 6.3); g.fill();
+      g.fillStyle = "rgba(255, 255, 255, 0.92)"; g.font = `800 ${th * 0.2}px system-ui, sans-serif`; g.fillText(["CUT", "EDIT", "REEL", "TAKE", "SHOT"][(i + j) % 5] + " " + (j * cols + i + 1), x + tw * 0.07, y + th * 0.86);
+      g.restore();
+    }
+    dock(g, W, H, s, 1);
+  }
+  function pageExperience(g, W, H, s) {
+    g.fillStyle = "#0e0e0d"; g.fillRect(0, 0, W, H);
+    const r = rng(41), cx = W * 0.5, base = H * 0.86, top = H * 0.24;
+    g.lineWidth = 1.2 * s;
+    for (let k = 0; k < 16; k++) { // the mountain as stacked ridge lines
+      const lift = k / 15, half = W * (0.3 - 0.24 * lift), y = base - (base - top) * lift;
+      g.strokeStyle = `rgba(${CREAM}, ${0.16 + 0.34 * lift})`; g.beginPath();
+      for (let i = 0; i <= 60; i++) { const t = i / 60, x = cx - half + 2 * half * t, wob = Math.sin(t * 9 + k) * 6 * s + (r() - 0.5) * 5 * s; const yy = y + Math.pow(Math.abs(t - 0.5) * 2, 1.6) * 46 * s * (1 - lift) + wob; if (i) g.lineTo(x, yy); else g.moveTo(x, yy); }
+      g.stroke();
+    }
+    g.strokeStyle = "#fc4c00"; g.lineWidth = 3 * s; g.beginPath();
+    const pts = [[0.3, 0.84], [0.4, 0.72], [0.36, 0.6], [0.47, 0.5], [0.44, 0.4], [0.5, 0.28]];
+    pts.forEach(([x, y], i) => (i ? g.lineTo(W * x, H * y) : g.moveTo(W * x, H * y))); g.stroke();
+    pts.forEach(([x, y]) => { g.fillStyle = "#0e0e0d"; g.strokeStyle = `rgba(${CREAM}, 0.95)`; g.lineWidth = 2.5 * s; g.beginPath(); g.arc(W * x, H * y, 7 * s, 0, 6.3); g.fill(); g.stroke(); });
+    g.textBaseline = "alphabetic"; g.fillStyle = `rgba(${CREAM}, 0.95)`; g.font = `750 ${58 * s}px system-ui, sans-serif`; g.fillText("My experience", W * 0.05, H * 0.3);
+    g.font = `500 ${18 * s}px system-ui, sans-serif`; g.fillStyle = `rgba(${CREAM}, 0.72)`; g.fillText("Every role as a step of the climb", W * 0.052, H * 0.3 + 32 * s);
+    g.textAlign = "right"; g.fillStyle = `rgba(${CREAM}, 0.95)`; g.font = `700 ${34 * s}px system-ui, sans-serif`; g.fillText("Olympus Mons", W * 0.95, H * 0.3);
+    g.font = `500 ${16 * s}px system-ui, sans-serif`; g.fillStyle = `rgba(${CREAM}, 0.72)`; g.fillText("21.9 km from base to summit", W * 0.95, H * 0.3 + 28 * s); g.textAlign = "left";
+    dock(g, W, H, s, 2);
+  }
+  const PAGES = [pageHome, pagePortfolio, pageExperience];
+  const textures = [];
+  function makeTextures() {
+    for (const t of textures.splice(0)) gl.deleteTexture(t);
+    for (const draw of PAGES) {
+      const c = document.createElement("canvas"); c.width = canvas.width; c.height = canvas.height;
+      const g = c.getContext("2d"); draw(g, c.width, c.height, c.height / 900);
+      const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+      for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+      textures.push(tex);
+    }
+  }
+  let dpr = 1;
+  function resize() {
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(window.innerWidth * dpr); canvas.height = Math.round(window.innerHeight * dpr);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    makeTextures(); draw();
+  }
+
+  // ---- the change
+  let look = 1, strength = 1, from = 0, to = 1, start = 0, playing = false, hold = null, pause = 0;
+  const loopBox = document.getElementById("loop"), scrub = document.getElementById("scrub"), scrubOut = document.getElementById("scrubOut");
+  function draw(t = 0) {
+    const p = ease(t), W = canvas.width, H = canvas.height, far = Math.hypot(W / 2, H / 2), front = FRONT_START + p * SPAN;
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, textures[from]); gl.uniform1i(U.uA, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, textures[to]); gl.uniform1i(U.uB, 1);
+    gl.uniform2f(U.uRes, W, H); gl.uniform1f(U.uFar, far); gl.uniform1f(U.uFront, front); gl.uniform1f(U.uTurn, turnFor(front));
+    gl.uniform1f(U.uBend, bendAt(p) * strength); gl.uniform1f(U.uPeak, Math.min(64, Math.round(0.057 * window.innerHeight)) * dpr);
+    gl.uniform1f(U.uLook, look); gl.uniform1f(U.uFade, Math.min(1, Math.max(0, (1 - p) / 0.05)));
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  function play() { hold = null; scrub.value = 0; scrubOut.textContent = "off"; start = performance.now(); playing = true; }
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (hold !== null) { draw(hold); return; }
+    if (!playing) { if (loopBox.checked && pause && now > pause) { pause = 0; play(); } return; }
+    const t = Math.min(1, (now - start) / MS);
+    draw(t);
+    if (t >= 1) { playing = false; from = to; to = (to + 1) % PAGES.length; draw(0); pause = now + 700; }
+  }
+  const buttons = [...document.querySelectorAll(".looks button")];
+  function setLook(n) { look = n; buttons.forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.look === n))); if (hold !== null) draw(hold); else play(); }
+  buttons.forEach((b) => b.addEventListener("click", () => setLook(+b.dataset.look)));
+  document.getElementById("play").addEventListener("click", play);
+  canvas.addEventListener("click", play);
+  scrub.addEventListener("input", () => { const v = +scrub.value / 1000; if (v <= 0) { hold = null; scrubOut.textContent = "off"; play(); } else { hold = v; playing = false; scrubOut.textContent = Math.round(v * 100) + "%"; } });
+  const strengthIn = document.getElementById("strength"), strengthOut = document.getElementById("strengthOut");
+  strengthIn.addEventListener("input", () => { strength = +strengthIn.value / 100; strengthOut.textContent = strengthIn.value + "%"; if (hold !== null) draw(hold); });
+  window.addEventListener("keydown", (e) => { if (e.key >= "1" && e.key <= "4") setLook(+e.key - 1); else if (e.key === " " && e.target === document.body) { e.preventDefault(); play(); } });
+  window.addEventListener("resize", resize);
+  resize(); play(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -761,6 +761,38 @@ Process as before: Fable reads, asks and plans; Sonnet builds; Opus reviews once
 
 Later the same evening he pasted the two install commands (`claude plugin marketplace add GoogleChrome/modern-web-guidance`, `claude plugin install modern-web-guidance@googlechrome`). The plugin is installed for his user at version 1.0.0 (commit 4dd9683). It holds two skills and their guides as text, with no hooks and no servers. The skill works through a command line tool fetched with `npx` (`search`, `retrieve`, and `legacy-scan` for a whole codebase); `legacy-scan` covers about a fifth of the guides, so the modernizing step also searches the guides by topic. The running build session does not list the skill until it is restarted, and it is not restarted while the build runs: the skill's text is read from its install folder.
 
+### Feedback on the joined build: the edge's look, and how the release goes (2026-11-17, during the build)
+
+While the two lanes were being joined he wrote: "Push this on the main branch after documenttation and make sure we have a working vercel link ready to go / Also in the page transitions, the effect of chromatic abberation is missing. We had decieded on the same effect which is going on the hero paintings so that's something that I would like there without hurting performance. / Get me a preview ready to choose so that I can leave you alone for the final work".
+
+Of the build on port 5180, where the bend and its colour split were running, he then wrote: "even on 5180 it just looks like a weird ripple".
+
+| His point | What happens |
+|---|---|
+| The colour fringe is missing in the page change; it should be the hero paintings' effect, at no cost in performance | The fringe was there, but the bend was a radial lens: one ring travelling outward, with colour only where it crossed a hard edge. The hero painting's change is a different thing (a push along the gradient of a smooth noise, strongest at the front with a wake behind it, red and blue pushed 1.4 and 1/1.4 times as far as green). The page change gets that. This is Task 32. |
+| "a weird ripple" | The lens is what reads as a ripple. It is replaced, not tuned. |
+| A preview to choose from | He did not want to wait for an in-app preview ("give me a html preview now and then i leave it to you"), so the eleventh preview (`docs/redesign/round7-preview-11/`) is a standalone page: the site's own front, path and timings on three stand-in pages, four looks and a strength slider. |
+| Push to main, a working public link | Answered below. |
+
+The four looks in the preview: A, as built (the lens); B, hero liquid (the hero's noise push and colour split at the edge and in a wake, on both pages); C, liquid with a calm arrival (B on the page being left, half the push and no wake on the arriving page); D, colour fringe only (no bending).
+
+**He picked B, "Hero liquid", at "Stronger, about 150%"** (structured questions). A throwaway build of that pick in the real pages (local only, never pushed) showed the look holds on real thumbnails at 1440 by 900 and 390 by 844 and costs the same as the lens within noise (compositor busy time 236 to 258 ms and 165 to 185 ms, against limits of 450 and 300). Ruling R125 (the edge look) records the rule. Design and plan: `docs/superpowers/specs/2026-11-17-round7-edge-look-design.md`, `docs/superpowers/plans/2026-11-17-round7-edge-look.md` (part R58, branch `r7/r58-edge-look`).
+
+His answers on the release (structured questions, the same night):
+
+| Question | His answer | What it means |
+|---|---|---|
+| Should the public link show the new site? | "Yes, make it live" | After the push to main the new site is deployed to production. This lifts the rule "never push to main, never deploy to production" for this one release. |
+| The modern web pass: before or after the release? | "All together" | The pass is done before the push to main, so there is one push. Because he will not be picking from a report first, the security fixes are applied on the coordinator's judgment and reported to him. This replaces "no security change is made before he has picked from the report" in the section above. |
+| When is the case study written? | "After the web pass" | It covers the web pass too. |
+| The old preview address in the git history | "Leave it" | No rewrite of history and no forced push. |
+
+Then the order of everything, in his words: "also here's how you have to do everything. / Complete all tasks / Then the additional ones / Once the website is ready do the moden web pass. / Then push to git on main and get the public link rady / then cleanup git so that it doesn't look unprofessional and build a proper documentation of all the changes".
+
+So: the join, the whole-branch review (Task 20), the comparison page and status (Task 21), Task 32, the modern web pass, one push to main and the public link made live, the git tidy-up, the documentation of all the changes. He left the rest to the coordinator: rule, record, continue.
+
+How "cleanup git" is read (the coordinator's reading, told to him and not contradicted): the stacked pull requests are marked merged or closed, the merged branches are deleted, the README and docs are tidied; the commit history on main is not rewritten. Content he has not confirmed (the role dates on My experience, the short form links, the wording of the moments) goes live as it is and is listed in the handover.
+
 ## Round 7: final status (17 November 2026)
 
 Round 7 is built, reviewed and joined into one branch. This section is the summary for someone who has not followed the build. It was written after the whole-branch review and its fix wave (R57.1) and before Task 32 (the page change's edge look that Aditya picked from the eleventh preview) and the modern web pass, so neither is in it.
@@ -874,7 +906,7 @@ Lane A, in the order they were made (R51 to R125):
 - **R122** (R54, page change and portfolio): 320x568 shows 0.1017 visible coverage against 0.1043 at 19ca81b (the 8 px feather alone); accepted under R118 as within 0.003. Cost if wrong: kEEP_FEATHER 0 under 640 px. Later: moot, the keep-out and its feather were deleted in R56.4.
 - **R123** (R56, dock): The dock's tint and the removed drop shadow apply on every page (one dock persists across changes); a before/after of the dock on home, a wall and experience goes to the owner's list. Cost if wrong: one token and one shadow.
 - **R124** (R56, dock): The dock tint is 0.61 (the lowest 0.01 step where every label keeps 4.5:1 over the worst tile; 390x844 at 4.51). Cost if wrong: one token (owner list with R123).
-- **R125 (the edge look)** (Task 32, the edge look): The page change's bend is the hero painting's liquid at 150% on both pages (noise push, split 1.4 / 1 / 0.714, peak 8.55% of the viewport's height capped at 96 px, full share on the arriving page); it replaces the second look's half push on the arriving page, which was written for the lens. Spec docs/superpowers/specs/2026-11-17-round7-edge-look-design.md, plan docs/superpowers/plans/2026-11-17-round7-edge-look.md (Task 32, branch r7/r57-edge-look from the top branch after Task 21, own Opus review). Cost if wrong: one task to change the rule to look C (calm arrival) or the strength.
+- **R125 (the edge look)** (Task 32, the edge look): The page change's bend is the hero painting's liquid at 150% on both pages (noise push, split 1.4 / 1 / 0.714, peak 8.55% of the viewport's height capped at 96 px, full share on the arriving page); it replaces the second look's half push on the arriving page, which was written for the lens. Spec docs/superpowers/specs/2026-11-17-round7-edge-look-design.md, plan docs/superpowers/plans/2026-11-17-round7-edge-look.md (Task 32, part R58, branch r7/r58-edge-look from the top branch after Task 21, own Opus review). Cost if wrong: one task to change the rule to look C (calm arrival) or the strength.
 - **R125 (the same number used again: the dropped-frame rule)** (the join): The glass cost gate's no-dropped-frame rule excludes the change's first (commit/snapshot) frame, as the 34 ms gate already does (R31): on the joined branch the home page's live WebGL boxes cost one dropped frame when the change takes its pictures; Task 20's reviewer and the owner's device check get it. Cost if wrong: one dropped frame at the click on a change from home.
 
 Lane B (the live boxes), RB1 to RB12 (the coordinator's text numbered the process rule RB6; it is RB7 here):
