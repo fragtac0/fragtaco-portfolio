@@ -27,6 +27,8 @@ yarn start          # serve the build (run yarn build first)
 yarn run check      # typecheck, lint and build in one go (plain `yarn check` is a Yarn built-in, not this script)
 ```
 
+`yarn install` prints five warnings of the form `Resolution field "react-router@6.30.6" is incompatible with requested version "react-router@6.30.4"` (also for `react-router-dom`, and for `@remix-run/router@1.23.4` against 1.23.3). That is expected: `resolutions` in `package.json` pin `@remix-run/router` 1.23.4 and `react-router` and `react-router-dom` 6.30.6, the security fixes that Remix's own exact pins hold back (docs/redesign/security-audit-2026-11.md, "After the upgrade"); the build and the tests pass with them. Remove a pin only when Remix itself asks for the fixed version.
+
 Timing and animation should be judged on the production build (`yarn build`, then `yarn start`), not the dev server.
 
 Environment: copy `.env.example` to `.env.local`. `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are only for the page-view counter; without them the counter shows its baseline and nothing else changes.

@@ -25,6 +25,15 @@ describe("svgChildren", () => {
     expect(out).toContain('mask="url(#fragCut)"');
   });
 
+  it("guards the attribute names of the file: each is camel case or class, because the reader passes every name but class to React unchanged", () => {
+    // a kebab-case name (stroke-width) or a namespaced one (xlink:href) would still draw and still match the file, but React wants strokeWidth and
+    // xlinkHref and warns in development: it is caught here, when the file changes, rather than in a console
+    const file = readFileSync(fileURLToPath(new URL("./fragtaco-lockup.svg", import.meta.url)), "utf8");
+    const names = [...inner(file).matchAll(/\s([\w:-]+)="/g)].map((m) => m[1]);
+    expect(names.length).toBeGreaterThan(5);
+    for (const name of names) expect(name, `attribute "${name}"`).toMatch(/^(class|[a-z]+(?:[A-Z][a-z0-9]*)*)$/);
+  });
+
   it("reads nested, self-closing and class attributes", () => {
     const svg = '<svg xmlns="x" viewBox="0 0 1 1"><g class="a"><rect x="1" y="2"/><path d="M0 0"/></g><g/></svg>';
     expect(html(svgChildren(svg))).toBe('<g class="a"><rect x="1" y="2"></rect><path d="M0 0"></path></g><g></g>');

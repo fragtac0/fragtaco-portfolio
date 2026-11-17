@@ -11,7 +11,7 @@ const KNOWN = new Set(["defs", "mask", "rect", "g", "path"]);
 const TAG = /<(\/?)([a-zA-Z][\w-]*)((?:\s+[\w:-]+="[^"]*")*)\s*(\/?)>/y;
 const ATTR = /([\w:-]+)="([^"]*)"/g;
 
-// the one attribute whose React name differs from its SVG name in this file (the rest are already camel case: viewBox, maskUnits)
+// the one attribute whose React name differs from its SVG name in this file (the rest are already camel case: viewBox, maskUnits; logo-nodes.test.ts fails if the file gets a name that is neither)
 const REACT_NAME: Record<string, string> = { class: "className" };
 
 function props(raw: string, key: number): Record<string, string | number> {

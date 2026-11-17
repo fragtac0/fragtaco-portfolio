@@ -7,6 +7,8 @@ describe("the headers of an HTML response", () => {
 
   it("carries a content policy whose scripts need the nonce and nothing else", () => {
     expect(csp).toContain("script-src 'nonce-abc123' 'strict-dynamic' 'report-sample'");
+    // 'self' is the fallback for a browser without 'strict-dynamic' (Safari before 15.4); a browser that has it ignores 'self'
+    expect(csp).toContain("script-src 'nonce-abc123' 'strict-dynamic' 'report-sample' 'self';");
     for (const d of ["default-src 'self'", "object-src 'none'", "base-uri 'none'", "frame-ancestors 'none'", "form-action 'self'", "font-src 'self'", "report-to csp"])
       expect(csp).toContain(d);
     expect(csp).not.toMatch(/script-src[^;]*(unsafe-inline|unsafe-eval|https:|\*)/);
@@ -54,7 +56,7 @@ describe("contentPolicy", () => {
     expect(enforced).toContain("style-src 'self' 'unsafe-inline'");
   });
 
-  it("enforces Trusted Types, with no policy name allowed (the site has no pass-through policy)", () => {
+  it("can enforce Trusted Types when asked, with no policy name allowed (the site has no pass-through policy)", () => {
     const p = contentPolicy("n", { reportOnlyTrustedTypes: false });
     expect(p.enforced).toContain("require-trusted-types-for 'script'");
     expect(p.enforced).not.toMatch(/trusted-types (?!\w*-for)/);
@@ -75,6 +77,14 @@ describe("contentPolicy", () => {
     const h = documentHeaders("n");
     if (TRUSTED_TYPES_ENFORCED) expect(h["Content-Security-Policy"]).toContain("require-trusted-types-for 'script'");
     else expect(h["Content-Security-Policy-Report-Only"]).toContain("require-trusted-types-for 'script'");
+  });
+
+  it("ships Trusted Types report-only (ruling R134): enforced with no policy it blanks the page whenever React makes a script element in the browser", () => {
+    expect(TRUSTED_TYPES_ENFORCED).toBe(false);
+    const h = documentHeaders("n");
+    expect(h["Content-Security-Policy"]).not.toContain("require-trusted-types-for");
+    expect(h["Content-Security-Policy"]).toContain("script-src 'nonce-n'"); // the nonce policy stays enforced
+    expect(h["Content-Security-Policy-Report-Only"]).toMatch(/^require-trusted-types-for 'script'; report-to csp; report-uri \/api\/csp-report$/);
   });
 
   it("has no nonce-like characters that could break out of the header", () => {

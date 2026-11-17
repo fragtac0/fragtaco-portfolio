@@ -11,11 +11,15 @@ export const REPORT_PATH = "/api/csp-report";
 const REPORT_GROUP = "csp";
 
 /**
- * Whether `require-trusted-types-for 'script'` is enforced (true) or only reported (false). It is enforced because the whole audit ran clean
- * under it: the site writes no HTML or script text from the browser (the logo is JSX, the intro script is made by the server and never by
- * React in the browser; see app/root.tsx), so it needs no Trusted Types policy of its own.
+ * Whether `require-trusted-types-for 'script'` is enforced (true) or only reported (false). It is only reported (ruling R134). The site itself
+ * writes no HTML or script text from the browser (the logo is JSX, the intro script is made by the server and never by React in the browser),
+ * so its normal use reports nothing. But React 18 makes every <script> element through `innerHTML = "<script></script>"`, and with the rule
+ * enforced and no policy that write throws: a hydration mismatch (as an element an extension puts into the page causes) or a client-side
+ * error page then leaves a blank document. A policy that allowed it would be a pass-through, which switches the protection off. So the rule
+ * is sent in `Content-Security-Policy-Report-Only` (what the site writes is still watched), and the nonce policy stays enforced. To enforce
+ * it later, set this to true once those paths no longer make a script element in the browser.
  */
-export const TRUSTED_TYPES_ENFORCED = true;
+export const TRUSTED_TYPES_ENFORCED = false;
 
 /**
  * Where the site's pictures come from besides itself: YouTube's thumbnails, and Open Library's covers, which answer with a redirect
@@ -44,14 +48,16 @@ const TRUSTED_TYPES = "require-trusted-types-for 'script'";
 
 /**
  * The content policy for `nonce`. Scripts run only with the nonce, and the scripts they load run too ('strict-dynamic': Remix's entry loads the
- * route code), with no host list, no 'unsafe-inline' and no 'unsafe-eval'. Styles keep 'unsafe-inline' (the server render writes style attributes;
+ * route code), with no host list, no 'unsafe-inline' and no 'unsafe-eval'. `'self'` comes last as the fallback for a browser without
+ * 'strict-dynamic' (Safari before 15.4), where the nonce'd entry would run but the route chunks it imports would be blocked; a browser that
+ * understands 'strict-dynamic' ignores it (ruling R135). Styles keep 'unsafe-inline' (the server render writes style attributes;
  * the threat this policy is for is script). `reportOnlyTrustedTypes` moves Trusted Types out of the enforced policy into a report-only one.
  */
 export function contentPolicy(nonce: string, opts: { reportOnlyTrustedTypes: boolean }): { enforced: string; reportOnly: string | null } {
   const reporting = [`report-to ${REPORT_GROUP}`, `report-uri ${REPORT_PATH}`];
   const enforced = [
     "default-src 'self'",
-    `script-src 'nonce-${nonce}' 'strict-dynamic' 'report-sample'`,
+    `script-src 'nonce-${nonce}' 'strict-dynamic' 'report-sample' 'self'`,
     "style-src 'self' 'unsafe-inline'",
     `img-src ${["'self'", "data:", "blob:", ...IMG_ORIGINS].join(" ")}`,
     "font-src 'self'",

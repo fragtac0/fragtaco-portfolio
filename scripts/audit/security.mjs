@@ -8,12 +8,16 @@
 // page and uses it (both home boxes by button and by deep link, a book and a video opened, the wall and the shelf panned), and one browser per
 // size runs every page change both ways and Back and Forward. It fails on any `securitypolicyviolation` event (enforced or report-only),
 // any console error or exception, any request that failed or answered 4xx/5xx, a cross-site POST that is not refused with 403, a second
-// document with the same nonce, and any script element of the HTML without the response's nonce.
+// document with the same nonce, and any script element of the HTML without the response's nonce. Then the resilience cases
+// (security-resilience.mjs): a 404 first load, an element inserted into <body> before hydration, and a page change whose data request
+// fails (500); in those the page must not go blank and the error page must show; report-only Trusted Types events are recorded, not
+// failed, and enforced violations fail. Trusted Types ships report-only (R134), so the header check expects it in Content-Security-Policy-Report-Only.
 import { writeFileSync, existsSync } from "node:fs";
 import { loadavg } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { PAGES, SIZES, startReportProbe, walkChanges, walkPage } from "./security-walk.mjs";
+import { walkResilience } from "./security-resilience.mjs";
 import { dataChecks, documentChecks, pageViewChecks, run, sampleFiles, staticHeaders } from "./security-checks.mjs";
 import { scanSource } from "./security-scan.mjs";
 import { startHttpsProxy } from "./https-proxy.mjs";
@@ -23,7 +27,7 @@ const BASE = process.env.BASE ?? "http://localhost:5180";
 const MODE = process.env.MODE ?? "proof";
 const [out] = process.argv.slice(2);
 if (!out) throw new Error("usage: node scripts/audit/security.mjs <out.json>");
-const TT_ENFORCED = process.env.TT_ENFORCED !== "0"; // TT_ENFORCED=0 when Trusted Types ships report-only
+const TT_ENFORCED = process.env.TT_ENFORCED === "1"; // Trusted Types ships report-only (ruling R134); TT_ENFORCED=1 checks a build that enforces it
 const INJECT = "require-trusted-types-for 'script'";
 
 const failures = [];
@@ -70,6 +74,20 @@ async function headerChecks() {
     const dc = run(dataChecks, d.headers);
     for (const c of dc) if (!c.ok) fail(`${page} data header ${c.header}: wanted ${c.want}, got ${c.got}`);
     rows.push({ page, status: a.res.status, redirected: a.redirected, nonceDiffersBetweenResponses: !!n1 && n1 !== n2, scripts, document: checks, data: { status: d.res.status, checks: dc }, csp, cspReportOnly: a.headers["content-security-policy-report-only"] ?? null });
+  }
+  // the error page is a document too (a 404 is what a crawler meets most): the same headers, a nonce of its own, and every script carries it
+  for (const page of ["/nope", "/work/nope"]) {
+    const a = await getDoc(page);
+    const b = await getDoc(page);
+    const checks = run(documentChecks({ trustedTypesEnforced: TT_ENFORCED }), a.headers);
+    for (const c of checks) if (!c.ok) fail(`${page} (404) document header ${c.header}: wanted ${c.want}, got ${c.got}`);
+    if (a.res.status !== 404) fail(`${page} answered ${a.res.status}, wanted 404`);
+    const n1 = nonceOf(a.headers["content-security-policy"]);
+    if (!n1 || n1 === nonceOf(b.headers["content-security-policy"])) fail(`${page} (404): the nonce is missing or the same in two responses`);
+    const scripts = scriptTags(a.text, n1);
+    for (const s of scripts) if (!s.nonceOk) fail(`${page} (404): a script without the response's nonce (${s.src ?? s.sample})`);
+    if (scripts.some((s) => /Hey developer/.test(s.sample))) fail(`${page} (404): Remix's default error page script is back`);
+    rows.push({ page, status: a.res.status, nonceDiffersBetweenResponses: !!n1 && n1 !== nonceOf(b.headers["content-security-policy"]), scripts, document: checks });
   }
   return rows;
 }
@@ -160,6 +178,15 @@ for (const size of process.env.HEADERS_ONLY ? [] : SIZES) {
   judge(`page changes ${size.name}`, r);
   record.walks.push({ page: "page changes", ...r });
   console.error(`changes ${size.name}: ${r.changes.length} steps, ${r.violations.length} violations, ${r.consoleErrors.length + r.exceptions.length} errors, ${r.bad.length} bad`);
+}
+if (MODE === "proof") {
+  record.resilience = [];
+  for (const size of process.env.HEADERS_ONLY ? [] : SIZES) {
+    const r = await walkResilience(BASE, size);
+    record.resilience.push(...r.cases);
+    for (const f of r.failures) fail(f);
+    for (const c of r.cases) console.error(`${c.case} ${c.size}: enforced ${c.events.enforced.length}, report-only ${c.events.reportOnly.reduce((n, e) => n + e.n, 0)} (${c.events.reportOnly.map((e) => e.what).join("; ").slice(0, 140)})`);
+  }
 }
 if (probe) {
   record.reportRoundTrip = await probe.done();

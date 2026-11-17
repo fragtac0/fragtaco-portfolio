@@ -7,9 +7,11 @@ import {
   ScrollRestoration,
   useLocation,
   useNavigate,
+  useRouteError,
   useRouteLoaderData,
 } from "@remix-run/react";
 import { useEffect, useLayoutEffect, useState, type PropsWithChildren } from "react";
+import { ErrorPage } from "./components/error-page";
 import SpineFonts from "./components/spine-fonts";
 import PageViewTracker from "./components/page-view-tracker";
 import { preloadImage } from "./components/home/hero/painting-cycle";
@@ -92,6 +94,15 @@ export function Layout({ children }: PropsWithChildren) {
       </body>
     </html>
   );
+}
+
+/**
+ * Every error the routes do not catch (an unknown address, a failed data request, a render error): the page Remix's default boundary showed,
+ * without its script. The default boundary's inline script has no nonce (the content policy blocks it and reports it on every 404), and the
+ * Layout it sits in is made again in the browser, where React writes a script element through innerHTML.
+ */
+export function ErrorBoundary() {
+  return <ErrorPage error={useRouteError()} />;
 }
 
 export default function App() {

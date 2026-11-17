@@ -15,7 +15,7 @@ export const PAGES = ["/", "/work", "/work/long-form", "/work/short-form", "/exp
 const INIT = `try{sessionStorage.setItem('ft:debug-change','1')}catch(e){}`;
 const INIT_SEEN = `try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}`;
 
-async function open(size, base, { inject, introSeen }) {
+export async function open(size, base, { inject, introSeen }) {
   const c = await launch(size);
   const events = await collect(c, new URL(base).origin);
   await c.send("Page.addScriptToEvaluateOnNewDocument", { source: COLLECT_INIT + (introSeen ? INIT_SEEN : INIT) });

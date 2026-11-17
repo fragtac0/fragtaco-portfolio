@@ -21,13 +21,21 @@ export function documentChecks({ trustedTypesEnforced }) {
       name: "Content-Security-Policy (script-src)",
       test: (h) => {
         const m = /script-src ([^;]*)/.exec(h["content-security-policy"] ?? "");
-        return !!m && /^'nonce-[A-Za-z0-9+/=]{22,}' 'strict-dynamic' 'report-sample'$/.test(m[1].trim());
+        return !!m && /^'nonce-[A-Za-z0-9+/=]{22,}' 'strict-dynamic' 'report-sample' 'self'$/.test(m[1].trim());
       },
-      want: "script-src 'nonce-<16 random bytes>' 'strict-dynamic' 'report-sample' and nothing else (no unsafe-inline, unsafe-eval, https:)",
+      want: "script-src 'nonce-<16 random bytes>' 'strict-dynamic' 'report-sample' 'self' and nothing else (no unsafe-inline, unsafe-eval, https:; 'self' is the fallback for a browser without 'strict-dynamic', R135)",
     },
-    trustedTypesEnforced
-      ? has("Content-Security-Policy", ["require-trusted-types-for 'script'"])
-      : has("Content-Security-Policy-Report-Only", ["require-trusted-types-for 'script'"]),
+    ...(trustedTypesEnforced
+      ? [has("Content-Security-Policy", ["require-trusted-types-for 'script'"])]
+      : [
+          // report-only (ruling R134): the rule is watched, reported to the same endpoint, and never in the enforced policy
+          has("Content-Security-Policy-Report-Only", ["require-trusted-types-for 'script'", "report-to csp", "report-uri /api/csp-report"]),
+          {
+            name: "Content-Security-Policy (no Trusted Types rule enforced)",
+            test: (h) => !String(h["content-security-policy"] ?? "").includes("require-trusted-types-for"),
+            want: "no require-trusted-types-for in the enforced policy",
+          },
+        ]),
     eq("X-Content-Type-Options", "nosniff"),
     eq("Referrer-Policy", "strict-origin-when-cross-origin"),
     eq("X-Frame-Options", "DENY"),
