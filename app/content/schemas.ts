@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { youtubeId } from "./work-media";
 
 const rootRelativePathPattern = /^\/(?!\/).+/;
 
@@ -6,19 +7,6 @@ const HrefSchema = z.union([
   z.string().url(),
   z.string().regex(rootRelativePathPattern, "Expected URL or root-relative path"),
 ]);
-
-export const FactSchema = z.object({
-  id: z.string().min(1),
-  category: z.string().min(1),
-  headline: z.string().min(1),
-  body: z.string().min(1),
-});
-
-export const FactsSectionSchema = z.object({
-  sectionTitle: z.string().min(1),
-  eyebrow: z.string().min(1),
-  items: z.array(FactSchema).min(1),
-});
 
 export const HeroPaintingSchema = z.object({
   id: z.string().min(1),
@@ -31,6 +19,11 @@ export const HeroPaintingSchema = z.object({
   orientation: z.enum(["landscape", "portrait"]).optional(),
   sourcing: z.literal("verify").optional(),
   missing: z.boolean().optional(),
+  // 24 px JPEG shown while the painting loads; written by scripts/make-paintings.mjs
+  blur: z.string().startsWith("data:image/").max(2499).optional(),
+}).refine((painting) => painting.missing === true || painting.blur !== undefined, {
+  message: "blur is required on a painting that is not missing (run yarn paintings)",
+  path: ["blur"],
 });
 
 export const HeroPaintingsSchema = z.object({
@@ -42,128 +35,81 @@ export const CreditsLinkSchema = z.object({
   url: z.string().url(),
 });
 
+export const CreditsFactSchema = z.object({
+  label: z.string().min(1),
+  value: z.string().min(1),
+});
+
 export const CreditsSchema = z.object({
   name: z.string().min(1),
+  role: z.string().min(1),
   blurb: z.string().min(1),
+  note: z.string().min(1),
   image: z.string().min(1),
+  facts: z.array(CreditsFactSchema).min(1),
   links: z.array(CreditsLinkSchema).min(1),
 });
 
 export const HomeContentSchema = z.object({
   hero: z.object({
-    title: z.string().min(1),
-    subtitle: z.string().min(1),
+    name: z.string().min(1),
+    roles: z.string().min(1),
   }),
   about: z.object({
+    title: z.string().min(1),
+    who: z.array(z.string().min(1)).min(1),
     paragraphs: z.array(z.string().min(1)),
   }),
   credits: CreditsSchema,
 });
 
-export const WorkExperienceKindSchema = z.enum([
-  "education",
-  "self-taught",
-  "job",
-  "freelance",
-]);
-
-export const WorkExperienceLinkSchema = z.object({
-  type: z.enum(["instagram", "youtube"]),
-  url: z.string().url(),
-});
-
-export const WorkExperienceKeyframeTypeSchema = z.enum(["linear", "bezier", "ease"]);
-
-export const WorkExperienceSchema = z.object({
+export const BookSchema = z.object({
   id: z.string().min(1),
-  parentId: z.string().min(1).optional(),
-  kind: WorkExperienceKindSchema,
-  track: z.union([z.literal(1), z.literal(2), z.literal(3)]),
-  clipColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Expected a 6-digit hex color"),
-  topBarOpacity: z.number().min(0).max(1),
-  keyframeType: WorkExperienceKeyframeTypeSchema,
-  role: z.string().min(1),
-  readoutTitle: z.string().min(1).optional(),
-  company: z.string().min(1),
-  periodLabel: z.string().min(1),
-  yearStart: z.number().min(1900).max(2100),
-  yearEnd: z.number().min(1900).max(2100).nullable(),
-  summary: z.string().min(1),
-  location: z.string().min(1).optional(),
-  links: z.array(WorkExperienceLinkSchema),
-  keyframes: z.array(z.number().min(0).max(1)),
-  published: z.boolean(),
-  sortOrder: z.number().int().nonnegative(),
-});
-
-// Milestones are point-in-time markers (the M1 lane), not date-range
-// clips — a distinct shape from WorkExperienceSchema rather than a
-// variant of it. Their links carry a readable label ("watch the
-// interview") since the milestone readout renders them as text, not the
-// icon-only links row the clip readout uses.
-export const WorkMilestoneLinkSchema = z.object({
-  type: z.enum(["instagram", "youtube"]),
-  url: z.string().url(),
-  label: z.string().min(1),
-});
-
-export const WorkMilestoneSchema = z.object({
-  id: z.string().min(1),
-  date: z.number().min(1900).max(2100),
-  monthLabel: z.string().min(1),
   title: z.string().min(1),
-  summary: z.string().min(1),
-  links: z.array(WorkMilestoneLinkSchema).default([]),
+  author: z.string().min(1),
+  pages: z.number().int().positive(),
+  isbn: z.string().regex(/^\d{13}$/, "Expected a 13-digit ISBN"),
+  heightIn: z.number().min(4).max(16),
+  aspect: z.number().min(0.4).max(1.2),
+  color: z.string().regex(/^#[0-9a-f]{6}$/i, "Expected a 6-digit hex color"),
+  spine: z
+    .string()
+    .regex(
+      /^\/[A-Za-z0-9_\-./]+\.(png|jpe?g|webp|avif)$/i,
+      "Expected a path under public/ such as /books/story-spine.webp",
+    )
+    .refine((p) => !p.includes(".."), "The path must not climb out of public/")
+    .optional(),
+  style: z.enum(["plain", "band", "block"]),
+  /** The spine design this book wears: a key of `SERIES` (spine-series.ts). Defaults to the book's own id; a book with no design gets the series' plain style. */
+  series: z.string().min(1).optional(),
+  note: z.string().min(1),
 });
 
-export const WorkExperienceSectionSchema = z.object({
-  sectionTitle: z.string().min(1),
-  timelineStart: z.number().int().min(1900).max(2100),
-  items: z.array(WorkExperienceSchema),
-  milestones: z.array(WorkMilestoneSchema).default([]),
+export const BooksSectionSchema = z.object({
+  items: z.array(BookSchema).min(1),
 });
 
-export const ProjectSchema = z.object({
-  id: z.string().min(1),
-  slug: z.string().min(1),
+export const VideoSchema = z.object({
+  id: z.string().regex(/^[A-Za-z0-9_-]{11}$/, "Expected an 11-character video id"),
   title: z.string().min(1),
-  summary: z.string().min(1),
-  description: z.string().min(1),
-  tech: z.array(z.string().min(1)).min(1),
-  githubUrl: z.string().url().nullable().optional(),
-  liveUrl: z.string().url().nullable().optional(),
-  image: z.string().min(1).nullable().optional(),
-  featured: z.boolean(),
-  published: z.boolean(),
-  sortOrder: z.number().int().nonnegative(),
-  year: z.number().int().min(1900).max(2100),
-  role: z.string().min(1),
-  status: z.string().min(1),
+  channel: z.string().min(1),
+  channelUrl: z.string().url(),
+  subscribers: z
+    .string()
+    .regex(/^[\d.,]+[KMB]?$/, "Expected a subscriber count like 158K")
+    .nullable(),
+  thumb: z.enum(["sd", "hq"]),
+  published: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}/, "Expected a date like 2024-03-12")
+    .nullish(),
 });
 
-export const ProjectsGroupSchema = z.object({
-  sectionTitle: z.string().min(1),
-  items: z.array(ProjectSchema),
-});
-
-export const ProjectsSectionSchema = z.object({
-  sectionTitle: z.string().min(1),
-  longForm: ProjectsGroupSchema,
-  shortForm: ProjectsGroupSchema,
-});
-
-export const TechStackItemSchema = z.object({
-  id: z.string().min(1),
-  label: z.string().min(1),
-  group: z.string().min(1),
-  sortOrder: z.number().int().nonnegative(),
-});
-
-export const TechStackSectionSchema = z.object({
-  eyebrow: z.string().min(1),
-  title: z.string().min(1),
-  description: z.string().min(1),
-  items: z.array(TechStackItemSchema).min(1),
+export const VideosFileSchema = z.object({
+  playlistId: z.string().min(1),
+  syncedAt: z.string().min(1),
+  items: z.array(VideoSchema),
 });
 
 export const ReachOutActionSchema = z.object({
@@ -195,7 +141,7 @@ export const ReachOutSectionSchema = z.object({
 });
 
 export const NavigationItemSchema = z.object({
-  key: z.enum(["about", "projects"]),
+  key: z.enum(["home", "work"]),
   label: z.string().min(1),
   href: z.string().min(1),
   visible: z.boolean(),
@@ -206,17 +152,71 @@ export const SocialLinkSchema = z.object({
   url: z.string().url(),
 });
 
-export const ClientSchema = z.object({
+// Work page (content/site/work.json). A cover or avatar is a path under public/ or a full https URL.
+const ImageRefSchema = z.union([
+  z.string().url().startsWith("https://"),
+  z.string().regex(rootRelativePathPattern, "Expected an https URL or a root-relative path"),
+]);
+
+const HttpsUrlSchema = z.string().url().startsWith("https://");
+
+export const WorkSourceSchema = z.enum(["youtube", "instagram", "vimeo", "other"]);
+
+export const WorkStackItemSchema = z.object({
+  id: z.string().min(1),
+  mark: z.string().min(1).max(3),
+  label: z.string().min(1),
+  // The app's own icon, a file in public/stack/. Optional: with none, the two-letter mark is shown.
+  icon: z
+    .string()
+    .regex(/^\/stack\/[A-Za-z0-9._-]+\.(svg|png)$/, "Expected a path under /stack/ ending in .svg or .png")
+    .optional(),
+});
+
+export const WorkVideoSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    for: z.string().min(1),
+    year: z.number().int().min(1900).max(2100),
+    url: HttpsUrlSchema,
+    cover: ImageRefSchema.optional(),
+    source: WorkSourceSchema,
+  })
+  .refine((video) => video.source !== "youtube" || video.cover !== undefined || youtubeId(video.url) !== null, {
+    message: "A YouTube item without a cover needs a URL that holds an 11-character video id",
+    path: ["url"],
+  });
+
+export const WorkClientSocialSchema = z.object({
+  type: z.enum(["youtube", "instagram", "x", "website"]),
+  url: HttpsUrlSchema,
+});
+
+export const WorkClientSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   handle: z.string().min(1),
-  image: z.string().min(1),
-  url: z.string().url().nullable(),
-  published: z.boolean(),
-  sortOrder: z.number().int().nonnegative(),
+  avatar: ImageRefSchema,
+  url: HttpsUrlSchema,
+  socials: z.array(WorkClientSocialSchema),
 });
 
-export const ClientsSectionSchema = z.object({
-  sectionTitle: z.string().min(1),
-  items: z.array(ClientSchema),
+const hasUniqueIds = (items: { id: string }[]) => new Set(items.map((item) => item.id)).size === items.length;
+const uniqueIds = { message: "Ids must be unique within the list" };
+
+export const WorkSchema = z.object({
+  intro: z.object({
+    title: z.string().min(1),
+    text: z
+      .string()
+      .min(1)
+      .refine((text) => text.trim().split(/\s+/).length <= 20, "The intro text has at most 20 words"),
+  }),
+  stack: z.array(WorkStackItemSchema).refine(hasUniqueIds, uniqueIds),
+  longForm: z.array(WorkVideoSchema).refine(hasUniqueIds, uniqueIds),
+  shortForm: z.array(WorkVideoSchema).refine(hasUniqueIds, uniqueIds),
+  clients: z.array(WorkClientSchema).refine(hasUniqueIds, uniqueIds),
 });
+
+export { ExperienceSchema } from "./experience-schema";

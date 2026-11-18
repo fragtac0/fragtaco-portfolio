@@ -1,0 +1,446 @@
+{
+ "label": "final",
+ "base": "http://localhost:5180",
+ "size": "1920x1080@1",
+ "ready": "glass-warm",
+ "gate": {
+  "rendererCompositorMs": 450,
+  "vizCompositorMs": 300
+ },
+ "runs": [
+  {
+   "run": 1,
+   "windowMs": 2358,
+   "rendererCompositorMs": 335,
+   "vizCompositorMs": 219,
+   "gpuMainMs": 4558,
+   "rendererMainMs": 218,
+   "gpuMainSelfMs": 2282,
+   "gpuMainWaitMs": 2061,
+   "gpuMainWorkMs": 221,
+   "gpuMainTop": [
+    {
+     "name": "IOSurfaceImageBacking::WaitForCommandsToBeScheduled::Dawn",
+     "ms": 1982,
+     "count": 128,
+     "maxMs": 20
+    },
+    {
+     "name": "SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass",
+     "ms": 101,
+     "count": 803,
+     "maxMs": 2
+    },
+    {
+     "name": "CALayerTreeCoordinator::ApplyBackpressure::Metal",
+     "ms": 78,
+     "count": 157,
+     "maxMs": 1
+    },
+    {
+     "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+     "ms": 39,
+     "count": 1150,
+     "maxMs": 1
+    },
+    {
+     "name": "Scheduler::RunTask",
+     "ms": 17,
+     "count": 2027,
+     "maxMs": 0
+    }
+   ],
+   "presented": 227,
+   "dropped": 13,
+   "droppedAfterFirst": 12,
+   "droppedFrames": [
+    {
+     "fromClickMs": 39,
+     "fromStartMs": 30,
+     "firstFrame": true,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 556,
+     "fromStartMs": 547,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 689,
+     "fromStartMs": 680,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 822,
+     "fromStartMs": 814,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 956,
+     "fromStartMs": 947,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1089,
+     "fromStartMs": 1080,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1306,
+     "fromStartMs": 1297,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1472,
+     "fromStartMs": 1464,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1639,
+     "fromStartMs": 1630,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1789,
+     "fromStartMs": 1780,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1922,
+     "fromStartMs": 1914,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 2089,
+     "fromStartMs": 2080,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 2222,
+     "fromStartMs": 2214,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    }
+   ],
+   "loadAverage": [
+    6.77,
+    6.5,
+    6.65
+   ],
+   "states": {
+    "STATE_PRESENTED_ALL": 130,
+    "STATE_DROPPED": 13,
+    "STATE_PRESENTED_PARTIAL": 97
+   },
+   "change": {
+    "changeMs": 2350,
+    "rafFrames": 129,
+    "bend": "bend",
+    "glassAttr": "",
+    "fallback": false
+   },
+   "pass": false
+  },
+  {
+   "run": 2,
+   "windowMs": 2367,
+   "rendererCompositorMs": 323,
+   "vizCompositorMs": 216,
+   "gpuMainMs": 4599,
+   "rendererMainMs": 226,
+   "gpuMainSelfMs": 2302,
+   "gpuMainWaitMs": 2086,
+   "gpuMainWorkMs": 215,
+   "gpuMainTop": [
+    {
+     "name": "IOSurfaceImageBacking::WaitForCommandsToBeScheduled::Dawn",
+     "ms": 2009,
+     "count": 125,
+     "maxMs": 20
+    },
+    {
+     "name": "SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass",
+     "ms": 96,
+     "count": 793,
+     "maxMs": 0
+    },
+    {
+     "name": "CALayerTreeCoordinator::ApplyBackpressure::Metal",
+     "ms": 76,
+     "count": 153,
+     "maxMs": 1
+    },
+    {
+     "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+     "ms": 39,
+     "count": 1130,
+     "maxMs": 2
+    },
+    {
+     "name": "Scheduler::RunTask",
+     "ms": 16,
+     "count": 1475,
+     "maxMs": 0
+    }
+   ],
+   "presented": 213,
+   "dropped": 16,
+   "droppedAfterFirst": 15,
+   "droppedFrames": [
+    {
+     "fromClickMs": 18,
+     "fromStartMs": 12,
+     "firstFrame": true,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 35,
+     "fromStartMs": 28,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 35,
+     "fromStartMs": 28,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 52,
+     "fromStartMs": 45,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 68,
+     "fromStartMs": 62,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 802,
+     "fromStartMs": 795,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 935,
+     "fromStartMs": 928,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1068,
+     "fromStartMs": 1062,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1218,
+     "fromStartMs": 1212,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1368,
+     "fromStartMs": 1362,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1502,
+     "fromStartMs": 1495,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1702,
+     "fromStartMs": 1695,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1868,
+     "fromStartMs": 1862,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 2002,
+     "fromStartMs": 1995,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 2152,
+     "fromStartMs": 2145,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 2302,
+     "fromStartMs": 2295,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    }
+   ],
+   "loadAverage": [
+    6.49,
+    6.45,
+    6.63
+   ],
+   "states": {
+    "STATE_DROPPED": 16,
+    "STATE_PRESENTED_ALL": 129,
+    "STATE_NO_UPDATE_DESIRED": 2,
+    "STATE_PRESENTED_PARTIAL": 84
+   },
+   "change": {
+    "changeMs": 2367,
+    "rafFrames": 127,
+    "bend": "bend",
+    "glassAttr": "",
+    "fallback": false
+   },
+   "pass": false
+  },
+  {
+   "run": 3,
+   "windowMs": 2351,
+   "rendererCompositorMs": 330,
+   "vizCompositorMs": 218,
+   "gpuMainMs": 4546,
+   "rendererMainMs": 220,
+   "gpuMainSelfMs": 2275,
+   "gpuMainWaitMs": 2059,
+   "gpuMainWorkMs": 215,
+   "gpuMainTop": [
+    {
+     "name": "IOSurfaceImageBacking::WaitForCommandsToBeScheduled::Dawn",
+     "ms": 1978,
+     "count": 130,
+     "maxMs": 19
+    },
+    {
+     "name": "SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass",
+     "ms": 102,
+     "count": 821,
+     "maxMs": 2
+    },
+    {
+     "name": "CALayerTreeCoordinator::ApplyBackpressure::Metal",
+     "ms": 80,
+     "count": 163,
+     "maxMs": 1
+    },
+    {
+     "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+     "ms": 36,
+     "count": 1180,
+     "maxMs": 0
+    },
+    {
+     "name": "Scheduler::RunTask",
+     "ms": 17,
+     "count": 1760,
+     "maxMs": 0
+    }
+   ],
+   "presented": 222,
+   "dropped": 10,
+   "droppedAfterFirst": 9,
+   "droppedFrames": [
+    {
+     "fromClickMs": 40,
+     "fromStartMs": 30,
+     "firstFrame": true,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 740,
+     "fromStartMs": 730,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 890,
+     "fromStartMs": 880,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1056,
+     "fromStartMs": 1047,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1256,
+     "fromStartMs": 1247,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1473,
+     "fromStartMs": 1463,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1689,
+     "fromStartMs": 1680,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 1889,
+     "fromStartMs": 1880,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 2056,
+     "fromStartMs": 2047,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 2289,
+     "fromStartMs": 2280,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    }
+   ],
+   "loadAverage": [
+    5.78,
+    6.29,
+    6.57
+   ],
+   "states": {
+    "STATE_PRESENTED_ALL": 133,
+    "STATE_DROPPED": 10,
+    "STATE_PRESENTED_PARTIAL": 89
+   },
+   "change": {
+    "changeMs": 2350,
+    "rafFrames": 132,
+    "bend": "bend",
+    "glassAttr": "",
+    "fallback": false
+   },
+   "pass": false
+  }
+ ],
+ "pass": false
+}

@@ -1,0 +1,18 @@
+{
+ "what": "R59.3: the gates of Round 7 on the production build of the final tree (3c66e39 + the cache lifetimes of 2a2a838 + one book a step), served on :5180, headless Chrome, under the gate lock. Raw outputs sit beside this file; loads.tsv has the 1, 5 and 15 minute load at the start and the end of each.",
+ "date": "2026-11-17",
+ "commands": {
+  "typecheck": "yarn typecheck: no errors",
+  "lint": "yarn lint: no errors",
+  "vitest": "yarn vitest run: 187 files, 2561 tests passed",
+  "build": "yarn build: done"
+ },
+ "pageChange": "page-change.json, page-change-hook.json and page-change-phone.json: 5 changes each, 0 frames over 34 ms in all 15 (longest animation frame 33.3 ms, in the hook run, one frame over 20 ms; the commit frames 83 to 150 ms are reported apart, R31).",
+ "arrival": "arrival.json: 16 steps with a verdict, all ok. make-arrival.mjs run --generated: 12 of 12 PASS (verdict PASS).",
+ "glassCost": {
+  "1512x982@2": "PASS: renderer compositor 282/287/300 ms (limit 450), display 184/183/193 ms (limit 300), one dropped frame a run (the first, R125/R127), none after it. Load at the start 8.29 6.91 6.30.",
+  "1920x1080@1": "Four alternated pairs of 3 runs, mine (the final build) and base (the clean 3c66e39), under the lock. Mine: PASS in all four, 12 of 12 runs (compositor 290 to 374 ms, display 184 to 243 ms, one dropped frame a run, none after the first). Base: pair 1 FAIL (compositor 294 to 324, display 200 to 207, dropped after the first frame 0/0/3), pair 2 FAIL (0/27/0 after the first), pairs 3 and 4 PASS. Loads at the starts (1 minute) 3.63, 5.41, 5.38, 4.67 for pairs 1 and 2, 3.99, 4.46, 5.52, 5.33 for pairs 3 and 4. The machine never went below a 1 minute load of 3.6; it was under 4 at the start of two invocations only (3.63 and 3.99), not for the 45 minutes of a quiet machine.",
+  "reading": "The dropped-frame failures are intermittent and are not caused by the code: the clean build of the previous commit fails two of its four invocations and passes the other two at the same loads, and the final build passed all four. The compositor and display limits held in every run on both builds."
+ },
+ "loadAfterEachStart": "see loads.tsv"
+}

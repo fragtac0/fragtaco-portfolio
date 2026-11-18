@@ -1,0 +1,4 @@
+/* preview 5: what differs from preview 4 */
+.shelf-wrap { background: #0d0c0b; }
+.shelf-wrap::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.1; filter: url(#grainFilter); mix-blend-mode: overlay; }
+.mpin { transition: opacity 0.35s; }

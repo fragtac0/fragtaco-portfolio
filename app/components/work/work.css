@@ -1,0 +1,355 @@
+/*
+ * The work page. A fixed stage (no page scroll): the Eclipse ground (in the layout), the intro in the middle, a ring of tool icons and up to four rings of videos
+ * turning round it, bigger than the screen on purpose (the outer rings run off the edges; ring-math.ts says where they go). Rotation is CSS only:
+ * each ring `ul` turns by `work-spin`, each item turns back by `work-unspin` so it stays upright, and nothing here runs per frame in JavaScript.
+ * Only transform-type properties and opacity animate. Type, ink and layers come from app/styles/tokens.css. Spec: docs/superpowers/specs/2026-11-11-round6-design.md, 6.2.
+ */
+.work-page {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  position: fixed;
+  inset: 0;
+  overflow: hidden; /* old browsers; `clip` below cannot be scrolled to by focus, `hidden` can */
+  overflow: clip;
+  color: var(--ink-1); /* no background of its own: the ground (EclipseGround, in the layout) shows through */
+}
+
+/* ---------- stage and intro ---------- */
+.work-stage {
+  position: absolute;
+  inset: 0;
+  /* The stack ring's radius and icon, the same rule as stackRadius() in ring-math.ts (the ring is 8 px out where the icons grew
+     from 60 to 76, so the title keeps its round 6 room), so the intro can be sized to sit inside it without waiting for any script. */
+  --stack-icon: 76px;
+  --stack-grow: 8px;
+  --stack-r: min(calc(max(190px, 24vh) + var(--stack-grow)), 42vw, calc(50vw - 42px));
+  /* what is left inside the stack ring's icons, less a margin (INTRO_GAP in ring-math.ts) */
+  --intro-gap: 14px;
+  --intro-r: calc(var(--stack-r) - var(--stack-icon) / 2 - var(--intro-gap));
+}
+.work-intro {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-hero); /* above the rings, which come later in the page */
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  padding: 0 24px;
+  text-align: center;
+  pointer-events: none;
+  animation: work-fade 500ms var(--ease-out) backwards;
+}
+.work-title {
+  margin: 0;
+  font-family: Doto, monospace;
+  font-weight: 800;
+  /* "My portfolio" is twelve letters wide: sized from the room inside the stack ring (--intro-r) so it never
+     reaches the tool icons, whatever the screen */
+  font-size: min(var(--t-hero), calc(var(--intro-r) * 0.235));
+  line-height: 1;
+  color: var(--ink-1);
+}
+.work-text {
+  max-width: min(32ch, calc(var(--intro-r) * 1.6));
+  margin: 16px 0 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.work-text-short {
+  display: none;
+}
+
+/* ---------- rings ---------- */
+.work-rings {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* One ring. It settles from 96% and fades in on arrival over 500 ms, each ring 60 ms after the one inside it. */
+.work-ring-group {
+  position: absolute;
+  inset: 0;
+  animation: work-ring-in 500ms var(--ease-out) backwards;
+  animation-delay: calc(var(--g) * 60ms);
+}
+/* the ring the pointer or keyboard is on sits above the others, so its label is never covered */
+.work-ring-group:has(.work-item:hover, .work-item-face:focus-visible) {
+  z-index: var(--z-cards);
+}
+.work-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: work-spin var(--dur) linear infinite;
+}
+/* Arriving through a page change (R60): the rings and intro are just there for the reveal to show (its edge is the arrival), with no fade of their own... */
+.work-page[data-arrival="change"] .work-ring-group,
+.work-page[data-arrival="change"] .work-intro {
+  animation: none;
+}
+/* ...and stand still while it runs (data-still, until it is over): the animations are made but paused, so the rings are the same layers, rastered the same way,
+   in the reveal as at rest (without them the hand-over to the live page redraws every item's edges, a pixel off); then all turn together, from standstill
+   (work-page.tsx eases their rate in). */
+.work-page[data-still] .work-ring,
+.work-page[data-still] .work-item-turn {
+  animation-play-state: paused;
+}
+@keyframes work-spin {
+  from { rotate: 0deg; }
+  to { rotate: var(--turn); }
+}
+@keyframes work-unspin {
+  from { rotate: 0deg; }
+  to { rotate: calc(var(--turn) * -1); }
+}
+@keyframes work-ring-in {
+  from { opacity: 0; scale: 0.96; }
+  to { opacity: 1; scale: 1; }
+}
+@keyframes work-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* An item sits on its ring from --a (its angle) and --r (the ring's radius), then turns back to upright. */
+.work-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--w);
+  height: var(--h);
+  margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+  list-style: none;
+  transform: rotate(var(--a)) translateX(var(--r)) rotate(calc(var(--a) * -1));
+  pointer-events: auto;
+}
+.work-item-turn {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  animation: work-unspin var(--dur) linear infinite;
+}
+
+/* hover or keyboard focus pauses that ring and the turn-back of its items, and only that ring */
+.work-ring:has(.work-item:hover, .work-item-face:focus-visible),
+.work-ring:has(.work-item:hover, .work-item-face:focus-visible) .work-item-turn {
+  animation-play-state: paused;
+}
+
+.work-item-face {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: var(--surface-1);
+  color: inherit;
+  cursor: pointer;
+  transition: scale 220ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+/* hover and keyboard focus are separate rules so a browser without :has() still gets the hover */
+.work-item:hover {
+  z-index: var(--z-hero); /* the item you are on sits above its neighbours */
+}
+.work-item:has(:focus-visible) {
+  z-index: var(--z-hero);
+}
+.work-item:hover .work-item-face {
+  scale: 1.12;
+}
+.work-item:has(:focus-visible) .work-item-face {
+  scale: 1.12;
+}
+.work-item-face:focus-visible {
+  outline: 2px solid var(--ink-1);
+  outline-offset: 3px;
+}
+.work-item-face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* a video's picture fades in when it has loaded (cover-image.ts marks it ready); until then the tile shows its dark body */
+.work-cover img {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+.work-cover img[data-ready] {
+  opacity: 1;
+}
+/* while a change holds its reveal (page-transition.css) a picture that has loaded is simply there, not half way through its fade */
+html[data-change-hold] .work-cover img,
+.work-cover img[data-late] {
+  transition: none; /* a picture that comes after the reveal fades by arrival-dom.ts fadeLate alone (200 ms), not twice */
+}
+.work-cover {
+  border-radius: clamp(8px, calc(var(--h) * 0.1), 16px);
+  box-shadow: 0 0 0 1px var(--line), 0 8px 22px rgba(0, 0, 0, 0.4);
+}
+/* A tool: the app's own icon on one common glass tile, so the eight read as one family (round 7, spec 7): an
+   opaque dark warm body, a lit top edge, a soft inner glow and a real shadow (tokens.css, --tile-*). The icon sits
+   inside with room round it: an app square (the Adobe set, Final Cut Pro) a little less than a bare logo (Figma,
+   Blender, marked data-bare once its shape is known). Not a link: it does nothing. */
+.work-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 24%;
+  background: var(--tile-glow), var(--tile-body);
+  box-shadow: var(--tile-edge), var(--tile-inner), var(--tile-shadow);
+  font-family: Doto, monospace;
+  font-weight: 800;
+  font-size: calc(var(--w) * 0.43);
+  line-height: 1;
+  color: var(--ink-1);
+  cursor: default;
+}
+.work-mark img {
+  /* filled to the tile by inset, not by a percentage height (a grid track has none), so a tall logo is contained */
+  position: absolute;
+  inset: 0;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 15%;
+  object-fit: contain;
+  user-select: none;
+}
+.work-mark img[data-bare] {
+  padding: 17%;
+}
+.work-item[data-kind="stack"]:hover .work-item-face {
+  scale: 1; /* a tool is not a control: it does not grow */
+}
+
+/* the one-line label beside an item, on the side facing the middle (set when the item is reached) */
+.work-label {
+  position: absolute;
+  top: 50%;
+  max-width: 30ch;
+  padding: 6px 10px;
+  border: 1px solid rgba(253, 252, 230, 0.14);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ground) 90%, transparent);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--t-meta);
+  line-height: 1.3;
+  color: var(--ink-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  translate: 0 -50%;
+  transition: opacity 160ms ease-out;
+  pointer-events: none;
+}
+.work-item[data-side="right"] .work-label {
+  left: calc(100% + 14px);
+}
+.work-item[data-side="left"] .work-label {
+  right: calc(100% + 14px);
+}
+.work-item:hover .work-label {
+  opacity: 1;
+}
+.work-item:has(:focus-visible) .work-label {
+  opacity: 1;
+}
+
+/* ---------- phones ---------- */
+/* Item sizes and ring radii come from ring-math at every size (a phone gets one video ring of large tiles, a laptop two).
+   Under 700 px the stack icons are 52 px and the intro is the title and one short line, with a dark halo so a passing item never mutes it. */
+@media (max-width: 699.98px) {
+  .work-stage {
+    --stack-icon: 52px;
+    --stack-grow: 0px;
+    --stack-r: min(calc(max(190px, 24vh) + var(--stack-grow)), 42vw, calc(50vw - 30px));
+  }
+  .work-text {
+    max-width: 15ch; /* narrow enough to sit inside the stack ring */
+    margin-top: 10px;
+    font-size: var(--t-meta);
+    line-height: 1.4;
+    text-wrap: balance;
+    text-shadow: 0 0 10px var(--ground), 0 0 4px var(--ground), 0 0 2px var(--ground);
+  }
+  .work-title {
+    text-shadow: 0 0 14px var(--ground), 0 0 5px var(--ground);
+  }
+  .work-text-full {
+    display: none;
+  }
+  .work-text-short {
+    display: inline;
+  }
+}
+
+/* A phone held upright: the title on two lines ("My" over "portfolio"), larger inside the narrow ring. On its side it keeps one. */
+@media (max-width: 699.98px) and (min-height: 459.98px) {
+  .work-title {
+    width: min-content;
+    font-size: min(var(--t-hero), calc(var(--intro-r) * 0.3));
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+}
+
+/* Under 460 px high (a phone on its side): one short line under the title, so the dock does not cover it. */
+@media (max-height: 459.98px) {
+  .work-text-full {
+    display: none;
+  }
+  .work-text-short {
+    display: inline;
+  }
+}
+
+/* ---------- reduced motion: rings stand still, arrival is a plain fade ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .work-ring,
+  .work-item-turn {
+    animation: none;
+  }
+  .work-ring-group {
+    animation: work-fade 300ms ease-out backwards;
+    animation-delay: 0s;
+  }
+  .work-item-face,
+  .work-cover img,
+  .work-label {
+    transition: none;
+  }
+}
+
+/* ---------- skip link ---------- */
+/* First in the tab order; hidden until it has focus, then a small pill at the top left. */
+.work-skip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: var(--z-dock);
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+  color: var(--ink-1);
+  font-size: var(--t-meta);
+  transform: translateY(-200%);
+  transition: transform 160ms ease-out;
+}
+.work-skip:focus-visible {
+  transform: translateY(0);
+}

@@ -1,0 +1,274 @@
+/* =====================================================================
+   MY INTERESTS: two blocks that grow into the layer (mockup: .below-wrap, .block)
+   The section sits on the Eclipse ground, placement 2 (app/components/ground/eclipse-ground.tsx).
+   ===================================================================== */
+.home-blocks {
+  --gilt: #d9a441;
+  --r-lg: 44px 20px 44px 20px;
+  position: relative;
+  transition: opacity 0.9s ease;
+}
+/* the loader owns the screen: nothing below the hero exists until the painting is revealed */
+html.intro .home-blocks {
+  visibility: hidden;
+  opacity: 0;
+}
+.home-blocks .display {
+  font-family: Doto, monospace;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.84;
+  margin: 0;
+}
+.home-blocks .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(253, 252, 230, 0.07);
+  outline: 1px solid rgba(253, 252, 230, 0.2);
+  font-size: var(--t-meta);
+  color: var(--cream);
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* equal space above and below: --space-section each, and the dock's band is added to the bottom.
+   The blocks sit in the middle of what is left when the screen is taller than that. */
+.home-blocks .below {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  max-width: 1520px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: var(--space-section) clamp(16px, 4vw, 64px) calc(var(--space-section) + var(--dock-clear));
+}
+.home-blocks .blocks {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 2vw, 28px);
+}
+.home-blocks .block {
+  --blk-pad: clamp(24px, 3vw, 44px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* 70vh, but never so tall that the section (space, block, space and the dock's band) outgrows the screen */
+  min-height: clamp(580px, min(70vh, 100dvh - 2 * var(--space-section) - var(--dock-clear)), 720px);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
+  box-shadow:
+    0 30px 120px rgba(0, 0, 0, 0.44),
+    inset 0 1px 0 rgba(245, 239, 230, 0.07);
+  outline: 1px solid var(--line);
+  transition:
+    box-shadow 0.6s,
+    outline-color 0.6s;
+}
+.home-blocks .block:hover {
+  box-shadow:
+    0 30px 120px rgba(0, 0, 0, 0.5),
+    var(--glow),
+    inset 0 1px 0 rgba(245, 239, 230, 0.09);
+  outline-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.home-blocks .blk-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: inherit;
+}
+.home-blocks .blk-hit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+/* a mouse click or a layer closing never leaves a ring behind; only the keyboard sees one */
+.home-blocks .blk-hit:focus:not(:focus-visible) {
+  outline: none;
+}
+.home-blocks .blk-text {
+  position: relative;
+  z-index: 2;
+  padding: var(--blk-pad) var(--blk-pad) 0;
+  pointer-events: none;
+}
+.home-blocks .blk-text .display {
+  font-size: var(--t-display);
+}
+.home-blocks .blk-text p {
+  max-width: 38ch;
+  margin: 16px 0 20px;
+  color: var(--ink-2);
+  font-size: var(--t-body);
+  line-height: 1.75;
+}
+/* the box: its own row under the text, so the button never sits behind it. It holds the live scene (the scene's own element, carried
+   in and out by layer/move-driver.ts) with its dark ground until the scene has drawn; without WebGL, or after a failed scene or a lost
+   context, the flat preview (.blk-art: mini-shelf.tsx, mini-wall.tsx) is its picture, mounted only once the client has decided so
+   (box-picture.ts): the server's render and a visitor without JavaScript show the dark ground and the block's words. The whole block is one button over it. */
+.home-blocks .blk-box {
+  position: relative;
+  flex: 1;
+  min-height: 300px;
+  margin-top: clamp(14px, 2vw, 26px);
+  border-radius: 14px; /* BOX_RADIUS in layer/open-move.ts */
+  overflow: hidden;
+  background: var(--ground);
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.home-blocks .blk-live {
+  position: absolute;
+  inset: 0;
+}
+.home-blocks .block:not([data-live]) .blk-live {
+  display: none;
+}
+/* a click before the scene is ready: the block is pressed in until it opens (at most 400 ms, layer/open-gate.ts) */
+.home-blocks .block[data-pressed] .blk-box {
+  opacity: 0.8;
+}
+.home-blocks .blk-art {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+/* the shelf is centred and scaled (--ms-fit, set by use-mini-fit) to span the preview's inner width */
+.home-blocks .ms {
+  padding-inline: var(--blk-pad);
+}
+.home-blocks .ms-row {
+  position: absolute;
+  left: 50%;
+  bottom: 44px;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px; /* MINI_GAP in use-mini-fit.ts */
+  transform: translateX(-50%) scale(var(--ms-fit, 1));
+  transform-origin: 50% 100%;
+}
+/* the books stand on the rock ledge, the one the layer opens into (reading/ledge.ts); the preview's 74 units are squeezed into the 44 px under the row's feet */
+.home-blocks .ms-ledge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 44px; /* the row's feet are 44 px above the preview's bottom edge (.ms-row bottom) */
+  display: block;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
+/* each spine is a canvas painted by the 3D shelf's painter (use-mini-spines.ts); the cloth shows until it is */
+.home-blocks .ms-sp {
+  position: relative;
+  flex: none;
+  border-radius: 3px 3px 1px 1px;
+  overflow: hidden;
+  transform: translateY(0);
+  transition: transform 0.6s var(--ease);
+  transition-delay: calc(var(--i) * 32ms);
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.5),
+    5px 0 12px -5px rgba(0, 0, 0, 0.7);
+}
+.home-blocks .ms-sp canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.home-blocks .block:hover .ms-sp {
+  transform: translateY(-12px);
+}
+.home-blocks .mw {
+  -webkit-mask-image:
+    linear-gradient(180deg, transparent 0, #000 24%, #000 72%, transparent 100%),
+    linear-gradient(90deg, #000 70%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(180deg, transparent 0, #000 24%, #000 72%, transparent 100%),
+    linear-gradient(90deg, #000 70%, transparent 100%);
+  mask-composite: intersect;
+}
+.home-blocks .mw-cols {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: clamp(16px, 2vw, 28px);
+  right: -14%;
+  display: flex;
+  gap: 12px;
+}
+.home-blocks .mw-col {
+  flex: 0 0 clamp(130px, 11vw, 180px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: home-mw-up 70s linear infinite;
+  will-change: transform;
+}
+.home-blocks .mw-col:nth-child(even) {
+  animation-name: home-mw-down;
+  animation-duration: 84s;
+}
+.home-blocks .mw-col img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+@keyframes home-mw-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+@keyframes home-mw-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.home-blocks .block:hover .mw-col {
+  animation-duration: 36s;
+}
+.home-blocks .block:hover .mw-col:nth-child(even) {
+  animation-duration: 42s;
+}
+/* off screen: the drift pauses */
+.home-blocks .block.idle .mw-col {
+  animation-play-state: paused;
+}
+@media (max-width: 860px) {
+  .home-blocks .blocks {
+    grid-template-columns: 1fr;
+  }
+}
+/* reduced motion: the previews do not move */
+@media (prefers-reduced-motion: reduce) {
+  .home-blocks,
+  .home-blocks *,
+  .home-blocks *::before,
+  .home-blocks *::after {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}

@@ -1,0 +1,793 @@
+{
+ "what": "R59.1a: the page-change, arrival and glass-cost gates of the Round 7 plan, run under the gate lock on the R59.1a build (c554b50: the fonts task plus the review's fixes; it differs from 0423a01 only in code that serves the same files: FONT_PRELOADS as one list and vite.config.ts's inline guard returning undefined for non-font files), production build on :5180, headless Chrome, CPU 4x where the gate says so.",
+ "date": "2026-11-17",
+ "loadAverageAtStart_1_5_15min": {
+  "page-change": "6.15 3.90 3.46",
+  "page-change-hook": "4.13 3.68 3.40",
+  "page-change-phone": "3.13 3.47 3.33",
+  "arrival.json": "2.77 3.35 3.29",
+  "make-arrival (first run)": "3.28 3.33 3.29",
+  "glass 1512 (first set)": "3.21 3.40 3.36",
+  "glass 1920 (first set)": "2.38 3.14 3.27"
+ },
+ "note_on_load": "the machine was shared with other sessions; the 1 minute load stayed between 2.3 and 6.2 during the gate runs",
+ "pageChange": {
+  "page-change.json": [
+   {
+    "change": "home to work",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "work to home",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to work (2nd)",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "Back, work to home",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "Forward, home to work",
+    "animMaxMs": 33.3,
+    "framesOver34": 0,
+    "framesOver20": 1,
+    "bendOn": true,
+    "droppedByGuard": false
+   }
+  ],
+  "page-change-hook.json": [
+   {
+    "change": "home to work",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "work to home",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to experience",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "experience to home",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to work (2nd)",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   }
+  ],
+  "page-change-phone.json": [
+   {
+    "change": "home to work",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "work to home",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to experience",
+    "animMaxMs": 33.4,
+    "framesOver34": 0,
+    "framesOver20": 1,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "experience to home",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to work (2nd)",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   }
+  ],
+  "verdict": "no frame over 34 ms in any of the 15 changes (two frames of 33.3 and 33.4 ms, two vsyncs, under the gate)"
+ },
+ "arrivalSteps": {
+  "arrival.json": [
+   {
+    "step": "RF1 pictures never load: hold length, late parts, the change ends",
+    "ok": true
+   },
+   {
+    "step": "RF2a a pointer press during the hold finishes the change at once and nothing is held",
+    "ok": true
+   },
+   {
+    "step": "RF2b Back",
+    "ok": true
+   },
+   {
+    "step": "RF2c a second link",
+    "ok": true
+   },
+   {
+    "step": "RF5a after the change: the same link has focus (the dock is the same element), the row nev",
+    "ok": true
+   },
+   {
+    "step": "RF5b the dock's box does not change across a change between two row pages",
+    "ok": true
+   },
+   {
+    "step": "RF5c after the change into My experience: the dock was made again, focus is on its current",
+    "ok": true
+   },
+   {
+    "step": "RF6 the map's picture: late part comes 1500 ms after the click, fades in over about 200 ms",
+    "ok": true
+   },
+   {
+    "step": "RF6 the ground's still: late part comes 1500 ms after the click, fades in over about 200 m",
+    "ok": true
+   },
+   {
+    "step": "RF6 the hero's sharp painting: late part comes 1500 ms after the click, fades in over abou",
+    "ok": true
+   },
+   {
+    "step": "RF6 the ring covers: late part comes 1500 ms after the click, fades in over about 200 ms, ",
+    "ok": true
+   },
+   {
+    "step": "RF6 the wall's pictures: late part comes 1500 ms after the click, fades in over about 200 ",
+    "ok": true
+   },
+   {
+    "step": "RF6 the map's picture: late part comes 4000 ms after the click, fades in over about 200 ms",
+    "ok": true
+   },
+   {
+    "step": "RF6 the ground's still: late part comes 4000 ms after the click, fades in over about 200 m",
+    "ok": true
+   },
+   {
+    "step": "RF6 the ring covers: late part comes 4000 ms after the click, fades in over about 200 ms, ",
+    "ok": true
+   },
+   {
+    "step": "RF6 the wall's pictures: late part comes 4000 ms after the click, fades in over about 200 ",
+    "ok": true
+   }
+  ],
+  "verdict": "16 steps, every one ok"
+ },
+ "makeArrival": {
+  "firstRun": {
+   "verdict": "FAIL 11 of 12",
+   "rows": [
+    {
+     "name": "home-to-portfolio",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0.002,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 6,
+     "blockedHoldMs": 502,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-long-form",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0.002,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 15,
+     "blockedHoldMs": 503,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-short-form",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0.002,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 1,
+     "blockedHoldMs": 2,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-experience",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 69,
+     "blockedHoldMs": 502,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-home",
+     "size": "1512x982@2",
+     "ok": false,
+     "F_E": 2.932,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 43,
+     "blockedHoldMs": 501,
+     "fail": [
+      "F_vs_E"
+     ]
+    },
+    {
+     "name": "long-form-to-portfolio",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0.003,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 6,
+     "blockedHoldMs": 503,
+     "fail": []
+    },
+    {
+     "name": "home-to-portfolio",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.015,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 3,
+     "blockedHoldMs": 500,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-long-form",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.015,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 17,
+     "blockedHoldMs": 503,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-short-form",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.015,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 0,
+     "blockedHoldMs": 2,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-experience",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 49,
+     "blockedHoldMs": 501,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-home",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.002,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 29,
+     "blockedHoldMs": 502,
+     "fail": []
+    },
+    {
+     "name": "long-form-to-portfolio",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.015,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 6,
+     "blockedHoldMs": 502,
+     "fail": []
+    }
+   ],
+   "failure": "portfolio-to-home at 1512x982@2: F_vs_E 2.932% (limit 0.5%), E_vs_L 0.207%; domChanges: two div.edge-glow faded 0.61->0.98 and 0.89->0.52 between the frozen and the ended frame (the home page's own edge-glow animation), nothing about type"
+  },
+  "rerunOfTheFailedCaseOnce_three_times": [
+   {
+    "F_E": 0
+   },
+   {
+    "F_E": 0.001
+   },
+   {
+    "F_E": 0
+   }
+  ],
+  "secondFullRun": {
+   "verdict": "PASS 12 of 12",
+   "rows": [
+    {
+     "name": "home-to-portfolio",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0.002,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 7,
+     "blockedHoldMs": 500,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-long-form",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0.002,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 15,
+     "blockedHoldMs": 502,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-short-form",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0.002,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 0,
+     "blockedHoldMs": 3,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-experience",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 69,
+     "blockedHoldMs": 501,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-home",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 61,
+     "blockedHoldMs": 501,
+     "fail": []
+    },
+    {
+     "name": "long-form-to-portfolio",
+     "size": "1512x982@2",
+     "ok": true,
+     "F_E": 0.003,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 6,
+     "blockedHoldMs": 500,
+     "fail": []
+    },
+    {
+     "name": "home-to-portfolio",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.015,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 4,
+     "blockedHoldMs": 501,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-long-form",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.015,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 16,
+     "blockedHoldMs": 502,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-short-form",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.015,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 0,
+     "blockedHoldMs": 2,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-experience",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 47,
+     "blockedHoldMs": 501,
+     "fail": []
+    },
+    {
+     "name": "portfolio-to-home",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.002,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 26,
+     "blockedHoldMs": 500,
+     "fail": []
+    },
+    {
+     "name": "long-form-to-portfolio",
+     "size": "390x844@3",
+     "ok": true,
+     "F_E": 0.015,
+     "E_L_outside": 0,
+     "shifts": 0,
+     "dockSame": true,
+     "holdMs": 2,
+     "blockedHoldMs": 501,
+     "fail": []
+    }
+   ]
+  }
+ },
+ "glassCost": [
+  {
+   "build": "final (c554b50)",
+   "size": "1512x982@2",
+   "limits": {
+    "rendererCompositorMs": 450,
+    "vizCompositorMs": 300
+   },
+   "pass": true,
+   "runs": [
+    {
+     "rendererCompositorMs": 259,
+     "vizCompositorMs": 167,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      3.07,
+      3.36,
+      3.35
+     ]
+    },
+    {
+     "rendererCompositorMs": 284,
+     "vizCompositorMs": 174,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      2.62,
+      3.23,
+      3.3
+     ]
+    },
+    {
+     "rendererCompositorMs": 264,
+     "vizCompositorMs": 170,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      2.38,
+      3.14,
+      3.27
+     ]
+    }
+   ]
+  },
+  {
+   "build": "final (c554b50)",
+   "size": "1920x1080@1",
+   "limits": {
+    "rendererCompositorMs": 450,
+    "vizCompositorMs": 300
+   },
+   "pass": true,
+   "runs": [
+    {
+     "rendererCompositorMs": 304,
+     "vizCompositorMs": 190,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      2.29,
+      3.06,
+      3.24
+     ]
+    },
+    {
+     "rendererCompositorMs": 352,
+     "vizCompositorMs": 210,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      2.46,
+      3.06,
+      3.23
+     ]
+    },
+    {
+     "rendererCompositorMs": 307,
+     "vizCompositorMs": 196,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      2.27,
+      2.98,
+      3.2
+     ]
+    }
+   ]
+  },
+  {
+   "build": "base",
+   "size": "1512x982@2",
+   "limits": {
+    "rendererCompositorMs": 450,
+    "vizCompositorMs": 300
+   },
+   "pass": true,
+   "runs": [
+    {
+     "rendererCompositorMs": 261,
+     "vizCompositorMs": 173,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      6.14,
+      5.23,
+      4.15
+     ]
+    },
+    {
+     "rendererCompositorMs": 238,
+     "vizCompositorMs": 156,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      5.37,
+      5.11,
+      4.12
+     ]
+    },
+    {
+     "rendererCompositorMs": 267,
+     "vizCompositorMs": 173,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      4.7,
+      4.97,
+      4.09
+     ]
+    }
+   ]
+  },
+  {
+   "build": "final",
+   "size": "1512x982@2",
+   "limits": {
+    "rendererCompositorMs": 450,
+    "vizCompositorMs": 300
+   },
+   "pass": true,
+   "runs": [
+    {
+     "rendererCompositorMs": 273,
+     "vizCompositorMs": 186,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      4.77,
+      4.97,
+      4.11
+     ]
+    },
+    {
+     "rendererCompositorMs": 272,
+     "vizCompositorMs": 185,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      4.67,
+      4.92,
+      4.11
+     ]
+    },
+    {
+     "rendererCompositorMs": 276,
+     "vizCompositorMs": 182,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      5.06,
+      4.99,
+      4.16
+     ]
+    }
+   ]
+  },
+  {
+   "build": "base",
+   "size": "1920x1080@1",
+   "limits": {
+    "rendererCompositorMs": 450,
+    "vizCompositorMs": 300
+   },
+   "pass": true,
+   "runs": [
+    {
+     "rendererCompositorMs": 286,
+     "vizCompositorMs": 181,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      4.32,
+      4.83,
+      4.12
+     ]
+    },
+    {
+     "rendererCompositorMs": 270,
+     "vizCompositorMs": 174,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      3.86,
+      4.71,
+      4.09
+     ]
+    },
+    {
+     "rendererCompositorMs": 298,
+     "vizCompositorMs": 193,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      3.91,
+      4.66,
+      4.08
+     ]
+    }
+   ]
+  },
+  {
+   "build": "final",
+   "size": "1920x1080@1",
+   "limits": {
+    "rendererCompositorMs": 450,
+    "vizCompositorMs": 300
+   },
+   "pass": true,
+   "runs": [
+    {
+     "rendererCompositorMs": 320,
+     "vizCompositorMs": 216,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      3.4,
+      4.5,
+      4.04
+     ]
+    },
+    {
+     "rendererCompositorMs": 321,
+     "vizCompositorMs": 202,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      3.29,
+      4.4,
+      4.01
+     ]
+    },
+    {
+     "rendererCompositorMs": 305,
+     "vizCompositorMs": 195,
+     "dropped": 1,
+     "droppedAfterFirstFrame": 0,
+     "loadAverage": [
+      3.31,
+      4.33,
+      4
+     ]
+    }
+   ]
+  }
+ ],
+ "glassCostNote": "the first two entries are the first set (load 2.4 to 3.2). The next four are interleaved in one lock hold, base f1cfc0e (the Google Fonts build, in a scratch worktree on :5184) against this build: renderer compositor 1512x982@2 261/238/267 against 273/272/276 ms, display 173/156/173 against 186/185/182; 1920x1080@1 286/270/298 against 320/321/305, display 181/174/193 against 216/202/195 (loads 3.3 to 6.1). Limits 450 and 300: PASS everywhere, every run has one dropped frame (the first, R125) and none after it."
+}

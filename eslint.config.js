@@ -10,8 +10,21 @@ export default tseslint.config(
       "build/**",
       "node_modules/**",
       ".cache/**",
+      ".vercel/**",
       "public/**",
+      "vendor/**",
+      "scripts/*.d.mts",
       "eslint.config.js",
+      "docs/redesign/round7-preview/**",
+      "docs/redesign/round7-preview-2/**",
+      "docs/redesign/round7-preview-3/**",
+      "docs/redesign/round7-preview-4/**",
+      "docs/redesign/round7-preview-5/**",
+      "docs/redesign/round7-preview-6/**",
+      "docs/redesign/round7-preview-7/**",
+      "docs/redesign/round7-preview-8/**",
+      "docs/redesign/round7-preview-9/**",
+      "docs/redesign/round7-preview-10/**",
     ],
   },
   js.configs.recommended,
@@ -56,6 +69,29 @@ export default tseslint.config(
           varsIgnorePattern: "^_",
         },
       ],
+    },
+  },
+  {
+    // plain Node scripts: linted without type information
+    files: ["scripts/**/*.mjs"],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      globals: { ...globals.node, ...globals.es2022 },
+    },
+  },
+  {
+    // console snippets, pasted into DevTools as classic scripts: browser globals, and the
+    // function they define is used by whoever pastes them
+    files: ["scripts/perf/**/*.js"],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      sourceType: "script",
+      globals: { ...globals.browser, ...globals.es2022 },
+    },
+    rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-unused-vars": "off",
     },
   },
   {

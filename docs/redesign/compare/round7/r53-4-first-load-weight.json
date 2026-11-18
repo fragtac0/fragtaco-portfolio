@@ -1,0 +1,51 @@
+{
+  "what": "same-origin bytes on the wire for a first load of /experience (production build, cache off, 7 s after the address was opened; fonts from Google are cross-origin and not counted), by scripts/audit/make-experience-chart.mjs",
+  "round6": {
+    "build": "r7/r47-prep (the base of round 7: the round 6 tile map)",
+    "1440x900": {
+      "totalKB": 2440,
+      "requests": 57,
+      "imagesKB": 2236,
+      "jsKB": 177.1,
+      "cssKB": 14.5,
+      "note": "level 0 to 3 tiles, loaded as the view asked for detail"
+    },
+    "390x844": {
+      "totalKB": 770.7,
+      "requests": 31,
+      "imagesKB": 568.7
+    }
+  },
+  "round7": {
+    "build": "r7/r53-experience at R53.4b",
+    "1440x900": {
+      "totalKB": 965.7,
+      "requests": 24,
+      "imagesKB": 774.8,
+      "jsKB": 168,
+      "cssKB": 12.7,
+      "images": [
+        "relief.webp 653.8",
+        "heights.png 121 (fetched at idle, not preloaded)"
+      ],
+      "bytesBeforeHeights": 844.7
+    },
+    "390x844": {
+      "totalKB": 658.2,
+      "requests": 24,
+      "imagesKB": 467.3,
+      "jsKB": 168,
+      "cssKB": 12.7,
+      "images": [
+        "relief-phone.webp 346.3 (srcset by media, R105)",
+        "heights.png 121 (fetched at idle, not preloaded)"
+      ],
+      "bytesBeforeHeights": 537.2,
+      "note": "was 965.2 KB at R53.4; round 6 was 770.7"
+    }
+  },
+  "public/mars on disk": {
+    "round6": "15 MB (tile pyramid 0 to 4, mosaic, manifest, plus the two pictures)",
+    "round7": "1.12 MB (relief.webp 654 KB, relief-phone.webp 346 KB, heights.png 121 KB)"
+  }
+}

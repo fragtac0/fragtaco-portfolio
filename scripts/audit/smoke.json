@@ -1,0 +1,12 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "go": "{{BASE}}/",
+  "wait": 3000,
+  "label": "title",
+  "eval": "document.title"
+ }
+]

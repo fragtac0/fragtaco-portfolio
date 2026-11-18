@@ -1,0 +1,112 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__errs=[];addEventListener('error',e=>__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>__errs.push('rej '+String(e.reason)));\nwindow.__sleep=ms=>new Promise(r=>setTimeout(r,ms));\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>5000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "label": "beside-build-00 (t=0.2): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "beside-build-00 (t=0.2)",
+  "eval": "__hold('/',0.2)"
+ },
+ {
+  "wait": 120,
+  "shot": "beside-build-00-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "beside-build-00"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "beside-build-01 (t=0.35): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "beside-build-01 (t=0.35)",
+  "eval": "__hold('/',0.35)"
+ },
+ {
+  "wait": 120,
+  "shot": "beside-build-01-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "beside-build-01"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "beside-build-02 (t=0.5): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "beside-build-02 (t=0.5)",
+  "eval": "__hold('/',0.5)"
+ },
+ {
+  "wait": 120,
+  "shot": "beside-build-02-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "beside-build-02"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "beside-build-03 (t=0.65): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "beside-build-03 (t=0.65)",
+  "eval": "__hold('/',0.65)"
+ },
+ {
+  "wait": 120,
+  "shot": "beside-build-03-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "beside-build-03"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ },
+ {
+  "label": "beside-build-04 (t=0.8): to the start page",
+  "eval": "__jump('/experience')"
+ },
+ {
+  "label": "beside-build-04 (t=0.8)",
+  "eval": "__hold('/',0.8)"
+ },
+ {
+  "wait": 120,
+  "shot": "beside-build-04-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "beside-build-04"
+ },
+ {
+  "label": "release",
+  "eval": "__release()"
+ }
+]

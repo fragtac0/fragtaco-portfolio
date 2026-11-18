@@ -1,0 +1,41 @@
+/* The page change's shared rules. app/lib/page-change.ts owns every change: the router starts the view
+ * transition itself once the destination's data is loaded (`viewTransition` on the navigation; on Back
+ * and Forward too, or this module starts one), and the module puts `data-change-kind` and the origin on
+ * <html> while the change runs (--change-x, --change-y, --change-r, --change-ms).
+ * The liquid-glass reveal (the one radial kind, 2.25 s) is in page-change/glass.css. Here: the plain fade
+ * (reduced motion, 120 ms) and what any change not marked (a transition the router starts on its own)
+ * falls back to, a 200 ms crossfade with no blur. Browsers without the API change pages instantly.
+ *
+ * The dock keeps its own name so it stays still while the page behind it changes. The name sits on the
+ * glass pill, not on the header: an element with a view-transition-name is a backdrop root, and the
+ * pill's backdrop-blur would then blur only the header's own (empty) content instead of the page behind it. */
+::view-transition-group(root) { animation-duration: 200ms; }
+html[data-change-kind="fade"]::view-transition-group(*) { animation-duration: var(--change-ms); }
+[data-dock-glass] { view-transition-name: site-dock; }
+/* the dock's view-transition group is a rectangle, and the glass's backdrop blur is drawn over all of it: over a bright page (the
+ * Mars map) a square-cornered box showed round the pill for the whole change. Clip the group (and with it both pictures) to the dock's
+ * own corners: 1.75rem, which is the radius of the two-row dock and, on a one-row dock about 58 px high (Home), a pill (a radius larger
+ * than half the box is scaled down). The group morphs from the old dock's box to the new one's, once, during the reveal. */
+::view-transition-group(site-dock) { clip-path: inset(0 round 1.75rem); }
+/* Home's dock is one row and the other pages' is two: the UA's default morph stretches both pictures to the group's box, so for a quarter of a
+ * second the labels of the two docks lay over each other. Keep both pictures unscaled and bottom-aligned (the tab row stays where it is; only the
+ * second row fades in or out) while the group's box still morphs. */
+::view-transition-old(site-dock),
+::view-transition-new(site-dock) {
+  height: 100%;
+  object-fit: none;
+  object-position: 50% 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*) { animation-duration: 120ms; }
+}
+
+/* The hold (round 7 change-arrival spec 5.1, app/lib/page-change.ts): from the moment the pictures are up until the arriving page has
+ * said it is finished (or 500 ms have passed), every animation of the change stands at its first frame. The screen shows the page being
+ * left, held still; the new page is live under it, so what it waits for (pictures, the wall, the ground) loads and decodes meanwhile.
+ * `!important`: the rules that name the animations (glass.css, the UA's own) set `animation-play-state` through the shorthand. */
+html[data-change-hold]::view-transition-group(*),
+html[data-change-hold]::view-transition-old(*),
+html[data-change-hold]::view-transition-new(*) {
+  animation-play-state: paused !important;
+}

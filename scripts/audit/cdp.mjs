@@ -1,0 +1,278 @@
+// Drive a headless Chrome over the DevTools protocol: run a list of steps
+// (navigate, wait, eval, key, click, shot) and print each eval result.
+// usage: BASE=http://localhost:5178 node scripts/audit/cdp.mjs <steps.json> <outdir>
+// Step keys: size, dpr, mobile, touch, reduce, intercept [{match, fail | status, type, body}], net {kbps, latency}, nocache, cpu, init, go, wait, key (+vk, +mod: modifiers, 1 Alt, 2 Ctrl, 4 Meta, 8 Shift), mdrag [x0,y0,x1,y1,n] (mouse; may be an expression), wheel [x,y,dx,dy,n],
+// click, move, sweep, tap, drag (click, move and tap also take a string: an expression the page answers with [x, y]), gesture ([x, y, dy, speed, "mouse" | "touch"], also an expression: a real scroll gesture, the compositor scrolls dy CSS px down (negative: up) at speed px a second; the step ends with it), trace ("start" begins a Chrome trace of the main thread, the compositor and the GPU, or of the comma-separated `categories` the step names, e.g. adding `disabled-by-default-v8.cpu_profiler` for the JavaScript profile; "stop" ends it and writes <outdir>/<traceFile ?? "trace">.json: read it with a script or open it in DevTools), eval (+label), shot, background (ms: the tab really goes to the background for that long: another tab is opened in front of it through the browser's own connection, then this one is activated again and the other closed; it runs after the step's eval and before its film), requests ({match} + label: the hosts requested since the last such step), contrast ([{name, selector, ink: [r,g,b,a], glass?}] + label: hides each element's text (`glass`: only makes the colour transparent, so the element's own background stays in the picture), photographs the page and prints the WCAG contrast of the ink over the picture behind it: worst, 1st percentile, mean), sample ({grid:[cols,rows]} + label: photographs the page and prints the share of pixels
+// darker than #2a2826, the share of orange-hued pixels and the average colour on a grid; see PIXEL_SAMPLER below),
+// film ({ms, dark?, share?, rect?, keep?, at?} + label: the page runs `eval` first when given, then every frame the compositor produces for `ms` is photographed (a screencast); each is
+// reduced to 48 by 30 cells (over the `rect` selector's box, read once the film is over, e.g. "#hero"; the whole frame without it) and a frame counts as bare when `share` (0.75) or more of its cells are darker than luma `dark` (20); prints the frame count, the longest gap between frames, `darkShareMax` (the largest share of dark cells in any frame), the box measured, the
+// bare frames and `ok` (`blink: true` also reduces every frame to 48 by 30 luma cells and looks for the signature of ONE frame that is wrong between two that agree (R56.1b: a bend map that did not
+// apply in its frame): frame i is a blink when the cells' mean absolute difference to i-1 and to i+1 are each at least `blinkMin` (3 luma levels) and at least `blinkRatio` (2) times the difference
+// between i-1 and i+1; `blinkFrames` lists them, and `ok` needs none; `blinkMaxStep` is the largest frame-to-frame difference seen, for a sense of the scale); `flat`: a frame whose cells' luma spread is under that also counts as bare, a plain ground; `ats`: saves the frames nearest those times as <keep>-<ms>.jpg (an expression string is evaluated in the page after the film and answers the times); `series`: prints [ms, spread, mean] of every frame); `keep` saves the darkest frame as <keep>.jpg and, with `at` (ms after the start), the frame nearest that time as <keep>-at.jpg; see FILM_LUMA below; `idxs`: an expression the page answers with frame numbers once the film is over, saved as <keep>-f<number>-<ms>ms.jpg). "{{BASE}}" in a steps file is replaced by $BASE.
+import { spawn } from "node:child_process";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+
+const [stepsFile, outDir] = process.argv.slice(2);
+const BASE = process.env.BASE ?? "http://localhost:5178";
+const steps = JSON.parse(readFileSync(stepsFile, "utf8").replaceAll("{{BASE}}", BASE));
+mkdirSync(outDir, { recursive: true });
+const port = 9333 + Math.floor(Math.random() * 400);
+const chrome = spawn("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", [
+  "--headless=new", `--remote-debugging-port=${port}`, `--user-data-dir=${outDir}/profile`,
+  "--no-first-run", "--hide-scrollbars", "--window-size=1440,900",
+  // opt-in: CHROME_FLAGS="--enable-unsafe-webgpu --enable-features=Vulkan" (see scripts/audit/README.md, the ground)
+  ...(process.env.CHROME_FLAGS ? process.env.CHROME_FLAGS.split(/\s+/).filter(Boolean) : []),
+  "about:blank",
+], { stdio: "ignore" });
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+let wsUrl;
+for (let i = 0; i < 50 && !wsUrl; i++) {
+  await sleep(200);
+  try {
+    const list = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
+    wsUrl = list.find(t => t.type === "page")?.webSocketDebuggerUrl;
+  } catch { /* not up yet */ }
+}
+const ws = new WebSocket(wsUrl);
+await new Promise(r => ws.addEventListener("open", r, { once: true }));
+let id = 0; const pending = new Map();
+const requested = []; // every request the page made since the last `requests` step
+const castFrames = []; // screencast frames of the `film` step: every frame the compositor produced, not one in a while
+const traceEvents = []; // `trace` step: the events of the Chrome trace between `trace: "start"` and `trace: "stop"`
+ws.addEventListener("message", e => { const m = JSON.parse(e.data); if (m.method === "Tracing.dataCollected") { traceEvents.push(...m.params.value); return; } if (m.method === "Tracing.tracingComplete") { pending.get("trace-done")?.(m); pending.delete("trace-done"); return; } if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } else if (m.method === "Network.requestWillBeSent") requested.push(m.params.request.url); else if (m.method === "Fetch.requestPaused") answerPaused(m.params); else if (m.method === "Page.screencastFrame") { castFrames.push({ t: performance.now(), ts: (m.params.metadata?.timestamp ?? 0) * 1000, data: m.params.data }); ws.send(JSON.stringify({ id: ++id, method: "Page.screencastFrameAck", params: { sessionId: m.params.sessionId } })); } });
+// A call the page never answers (a step that waits for something that did not happen, a throttled tab) used to stall the whole run for ever:
+// it now gives up after CDP_TIMEOUT_MS (default 180 s), says so on stderr and goes on, with `{ error: { message: "timeout" } }` for an answer.
+const SEND_TIMEOUT = Number(process.env.CDP_TIMEOUT_MS ?? 180000);
+const send = (method, params = {}, ms = SEND_TIMEOUT) => new Promise(r => {
+  const i = ++id;
+  const timer = setTimeout(() => { pending.delete(i); console.error(`cdp: ${method} did not answer in ${ms} ms, going on`); r({ error: { message: `timeout: ${method} did not answer in ${ms} ms` } }); }, ms);
+  pending.set(i, m => { clearTimeout(timer); r(m); });
+  ws.send(JSON.stringify({ id: i, method, params }));
+});
+// `intercept` step: [{ match, fail?: "NameNotResolved", status?, type?, body? (base64), delay? (ms) }]; a request whose url contains `match` is failed or answered with that response, or with `delay` only held that long and then let go on (a slow chunk); the rest go on (the first rule that matches wins); [] switches it off
+let rules = [];
+function answerPaused(p) {
+  const rule = rules.find(x => p.request.url.includes(x.match));
+  const call = (method, params) => ws.send(JSON.stringify({ id: ++id, method, params }));
+  if (!rule) call("Fetch.continueRequest", { requestId: p.requestId });
+  else if (rule.delay && !rule.fail && !rule.status && !rule.body) setTimeout(() => call("Fetch.continueRequest", { requestId: p.requestId }), rule.delay);
+  else if (rule.fail) call("Fetch.failRequest", { requestId: p.requestId, errorReason: rule.fail });
+  else call("Fetch.fulfillRequest", { requestId: p.requestId, responseCode: rule.status ?? 200, responseHeaders: [{ name: "Content-Type", value: rule.type ?? "image/png" }, { name: "Access-Control-Allow-Origin", value: "*" }], body: rule.body ?? "" });
+}
+
+await send("Page.enable"); await send("Runtime.enable"); await send("Network.enable");
+// Runs inside the page on a PNG screenshot: darker = luma under that of #2a2826; orange = hue 5 to 45 degrees,
+// HSV saturation 0.45 or more and value 0.16 or more (bright enough to read as a colour, not just a warm black).
+const PIXEL_SAMPLER = (b64, cols, rows) => `(async()=>{
+  const cols = ${cols}, rows = ${rows};
+  const bmp = await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/png"}));
+  const c = new OffscreenCanvas(bmp.width, bmp.height), x = c.getContext("2d", { willReadFrequently: true });
+  x.drawImage(bmp, 0, 0); const { data, width, height } = x.getImageData(0, 0, bmp.width, bmp.height);
+  const limit = 0.2126 * 42 + 0.7152 * 40 + 0.0722 * 38; let dark = 0, strict = 0, orange = 0, orangeLoose = 0, maxL = 0;
+  const acc = Array.from({ length: cols * rows }, () => [0, 0, 0, 0]);
+  for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+    const r = data[i], g = data[i + 1], b = data[i + 2], l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    if (l < limit) dark++; if (r <= 42 && g <= 40 && b <= 38) strict++; if (l > maxL) maxL = l;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, sat = mx ? d / mx : 0;
+    let h = 0; if (d) h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60;
+    if (h >= 5 && h <= 45 && sat >= 0.45) { if (mx >= 0.16 * 255) orange++; if (mx >= 0.08 * 255) orangeLoose++; }
+    const cx = Math.min(cols - 1, Math.floor((p % width) / width * cols)), cy = Math.min(rows - 1, Math.floor(Math.floor(p / width) / height * rows)), a = acc[cy * cols + cx];
+    a[0] += r; a[1] += g; a[2] += b; a[3]++;
+  }
+  const n = width * height, f = v => Math.round(v / n * 10000) / 100;
+  return JSON.stringify({ size: [width, height], darkerThan2a2826: f(dark), strictChannels: f(strict), orange: f(orange), orangeLoose: f(orangeLoose), maxLuma: Math.round(maxL),
+    grid: acc.map(a => a.slice(0, 3).map(v => Math.round(v / a[3])).join(",")) });
+})()`;
+// Runs inside the page on a JPEG frame: the share of 48 by 30 cells whose luma is under `dark`, and the mean luma.
+// `box` is {x, y, w, h} in CSS pixels (or null: the whole frame); the frame's scale to CSS pixels is read from the frame itself.
+const FILM_LUMA = (b64, dark, box) => `(async()=>{const b=await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/jpeg"}));const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
+  const bx=${JSON.stringify(box ?? null)},k=b.width/innerWidth;if(bx)x.drawImage(b,bx.x*k,bx.y*k,bx.w*k,bx.h*k,0,0,48,30);else x.drawImage(b,0,0,48,30);
+  const d=x.getImageData(0,0,48,30).data;let under=0,sum=0,sq=0;for(let i=0;i<d.length;i+=4){const l=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2];sum+=l;sq+=l*l;if(l<${dark})under++}const m=sum/1440;return [under/1440,m,Math.sqrt(Math.max(0,sq/1440-m*m))]})()`;
+// Runs inside the page on a JPEG frame: its 48 by 30 luma cells (over `box`, or the whole frame), as a JSON array. Used by the `film` step's `blink` check.
+const FILM_CELLS = (b64, box) => `(async()=>{const b=await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/jpeg"}));const c=new OffscreenCanvas(48,30),x=c.getContext("2d");
+  const bx=${JSON.stringify(box ?? null)},k=b.width/innerWidth;if(bx)x.drawImage(b,bx.x*k,bx.y*k,bx.w*k,bx.h*k,0,0,48,30);else x.drawImage(b,0,0,48,30);
+  const d=x.getImageData(0,0,48,30).data,o=[];for(let i=0;i<d.length;i+=4)o.push(Math.round(0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2]));return JSON.stringify(o)})()`;
+// Runs inside the page on a JPEG frame of a video wall: the luma at a 7 by 5 grid of points in the middle 70% of every tile (`g` is the wall's
+// grid, data-grid). runFilm compares each frame with a reference frame taken before any tile is on screen: a tile is showing when it differs
+// from the ground behind it (the ground is a glow, not flat, so the spread inside a tile cannot tell a tile from the ground).
+const TILE_SAMPLES = (b64, g) => `(async()=>{const g=${JSON.stringify(g)};const b=await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/jpeg"}));
+  const k=b.width/innerWidth,c=new OffscreenCanvas(b.width,b.height),x=c.getContext("2d",{willReadFrequently:true});x.drawImage(b,0,0);const out=[];
+  for(let i=0;i<g.count;i++){const row=Math.floor(i/g.cols),col=i%g.cols;const tx=g.originX+col*(g.tileW+g.gap)+(row===g.rows-1?g.lastRowOffset:0),ty=g.originY+row*(g.tileH+g.gap);
+   const x0=Math.round((tx+g.tileW*.15)*k),y0=Math.round((ty+g.tileH*.15)*k),w=Math.max(2,Math.round(g.tileW*.7*k)),h=Math.max(2,Math.round(g.tileH*.7*k));
+   const d=x.getImageData(x0,y0,w,h).data,v=[];
+   for(let yy=0;yy<5;yy++)for(let xx=0;xx<7;xx++){const px=Math.min(w-1,Math.floor((xx+.5)*w/7)),py=Math.min(h-1,Math.floor((yy+.5)*h/5)),o=(py*w+px)*4;v.push(Math.round(.2126*d[o]+.7152*d[o+1]+.0722*d[o+2]))}
+   out.push(v)}
+  return JSON.stringify(out)})()`;
+// Runs inside the page on a PNG screenshot: for each box ({name, x, y, w, h} in CSS pixels, and `ink` [r, g, b, a]) the WCAG contrast of that ink
+// laid over every pixel of the box (the screenshot is taken with the text hidden, so the pixels are the picture behind it): the worst, the 1st percentile,
+// the mean, and the brightest pixel's luma. Used by the `contrast` step.
+const CONTRAST = (b64, boxes) => `(async()=>{
+  const bmp = await createImageBitmap(new Blob([Uint8Array.from(atob("${b64}"),c=>c.charCodeAt(0))],{type:"image/png"}));
+  const c = new OffscreenCanvas(bmp.width, bmp.height), x = c.getContext("2d", { willReadFrequently: true });
+  x.drawImage(bmp, 0, 0); const k = bmp.width / innerWidth;
+  const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  const lum = (r, g, b) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  const out = [];
+  for (const bx of ${JSON.stringify(boxes)}) {
+    const x0 = Math.max(0, Math.floor(bx.x * k)), y0 = Math.max(0, Math.floor(bx.y * k)), w = Math.max(1, Math.min(bmp.width - x0, Math.ceil(bx.w * k))), h = Math.max(1, Math.min(bmp.height - y0, Math.ceil(bx.h * k)));
+    const d = x.getImageData(x0, y0, w, h).data, cs = [], ink = bx.ink; let sum = 0, maxL = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const bl = lum(d[i], d[i + 1], d[i + 2]);
+      const tr = ink[0] * ink[3] + d[i] * (1 - ink[3]), tg = ink[1] * ink[3] + d[i + 1] * (1 - ink[3]), tb = ink[2] * ink[3] + d[i + 2] * (1 - ink[3]);
+      const tl = lum(tr, tg, tb), hi = Math.max(tl, bl), lo = Math.min(tl, bl), cr = (hi + 0.05) / (lo + 0.05);
+      cs.push(cr); sum += cr; if (bl > maxL) maxL = bl;
+    }
+    cs.sort((p, q) => p - q);
+    out.push({ name: bx.name, box: [x0 / k, y0 / k, w / k, h / k].map(Math.round), worst: +cs[0].toFixed(2), p1: +cs[Math.floor(cs.length * 0.01)].toFixed(2), mean: +(sum / cs.length).toFixed(2), brightestBg: +maxL.toFixed(4) });
+  }
+  return JSON.stringify(out);
+})()`;
+async function runFilm(f, label) {
+  const dark = f.dark ?? 20, share = f.share ?? 0.75;
+  castFrames.length = 0;
+  if (f.tiles) await send("Page.bringToFront"); // a long film of a slow load must not be throttled as a background page
+  await send("Page.startScreencast", { format: "jpeg", quality: f.quality ?? 40, everyNthFrame: 1 });
+  const t0 = performance.now();
+  if (f.eval) void send("Runtime.evaluate", { expression: f.eval, awaitPromise: true, returnByValue: true });
+  await sleep(f.ms);
+  await send("Page.stopScreencast");
+  const frames = castFrames.splice(0);
+  const rows = [];
+  let box = null;
+  if (f.rect) {
+    const r = await send("Runtime.evaluate", { expression: `(()=>{const e=document.querySelector(${JSON.stringify(f.rect)});if(!e)return null;const r=e.getBoundingClientRect();const x=Math.max(0,r.left),y=Math.max(0,r.top),w=Math.min(innerWidth,r.right)-x,h=Math.min(innerHeight,r.bottom)-y;return w>0&&h>0?{x,y,w,h}:null})()`, returnByValue: true });
+    box = r.result?.result?.value ?? null;
+  }
+  const cellsOf = async (data) => JSON.parse((await send("Runtime.evaluate", { expression: FILM_CELLS(data, box), awaitPromise: true, returnByValue: true })).result?.result?.value ?? "[]");
+  for (const fr of frames) { const v = (await send("Runtime.evaluate", { expression: FILM_LUMA(fr.data, dark, box), awaitPromise: true, returnByValue: true })).result?.result?.value ?? [1, 0]; rows.push({ at: Math.round(fr.t - t0), share: +v[0].toFixed(2), mean: +v[1].toFixed(1), std: +(v[2] ?? 99).toFixed(2), data: fr.data, ...(f.blink ? { cells: await cellsOf(fr.data) } : {}) }); }
+  // `analyze`: a function's source, run in the page on every frame in turn as `(b64, { at, ts })` (`ts`: the frame's own time in ms since the epoch, the page's `performance.timeOrigin + performance.now()` clock), awaited, in order; it keeps what it finds in the page (R55.2: the box-open film reads each frame against what the page recorded on its own frames)
+  if (f.analyze) for (const [i, fr] of frames.entries()) await send("Runtime.evaluate", { expression: `(${f.analyze})(${JSON.stringify(fr.data)}, ${JSON.stringify({ at: rows[i].at, ts: fr.ts, i })})`, awaitPromise: true, returnByValue: true });
+  let blinkFrames = [], blinkMaxStep = 0;
+  if (f.blink && rows.length > 2) {
+    const mad = (p, q) => { let t = 0; for (let i = 0; i < p.length; i++) t += Math.abs(p[i] - q[i]); return t / p.length; };
+    const min = f.blinkMin ?? 3, ratio = f.blinkRatio ?? 2;
+    for (let i = 1; i < rows.length - 1; i++) {
+      const before = mad(rows[i - 1].cells, rows[i].cells), after = mad(rows[i].cells, rows[i + 1].cells), skip = mad(rows[i - 1].cells, rows[i + 1].cells);
+      blinkMaxStep = Math.max(blinkMaxStep, before);
+      if (before >= min && after >= min && before >= ratio * skip && after >= ratio * skip) blinkFrames.push([rows[i].at, +before.toFixed(1), +after.toFixed(1), +skip.toFixed(1)]);
+    }
+  }
+  // `tiles`: a video wall's tiles showing in each frame (see TILE_SAMPLES: each frame against the same page with the wall hidden); the frames where the wall is blank after it has been seen are the gap this catches
+  let tileReport;
+  if (f.tiles) {
+    const grid = (await send("Runtime.evaluate", { expression: `(()=>{const s=document.querySelector('.wall-stage');return s&&s.dataset.grid?JSON.parse(s.dataset.grid):null})()`, returnByValue: true })).result?.result?.value ?? null;
+    if (grid && rows.length) {
+      const samples = async r => JSON.parse((await send("Runtime.evaluate", { expression: TILE_SAMPLES(r.data, grid), awaitPromise: true, returnByValue: true })).result?.result?.value ?? "[]");
+      // the reference: the same page with the wall hidden (the ground, the heading, the dock), photographed after the film
+      await send("Runtime.evaluate", { expression: `document.querySelector('.wall-stage').style.visibility='hidden'`, returnByValue: true });
+      await sleep(300); await send("Page.captureScreenshot", { format: "jpeg", quality: 40 });
+      const shot = await send("Page.captureScreenshot", { format: "jpeg", quality: 40 });
+      await send("Runtime.evaluate", { expression: `document.querySelector('.wall-stage').style.visibility=''`, returnByValue: true });
+      const ref = await samples({ data: shot.result.data });
+      for (const r of rows) { const v = await samples(r); r.tiles = v.filter((t, i) => t.reduce((s, x, j) => s + Math.abs(x - (ref[i]?.[j] ?? 0)), 0) / t.length > 6).length; }
+      // frames in the first second are the page before the one that loads (the film starts on it)
+      const seen = rows.findIndex(r => r.at > (f.tilesFrom ?? 1000) && r.tiles >= grid.count * 0.9);
+      const after = seen < 0 ? [] : rows.slice(seen);
+      const series = []; for (const r of rows.filter(r => r.at > (f.tilesFrom ?? 1000))) if (!series.length || series.at(-1)[1] !== r.tiles) series.push([r.at, r.tiles]);
+      tileReport = { count: grid.count, firstShownAtMs: seen < 0 ? null : rows[seen].at, blankFramesAfterShown: after.filter(r => r.tiles < grid.count / 2).length, minTilesAfterShown: after.length ? Math.min(...after.map(r => r.tiles)) : null, finalTiles: rows.at(-1).tiles, series: series.length > 40 ? series.slice(0, 20).concat([["...", series.length]], series.slice(-19)) : series };
+    }
+  }
+  const bare = rows.filter(r => r.share >= share || (f.flat != null && r.std < f.flat));
+  let gap = 0; for (let i = 1; i < rows.length; i++) gap = Math.max(gap, rows[i].at - rows[i - 1].at);
+  if (f.keep && rows.length) { const worst = rows.reduce((a, b) => (b.share > a.share ? b : a)); writeFileSync(`${outDir}/${f.keep}.jpg`, Buffer.from(worst.data, "base64")); }
+  if (f.keep && f.at != null && rows.length) { const near = rows.reduce((a, b) => (Math.abs(b.at - f.at) < Math.abs(a.at - f.at) ? b : a)); writeFileSync(`${outDir}/${f.keep}-at.jpg`, Buffer.from(near.data, "base64")); }
+  // `ats` may be an expression the page answers with the times (ms from the film's start) once the film is over, for moments only the page knows (R56.6: the reveal's start)
+  if (f.keep && typeof f.ats === "string") f.ats = (await send("Runtime.evaluate", { expression: f.ats, returnByValue: true })).result?.result?.value ?? [];
+  if (f.keep && f.ats) for (const a of f.ats) { const near = rows.reduce((p, b) => (Math.abs(b.at - a) < Math.abs(p.at - a) ? b : p)); writeFileSync(`${outDir}/${f.keep}-${String(a).padStart(4, "0")}.jpg`, Buffer.from(near.data, "base64")); }
+  // `idxs` (R58): an expression the page answers with frame numbers (the order the film's frames were analysed in) once the film is over; each is saved as <keep>-f<number>-<ms>ms.jpg (the film time in ms since its start)
+  if (f.keep && typeof f.idxs === "string") for (const i of (await send("Runtime.evaluate", { expression: f.idxs, returnByValue: true })).result?.result?.value ?? []) if (rows[i]) writeFileSync(`${outDir}/${f.keep}-f${String(i).padStart(3, "0")}-${rows[i].at}ms.jpg`, Buffer.from(rows[i].data, "base64"));
+  console.log(JSON.stringify({ step: label ?? "film", stdMin: rows.length ? Math.min(...rows.map(r => r.std)) : null, stdSeries: f.series ? rows.map(r => [r.at, r.std, r.mean]) : undefined, frames: rows.length, longestGapMs: gap, firstMs: rows[0]?.at, lastMs: rows.at(-1)?.at, darkShareMax: rows.length ? Math.max(...rows.map(r => r.share)) : null, box: box ? [Math.round(box.x), Math.round(box.y), Math.round(box.w), Math.round(box.h)] : (f.rect ? "not found: whole frame" : "whole frame"), bareFrames: bare.map(r => [r.at, r.share, r.mean, r.std]), ok: rows.length > 5 && bare.length === 0 && blinkFrames.length === 0, ...(f.blink ? { blinkFrames, blinkMaxStep: +blinkMaxStep.toFixed(1) } : {}), ...(tileReport ? { tileReport } : {}) }));
+}
+async function backgroundTab(ms) {
+  const info = await (await fetch(`http://127.0.0.1:${port}/json/version`)).json();
+  const bws = new WebSocket(info.webSocketDebuggerUrl);
+  await new Promise(r => bws.addEventListener("open", r, { once: true }));
+  let bid = 0;
+  const bsend = (method, params = {}) => new Promise(r => { const i = ++bid; const h = e => { const m = JSON.parse(e.data); if (m.id === i) { bws.removeEventListener("message", h); r(m); } }; bws.addEventListener("message", h); bws.send(JSON.stringify({ id: i, method, params })); });
+  const mine = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find(t => t.webSocketDebuggerUrl === wsUrl)?.id;
+  const other = (await bsend("Target.createTarget", { url: "about:blank" })).result?.targetId;
+  await sleep(ms);
+  if (mine) await bsend("Target.activateTarget", { targetId: mine });
+  if (other) await bsend("Target.closeTarget", { targetId: other });
+  bws.close();
+}
+for (const s of steps) {
+  if (s.size) await send("Emulation.setDeviceMetricsOverride", { width: s.size[0], height: s.size[1], deviceScaleFactor: s.dpr ?? 1, mobile: !!s.mobile });
+  if (s.touch !== undefined) await send("Emulation.setTouchEmulationEnabled", { enabled: s.touch, maxTouchPoints: 5 });
+  if (s.reduce !== undefined) await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: s.reduce ? "reduce" : "no-preference" }] });
+  if (s.intercept) { rules = s.intercept; await send(rules.length ? "Fetch.enable" : "Fetch.disable", rules.length ? { patterns: [{ urlPattern: "*" }] } : {}); }
+  if (s.init) await send("Page.addScriptToEvaluateOnNewDocument", { source: s.init });
+  if (s.net) await send("Network.emulateNetworkConditions", { offline: false, latency: s.net.latency ?? 0, downloadThroughput: (s.net.kbps ?? 0) * 125, uploadThroughput: (s.net.kbps ?? 0) * 125 });
+  if (s.nocache !== undefined) await send("Network.setCacheDisabled", { cacheDisabled: s.nocache });
+  if (s.cpu) await send("Emulation.setCPUThrottlingRate", { rate: s.cpu });
+  if (s.go) { await send("Page.navigate", { url: s.go }); }
+  if (s.wait) await sleep(s.wait);
+  // click, move, tap, mdrag and gesture may be an expression (a string) that the page answers with [x, y] (gesture: [x, y, dy, speed, source])
+  for (const k of ["click", "move", "tap", "mdrag", "gesture"]) if (typeof s[k] === "string") s[k] = (await send("Runtime.evaluate", { expression: s[k], awaitPromise: true, returnByValue: true })).result?.result?.value;
+  if (s.key) for (const type of ["keyDown", "keyUp"]) {
+    // Enter and Space need their text on the keyDown, or a focused button never activates
+    const text = type === "keyDown" ? (s.key === "Enter" ? "\r" : s.key === " " ? " " : undefined) : undefined;
+    await send("Input.dispatchKeyEvent", { type, key: s.key, code: s.key, windowsVirtualKeyCode: s.vk ?? 0, ...(s.mod ? { modifiers: s.mod } : {}), ...(text ? { text } : {}) });
+  }
+  if (s.click) for (const type of ["mouseMoved", "mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: s.click[0], y: s.click[1], button: "left", clickCount: 1 });
+  if (s.move) await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: s.move[0], y: s.move[1] });
+  if (s.sweep) { const [x0, y0, x1, y1, n] = s.sweep; for (let i = 0; i <= n; i++) { await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x0 + (x1 - x0) * i / n, y: y0 + (y1 - y0) * i / n }); await sleep(16); } }
+  if (s.tap) { const tp = [{ x: s.tap[0], y: s.tap[1] }]; await send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: tp }); await sleep(60); await send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] }); }
+  if (s.drag) { const [x0, y0, x1, y1, n] = s.drag; await send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: x0, y: y0 }] }); for (let i = 1; i <= n; i++) { await send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: x0 + (x1 - x0) * i / n, y: y0 + (y1 - y0) * i / n }] }); await sleep(16); } await send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] }); }
+  if (s.mdrag) { const [x0, y0, x1, y1, n] = s.mdrag; await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x0, y: y0 }); await send("Input.dispatchMouseEvent", { type: "mousePressed", x: x0, y: y0, button: "left", buttons: 1, clickCount: 1 }); for (let i = 1; i <= n; i++) { await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x0 + (x1 - x0) * i / n, y: y0 + (y1 - y0) * i / n, button: "left", buttons: 1 }); await sleep(16); } await send("Input.dispatchMouseEvent", { type: "mouseReleased", x: x1, y: y1, button: "left", buttons: 0, clickCount: 1 }); }
+  if (s.wheel) { const [x, y, dx, dy, n] = s.wheel; for (let i = 0; i < (n ?? 1); i++) { await send("Input.dispatchMouseEvent", { type: "mouseWheel", x, y, deltaX: dx, deltaY: dy }); await sleep(16); } }
+  // `gesture` [x, y, dy, speed, source]: a real scroll gesture (the compositor scrolls, as for a visitor): dy CSS px down (negative: up) at `speed` px a second, by "mouse" (a wheel drag) or "touch" (a swipe); the step ends when the gesture does
+  if (s.gesture) { const [x, y, dy, speed, source] = s.gesture; await send("Input.synthesizeScrollGesture", { x, y, yDistance: -dy, speed, gestureSourceType: source ?? "mouse", preventFling: true }, 120000); }
+  if (s.eval) {
+    const r = await send("Runtime.evaluate", { expression: s.eval, awaitPromise: true, returnByValue: true });
+    console.log(JSON.stringify({ step: s.label ?? "eval", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description ?? r.error?.message }));
+  }
+  if (s.requests) {
+    // the hosts every request since the last `requests` step went to (data: and blob: urls left out), and the urls that contain s.requests.match
+    const urls = requested.splice(0).filter(u => !/^(data|blob):/.test(u));
+    const hosts = [...new Set(urls.map(u => { try { return new URL(u).host; } catch { return u; } }))];
+    console.log(JSON.stringify({ step: s.label ?? "requests", hosts, total: urls.length, matching: s.requests.match ? urls.filter(u => u.includes(s.requests.match)).map(u => u.replace(/^https?:\/\/[^/]+/, "")) : undefined }));
+  }
+  if (s.sample) {
+    const [cols, rows] = s.sample.grid ?? [8, 5];
+    const png = await send("Page.captureScreenshot", { format: "png" });
+    const r = await send("Runtime.evaluate", { expression: PIXEL_SAMPLER(png.result.data, cols, rows), awaitPromise: true, returnByValue: true });
+    console.log(JSON.stringify({ step: s.label ?? "sample", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description }));
+  }
+  if (s.contrast) {
+    // `contrast`: [{name, selector, ink: [r, g, b, a], glass?, text? (R56.4: the box is the element's text, not its padding box, whose corners can lie outside a rounded glass), clip? (a selector: the box is cut to that element's, less `inset` px all round: for a label a scrolling dock row pushes under the glass's rounded edge), save?}]: hides the text of each (visibility), photographs the page and prints the contrast of the ink over the picture behind it
+    const boxes = (await send("Runtime.evaluate", { expression: `(()=>{const o=[];for(const it of ${JSON.stringify(s.contrast)}){const e=document.querySelector(it.selector);if(!e)continue;const r=(()=>{if(!it.text)return e.getBoundingClientRect();const g=document.createRange();g.selectNodeContents(e);return g.getBoundingClientRect()})();const c=it.clip?document.querySelector(it.clip)?.getBoundingClientRect():null,n=it.inset??0;const x0=c?Math.max(r.left,c.left+n):r.left,y0=c?Math.max(r.top,c.top+n):r.top,x1=c?Math.min(r.right,c.right-n):r.right,y1=c?Math.min(r.bottom,c.bottom-n):r.bottom;o.push({name:it.name,x:x0,y:y0,w:Math.max(1,x1-x0),h:Math.max(1,y1-y0),ink:it.ink});if(it.glass){for(const n of [e,...e.querySelectorAll('*')])n.style.setProperty('color','transparent','important');e.style.setProperty('outline','none','important')}else e.style.visibility='hidden'}return o})()`, returnByValue: true })).result?.result?.value ?? [];
+    await sleep(300); await send("Page.captureScreenshot", { format: "png" });
+    const png = await send("Page.captureScreenshot", { format: "png" });
+    if (s.contrast.some(it => it.save)) writeFileSync(`${outDir}/${s.contrast.find(it => it.save).save}.png`, Buffer.from(png.result.data, "base64"));
+    const r = await send("Runtime.evaluate", { expression: CONTRAST(png.result.data, boxes), awaitPromise: true, returnByValue: true });
+    await send("Runtime.evaluate", { expression: `for(const it of ${JSON.stringify(s.contrast)}){const e=document.querySelector(it.selector);if(e){e.style.visibility='';for(const n of [e,...e.querySelectorAll('*')])n.style.removeProperty('color');e.style.removeProperty('outline')}}`, returnByValue: true });
+    console.log(JSON.stringify({ step: s.label ?? "contrast", value: r.result?.result?.value ?? r.result?.exceptionDetails?.exception?.description }));
+  }
+  // `background` (ms): the tab really goes to the background for that long (another tab is opened in front of it, then this one is activated again and the other closed), so rAF, timers and
+  // `visibilitychange` behave as they do for a visitor who switched tabs (the Browser domain: a second connection to the browser itself)
+  if (s.background) await backgroundTab(s.background);
+  // `trace`: "start" begins a Chrome trace (main thread, compositor and GPU categories); "stop" ends it and writes `<outdir>/<s.traceFile ?? "trace">.json` (open it in DevTools or read it with a script)
+  if (s.trace === "start") { traceEvents.length = 0; await send("Tracing.start", { categories: s.categories ?? "devtools.timeline,disabled-by-default-devtools.timeline,v8.execute,blink.user_timing,gpu,cc,viz,disabled-by-default-cc.debug.display_items", transferMode: "ReportEvents" }); }
+  if (s.trace === "stop") { const done = new Promise(r => pending.set("trace-done", r)); ws.send(JSON.stringify({ id: ++id, method: "Tracing.end" })); await done; writeFileSync(`${outDir}/${s.traceFile ?? "trace"}.json`, JSON.stringify(traceEvents)); console.log(JSON.stringify({ step: s.label ?? "trace", value: { events: traceEvents.length } })); }
+  if (s.film) await runFilm(s.film, s.label);
+  if (s.shot) {
+    const r = await send("Page.captureScreenshot", { format: "jpeg", quality: 85 });
+    writeFileSync(`${outDir}/${s.shot}.jpg`, Buffer.from(r.result.data, "base64"));
+    console.log(JSON.stringify({ step: "shot", file: `${outDir}/${s.shot}.jpg` }));
+  }
+  if (s.png) {
+    // `png` (R56.4): a lossless picture, for checks that compare pixels (two shots of an unchanged page are identical); a throwaway shot first, as headless lags a frame
+    await sleep(200); await send("Page.captureScreenshot", { format: "png" });
+    const r = await send("Page.captureScreenshot", { format: "png" });
+    writeFileSync(`${outDir}/${s.png}.png`, Buffer.from(r.result.data, "base64"));
+    console.log(JSON.stringify({ step: "png", file: `${outDir}/${s.png}.png` }));
+  }
+}
+ws.close(); chrome.kill();

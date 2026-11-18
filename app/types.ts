@@ -1,22 +1,11 @@
+import type { MOMENT_ICONS } from "./content/experience-schema";
+
 export type HomeSectionId = "about";
-export type NavigationKey = HomeSectionId | "projects";
+export type NavigationKey = "home" | "work";
 
 export interface SiteHeroContent {
-  title: string;
-  subtitle: string;
-}
-
-export interface SiteFact {
-  id: string;
-  category: string;
-  headline: string;
-  body: string;
-}
-
-export interface SiteFactsSection {
-  sectionTitle: string;
-  eyebrow: string;
-  items: SiteFact[];
+  name: string;
+  roles: string;
 }
 
 export interface SiteHeroPainting {
@@ -30,6 +19,11 @@ export interface SiteHeroPainting {
   orientation?: "landscape" | "portrait";
   sourcing?: "verify";
   missing?: boolean;
+  /**
+   * `data:image/jpeg;base64,...` of a 24 px wide copy; shown while the painting loads. The home
+   * response leaves it empty for every painting but the first (the only one shown up front).
+   */
+  blur: string;
 }
 
 export interface SiteCreditsLink {
@@ -37,114 +31,66 @@ export interface SiteCreditsLink {
   url: string;
 }
 
+export interface SiteCreditsFact {
+  label: string;
+  value: string;
+}
+
 export interface SiteCredits {
   name: string;
+  role: string;
   blurb: string;
+  note: string;
   image: string;
+  facts: SiteCreditsFact[];
   links: SiteCreditsLink[];
+}
+
+export type BookStyle = "plain" | "band" | "block";
+
+export interface SiteBook {
+  id: string;
+  title: string;
+  author: string;
+  pages: number;
+  isbn: string;
+  heightIn: number;
+  aspect: number;
+  /** The ground colour of the book: the spine before the cover's own colours arrive, the placeholder bar and the plain grid. */
+  color: string;
+  /** A picture of the real spine, a path served from `public/` (for example `/books/story-spine.webp`). Optional. */
+  spine?: string;
+  style: BookStyle;
+  /** The spine design this book wears (a key of the series, spine-series.ts); defaults to its own id. */
+  series?: string;
+  note: string;
+}
+
+export interface SiteVideo {
+  id: string;
+  title: string;
+  channel: string;
+  channelUrl: string;
+  subscribers: string | null;
+  thumb: "sd" | "hq";
+  /** The day it was published (YYYY-MM-DD), shown under a chosen video when the sync has it. */
+  published?: string | null;
+}
+
+export interface SiteVideosFile {
+  playlistId: string;
+  syncedAt: string;
+  items: SiteVideo[];
 }
 
 export interface SiteHomeContent {
   hero: SiteHeroContent;
   about: {
+    title: string;
+    who: string[];
     paragraphs: string[];
   };
   credits: SiteCredits;
-}
-
-export type WorkExperienceKind = "education" | "self-taught" | "job" | "freelance";
-export type WorkExperienceKeyframeType = "linear" | "bezier" | "ease";
-
-export interface WorkExperienceLink {
-  type: "instagram" | "youtube";
-  url: string;
-}
-
-export interface SiteWorkExperience {
-  id: string;
-  parentId?: string;
-  kind: WorkExperienceKind;
-  track: 1 | 2 | 3;
-  clipColor: string;
-  topBarOpacity: number;
-  keyframeType: WorkExperienceKeyframeType;
-  role: string;
-  readoutTitle?: string;
-  company: string;
-  periodLabel: string;
-  yearStart: number;
-  yearEnd: number | null;
-  summary: string;
-  location?: string;
-  links: WorkExperienceLink[];
-  keyframes: number[];
-  published: boolean;
-  sortOrder: number;
-}
-
-export interface WorkMilestoneLink {
-  type: "instagram" | "youtube";
-  url: string;
-  label: string;
-}
-
-export interface SiteWorkMilestone {
-  id: string;
-  date: number;
-  monthLabel: string;
-  title: string;
-  summary: string;
-  links: WorkMilestoneLink[];
-}
-
-export interface SiteWorkExperienceSection {
-  sectionTitle: string;
-  timelineStart: number;
-  items: SiteWorkExperience[];
-  milestones: SiteWorkMilestone[];
-}
-
-export interface SiteProject {
-  id: string;
-  slug: string;
-  title: string;
-  summary: string;
-  description: string;
-  tech: string[];
-  githubUrl?: string | null;
-  liveUrl?: string | null;
-  image?: string | null;
-  featured: boolean;
-  published: boolean;
-  sortOrder: number;
-  year: number;
-  role: string;
-  status: string;
-}
-
-export interface SiteProjectsGroup {
-  sectionTitle: string;
-  items: SiteProject[];
-}
-
-export interface SiteProjectsSection {
-  sectionTitle: string;
-  longForm: SiteProjectsGroup;
-  shortForm: SiteProjectsGroup;
-}
-
-export interface SiteTechStackItem {
-  id: string;
-  label: string;
-  group: string;
-  sortOrder: number;
-}
-
-export interface SiteTechStackSection {
-  eyebrow: string;
-  title: string;
-  description: string;
-  items: SiteTechStackItem[];
 }
 
 export interface ReachOutAction {
@@ -187,18 +133,79 @@ export interface SiteSocialLink {
   url: string;
 }
 
-export interface SiteClient {
+export type WorkSource = "youtube" | "instagram" | "vimeo" | "other";
+
+export interface WorkVideo {
+  id: string;
+  title: string;
+  for: string;
+  year: number;
+  url: string;
+  cover?: string;
+  source: WorkSource;
+}
+
+export interface WorkClient {
   id: string;
   name: string;
   handle: string;
-  image: string;
-  url: string | null;
-  published: boolean;
-  sortOrder: number;
+  avatar: string;
+  url: string;
+  socials: { type: "youtube" | "instagram" | "x" | "website"; url: string }[];
 }
 
-export interface SiteClientsSection {
-  sectionTitle: string;
-  items: SiteClient[];
+export interface WorkStackItem {
+  id: string;
+  mark: string;
+  label: string;
+  /** The app's own icon, a file under /stack/. With none, the two-letter mark is shown. */
+  icon?: string;
 }
 
+export interface SiteWork {
+  intro: { title: string; text: string };
+  stack: WorkStackItem[];
+  longForm: WorkVideo[];
+  shortForm: WorkVideo[];
+  clients: WorkClient[];
+}
+
+/** The icon of a milestone's bead on the map (Phosphor, fill weight; the nine names are `MOMENT_ICONS`, spec 9.3). */
+export type ExperienceIcon = (typeof MOMENT_ICONS)[number];
+
+export interface ExperienceMoment {
+  id: string;
+  /** `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or `now` (the last moment only). */
+  date: string;
+  /** The date as shown. */
+  label: string;
+  title: string;
+  /** The part of the title shown struck through. */
+  struck?: string;
+  line: string;
+  /** The icon on the milestone's bead. */
+  icon: ExperienceIcon;
+}
+
+export interface ExperienceFact {
+  id: string;
+  text: string;
+  source: string;
+}
+
+export interface SiteExperience {
+  frame: { centre: { lon: number; lat: number }; spanDeg: number };
+  /** `description` is the one quiet line under the title. */
+  heading: { title: string; description: string };
+  moments: ExperienceMoment[];
+  /** The words of the map's controls: the Overview and My climb switch, and the "of" in a card's "3 of 9". */
+  ui: { overview: string; climb: string; of: string };
+  caption: { title: string; line: string; /** The fact shown with the caption (its height and width). */ factId: string; credit: string };
+  /** Hand-placed points of the route, in order (the map's trail runs through them). */
+  route: { lon: number; lat: number }[];
+  /** The cliff round the mountain (Olympus Rupes), traced by the Gazetteer as a closed ring. */
+  cliff: { source: string; points: { lon: number; lat: number }[] };
+  /** The summit craters' outer extent in degrees (Olympus Paterae). */
+  rim: { north: number; south: number; east: number; west: number; source: string };
+  facts: ExperienceFact[];
+}

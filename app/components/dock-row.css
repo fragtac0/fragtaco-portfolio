@@ -1,0 +1,17 @@
+/* The dock's second row (the work page's switcher). It is there whenever the page has it, in both pictures of a page change and in
+ * the live page (round 7 change-arrival spec 5.2): it is never closed for a change, so between two pages that both have the row the
+ * dock does not move at all, and from and to Home (one row) the dock changes shape once, in the change's own morph of the dock's
+ * group (the glass is rounded to 1.75rem on every page with the row, as the pill is on Home: page-transition.css clips the group to
+ * the same radius). Nothing opens after a change, so nothing grows.
+ * The row's width counts toward the dock's: the glass is as wide as its widest row. */
+:root {
+  /* the dock highlight's curve (react-bits/dock-nav.css): a gentle ease in and out */
+  --dock-row-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dock-row {
+  display: block;
+}
+.dock-row-clip {
+  min-height: 0;
+  overflow: hidden;
+}

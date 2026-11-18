@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Round 7 preview 7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Doto:wght@400..900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@300..900&family=Young+Serif&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<link rel="stylesheet" href="../round7-preview-4/preview.css">
+<link rel="stylesheet" href="extra.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-title"><b>Round 7 preview 7</b><span>throwaway, for choosing directions. Nothing here ships as it is.</span></div>
+  <nav class="tabs" id="tabs">
+    <button data-sec="map" class="on">1 Map</button>
+    <button data-sec="grounds">2 Background</button>
+    <button data-sec="shelf">3 Shelf</button>
+  </nav>
+</header>
+
+<!-- ============ 1 MAP ============ -->
+<section class="sec on" id="sec-map">
+  <div class="stage" id="stage" data-mode="overview">
+    <div class="plane" id="plane">
+      <img class="relief" src="../round7-preview-3/assets/relief-toned.jpg" alt="">
+      <svg class="ink" id="ink" viewBox="0 0 1000 650" overflow="visible" aria-hidden="true"></svg>
+    </div>
+    <div class="night" id="night"></div>
+    <canvas id="terrain"></canvas>
+    <canvas id="fx"></canvas>
+    <div class="focus focus-top"></div><div class="focus focus-top2"></div>
+    <div class="focus focus-bottom"></div>
+    <div class="fog"></div>
+    <div class="edgeblur"></div>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+    <canvas id="frame"></canvas>
+    <div class="pins" id="pins"></div>
+
+    <div class="hud">
+      <div class="heading" id="heading">
+        <h1>My experience</h1>
+        <p>Engineer, then editor, then producer, now freelance. Still climbing.</p>
+      </div>
+      <div class="switch glass" id="modeSwitch">
+        <button data-v="overview" class="on">Overview</button>
+        <button data-v="climb">My climb</button>
+      </div>
+      <div class="caption" id="caption">
+        <b>Olympus Mons</b>
+        <span>The tallest mountain known in the solar system.</span>
+      </div>
+      <div class="card glass" id="card"></div>
+    </div>
+  </div>
+  <p class="note">The grid is half the size (a line every 2.5 degrees, a cross every 5) and about half as strong. It now tilts with the picture and fades out exactly as the picture does, so it stays through the turn into My climb.</p>
+</section>
+
+<!-- ============ 2 BACKGROUND ============ -->
+<section class="sec" id="sec-grounds">
+  <div class="chips">
+    <span class="chip-label">Grain</span>
+    <div class="chipset" id="grainChips">
+      <button data-v="0.1" class="on">Barely</button>
+      <button data-v="0.2">Very subtle</button>
+      <button data-v="0.34">A touch more</button>
+    </div>
+  </div>
+  <div class="ground-big"><canvas data-place="0"></canvas><div class="gtag">Eclipse</div></div>
+  <div class="ground-row" id="groundRow"></div>
+  <p class="note">Barely is the setting now. The other two chips are only there to compare.</p>
+</section>
+
+<!-- ============ 3 SHELF ============ -->
+<section class="sec" id="sec-shelf">
+  <div class="shelf-wrap" id="shelfWrap" data-set="strata">
+    <canvas class="glow" id="shelfBack"></canvas>
+    <div class="shelf" id="shelf"></div>
+    <div class="ledge">
+      <svg class="line" viewBox="0 0 1000 74" preserveAspectRatio="none"><defs><linearGradient id="hz" x1="0" x2="1"><stop offset="0" stop-color="#fdfce6" stop-opacity="0"/><stop offset=".18" stop-color="#fdfce6" stop-opacity=".7"/><stop offset=".82" stop-color="#fdfce6" stop-opacity=".7"/><stop offset="1" stop-color="#fdfce6" stop-opacity="0"/></linearGradient></defs><rect x="0" y="0" width="1000" height="1.2" fill="url(#hz)"/></svg>
+      <svg class="strata" id="strata" viewBox="0 0 1000 74" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+  <p class="note">The field of dots, much smaller (a dot every 7 px) and barely visible. A slow swell passes through it: the dots grow and shrink a little as it goes by, about one pass every half minute.</p>
+</section>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="grainFilter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0"/></filter>
+  <filter id="cloth" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.35" numOctaves="3" seed="4"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.1 0.78"/></filter>
+</svg>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="../round7-preview/assets/data.js"></script>
+<script src="../round7-preview-2/books.js"></script>
+<script src="map.js"></script>
+<script src="grounds.js"></script>
+<script src="shelf.js"></script>
+<script>
+const tabs = document.getElementById('tabs');
+function openSec(name) {
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.sec === name));
+  document.querySelectorAll('.sec').forEach(s => s.classList.toggle('on', s.id === 'sec-' + name));
+  window.dispatchEvent(new CustomEvent('r7:section', { detail: name }));
+  history.replaceState(null, '', '#' + name);
+}
+tabs.addEventListener('click', e => { const b = e.target.closest('button'); if (b) openSec(b.dataset.sec); });
+const first = location.hash.slice(1);
+openSec(first && document.getElementById('sec-' + first) ? first : 'map');
+</script>
+</body>
+</html>

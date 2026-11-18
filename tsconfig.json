@@ -7,10 +7,11 @@
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx"
   ],
+  "exclude": ["node_modules", "vendor"],
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "lib": ["DOM", "DOM.Iterable", "ES2024"],
     "jsx": "react-jsx",
     "moduleResolution": "Bundler",
     "allowJs": false,

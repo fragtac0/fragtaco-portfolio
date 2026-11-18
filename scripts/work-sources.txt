@@ -1,0 +1,17 @@
+# The long form list of the work page, in the order shown. One source per line: a video id, or @handle
+# for every long form upload (not Shorts) of a channel. A video listed twice is kept once, at its first place.
+# Read by `yarn sync:work`.
+9hkHhSmcA9s
+FKc_IY2oQK4
+yTF_aczKJzg
+o321t-rfScA
+-_ovL8w1TMM
+pjMlXwicWMw
+dU1E51HJ688
+JIkttg_SUg8
+5_d7HivYULE
+ZDk9QKOLoLA
+67tM7Vb_-HU
+wit1TTy0UWY
+@AllRiskIsCreative9
+@TheSamderShow

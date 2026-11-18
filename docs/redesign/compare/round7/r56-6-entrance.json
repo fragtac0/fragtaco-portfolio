@@ -1,0 +1,915 @@
+{
+ "what": "R56.6 (round 7 second look, Task 31): My experience's words beside the mountain, their entrance and the trail tracing itself",
+ "date": "2026-11-17",
+ "build": "60dd635 (R56.6b) code; audits from scripts/audit/experience-entrance.json (cdp.mjs, production build on :5180, under the gate lock; load average 4.4 to 5.0 from other applications)",
+ "experience_entrance_json": {
+  "checks": 18,
+  "passed": 18,
+  "results": [
+   {
+    "step": "the change into My experience from the portfolio at 1440 x 900: nothing at 0.6 T, the title partly in at 0.8 T, the trail half drawn with only the beads behind its tip at T + 1100 ms, everything at T + 3200 ms; no layout shift; no frame over 34 ms",
+    "anchor": 8207.4,
+    "lagFromReveal": 3.2,
+    "at06": {
+     "title": 0,
+     "label": 0,
+     "desc": 0,
+     "pinsIn": 0,
+     "cream": 0
+    },
+    "at08": {
+     "title": "5/12",
+     "label": 0,
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT": {
+     "title": "12/12",
+     "label": "11/11",
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT1100": {
+     "cream": 193,
+     "share": 0.55,
+     "pinsIn": 3,
+     "orange": 0
+    },
+    "atT3200": {
+     "title": "12/12",
+     "label": "11/11",
+     "desc": 1,
+     "lines": [
+      1,
+      1,
+      1
+     ],
+     "cream": 349,
+     "orange": 235,
+     "pinsIn": 9
+    },
+    "firstLetterAt": 1699,
+    "firstCreamSnapAt": 3350,
+    "frames": 368,
+    "medianGapMs": 16.7,
+    "maxGapMs": 116.7,
+    "over20": 2,
+    "over34": 1,
+    "over34Idle": 1,
+    "over34Own": 0,
+    "over34Own_at": [],
+    "over34At": [
+     [
+      2516,
+      117
+     ]
+    ],
+    "layoutShifts": 0,
+    "layoutShiftSum": 0,
+    "checks": {
+     "nothingAt06": true,
+     "titlePartlyAt08": true,
+     "titleInAtTNoTrail": true,
+     "halfDrawnAtT1100": true,
+     "everythingAtT3200": true,
+     "noLayoutShift": true,
+     "noOwnFrameOver34": true
+    },
+    "ok": true
+   },
+   {
+    "step": "the change into My experience from home at 1440 x 900: nothing at 0.6 T, the title partly in at 0.8 T, the trail half drawn with only the beads behind its tip at T + 1100 ms, everything at T + 3200 ms; no layout shift; no frame over 34 ms",
+    "anchor": 8229,
+    "lagFromReveal": 2.1,
+    "at06": {
+     "title": 0,
+     "label": 0,
+     "desc": 0,
+     "pinsIn": 0,
+     "cream": 0
+    },
+    "at08": {
+     "title": "4/12",
+     "label": 0,
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT": {
+     "title": "12/12",
+     "label": "11/11",
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT1100": {
+     "cream": 193,
+     "share": 0.55,
+     "pinsIn": 3,
+     "orange": 0
+    },
+    "atT3200": {
+     "title": "12/12",
+     "label": "11/11",
+     "desc": 1,
+     "lines": [
+      1,
+      1,
+      1
+     ],
+     "cream": 349,
+     "orange": 235,
+     "pinsIn": 9
+    },
+    "firstLetterAt": 1725.6,
+    "firstCreamSnapAt": 3350,
+    "frames": 369,
+    "medianGapMs": 16.7,
+    "maxGapMs": 100,
+    "over20": 2,
+    "over34": 1,
+    "over34Idle": 1,
+    "over34Own": 0,
+    "over34Own_at": [],
+    "over34At": [
+     [
+      2476,
+      100
+     ]
+    ],
+    "layoutShifts": 0,
+    "layoutShiftSum": 0,
+    "checks": {
+     "nothingAt06": true,
+     "titlePartlyAt08": true,
+     "titleInAtTNoTrail": true,
+     "halfDrawnAtT1100": true,
+     "everythingAtT3200": true,
+     "noLayoutShift": true,
+     "noOwnFrameOver34": true
+    },
+    "ok": true
+   },
+   {
+    "step": "the change into My experience from the portfolio at 390 x 844: nothing at 0.6 T, the title partly in at 0.8 T, the trail half drawn with only the beads behind its tip at T + 1100 ms, everything at T + 3200 ms; no layout shift; no frame over 34 ms",
+    "anchor": 8206.3,
+    "lagFromReveal": 2.2,
+    "at06": {
+     "title": 0,
+     "label": 0,
+     "desc": 0,
+     "pinsIn": 0,
+     "cream": 0
+    },
+    "at08": {
+     "title": "5/12",
+     "label": 0,
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT": {
+     "title": "12/12",
+     "label": "11/11",
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT1100": {
+     "cream": 944,
+     "share": 0.5,
+     "pinsIn": 3,
+     "orange": 0
+    },
+    "atT3200": {
+     "title": "12/12",
+     "label": "11/11",
+     "desc": 1,
+     "lines": [
+      1,
+      1,
+      1
+     ],
+     "cream": 1876,
+     "orange": 757,
+     "pinsIn": 9
+    },
+    "firstLetterAt": 1699.1,
+    "firstCreamSnapAt": 3350,
+    "frames": 370,
+    "medianGapMs": 16.7,
+    "maxGapMs": 100,
+    "over20": 1,
+    "over34": 1,
+    "over34Idle": 1,
+    "over34Own": 0,
+    "over34Own_at": [],
+    "over34At": [
+     [
+      2466,
+      100
+     ]
+    ],
+    "layoutShifts": 0,
+    "layoutShiftSum": 0,
+    "checks": {
+     "nothingAt06": true,
+     "titlePartlyAt08": true,
+     "titleInAtTNoTrail": true,
+     "halfDrawnAtT1100": true,
+     "everythingAtT3200": true,
+     "noLayoutShift": true,
+     "noOwnFrameOver34": true
+    },
+    "ok": true
+   },
+   {
+    "step": "the change into My experience from home at 390 x 844: nothing at 0.6 T, the title partly in at 0.8 T, the trail half drawn with only the beads behind its tip at T + 1100 ms, everything at T + 3200 ms; no layout shift; no frame over 34 ms",
+    "anchor": 8209.2,
+    "lagFromReveal": 2.1,
+    "at06": {
+     "title": 0,
+     "label": 0,
+     "desc": 0,
+     "pinsIn": 0,
+     "cream": 0
+    },
+    "at08": {
+     "title": "4/12",
+     "label": 0,
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT": {
+     "title": "12/12",
+     "label": "11/11",
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT1100": {
+     "cream": 947,
+     "share": 0.5,
+     "pinsIn": 3,
+     "orange": 0
+    },
+    "atT3200": {
+     "title": "12/12",
+     "label": "11/11",
+     "desc": 1,
+     "lines": [
+      1,
+      1,
+      1
+     ],
+     "cream": 1876,
+     "orange": 757,
+     "pinsIn": 9
+    },
+    "firstLetterAt": 1716.3,
+    "firstCreamSnapAt": 3350,
+    "frames": 369,
+    "medianGapMs": 16.7,
+    "maxGapMs": 116.7,
+    "over20": 1,
+    "over34": 1,
+    "over34Idle": 1,
+    "over34Own": 0,
+    "over34Own_at": [],
+    "over34At": [
+     [
+      2500,
+      117
+     ]
+    ],
+    "layoutShifts": 0,
+    "layoutShiftSum": 0,
+    "checks": {
+     "nothingAt06": true,
+     "titlePartlyAt08": true,
+     "titleInAtTNoTrail": true,
+     "halfDrawnAtT1100": true,
+     "everythingAtT3200": true,
+     "noLayoutShift": true,
+     "noOwnFrameOver34": true
+    },
+    "ok": true
+   },
+   {
+    "step": "the words beside the mountain at 1440 x 900",
+    "W": 1440,
+    "H": 900,
+    "words": null,
+    "engine": "on",
+    "titleSize": 64,
+    "head": [
+     48,
+     352,
+     470,
+     548
+    ],
+    "cap": [
+     1181,
+     380,
+     1392,
+     520
+    ],
+    "summitRow": 450,
+    "cliffGap": 63.3,
+    "titleRowOffset": 0,
+    "headLeft": 48,
+    "capRightGap": 0,
+    "captionMoved": 0,
+    "beadGap": 183.9,
+    "trailGap": null,
+    "switchGap": 310.9,
+    "dockGap": 339.3,
+    "spans": [
+     {
+      "w": 211,
+      "max": 211
+     },
+     {
+      "w": 211,
+      "max": 211
+     },
+     {
+      "w": 211,
+      "max": 211
+     }
+    ],
+    "ok": true
+   },
+   {
+    "step": "the words beside the mountain at 1280 x 720",
+    "W": 1280,
+    "H": 720,
+    "words": null,
+    "engine": "on",
+    "titleSize": 58,
+    "head": [
+     48,
+     268,
+     431,
+     452
+    ],
+    "cap": [
+     1021,
+     290,
+     1232,
+     430
+    ],
+    "summitRow": 360,
+    "cliffGap": 43.6,
+    "titleRowOffset": 0,
+    "headLeft": 48,
+    "capRightGap": 0,
+    "captionMoved": 0,
+    "beadGap": 133.7,
+    "trailGap": null,
+    "switchGap": 220.9,
+    "dockGap": 219.1,
+    "spans": [
+     {
+      "w": 211,
+      "max": 211
+     },
+     {
+      "w": 211,
+      "max": 211
+     },
+     {
+      "w": 211,
+      "max": 211
+     }
+    ],
+    "ok": true
+   },
+   {
+    "step": "the words beside the mountain at 1024 x 768",
+    "W": 1024,
+    "H": 768,
+    "words": null,
+    "engine": "on",
+    "titleSize": 43,
+    "head": [
+     48,
+     307,
+     332,
+     461
+    ],
+    "cap": [
+     765,
+     196,
+     976,
+     336
+    ],
+    "summitRow": 384,
+    "cliffGap": 27.3,
+    "titleRowOffset": 0,
+    "headLeft": 48,
+    "capRightGap": 0,
+    "captionMoved": -118,
+    "beadGap": 54.9,
+    "trailGap": 62.7,
+    "switchGap": 126.9,
+    "dockGap": 296.3,
+    "spans": [
+     {
+      "w": 211,
+      "max": 211
+     },
+     {
+      "w": 211,
+      "max": 211
+     },
+     {
+      "w": 211,
+      "max": 211
+     }
+    ],
+    "ok": true
+   },
+   {
+    "step": "the words beside the mountain at 900 x 600",
+    "W": 900,
+    "H": 600,
+    "words": null,
+    "engine": "on",
+    "titleSize": 39,
+    "head": [
+     48,
+     227,
+     305,
+     373
+    ],
+    "cap": [
+     641,
+     111,
+     852,
+     251
+    ],
+    "summitRow": 300,
+    "cliffGap": 25.2,
+    "titleRowOffset": 0,
+    "headLeft": 48,
+    "capRightGap": 0,
+    "captionMoved": -119,
+    "beadGap": 48.7,
+    "trailGap": 55.7,
+    "switchGap": 41.9,
+    "dockGap": 211.9,
+    "spans": [
+     {
+      "w": 211,
+      "max": 211
+     },
+     {
+      "w": 211,
+      "max": 211
+     },
+     {
+      "w": 211,
+      "max": 211
+     }
+    ],
+    "ok": true
+   },
+   {
+    "step": "today's places at 390 x 844",
+    "W": 390,
+    "H": 844,
+    "words": "old",
+    "engine": "on",
+    "titleSize": 34,
+    "head": [
+     16,
+     22,
+     301,
+     151
+    ],
+    "cap": [
+     16,
+     591,
+     374,
+     699
+    ],
+    "summitRow": 393,
+    "headTop": 22,
+    "headLeft": 16,
+    "capLeft": 16,
+    "capAboveDock": 40,
+    "titleSizeWant": 34,
+    "ok": true
+   },
+   {
+    "step": "today's places at 844 x 390",
+    "W": 844,
+    "H": 390,
+    "words": "old",
+    "engine": "on",
+    "titleSize": 38.824,
+    "head": [
+     48,
+     28,
+     378,
+     116
+    ],
+    "cap": [
+     48,
+     198,
+     379,
+     237
+    ],
+    "summitRow": 128,
+    "headTop": 28,
+    "headLeft": 48,
+    "capLeft": 48,
+    "capAboveDock": 16,
+    "titleSizeWant": 38.82,
+    "ok": true
+   },
+   {
+    "step": "today's places at 820 x 1180",
+    "W": 820,
+    "H": 1180,
+    "words": "old",
+    "engine": "on",
+    "titleSize": 37.72,
+    "head": [
+     48,
+     28,
+     297,
+     172
+    ],
+    "cap": [
+     48,
+     949,
+     463,
+     1027
+    ],
+    "summitRow": 590,
+    "headTop": 28,
+    "headLeft": 48,
+    "capLeft": 48,
+    "capAboveDock": 16,
+    "titleSizeWant": 37.72,
+    "ok": true
+   },
+   {
+    "step": "a first load (a deep link) plays the entrance counted from the picture's showing: the title at 0.7 T, the trail from T",
+    "anchor": 34.8,
+    "lagFromReveal": null,
+    "at06": {
+     "title": 0,
+     "label": 0,
+     "desc": 0,
+     "pinsIn": 0,
+     "cream": 0
+    },
+    "at08": {
+     "title": "5/12",
+     "label": 0,
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT": {
+     "title": "12/12",
+     "label": "11/11",
+     "cream": 0,
+     "pinsIn": 0
+    },
+    "atT1100": {
+     "cream": 193,
+     "share": 0.55,
+     "pinsIn": 3,
+     "orange": 0
+    },
+    "atT3200": {
+     "title": "12/12",
+     "label": "11/11",
+     "desc": 1,
+     "lines": [
+      1,
+      1,
+      1
+     ],
+     "cream": 349,
+     "orange": 235,
+     "pinsIn": 9
+    },
+    "firstLetterAt": 1699.1,
+    "firstCreamSnapAt": 3350,
+    "frames": 370,
+    "medianGapMs": 16.7,
+    "maxGapMs": 99.9,
+    "over20": 1,
+    "over34": 1,
+    "over34Idle": 1,
+    "over34Own": 0,
+    "over34Own_at": [],
+    "over34At": [
+     [
+      182,
+      100
+     ]
+    ],
+    "layoutShifts": 0,
+    "layoutShiftSum": 0,
+    "checks": {
+     "nothingAt06": true,
+     "titlePartlyAt08": true,
+     "titleInAtTNoTrail": true,
+     "halfDrawnAtT1100": true,
+     "everythingAtT3200": true,
+     "noLayoutShift": true,
+     "noOwnFrameOver34": true
+    },
+    "ok": true
+   },
+   {
+    "step": "a key press during the trail finishes the entrance at once",
+    "soon": {
+     "state": "done",
+     "mode": "overview",
+     "letters": 23,
+     "total": 23,
+     "rise": 4,
+     "riseTotal": 4,
+     "pinsIn": 9,
+     "pins": 9,
+     "cream": 349,
+     "orange": 371
+    },
+    "later": {
+     "state": "done",
+     "mode": "overview",
+     "letters": 23,
+     "total": 23,
+     "rise": 4,
+     "riseTotal": 4,
+     "pinsIn": 9,
+     "pins": 9,
+     "cream": 349,
+     "orange": 252
+    },
+    "whole": true,
+    "ok": true
+   },
+   {
+    "step": "a click on the switch during the trail finishes the entrance at once and goes into My climb",
+    "state": "done",
+    "mode": "climb",
+    "letters": 23,
+    "total": 23,
+    "pinsIn": 9,
+    "pins": 9,
+    "ok": true
+   },
+   {
+    "step": "a bead that has the focus is shown before the tip reaches it",
+    "before": {
+     "wait": true,
+     "disabled": false,
+     "op": 0,
+     "hasFocus": true
+    },
+    "after": {
+     "wait": true,
+     "op": 0.575614,
+     "focused": true,
+     "focusVisible": true
+    },
+    "ok": true
+   },
+   {
+    "step": "coming back from My climb replays nothing: the words fade in as before, the trail is whole",
+    "entrance": "done",
+    "inClimb": [
+     0,
+     0
+    ],
+    "fadingBack": [
+     0.590646,
+     0.590646
+    ],
+    "backIn": [
+     1,
+     1
+    ],
+    "replayed": [],
+    "pinsIn": 9,
+    "pins": 9,
+    "creamBefore": 351,
+    "creamAfter": 368,
+    "ok": true
+   },
+   {
+    "step": "reduced motion: no letters, no drawing; everything fades in together over about 200 ms when the reveal ends",
+    "anchor": 6627.699999988079,
+    "names": [
+     "map-fade-in"
+    ],
+    "revealEnd": 120,
+    "firstShownAt": 177,
+    "fullAt": 377,
+    "fadeMs": 200,
+    "togetherMax": 0,
+    "pinsInAtFull": 9,
+    "pins": 9,
+    "cream": 351,
+    "finalState": "play",
+    "ok": true
+   },
+   {
+    "step": "no canvas: the words still enter (old places), no trail and no beads",
+    "engine": "off",
+    "words": "old",
+    "state": "done",
+    "letters": [
+     23,
+     23
+    ],
+    "pins": 0,
+    "list": true,
+    "firstLetterAt": 1689.5,
+    "anchor": 37.39999997615814,
+    "ok": true
+   }
+  ]
+ },
+ "arrival_12": {
+  "verdict": "PASS",
+  "runs": 12,
+  "note": "make-arrival.mjs, six changes at 1512x982@2 and 390x844@3, generated pictures; the change into My experience leaves the words, the trail and the beads out of its comparison (spec 8's exception: arrival-page.mjs ENTRANCE_BOXES and SNAP)",
+  "results": [
+   {
+    "name": "portfolio-to-experience",
+    "size": "1512x982@2",
+    "ok": true,
+    "F_vs_E_pct": 0,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 66,
+    "blockedHoldMs": 501,
+    "blockedLate": "map",
+    "entranceLeftOut": [
+     ".map-heading",
+     ".map-caption",
+     ".map-trail (the trail, the beads, the way ahead, the radar)"
+    ]
+   },
+   {
+    "name": "portfolio-to-experience",
+    "size": "390x844@3",
+    "ok": true,
+    "F_vs_E_pct": 0,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 48,
+    "blockedHoldMs": 501,
+    "blockedLate": "map",
+    "entranceLeftOut": [
+     ".map-heading",
+     ".map-caption",
+     ".map-trail (the trail, the beads, the way ahead, the radar)"
+    ]
+   },
+   {
+    "name": "home-to-portfolio",
+    "size": "1512x982@2",
+    "ok": true,
+    "F_vs_E_pct": 0.002,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 43,
+    "blockedHoldMs": 500,
+    "blockedLate": "ground rings",
+    "entranceLeftOut": []
+   },
+   {
+    "name": "portfolio-to-long-form",
+    "size": "1512x982@2",
+    "ok": true,
+    "F_vs_E_pct": 0.002,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 12,
+    "blockedHoldMs": 502,
+    "blockedLate": "wall",
+    "entranceLeftOut": []
+   },
+   {
+    "name": "portfolio-to-short-form",
+    "size": "1512x982@2",
+    "ok": true,
+    "F_vs_E_pct": 0.002,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 0,
+    "blockedHoldMs": 6,
+    "blockedLate": "",
+    "entranceLeftOut": []
+   },
+   {
+    "name": "home-to-portfolio",
+    "size": "390x844@3",
+    "ok": true,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 16,
+    "blockedHoldMs": 502,
+    "blockedLate": "ground rings",
+    "entranceLeftOut": []
+   },
+   {
+    "name": "portfolio-to-long-form",
+    "size": "390x844@3",
+    "ok": true,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 15,
+    "blockedHoldMs": 501,
+    "blockedLate": "wall",
+    "entranceLeftOut": []
+   },
+   {
+    "name": "portfolio-to-short-form",
+    "size": "390x844@3",
+    "ok": true,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 1,
+    "blockedHoldMs": 2,
+    "blockedLate": "",
+    "entranceLeftOut": []
+   },
+   {
+    "name": "portfolio-to-home",
+    "size": "1512x982@2",
+    "ok": true,
+    "F_vs_E_pct": 0.021,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 60,
+    "blockedHoldMs": 502,
+    "blockedLate": "painting",
+    "entranceLeftOut": []
+   },
+   {
+    "name": "long-form-to-portfolio",
+    "size": "1512x982@2",
+    "ok": true,
+    "F_vs_E_pct": 0.003,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 11,
+    "blockedHoldMs": 502,
+    "blockedLate": "rings",
+    "entranceLeftOut": []
+   },
+   {
+    "name": "portfolio-to-home",
+    "size": "390x844@3",
+    "ok": true,
+    "F_vs_E_pct": 0.005,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 181,
+    "blockedHoldMs": 502,
+    "blockedLate": "painting",
+    "entranceLeftOut": []
+   },
+   {
+    "name": "long-form-to-portfolio",
+    "size": "390x844@3",
+    "ok": true,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_outside_resting_pct": 0,
+    "layoutShifts": 0,
+    "dockSame": true,
+    "holdMs": 2,
+    "blockedHoldMs": 501,
+    "blockedLate": "rings",
+    "entranceLeftOut": []
+   }
+  ]
+ },
+ "other": {
+  "experience.json": "89 steps, 87 pass in the full run under load average about 5; the two that failed were the frame gaps in My climb while the arrow keys step (1x: 2 frames of 33.4 ms; 4x: 7 over 34 ms); re-run once under the lock: 1x max 16.8 ms, 4x max 16.8 ms, none over",
+  "experience-fallback.json": "4 of 4",
+  "arrival.json": "16 of 16 (RF1, RF2, RF5, RF6)",
+  "page-change.json": "5 changes, animMax 16.8 ms, 0 over 34 ms",
+  "page-change-hook.json": "two runs after the fix: 0 over 34 ms in all five changes, including / to /experience (animMax 16.8)",
+  "page-change-phone.json": "5 changes, 0 over 34 ms, animMax 16.8"
+ }
+}

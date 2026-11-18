@@ -1,0 +1,52 @@
+/*
+ * The Eclipse ground (spec 5.1; eclipse-ground.tsx): a still picture of the placement under a WebGL canvas that
+ * fades in over it once it has drawn its first frame. Decorative and never interactive. No z-index: it comes first
+ * in its parent, so everything after it is above it.
+ */
+.eclipse {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh; /* the large viewport: on a phone the address bar collapsing does not resize (and so clear) the canvas */
+  height: 100lvh;
+  overflow: hidden;
+  overflow: clip;
+  pointer-events: none;
+  background: var(--ground); /* only seen until the still has loaded */
+}
+/* behind the home page's two shelf blocks: the section's own box, with a picture the size of the screen that sticks while the section scrolls by */
+.eclipse-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.eclipse[data-scope="section"] {
+  position: sticky;
+}
+.eclipse-still,
+.eclipse-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.eclipse-still img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+/* the work addresses keep one picture each in the layer so a change of address never waits for one to load */
+.eclipse-still[data-on="false"] {
+  opacity: 0;
+}
+.eclipse-canvas {
+  opacity: 0;
+  transition: opacity 500ms ease-out;
+}
+.eclipse[data-live="true"] .eclipse-canvas {
+  opacity: 1;
+}

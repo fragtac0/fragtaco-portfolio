@@ -1,0 +1,91 @@
+import { describe, expect, it } from "vitest";
+import type { WorkVideo } from "../types";
+import { placeholderArt } from "./placeholder-art";
+import { coverUrl, isMissingCover, youtubeId } from "./work-media";
+
+const video = (over: Partial<WorkVideo>): WorkVideo => ({
+  id: "ft-long-01",
+  title: "Placeholder long 01",
+  for: "Placeholder",
+  year: 2026,
+  url: "https://www.youtube.com/@fragtaco",
+  source: "other",
+  ...over,
+});
+
+describe("youtubeId", () => {
+  it("reads a youtu.be link", () => {
+    expect(youtubeId("https://youtu.be/GrtKxfATyTw")).toBe("GrtKxfATyTw");
+  });
+
+  it("reads a watch link with other parameters", () => {
+    expect(youtubeId("https://www.youtube.com/watch?v=GrtKxfATyTw&t=3")).toBe("GrtKxfATyTw");
+  });
+
+  it("reads a shorts link", () => {
+    expect(youtubeId("https://www.youtube.com/shorts/GrtKxfATyTw")).toBe("GrtKxfATyTw");
+  });
+
+  it("returns null for other hosts, channel pages and bad ids", () => {
+    expect(youtubeId("https://www.instagram.com/reel/GrtKxfATyTw/")).toBeNull();
+    expect(youtubeId("https://www.youtube.com/@fragtaco")).toBeNull();
+    expect(youtubeId("https://www.youtube.com/watch?v=short")).toBeNull();
+    expect(youtubeId("not a url")).toBeNull();
+  });
+});
+
+describe("coverUrl", () => {
+  it("prefers the cover in the file", () => {
+    expect(coverUrl(video({ cover: "/work/a.jpg" }), false)).toBe("/work/a.jpg");
+  });
+
+  it("builds the YouTube thumbnail when there is no cover", () => {
+    const v = video({ source: "youtube", url: "https://youtu.be/GrtKxfATyTw" });
+
+    expect(coverUrl(v, false)).toBe("https://i.ytimg.com/vi/GrtKxfATyTw/hqdefault.jpg");
+    expect(coverUrl(v, true)).toBe("https://i.ytimg.com/vi/GrtKxfATyTw/oar2.jpg");
+  });
+
+  it("asks for the larger sddefault of a landscape one when sharp (a tile wider than hqdefault is at the screen's pixels), never for the portrait cut", () => {
+    const v = video({ source: "youtube", url: "https://youtu.be/GrtKxfATyTw" });
+
+    expect(coverUrl(v, false, true)).toBe("https://i.ytimg.com/vi/GrtKxfATyTw/sddefault.jpg");
+    expect(coverUrl(v, true, true)).toBe("https://i.ytimg.com/vi/GrtKxfATyTw/oar2.jpg");
+    expect(coverUrl(video({ cover: "/work/a.jpg" }), false, true)).toBe("/work/a.jpg");
+  });
+
+  it("falls back to local placeholder art for other sources, upright when tall", () => {
+    expect(coverUrl(video({ id: "ft-x" }), false)).toBe(placeholderArt("ft-x", false));
+    expect(coverUrl(video({ id: "ft-x" }), true)).toBe(placeholderArt("ft-x", true));
+  });
+
+  it("falls back to placeholder art for a YouTube item whose url has no id", () => {
+    expect(coverUrl(video({ source: "youtube", id: "ft-y" }), false)).toBe(placeholderArt("ft-y", false));
+  });
+
+  it("never asks another site for a placeholder", () => {
+    expect(coverUrl(video({ id: "ft-x" }), false)).toMatch(/^data:image\/svg\+xml,/);
+  });
+});
+
+describe("isMissingCover", () => {
+  const real = "https://i.ytimg.com/vi/abcdefghijk/hqdefault.jpg";
+  it("takes YouTube's small grey picture for a removed video as a missing cover", () => {
+    expect(isMissingCover(real, 120)).toBe(true);
+    expect(isMissingCover(real, 90)).toBe(true);
+  });
+  it("keeps a real thumbnail (480 wide, or the portrait cut)", () => {
+    expect(isMissingCover(real, 480)).toBe(false);
+    expect(isMissingCover("https://i.ytimg.com/vi/abcdefghijk/oar2.jpg", 360)).toBe(false);
+    expect(isMissingCover(real, 121)).toBe(false);
+  });
+  it("takes a picture with no size as missing, from any host", () => {
+    expect(isMissingCover(real, 0)).toBe(true);
+    expect(isMissingCover("https://example.com/cover.jpg", 0)).toBe(true);
+  });
+  it("does not judge a small picture from another host or a local one", () => {
+    expect(isMissingCover("https://example.com/cover.jpg", 100)).toBe(false);
+    expect(isMissingCover("data:image/svg+xml;utf8,%3Csvg%3E", 100)).toBe(false);
+    expect(isMissingCover("not a url", 100)).toBe(false);
+  });
+});

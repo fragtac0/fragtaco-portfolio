@@ -1,0 +1,279 @@
+[
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/?nogl=1#watching",
+  "wait": 4000,
+  "eval": "(()=>{const m=document.querySelector('.home-layer .xp-meta').getBoundingClientRect();const h=document.querySelector('.home-layer .xp-head').getBoundingClientRect();const it=document.querySelector('.home-layer .fb-item img, .home-layer .fb-item').getBoundingClientRect();const sc=document.querySelector('.home-layer .fb-scroll');const bg=getComputedStyle(document.querySelector('.home-layer .xp-head'),'::before').backgroundImage;return {fb:!!sc,countBottom:Math.round(m.bottom),headBottom:Math.round(h.bottom),firstThumbTop:Math.round(it.top),pad:getComputedStyle(sc).paddingTop,clear:it.top>=m.bottom+8,full:bg.slice(0,200).indexOf('/ 0.94)')>0,stripFirstStop:bg.slice(0,120)}})()",
+  "label": "1440x900 the first row clears the count, the full strip stays"
+ },
+ {
+  "shot": "local-fb-1440x900-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1440x900 contrast over the fallback grid"
+ },
+ {
+  "shot": "local-fb-1440x900"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1024,
+   768
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/?nogl=1#watching",
+  "wait": 4000,
+  "eval": "(()=>{const m=document.querySelector('.home-layer .xp-meta').getBoundingClientRect();const h=document.querySelector('.home-layer .xp-head').getBoundingClientRect();const it=document.querySelector('.home-layer .fb-item img, .home-layer .fb-item').getBoundingClientRect();const sc=document.querySelector('.home-layer .fb-scroll');const bg=getComputedStyle(document.querySelector('.home-layer .xp-head'),'::before').backgroundImage;return {fb:!!sc,countBottom:Math.round(m.bottom),headBottom:Math.round(h.bottom),firstThumbTop:Math.round(it.top),pad:getComputedStyle(sc).paddingTop,clear:it.top>=m.bottom+8,full:bg.slice(0,200).indexOf('/ 0.94)')>0,stripFirstStop:bg.slice(0,120)}})()",
+  "label": "1024x768 the first row clears the count, the full strip stays"
+ },
+ {
+  "shot": "local-fb-1024x768-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   },
+   {
+    "name": "Close word",
+    "selector": ".home-layer .xp-close",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ],
+    "glass": true
+   }
+  ],
+  "label": "1024x768 contrast over the fallback grid"
+ },
+ {
+  "shot": "local-fb-1024x768"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/?nogl=1#watching",
+  "wait": 4000,
+  "eval": "(()=>{const m=document.querySelector('.home-layer .xp-meta').getBoundingClientRect();const h=document.querySelector('.home-layer .xp-head').getBoundingClientRect();const it=document.querySelector('.home-layer .fb-item img, .home-layer .fb-item').getBoundingClientRect();const sc=document.querySelector('.home-layer .fb-scroll');const bg=getComputedStyle(document.querySelector('.home-layer .xp-head'),'::before').backgroundImage;return {fb:!!sc,countBottom:Math.round(m.bottom),headBottom:Math.round(h.bottom),firstThumbTop:Math.round(it.top),pad:getComputedStyle(sc).paddingTop,clear:it.top>=m.bottom+8,full:bg.slice(0,200).indexOf('/ 0.94)')>0,stripFirstStop:bg.slice(0,120)}})()",
+  "label": "390x844 the first row clears the count, the full strip stays"
+ },
+ {
+  "shot": "local-fb-390x844-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   }
+  ],
+  "label": "390x844 contrast over the fallback grid"
+ },
+ {
+  "shot": "local-fb-390x844"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/?nogl=1#watching",
+  "wait": 4000,
+  "eval": "(()=>{const m=document.querySelector('.home-layer .xp-meta').getBoundingClientRect();const h=document.querySelector('.home-layer .xp-head').getBoundingClientRect();const it=document.querySelector('.home-layer .fb-item img, .home-layer .fb-item').getBoundingClientRect();const sc=document.querySelector('.home-layer .fb-scroll');const bg=getComputedStyle(document.querySelector('.home-layer .xp-head'),'::before').backgroundImage;return {fb:!!sc,countBottom:Math.round(m.bottom),headBottom:Math.round(h.bottom),firstThumbTop:Math.round(it.top),pad:getComputedStyle(sc).paddingTop,clear:it.top>=m.bottom+8,full:bg.slice(0,200).indexOf('/ 0.94)')>0,stripFirstStop:bg.slice(0,120)}})()",
+  "label": "320x568 the first row clears the count, the full strip stays"
+ },
+ {
+  "shot": "local-fb-320x568-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   }
+  ],
+  "label": "320x568 contrast over the fallback grid"
+ },
+ {
+  "shot": "local-fb-320x568"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   844,
+   390
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "go": "{{BASE}}/?nogl=1#watching",
+  "wait": 4000,
+  "eval": "(()=>{const m=document.querySelector('.home-layer .xp-meta').getBoundingClientRect();const h=document.querySelector('.home-layer .xp-head').getBoundingClientRect();const it=document.querySelector('.home-layer .fb-item img, .home-layer .fb-item').getBoundingClientRect();const sc=document.querySelector('.home-layer .fb-scroll');const bg=getComputedStyle(document.querySelector('.home-layer .xp-head'),'::before').backgroundImage;return {fb:!!sc,countBottom:Math.round(m.bottom),headBottom:Math.round(h.bottom),firstThumbTop:Math.round(it.top),pad:getComputedStyle(sc).paddingTop,clear:it.top>=m.bottom+8,full:bg.slice(0,200).indexOf('/ 0.94)')>0,stripFirstStop:bg.slice(0,120)}})()",
+  "label": "844x390 the first row clears the count, the full strip stays"
+ },
+ {
+  "shot": "local-fb-844x390-warm"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title (ink 92%)",
+    "selector": ".home-layer .xp-head .display",
+    "ink": [
+     253,
+     252,
+     230,
+     0.92
+    ]
+   },
+   {
+    "name": "count (ink 62%)",
+    "selector": ".home-layer .xp-head .xp-meta",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ]
+   }
+  ],
+  "label": "844x390 contrast over the fallback grid"
+ },
+ {
+  "shot": "local-fb-844x390"
+ },
+ {
+  "go": "about:blank",
+  "wait": 300
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/#watching",
+  "wait": 5000,
+  "eval": "(()=>{const bg=getComputedStyle(document.querySelector('.home-layer .xp-head'),'::before').backgroundImage;return {canvas:!!document.querySelector('.wall-host canvas'),fallbackGrid:!!document.querySelector('.fb-scroll'),lighterStrip:/ 0\\.55\\)/.test(bg.slice(0,200)),first:bg.slice(0,110)}})()",
+  "label": "with WebGL the wall keeps its lighter strip"
+ }
+]

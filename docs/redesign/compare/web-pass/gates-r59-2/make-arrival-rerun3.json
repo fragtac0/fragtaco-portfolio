@@ -1,0 +1,203 @@
+{
+ "what": "R56.2 frozen-frame check (round 7 change-arrival spec 5.4), from scripts/audit/make-arrival.mjs",
+ "date": "2026-11-17",
+ "verdict": true,
+ "results": [
+  {
+   "name": "portfolio-to-home",
+   "size": "390x844@3",
+   "first": {
+    "clickToHoldMs": 60,
+    "holdMs": 33,
+    "clickToRevealMs": 94,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 42,
+    "holdMs": 48,
+    "clickToRevealMs": 90,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.124,
+    "E_vs_L_pct": 1.353,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.46,
+    "wall_canvas_coarse_mean_diff": 0.46,
+    "resting_boxes_coarse_worst_cell": 4.1,
+    "wall_canvas_coarse_worst_cell": 4.1,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".paint-host"
+    ],
+    "entranceHidden": [],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 34,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "Flive": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "E": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "L": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "div.edge-glow 0.55893->0.878963",
+      "div.edge-glow 0.94107->0.621037"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 348,
+    "overMs": 21,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "entrance_hidden": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 72,
+    "holdMs": 500,
+    "clickToRevealMs": 572,
+    "lateAtReveal": "painting",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.021,
+    "E_vs_L_pct": 0,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.11,
+    "wall_canvas_coarse_mean_diff": 0.11,
+    "resting_boxes_coarse_worst_cell": 1.9,
+    "wall_canvas_coarse_worst_cell": 1.9,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".paint-host"
+    ],
+    "entranceHidden": [],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 34,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "Flive": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "E": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "L": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 290,
+    "overMs": 23,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "entrance_hidden": true,
+     "hold_cap": true
+    },
+    "ok": true,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  }
+ ]
+}

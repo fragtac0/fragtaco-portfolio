@@ -1,0 +1,78 @@
+/*
+ * My experience's entrance (round 7 second look, spec 8): the words come in as the page change completes. The page says where the entrance is
+ * (`data-entrance` on the page: wait, play, done) and writes the table of the spec as variables (entrance.ts `entranceVars`: `--ent-*`, in
+ * milliseconds from the reveal's start, each delay shortened by `--ent-lag`, how late the page learnt of the start). Only opacity and transform move;
+ * the letters and lines are in the layout from the first paint, so nothing about the page's layout changes. Before its time a word is not shown at
+ * all (not dimmed); once the entrance is done, or finished at once by a press, they are plain. The trail, the beads and the radar are the map's
+ * (entrance-driver.ts, cards.css).
+ */
+.map-word {
+  display: inline-block;
+  white-space: nowrap; /* a line breaks at the spaces, never inside a word */
+}
+.map-letter {
+  display: inline-block;
+}
+
+/* before their time: not shown. The failsafe: the server's HTML has them waiting, and if the script never plays the entrance (it failed or never came) they are shown
+   after 6 s (ENTRANCE_FAILSAFE_MS; tied to this number by entrance-css.test.ts). A page whose script runs leaves "wait" long before that. */
+.map-page[data-entrance="wait"] :is(.map-letter, .map-rise) {
+  opacity: 0;
+  animation: map-failsafe-in var(--ent-reduced-ms, 200ms) linear 6s both;
+}
+
+/* the title, letter by letter from the left; the label the same, a little quicker */
+.map-page[data-entrance="play"] .map-letter {
+  animation: map-letter-in var(--ent-letter-ms) ease-out both;
+}
+.map-page[data-entrance="play"] .map-title .map-letter {
+  animation-delay: calc(var(--ent-title) + var(--i) * var(--ent-title-gap) - var(--ent-lag));
+}
+.map-page[data-entrance="play"] .map-caption-title .map-letter {
+  animation-delay: calc(var(--ent-label) + var(--i) * var(--ent-label-gap) - var(--ent-lag));
+}
+/* the description, then the lines, a breath apart */
+.map-page[data-entrance="play"] .map-rise {
+  animation: map-rise-in var(--ent-line-ms) ease-out both;
+}
+.map-page[data-entrance="play"] .map-text {
+  animation-delay: calc(var(--ent-desc) - var(--ent-lag));
+}
+.map-page[data-entrance="play"] .map-caption .map-rise {
+  animation-delay: calc(var(--ent-lines) + var(--k) * var(--ent-line-gap) - var(--ent-lag));
+}
+
+@keyframes map-letter-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--ent-letter-rise));
+  }
+}
+@keyframes map-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--ent-line-rise));
+  }
+}
+@keyframes map-failsafe-in {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes map-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* reduced motion: no letters and no rising; everything fades in together when the reveal ends */
+@media (prefers-reduced-motion: reduce) {
+  .map-page[data-entrance="play"] :is(.map-letter, .map-rise),
+  .map-page[data-entrance="play"] .map-title .map-letter,
+  .map-page[data-entrance="play"] .map-caption-title .map-letter,
+  .map-page[data-entrance="play"] .map-text,
+  .map-page[data-entrance="play"] .map-caption .map-rise {
+    animation: map-fade-in var(--ent-reduced-ms) linear both;
+    animation-delay: calc(var(--ent-T) - var(--ent-lag));
+  }
+}

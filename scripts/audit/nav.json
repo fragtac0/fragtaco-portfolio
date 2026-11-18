@@ -1,0 +1,296 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "go": "{{BASE}}/",
+  "wait": 8000,
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "loaded"
+ },
+ {
+  "eval": "document.getElementById(\"below\").scrollIntoView(); new Promise(r=>setTimeout(r,1500)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "label": "at-blocks"
+ },
+ {
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3550)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "label": "home-from-blocks"
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39,
+  "wait": 1500,
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "card-open"
+ },
+ {
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3550)).then(()=>JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent}))",
+  "label": "home-with-card"
+ },
+ {
+  "go": "{{BASE}}/work",
+  "wait": 2500,
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "work-direct"
+ },
+ {
+  "go": "{{BASE}}/#about",
+  "wait": 4000,
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "deeplink-about"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/work\\\"]\").click(); new Promise(r=>setTimeout(r,3550)).then(()=>1)"
+ },
+ {
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "work"
+ },
+ {
+  "eval": "document.querySelector(\"header[data-site-nav] a[href=\\\"/\\\"]\").click(); new Promise(r=>setTimeout(r,3550)).then(()=>1)"
+ },
+ {
+  "eval": "JSON.stringify({y:Math.round(scrollY),hash:location.hash,path:location.pathname,html:document.documentElement.className,cards:[...document.querySelectorAll(\".card\")].map(c=>c.className).join(\"|\"),title:document.title,active:document.querySelector(\"header[data-site-nav] [aria-current=page]\")?.textContent})",
+  "label": "home-from-work"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}\nwindow.__arm=()=>{const k=new Set();window.__k=k;const h=document.documentElement;\n new MutationObserver(()=>{if(h.dataset.changeKind)k.add(h.dataset.changeKind)}).observe(h,{attributes:true,attributeFilter:['data-change-kind']});return 'armed'};\nwindow.__state=()=>({path:location.pathname,title:document.title,\n active:[...document.querySelectorAll('header[data-site-nav] [aria-current]')].map(e=>e.textContent.trim().toLowerCase()+'='+e.getAttribute('aria-current')),\n kind:[...(window.__k||[])].join('+')||'none',\n rowOpen:document.querySelector('.dock-row')?'row':'no-row'});\n// Read once the change is over (the kind was seen and the mark is gone), or after 0.9 s when no change was started.\nwindow.__move=(act,want)=>{window.__arm();act();return new Promise(res=>{const t0=performance.now(),h=document.documentElement;const iv=setInterval(()=>{const el=performance.now()-t0;\n if((window.__k.size&&!h.dataset.changeKind&&el>150)||(!window.__k.size&&el>900)||el>9000){clearInterval(iv);setTimeout(()=>{const got=window.__state();\n const ok=['path','title','kind'].every(k=>got[k]===want[k])&&got.active.join(',')===want.active.join(',');res(JSON.stringify({ok,got,want}))},300)}},40)})};",
+  "go": "{{BASE}}/work",
+  "wait": 2500,
+  "label": "tour: hard load /work",
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "work -> long form (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "long -> short (row, radial: the two walls use the same reveal)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "short -> long (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "long -> experience (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> short (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "short -> experience (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> experience again = nothing (row, no change)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"none\"})"
+ },
+ {
+  "label": "experience -> short (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "short -> short again = nothing (row, no change)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"none\"})"
+ },
+ {
+  "label": "short -> rings (back button, radial)",
+  "eval": "__move(()=>{document.querySelector('.wall-head a.xp-close').click()},{\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "rings -> rings again = nothing (dock work tab, no change)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},{\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"none\"})"
+ },
+ {
+  "label": "work -> long (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "long -> long again = nothing (row, no change)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"none\"})"
+ },
+ {
+  "label": "arm for Esc",
+  "eval": "__arm()"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "label": "long -> rings (Esc, radial)",
+  "wait": 4800,
+  "eval": "JSON.stringify((()=>{const got=__state();const want={\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"};return{ok:got.path===want.path&&got.title===want.title&&got.kind===want.kind&&got.active.join()===want.active.join(),got,want}})())"
+ },
+ {
+  "label": "work -> short (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "short -> rings (dock work tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},{\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "work -> experience (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> rings (dock work tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},{\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "work -> long (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "long -> home (dock home tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]').click()},{\"path\":\"/\",\"title\":\"FragTaco - Aditya Bhoir\",\"active\":[\"home=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "home -> work (dock work tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').click()},{\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "work -> experience (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').click()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> home (dock home tab, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]').click()},{\"path\":\"/\",\"title\":\"FragTaco - Aditya Bhoir\",\"active\":[\"home=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "back: home -> experience (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "back: experience -> work (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "back: work -> home (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/\",\"title\":\"FragTaco - Aditya Bhoir\",\"active\":[\"home=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "back: home -> long (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "forward: long -> home (radial)",
+  "eval": "__move(()=>{history.forward()},{\"path\":\"/\",\"title\":\"FragTaco - Aditya Bhoir\",\"active\":[\"home=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "forward: home -> work (radial)",
+  "eval": "__move(()=>{history.forward()},{\"path\":\"/work\",\"title\":\"My portfolio - FragTaco\",\"active\":[\"work=page\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "forward: work -> experience (radial)",
+  "eval": "__move(()=>{history.forward()},{\"path\":\"/experience\",\"title\":\"My experience - FragTaco\",\"active\":[\"my experience=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "experience -> long (row, radial)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').click()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "long -> short (row, radial: the two walls use the same reveal)",
+  "eval": "__move(()=>{document.querySelector('header[data-site-nav] [data-work-tab=\"/work/short-form\"]').click()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "back: short -> long (radial)",
+  "eval": "__move(()=>{history.back()},{\"path\":\"/work/long-form\",\"title\":\"Long form - FragTaco\",\"active\":[\"long form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "forward: long -> short (radial)",
+  "eval": "__move(()=>{history.forward()},{\"path\":\"/work/short-form\",\"title\":\"Short form - FragTaco\",\"active\":[\"short form=page\",\"work=true\"],\"kind\":\"radial\"})"
+ },
+ {
+  "label": "focus: dock Work tab (short form -> rings)",
+  "eval": "document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/work\"]').focus(); 1"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "label": "keyboard: dock Work tab (short form -> rings): focus stays in the dock on the current tab",
+  "eval": "new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='/work'&&!document.documentElement.dataset.changeKind||performance.now()-t0>9000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='/work'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})"
+ },
+ {
+  "label": "focus: row Long form tab (rings -> long form)",
+  "eval": "document.querySelector('header[data-site-nav] [data-work-tab=\"/work/long-form\"]').focus(); 1"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "label": "keyboard: row Long form tab (rings -> long form): focus stays in the dock on the current tab",
+  "eval": "new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='/work/long-form'&&!document.documentElement.dataset.changeKind||performance.now()-t0>9000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='/work/long-form'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})"
+ },
+ {
+  "label": "focus: row My experience tab (long form -> experience)",
+  "eval": "document.querySelector('header[data-site-nav] [data-work-tab=\"/experience\"]').focus(); 1"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "label": "keyboard: row My experience tab (long form -> experience): focus stays in the dock on the current tab",
+  "eval": "new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='/experience'&&!document.documentElement.dataset.changeKind||performance.now()-t0>9000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='/experience'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})"
+ },
+ {
+  "label": "focus: dock Home tab (experience -> home)",
+  "eval": "document.querySelector('header[data-site-nav] nav[aria-label=Primary] a[href=\"/\"]').focus(); 1"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "label": "keyboard: dock Home tab (experience -> home): focus stays in the dock on the current tab",
+  "eval": "new Promise(res=>{const t0=performance.now();const iv=setInterval(()=>{if(location.pathname==='/'&&!document.documentElement.dataset.changeKind||performance.now()-t0>9000){clearInterval(iv);setTimeout(()=>{const a=document.activeElement,d=document.querySelector('header[data-site-nav]');res(JSON.stringify({ok:location.pathname==='/'&&!!d&&!!a&&a!==document.body&&d.contains(a)&&a.getAttribute('aria-current')!==null,path:location.pathname,active:a?a.tagName+' '+(a.getAttribute('data-work-tab')||a.getAttribute('href')||a.textContent.slice(0,20)):null,current:a&&a.getAttribute('aria-current')}))},700)}},50)})"
+ },
+ {
+  "label": "hard load /work/short-form (row open at once)",
+  "go": "{{BASE}}/work/short-form",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "hard load /experience",
+  "go": "{{BASE}}/experience",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "hard load /timeline redirects",
+  "go": "{{BASE}}/timeline",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "hard load /work?view=long redirects",
+  "go": "{{BASE}}/work?view=long",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
+ },
+ {
+  "label": "hard load /work?view=clients redirects",
+  "go": "{{BASE}}/work?view=clients",
+  "wait": 2500,
+  "eval": "JSON.stringify(__state())"
+ }
+]

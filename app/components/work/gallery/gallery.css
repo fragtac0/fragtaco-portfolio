@@ -1,0 +1,183 @@
+/*
+ * The video wall (round 6 spec 6.5, round 7 spec 7): the stage under the heading and the back button, the canvas of
+ * the gallery engine, the links (the accessible list; the visible wall only when there is no WebGL) and the
+ * hover caption. Colours, sizes and layers come from tokens.css.
+ */
+.wall-stage {
+  position: absolute;
+  inset: 0;
+}
+.wall-canvas-host {
+  position: absolute;
+  inset: 0;
+}
+.wall-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The links. Fitted (data-fit, set once the wall is measured): each one sits where the engine draws its picture. */
+.wall-links {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none; /* only the links take the pointer, so the canvas keeps the rest */
+}
+.wall-links li {
+  position: absolute;
+  pointer-events: auto;
+}
+.wall-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface-1) center / cover; /* the tile's art goes here (video-wall.tsx) until its picture is in */
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 300ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+.wall-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 300ms ease-out;
+}
+/* while a change holds its reveal (page-transition.css) a picture that has loaded is simply there: its 300 ms fade would be half done when the
+   reveal uncovers it. One that comes after the hold fades in as usual. */
+html[data-change-hold] .wall-tile img,
+.wall-tile img[data-late] {
+  transition: none; /* a picture that comes after the reveal fades by arrival-dom.ts fadeLate alone (200 ms), not twice */
+}
+/* once the page is running, a picture is shown when it has loaded (cover-image.ts); without scripts it just shows */
+.wall-stage[data-fit] .wall-tile img:not([data-ready]) {
+  opacity: 0;
+}
+.wall-tile:hover {
+  transform: scale(1.04);
+}
+.wall-tile:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: -2px;
+}
+
+/* Server HTML, and the moment before the wall is measured: a plain grid of links (it also serves a browser
+   with no scripts). It stays hidden for a short while so a measured wall never jumps; without scripts it shows. */
+.wall-stage:not([data-fit]) .wall-links {
+  display: grid;
+  gap: 10px;
+  inset: 80px 4vw calc(var(--site-nav-height, 140px) + 24px);
+  align-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  opacity: 0;
+  animation: wall-links-late 1ms linear 2500ms forwards;
+  pointer-events: auto;
+}
+.wall-stage:not([data-fit]) .wall-links li {
+  position: relative;
+}
+.wall-stage:not([data-fit]) .wall-tile {
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+[data-wall="short"] .wall-stage:not([data-fit]) .wall-links {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 112px), 1fr));
+}
+[data-wall="short"] .wall-stage:not([data-fit]) .wall-tile {
+  aspect-ratio: 9 / 16;
+}
+@keyframes wall-links-late {
+  to {
+    opacity: 1;
+  }
+}
+
+/* The links are the list only (out of sight, in place, still focusable) once the engine has drawn (data-drawn): the wall's
+   arrival is the first thing seen, and the ring is drawn by the engine. They are the wall itself when there is no WebGL or the
+   context was lost (data-plain), and, on a slow first load, when they were already showing before the engine was ready
+   (data-shown, set once by video-wall.tsx): then they stay until the first frame is drawn and fade out under it, so the
+   wall is never blank in between. Before the first frame a tile with keyboard focus shows (its art and its ring), so a
+   focused link is never invisible. */
+.wall-stage[data-fit]:not([data-plain]):not([data-shown]):not([data-drawn]) .wall-links li {
+  pointer-events: none;
+}
+.wall-stage[data-fit]:not([data-plain]):not([data-shown]):not([data-drawn]) .wall-tile:not(:focus-visible) {
+  opacity: 0;
+  transform: none;
+  transition: none;
+}
+.wall-stage[data-fit]:not([data-plain])[data-drawn] .wall-links li {
+  pointer-events: none;
+}
+.wall-stage[data-fit]:not([data-plain])[data-drawn] .wall-tile {
+  opacity: 0;
+  transform: none;
+  transition: opacity 300ms ease-out; /* the links fade out under the engine's tiles (a focused one too, until its ring is drawn) */
+  outline: none; /* the engine draws the ring */
+}
+/* the engine failed or its context was lost: the links are the wall again at once, so there is no gap where the canvas was */
+.wall-stage[data-plain] .wall-tile {
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0s;
+}
+
+/* the hover caption, in the style of the painting caption (home hero) */
+.wall-caption {
+  position: absolute;
+  left: clamp(16px, 3.4vw, 48px);
+  bottom: clamp(20px, 3.4vh, 32px);
+  z-index: var(--z-hero);
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ground) 72%, transparent);
+  font-family: "Space Mono", monospace;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+  pointer-events: none;
+}
+.wall-caption.on {
+  opacity: 1;
+}
+.wall-caption .t {
+  display: block;
+  font-style: italic;
+  font-size: var(--t-meta);
+  color: var(--ink-1);
+}
+.wall-caption .a {
+  display: block;
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+/* a finger leaves nothing to hover; the caption belongs to the pointer and the keyboard */
+@media (hover: none) {
+  .wall-caption:not(.on) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wall-tile,
+  .wall-tile img,
+  .wall-caption {
+    transition: none;
+  }
+  .wall-stage:not([data-fit]) .wall-links {
+    animation-duration: 0.01ms;
+  }
+  .wall-stage[data-fit]:not([data-plain])[data-drawn] .wall-tile,
+  .wall-stage[data-plain] .wall-tile {
+    transition: none;
+  }
+}

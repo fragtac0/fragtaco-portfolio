@@ -1,0 +1,121 @@
+{
+  "targetDir": "scripts",
+  "totalFindings": 8,
+  "guides": [
+    {
+      "guideId": "js",
+      "retrieveCommand": "npx modern-web-guidance retrieve js",
+      "count": 8,
+      "rules": [
+        {
+          "ruleId": "js/copying-array-methods",
+          "summary": "Replace shallow-copy array sorting, reversing, and reverse search with toSorted(), toReversed(), findLast(), and findLastIndex().",
+          "verifierRubric": {
+            "keepWhen": [
+              "Array (or TypedArray via .slice()) copied via [...arr], arr.slice(), arr.slice(0), or arr.concat()."
+            ],
+            "dropWhen": [
+              "Spread [...x] on non-Array iterable (Set, Map, NodeList, HTMLCollection, DOMTokenList, FileList, arguments, string).",
+              "Sparse holes (slice preserves holes; toSorted fills undefined), callback index/array args for findLast/findLastIndex (does not apply to toReversed() or toSorted()), or un-inverted findIndex.",
+              "Visible project configuration in snippet targets pre-ES2023 (explicit engines.node < 20 or tsconfig lib/target older than ES2023; do not drop code merely because it uses var, ES5 syntax, or sits in a library/vendor file) or feature guards/polyfills."
+            ]
+          },
+          "count": 5,
+          "findings": [
+            {
+              "file": "audit/make-dock-over-tiles.mjs",
+              "line": 49,
+              "message": "Use cases.toSorted((a, b) => MODE_ORDER[a.mode] - MODE_ORDER[b.mode]) instead of copying before .sort().",
+              "lineContent": "for (const c of [...cases].sort((a, b) => MODE_ORDER[a.mode] - MODE_ORDER[b.mode])) {"
+            },
+            {
+              "file": "audit/shelf-ready.mjs",
+              "line": 101,
+              "message": "Use builds.toReversed() instead of copying before .reverse().",
+              "lineContent": "const order = round % 2 ? [...builds].reverse() : builds;"
+            },
+            {
+              "file": "audit/web-vitals-table.mjs",
+              "line": 106,
+              "message": "Use e.runs.toSorted((x, y) => x.lcpMs - y.lcpMs) instead of copying before .sort().",
+              "lineContent": "const sorted = [...e.runs].sort((x, y) => x.lcpMs - y.lcpMs);"
+            },
+            {
+              "file": "audit/web-vitals.mjs",
+              "line": 57,
+              "message": "Use a.toSorted((x, y) => x - y) instead of copying before .sort().",
+              "lineContent": "const s = [...a].sort((x, y) => x - y);"
+            },
+            {
+              "file": "perf/sample-frames.js",
+              "line": 30,
+              "message": "Use g.toSorted((a, b) => a - b) instead of copying before .sort().",
+              "lineContent": "const sorted = g.slice().sort((a, b) => a - b);"
+            }
+          ]
+        },
+        {
+          "ruleId": "js/promise-with-resolvers",
+          "summary": "Replace deferred new Promise() executors that assign resolve/reject externally with Promise.withResolvers().",
+          "verifierRubric": {
+            "keepWhen": [
+              "new Promise((resolve[, reject]) => { ... }) is used to expose resolve and/or reject outside the promise constructor (to outer let/var bindings, object properties, class fields, or callback holders) so Promise.withResolvers() removes the boilerplate declarations and executor closure without changing runtime or TypeScript semantics."
+            ],
+            "dropWhen": [
+              "Visible project configuration in the snippet targets an environment before ES2024 (explicit engines.node < 22 or tsconfig lib/target without ES2024; do not infer pre-ES2024 merely from var or library filenames).",
+              "There is visible evidence in the snippet that the LHS receiver inside the executor can be nullish or has a throwing setter that relies on new Promise catching synchronous executor throws (never drop ordinary this.resolve, deferred.resolve, or outer variable assignments, even inside an outer try/catch block).",
+              "The new Promise constructor resolves to a custom Promise subclass, library Promise implementation (such as Bluebird or RSVP), or shadowed Promise binding, or sits inside a Promise.withResolvers polyfill/feature-guard."
+            ]
+          },
+          "count": 2,
+          "findings": [
+            {
+              "file": "audit/long-frames.mjs",
+              "line": 119,
+              "message": "Deferred new Promise() executor only assigns resolve/reject externally; replace with Promise.withResolvers().",
+              "lineContent": "const complete = new Promise((r) => (done = r));"
+            },
+            {
+              "file": "audit/make-glass-cost.mjs",
+              "line": 130,
+              "message": "Deferred new Promise() executor only assigns resolve/reject externally; replace with Promise.withResolvers().",
+              "lineContent": "const done = new Promise((r) => (traceDone = r));"
+            }
+          ]
+        },
+        {
+          "ruleId": "js/structured-clone",
+          "summary": "Replace JSON.parse(JSON.stringify(x)) deep-copy workarounds with structuredClone(x).",
+          "verifierRubric": {
+            "keepWhen": [
+              "JSON.parse(JSON.stringify(x)) is used to create an independent deep copy of plain objects, arrays, or plain data records so mutating or detaching the clone does not affect the original value, when the snippet shows no evidence of reactive Proxy wrappers, .toJSON() hooks, replacer/reviver arguments, non-cloneable values, or intentional JSON normalization."
+            ],
+            "dropWhen": [
+              "The snippet shows direct evidence that the cloned value is a Proxy wrapper or framework reactive state (such as new Proxy(...), Vue reactive(), ref().value, defineProps(), Vuex/Pinia $store/$state, MobX observable, or a local visibly assigned from component state) passed without unwrapping (for example toRaw()), where structuredClone() throws DataCloneError. Do not drop plain local objects, array copies, or function parameters solely because the file is a .vue component.",
+              "The input defines an own enumerable .toJSON() method (which makes structuredClone() throw DataCloneError) or an inherited/non-enumerable .toJSON() hook (which JSON.stringify invokes but structuredClone() silently ignores), or the call uses custom JSON.stringify replacer / JSON.parse reviver arguments.",
+              "The code explicitly relies on JSON serialization normalization rather than deep copying: serializing Date instances to ISO strings (date.toISOString()), explicitly stripping undefined keys or array slots, coercing NaN, ±Infinity, -0, or sparse array holes to null/0, or breaking shared internal object references into separate object identities.",
+              "The clone mirrors a payload that is immediately serialized with JSON.stringify for a wire protocol and relies on dropping undefined keys, or is passed directly to postMessage(JSON.parse(JSON.stringify(x))) where postMessage already performs structured cloning.",
+              "Surrounding code or types show the cloned value contains functions/callbacks, Symbol values, Promise, WeakMap, WeakSet, DOM Node instances, non-serializable platform objects/DOM properties (Storage/localStorage, element.dataset, element.style, element.children, element.attributes, Location, URLSearchParams, FormData, Headers, Event, AbortSignal/AbortController), streams (ReadableStream, WritableStream, TransformStream), DOM observers (MutationObserver, ResizeObserver, IntersectionObserver), or messaging ports and channels (MessagePort, MessageChannel, BroadcastChannel), where structuredClone() throws DataCloneError.",
+              "The cloned value is an imported library object or singleton that may carry own enumerable methods (which JSON.stringify strips into plain data whereas structuredClone() throws DataCloneError).",
+              "The code runs inside an isolated VM sandbox or test runner (such as a node:vm createContext realm or sandboxed plugin context) whose global object exposes only ECMAScript intrinsics, or visible project configuration declares engines.node < 17, a TypeScript lib without DOM or @types/node, or ESLint no-undef globals that omit structuredClone.",
+              "The expression appears inside a test assertion or mock expectation verifying JSON-serialized shapes."
+            ]
+          },
+          "count": 1,
+          "findings": [
+            {
+              "file": "audit/make-wall-edges.mjs",
+              "line": 51,
+              "message": "JSON.parse(JSON.stringify(...)) deep-copy workaround can be replaced with native structuredClone().",
+              "lineContent": "writeFileSync(new URL(\"./wall-edges.json\", import.meta.url), JSON.stringify(steps.map(x => JSON.parse(JSON.stringify(x))), null, 1) + \"\\n\");"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "activeRuleCount": 52,
+  "activeGuideCount": 38,
+  "note": "Checked 38 guides (52 deterministic rules; ~20% of the guidance corpus). Finding 8 items here only reflects deterministic legacy patterns; use 'search <topic>' for the rest of the catalog.",
+  "skippedDocsAndTestsCount": 7
+}

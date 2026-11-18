@@ -1,0 +1,289 @@
+/* a card is open: the page does not scroll. The gutter is always reserved on the home page so a
+   classic scrollbar disappearing does not shift the layout. */
+html:has(.home-page) {
+  scrollbar-gutter: stable;
+}
+html.cards-open,
+html.cards-open body {
+  overflow: hidden;
+}
+/* a drag on a rail or the scrim never pulls the page to refresh */
+html.cards-open {
+  overscroll-behavior: none;
+}
+
+/* =====================================================================
+   FLOATING CARDS (credits left, intro right), ported from the mockup's .card / .rail / .scrim.
+   Their transforms are written by use-card-poses and use-card-input; the CSS value is only the pre-JS position.
+   ===================================================================== */
+/* the painting blurs in its own shader, so the scrim is a plain tint */
+.home-hero .scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  background: color-mix(in srgb, var(--ground) 26%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--panel-ms) var(--ease-panel); /* the scrim goes with the panel */
+}
+.home-hero[data-softened] .scrim {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.home-hero .card {
+  --card-scale: 0.56; /* kept in step with the transform by use-card-poses, so the rail label can undo it */
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: var(--z-cards);
+  display: flex;
+  height: min(var(--card-h), calc(100dvh - 2 * var(--dock-clear) + 24px));
+  border-radius: 28px;
+  overflow: hidden;
+  background: linear-gradient(165deg, var(--surface-1) 0%, var(--ground) 72%);
+  /* at rest only the tab shows: a light edge, a drop shadow and the glow (spec 6); the open card's own is below */
+  box-shadow:
+    0 0 0 1px rgba(255, 176, 130, 0.3),
+    var(--tab-shadow),
+    var(--tab-glow);
+  transform: translate3d(130vw, -50%, 0) scale(0.56);
+  /* the hover nudge and a released drag settling keep the old ease; only a card sliding open or shut (data-slide, set by
+     placeAll in use-card-poses.ts) takes the panel's 700 ms in and out */
+  transition:
+    transform 0.72s var(--ease),
+    box-shadow 0.5s;
+  will-change: transform;
+  cursor: pointer;
+  color: var(--cream);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+.home-hero .card.right {
+  width: clamp(660px, 54vw, 1000px);
+  transform-origin: 0 50%;
+}
+.home-hero .card.left {
+  width: clamp(400px, 27vw, 520px);
+  transform-origin: 100% 50%;
+  flex-direction: row-reverse;
+  transform: translate3d(-130vw, -50%, 0) scale(0.56); /* off screen on its own side until positioned */
+}
+.home-hero .card[data-slide] {
+  transition:
+    transform var(--panel-ms) var(--ease-panel),
+    box-shadow 0.5s;
+}
+.home-hero .card[data-dragging] {
+  transition: none;
+}
+.home-hero .card.hot {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 75%, transparent),
+    var(--tab-shadow),
+    var(--tab-glow-hot);
+}
+.home-hero .card.open {
+  cursor: auto;
+  box-shadow:
+    0 0 0 1px rgba(253, 252, 230, 0.16),
+    0 40px 90px -20px rgba(0, 0, 0, 0.92),
+    var(--glow);
+}
+.home-hero .card a {
+  color: inherit;
+}
+.home-hero .card-body {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(24px, 2vw, 34px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(253, 252, 230, 0.2) transparent;
+}
+.home-hero .card:not(.open) .card-body {
+  pointer-events: none;
+}
+.home-hero .card-body:focus {
+  outline: none;
+}
+.home-hero .display {
+  font-family: Doto, monospace;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.84;
+  margin: 0;
+}
+.home-hero .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(253, 252, 230, 0.07);
+  outline: 1px solid rgba(253, 252, 230, 0.2);
+  font-size: var(--t-meta);
+  color: var(--cream);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.home-hero .pill:focus-visible,
+.home-hero .links a:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 2px;
+}
+.home-hero .placeholder {
+  border: 1px dashed rgba(217, 164, 65, 0.45);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: rgba(217, 164, 65, 0.9);
+  font-size: var(--t-meta);
+  line-height: 1.75;
+}
+/* the intro card: the photo fills a full-height column on the left, the words scroll on the right */
+.home-hero .intro-body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr);
+  gap: clamp(20px, 1.8vw, 30px);
+  overflow: hidden;
+}
+.home-hero .ph {
+  border-radius: 22px 10px 22px 10px;
+  background: var(--surface-1) center / cover;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+.home-hero .intro-body .ph {
+  height: 100%;
+  min-height: 0;
+  background-position: 60% 50%;
+}
+.home-hero .intro-text {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(253, 252, 230, 0.2) transparent;
+  padding: 4px; /* room for the focus ring of the pill, which this scroll box would clip */
+}
+.home-hero .intro-text:focus {
+  outline: none;
+}
+.home-hero .intro-text .display {
+  font-size: var(--t-hero);
+}
+.home-hero .who {
+  margin: 14px 0 22px;
+  font-size: var(--t-meta);
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.home-hero .copy p {
+  font-size: var(--t-body);
+  line-height: 1.7;
+  color: var(--ink-1);
+  margin: 0 0 1em;
+}
+.home-hero .card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.home-hero .kbd-hint {
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+}
+.home-hero .cr-head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.home-hero .cr-ph {
+  width: clamp(86px, 6vw, 110px);
+  aspect-ratio: 1;
+  flex: none;
+  border-radius: 22px 10px 22px 10px;
+  background: var(--surface-1) center / cover;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+}
+.home-hero .cr-head > div {
+  min-width: 0;
+}
+.home-hero .cr-head .display {
+  font-size: clamp(28px, 2.5vw, 46px);
+}
+.home-hero .cr-role {
+  font-size: var(--t-meta);
+  color: var(--ink-2);
+  margin-top: 9px;
+}
+.home-hero .cr-blurb {
+  font-family: "Space Mono", monospace;
+  font-style: italic;
+  font-size: var(--t-lead);
+  line-height: 1.6;
+  color: var(--ink-1);
+  margin: 0 0 16px;
+}
+.home-hero .dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 9px 18px;
+  margin: 20px 0 0;
+  font-size: var(--t-meta);
+}
+.home-hero .dl-row {
+  display: contents;
+}
+.home-hero .dl dt {
+  color: var(--ink-3);
+}
+.home-hero .dl dd {
+  margin: 0;
+  color: var(--ink-1);
+}
+.home-hero .links {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+}
+.home-hero .links a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  outline: 1px solid rgba(253, 252, 230, 0.14);
+  text-decoration: none;
+  font-size: var(--t-meta);
+  transition: background 0.3s;
+}
+.home-hero .links a span:last-child {
+  color: var(--ink-3);
+}
+.home-hero .links a:hover {
+  background: rgba(253, 252, 230, 0.06);
+}
+
+/* reduced motion: a card opens in place with a fade (home-fade in tokens.css) and closes with one: it holds its open pose
+   while it fades out (300 ms), jumps home and fades back in as the tab (home-fade-out in tokens.css). A plain tint fades
+   in and out behind it. */
+@media (prefers-reduced-motion: reduce) {
+  .home-hero .card.open {
+    animation: home-fade 0.3s ease backwards;
+  }
+  .home-hero .card[data-slide]:not(.open) {
+    animation: home-fade-out 0.6s ease;
+    transition-delay: 0.3s, 0s;
+  }
+  .home-hero .scrim {
+    transition-duration: 0.3s !important;
+  }
+}

@@ -1,0 +1,90 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 4500,
+  "label": "open|home",
+  "eval": "1"
+ },
+ {
+  "label": "before|home",
+  "eval": "document.documentElement.style.setProperty('--dock-tint','0.46');document.querySelector('[data-dock-glass]').style.boxShadow=\"0 18px 60px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,236,214,0.24), inset 0 -1px 0 rgba(255,255,255,0.05)\";'before'",
+  "wait": 400
+ },
+ {
+  "png": "home-before"
+ },
+ {
+  "label": "after|home",
+  "eval": "document.documentElement.style.removeProperty('--dock-tint');document.querySelector('[data-dock-glass]').style.boxShadow='';getComputedStyle(document.documentElement).getPropertyValue('--dock-tint')",
+  "wait": 400
+ },
+ {
+  "png": "home-after"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/work/long-form?nogl=1",
+  "wait": 4500,
+  "label": "open|wall",
+  "eval": "(()=>{let i=0;for(const img of document.querySelectorAll('img')){if(!/ytimg|openlibrary|covers/.test(img.currentSrc||img.src))continue;i++;img.removeAttribute('srcset');img.removeAttribute('loading');\n const tall=img.naturalHeight>img.naturalWidth,W=tall?360:640,H=tall?640:360,hue=(i*47)%360;\n const svg='<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 '+W+' '+H+'\"><defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"hsl('+hue+',55%,62%)\"/><stop offset=\"1\" stop-color=\"hsl('+((hue+60)%360)+',60%,40%)\"/></linearGradient></defs><rect width=\"'+W+'\" height=\"'+H+'\" fill=\"url(#g)\"/></svg>';\n img.src='data:image/svg+xml;utf8,'+encodeURIComponent(svg)}return i})()"
+ },
+ {
+  "label": "before|wall",
+  "eval": "document.documentElement.style.setProperty('--dock-tint','0.46');document.querySelector('[data-dock-glass]').style.boxShadow=\"0 18px 60px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,236,214,0.24), inset 0 -1px 0 rgba(255,255,255,0.05)\";'before'",
+  "wait": 400
+ },
+ {
+  "png": "wall-before"
+ },
+ {
+  "label": "after|wall",
+  "eval": "document.documentElement.style.removeProperty('--dock-tint');document.querySelector('[data-dock-glass]').style.boxShadow='';getComputedStyle(document.documentElement).getPropertyValue('--dock-tint')",
+  "wait": 400
+ },
+ {
+  "png": "wall-after"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "go": "{{BASE}}/experience",
+  "wait": 4500,
+  "label": "open|experience",
+  "eval": "1"
+ },
+ {
+  "label": "before|experience",
+  "eval": "document.documentElement.style.setProperty('--dock-tint','0.46');document.querySelector('[data-dock-glass]').style.boxShadow=\"0 18px 60px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,236,214,0.24), inset 0 -1px 0 rgba(255,255,255,0.05)\";'before'",
+  "wait": 400
+ },
+ {
+  "png": "experience-before"
+ },
+ {
+  "label": "after|experience",
+  "eval": "document.documentElement.style.removeProperty('--dock-tint');document.querySelector('[data-dock-glass]').style.boxShadow='';getComputedStyle(document.documentElement).getPropertyValue('--dock-tint')",
+  "wait": 400
+ },
+ {
+  "png": "experience-after"
+ }
+]

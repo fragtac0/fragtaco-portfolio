@@ -20,17 +20,20 @@
     font-family: "IBM Plex Mono", monospace;
   }
 
-  ::selection {
-    background: theme(colors.accent);
-    color: theme(colors.theme.black);
+  /* a mouse click, or focus moved by a script after one, never leaves a ring: only keyboard focus shows it
+     (each component draws its own ring under :focus-visible) */
+  :where(a, button, [role="button"], [tabindex]):focus:not(:focus-visible) {
+    outline: none;
   }
 
-  /* Set on the pill-physics host panel for the duration of a drag —
-     user-select is inherited, so this one rule on the panel covers the
-     title, meta row and italic caption underneath the pills without
-     needing select-none scattered across each of them individually. */
-  [data-dragging="true"] {
-    user-select: none;
-    -webkit-user-select: none;
+  /* <main> takes focus after a press finished a page change (app/lib/dock-focus.ts, focusAfterFinish): a place to carry on
+     from, never a control, so never a ring even when the focus came after a key press */
+  main[tabindex="-1"]:focus {
+    outline: none;
+  }
+
+  ::selection {
+    background: theme(colors.accent);
+    color: #000000;
   }
 }

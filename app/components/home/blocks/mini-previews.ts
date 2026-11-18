@@ -1,0 +1,78 @@
+import type { SiteBook, SiteVideo } from "../../../types";
+import { drawingWidth } from "../reading/spine-paint";
+import { designFor } from "../reading/spine-series";
+import { spineColours } from "../reading/spine-styles";
+
+/** The mini shelf is the series' own drawing scaled by this: a spine of 32 to 72 units, 8.4 to 26 inches tall at 50 units an inch. */
+export const MINI_SCALE = 0.42;
+
+/**
+ * One spine of the mini shelf: the same shape as the book's spine in the series (the width from its
+ * pages, the height from its trim height; spine-paint.ts draws it) at `MINI_SCALE`, in the cloth of
+ * its design. The cloth stands behind the canvas until the lettering is painted.
+ */
+export function miniSpine(book: SiteBook): {
+  width: number;
+  height: number;
+  background: string;
+} {
+  const design = designFor(book, spineColours({ dominant: book.color, secondary: book.color }));
+  return {
+    width: Math.round(drawingWidth(book.pages) * MINI_SCALE),
+    height: Math.round(book.heightIn * 50 * MINI_SCALE),
+    background: design.cloth,
+  };
+}
+
+export const MINI_WALL_COLUMNS = 7;
+export const MINI_WALL_ROWS = 5;
+
+/**
+ * The video ids of each mini wall column. Column c takes every third video from offset c * 5,
+ * wrapping round the list, so neighbouring columns show different thumbnails. Each column's
+ * images are rendered twice by the component so the CSS drift loops without a seam.
+ */
+export function miniWallColumns(
+  videos: readonly Pick<SiteVideo, "id">[],
+  columns = MINI_WALL_COLUMNS,
+  rows = MINI_WALL_ROWS,
+): string[][] {
+  if (videos.length === 0) return [];
+  return Array.from({ length: columns }, (_, c) =>
+    Array.from({ length: rows }, (_, r) => videos[(c * rows + r * 3) % videos.length].id),
+  );
+}
+
+/** Small thumbnails only: the mini wall never loads the big ones. */
+export const miniThumbUrl = (id: string) => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+
+/** The mini shelf never grows past this, so a wide block does not blow the spines up. */
+export const MINI_SHELF_MAX_SCALE = 1.6;
+
+/**
+ * The scale that makes the mini shelf's row (spines plus the gaps between them) span `innerWidth`,
+ * capped at MINI_SHELF_MAX_SCALE. 1 when there is nothing to fit or no width is known yet.
+ */
+export function fitMiniShelf(spines: readonly { w: number }[], innerWidth: number, gap: number): number {
+  if (spines.length === 0 || innerWidth <= 0) return 1;
+  const row = spines.reduce((sum, s) => sum + s.w, 0) + gap * (spines.length - 1);
+  if (row <= 0) return 1;
+  return Math.min(MINI_SHELF_MAX_SCALE, innerWidth / row);
+}
+
+/**
+ * The mini shelf's scale: the width fit (fitMiniShelf), held back so the tallest spine still fits
+ * `availableHeight` (the preview's height above the plank, with room for the hover lift), and never
+ * below 0.5. 1 when there is nothing to fit or no height is known yet.
+ */
+export function miniShelfScale(
+  spines: readonly { w: number; h: number }[],
+  innerWidth: number,
+  availableHeight: number,
+  gap: number,
+): number {
+  if (spines.length === 0 || availableHeight <= 0) return 1;
+  const tallest = Math.max(...spines.map((s) => s.h));
+  const byHeight = tallest > 0 ? availableHeight / tallest : Infinity;
+  return Math.max(0.5, Math.min(fitMiniShelf(spines, innerWidth, gap), byHeight));
+}

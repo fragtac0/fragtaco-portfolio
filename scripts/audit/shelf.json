@@ -1,0 +1,1177 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "go": "{{BASE}}/#reading",
+  "wait": 300,
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<3500)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)})",
+  "label": "frames-dropin"
+ },
+ {
+  "wait": 2000,
+  "shot": "local-shelf-warm"
+ },
+ {
+  "shot": "local-shelf"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector(\".shelf-host canvas\");return c?c.width+\"x\"+c.height:\"no canvas\"})()",
+  "label": "canvas"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.box-scene[data-kind=reading]')).backgroundColor}})()",
+  "label": "flat-fit"
+ },
+ {
+  "eval": "(async()=>{const c=document.querySelector(\".shelf-host canvas\");const r=c.getBoundingClientRect();const p=new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<2500)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)});for(let i=0;i<50;i++){c.dispatchEvent(new PointerEvent(\"pointermove\",{bubbles:true,clientX:r.left+r.width*(0.2+0.6*i/50),clientY:r.top+r.height*0.55,pointerType:\"mouse\"}));await new Promise(q=>setTimeout(q,40))}return p})()",
+  "label": "frames-hover-sweep"
+ },
+ {
+  "click": [
+   720,
+   500
+  ],
+  "wait": 200,
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<1500)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)})",
+  "label": "frames-open-book"
+ },
+ {
+  "eval": "[getComputedStyle(document.querySelector(\".book-info\")).opacity, document.querySelector(\".book-info\").textContent.trim().slice(0,30)]",
+  "label": "book-info"
+ },
+ {
+  "shot": "local-book-open"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<1500)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)})",
+  "label": "frames-close-book"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 100,
+  "eval": "new Promise(r=>{const g=[];let l=performance.now();const t0=l;function f(n){g.push(n-l);l=n;if(n-t0<1500)requestAnimationFrame(f);else{g.shift();g.sort((a,b)=>a-b);r({n:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),p95:+g[Math.floor(g.length*.95)].toFixed(2),max:+g[g.length-1].toFixed(2),over20:g.filter(x=>x>20).length})}}requestAnimationFrame(f)})",
+  "label": "frames-close-layer"
+ },
+ {
+  "eval": "[document.documentElement.className, location.hash, !!document.querySelector(\".home-layer\")]",
+  "label": "after-close"
+ },
+ {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "go": "{{BASE}}/?fit=0#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.box-scene[data-kind=reading]')).backgroundColor}})()",
+  "label": "flat-fit-320x568"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "go": "{{BASE}}/?fit=1#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.box-scene[data-kind=reading]')).backgroundColor}})()",
+  "label": "flat-fit-390x844"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const [w,h]=c.dataset.spinePx.split('x').map(Number);const dpr=Math.min(devicePixelRatio,2);const want=Math.round(+c.dataset.tall*c.clientHeight*dpr);return {spinePx:c.dataset.spinePx,dpr,wantH:want,tallOk:Math.abs(h-want)<=1,thinnest:w>=8}})()",
+  "label": "spine-px-390x844-dpr2"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const a=c.dataset.authorPx.split(',').map(Number);return {dpr:devicePixelRatio,authorCssPx:c.dataset.authorPx,min:Math.min(...a),floorOk:Math.min(...a)>=9.95,n:a.length}})()",
+  "label": "authors-390x844-dpr2"
+ },
+ {
+  "size": [
+   820,
+   1180
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?fit=2#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.box-scene[data-kind=reading]')).backgroundColor}})()",
+  "label": "flat-fit-820x1180"
+ },
+ {
+  "shot": "local-warm-820"
+ },
+ {
+  "shot": "local-shelf-820x1180"
+ },
+ {
+  "size": [
+   1024,
+   768
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?fit=3#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.box-scene[data-kind=reading]')).backgroundColor}})()",
+  "label": "flat-fit-1024x768"
+ },
+ {
+  "size": [
+   844,
+   390
+  ],
+  "dpr": 2,
+  "go": "{{BASE}}/?fit=6#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.box-scene[data-kind=reading]')).backgroundColor}})()",
+  "label": "flat-fit-844x390"
+ },
+ {
+  "shot": "local-warm-1024"
+ },
+ {
+  "shot": "local-shelf-1024x768"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?fit=4#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.box-scene[data-kind=reading]')).backgroundColor}})()",
+  "label": "flat-fit-1440x900"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const [w,h]=c.dataset.spinePx.split('x').map(Number);const dpr=Math.min(devicePixelRatio,2);const want=Math.round(+c.dataset.tall*c.clientHeight*dpr);return {spinePx:c.dataset.spinePx,dpr,wantH:want,tallOk:Math.abs(h-want)<=1,thinnest:w>=8}})()",
+  "label": "spine-px-1440x900-dpr1"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const a=c.dataset.authorPx.split(',').map(Number);return {dpr:devicePixelRatio,authorCssPx:c.dataset.authorPx,min:Math.min(...a),floorOk:Math.min(...a)>=9.95,n:a.length}})()",
+  "label": "authors-1440x900-dpr1"
+ },
+ {
+  "size": [
+   2560,
+   1440
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?fit=5#reading",
+  "wait": 5000,
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const d=c.dataset;const h=c.clientHeight;const w=c.clientWidth;const room=+d.baseRow-+d.headBottom-8;const tallPx=+d.tall*h;const top=+(+d.baseRow-tallPx).toFixed(1);return {w,h,tall:+d.tall,row:+d.row,baseRow:+d.baseRow,baseShare:+(d.baseRow/h).toFixed(3),pans:d.pans,head:+d.headBottom,spineTop:top,room,tallOk:+d.tall<=0.7801&&tallPx<=room+1&&(+d.tall>=0.6999||tallPx>=room-1),clearOfHeader:top>=+d.headBottom+7,rowOk:d.pans==='true'||+d.row<=0.8801,noPlank:!document.querySelector('.sp-plank'),ground:getComputedStyle(document.querySelector('.box-scene[data-kind=reading]')).backgroundColor}})()",
+  "label": "flat-fit-2560x1440"
+ },
+ {
+  "eval": "(()=>{const c=document.querySelector('.shelf-host canvas');const [w,h]=c.dataset.spinePx.split('x').map(Number);const dpr=Math.min(devicePixelRatio,2);const want=Math.round(+c.dataset.tall*c.clientHeight*dpr);return {spinePx:c.dataset.spinePx,dpr,wantH:want,tallOk:Math.abs(h-want)<=1,thinnest:w>=8}})()",
+  "label": "spine-px-2560x1440-dpr1"
+ },
+ {
+  "shot": "local-warm-2560"
+ },
+ {
+  "shot": "local-shelf-2560x1440"
+ },
+ {
+  "size": [
+   1000,
+   700
+  ],
+  "wait": 300,
+  "eval": "new Promise(r=>{const c=document.querySelector('.shelf-host canvas');const t0=performance.now();const q=()=>{const h=+c.dataset.spinePx.split('x')[1];const want=Math.round(+c.dataset.tall*c.clientHeight*Math.min(devicePixelRatio,2));if(Math.abs(h-want)<=1||performance.now()-t0>2500)r({spinePx:c.dataset.spinePx,wantH:want,ms:Math.round(performance.now()-t0),ch:c.clientHeight});else setTimeout(q,50)};q()})",
+  "label": "spine-px-after-resize-1000x700"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?open=1440#reading",
+  "wait": 5200
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-click-first"
+ },
+ {
+  "click": [
+   322,
+   660
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-click-first"
+ },
+ {
+  "click": [
+   3,
+   540
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-click-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-click-middle"
+ },
+ {
+  "click": [
+   720,
+   660
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-click-middle"
+ },
+ {
+  "click": [
+   3,
+   540
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-click-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-click-last"
+ },
+ {
+  "click": [
+   1118,
+   660
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-click-last"
+ },
+ {
+  "click": [
+   3,
+   540
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-click-last"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-keys-first"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');;return 'moved'})()",
+  "label": "nav-1440-keys-first"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-keys-first"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-keys-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-keys-middle"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');for(let i=0;i<6;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-1440-keys-middle"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-keys-middle"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-keys-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1440-keys-last"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-1440-keys-last"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1440-keys-last"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1440-keys-last"
+ },
+ {
+  "size": [
+   1024,
+   768
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/?open=1024#reading",
+  "wait": 5200
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1024-click-first"
+ },
+ {
+  "click": [
+   182,
+   564
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1024-click-first"
+ },
+ {
+  "click": [
+   3,
+   460
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1024-click-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1024-click-middle"
+ },
+ {
+  "click": [
+   512,
+   564
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1024-click-middle"
+ },
+ {
+  "click": [
+   3,
+   460
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1024-click-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1024-click-last"
+ },
+ {
+  "click": [
+   842,
+   564
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1024-click-last"
+ },
+ {
+  "click": [
+   3,
+   460
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1024-click-last"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-1024-keys-last"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-1024-keys-last"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-1024-keys-last"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-1024-keys-last"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "go": "{{BASE}}/?open=390#reading",
+  "wait": 5200
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-390-click-first"
+ },
+ {
+  "click": [
+   40,
+   610
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-390-click-first"
+ },
+ {
+  "click": [
+   3,
+   500
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-390-click-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-390-keys-first"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');;return 'moved'})()",
+  "label": "nav-390-keys-first"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-390-keys-first"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-390-keys-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-390-keys-middle"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');for(let i=0;i<6;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-390-keys-middle"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-390-keys-middle"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-390-keys-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-390-keys-last"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-390-keys-last"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-390-keys-last"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-390-keys-last"
+ },
+ {
+  "size": [
+   844,
+   390
+  ],
+  "dpr": 2,
+  "go": "{{BASE}}/?open=844#reading",
+  "wait": 5200
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-844-click-first"
+ },
+ {
+  "click": [
+   316,
+   246
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-844-click-first"
+ },
+ {
+  "click": [
+   3,
+   200
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-844-click-first"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-844-click-middle"
+ },
+ {
+  "click": [
+   422,
+   246
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-844-click-middle"
+ },
+ {
+  "click": [
+   3,
+   200
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-844-click-middle"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-844-click-last"
+ },
+ {
+  "click": [
+   522,
+   246
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-844-click-last"
+ },
+ {
+  "click": [
+   3,
+   200
+  ]
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-844-click-last"
+ },
+ {
+  "eval": "(()=>{const r=window.__rec={g:[],late:[],marks:[],l:performance.now(),on:true};const t0=r.l;const m=(k)=>()=>r.marks.push([k,performance.now()-t0]);window.addEventListener('pointerup',m('pointer'),true);window.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Escape')r.marks.push([e.key,performance.now()-t0])},true);const f=n=>{if(!r.on)return;const g=n-r.l;r.g.push(g);if(g>20)r.late.push(Math.round(n-t0));r.l=n;requestAnimationFrame(f)};requestAnimationFrame(f);return 'recording'})()",
+  "label": "rec-844-keys-middle"
+ },
+ {
+  "eval": "(()=>{const k=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));for(let i=0;i<20;i++)k('ArrowLeft');for(let i=0;i<6;i++)k('ArrowRight');;return 'moved'})()",
+  "label": "nav-844-keys-middle"
+ },
+ {
+  "key": "Enter",
+  "vk": 13
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const c=document.querySelector('.shelf-host canvas');const i=document.querySelector('.book-info');const t=i.querySelector('h3').textContent;const idx=[...document.querySelectorAll('ul[aria-label=\"Books on the shelf\"] li')].findIndex(l=>l.textContent.startsWith(t));const b=(c.dataset.openBox||'').split(',').map(Number);const vw=c.clientWidth,vh=c.clientHeight;const r=i.getBoundingClientRect();const apart=r.left>=b[2]||r.right<=b[0]||r.top>=b[3]||r.bottom<=b[1];res({title:t,idx,on:i.classList.contains('on'),opacity:getComputedStyle(i).opacity,box:b.join(','),lift:c.dataset.openLift,insideLayer:b[0]>=0&&b[1]>=8&&b[2]<=vw&&b[3]<=vh,clearOfHeader:b[1]>=+c.dataset.headBottom+7,topToHeader:b[1]-c.dataset.headBottom,cover:c.dataset.openCover,drawnPx:Math.round((b[2]-b[0])*+c.dataset.pixelRatio),coverNotUpscaled:+c.dataset.openCover.split('x')[0]>=(b[2]-b[0])*+c.dataset.pixelRatio*0.9,notUnderNote:apart,note:[r.left,r.top,r.right,r.bottom].map(Math.round).join(',')})};requestAnimationFrame(f)})",
+  "label": "open-844-keys-middle"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "new Promise(res=>{let n=0;const f=()=>{if(++n<80)return requestAnimationFrame(f);const r=window.__rec;r.on=false;const g=r.g.slice(1);const s=[...g].sort((a,b)=>a-b);const i=document.querySelector('.book-info');const t0=r.l-r.g.reduce((a,b)=>a+b,0);const mk=r.marks.map(m=>m[1]);const win=(from)=>r.late.filter(t=>t>=from&&t<=from+700).length;const open=mk[0],close=mk[1];res({frames:g.length,avg:+(g.reduce((a,b)=>a+b,0)/g.length).toFixed(2),max:+s[s.length-1].toFixed(2),over20:s.filter(x=>x>20).length,openWindowOver20:win(open),closeWindowOver20:win(close),lateAt:r.late.join(','),marks:mk.map(Math.round).join(','),noteOff:!i.classList.contains('on'),layerOpen:!!document.querySelector('.home-layer'),hash:location.hash})};requestAnimationFrame(f)})",
+  "label": "close-844-keys-middle"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "1440x900:: scroll to the block (and wait for its scene to draw into the box: how long)"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-1440x900-open",
+   "ats": [
+    0,
+    100,
+    250,
+    400,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2 shelf open, 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead .blk-box",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-1440x900-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, 1440x900:: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 6,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "cpu x6 1440x900 (a cold scene):: scroll to the block (and wait for its scene to draw into the box: how long)"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-cpu-x6-1440x900-(a-cold-scene)-open",
+   "ats": [
+    0,
+    100,
+    250,
+    400,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2 shelf open, cpu x6 1440x900 (a cold scene):: no frame is the plain ground (one move from the box, the scene's own canvas)"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, cpu x6 1440x900 (a cold scene):: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead .blk-box",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-cpu-x6-1440x900-(a-cold-scene)-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, cpu x6 1440x900 (a cold scene):: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, cpu x6 1440x900 (a cold scene):: the scene is back in its box, focus on the block's button, the home page unsunk"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "390x844 phone:: scroll to the block (and wait for its scene to draw into the box: how long)"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-390x844-phone-open",
+   "ats": [
+    0,
+    100,
+    250,
+    400,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2 shelf open, 390x844 phone:: no frame is the plain ground (one move from the box, the scene's own canvas)"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, 390x844 phone:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead .blk-box",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-390x844-phone-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, 390x844 phone:: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, 390x844 phone:: the scene is back in its box, focus on the block's button, the home page unsunk"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": true,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "reduced motion 1440x900:: scroll to the block (and wait for its scene to draw into the box: how long)"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 0,
+   "share": 1.01,
+   "keep": "local-reading-reduced-motion-1440x900-open",
+   "ats": [
+    0,
+    100,
+    250,
+    400,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2 shelf open, reduced motion 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: reduced motion dips through dark, the page is black for an instant; no box is ever empty beside a lit page is checked in box-open.json)"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, reduced motion 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead .blk-box",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 0,
+   "share": 1.01,
+   "keep": "local-reading-reduced-motion-1440x900-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, reduced motion 1440x900:: no frame is the plain ground (flat check off: reduced motion dips through dark, the page is black for an instant; no box is ever empty beside a lit page is checked in box-open.json)"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, reduced motion 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1')}catch(e){}",
+  "go": "{{BASE}}/?nogl=1",
+  "wait": 6000
+ },
+ {
+  "eval": "new Promise(r=>{document.getElementById('blkRead').scrollIntoView({block:'center',behavior:'instant'});const t0=performance.now(),i=setInterval(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');if(s.hasAttribute('data-drawn')||s.hasAttribute('data-plain')||performance.now()-t0>20000){clearInterval(i);setTimeout(()=>r(JSON.stringify({drawnAfterMs:Math.round(performance.now()-t0),drawn:s.hasAttribute('data-drawn'),plain:s.hasAttribute('data-plain')})),600)}},50)})",
+  "label": "nogl 1440x900:: scroll to the block (and wait for its scene to draw into the box: how long)"
+ },
+ {
+  "film": {
+   "ms": 2600,
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-nogl-1440x900-open",
+   "ats": [
+    0,
+    250,
+    550,
+    700,
+    900,
+    1200,
+    1800
+   ]
+  },
+  "label": "R49.2 shelf open, nogl 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas)"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, nogl 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead .blk-box",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 3,
+   "share": 1.01,
+   "keep": "local-reading-nogl-1440x900-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, nogl 1440x900:: no frame is the plain ground"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, nogl 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-stall','hang')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "label": "stall-hang 1440x900:: scroll to the block",
+  "wait": 3500
+ },
+ {
+  "film": {
+   "ms": 4500,
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 0,
+   "share": 1.01,
+   "keep": "local-reading-stall-hang-1440x900-open",
+   "ats": [
+    0,
+    400,
+    900,
+    1500,
+    2000,
+    2300,
+    2600,
+    3000,
+    3500,
+    4000
+   ]
+  },
+  "label": "R49.2 shelf open, stall-hang 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: a scene that is not ready shows its own dark ground in its box, spec 6.1: during the 400 ms the click waits, and after the close while the scene is still being made; the plain grid's move itself is checked frame by frame in box-open.json RF1)"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, stall-hang 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead .blk-box",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 0,
+   "share": 1.01,
+   "keep": "local-reading-stall-hang-1440x900-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, stall-hang 1440x900:: no frame is the plain ground (flat check off: a scene that is not ready shows its own dark ground in its box, spec 6.1: during the 400 ms the click waits, and after the close while the scene is still being made; the plain grid's move itself is checked frame by frame in box-open.json RF1)"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, stall-hang 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-stall','12500')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 6000
+ },
+ {
+  "eval": "(()=>{const b=document.getElementById('blkRead');window.scrollBy({top:b.getBoundingClientRect().top-40,behavior:'instant'});return 1})()",
+  "label": "stall-late 1440x900:: scroll to the block",
+  "wait": 3500
+ },
+ {
+  "film": {
+   "ms": 4500,
+   "rect": "#blkRead .blk-box",
+   "eval": "(()=>{window.__lt=[];const t0=performance.now();const iv=setInterval(()=>{const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');window.__lt.push([Math.round(performance.now()-t0),l?l.classList.contains('ready'):null,s?s.dataset.at||'box':null])},16);window.__ltStop=()=>clearInterval(iv);document.querySelector('[data-xp=reading]').click()})()",
+   "flat": 0,
+   "share": 1.01,
+   "keep": "local-reading-stall-late-1440x900-open",
+   "ats": [
+    0,
+    400,
+    900,
+    1500,
+    2000,
+    2300,
+    2600,
+    3000,
+    3500,
+    4000
+   ]
+  },
+  "label": "R49.2 shelf open, stall-late 1440x900:: no frame is the plain ground (one move from the box, the scene's own canvas) (flat check off: a scene that is not ready shows its own dark ground in its box, spec 6.1: during the 400 ms the click waits, and after the close while the scene is still being made; the plain grid's move itself is checked frame by frame in box-open.json RF1)"
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf open, stall-late 1440x900:: the layer is ready at readyAtMs (about 1000 for a live scene), the scene moved, and ends open"
+ },
+ {
+  "wait": 5000
+ },
+ {
+  "eval": "(()=>{window.__ltStop&&window.__ltStop();const a=window.__lt||[];const i=a.findIndex(r=>r[1]);const l=document.querySelector('.home-layer');const s=document.querySelector('.box-scene[data-kind=reading]');return JSON.stringify({samples:a.length,readyAtMs:i<0?null:a[i][0],everMoved:a.some(r=>r[2]==='move'),endAt:s.dataset.at||'box',canvas:!!(l&&l.querySelector('canvas')),grid:!!(l&&l.querySelector('.fb-grid,.fb-scroll')),ready:!!(l&&l.classList.contains('ready'))})})()",
+  "label": "shelf stall-late 1440x900:: five seconds on, the view is still the plain grid with no canvas (the late scene does not flip it back)"
+ },
+ {
+  "wait": 1500
+ },
+ {
+  "film": {
+   "ms": 2000,
+   "rect": "#blkRead .blk-box",
+   "eval": "document.querySelector('.xp-close').click()",
+   "flat": 0,
+   "share": 1.01,
+   "keep": "local-reading-stall-late-1440x900-close",
+   "ats": [
+    0,
+    150,
+    300,
+    450,
+    600,
+    800,
+    1000
+   ]
+  },
+  "label": "R49.2 shelf close, stall-late 1440x900:: no frame is the plain ground (flat check off: a scene that is not ready shows its own dark ground in its box, spec 6.1: during the 400 ms the click waits, and after the close while the scene is still being made; the plain grid's move itself is checked frame by frame in box-open.json RF1)"
+ },
+ {
+  "eval": "(()=>{const s=document.querySelector('.box-scene[data-kind=reading]');const b=document.getElementById('blkRead');return JSON.stringify({layerGone:!document.querySelector('.home-layer'),sceneInBox:s.parentElement.className==='blk-live',noInlineGeometry:!s.getAttribute('style'),focusOnBlock:document.activeElement.dataset.xp==='reading',homeSunk:document.querySelector('.home-sink').style.transform||'none'})})()",
+  "label": "shelf close, stall-late 1440x900:: the scene is back in its box, focus on the block's button, the home page unsunk"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "cpu": 1,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.removeItem('ft:debug-stall')}catch(e){}",
+  "go": "{{BASE}}/",
+  "wait": 500
+ }
+]

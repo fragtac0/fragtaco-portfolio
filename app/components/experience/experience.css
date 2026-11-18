@@ -1,0 +1,168 @@
+/*
+ * My experience, the Mars map (experience-page.tsx). A fixed page on the ground colour: the stage (map.css) with the
+ * picture, the night and their overlays, then the heading, the caption and the switch above it. Stacking is the order
+ * in the document; the dock (--z-dock) is above all of it. The heading block (top left) and the caption (lower left)
+ * show in the overview and fade out in My climb; they sit over the picture's dark corners with a soft shadow. Colours,
+ * sizes and layers come from tokens.css.
+ */
+.map-page {
+  --map-gutter: 48px;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  overflow: clip;
+  background: var(--ground);
+  color: var(--ink-1);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.map-heading,
+.map-caption {
+  position: absolute;
+  left: var(--map-gutter);
+  margin: 0;
+  pointer-events: none;
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.7);
+  transition: opacity 600ms ease-out;
+}
+.map-page[data-mode="climb"] .map-heading,
+.map-page[data-mode="climb"] .map-caption {
+  opacity: 0;
+}
+.map-heading {
+  top: 28px;
+  max-width: calc(100vw - 2 * var(--map-gutter));
+}
+.map-caption {
+  bottom: calc(var(--site-nav-height, 132px) + 40px); /* above the dock */
+  width: max-content; /* the box is the text's, so the chart keeps out of the words and not of the space round them */
+  max-width: min(640px, calc(100vw - 2 * var(--map-gutter)));
+}
+/* the words, in order of importance (spec 9.6; the sizes and strengths are tokens): the title first, the largest and the brightest */
+.map-title {
+  max-width: 11ch; /* "MY" over "EXPERIENCE" on a wide screen, as in the preview the owner chose */
+  margin: 0 0 10px;
+  font-family: Doto, monospace;
+  font-weight: 800;
+  font-size: var(--map-title-size);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cream);
+  text-shadow: 0 2px 18px rgb(0 0 0 / 0.5);
+}
+/* its description, small and quiet */
+.map-text {
+  max-width: 30ch;
+  margin: 0;
+  font-size: var(--map-desc-size);
+  line-height: 1.55;
+  color: var(--map-ink-desc);
+}
+/* the mountain's name, a small map label in a warm light orange, and its line, the quietest */
+.map-caption figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.map-caption-title {
+  font-family: Doto, monospace;
+  font-weight: 800;
+  font-size: var(--map-label-size);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--map-ink-label);
+}
+.map-caption-line,
+.map-caption-fact,
+.map-caption-credit {
+  font-size: var(--map-line-size);
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: var(--map-ink-line);
+}
+
+/*
+ * A wide screen (at least 900 px wide and wider than it is high: words-layout.ts WIDE_MEDIA; round 7 second look spec 7): the title block sits left of the
+ * mountain and the mountain's block right of it, both on the summit's row, which is the middle of the stage in the overview (view.ts OVERVIEW looks at the
+ * summit's own row). The page then fits them (use-words-layout.ts): the title shrinks toward 34 px to stay 24 px short of the cliff, written as
+ * `--map-title-size`, and the mountain's block moves up or down the least it needs to keep 32 px clear of the milestones, the trail and the switch, written as
+ * `--map-caption-dy`. `data-words="old"` (no room beside the mountain) and a page with no map (the list is on the right) keep the old places.
+ */
+@media (min-width: 900px) and (min-aspect-ratio: 1001/1000) {
+  .map-page:not([data-words="old"], [data-engine="off"]) .map-heading {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .map-page:not([data-words="old"], [data-engine="off"]) .map-caption {
+    top: 50%;
+    bottom: auto;
+    left: auto;
+    right: var(--map-gutter);
+    transform: translateY(calc(-50% + var(--map-caption-dy, 0px)));
+    text-align: right;
+  }
+  .map-page:not([data-words="old"], [data-engine="off"]) .map-caption figcaption {
+    align-items: flex-end;
+  }
+  /* at most 32 characters wide */
+  .map-page:not([data-words="old"], [data-engine="off"]) :is(.map-caption-line, .map-caption-fact, .map-caption-credit) {
+    max-width: 32ch;
+  }
+}
+
+@media (max-width: 699.98px) {
+  .map-page {
+    --map-gutter: 16px;
+  }
+  .map-heading {
+    top: 22px;
+  }
+  .map-title {
+    max-width: none;
+    white-space: nowrap; /* one line down to 320 px wide ("MY EXPERIENCE" at 34 px is about 270 px), so the switch can sit under it */
+    overflow-x: clip; /* a title too long for the line is cut at the page's edge, it never runs off the screen or into the switch (the glow above and below is not cut) */
+  }
+  /* above the dock, with a line's room between them for the readout (the chart's frame sits on top of the dock on a phone) */
+  .map-caption {
+    bottom: calc(var(--site-nav-height, 132px) + 52px + env(safe-area-inset-bottom));
+  }
+}
+/* room for the switch under the title (map.css): an 8 px gap, the switch's 40 px, 8 px */
+@media (max-width: 499.98px) {
+  .map-title {
+    margin-bottom: 0;
+  }
+  .map-text {
+    max-width: 38ch;
+    margin-top: 56px;
+  }
+}
+/* A small screen (a phone that is short, or on its side): the title on one line, and the caption is the label and its line. The
+ * figures and the credit are still in the page, for a screen reader, and out of the way of the mountain. */
+@media (max-height: 520px), (max-width: 499.98px) and (max-height: 700px) {
+  .map-title {
+    max-width: none;
+    white-space: nowrap;
+  }
+  .map-text {
+    max-width: 44ch;
+  }
+  .map-caption-fact,
+  .map-caption-credit {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-heading,
+  .map-caption {
+    transition: none;
+  }
+}

@@ -1,61 +1,62 @@
 import {
-  getClientsSection,
-  getFactsSection,
+  getBooks,
+  getExperience,
   getHeroPaintings,
   getHomeContent,
   getNavigationItems,
-  getProjectsSection,
-  getReachOutSection,
   getSocialLinks,
-  getTechStackSection,
-  getWorkExperienceSection,
+  getVideos,
+  getWork,
 } from "./site-content.server";
 
-export async function getHomePageContent() {
-  const [home, facts, heroPaintings, navigationItems, socialLinks] =
+/**
+ * The home page's content. `random` picks the first painting (the server's pick, so the HTML can
+ * preload it); only that painting keeps its blurred placeholder in the response, which is the only
+ * one the hero can need up front (the others are never shown before their sharp copy loads).
+ */
+export async function getHomePageContent(random: () => number = Math.random) {
+  const [home, heroPaintings, books, videosFile, navigationItems, socialLinks] =
     await Promise.all([
       getHomeContent(),
-      getFactsSection(),
       getHeroPaintings(),
+      getBooks(),
+      getVideos(),
       getNavigationItems(),
       getSocialLinks(),
     ]);
 
+  const first =
+    heroPaintings[Math.min(heroPaintings.length - 1, Math.floor(random() * heroPaintings.length))];
+  const firstPaintingId = first?.id ?? "";
+
   return {
     home,
-    facts,
-    heroPaintings,
+    firstPaintingId,
+    heroPaintings: heroPaintings.map((p) => (p.id === firstPaintingId ? p : { ...p, blur: "" })),
+    books,
+    videos: videosFile.items,
     navigationItems,
     socialLinks,
   };
 }
 
 export async function getWorkPageContent() {
-  const [
-    clients,
-    navigationItems,
-    projects,
-    reachOut,
-    socialLinks,
-    techStack,
-    workExperience,
-  ] = await Promise.all([
-    getClientsSection(),
+  const [work, navigationItems, socialLinks] = await Promise.all([
+    getWork(),
     getNavigationItems(),
-    getProjectsSection(),
-    getReachOutSection(),
     getSocialLinks(),
-    getTechStackSection(),
-    getWorkExperienceSection(),
   ]);
 
-  return {
-    clients,
-    navigationItems,
-    projects,
-    reachOut,
-    socialLinks,
-    techStack,
-    workExperience,
-  };
+  return { work, navigationItems, socialLinks };
+}
+
+/** The experience page's content. `today` is the server's UTC date (YYYY-MM-DD): the last moment ("now") sits at it. */
+export async function getExperiencePageContent(now: Date = new Date()) {
+  const [experience, navigationItems, socialLinks] = await Promise.all([
+    getExperience(),
+    getNavigationItems(),
+    getSocialLinks(),
+  ]);
+
+  return { experience, today: now.toISOString().slice(0, 10), navigationItems, socialLinks };
 }

@@ -1,0 +1,67 @@
+{
+ "what": "R50.2 Eclipse ground under the R33 glass gate at 3.5 s (page-change.json, scripts/audit/make-page-change.mjs)",
+ "setup": "production build on :5180, headless Chrome, 1440 by 900, dpr 2, CPU 4x, fresh profile, the ground running on /work (the home ground builds only when its section is on screen)",
+ "rule": "animOver34 must be 0 (commit frames and frames before ready are not counted, R31)",
+ "changes": [
+  {
+   "change": "home to work",
+   "from": "/",
+   "to": "/work",
+   "animMs": 3544,
+   "animFrames": 214,
+   "animMax": 16.8,
+   "animOver34": 0,
+   "animOver20": 0,
+   "commitFrame": 66.6,
+   "preReadyMax": 16.7
+  },
+  {
+   "change": "work to home",
+   "from": "/work",
+   "to": "/",
+   "animMs": 3524,
+   "animFrames": 213,
+   "animMax": 16.8,
+   "animOver34": 0,
+   "animOver20": 0,
+   "commitFrame": 83.3,
+   "preReadyMax": 16.7
+  },
+  {
+   "change": "home to work (2nd)",
+   "from": "/",
+   "to": "/work",
+   "animMs": 3521,
+   "animFrames": 212,
+   "animMax": 16.8,
+   "animOver34": 0,
+   "animOver20": 0,
+   "commitFrame": 50.1,
+   "preReadyMax": 16.6
+  },
+  {
+   "change": "Back, work to home",
+   "from": "/work",
+   "to": "/",
+   "animMs": 3545,
+   "animFrames": 214,
+   "animMax": 16.8,
+   "animOver34": 0,
+   "animOver20": 0,
+   "commitFrame": 83.2,
+   "preReadyMax": 16.8
+  },
+  {
+   "change": "Forward, home to work",
+   "from": "/",
+   "to": "/work",
+   "animMs": 3527,
+   "animFrames": 212,
+   "animMax": 16.8,
+   "animOver34": 0,
+   "animOver20": 0,
+   "commitFrame": 50,
+   "preReadyMax": 16.7
+  }
+ ]
+}

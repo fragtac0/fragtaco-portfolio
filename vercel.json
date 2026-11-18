@@ -1,0 +1,87 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        }
+      ]
+    },
+    {
+      "source": "/paintings/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/mars/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/grounds/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/portraits/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/stack/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    }
+  ]
+}

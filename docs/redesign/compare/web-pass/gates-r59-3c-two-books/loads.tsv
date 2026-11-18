@@ -1,0 +1,13 @@
+page-change	15:04:49	start 5.90 5.12 4.75	end 5.35 5.08 4.75	exit 0
+page-change-hook	15:05:31	start 5.35 5.08 4.75	end 4.53 4.90 4.70	exit 0
+page-change-phone	15:06:13	start 4.53 4.90 4.70	end 6.05 5.24 4.83	exit 0
+arrival	15:07:03	start 6.04 5.26 4.85	end 5.08 4.95 4.77	exit 0
+make-arrival	15:09:39	start 4.75 4.89 4.75	end 4.63 5.26 5.07	exit 0
+glass-1512	15:16:56	start 4.66 5.25 5.07	end 4.83 5.16 5.05	exit 0
+glass-1920-after-1	15:17:53	start 4.83 5.16 5.05	end 5.21 5.22 5.08	exit 0
+glass-1920-base-1	15:18:52	start 5.21 5.22 5.08	end 5.88 5.49 5.19	exit 0
+glass-1920-after-2	15:19:49	start 5.88 5.49 5.19	end 7.87 6.04 5.41	exit 0
+glass-1920-base-2	15:20:54	start 7.72 6.07 5.43	end 6.48 6.08 5.48	exit 0
+glass-1920-after-3	15:21:52	start 6.48 6.08 5.48	end 6.29 6.09 5.51	exit 0
+glass-1920-base-3	15:22:50	start 6.29 6.09 5.51	end 3.85 5.43 5.30	exit 0
+glass-1920-after-4	15:23:47	start 3.85 5.43 5.30	end 2.59 4.77 5.06	exit 0

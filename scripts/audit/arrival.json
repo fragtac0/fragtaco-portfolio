@@ -1,0 +1,505 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}",
+  "go": "{{BASE}}/work",
+  "wait": 6000
+ },
+ {
+  "label": "RF1 arm: every picture held (data-change-hold goes at the cap, not never)",
+  "intercept": [
+   {
+    "match": ".webp",
+    "delay": 9000
+   },
+   {
+    "match": ".jpg",
+    "delay": 9000
+   },
+   {
+    "match": ".jpeg",
+    "delay": 9000
+   },
+   {
+    "match": ".png",
+    "delay": 9000
+   },
+   {
+    "match": ".avif",
+    "delay": 9000
+   },
+   {
+    "match": ".svg",
+    "delay": 9000
+   },
+   {
+    "match": "i.ytimg.com",
+    "delay": 9000
+   },
+   {
+    "match": "covers.openlibrary",
+    "delay": 9000
+   }
+  ]
+ },
+ {
+  "label": "RF1 pictures never load: hold length, late parts, the change ends",
+  "eval": "(async () => { const html = document.documentElement; document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\").click(); const t0 = performance.now(); let holdOn = null, holdOff = null, lateAtOff = null; await new Promise((res) => { const id = setInterval(() => { const h = 'changeHold' in html.dataset; if (h && holdOn === null) holdOn = performance.now() - t0; if (!h && holdOn !== null && holdOff === null) { holdOff = performance.now() - t0; lateAtOff = html.dataset.arrivalLate ?? null; } if ((holdOff !== null && !html.dataset.changeKind) || performance.now() - t0 > 9000) { clearInterval(id); res(); } }, 8); }); const r = { holdOnMs: Math.round(holdOn), holdOffMs: Math.round(holdOff), holdLengthMs: Math.round(holdOff - holdOn), lateAtOff, ended: !html.dataset.changeKind, ...({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }) }; const m = (n) => performance.getEntriesByName(n).at(-1)?.startTime ?? null; r.markHoldMs = m('arrival-hold') !== null && m('arrival-go') !== null ? Math.round(m('arrival-go') - m('arrival-hold')) : null; /* the cap is counted from the transition's ready: holdLengthMs also has the wait for it */ r.ok = r.markHoldMs !== null && r.markHoldMs >= 480 && r.markHoldMs <= 530 && r.holdLengthMs <= 700 && r.ended && !r.hold && !!lateAtOff; return r; })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF1 disarm"
+ },
+ {
+  "label": "RF2 reload on the portfolio page",
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": ".webp",
+    "delay": 9000
+   },
+   {
+    "match": ".jpg",
+    "delay": 9000
+   },
+   {
+    "match": ".jpeg",
+    "delay": 9000
+   },
+   {
+    "match": ".png",
+    "delay": 9000
+   },
+   {
+    "match": ".avif",
+    "delay": 9000
+   },
+   {
+    "match": ".svg",
+    "delay": 9000
+   },
+   {
+    "match": "i.ytimg.com",
+    "delay": 9000
+   },
+   {
+    "match": "covers.openlibrary",
+    "delay": 9000
+   }
+  ],
+  "label": "RF2 arm"
+ },
+ {
+  "label": "RF2a a pointer press during the hold finishes the change at once and nothing is held",
+  "eval": "(async () => { const html = document.documentElement; document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\").click(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if (('changeHold' in html.dataset) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 150)); const during = ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }); window.__ftFinish && window.__ftFinish(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 700)); const after = ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }); return { during, after, ok: during.hold === true && after.kind === null && after.hold === false && after.busy === null && after.path === '/work/long-form' }; })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF2 disarm"
+ },
+ {
+  "label": "RF2b Back during the hold ends the change at once, no second reveal",
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": ".webp",
+    "delay": 9000
+   },
+   {
+    "match": ".jpg",
+    "delay": 9000
+   },
+   {
+    "match": ".jpeg",
+    "delay": 9000
+   },
+   {
+    "match": ".png",
+    "delay": 9000
+   },
+   {
+    "match": ".avif",
+    "delay": 9000
+   },
+   {
+    "match": ".svg",
+    "delay": 9000
+   },
+   {
+    "match": "i.ytimg.com",
+    "delay": 9000
+   },
+   {
+    "match": "covers.openlibrary",
+    "delay": 9000
+   }
+  ],
+  "label": "RF2b arm"
+ },
+ {
+  "label": "RF2b Back",
+  "eval": "(async () => { const html = document.documentElement; document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\").click(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if (('changeHold' in html.dataset) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 150)); const during = ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }); history.back(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind && !('changeHold' in html.dataset)) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 900)); const after = ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }); const glass = document.getAnimations().filter((a) => a.animationName === 'glass-p').length; return { during, after, glassAnimations: glass, ok: during.hold === true && after.kind === null && after.hold === false && (after.path === '/work' || after.path === '/work/') && glass === 0 }; })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF2 disarm"
+ },
+ {
+  "label": "RF2c a second click on another link during the hold replaces the change, nothing stays held",
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": ".webp",
+    "delay": 9000
+   },
+   {
+    "match": ".jpg",
+    "delay": 9000
+   },
+   {
+    "match": ".jpeg",
+    "delay": 9000
+   },
+   {
+    "match": ".png",
+    "delay": 9000
+   },
+   {
+    "match": ".avif",
+    "delay": 9000
+   },
+   {
+    "match": ".svg",
+    "delay": 9000
+   },
+   {
+    "match": "i.ytimg.com",
+    "delay": 9000
+   },
+   {
+    "match": "covers.openlibrary",
+    "delay": 9000
+   }
+  ],
+  "label": "RF2c arm"
+ },
+ {
+  "label": "RF2c a second link",
+  "eval": "(async () => { const html = document.documentElement; document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\").click(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if (('changeHold' in html.dataset) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 150)); const during = ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }); window.__ftChange && window.__ftChange('/experience'); await new Promise((r) => setTimeout(r, 900)); window.__ftFinish && window.__ftFinish(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind) || performance.now() - t0 > 6000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 700)); const after = ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }); return { during, after, ok: during.hold === true && after.kind === null && after.hold === false && after.path === '/experience' }; })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF2 disarm"
+ },
+ {
+  "label": "RF5a long form, the row's Short form link focused",
+  "go": "{{BASE}}/work/long-form",
+  "wait": 6000
+ },
+ {
+  "label": "RF5a focus the row's Short form link and press Enter",
+  "eval": "(async () => { const a = document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/short-form\\\"]\"); a.focus(); window.__rf5 = { el: a, before: ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }) }; return window.__rf5.before; })()"
+ },
+ {
+  "key": "Enter"
+ },
+ {
+  "label": "RF5a after the change: the same link has focus (the dock is the same element), the row never closed",
+  "eval": "(async () => { const html = document.documentElement; await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind && location.pathname === '/work/short-form') || performance.now() - t0 > 7000) { clearInterval(id); res(); } }, 16); }); const row = document.querySelector('.dock-row'); const r = { ...({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }), sameElement: document.activeElement === window.__rf5.el, rowPresent: !!row, rowOpacity: row && getComputedStyle(row).opacity, rowInert: row ? row.hasAttribute('inert') : null }; r.ok = r.sameElement && r.rowPresent && r.rowInert === false && r.path === '/work/short-form' && !r.kind; return r; })()"
+ },
+ {
+  "label": "RF5b the dock's box does not change across a change between two row pages",
+  "eval": "(async () => { const html = document.documentElement; const box = () => { const r = document.querySelector('[data-dock-glass]').getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map((v) => Math.round(v * 10) / 10); }; const before = box(); const seen = new Set([before.join()]); document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\").click(); await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { seen.add(box().join()); if ((!html.dataset.changeKind && location.pathname === '/work/long-form') || performance.now() - t0 > 7000) { clearInterval(id); res(); } }, 16); }); return { before, after: box(), distinctBoxes: seen.size, ok: seen.size === 1 }; })()"
+ },
+ {
+  "label": "RF5c focus the row's My experience link (from the long form wall) and press Enter",
+  "eval": "(async () => { const a = document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/experience\\\"]\"); a.focus(); window.__rf5c = { el: a, before: ({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }) }; return window.__rf5c.before; })()"
+ },
+ {
+  "key": "Enter"
+ },
+ {
+  "label": "RF5c after the change into My experience: the dock was made again, focus is on its current tab (the row's My experience link), the row is there",
+  "eval": "(async () => { const html = document.documentElement; await new Promise((res) => { const t0 = performance.now(); const id = setInterval(() => { if ((!html.dataset.changeKind && location.pathname === '/experience') || performance.now() - t0 > 7000) { clearInterval(id); res(); } }, 16); }); await new Promise((r) => setTimeout(r, 300)); const at = document.activeElement; const row = document.querySelector('.dock-row'); const r = { ...({ path: location.pathname, kind: document.documentElement.dataset.changeKind ?? null, hold: 'changeHold' in document.documentElement.dataset, late: document.documentElement.dataset.arrivalLate ?? null, glass: document.documentElement.dataset.glass ?? null, busy: document.documentElement.dataset.changeBusy ?? null, focus: document.activeElement?.getAttribute('data-work-tab') || document.activeElement?.getAttribute('href') || document.activeElement?.tagName }), remade: at !== window.__rf5c.el, onCurrentTab: !!at && at.getAttribute('data-work-tab') === '/experience' && at.getAttribute('aria-current') === 'page', inDock: !!at && !!at.closest('header[data-site-nav]'), rowPresent: !!row, rowInert: row ? row.hasAttribute('inert') : null }; r.ok = r.onCurrentTab && r.inDock && r.rowPresent && r.rowInert === false && r.path === '/experience' && !r.kind; return r; })()"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2
+ },
+ {
+  "label": "RF6 the map's picture 1500 ms: fresh load, cache off",
+  "intercept": [],
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": "/mars/relief",
+    "delay": 1500
+   }
+  ],
+  "label": "RF6 the map's picture 1500 ms: arm"
+ },
+ {
+  "label": "RF6 the map's picture: late part comes 1500 ms after the click, fades in over about 200 ms, nothing else moves",
+  "eval": "(async () => {\n    const html = document.documentElement;\n    const link = document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/experience\\\"]\");\n    if (!link) return { ok: false, err: 'no link' };\n    const skip = (el) => el.closest(\"canvas, svg, .work-rings, .wall-canvas-host, [data-glass-warm], .map-heading, .map-caption, .map-pins\");\n    const snap = (ignore) => { const out = {}; const roots = [...document.querySelectorAll(\".map-page\"), document.querySelector('[data-dock-glass]')].filter(Boolean); let n = 0;\n      for (const root of roots) for (const el of [root, ...root.querySelectorAll('*')]) { if (skip(el) || ignore.some((t) => t.contains(el))) continue; const r = el.getBoundingClientRect(); out[n++ + ':' + el.tagName + '.' + String(el.className).slice(0, 24)] = [r.x, r.y, r.width, r.height, +getComputedStyle(el).opacity]; } return out; };\n    const pickTargets = () => { const all = [...document.querySelectorAll(\".map-plane img\")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; }); return all.slice(-1); };\n    const seen = new Map(); // element -> samples [t, opacity, in]\n    const marks = () => { const m = performance.getEntriesByName('arrival-go').at(-1); return m && m.startTime > t0 ? m.startTime - t0 : null; };\n    let before = null, after = null, overAt = null, doneAt = null;\n    const t0 = performance.now();\n    link.click();\n    await new Promise((res) => { const loop = () => {\n      const t = performance.now() - t0;\n      if (overAt === null && t > 100 && !html.dataset.changeKind) overAt = t;\n      const go = marks();\n      for (const el of pickTargets()) { if (!seen.has(el)) seen.set(el, []); seen.get(el).push([t, +getComputedStyle(el).opacity, el.complete && el.naturalWidth > 0]); }\n      const targets = [...seen.keys()];\n      // (nothing is called done before the held requests can have come: 1500 ms; the hero's placeholder is in and at 1 long before its sharp painting)\n      // the first moment a part is in after the reveal began: what else is on the page is photographed then, and 450 ms later (a late part must move nothing)\n      if (before === null && go !== null && targets.some((el) => { const s = seen.get(el); const i = s.findIndex((x) => x[2]); return i >= 0 && s[i][0] > go; })) { before = snap(targets); setTimeout(() => { after = snap(targets); }, 450); }\n      if (doneAt === null && t > 1500 + 150 && targets.length && targets.every((el) => seen.get(el).some((x) => x[2] && x[1] >= 0.99))) doneAt = t;\n      if ((doneAt !== null && t > doneAt + 700 && (after || go === null || before === null)) || t > 1500 + 7000) return res();\n      requestAnimationFrame(loop); }; requestAnimationFrame(loop); });\n    const goAt = marks() ?? -1;\n    const rows = [...seen.entries()].map(([el, s]) => {\n      const i = s.findIndex((x) => x[2]);\n      if (i < 0) return { never: true };\n      const first = s[i], rest = s.slice(i);\n      const up = rest.find((x) => x[1] >= 0.99), start = rest.find((x) => x[1] > 0.02);\n      const dips = rest.filter((x) => up && x[0] > up[0] && x[1] < 0.97).length;\n      return { arrivedMs: Math.round(first[0]), startOp: +rest[0][1].toFixed(2), rampMs: up && start ? Math.round(up[0] - start[0]) : null, dips, late: first[0] > goAt };\n    });\n    const lateRows = rows.filter((r) => r.late && !r.never);\n    const diff = (a, b) => { const moved = [], faded = []; if (a && b) for (const k of Object.keys(a)) { if (!b[k]) continue; if (Math.abs(a[k][0] - b[k][0]) > 1 || Math.abs(a[k][1] - b[k][1]) > 1 || Math.abs(a[k][2] - b[k][2]) > 1 || Math.abs(a[k][3] - b[k][3]) > 1) moved.push(k); if (Math.abs(a[k][4] - b[k][4]) > 0.05) faded.push(k); } return { moved: moved.slice(0, 6), faded: faded.slice(0, 6) }; };\n    const elsewhere = diff(before, after);\n    const arrivedAt = lateRows.length ? Math.min(...lateRows.map((r) => r.arrivedMs)) : null;\n    const res = { part: \"the map's picture\", delayMs: 1500, targets: rows.length, late: lateRows.length, arrivedMs: arrivedAt, revealBeganMs: Math.round(goAt), neverIn: rows.filter((r) => r.never).length, changeOverMs: overAt === null ? null : Math.round(overAt),\n      arrivedAfterReveal: arrivedAt !== null && arrivedAt > goAt, arrivedAfterChangeEnd: arrivedAt !== null && overAt !== null && arrivedAt > overAt,\n      startOpMax: lateRows.length ? Math.max(...lateRows.map((r) => r.startOp)) : null, rampMs: lateRows.length ? [Math.min(...lateRows.map((r) => r.rampMs ?? 9999)), Math.max(...lateRows.map((r) => r.rampMs ?? 0))] : null,\n      dips: lateRows.reduce((n, r) => n + r.dips, 0), elsewhere };\n    res.ok = (res.late > 0 && res.arrivedAfterReveal && res.startOpMax < 0.5 && res.rampMs[0] >= 120 && res.rampMs[1] <= 320 && res.dips === 0 && res.elsewhere.moved.length === 0 && res.elsewhere.faded.length === 0);\n    return res;\n  })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF6 the map's picture 1500 ms: disarm"
+ },
+ {
+  "eval": "new Promise((r) => setTimeout(() => r(1), 4000))",
+  "label": "RF6 let the change end"
+ },
+ {
+  "label": "RF6 the ground's still 1500 ms: fresh load, cache off",
+  "intercept": [],
+  "nocache": true,
+  "go": "{{BASE}}/",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": "/grounds/eclipse",
+    "delay": 1500
+   }
+  ],
+  "label": "RF6 the ground's still 1500 ms: arm"
+ },
+ {
+  "label": "RF6 the ground's still: late part comes 1500 ms after the click, fades in over about 200 ms, nothing else moves",
+  "eval": "(async () => {\n    const html = document.documentElement;\n    const link = [...document.querySelectorAll('header[data-site-nav] a')].find((a) => a.getAttribute('href') === '/work');\n    if (!link) return { ok: false, err: 'no link' };\n    const skip = (el) => el.closest(\"canvas, svg, .work-rings, .wall-canvas-host, [data-glass-warm]\");\n    const snap = (ignore) => { const out = {}; const roots = [...document.querySelectorAll(\".work-page\"), document.querySelector('[data-dock-glass]')].filter(Boolean); let n = 0;\n      for (const root of roots) for (const el of [root, ...root.querySelectorAll('*')]) { if (skip(el) || ignore.some((t) => t.contains(el))) continue; const r = el.getBoundingClientRect(); out[n++ + ':' + el.tagName + '.' + String(el.className).slice(0, 24)] = [r.x, r.y, r.width, r.height, +getComputedStyle(el).opacity]; } return out; };\n    const pickTargets = () => { const all = [...document.querySelectorAll(\".eclipse-still[data-on=\\\"true\\\"] img\")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; }); return all; };\n    const seen = new Map(); // element -> samples [t, opacity, in]\n    const marks = () => { const m = performance.getEntriesByName('arrival-go').at(-1); return m && m.startTime > t0 ? m.startTime - t0 : null; };\n    let before = null, after = null, overAt = null, doneAt = null;\n    const t0 = performance.now();\n    link.click();\n    await new Promise((res) => { const loop = () => {\n      const t = performance.now() - t0;\n      if (overAt === null && t > 100 && !html.dataset.changeKind) overAt = t;\n      const go = marks();\n      for (const el of pickTargets()) { if (!seen.has(el)) seen.set(el, []); seen.get(el).push([t, +getComputedStyle(el).opacity, el.complete && el.naturalWidth > 0]); }\n      const targets = [...seen.keys()];\n      // (nothing is called done before the held requests can have come: 1500 ms; the hero's placeholder is in and at 1 long before its sharp painting)\n      // the first moment a part is in after the reveal began: what else is on the page is photographed then, and 450 ms later (a late part must move nothing)\n      if (before === null && go !== null && targets.some((el) => { const s = seen.get(el); const i = s.findIndex((x) => x[2]); return i >= 0 && s[i][0] > go; })) { before = snap(targets); setTimeout(() => { after = snap(targets); }, 450); }\n      if (doneAt === null && t > 1500 + 150 && targets.length && targets.every((el) => seen.get(el).some((x) => x[2] && x[1] >= 0.99))) doneAt = t;\n      if ((doneAt !== null && t > doneAt + 700 && (after || go === null || before === null)) || t > 1500 + 7000) return res();\n      requestAnimationFrame(loop); }; requestAnimationFrame(loop); });\n    const goAt = marks() ?? -1;\n    const rows = [...seen.entries()].map(([el, s]) => {\n      const i = s.findIndex((x) => x[2]);\n      if (i < 0) return { never: true };\n      const first = s[i], rest = s.slice(i);\n      const up = rest.find((x) => x[1] >= 0.99), start = rest.find((x) => x[1] > 0.02);\n      const dips = rest.filter((x) => up && x[0] > up[0] && x[1] < 0.97).length;\n      return { arrivedMs: Math.round(first[0]), startOp: +rest[0][1].toFixed(2), rampMs: up && start ? Math.round(up[0] - start[0]) : null, dips, late: first[0] > goAt };\n    });\n    const lateRows = rows.filter((r) => r.late && !r.never);\n    const diff = (a, b) => { const moved = [], faded = []; if (a && b) for (const k of Object.keys(a)) { if (!b[k]) continue; if (Math.abs(a[k][0] - b[k][0]) > 1 || Math.abs(a[k][1] - b[k][1]) > 1 || Math.abs(a[k][2] - b[k][2]) > 1 || Math.abs(a[k][3] - b[k][3]) > 1) moved.push(k); if (Math.abs(a[k][4] - b[k][4]) > 0.05) faded.push(k); } return { moved: moved.slice(0, 6), faded: faded.slice(0, 6) }; };\n    const elsewhere = diff(before, after);\n    const arrivedAt = lateRows.length ? Math.min(...lateRows.map((r) => r.arrivedMs)) : null;\n    const res = { part: \"the ground's still\", delayMs: 1500, targets: rows.length, late: lateRows.length, arrivedMs: arrivedAt, revealBeganMs: Math.round(goAt), neverIn: rows.filter((r) => r.never).length, changeOverMs: overAt === null ? null : Math.round(overAt),\n      arrivedAfterReveal: arrivedAt !== null && arrivedAt > goAt, arrivedAfterChangeEnd: arrivedAt !== null && overAt !== null && arrivedAt > overAt,\n      startOpMax: lateRows.length ? Math.max(...lateRows.map((r) => r.startOp)) : null, rampMs: lateRows.length ? [Math.min(...lateRows.map((r) => r.rampMs ?? 9999)), Math.max(...lateRows.map((r) => r.rampMs ?? 0))] : null,\n      dips: lateRows.reduce((n, r) => n + r.dips, 0), elsewhere };\n    res.ok = (res.late > 0 && res.arrivedAfterReveal && res.startOpMax < 0.5 && res.rampMs[0] >= 120 && res.rampMs[1] <= 320 && res.dips === 0 && res.elsewhere.moved.length === 0 && res.elsewhere.faded.length === 0);\n    return res;\n  })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF6 the ground's still 1500 ms: disarm"
+ },
+ {
+  "eval": "new Promise((r) => setTimeout(() => r(1), 4000))",
+  "label": "RF6 let the change end"
+ },
+ {
+  "label": "RF6 the hero's sharp painting 1500 ms: fresh load, cache off",
+  "intercept": [],
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": "/paintings/",
+    "delay": 1500
+   }
+  ],
+  "label": "RF6 the hero's sharp painting 1500 ms: arm"
+ },
+ {
+  "label": "RF6 the hero's sharp painting: late part comes 1500 ms after the click, fades in over about 200 ms, nothing else moves",
+  "eval": "(async () => {\n    const html = document.documentElement;\n    const link = [...document.querySelectorAll('header[data-site-nav] a')].find((a) => a.getAttribute('href') === '/');\n    if (!link) return { ok: false, err: 'no link' };\n    const skip = (el) => el.closest(\"canvas, svg, .work-rings, .wall-canvas-host, [data-glass-warm]\");\n    const snap = (ignore) => { const out = {}; const roots = [...document.querySelectorAll(\"#hero .hero-layer\"), document.querySelector('[data-dock-glass]')].filter(Boolean); let n = 0;\n      for (const root of roots) for (const el of [root, ...root.querySelectorAll('*')]) { if (skip(el) || ignore.some((t) => t.contains(el))) continue; const r = el.getBoundingClientRect(); out[n++ + ':' + el.tagName + '.' + String(el.className).slice(0, 24)] = [r.x, r.y, r.width, r.height, +getComputedStyle(el).opacity]; } return out; };\n    const pickTargets = () => { const all = [...document.querySelectorAll(\".paint-host img.paint-still\")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; }); return all.slice(-1); };\n    const seen = new Map(); // element -> samples [t, opacity, in]\n    const marks = () => { const m = performance.getEntriesByName('arrival-go').at(-1); return m && m.startTime > t0 ? m.startTime - t0 : null; };\n    let before = null, after = null, overAt = null, doneAt = null;\n    const t0 = performance.now();\n    link.click();\n    await new Promise((res) => { const loop = () => {\n      const t = performance.now() - t0;\n      if (overAt === null && t > 100 && !html.dataset.changeKind) overAt = t;\n      const go = marks();\n      for (const el of pickTargets()) { if (!seen.has(el)) seen.set(el, []); seen.get(el).push([t, +getComputedStyle(el).opacity, el.complete && el.naturalWidth > 0]); }\n      const targets = [...seen.keys()];\n      // (nothing is called done before the held requests can have come: 1500 ms; the hero's placeholder is in and at 1 long before its sharp painting)\n      // the first moment a part is in after the reveal began: what else is on the page is photographed then, and 450 ms later (a late part must move nothing)\n      if (before === null && go !== null && targets.some((el) => { const s = seen.get(el); const i = s.findIndex((x) => x[2]); return i >= 0 && s[i][0] > go; })) { before = snap(targets); setTimeout(() => { after = snap(targets); }, 450); }\n      if (doneAt === null && t > 1500 + 150 && targets.length && targets.every((el) => seen.get(el).some((x) => x[2] && x[1] >= 0.99))) doneAt = t;\n      if ((doneAt !== null && t > doneAt + 700 && (after || go === null || before === null)) || t > 1500 + 7000) return res();\n      requestAnimationFrame(loop); }; requestAnimationFrame(loop); });\n    const goAt = marks() ?? -1;\n    const rows = [...seen.entries()].map(([el, s]) => {\n      const i = s.findIndex((x) => x[2]);\n      if (i < 0) return { never: true };\n      const first = s[i], rest = s.slice(i);\n      const up = rest.find((x) => x[1] >= 0.99), start = rest.find((x) => x[1] > 0.02);\n      const dips = rest.filter((x) => up && x[0] > up[0] && x[1] < 0.97).length;\n      return { arrivedMs: Math.round(first[0]), startOp: +rest[0][1].toFixed(2), rampMs: up && start ? Math.round(up[0] - start[0]) : null, dips, late: first[0] > goAt };\n    });\n    const lateRows = rows.filter((r) => r.late && !r.never);\n    const diff = (a, b) => { const moved = [], faded = []; if (a && b) for (const k of Object.keys(a)) { if (!b[k]) continue; if (Math.abs(a[k][0] - b[k][0]) > 1 || Math.abs(a[k][1] - b[k][1]) > 1 || Math.abs(a[k][2] - b[k][2]) > 1 || Math.abs(a[k][3] - b[k][3]) > 1) moved.push(k); if (Math.abs(a[k][4] - b[k][4]) > 0.05) faded.push(k); } return { moved: moved.slice(0, 6), faded: faded.slice(0, 6) }; };\n    const elsewhere = diff(before, after);\n    const arrivedAt = lateRows.length ? Math.min(...lateRows.map((r) => r.arrivedMs)) : null;\n    const res = { part: \"the hero's sharp painting\", delayMs: 1500, targets: rows.length, late: lateRows.length, arrivedMs: arrivedAt, revealBeganMs: Math.round(goAt), neverIn: rows.filter((r) => r.never).length, changeOverMs: overAt === null ? null : Math.round(overAt),\n      arrivedAfterReveal: arrivedAt !== null && arrivedAt > goAt, arrivedAfterChangeEnd: arrivedAt !== null && overAt !== null && arrivedAt > overAt,\n      startOpMax: lateRows.length ? Math.max(...lateRows.map((r) => r.startOp)) : null, rampMs: lateRows.length ? [Math.min(...lateRows.map((r) => r.rampMs ?? 9999)), Math.max(...lateRows.map((r) => r.rampMs ?? 0))] : null,\n      dips: lateRows.reduce((n, r) => n + r.dips, 0), elsewhere };\n    res.ok = (res.late > 0 && res.arrivedAfterReveal && res.startOpMax < 0.5 && res.rampMs[0] >= 120 && res.rampMs[1] <= 320 && res.dips === 0 && res.elsewhere.moved.length === 0 && res.elsewhere.faded.length === 0);\n    return res;\n  })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF6 the hero's sharp painting 1500 ms: disarm"
+ },
+ {
+  "eval": "new Promise((r) => setTimeout(() => r(1), 4000))",
+  "label": "RF6 let the change end"
+ },
+ {
+  "label": "RF6 the ring covers 1500 ms: fresh load, cache off",
+  "intercept": [],
+  "nocache": true,
+  "go": "{{BASE}}/",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "delay": 1500
+   }
+  ],
+  "label": "RF6 the ring covers 1500 ms: arm"
+ },
+ {
+  "label": "RF6 the ring covers: late part comes 1500 ms after the click, fades in over about 200 ms, nothing else moves",
+  "eval": "(async () => {\n    const html = document.documentElement;\n    const link = [...document.querySelectorAll('header[data-site-nav] a')].find((a) => a.getAttribute('href') === '/work');\n    if (!link) return { ok: false, err: 'no link' };\n    const skip = (el) => el.closest(\"canvas, svg, .work-rings, .wall-canvas-host, [data-glass-warm]\");\n    const snap = (ignore) => { const out = {}; const roots = [...document.querySelectorAll(\".work-page\"), document.querySelector('[data-dock-glass]')].filter(Boolean); let n = 0;\n      for (const root of roots) for (const el of [root, ...root.querySelectorAll('*')]) { if (skip(el) || ignore.some((t) => t.contains(el))) continue; const r = el.getBoundingClientRect(); out[n++ + ':' + el.tagName + '.' + String(el.className).slice(0, 24)] = [r.x, r.y, r.width, r.height, +getComputedStyle(el).opacity]; } return out; };\n    const pickTargets = () => { const all = [...document.querySelectorAll(\".work-cover img\")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; }); return all; };\n    const seen = new Map(); // element -> samples [t, opacity, in]\n    const marks = () => { const m = performance.getEntriesByName('arrival-go').at(-1); return m && m.startTime > t0 ? m.startTime - t0 : null; };\n    let before = null, after = null, overAt = null, doneAt = null;\n    const t0 = performance.now();\n    link.click();\n    await new Promise((res) => { const loop = () => {\n      const t = performance.now() - t0;\n      if (overAt === null && t > 100 && !html.dataset.changeKind) overAt = t;\n      const go = marks();\n      for (const el of pickTargets()) { if (!seen.has(el)) seen.set(el, []); seen.get(el).push([t, +getComputedStyle(el).opacity, el.complete && el.naturalWidth > 0]); }\n      const targets = [...seen.keys()];\n      // (nothing is called done before the held requests can have come: 1500 ms; the hero's placeholder is in and at 1 long before its sharp painting)\n      // the first moment a part is in after the reveal began: what else is on the page is photographed then, and 450 ms later (a late part must move nothing)\n      if (before === null && go !== null && targets.some((el) => { const s = seen.get(el); const i = s.findIndex((x) => x[2]); return i >= 0 && s[i][0] > go; })) { before = snap(targets); setTimeout(() => { after = snap(targets); }, 450); }\n      if (doneAt === null && t > 1500 + 150 && targets.length && targets.every((el) => seen.get(el).some((x) => x[2] && x[1] >= 0.99))) doneAt = t;\n      if ((doneAt !== null && t > doneAt + 700 && (after || go === null || before === null)) || t > 1500 + 7000) return res();\n      requestAnimationFrame(loop); }; requestAnimationFrame(loop); });\n    const goAt = marks() ?? -1;\n    const rows = [...seen.entries()].map(([el, s]) => {\n      const i = s.findIndex((x) => x[2]);\n      if (i < 0) return { never: true };\n      const first = s[i], rest = s.slice(i);\n      const up = rest.find((x) => x[1] >= 0.99), start = rest.find((x) => x[1] > 0.02);\n      const dips = rest.filter((x) => up && x[0] > up[0] && x[1] < 0.97).length;\n      return { arrivedMs: Math.round(first[0]), startOp: +rest[0][1].toFixed(2), rampMs: up && start ? Math.round(up[0] - start[0]) : null, dips, late: first[0] > goAt };\n    });\n    const lateRows = rows.filter((r) => r.late && !r.never);\n    const diff = (a, b) => { const moved = [], faded = []; if (a && b) for (const k of Object.keys(a)) { if (!b[k]) continue; if (Math.abs(a[k][0] - b[k][0]) > 1 || Math.abs(a[k][1] - b[k][1]) > 1 || Math.abs(a[k][2] - b[k][2]) > 1 || Math.abs(a[k][3] - b[k][3]) > 1) moved.push(k); if (Math.abs(a[k][4] - b[k][4]) > 0.05) faded.push(k); } return { moved: moved.slice(0, 6), faded: faded.slice(0, 6) }; };\n    const elsewhere = diff(before, after);\n    const arrivedAt = lateRows.length ? Math.min(...lateRows.map((r) => r.arrivedMs)) : null;\n    const res = { part: \"the ring covers\", delayMs: 1500, targets: rows.length, late: lateRows.length, arrivedMs: arrivedAt, revealBeganMs: Math.round(goAt), neverIn: rows.filter((r) => r.never).length, changeOverMs: overAt === null ? null : Math.round(overAt),\n      arrivedAfterReveal: arrivedAt !== null && arrivedAt > goAt, arrivedAfterChangeEnd: arrivedAt !== null && overAt !== null && arrivedAt > overAt,\n      startOpMax: lateRows.length ? Math.max(...lateRows.map((r) => r.startOp)) : null, rampMs: lateRows.length ? [Math.min(...lateRows.map((r) => r.rampMs ?? 9999)), Math.max(...lateRows.map((r) => r.rampMs ?? 0))] : null,\n      dips: lateRows.reduce((n, r) => n + r.dips, 0), elsewhere };\n    res.ok = res.targets === 0 || (res.late > 0 && res.arrivedAfterReveal && res.startOpMax < 0.5 && res.rampMs[0] >= 120 && res.rampMs[1] <= 320 && res.dips === 0 && res.elsewhere.moved.length === 0 && res.elsewhere.faded.length === 0);\n    return res;\n  })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF6 the ring covers 1500 ms: disarm"
+ },
+ {
+  "eval": "new Promise((r) => setTimeout(() => r(1), 4000))",
+  "label": "RF6 let the change end"
+ },
+ {
+  "label": "RF6 the wall's pictures 1500 ms: fresh load, cache off",
+  "intercept": [],
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "delay": 1500
+   }
+  ],
+  "label": "RF6 the wall's pictures 1500 ms: arm"
+ },
+ {
+  "label": "RF6 the wall's pictures: late part comes 1500 ms after the click, fades in over about 200 ms, nothing else moves",
+  "eval": "(async () => {\n    const html = document.documentElement;\n    const link = document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\");\n    if (!link) return { ok: false, err: 'no link' };\n    const skip = (el) => el.closest(\"canvas, svg, .work-rings, .wall-canvas-host, [data-glass-warm], .wall-links\");\n    const snap = (ignore) => { const out = {}; const roots = [...document.querySelectorAll(\".wall-stage\"), document.querySelector('[data-dock-glass]')].filter(Boolean); let n = 0;\n      for (const root of roots) for (const el of [root, ...root.querySelectorAll('*')]) { if (skip(el) || ignore.some((t) => t.contains(el))) continue; const r = el.getBoundingClientRect(); out[n++ + ':' + el.tagName + '.' + String(el.className).slice(0, 24)] = [r.x, r.y, r.width, r.height, +getComputedStyle(el).opacity]; } return out; };\n    const pickTargets = () => { const all = [...document.querySelectorAll(\".wall-tile img\")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; }); return all; };\n    const seen = new Map(); // element -> samples [t, opacity, in]\n    const marks = () => { const m = performance.getEntriesByName('arrival-go').at(-1); return m && m.startTime > t0 ? m.startTime - t0 : null; };\n    let before = null, after = null, overAt = null, doneAt = null;\n    const t0 = performance.now();\n    link.click();\n    await new Promise((res) => { const loop = () => {\n      const t = performance.now() - t0;\n      if (overAt === null && t > 100 && !html.dataset.changeKind) overAt = t;\n      const go = marks();\n      for (const el of pickTargets()) { if (!seen.has(el)) seen.set(el, []); seen.get(el).push([t, +getComputedStyle(el).opacity, el.complete && el.naturalWidth > 0]); }\n      const targets = [...seen.keys()];\n      // (nothing is called done before the held requests can have come: 1500 ms; the hero's placeholder is in and at 1 long before its sharp painting)\n      // the first moment a part is in after the reveal began: what else is on the page is photographed then, and 450 ms later (a late part must move nothing)\n      if (before === null && go !== null && targets.some((el) => { const s = seen.get(el); const i = s.findIndex((x) => x[2]); return i >= 0 && s[i][0] > go; })) { before = snap(targets); setTimeout(() => { after = snap(targets); }, 450); }\n      if (doneAt === null && t > 1500 + 150 && targets.length && targets.every((el) => seen.get(el).some((x) => x[2] && x[1] >= 0.99))) doneAt = t;\n      if ((doneAt !== null && t > doneAt + 700 && (after || go === null || before === null)) || t > 1500 + 7000) return res();\n      requestAnimationFrame(loop); }; requestAnimationFrame(loop); });\n    const goAt = marks() ?? -1;\n    const rows = [...seen.entries()].map(([el, s]) => {\n      const i = s.findIndex((x) => x[2]);\n      if (i < 0) return { never: true };\n      const first = s[i], rest = s.slice(i);\n      const up = rest.find((x) => x[1] >= 0.99), start = rest.find((x) => x[1] > 0.02);\n      const dips = rest.filter((x) => up && x[0] > up[0] && x[1] < 0.97).length;\n      return { arrivedMs: Math.round(first[0]), startOp: +rest[0][1].toFixed(2), rampMs: up && start ? Math.round(up[0] - start[0]) : null, dips, late: first[0] > goAt };\n    });\n    const lateRows = rows.filter((r) => r.late && !r.never);\n    const diff = (a, b) => { const moved = [], faded = []; if (a && b) for (const k of Object.keys(a)) { if (!b[k]) continue; if (Math.abs(a[k][0] - b[k][0]) > 1 || Math.abs(a[k][1] - b[k][1]) > 1 || Math.abs(a[k][2] - b[k][2]) > 1 || Math.abs(a[k][3] - b[k][3]) > 1) moved.push(k); if (Math.abs(a[k][4] - b[k][4]) > 0.05) faded.push(k); } return { moved: moved.slice(0, 6), faded: faded.slice(0, 6) }; };\n    const elsewhere = diff(before, after);\n    const arrivedAt = lateRows.length ? Math.min(...lateRows.map((r) => r.arrivedMs)) : null;\n    const res = { part: \"the wall's pictures\", delayMs: 1500, targets: rows.length, late: lateRows.length, arrivedMs: arrivedAt, revealBeganMs: Math.round(goAt), neverIn: rows.filter((r) => r.never).length, changeOverMs: overAt === null ? null : Math.round(overAt),\n      arrivedAfterReveal: arrivedAt !== null && arrivedAt > goAt, arrivedAfterChangeEnd: arrivedAt !== null && overAt !== null && arrivedAt > overAt,\n      startOpMax: lateRows.length ? Math.max(...lateRows.map((r) => r.startOp)) : null, rampMs: lateRows.length ? [Math.min(...lateRows.map((r) => r.rampMs ?? 9999)), Math.max(...lateRows.map((r) => r.rampMs ?? 0))] : null,\n      dips: lateRows.reduce((n, r) => n + r.dips, 0), elsewhere };\n    res.ok = res.targets === 0 || (res.late > 0 && res.arrivedAfterReveal && res.startOpMax < 0.5 && res.rampMs[0] >= 120 && res.rampMs[1] <= 320 && res.dips === 0 && res.elsewhere.moved.length === 0 && res.elsewhere.faded.length === 0);\n    return res;\n  })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF6 the wall's pictures 1500 ms: disarm"
+ },
+ {
+  "eval": "new Promise((r) => setTimeout(() => r(1), 4000))",
+  "label": "RF6 let the change end"
+ },
+ {
+  "label": "RF6 the map's picture 4000 ms: fresh load, cache off",
+  "intercept": [],
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": "/mars/relief",
+    "delay": 4000
+   }
+  ],
+  "label": "RF6 the map's picture 4000 ms: arm"
+ },
+ {
+  "label": "RF6 the map's picture: late part comes 4000 ms after the click, fades in over about 200 ms, nothing else moves",
+  "eval": "(async () => {\n    const html = document.documentElement;\n    const link = document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/experience\\\"]\");\n    if (!link) return { ok: false, err: 'no link' };\n    const skip = (el) => el.closest(\"canvas, svg, .work-rings, .wall-canvas-host, [data-glass-warm], .map-heading, .map-caption, .map-pins\");\n    const snap = (ignore) => { const out = {}; const roots = [...document.querySelectorAll(\".map-page\"), document.querySelector('[data-dock-glass]')].filter(Boolean); let n = 0;\n      for (const root of roots) for (const el of [root, ...root.querySelectorAll('*')]) { if (skip(el) || ignore.some((t) => t.contains(el))) continue; const r = el.getBoundingClientRect(); out[n++ + ':' + el.tagName + '.' + String(el.className).slice(0, 24)] = [r.x, r.y, r.width, r.height, +getComputedStyle(el).opacity]; } return out; };\n    const pickTargets = () => { const all = [...document.querySelectorAll(\".map-plane img\")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; }); return all.slice(-1); };\n    const seen = new Map(); // element -> samples [t, opacity, in]\n    const marks = () => { const m = performance.getEntriesByName('arrival-go').at(-1); return m && m.startTime > t0 ? m.startTime - t0 : null; };\n    let before = null, after = null, overAt = null, doneAt = null;\n    const t0 = performance.now();\n    link.click();\n    await new Promise((res) => { const loop = () => {\n      const t = performance.now() - t0;\n      if (overAt === null && t > 100 && !html.dataset.changeKind) overAt = t;\n      const go = marks();\n      for (const el of pickTargets()) { if (!seen.has(el)) seen.set(el, []); seen.get(el).push([t, +getComputedStyle(el).opacity, el.complete && el.naturalWidth > 0]); }\n      const targets = [...seen.keys()];\n      // (nothing is called done before the held requests can have come: 4000 ms; the hero's placeholder is in and at 1 long before its sharp painting)\n      // the first moment a part is in after the reveal began: what else is on the page is photographed then, and 450 ms later (a late part must move nothing)\n      if (before === null && go !== null && targets.some((el) => { const s = seen.get(el); const i = s.findIndex((x) => x[2]); return i >= 0 && s[i][0] > go; })) { before = snap(targets); setTimeout(() => { after = snap(targets); }, 450); }\n      if (doneAt === null && t > 4000 + 150 && targets.length && targets.every((el) => seen.get(el).some((x) => x[2] && x[1] >= 0.99))) doneAt = t;\n      if ((doneAt !== null && t > doneAt + 700 && (after || go === null || before === null)) || t > 4000 + 7000) return res();\n      requestAnimationFrame(loop); }; requestAnimationFrame(loop); });\n    const goAt = marks() ?? -1;\n    const rows = [...seen.entries()].map(([el, s]) => {\n      const i = s.findIndex((x) => x[2]);\n      if (i < 0) return { never: true };\n      const first = s[i], rest = s.slice(i);\n      const up = rest.find((x) => x[1] >= 0.99), start = rest.find((x) => x[1] > 0.02);\n      const dips = rest.filter((x) => up && x[0] > up[0] && x[1] < 0.97).length;\n      return { arrivedMs: Math.round(first[0]), startOp: +rest[0][1].toFixed(2), rampMs: up && start ? Math.round(up[0] - start[0]) : null, dips, late: first[0] > goAt };\n    });\n    const lateRows = rows.filter((r) => r.late && !r.never);\n    const diff = (a, b) => { const moved = [], faded = []; if (a && b) for (const k of Object.keys(a)) { if (!b[k]) continue; if (Math.abs(a[k][0] - b[k][0]) > 1 || Math.abs(a[k][1] - b[k][1]) > 1 || Math.abs(a[k][2] - b[k][2]) > 1 || Math.abs(a[k][3] - b[k][3]) > 1) moved.push(k); if (Math.abs(a[k][4] - b[k][4]) > 0.05) faded.push(k); } return { moved: moved.slice(0, 6), faded: faded.slice(0, 6) }; };\n    const elsewhere = diff(before, after);\n    const arrivedAt = lateRows.length ? Math.min(...lateRows.map((r) => r.arrivedMs)) : null;\n    const res = { part: \"the map's picture\", delayMs: 4000, targets: rows.length, late: lateRows.length, arrivedMs: arrivedAt, revealBeganMs: Math.round(goAt), neverIn: rows.filter((r) => r.never).length, changeOverMs: overAt === null ? null : Math.round(overAt),\n      arrivedAfterReveal: arrivedAt !== null && arrivedAt > goAt, arrivedAfterChangeEnd: arrivedAt !== null && overAt !== null && arrivedAt > overAt,\n      startOpMax: lateRows.length ? Math.max(...lateRows.map((r) => r.startOp)) : null, rampMs: lateRows.length ? [Math.min(...lateRows.map((r) => r.rampMs ?? 9999)), Math.max(...lateRows.map((r) => r.rampMs ?? 0))] : null,\n      dips: lateRows.reduce((n, r) => n + r.dips, 0), elsewhere };\n    res.ok = (res.late > 0 && res.arrivedAfterReveal && res.arrivedAfterChangeEnd && res.startOpMax < 0.5 && res.rampMs[0] >= 120 && res.rampMs[1] <= 320 && res.dips === 0 && res.elsewhere.moved.length === 0 && res.elsewhere.faded.length === 0);\n    return res;\n  })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF6 the map's picture 4000 ms: disarm"
+ },
+ {
+  "eval": "new Promise((r) => setTimeout(() => r(1), 4000))",
+  "label": "RF6 let the change end"
+ },
+ {
+  "label": "RF6 the ground's still 4000 ms: fresh load, cache off",
+  "intercept": [],
+  "nocache": true,
+  "go": "{{BASE}}/",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": "/grounds/eclipse",
+    "delay": 4000
+   }
+  ],
+  "label": "RF6 the ground's still 4000 ms: arm"
+ },
+ {
+  "label": "RF6 the ground's still: late part comes 4000 ms after the click, fades in over about 200 ms, nothing else moves",
+  "eval": "(async () => {\n    const html = document.documentElement;\n    const link = [...document.querySelectorAll('header[data-site-nav] a')].find((a) => a.getAttribute('href') === '/work');\n    if (!link) return { ok: false, err: 'no link' };\n    const skip = (el) => el.closest(\"canvas, svg, .work-rings, .wall-canvas-host, [data-glass-warm]\");\n    const snap = (ignore) => { const out = {}; const roots = [...document.querySelectorAll(\".work-page\"), document.querySelector('[data-dock-glass]')].filter(Boolean); let n = 0;\n      for (const root of roots) for (const el of [root, ...root.querySelectorAll('*')]) { if (skip(el) || ignore.some((t) => t.contains(el))) continue; const r = el.getBoundingClientRect(); out[n++ + ':' + el.tagName + '.' + String(el.className).slice(0, 24)] = [r.x, r.y, r.width, r.height, +getComputedStyle(el).opacity]; } return out; };\n    const pickTargets = () => { const all = [...document.querySelectorAll(\".eclipse-still[data-on=\\\"true\\\"] img\")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; }); return all; };\n    const seen = new Map(); // element -> samples [t, opacity, in]\n    const marks = () => { const m = performance.getEntriesByName('arrival-go').at(-1); return m && m.startTime > t0 ? m.startTime - t0 : null; };\n    let before = null, after = null, overAt = null, doneAt = null;\n    const t0 = performance.now();\n    link.click();\n    await new Promise((res) => { const loop = () => {\n      const t = performance.now() - t0;\n      if (overAt === null && t > 100 && !html.dataset.changeKind) overAt = t;\n      const go = marks();\n      for (const el of pickTargets()) { if (!seen.has(el)) seen.set(el, []); seen.get(el).push([t, +getComputedStyle(el).opacity, el.complete && el.naturalWidth > 0]); }\n      const targets = [...seen.keys()];\n      // (nothing is called done before the held requests can have come: 4000 ms; the hero's placeholder is in and at 1 long before its sharp painting)\n      // the first moment a part is in after the reveal began: what else is on the page is photographed then, and 450 ms later (a late part must move nothing)\n      if (before === null && go !== null && targets.some((el) => { const s = seen.get(el); const i = s.findIndex((x) => x[2]); return i >= 0 && s[i][0] > go; })) { before = snap(targets); setTimeout(() => { after = snap(targets); }, 450); }\n      if (doneAt === null && t > 4000 + 150 && targets.length && targets.every((el) => seen.get(el).some((x) => x[2] && x[1] >= 0.99))) doneAt = t;\n      if ((doneAt !== null && t > doneAt + 700 && (after || go === null || before === null)) || t > 4000 + 7000) return res();\n      requestAnimationFrame(loop); }; requestAnimationFrame(loop); });\n    const goAt = marks() ?? -1;\n    const rows = [...seen.entries()].map(([el, s]) => {\n      const i = s.findIndex((x) => x[2]);\n      if (i < 0) return { never: true };\n      const first = s[i], rest = s.slice(i);\n      const up = rest.find((x) => x[1] >= 0.99), start = rest.find((x) => x[1] > 0.02);\n      const dips = rest.filter((x) => up && x[0] > up[0] && x[1] < 0.97).length;\n      return { arrivedMs: Math.round(first[0]), startOp: +rest[0][1].toFixed(2), rampMs: up && start ? Math.round(up[0] - start[0]) : null, dips, late: first[0] > goAt };\n    });\n    const lateRows = rows.filter((r) => r.late && !r.never);\n    const diff = (a, b) => { const moved = [], faded = []; if (a && b) for (const k of Object.keys(a)) { if (!b[k]) continue; if (Math.abs(a[k][0] - b[k][0]) > 1 || Math.abs(a[k][1] - b[k][1]) > 1 || Math.abs(a[k][2] - b[k][2]) > 1 || Math.abs(a[k][3] - b[k][3]) > 1) moved.push(k); if (Math.abs(a[k][4] - b[k][4]) > 0.05) faded.push(k); } return { moved: moved.slice(0, 6), faded: faded.slice(0, 6) }; };\n    const elsewhere = diff(before, after);\n    const arrivedAt = lateRows.length ? Math.min(...lateRows.map((r) => r.arrivedMs)) : null;\n    const res = { part: \"the ground's still\", delayMs: 4000, targets: rows.length, late: lateRows.length, arrivedMs: arrivedAt, revealBeganMs: Math.round(goAt), neverIn: rows.filter((r) => r.never).length, changeOverMs: overAt === null ? null : Math.round(overAt),\n      arrivedAfterReveal: arrivedAt !== null && arrivedAt > goAt, arrivedAfterChangeEnd: arrivedAt !== null && overAt !== null && arrivedAt > overAt,\n      startOpMax: lateRows.length ? Math.max(...lateRows.map((r) => r.startOp)) : null, rampMs: lateRows.length ? [Math.min(...lateRows.map((r) => r.rampMs ?? 9999)), Math.max(...lateRows.map((r) => r.rampMs ?? 0))] : null,\n      dips: lateRows.reduce((n, r) => n + r.dips, 0), elsewhere };\n    res.ok = (res.late > 0 && res.arrivedAfterReveal && res.arrivedAfterChangeEnd && res.startOpMax < 0.5 && res.rampMs[0] >= 120 && res.rampMs[1] <= 320 && res.dips === 0 && res.elsewhere.moved.length === 0 && res.elsewhere.faded.length === 0);\n    return res;\n  })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF6 the ground's still 4000 ms: disarm"
+ },
+ {
+  "eval": "new Promise((r) => setTimeout(() => r(1), 4000))",
+  "label": "RF6 let the change end"
+ },
+ {
+  "label": "RF6 the ring covers 4000 ms: fresh load, cache off",
+  "intercept": [],
+  "nocache": true,
+  "go": "{{BASE}}/",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "delay": 4000
+   }
+  ],
+  "label": "RF6 the ring covers 4000 ms: arm"
+ },
+ {
+  "label": "RF6 the ring covers: late part comes 4000 ms after the click, fades in over about 200 ms, nothing else moves",
+  "eval": "(async () => {\n    const html = document.documentElement;\n    const link = [...document.querySelectorAll('header[data-site-nav] a')].find((a) => a.getAttribute('href') === '/work');\n    if (!link) return { ok: false, err: 'no link' };\n    const skip = (el) => el.closest(\"canvas, svg, .work-rings, .wall-canvas-host, [data-glass-warm]\");\n    const snap = (ignore) => { const out = {}; const roots = [...document.querySelectorAll(\".work-page\"), document.querySelector('[data-dock-glass]')].filter(Boolean); let n = 0;\n      for (const root of roots) for (const el of [root, ...root.querySelectorAll('*')]) { if (skip(el) || ignore.some((t) => t.contains(el))) continue; const r = el.getBoundingClientRect(); out[n++ + ':' + el.tagName + '.' + String(el.className).slice(0, 24)] = [r.x, r.y, r.width, r.height, +getComputedStyle(el).opacity]; } return out; };\n    const pickTargets = () => { const all = [...document.querySelectorAll(\".work-cover img\")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; }); return all; };\n    const seen = new Map(); // element -> samples [t, opacity, in]\n    const marks = () => { const m = performance.getEntriesByName('arrival-go').at(-1); return m && m.startTime > t0 ? m.startTime - t0 : null; };\n    let before = null, after = null, overAt = null, doneAt = null;\n    const t0 = performance.now();\n    link.click();\n    await new Promise((res) => { const loop = () => {\n      const t = performance.now() - t0;\n      if (overAt === null && t > 100 && !html.dataset.changeKind) overAt = t;\n      const go = marks();\n      for (const el of pickTargets()) { if (!seen.has(el)) seen.set(el, []); seen.get(el).push([t, +getComputedStyle(el).opacity, el.complete && el.naturalWidth > 0]); }\n      const targets = [...seen.keys()];\n      // (nothing is called done before the held requests can have come: 4000 ms; the hero's placeholder is in and at 1 long before its sharp painting)\n      // the first moment a part is in after the reveal began: what else is on the page is photographed then, and 450 ms later (a late part must move nothing)\n      if (before === null && go !== null && targets.some((el) => { const s = seen.get(el); const i = s.findIndex((x) => x[2]); return i >= 0 && s[i][0] > go; })) { before = snap(targets); setTimeout(() => { after = snap(targets); }, 450); }\n      if (doneAt === null && t > 4000 + 150 && targets.length && targets.every((el) => seen.get(el).some((x) => x[2] && x[1] >= 0.99))) doneAt = t;\n      if ((doneAt !== null && t > doneAt + 700 && (after || go === null || before === null)) || t > 4000 + 7000) return res();\n      requestAnimationFrame(loop); }; requestAnimationFrame(loop); });\n    const goAt = marks() ?? -1;\n    const rows = [...seen.entries()].map(([el, s]) => {\n      const i = s.findIndex((x) => x[2]);\n      if (i < 0) return { never: true };\n      const first = s[i], rest = s.slice(i);\n      const up = rest.find((x) => x[1] >= 0.99), start = rest.find((x) => x[1] > 0.02);\n      const dips = rest.filter((x) => up && x[0] > up[0] && x[1] < 0.97).length;\n      return { arrivedMs: Math.round(first[0]), startOp: +rest[0][1].toFixed(2), rampMs: up && start ? Math.round(up[0] - start[0]) : null, dips, late: first[0] > goAt };\n    });\n    const lateRows = rows.filter((r) => r.late && !r.never);\n    const diff = (a, b) => { const moved = [], faded = []; if (a && b) for (const k of Object.keys(a)) { if (!b[k]) continue; if (Math.abs(a[k][0] - b[k][0]) > 1 || Math.abs(a[k][1] - b[k][1]) > 1 || Math.abs(a[k][2] - b[k][2]) > 1 || Math.abs(a[k][3] - b[k][3]) > 1) moved.push(k); if (Math.abs(a[k][4] - b[k][4]) > 0.05) faded.push(k); } return { moved: moved.slice(0, 6), faded: faded.slice(0, 6) }; };\n    const elsewhere = diff(before, after);\n    const arrivedAt = lateRows.length ? Math.min(...lateRows.map((r) => r.arrivedMs)) : null;\n    const res = { part: \"the ring covers\", delayMs: 4000, targets: rows.length, late: lateRows.length, arrivedMs: arrivedAt, revealBeganMs: Math.round(goAt), neverIn: rows.filter((r) => r.never).length, changeOverMs: overAt === null ? null : Math.round(overAt),\n      arrivedAfterReveal: arrivedAt !== null && arrivedAt > goAt, arrivedAfterChangeEnd: arrivedAt !== null && overAt !== null && arrivedAt > overAt,\n      startOpMax: lateRows.length ? Math.max(...lateRows.map((r) => r.startOp)) : null, rampMs: lateRows.length ? [Math.min(...lateRows.map((r) => r.rampMs ?? 9999)), Math.max(...lateRows.map((r) => r.rampMs ?? 0))] : null,\n      dips: lateRows.reduce((n, r) => n + r.dips, 0), elsewhere };\n    res.ok = res.targets === 0 || (res.late > 0 && res.arrivedAfterReveal && res.arrivedAfterChangeEnd && res.startOpMax < 0.5 && res.rampMs[0] >= 120 && res.rampMs[1] <= 320 && res.dips === 0 && res.elsewhere.moved.length === 0 && res.elsewhere.faded.length === 0);\n    return res;\n  })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF6 the ring covers 4000 ms: disarm"
+ },
+ {
+  "eval": "new Promise((r) => setTimeout(() => r(1), 4000))",
+  "label": "RF6 let the change end"
+ },
+ {
+  "label": "RF6 the wall's pictures 4000 ms: fresh load, cache off",
+  "intercept": [],
+  "nocache": true,
+  "go": "{{BASE}}/work",
+  "wait": 4500
+ },
+ {
+  "intercept": [
+   {
+    "match": "ytimg.com",
+    "delay": 4000
+   }
+  ],
+  "label": "RF6 the wall's pictures 4000 ms: arm"
+ },
+ {
+  "label": "RF6 the wall's pictures: late part comes 4000 ms after the click, fades in over about 200 ms, nothing else moves",
+  "eval": "(async () => {\n    const html = document.documentElement;\n    const link = document.querySelector(\"header[data-site-nav] [data-work-tab=\\\"/work/long-form\\\"]\");\n    if (!link) return { ok: false, err: 'no link' };\n    const skip = (el) => el.closest(\"canvas, svg, .work-rings, .wall-canvas-host, [data-glass-warm], .wall-links\");\n    const snap = (ignore) => { const out = {}; const roots = [...document.querySelectorAll(\".wall-stage\"), document.querySelector('[data-dock-glass]')].filter(Boolean); let n = 0;\n      for (const root of roots) for (const el of [root, ...root.querySelectorAll('*')]) { if (skip(el) || ignore.some((t) => t.contains(el))) continue; const r = el.getBoundingClientRect(); out[n++ + ':' + el.tagName + '.' + String(el.className).slice(0, 24)] = [r.x, r.y, r.width, r.height, +getComputedStyle(el).opacity]; } return out; };\n    const pickTargets = () => { const all = [...document.querySelectorAll(\".wall-tile img\")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; }); return all; };\n    const seen = new Map(); // element -> samples [t, opacity, in]\n    const marks = () => { const m = performance.getEntriesByName('arrival-go').at(-1); return m && m.startTime > t0 ? m.startTime - t0 : null; };\n    let before = null, after = null, overAt = null, doneAt = null;\n    const t0 = performance.now();\n    link.click();\n    await new Promise((res) => { const loop = () => {\n      const t = performance.now() - t0;\n      if (overAt === null && t > 100 && !html.dataset.changeKind) overAt = t;\n      const go = marks();\n      for (const el of pickTargets()) { if (!seen.has(el)) seen.set(el, []); seen.get(el).push([t, +getComputedStyle(el).opacity, el.complete && el.naturalWidth > 0]); }\n      const targets = [...seen.keys()];\n      // (nothing is called done before the held requests can have come: 4000 ms; the hero's placeholder is in and at 1 long before its sharp painting)\n      // the first moment a part is in after the reveal began: what else is on the page is photographed then, and 450 ms later (a late part must move nothing)\n      if (before === null && go !== null && targets.some((el) => { const s = seen.get(el); const i = s.findIndex((x) => x[2]); return i >= 0 && s[i][0] > go; })) { before = snap(targets); setTimeout(() => { after = snap(targets); }, 450); }\n      if (doneAt === null && t > 4000 + 150 && targets.length && targets.every((el) => seen.get(el).some((x) => x[2] && x[1] >= 0.99))) doneAt = t;\n      if ((doneAt !== null && t > doneAt + 700 && (after || go === null || before === null)) || t > 4000 + 7000) return res();\n      requestAnimationFrame(loop); }; requestAnimationFrame(loop); });\n    const goAt = marks() ?? -1;\n    const rows = [...seen.entries()].map(([el, s]) => {\n      const i = s.findIndex((x) => x[2]);\n      if (i < 0) return { never: true };\n      const first = s[i], rest = s.slice(i);\n      const up = rest.find((x) => x[1] >= 0.99), start = rest.find((x) => x[1] > 0.02);\n      const dips = rest.filter((x) => up && x[0] > up[0] && x[1] < 0.97).length;\n      return { arrivedMs: Math.round(first[0]), startOp: +rest[0][1].toFixed(2), rampMs: up && start ? Math.round(up[0] - start[0]) : null, dips, late: first[0] > goAt };\n    });\n    const lateRows = rows.filter((r) => r.late && !r.never);\n    const diff = (a, b) => { const moved = [], faded = []; if (a && b) for (const k of Object.keys(a)) { if (!b[k]) continue; if (Math.abs(a[k][0] - b[k][0]) > 1 || Math.abs(a[k][1] - b[k][1]) > 1 || Math.abs(a[k][2] - b[k][2]) > 1 || Math.abs(a[k][3] - b[k][3]) > 1) moved.push(k); if (Math.abs(a[k][4] - b[k][4]) > 0.05) faded.push(k); } return { moved: moved.slice(0, 6), faded: faded.slice(0, 6) }; };\n    const elsewhere = diff(before, after);\n    const arrivedAt = lateRows.length ? Math.min(...lateRows.map((r) => r.arrivedMs)) : null;\n    const res = { part: \"the wall's pictures\", delayMs: 4000, targets: rows.length, late: lateRows.length, arrivedMs: arrivedAt, revealBeganMs: Math.round(goAt), neverIn: rows.filter((r) => r.never).length, changeOverMs: overAt === null ? null : Math.round(overAt),\n      arrivedAfterReveal: arrivedAt !== null && arrivedAt > goAt, arrivedAfterChangeEnd: arrivedAt !== null && overAt !== null && arrivedAt > overAt,\n      startOpMax: lateRows.length ? Math.max(...lateRows.map((r) => r.startOp)) : null, rampMs: lateRows.length ? [Math.min(...lateRows.map((r) => r.rampMs ?? 9999)), Math.max(...lateRows.map((r) => r.rampMs ?? 0))] : null,\n      dips: lateRows.reduce((n, r) => n + r.dips, 0), elsewhere };\n    res.ok = res.targets === 0 || (res.late > 0 && res.arrivedAfterReveal && res.arrivedAfterChangeEnd && res.startOpMax < 0.5 && res.rampMs[0] >= 120 && res.rampMs[1] <= 320 && res.dips === 0 && res.elsewhere.moved.length === 0 && res.elsewhere.faded.length === 0);\n    return res;\n  })()"
+ },
+ {
+  "intercept": [],
+  "label": "RF6 the wall's pictures 4000 ms: disarm"
+ },
+ {
+  "eval": "new Promise((r) => setTimeout(() => r(1), 4000))",
+  "label": "RF6 let the change end"
+ },
+ {
+  "intercept": [],
+  "label": "RF end: disarm every held request"
+ },
+ {
+  "go": "about:blank",
+  "wait": 200
+ }
+]

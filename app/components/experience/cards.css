@@ -1,0 +1,278 @@
+/*
+ * The milestones' beads and their card (milestone-pins.tsx, moment-card.tsx; spec 9.3 and 9.5). The beads are buttons
+ * the engine moves with a transform (a 44 px hit area round a glass bead, half size in the overview and full size in
+ * My climb, set by --bs). The card is glass, 252 px wide, one of five places round its milestone (card-controller.ts).
+ * Colours, text sizes and strengths come from tokens.css.
+ */
+
+/* the beads sit above the whole stage and its darkening; hidden until the engine has put them in place */
+.map-pins {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-map-beads);
+  isolation: isolate;
+  pointer-events: none;
+  opacity: 0;
+}
+.map-pin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--pill-h-touch);
+  height: var(--pill-h-touch);
+  margin: calc(var(--pill-h-touch) / -2) 0 0 calc(var(--pill-h-touch) / -2);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  pointer-events: none; /* a touch is taken by the hit span below, which the engine cuts so that overlapping buttons share their overlap by the nearest centre (R108) */
+  transition: opacity 350ms;
+  -webkit-tap-highlight-color: transparent;
+}
+.map-hit {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  clip-path: var(--hit, none);
+}
+.map-pin:disabled .map-hit {
+  pointer-events: none;
+}
+.map-pin[data-under] .map-hit {
+  pointer-events: none; /* a bead stepped back under the card is not pressed through the glass (moment-card.tsx) */
+}
+.map-pin:hover,
+.map-pin:focus-visible {
+  z-index: var(--z-map-bead-top) !important; /* the label of the one under the pointer is above the other beads (the engine sets the others' order by height) */
+}
+.map-pin:disabled {
+  cursor: default;
+}
+.map-bead {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  color: #2a1c12;
+  background: radial-gradient(circle at 34% 28%, #ffffff 0%, #f6efe0 38%, #cfc3ad 100%);
+  box-shadow:
+    0 10px 18px -6px rgb(0 0 0 / 0.75),
+    0 2px 4px rgb(0 0 0 / 0.4),
+    inset 0 -3px 5px rgb(120 90 60 / 0.35),
+    inset 0 2px 2px rgb(255 255 255 / 0.9);
+  transform: scale(var(--bs, 1));
+  transition:
+    transform 450ms var(--ease),
+    background 300ms,
+    color 300ms;
+}
+.map-bead svg {
+  display: block;
+  transition: opacity 400ms;
+}
+/* the overview: small plain beads with no icon */
+.map-page:not([data-mode="climb"]) .map-bead svg {
+  opacity: 0;
+}
+.map-pin:hover .map-bead,
+.map-pin:focus-visible .map-bead {
+  transform: scale(calc(var(--bs, 1) * 1.14));
+}
+/* the focus ring is on the bead (which is bigger than a ring inside the 44 px button would be, and would cover it). The bead is
+ * scaled (--bs: half size in the overview, and 1.14 times more while it has the focus), so the ring's width and offset are divided
+ * by that scale and come out at about 2 px and 3 px on the screen in both states. A browser snaps a ring's width down to whole
+ * pixels (1.75 px would become 1), so the width is rounded to a whole pixel first (3.5 px becomes 4, 1.75 becomes 2). */
+.map-pin:focus-visible {
+  outline: none;
+  opacity: 1 !important; /* a bead stepped back under the card is whole while it has the focus */
+}
+.map-pin:focus-visible .map-bead {
+  outline-style: solid;
+  outline-color: var(--cream);
+  outline-width: calc(2px / (var(--bs, 1) * 1.14));
+  outline-width: round(calc(2px / (var(--bs, 1) * 1.14)), 1px);
+  outline-offset: calc(3px / (var(--bs, 1) * 1.14));
+}
+/*
+ * The entrance (round 7 second look spec 8; entrance-driver.ts puts the attributes): a bead is not shown until the trail's tip reaches its foot (not dimmed:
+ * not there), then fades in and grows from 0.6 of its size over 260 ms. One that has the focus is shown (below). "Now" is orange from the moment it comes. A bead
+ * shown at once by a press has no transition for a moment. Under reduced motion every bead comes together when the reveal ends, over 200 ms, with no growth.
+ */
+.map-pin[data-wait] {
+  opacity: 0;
+}
+.map-pin[data-wait]:focus {
+  opacity: 1; /* a bead that has the focus is shown, whatever the trail has reached */
+}
+.map-pin[data-wait]:not(:hover, :focus) .map-bead {
+  transform: scale(calc(var(--bs, 1) * 0.6));
+}
+.map-pin[data-enter] {
+  transition-duration: 260ms;
+}
+.map-pin[data-enter] .map-bead {
+  transition:
+    transform 260ms ease-out,
+    background 300ms,
+    color 300ms;
+}
+.map-pin[data-instant],
+.map-pin[data-instant] .map-bead {
+  transition: none;
+}
+
+/* the chosen one and "now" are orange */
+.map-pin[data-current] .map-bead,
+.map-pin[data-now] .map-bead {
+  color: #fff;
+  background: radial-gradient(circle at 34% 28%, #ffb07a 0%, var(--accent) 45%, #b93200 100%);
+}
+.map-pin[data-current] .map-bead {
+  box-shadow:
+    0 12px 22px -6px rgb(0 0 0 / 0.8),
+    0 0 0 3px rgb(255 255 255 / 0.9),
+    0 0 26px rgb(var(--accent-rgb) / 0.55),
+    inset 0 2px 2px rgb(255 255 255 / 0.55);
+}
+/* the label: on hover and on keyboard focus; it is also the button's name for a screen reader */
+.map-pin-tip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  padding: 4px 10px;
+  border-radius: 14px;
+  width: max-content;
+  max-width: min(320px, calc(50vw - 28px)); /* the side with more room is the one it opens on (the engine's --flip), so it fits there: long labels take two lines on a phone */
+  font-size: var(--t-micro);
+  line-height: 18px;
+  color: var(--ink-1);
+  background: var(--pill-bg);
+  box-shadow: var(--pill-edge);
+  -webkit-backdrop-filter: var(--pill-blur);
+  backdrop-filter: var(--pill-blur);
+  opacity: 0;
+  /* on the bead's right, or on its left when the engine says the bead is near the right edge (--flip is 1). Only the opacity
+   * is transitioned: a label that is shown while the camera carries its bead across the middle (--flip changes) must not
+   * slide across the bead, so it takes its place at once */
+  transform: translate(calc(12px + var(--flip, 0) * (-100% - 24px)), -50%);
+  transition: opacity 250ms;
+  pointer-events: none;
+}
+.map-pin:hover .map-pin-tip,
+.map-pin:focus-visible .map-pin-tip {
+  opacity: 1;
+}
+/* the chosen bead's card already says the same words: its own label would lie over the trail beside it (the other beads' labels are as before) */
+.is-night .map-pin[aria-current] .map-pin-tip {
+  opacity: 0;
+}
+
+/* the card: out quickly, in gently; its words arrive with it, a breath apart, with no sliding */
+.map-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: min(var(--map-card-w), 70vw);
+  padding: 12px 14px 13px;
+  border-radius: 17px;
+  color: var(--ink-1);
+  background: linear-gradient(145deg, rgb(var(--ink-rgb) / 0.2), rgb(var(--ink-rgb) / 0.06) 55%, rgb(var(--ink-rgb) / 0.1));
+  border: 1px solid rgb(var(--ink-rgb) / 0.26);
+  box-shadow:
+    0 22px 44px -22px rgb(0 0 0 / 0.7),
+    inset 0 1px 0 rgb(var(--ink-rgb) / 0.42),
+    inset 0 -1px 0 rgb(0 0 0 / 0.18),
+    inset 0 0 22px rgb(var(--ink-rgb) / 0.05);
+  -webkit-backdrop-filter: blur(16px) saturate(1.35) brightness(1.06);
+  backdrop-filter: blur(16px) saturate(1.35) brightness(1.06);
+  opacity: 0;
+  transform: translate(var(--cx, 0px), var(--cy, 0px));
+  transition: opacity 220ms;
+  pointer-events: none;
+}
+.map-card.show {
+  opacity: 1;
+  transition: opacity 400ms;
+}
+.map-card-body {
+  display: none;
+}
+.map-card-body[data-on] {
+  display: block;
+}
+.map-card-when {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: var(--map-card-meta);
+  color: rgb(var(--ink-rgb) / 0.78);
+}
+.map-card-title {
+  margin: 3px 0 5px;
+  font-size: var(--map-card-title);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--cream);
+}
+.map-card-title s {
+  opacity: 0.55;
+}
+.map-card-rule {
+  height: 1px;
+  margin: 7px 0;
+  background: rgb(var(--ink-rgb) / 0.3);
+}
+.map-card-line {
+  margin: 0;
+  font-size: var(--map-card-text);
+  line-height: 1.5;
+  color: var(--ink-1);
+}
+.map-card.draw .map-card-when,
+.map-card.draw .map-card-title,
+.map-card.draw .map-card-rule,
+.map-card.draw .map-card-line {
+  animation: map-card-words 350ms ease both;
+}
+.map-card.draw .map-card-title {
+  animation-delay: 50ms;
+}
+.map-card.draw .map-card-rule {
+  animation-delay: 90ms;
+}
+.map-card.draw .map-card-line {
+  animation-delay: 130ms;
+}
+@keyframes map-card-words {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-pin[data-enter] {
+    transition-duration: 200ms;
+  }
+  .map-pin[data-wait] .map-bead {
+    transform: scale(var(--bs, 1));
+  }
+  .map-pin[data-enter] .map-bead,
+  .map-bead,
+  .map-bead svg,
+  .map-pin-tip {
+    transition: none;
+  }
+  .map-card.draw .map-card-when,
+  .map-card.draw .map-card-title,
+  .map-card.draw .map-card-rule,
+  .map-card.draw .map-card-line {
+    animation: none;
+  }
+}

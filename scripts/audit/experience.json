@@ -1,0 +1,1525 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "cpu": 1,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),st=document.querySelector('.map-stage'),pl=document.querySelector('.map-plane');for(let i=0;i<40&&st.dataset.terrain!=='ready';i++)await sleep(100);\nconst a=R(pl),W=innerWidth,H=innerHeight,img=pl.querySelector('img');const inline=pl.style.cssText;pl.style.cssText='';const b=R(pl);pl.style.cssText=inline;\nconst S=Math.max(W/1000,H/650)*1.1,summitX=a.l+500*S*1.0,mid=W/2;\nreturn JSON.stringify({engine:p.dataset.engine,mode:p.dataset.mode,terrain:st.dataset.terrain,covers:a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,image:[img.naturalWidth,img.naturalHeight,img.complete],\nsummitRight:Math.round(summitX-mid),summitOk:Math.abs(summitX-mid-30*S)<1.5,cssFirstPlace:{dl:+(a.l-b.l).toFixed(2),dt:+(a.t-b.t).toFixed(2),dr:+(a.r-b.r).toFixed(2),db:+(a.b-b.b).toFixed(2)},\ncssSame:[a.l-b.l,a.t-b.t,a.r-b.r,a.b-b.b].every(x=>Math.abs(x)<0.5),switch:[...document.querySelectorAll('.map-mode-button')].map(x=>x.getAttribute('aria-pressed')),\nfallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:p.dataset.engine==='on'&&st.dataset.terrain==='ready'&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H&&img.naturalWidth>0&&(false||(Math.abs(summitX-mid-30*S)<1.5&&[a.l-b.l,a.t-b.t,a.r-b.r,a.b-b.b].every(x=>Math.abs(x)<0.5)))})})()",
+  "label": "the overview at 1440 x 900 (dpr 2)"
+ },
+ {
+  "shot": "r53-overview-1440x900-warm"
+ },
+ {
+  "shot": "r53-overview-1440x900"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));await sleep(200);return 'ok'})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const mono=(rows,i,dir)=>rows.every((r,j)=>j===0||(r[i]-rows[j-1][i])*dir>=-1e-6);window.__expTrace=[];const g=[];const cb=[];const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=fn=>raf(t=>{const s0=performance.now();fn(t);cb.push(performance.now()-s0)});\nlet last=performance.now(),run=true;const f=n=>{g.push(n-last);last=n;if(run)raf(f)};raf(f);\n[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(4300);run=false;await sleep(50);window.requestAnimationFrame=raf;const cs=[...cb].sort((a,b)=>a-b);const rows=window.__expTrace;g.splice(0,2);const s=[...g].sort((a,b)=>a-b);\nconst dir=1;const tgt=[4,5,6].every(i=>{const d=Math.sign(rows[rows.length-1][i]-rows[0][i])||1;return mono(rows,i,d)});\nconst over=g.filter(x=>x>20).length;\nreturn JSON.stringify({engineFrames:rows.length,frames:g.length,p95:+s[Math.floor(s.length*.95)].toFixed(1),max:+s[s.length-1].toFixed(1),over20:over,engineMsP95:+cs[Math.floor(cs.length*.95)].toFixed(1),engineMsMax:+cs[cs.length-1].toFixed(1),kEnd:rows[rows.length-1][1],\ncameraHeight:mono(rows,2,dir),tilt:mono(rows,3,dir),zoom:mono(rows,7,dir),target:tgt,ok:over===0&&mono(rows,2,dir)&&mono(rows,3,dir)&&mono(rows,7,dir)&&tgt&&rows[rows.length-1][1]===1})})()",
+  "label": "the change in: frame gaps, no reversal"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));await sleep(300);const p=document.querySelector('.map-page'),pl=document.querySelector('.map-plane'),t=document.querySelector('.map-terrain');const cs=getComputedStyle;const night=+cs(document.querySelector('.map-stage')).getPropertyValue('--night');\nreturn JSON.stringify({mode:p.dataset.mode,planeOpacity:+cs(pl).opacity,terrainOpacity:+cs(t).opacity,night,pressed:[...document.querySelectorAll('.map-mode-button')].map(x=>x.getAttribute('aria-pressed')),\nok:p.dataset.mode==='climb'&&+cs(pl).opacity===0&&+cs(t).opacity===1&&night===1})})()",
+  "label": "My climb is settled (the picture gone, the night map on)"
+ },
+ {
+  "shot": "r53-climb-1440x900-warm"
+ },
+ {
+  "shot": "r53-climb-1440x900"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const mono=(rows,i,dir)=>rows.every((r,j)=>j===0||(r[i]-rows[j-1][i])*dir>=-1e-6);window.__expTrace=[];const g=[];const cb=[];const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=fn=>raf(t=>{const s0=performance.now();fn(t);cb.push(performance.now()-s0)});\nlet last=performance.now(),run=true;const f=n=>{g.push(n-last);last=n;if(run)raf(f)};raf(f);\n[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3700);run=false;await sleep(50);window.requestAnimationFrame=raf;const cs=[...cb].sort((a,b)=>a-b);const rows=window.__expTrace;g.splice(0,2);const s=[...g].sort((a,b)=>a-b);\nconst dir=-1;const tgt=[4,5,6].every(i=>{const d=Math.sign(rows[rows.length-1][i]-rows[0][i])||1;return mono(rows,i,d)});\nconst over=g.filter(x=>x>20).length;\nreturn JSON.stringify({engineFrames:rows.length,frames:g.length,p95:+s[Math.floor(s.length*.95)].toFixed(1),max:+s[s.length-1].toFixed(1),over20:over,engineMsP95:+cs[Math.floor(cs.length*.95)].toFixed(1),engineMsMax:+cs[cs.length-1].toFixed(1),kEnd:rows[rows.length-1][1],\ncameraHeight:mono(rows,2,dir),tilt:mono(rows,3,dir),zoom:mono(rows,7,dir),target:tgt,ok:over===0&&mono(rows,2,dir)&&mono(rows,3,dir)&&mono(rows,7,dir)&&tgt&&rows[rows.length-1][1]===0})})()",
+  "label": "the change out: frame gaps, no reversal"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));await sleep(300);const p=document.querySelector('.map-page'),pl=document.querySelector('.map-plane'),t=document.querySelector('.map-terrain');const cs=getComputedStyle;const night=+cs(document.querySelector('.map-stage')).getPropertyValue('--night');\nreturn JSON.stringify({mode:p.dataset.mode,planeOpacity:+cs(pl).opacity,terrainOpacity:+cs(t).opacity,night,pressed:[...document.querySelectorAll('.map-mode-button')].map(x=>x.getAttribute('aria-pressed')),\nok:p.dataset.mode==='overview'&&+cs(pl).opacity===1&&+cs(t).opacity===0&&night===0})})()",
+  "label": "the overview is back"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);return 'ready'})()",
+  "label": "heights ready"
+ },
+ {
+  "film": {
+   "ms": 4300,
+   "keep": "r53-change",
+   "ats": [
+    900,
+    1800,
+    2700
+   ],
+   "eval": "[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click()"
+  },
+  "label": "film of the change in"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "cpu": 4,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),st=document.querySelector('.map-stage'),pl=document.querySelector('.map-plane');for(let i=0;i<40&&st.dataset.terrain!=='ready';i++)await sleep(100);\nconst a=R(pl),W=innerWidth,H=innerHeight,img=pl.querySelector('img');const inline=pl.style.cssText;pl.style.cssText='';const b=R(pl);pl.style.cssText=inline;\nconst S=Math.max(W/1000,H/650)*1.1,summitX=a.l+500*S*1.0,mid=W/2;\nreturn JSON.stringify({engine:p.dataset.engine,mode:p.dataset.mode,terrain:st.dataset.terrain,covers:a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,image:[img.naturalWidth,img.naturalHeight,img.complete],\nsummitRight:Math.round(summitX-mid),summitOk:Math.abs(summitX-mid-30*S)<1.5,cssFirstPlace:{dl:+(a.l-b.l).toFixed(2),dt:+(a.t-b.t).toFixed(2),dr:+(a.r-b.r).toFixed(2),db:+(a.b-b.b).toFixed(2)},\ncssSame:[a.l-b.l,a.t-b.t,a.r-b.r,a.b-b.b].every(x=>Math.abs(x)<0.5),switch:[...document.querySelectorAll('.map-mode-button')].map(x=>x.getAttribute('aria-pressed')),\nfallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:p.dataset.engine==='on'&&st.dataset.terrain==='ready'&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H&&img.naturalWidth>0&&(false||(Math.abs(summitX-mid-30*S)<1.5&&[a.l-b.l,a.t-b.t,a.r-b.r,a.b-b.b].every(x=>Math.abs(x)<0.5)))})})()",
+  "label": "CPU 4x slower: the overview at 1440 x 900 (dpr 2)"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));await sleep(200);return 'ok'})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const mono=(rows,i,dir)=>rows.every((r,j)=>j===0||(r[i]-rows[j-1][i])*dir>=-1e-6);window.__expTrace=[];const g=[];const cb=[];const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=fn=>raf(t=>{const s0=performance.now();fn(t);cb.push(performance.now()-s0)});\nlet last=performance.now(),run=true;const f=n=>{g.push(n-last);last=n;if(run)raf(f)};raf(f);\n[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(4300);run=false;await sleep(50);window.requestAnimationFrame=raf;const cs=[...cb].sort((a,b)=>a-b);const rows=window.__expTrace;g.splice(0,2);const s=[...g].sort((a,b)=>a-b);\nconst dir=1;const tgt=[4,5,6].every(i=>{const d=Math.sign(rows[rows.length-1][i]-rows[0][i])||1;return mono(rows,i,d)});\nconst over=g.filter(x=>x>34).length;\nreturn JSON.stringify({engineFrames:rows.length,frames:g.length,p95:+s[Math.floor(s.length*.95)].toFixed(1),max:+s[s.length-1].toFixed(1),over34:over,engineMsP95:+cs[Math.floor(cs.length*.95)].toFixed(1),engineMsMax:+cs[cs.length-1].toFixed(1),kEnd:rows[rows.length-1][1],\ncameraHeight:mono(rows,2,dir),tilt:mono(rows,3,dir),zoom:mono(rows,7,dir),target:tgt,ok:over===0&&mono(rows,2,dir)&&mono(rows,3,dir)&&mono(rows,7,dir)&&tgt&&rows[rows.length-1][1]===1})})()",
+  "label": "CPU 4x: the change in: frame gaps, no reversal"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));await sleep(300);const p=document.querySelector('.map-page'),pl=document.querySelector('.map-plane'),t=document.querySelector('.map-terrain');const cs=getComputedStyle;const night=+cs(document.querySelector('.map-stage')).getPropertyValue('--night');\nreturn JSON.stringify({mode:p.dataset.mode,planeOpacity:+cs(pl).opacity,terrainOpacity:+cs(t).opacity,night,pressed:[...document.querySelectorAll('.map-mode-button')].map(x=>x.getAttribute('aria-pressed')),\nok:p.dataset.mode==='climb'&&+cs(pl).opacity===0&&+cs(t).opacity===1&&night===1})})()",
+  "label": "CPU 4x: My climb is settled (the picture gone, the night map on)"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const mono=(rows,i,dir)=>rows.every((r,j)=>j===0||(r[i]-rows[j-1][i])*dir>=-1e-6);window.__expTrace=[];const g=[];const cb=[];const raf=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=fn=>raf(t=>{const s0=performance.now();fn(t);cb.push(performance.now()-s0)});\nlet last=performance.now(),run=true;const f=n=>{g.push(n-last);last=n;if(run)raf(f)};raf(f);\n[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3700);run=false;await sleep(50);window.requestAnimationFrame=raf;const cs=[...cb].sort((a,b)=>a-b);const rows=window.__expTrace;g.splice(0,2);const s=[...g].sort((a,b)=>a-b);\nconst dir=-1;const tgt=[4,5,6].every(i=>{const d=Math.sign(rows[rows.length-1][i]-rows[0][i])||1;return mono(rows,i,d)});\nconst over=g.filter(x=>x>34).length;\nreturn JSON.stringify({engineFrames:rows.length,frames:g.length,p95:+s[Math.floor(s.length*.95)].toFixed(1),max:+s[s.length-1].toFixed(1),over34:over,engineMsP95:+cs[Math.floor(cs.length*.95)].toFixed(1),engineMsMax:+cs[cs.length-1].toFixed(1),kEnd:rows[rows.length-1][1],\ncameraHeight:mono(rows,2,dir),tilt:mono(rows,3,dir),zoom:mono(rows,7,dir),target:tgt,ok:over===0&&mono(rows,2,dir)&&mono(rows,3,dir)&&mono(rows,7,dir)&&tgt&&rows[rows.length-1][1]===0})})()",
+  "label": "CPU 4x: the change out: frame gaps, no reversal"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));await sleep(300);const p=document.querySelector('.map-page'),pl=document.querySelector('.map-plane'),t=document.querySelector('.map-terrain');const cs=getComputedStyle;const night=+cs(document.querySelector('.map-stage')).getPropertyValue('--night');\nreturn JSON.stringify({mode:p.dataset.mode,planeOpacity:+cs(pl).opacity,terrainOpacity:+cs(t).opacity,night,pressed:[...document.querySelectorAll('.map-mode-button')].map(x=>x.getAttribute('aria-pressed')),\nok:p.dataset.mode==='overview'&&+cs(pl).opacity===1&&+cs(t).opacity===0&&night===0})})()",
+  "label": "CPU 4x: the overview is back"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "cpu": 1,
+  "reduce": true,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);const pl=document.querySelector('.map-plane');const t0=pl.style.transform;const seen=new Set([t0]);const ops=[];let run=true;\nconst f=()=>{seen.add(pl.style.transform);ops.push(+pl.style.opacity);if(run)requestAnimationFrame(f)};requestAnimationFrame(f);const start=performance.now();[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();\nlet end=0;for(let i=0;i<60;i++){await sleep(50);if(+pl.style.opacity===0&&!end){end=performance.now()-start}}run=false;\nconst t=document.querySelector('.map-terrain');return JSON.stringify({transforms:seen.size,sameTransform:seen.size===1,planeOpacityAtEnd:+pl.style.opacity,sawMiddle:ops.some(x=>x>0.05&&x<0.95),fadeMs:Math.round(end),terrainOpacity:+t.style.opacity,\nok:seen.size===1&&+pl.style.opacity===0&&+t.style.opacity===1&&end<1200&&ops.some(x=>x>0.05&&x<0.95)})})()",
+  "label": "reduced motion: the picture stays flat, fades out; the night map fades in (about 0.7 s)"
+ },
+ {
+  "shot": "r53-climb-reduced-warm"
+ },
+ {
+  "shot": "r53-climb-reduced"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(1200);const pl=document.querySelector('.map-plane');return JSON.stringify({planeOpacity:+pl.style.opacity,ok:+pl.style.opacity===1})})()",
+  "label": "reduced motion: back to the overview in about 0.7 s"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),st=document.querySelector('.map-stage'),pl=document.querySelector('.map-plane');for(let i=0;i<40&&st.dataset.terrain!=='ready';i++)await sleep(100);\nconst a=R(pl),W=innerWidth,H=innerHeight,img=pl.querySelector('img');const inline=pl.style.cssText;pl.style.cssText='';const b=R(pl);pl.style.cssText=inline;\nconst S=Math.max(W/1000,H/650)*1.1,summitX=a.l+500*S*1.0,mid=W/2;\nreturn JSON.stringify({engine:p.dataset.engine,mode:p.dataset.mode,terrain:st.dataset.terrain,covers:a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,image:[img.naturalWidth,img.naturalHeight,img.complete],\nsummitRight:Math.round(summitX-mid),summitOk:Math.abs(summitX-mid-30*S)<1.5,cssFirstPlace:{dl:+(a.l-b.l).toFixed(2),dt:+(a.t-b.t).toFixed(2),dr:+(a.r-b.r).toFixed(2),db:+(a.b-b.b).toFixed(2)},\ncssSame:[a.l-b.l,a.t-b.t,a.r-b.r,a.b-b.b].every(x=>Math.abs(x)<0.5),switch:[...document.querySelectorAll('.map-mode-button')].map(x=>x.getAttribute('aria-pressed')),\nfallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:p.dataset.engine==='on'&&st.dataset.terrain==='ready'&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H&&img.naturalWidth>0&&(true||(Math.abs(summitX-mid-30*S)<1.5&&[a.l-b.l,a.t-b.t,a.r-b.r,a.b-b.b].every(x=>Math.abs(x)<0.5)))})})()",
+  "label": "the overview on a phone (390 x 844): the picture covers the stage (the framing is fitted to the trail, so the summit is not at the preview's place)"
+ },
+ {
+  "shot": "r53-overview-390x844-warm"
+ },
+ {
+  "shot": "r53-overview-390x844"
+ },
+ {
+  "tap": "(()=>{const b=[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({mode:p.dataset.mode,ok:p.dataset.mode==='climb'&&+getComputedStyle(document.querySelector('.map-plane')).opacity===0}))},4300))",
+  "label": "a phone: My climb settles"
+ },
+ {
+  "shot": "r53-climb-390x844-warm"
+ },
+ {
+  "shot": "r53-climb-390x844"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
+  "go": "{{BASE}}/work",
+  "wait": 3000
+ },
+ {
+  "eval": "__hold('/experience',0.1)",
+  "label": "hold the change into /experience at t=0.1 (desktop)"
+ },
+ {
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "desktop, t=0.1: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
+ },
+ {
+  "wait": 120,
+  "shot": "r53-held-desktop-0.1-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r53-held-desktop-0.1"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "desktop, t=0.1: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__jump('/work')",
+  "label": "back to /work"
+ },
+ {
+  "eval": "__hold('/experience',0.3)",
+  "label": "hold the change into /experience at t=0.3 (desktop)"
+ },
+ {
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "desktop, t=0.3: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
+ },
+ {
+  "wait": 120,
+  "shot": "r53-held-desktop-0.3-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r53-held-desktop-0.3"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "desktop, t=0.3: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__jump('/work')",
+  "label": "back to /work"
+ },
+ {
+  "eval": "__hold('/experience',0.6)",
+  "label": "hold the change into /experience at t=0.6 (desktop)"
+ },
+ {
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "desktop, t=0.6: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
+ },
+ {
+  "wait": 120,
+  "shot": "r53-held-desktop-0.6-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r53-held-desktop-0.6"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "desktop, t=0.6: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__jump('/work')",
+  "label": "back to /work"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "init": "try{sessionStorage.setItem('ft:intro-seen','1');sessionStorage.setItem('ft:debug-change','1')}catch(e){}\nwindow.__hold=(to,t)=>new Promise(res=>{__ftChange(to);const t0=performance.now();\n const iv=setInterval(()=>{const as=document.getAnimations();if(as.some(a=>a.animationName==='glass-p')||performance.now()-t0>4000){clearInterval(iv);\n  setTimeout(()=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*a.effect.getTiming().duration}res(document.getAnimations().length)},40)}},16)});\nwindow.__release=()=>new Promise(res=>{for(const a of document.getAnimations())try{a.finish()}catch(e){}\n const iv=setInterval(()=>{if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),700)}},30);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},9000)});\nwindow.__jump=to=>new Promise(res=>{if(location.pathname===to){res(to);return}\n __ftChange(to);const iv=setInterval(()=>{__ftFinish();if(!document.documentElement.dataset.changeKind){clearInterval(iv);setTimeout(()=>res(location.pathname),1500)}},40);\n setTimeout(()=>{clearInterval(iv);res('timeout '+location.pathname)},12000)});",
+  "go": "{{BASE}}/work",
+  "wait": 3000
+ },
+ {
+  "eval": "__hold('/experience',0.1)",
+  "label": "hold the change into /experience at t=0.1 (phone)"
+ },
+ {
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "phone, t=0.1: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
+ },
+ {
+  "wait": 120,
+  "shot": "r53-held-phone-0.1-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r53-held-phone-0.1"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "phone, t=0.1: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__jump('/work')",
+  "label": "back to /work"
+ },
+ {
+  "eval": "__hold('/experience',0.3)",
+  "label": "hold the change into /experience at t=0.3 (phone)"
+ },
+ {
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "phone, t=0.3: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
+ },
+ {
+  "wait": 120,
+  "shot": "r53-held-phone-0.3-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r53-held-phone-0.3"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "phone, t=0.3: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__jump('/work')",
+  "label": "back to /work"
+ },
+ {
+  "eval": "__hold('/experience',0.6)",
+  "label": "hold the change into /experience at t=0.6 (phone)"
+ },
+ {
+  "eval": "(()=>{const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}};const p=document.querySelector('.map-page'),pl=p&&document.querySelector('.map-plane'),img=pl&&pl.querySelector('img'),a=pl&&R(pl),W=innerWidth,H=innerHeight;return JSON.stringify({path:location.pathname,engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,\nimage:img&&[img.naturalWidth,img.complete],covers:!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H,srList:document.querySelectorAll('.sr-only li').length,\nok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0&&!!img&&img.complete&&img.naturalWidth>0&&!!a&&a.l<=0&&a.t<=0&&a.r>=W&&a.b>=H})})()",
+  "label": "phone, t=0.6: the arriving page shows the picture, no fallback list, the chart drawn (the engine is on from the page's first commit, R56)"
+ },
+ {
+  "wait": 120,
+  "shot": "r53-held-phone-0.6-warm"
+ },
+ {
+  "wait": 60,
+  "shot": "r53-held-phone-0.6"
+ },
+ {
+  "eval": "__release()",
+  "label": "release"
+ },
+ {
+  "eval": "new Promise(r=>setTimeout(()=>{const p=document.querySelector('.map-page');r(JSON.stringify({engine:p&&p.dataset.engine,fallbackLists:document.querySelectorAll('.map-fallback-list').length,ok:!!p&&p.dataset.engine==='on'&&document.querySelectorAll('.map-fallback-list').length===0}))},800))",
+  "label": "phone, t=0.6: after the change the engine is on and there is still no fallback list"
+ },
+ {
+  "eval": "__jump('/work')",
+  "label": "back to /work"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "mobile": false,
+  "touch": false,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const out=[];for(const i of [5,4,3,1,0,7]){window.__expTrace.length=0;P[i].click();await sleep(2400);out.push({milestone:i+1,moved:window.__expTrace.length>0,rows:window.__expTrace.length})}\nreturn JSON.stringify({out,ok:out.slice(0,4).every(o=>!o.moved)&&out[4].moved&&out[5].moved})})()",
+  "label": "camera rules: milestones 6, 5, 4, 2 move it on none; 1 and 8 do"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const b0=card.querySelector('[data-on]');let prev=b0?b0.textContent:'',viol=0,frames=0,seen=0,run=true;const log=[];\nconst f=()=>{frames++;const op=+getComputedStyle(card).opacity;const b=card.querySelector('[data-on]');const t=b?b.textContent:'';if(t!==prev){if(op>0.001){viol++;log.push([frames,+op.toFixed(3),prev.slice(0,14),t.slice(0,14)])}prev=t}if(op>0.001)seen++;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);\nfor(const i of [0,3,8,2,6,1,5,4,7,0,8,4]){P[i].click();await sleep(110+(i%3)*90)}await sleep(4600);run=false;\nreturn JSON.stringify({frames,framesCardVisible:seen,framesWithChangedText:viol,log:log.slice(0,5),ok:viol===0&&seen>0&&prev.length>0})})()",
+  "label": "no frame in which a visible card's text changes (12 quick presses)"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const res=[];\nfor(let i=0;i<9;i++){P[i].click();await sleep(i===0?4200:3000);const c=card.getBoundingClientRect(),op=+getComputedStyle(card).opacity,txt=card.querySelector('[data-on]').textContent.slice(0,22);\nconst cur=P.map((p,k)=>{const r=p.querySelector('.map-bead').getBoundingClientRect();return {k,x:r.x+r.width/2,y:r.y+r.height/2,op:+getComputedStyle(p).opacity}});\nconst under=cur.filter(q=>q.x>c.left&&q.x<c.right&&q.y>c.top&&q.y<c.bottom);\nconst dk=document.querySelector('[data-dock-glass]').getBoundingClientRect();const at=k=>{const r=P[k].querySelector('.map-bead').getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)};const seen=k=>{const r=P[k].querySelector('.map-bead').getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return x>0&&x<innerWidth&&y>0&&y<innerHeight&&!(x>dk.left-12&&x<dk.right+12&&y>dk.top-12)};\nconst covered=P.map((p,k)=>k).filter(k=>P[k].hasAttribute('data-under')&&seen(k));const coveredReach=covered.filter(k=>{const e=at(k);return e!==null&&(e.closest('.map-pin')===P[k]||e.classList.contains('map-hit'))});const open=P.map((p,k)=>k).filter(k=>!P[k].hasAttribute('data-under')&&seen(k));const centresOwn=open.filter(k=>{const e=at(k);return e!==null&&e.classList.contains('map-hit')&&e.parentElement===P[k]});const stepped=cur.filter(q=>q.op<0.3).map(q=>q.k);const marked=P.map((p,k)=>k).filter(k=>P[k].hasAttribute('data-under'));\nres.push({i:i+1,cardOpacity:op,rect:[c.left,c.top,c.right,c.bottom].map(Math.round),under:under.map(q=>[q.k+1,+q.op.toFixed(2)]),fullStrengthUnder:under.filter(q=>q.k!==i&&q.op>0.3).map(q=>q.k+1),ownUnder:under.some(q=>q.k===i),inside:c.left>=0&&c.top>=0&&c.right<=innerWidth&&c.bottom<=innerHeight,aboveDock:c.bottom<=document.querySelector('[data-dock-glass]').getBoundingClientRect().top+0.5,text:txt,covered:covered.map(k=>k+1),coveredReach:coveredReach.map(k=>k+1),open:open.length,centresOwn:centresOwn.length,markedMatchStepped:JSON.stringify(stepped)===JSON.stringify(marked)})}\nreturn JSON.stringify({res:res.map(r=>JSON.stringify(r)),ok:res.every(r=>r.cardOpacity===1&&r.fullStrengthUnder.length===0&&r.inside&&r.aboveDock&&r.coveredReach.length===0&&r.centresOwn===r.open&&r.markedMatchStepped),coveredChecked:res.reduce((n,r)=>n+r.covered.length,0)})})()",
+  "label": "1440 x 900: for each milestone the card is shown, inside the screen and above the dock, no other bead under it is at full strength, a bead under it cannot be pressed through it (elementFromPoint at its centre reaches no bead or hit area), and the other beads' centres still reach their own"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "mobile": false,
+  "touch": false,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');P[3].click();await sleep(3500);return JSON.stringify({text:card.querySelector('[data-on]').textContent.slice(0,40),opacity:+getComputedStyle(card).opacity})})()",
+  "label": "1440x900: milestone 4 chosen"
+ },
+ {
+  "shot": "r53-3-climb-card-1440x900-warm"
+ },
+ {
+  "shot": "r53-3-climb-card-1440x900"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');P[3].click();await sleep(3500);return JSON.stringify({text:card.querySelector('[data-on]').textContent.slice(0,40),opacity:+getComputedStyle(card).opacity})})()",
+  "label": "390x844: milestone 4 chosen"
+ },
+ {
+  "shot": "r53-3-climb-card-390x844-warm"
+ },
+ {
+  "shot": "r53-3-climb-card-390x844"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return 'in'})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const res=[];\nfor(let i=0;i<9;i++){P[i].click();await sleep(i===0?4200:3000);const c=card.getBoundingClientRect(),op=+getComputedStyle(card).opacity,txt=card.querySelector('[data-on]').textContent.slice(0,22);\nconst cur=P.map((p,k)=>{const r=p.querySelector('.map-bead').getBoundingClientRect();return {k,x:r.x+r.width/2,y:r.y+r.height/2,op:+getComputedStyle(p).opacity}});\nconst under=cur.filter(q=>q.x>c.left&&q.x<c.right&&q.y>c.top&&q.y<c.bottom);\nconst dk=document.querySelector('[data-dock-glass]').getBoundingClientRect();const at=k=>{const r=P[k].querySelector('.map-bead').getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)};const seen=k=>{const r=P[k].querySelector('.map-bead').getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return x>0&&x<innerWidth&&y>0&&y<innerHeight&&!(x>dk.left-12&&x<dk.right+12&&y>dk.top-12)};\nconst covered=P.map((p,k)=>k).filter(k=>P[k].hasAttribute('data-under')&&seen(k));const coveredReach=covered.filter(k=>{const e=at(k);return e!==null&&(e.closest('.map-pin')===P[k]||e.classList.contains('map-hit'))});const open=P.map((p,k)=>k).filter(k=>!P[k].hasAttribute('data-under')&&seen(k));const centresOwn=open.filter(k=>{const e=at(k);return e!==null&&e.classList.contains('map-hit')&&e.parentElement===P[k]});const stepped=cur.filter(q=>q.op<0.3).map(q=>q.k);const marked=P.map((p,k)=>k).filter(k=>P[k].hasAttribute('data-under'));\nres.push({i:i+1,cardOpacity:op,rect:[c.left,c.top,c.right,c.bottom].map(Math.round),under:under.map(q=>[q.k+1,+q.op.toFixed(2)]),fullStrengthUnder:under.filter(q=>q.k!==i&&q.op>0.3).map(q=>q.k+1),ownUnder:under.some(q=>q.k===i),inside:c.left>=0&&c.top>=0&&c.right<=innerWidth&&c.bottom<=innerHeight,aboveDock:c.bottom<=document.querySelector('[data-dock-glass]').getBoundingClientRect().top+0.5,text:txt,covered:covered.map(k=>k+1),coveredReach:coveredReach.map(k=>k+1),open:open.length,centresOwn:centresOwn.length,markedMatchStepped:JSON.stringify(stepped)===JSON.stringify(marked)})}\nreturn JSON.stringify({res:res.map(r=>JSON.stringify(r)),ok:res.every(r=>r.cardOpacity===1&&r.fullStrengthUnder.length===0&&r.inside&&r.aboveDock&&r.coveredReach.length===0&&r.centresOwn===r.open&&r.markedMatchStepped),coveredChecked:res.reduce((n,r)=>n+r.covered.length,0)})})()",
+  "label": "390 x 844: for each milestone the card is shown, inside the screen and above the dock, no other bead under it is at full strength, a bead under it cannot be pressed through it (elementFromPoint at its centre reaches no bead or hit area), and the other beads' centres still reach their own"
+ },
+ {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const res=[];\nfor(let i=0;i<9;i++){P[i].click();await sleep(i===0?4200:3000);const c=card.getBoundingClientRect(),op=+getComputedStyle(card).opacity,txt=card.querySelector('[data-on]').textContent.slice(0,22);\nconst cur=P.map((p,k)=>{const r=p.querySelector('.map-bead').getBoundingClientRect();return {k,x:r.x+r.width/2,y:r.y+r.height/2,op:+getComputedStyle(p).opacity}});\nconst under=cur.filter(q=>q.x>c.left&&q.x<c.right&&q.y>c.top&&q.y<c.bottom);\nconst dk=document.querySelector('[data-dock-glass]').getBoundingClientRect();const at=k=>{const r=P[k].querySelector('.map-bead').getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)};const seen=k=>{const r=P[k].querySelector('.map-bead').getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return x>0&&x<innerWidth&&y>0&&y<innerHeight&&!(x>dk.left-12&&x<dk.right+12&&y>dk.top-12)};\nconst covered=P.map((p,k)=>k).filter(k=>P[k].hasAttribute('data-under')&&seen(k));const coveredReach=covered.filter(k=>{const e=at(k);return e!==null&&(e.closest('.map-pin')===P[k]||e.classList.contains('map-hit'))});const open=P.map((p,k)=>k).filter(k=>!P[k].hasAttribute('data-under')&&seen(k));const centresOwn=open.filter(k=>{const e=at(k);return e!==null&&e.classList.contains('map-hit')&&e.parentElement===P[k]});const stepped=cur.filter(q=>q.op<0.3).map(q=>q.k);const marked=P.map((p,k)=>k).filter(k=>P[k].hasAttribute('data-under'));\nres.push({i:i+1,cardOpacity:op,rect:[c.left,c.top,c.right,c.bottom].map(Math.round),under:under.map(q=>[q.k+1,+q.op.toFixed(2)]),fullStrengthUnder:under.filter(q=>q.k!==i&&q.op>0.3).map(q=>q.k+1),ownUnder:under.some(q=>q.k===i),inside:c.left>=0&&c.top>=0&&c.right<=innerWidth&&c.bottom<=innerHeight,aboveDock:c.bottom<=document.querySelector('[data-dock-glass]').getBoundingClientRect().top+0.5,text:txt,covered:covered.map(k=>k+1),coveredReach:coveredReach.map(k=>k+1),open:open.length,centresOwn:centresOwn.length,markedMatchStepped:JSON.stringify(stepped)===JSON.stringify(marked)})}\nreturn JSON.stringify({res:res.map(r=>JSON.stringify(r)),ok:res.every(r=>r.cardOpacity===1&&r.fullStrengthUnder.length===0&&r.inside&&r.aboveDock&&r.coveredReach.length===0&&r.centresOwn===r.open&&r.markedMatchStepped),coveredChecked:res.reduce((n,r)=>n+r.covered.length,0)})})()",
+  "label": "320 x 568: for each milestone the card is shown, inside the screen and above the dock, no other bead under it is at full strength, a bead under it cannot be pressed through it (elementFromPoint at its centre reaches no bead or hit area), and the other beads' centres still reach their own"
+ },
+ {
+  "size": [
+   844,
+   390
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const res=[];\nfor(let i=0;i<9;i++){P[i].click();await sleep(i===0?4200:3000);const c=card.getBoundingClientRect(),op=+getComputedStyle(card).opacity,txt=card.querySelector('[data-on]').textContent.slice(0,22);\nconst cur=P.map((p,k)=>{const r=p.querySelector('.map-bead').getBoundingClientRect();return {k,x:r.x+r.width/2,y:r.y+r.height/2,op:+getComputedStyle(p).opacity}});\nconst under=cur.filter(q=>q.x>c.left&&q.x<c.right&&q.y>c.top&&q.y<c.bottom);\nconst dk=document.querySelector('[data-dock-glass]').getBoundingClientRect();const at=k=>{const r=P[k].querySelector('.map-bead').getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)};const seen=k=>{const r=P[k].querySelector('.map-bead').getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return x>0&&x<innerWidth&&y>0&&y<innerHeight&&!(x>dk.left-12&&x<dk.right+12&&y>dk.top-12)};\nconst covered=P.map((p,k)=>k).filter(k=>P[k].hasAttribute('data-under')&&seen(k));const coveredReach=covered.filter(k=>{const e=at(k);return e!==null&&(e.closest('.map-pin')===P[k]||e.classList.contains('map-hit'))});const open=P.map((p,k)=>k).filter(k=>!P[k].hasAttribute('data-under')&&seen(k));const centresOwn=open.filter(k=>{const e=at(k);return e!==null&&e.classList.contains('map-hit')&&e.parentElement===P[k]});const stepped=cur.filter(q=>q.op<0.3).map(q=>q.k);const marked=P.map((p,k)=>k).filter(k=>P[k].hasAttribute('data-under'));\nres.push({i:i+1,cardOpacity:op,rect:[c.left,c.top,c.right,c.bottom].map(Math.round),under:under.map(q=>[q.k+1,+q.op.toFixed(2)]),fullStrengthUnder:under.filter(q=>q.k!==i&&q.op>0.3).map(q=>q.k+1),ownUnder:under.some(q=>q.k===i),inside:c.left>=0&&c.top>=0&&c.right<=innerWidth&&c.bottom<=innerHeight,aboveDock:c.bottom<=document.querySelector('[data-dock-glass]').getBoundingClientRect().top+0.5,text:txt,covered:covered.map(k=>k+1),coveredReach:coveredReach.map(k=>k+1),open:open.length,centresOwn:centresOwn.length,markedMatchStepped:JSON.stringify(stepped)===JSON.stringify(marked)})}\nreturn JSON.stringify({res:res.map(r=>JSON.stringify(r)),ok:res.every(r=>r.cardOpacity===1&&r.fullStrengthUnder.length===0&&r.inside&&r.aboveDock&&r.coveredReach.length===0&&r.centresOwn===r.open&&r.markedMatchStepped),coveredChecked:res.reduce((n,r)=>n+r.covered.length,0)})})()",
+  "label": "844 x 390: for each milestone the card is shown, inside the screen and above the dock, no other bead under it is at full strength, a bead under it cannot be pressed through it (elementFromPoint at its centre reaches no bead or hit area), and the other beads' centres still reach their own"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "mobile": false,
+  "touch": false,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const g=[];let last=performance.now(),run=true;const f=n=>{g.push(n-last);last=n;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);\nconst key=k=>window.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));\nawait sleep(4000);const rest=g.length;for(let i=0;i<9;i++){key('ArrowLeft');await sleep(900)}for(let i=0;i<9;i++){key('ArrowRight');await sleep(900)}await sleep(1500);run=false;await sleep(40);g.splice(0,2);\nconst a=g.slice(0,rest-2),b=g.slice(rest-2),st=x=>{const s=[...x].sort((p,q)=>p-q);return {n:x.length,p95:+s[Math.floor(s.length*.95)].toFixed(1),max:+s[s.length-1].toFixed(1),over20:x.filter(v=>v>20).length}};\nreturn JSON.stringify({atRestWithRadar:st(a),steppingWithArrows:st(b),ok:st(a).over20===0&&st(b).over20===0})})()",
+  "label": "1440 x 900, dpr 2: frame gaps in My climb with the radar on, at rest and stepping through the milestones (none over 20 ms)"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "mobile": false,
+  "touch": false,
+  "cpu": 4,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const g=[];let last=performance.now(),run=true;const f=n=>{g.push(n-last);last=n;if(run)requestAnimationFrame(f)};requestAnimationFrame(f);\nconst key=k=>window.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));\nawait sleep(4000);const rest=g.length;for(let i=0;i<9;i++){key('ArrowLeft');await sleep(900)}for(let i=0;i<9;i++){key('ArrowRight');await sleep(900)}await sleep(1500);run=false;await sleep(40);g.splice(0,2);\nconst a=g.slice(0,rest-2),b=g.slice(rest-2),st=x=>{const s=[...x].sort((p,q)=>p-q);return {n:x.length,p95:+s[Math.floor(s.length*.95)].toFixed(1),max:+s[s.length-1].toFixed(1),over34:x.filter(v=>v>34).length}};\nreturn JSON.stringify({atRestWithRadar:st(a),steppingWithArrows:st(b),ok:st(a).over34===0&&st(b).over34===0})})()",
+  "label": "CPU 4x slower, 1440 x 900, dpr 2: frame gaps in My climb with the radar on, at rest and stepping through the milestones (none over 34 ms)"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "cpu": 1,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);\nconst sizes=P.map(p=>{const r=p.getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)]});const iconsHidden=P.every(p=>getComputedStyle(p.querySelector('svg')).opacity==='0');const names=P.map(p=>p.textContent);\nP[3].click();await sleep(5000);const cur=P.findIndex(p=>p.hasAttribute('data-current'));\nreturn JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),iconsHiddenInOverview:iconsHidden,namesAreLabels:names.every(n=>n.includes(':')),first:names[0],current:cur,ariaCurrent:P[3].getAttribute('aria-current'),cardText:card.querySelector('[data-on]').textContent.slice(0,40),cardOpacity:+getComputedStyle(card).opacity,\nok:document.querySelector('.map-page').dataset.mode==='climb'&&cur===3&&sizes.every(s=>s[0]>=44&&s[1]>=44)&&iconsHidden&&+getComputedStyle(card).opacity===1})})()",
+  "label": "a press of the fourth bead in the overview goes into My climb at that milestone (card shown, 44 px targets, no icons in the overview)"
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');await sleep(600);return JSON.stringify({current:P.findIndex(p=>p.hasAttribute('data-current')),ok:P.findIndex(p=>p.hasAttribute('data-current'))===2})})()",
+  "label": "ArrowLeft steps back to the third"
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');await sleep(600);return JSON.stringify({current:P.findIndex(p=>p.hasAttribute('data-current')),ok:P.findIndex(p=>p.hasAttribute('data-current'))===4})})()",
+  "label": "ArrowRight twice: the fifth"
+ },
+ {
+  "move": "(()=>{const r=document.querySelectorAll('.map-pin')[0].getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');await sleep(500);const tip=P[0].querySelector('.map-pin-tip');return JSON.stringify({tip:tip.textContent,opacity:+getComputedStyle(tip).opacity,ok:+getComputedStyle(tip).opacity>0.9&&tip.textContent.includes(':')})})()",
+  "label": "hovering a bead shows its label"
+ },
+ {
+  "key": "Escape",
+  "vk": 27
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');await sleep(4200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,current:P.findIndex(p=>p.hasAttribute('data-current')),cardOpacity:+getComputedStyle(card).opacity,plane:+getComputedStyle(document.querySelector('.map-plane')).opacity,ok:document.querySelector('.map-page').dataset.mode==='overview'&&P.every(p=>!p.hasAttribute('data-current'))&&+getComputedStyle(card).opacity===0&&+getComputedStyle(document.querySelector('.map-plane')).opacity===1})})()",
+  "label": "Esc returns to the overview (no card, no chosen bead)"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(1700);window.__expTrace.length=0;P[2].click();await sleep(3000);\nconst rows=window.__expTrace,ks=rows.map(r=>r[1]),st=ks.slice(1).map((v,i)=>v-ks[i]),peak=Math.max(...st),first=st.slice(0,6),mid=st.filter((d,i)=>ks[i]>0.55&&ks[i]<0.85);\nreturn JSON.stringify({rows:rows.length,firstSteps:first.map(x=>+x.toFixed(4)),peak:+peak.toFixed(4),midMin:+Math.min(...mid).toFixed(4),kEnd:ks[ks.length-1],\nok:first.every(d=>d>0.5*peak)&&Math.min(...mid)>0.15*peak&&ks[ks.length-1]===1&&st.every(d=>d>=-1e-9)})})()",
+  "label": "a press 1.7 s into the change in: k's step goes on at speed (no stall), ends at 1"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "mobile": false,
+  "touch": false,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');await sleep(600);const cur=P.findIndex(p=>p.hasAttribute('data-current'));const ring=getComputedStyle(P[cur].querySelector('.map-bead'));\nreturn JSON.stringify({cur,activeIsCurrent:document.activeElement===P[cur],outline:[ring.outlineStyle,ring.outlineWidth,ring.outlineColor,ring.outlineOffset],focusVisible:P[cur].matches(':focus-visible'),ok:document.activeElement===P[cur]&&ring.outlineStyle==='solid'&&P[cur].matches(':focus-visible')})})()",
+  "label": "the arrow keys moved the focus to the chosen bead, which shows its ring"
+ },
+ {
+  "shot": "r53-3b-bead-focus-warm"
+ },
+ {
+  "shot": "r53-3b-bead-focus-1440x900"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const out=P.map((p,i)=>{const t=p.querySelector('.map-pin-tip');t.style.transition='none';const b=t.getBoundingClientRect(),c=p.querySelector('.map-bead').getBoundingClientRect(),cx=c.x+c.width/2,on=cx>0&&cx<innerWidth;return {i:i+1,on,flip:p.style.getPropertyValue('--flip'),l:Math.round(b.left),r:Math.round(b.right),w:Math.round(b.width),h:Math.round(b.height)}});\nP.forEach(p=>p.querySelector('.map-pin-tip').style.transition='');\nreturn JSON.stringify({out:out.map(o=>JSON.stringify(o)),ok:out.filter(o=>o.on).length>0&&out.filter(o=>o.on).every(o=>o.l>=0&&o.r<=innerWidth)})})()",
+  "label": "1440 x 900: the label of every bead on the screen, wherever it opens, is inside the screen"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "mobile": true,
+  "touch": true,
+  "cpu": 1,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return JSON.stringify({mode:document.querySelector('.map-page').dataset.mode,cardOpacity:+getComputedStyle(document.querySelector('.map-card')).opacity})})()",
+  "label": "into My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');const out=P.map((p,i)=>{const t=p.querySelector('.map-pin-tip');t.style.transition='none';const b=t.getBoundingClientRect(),c=p.querySelector('.map-bead').getBoundingClientRect(),cx=c.x+c.width/2,on=cx>0&&cx<innerWidth;return {i:i+1,on,flip:p.style.getPropertyValue('--flip'),l:Math.round(b.left),r:Math.round(b.right),w:Math.round(b.width),h:Math.round(b.height)}});\nP.forEach(p=>p.querySelector('.map-pin-tip').style.transition='');\nreturn JSON.stringify({out:out.map(o=>JSON.stringify(o)),ok:out.filter(o=>o.on).length>0&&out.filter(o=>o.on).every(o=>o.l>=0&&o.r<=innerWidth)})})()",
+  "label": "390 x 844: the label of every bead on the screen, wherever it opens, is inside the screen"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": true,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3000
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const P=[...document.querySelectorAll('.map-pin')];const card=document.querySelector('.map-card');for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(300);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(1600);\nconst cv=document.querySelector('.map-terrain'),hash=()=>{const d=cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;let h=0;for(let i=0;i<d.length;i+=61)h=(h*31+d[i])|0;return h};\nconst box=document.querySelector('.map-pins'),h0=hash(),ops=[];let run=true;const f=()=>{ops.push(+getComputedStyle(box).opacity);if(run)requestAnimationFrame(f)};requestAnimationFrame(f);\nP[0].click();await sleep(900);run=false;const h1=hash();const t=document.querySelector('.map-trail').getBoundingClientRect();\nreturn JSON.stringify({min:Math.min(...ops),end:ops[ops.length-1],sawDip:Math.min(...ops)<0.2,terrainRedrawn:h0!==h1,planeTransformSame:true,ok:Math.min(...ops)<0.2&&ops[ops.length-1]===1&&h0!==h1})})()",
+  "label": "reduced motion: a step to a far milestone dips the layers and the night map is drawn again at the new place"
+ },
+ {
+  "shot": "r53-3b-reduced-step-warm"
+ },
+ {
+  "shot": "r53-3b-reduced-step"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const cs=e=>getComputedStyle(q(e));const num=s=>parseFloat(s);const a=s=>{const m=/rgba?\\(([^)]*)\\)/.exec(s)[1].split(/[ ,\\/]+/).map(Number);return {rgb:m.slice(0,3),a:m.length>3?m[3]:1}};\nconst t=cs('.map-title'),d=cs('.map-text'),l=cs('.map-caption-title'),n=cs('.map-caption-line');\nconst vw=innerWidth,want=Math.min(64,Math.max(34,vw*0.046));const tc=a(t.color),dc=a(d.color),nc=a(n.color),lc=a(l.color);\nconst info={title:{size:num(t.fontSize),want:+want.toFixed(2),transform:t.textTransform,alpha:tc.a,rgb:tc.rgb,tracking:t.letterSpacing},desc:{size:num(d.fontSize),alpha:+dc.a.toFixed(2)},label:{size:num(l.fontSize),rgb:lc.rgb,transform:l.textTransform,tracking:l.letterSpacing},line:{size:num(n.fontSize),alpha:+nc.a.toFixed(2)},\nswitch:qa('.map-mode-button').map(b=>b.textContent),h1:[...q('h1').querySelectorAll('.sr-only')].map(n=>n.textContent).join(''),h1Letters:q('h1').querySelector('[aria-hidden=\"true\"]')?.getAttribute('aria-hidden')};\nconst ok=Math.abs(info.title.size-want)<0.1&&t.textTransform==='uppercase'&&tc.a===1&&tc.rgb.join()==='253,252,230'&&info.desc.size===12.5&&Math.abs(dc.a-0.7)<0.01&&info.label.size===13&&lc.rgb.join()==='255,201,163'&&l.textTransform==='uppercase'&&info.line.size===11&&Math.abs(nc.a-0.62)<0.01\n&&tc.a>dc.a&&dc.a>nc.a&&info.switch.join('|')==='Overview|My climb'&&info.h1==='My experience'&&info.h1Letters==='true';\nreturn JSON.stringify({...info,ok})})()",
+  "label": "the words at 1440 x 900: title 4.6vw between 34 and 64 px, in capitals and the cream, description 12.5 px at 70%, label 13 px in warm light orange, line 11 px at 62%; the switch reads Overview, My climb"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title",
+    "selector": ".map-title",
+    "ink": [
+     253,
+     252,
+     230,
+     1
+    ],
+    "glass": true
+   },
+   {
+    "name": "description (--map-ink-desc)",
+    "selector": ".map-text",
+    "ink": [
+     253,
+     252,
+     230,
+     0.7
+    ],
+    "glass": true
+   },
+   {
+    "name": "label",
+    "selector": ".map-caption-title",
+    "ink": [
+     255,
+     201,
+     163,
+     1
+    ],
+    "glass": true
+   },
+   {
+    "name": "line (--map-ink-line)",
+    "selector": ".map-caption-line",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ],
+    "glass": true
+   },
+   {
+    "name": "fact (--map-ink-line)",
+    "selector": ".map-caption-fact",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ],
+    "glass": true
+   },
+   {
+    "name": "credit (--map-ink-line)",
+    "selector": ".map-caption-credit",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ],
+    "glass": true
+   }
+  ],
+  "label": "contrast of the description, the line, the fact and the credit over the picture at 1440 x 900 (worst, p1 and mean; mean 4.5 to 1 wanted)"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(1500);const o=['.map-heading','.map-caption'].map(s=>+getComputedStyle(q(s)).opacity);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(1800);const b=['.map-heading','.map-caption'].map(s=>+getComputedStyle(q(s)).opacity);return JSON.stringify({inClimb:o,backInOverview:b,ok:o.every(x=>x<0.05)&&b.every(x=>x===1)})})()",
+  "label": "the title block and the mountain's label leave in My climb and come back in the overview"
+ },
+ {
+  "size": [
+   820,
+   1180
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const cs=e=>getComputedStyle(q(e));const num=s=>parseFloat(s);const a=s=>{const m=/rgba?\\(([^)]*)\\)/.exec(s)[1].split(/[ ,\\/]+/).map(Number);return {rgb:m.slice(0,3),a:m.length>3?m[3]:1}};\nconst t=cs('.map-title'),d=cs('.map-text'),l=cs('.map-caption-title'),n=cs('.map-caption-line');\nconst vw=innerWidth,want=Math.min(64,Math.max(34,vw*0.046));const tc=a(t.color),dc=a(d.color),nc=a(n.color),lc=a(l.color);\nconst info={title:{size:num(t.fontSize),want:+want.toFixed(2),transform:t.textTransform,alpha:tc.a,rgb:tc.rgb,tracking:t.letterSpacing},desc:{size:num(d.fontSize),alpha:+dc.a.toFixed(2)},label:{size:num(l.fontSize),rgb:lc.rgb,transform:l.textTransform,tracking:l.letterSpacing},line:{size:num(n.fontSize),alpha:+nc.a.toFixed(2)},\nswitch:qa('.map-mode-button').map(b=>b.textContent),h1:[...q('h1').querySelectorAll('.sr-only')].map(n=>n.textContent).join(''),h1Letters:q('h1').querySelector('[aria-hidden=\"true\"]')?.getAttribute('aria-hidden')};\nconst ok=Math.abs(info.title.size-want)<0.1&&t.textTransform==='uppercase'&&tc.a===1&&tc.rgb.join()==='253,252,230'&&info.desc.size===12.5&&Math.abs(dc.a-0.7)<0.01&&info.label.size===13&&lc.rgb.join()==='255,201,163'&&l.textTransform==='uppercase'&&info.line.size===11&&Math.abs(nc.a-0.62)<0.01\n&&tc.a>dc.a&&dc.a>nc.a&&info.switch.join('|')==='Overview|My climb'&&info.h1==='My experience'&&info.h1Letters==='true';\nreturn JSON.stringify({...info,ok})})()",
+  "label": "the words at 820 x 1180: title 4.6vw between 34 and 64 px, in capitals and the cream, description 12.5 px at 70%, label 13 px in warm light orange, line 11 px at 62%; the switch reads Overview, My climb"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const cs=e=>getComputedStyle(q(e));const num=s=>parseFloat(s);const a=s=>{const m=/rgba?\\(([^)]*)\\)/.exec(s)[1].split(/[ ,\\/]+/).map(Number);return {rgb:m.slice(0,3),a:m.length>3?m[3]:1}};\nconst t=cs('.map-title'),d=cs('.map-text'),l=cs('.map-caption-title'),n=cs('.map-caption-line');\nconst vw=innerWidth,want=Math.min(64,Math.max(34,vw*0.046));const tc=a(t.color),dc=a(d.color),nc=a(n.color),lc=a(l.color);\nconst info={title:{size:num(t.fontSize),want:+want.toFixed(2),transform:t.textTransform,alpha:tc.a,rgb:tc.rgb,tracking:t.letterSpacing},desc:{size:num(d.fontSize),alpha:+dc.a.toFixed(2)},label:{size:num(l.fontSize),rgb:lc.rgb,transform:l.textTransform,tracking:l.letterSpacing},line:{size:num(n.fontSize),alpha:+nc.a.toFixed(2)},\nswitch:qa('.map-mode-button').map(b=>b.textContent),h1:[...q('h1').querySelectorAll('.sr-only')].map(n=>n.textContent).join(''),h1Letters:q('h1').querySelector('[aria-hidden=\"true\"]')?.getAttribute('aria-hidden')};\nconst ok=Math.abs(info.title.size-want)<0.1&&t.textTransform==='uppercase'&&tc.a===1&&tc.rgb.join()==='253,252,230'&&info.desc.size===12.5&&Math.abs(dc.a-0.7)<0.01&&info.label.size===13&&lc.rgb.join()==='255,201,163'&&l.textTransform==='uppercase'&&info.line.size===11&&Math.abs(nc.a-0.62)<0.01\n&&tc.a>dc.a&&dc.a>nc.a&&info.switch.join('|')==='Overview|My climb'&&info.h1==='My experience'&&info.h1Letters==='true';\nreturn JSON.stringify({...info,ok})})()",
+  "label": "the words at 390 x 844: title 4.6vw between 34 and 64 px, in capitals and the cream, description 12.5 px at 70%, label 13 px in warm light orange, line 11 px at 62%; the switch reads Overview, My climb"
+ },
+ {
+  "contrast": [
+   {
+    "name": "title",
+    "selector": ".map-title",
+    "ink": [
+     253,
+     252,
+     230,
+     1
+    ],
+    "glass": true
+   },
+   {
+    "name": "description (--map-ink-desc)",
+    "selector": ".map-text",
+    "ink": [
+     253,
+     252,
+     230,
+     0.7
+    ],
+    "glass": true
+   },
+   {
+    "name": "label",
+    "selector": ".map-caption-title",
+    "ink": [
+     255,
+     201,
+     163,
+     1
+    ],
+    "glass": true
+   },
+   {
+    "name": "line (--map-ink-line)",
+    "selector": ".map-caption-line",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ],
+    "glass": true
+   },
+   {
+    "name": "fact (--map-ink-line)",
+    "selector": ".map-caption-fact",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ],
+    "glass": true
+   },
+   {
+    "name": "credit (--map-ink-line)",
+    "selector": ".map-caption-credit",
+    "ink": [
+     253,
+     252,
+     230,
+     0.62
+    ],
+    "glass": true
+   }
+  ],
+  "label": "contrast of the description, the line, the fact and the credit over the picture at 390 x 844 (worst, p1 and mean; mean 4.5 to 1 wanted)"
+ },
+ {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const cs=e=>getComputedStyle(q(e));const num=s=>parseFloat(s);const a=s=>{const m=/rgba?\\(([^)]*)\\)/.exec(s)[1].split(/[ ,\\/]+/).map(Number);return {rgb:m.slice(0,3),a:m.length>3?m[3]:1}};\nconst t=cs('.map-title'),d=cs('.map-text'),l=cs('.map-caption-title'),n=cs('.map-caption-line');\nconst vw=innerWidth,want=Math.min(64,Math.max(34,vw*0.046));const tc=a(t.color),dc=a(d.color),nc=a(n.color),lc=a(l.color);\nconst info={title:{size:num(t.fontSize),want:+want.toFixed(2),transform:t.textTransform,alpha:tc.a,rgb:tc.rgb,tracking:t.letterSpacing},desc:{size:num(d.fontSize),alpha:+dc.a.toFixed(2)},label:{size:num(l.fontSize),rgb:lc.rgb,transform:l.textTransform,tracking:l.letterSpacing},line:{size:num(n.fontSize),alpha:+nc.a.toFixed(2)},\nswitch:qa('.map-mode-button').map(b=>b.textContent),h1:[...q('h1').querySelectorAll('.sr-only')].map(n=>n.textContent).join(''),h1Letters:q('h1').querySelector('[aria-hidden=\"true\"]')?.getAttribute('aria-hidden')};\nconst ok=Math.abs(info.title.size-want)<0.1&&t.textTransform==='uppercase'&&tc.a===1&&tc.rgb.join()==='253,252,230'&&info.desc.size===12.5&&Math.abs(dc.a-0.7)<0.01&&info.label.size===13&&lc.rgb.join()==='255,201,163'&&l.textTransform==='uppercase'&&info.line.size===11&&Math.abs(nc.a-0.62)<0.01\n&&tc.a>dc.a&&dc.a>nc.a&&info.switch.join('|')==='Overview|My climb'&&info.h1==='My experience'&&info.h1Letters==='true';\nreturn JSON.stringify({...info,ok})})()",
+  "label": "the words at 320 x 568: title 4.6vw between 34 and 64 px, in capitals and the cream, description 12.5 px at 70%, label 13 px in warm light orange, line 11 px at 62%; the switch reads Overview, My climb"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const t=q('.map-title'),sw=R(q('.map-mode')),was=t.innerHTML;t.textContent='MY EXPERIENCE AND ALL THE REST OF IT';await sleep(150);\nconst r=R(t),fs=parseFloat(getComputedStyle(t).fontSize),o={rect:[r.l,r.t,r.r,r.b].map(Math.round),lines:+(r.h/fs).toFixed(2),cut:t.scrollWidth>t.clientWidth,overflowX:getComputedStyle(t).overflowX,switchClear:!hit(r,sw)};\nt.innerHTML=was;o.ok=r.r<=innerWidth-16+1&&o.lines<=1.3&&o.cut&&o.switchClear;return JSON.stringify(o)})()",
+  "label": "320 x 568: a very long page title stays on one line, inside the page's edge and clear of the switch (cut at the edge)"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const W=innerWidth,H=innerHeight,fr=q('.map-frame');const north=ink(fr,W/2-8,4,W/2+8,30);\nconst read=()=>ink(fr,W-24-130,H-30,W-20,H-14);const lat=ink(fr,W-60,150,W-10,H-130);const foot=ink(fr,W*0.5,H-24,W-250,H-8);const scale=ink(fr,W-170,H-62,W-20,H-30);\nconst o={north,readout:read(),degreesRight:lat,degreesFoot:foot,scaleBar:scale,\ngridInk:ink(q('.map-trail'),0,H*0.3,120,H*0.6)};o.ok=north>0&&o.readout>0&&lat>0&&foot>0&&scale>0&&o.gridInk>0;return JSON.stringify(o)})()",
+  "label": "the overview at 1440 x 900: north, the degrees on the right and on the foot, the 200 km scale bar, the readout, and the grid are all drawn"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const fr=q('.map-frame'),W=innerWidth,H=innerHeight,box=[W-24-130,H-30,W-20,H-14];const hash=()=>{const k=fr.width/fr.clientWidth,d=fr.getContext('2d').getImageData(Math.floor(box[0]*k),Math.floor(box[1]*k),Math.ceil((box[2]-box[0])*k),Math.ceil((box[3]-box[1])*k)).data;let h=0;for(let i=0;i<d.length;i+=4)h=(h*31+d[i+3])|0;return h};\nconst h0=hash();[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);const h1=hash();const pins=qa('.map-pin');pins[1].click();await sleep(3000);const h2=hash();pins[7].click();await sleep(3000);const h3=hash();\nconst north=ink(fr,W/2-8,4,W/2+8,30);const o={summitReadout:h0,hikerReadout:h1,secondReadout:h2,eighthReadout:h3,north,ok:h0!==h1&&h1!==h2&&h2!==h3&&north===0};return JSON.stringify(o)})()",
+  "label": "the readout tells the summit in the overview and a different place for each milestone chosen in My climb; north is gone"
+ },
+ {
+  "shot": "r53-4-chart-climb-warm"
+ },
+ {
+  "shot": "r53-4-chart-climb-1440x900"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const W=innerWidth,H=innerHeight,dockEl=q('[data-dock-glass]'),dock=R(dockEl);\nconst heading=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),title=q('.map-title'),tr=R(title);\nconst lines=e=>{const g=document.createRange();g.selectNodeContents(e);return [...g.getClientRects()].map(r=>({l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height})).filter(r=>r.w>2&&r.h>2)};\nconst texts=qa('.map-title,.map-text,.map-caption-title,.map-caption-line,.map-caption-fact,.map-caption-credit').filter(e=>{const r=e.getBoundingClientRect();return r.width>2&&r.height>2}).flatMap(lines);\nconst inside=r=>r.l>=0&&r.t>=0&&r.r<=W&&r.b<=H;\nconst beads=qa('.map-pin .map-bead').map(b=>{const r=R(b);return {x:r.l+r.w/2,y:r.t+r.h/2,rad:r.w/2}});\nconst under=beads.filter(b=>texts.some(t=>hit({l:b.x-b.rad,t:b.y-b.rad,r:b.x+b.rad,b:b.y+b.rad},t))).length;\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});\nconst area=a=>Math.max(0,a.r-a.l)*Math.max(0,a.b-a.t);const pinsEls=qa('.map-pin'),tg=pinsEls.map(R);\nconst own=pinsEls.map((p,i)=>{const r=tg[i],vis={l:Math.max(0,r.l),t:Math.max(0,r.t),r:Math.min(W,r.r),b:Math.min(H,r.b)},x={l:Math.max(vis.l,dock.l),t:Math.max(vis.t,dock.t),r:Math.min(vis.r,dock.r),b:Math.min(vis.b,dock.b)};\nlet hits=0,n=0;for(let a=0;a<11;a++)for(let b=0;b<11;b++){const px=r.l+(a+.5)*r.w/11,py=r.t+(b+.5)*r.h/11;n++;if(px<0||py<0||px>=W||py>=H)continue;const e=document.elementFromPoint(px,py);if(e&&p.contains(e))hits++}\nconst c=document.elementFromPoint(r.l+r.w/2,r.t+r.h/2);return {outside:(area(vis)-area(x))/(r.w*r.h),hit:hits/n,centre:!!c&&p.contains(c)}});\nlet pairs=0,worst=0;for(let i=0;i<tg.length;i++)for(let j=i+1;j<tg.length;j++){const a=area({l:Math.max(tg[i].l,tg[j].l),t:Math.max(tg[i].t,tg[j].t),r:Math.min(tg[i].r,tg[j].r),b:Math.min(tg[i].b,tg[j].b)});if(a>0){pairs++;worst=Math.max(worst,a/(tg[i].w*tg[i].h))}}\nconst reachInfo={beads:pinsEls.length,minOutsideShare:+Math.min(...own.map(o=>o.outside)).toFixed(3),minOwnShare:+Math.min(...own.map(o=>o.hit)).toFixed(2),centresOnOwnBead:own.filter(o=>o.centre).length,overlappingPairs:pairs,mostOverlapped:+worst.toFixed(2)};\nreachInfo.ok=reachInfo.beads===9&&reachInfo.minOutsideShare>=0.995&&reachInfo.minOwnShare>=0.4&&reachInfo.centresOnOwnBead===9;\nconst pl0=q('.map-plane'),pa=R(pl0),pin=pl0.style.cssText;pl0.style.cssText='';const pb=R(pl0);pl0.style.cssText=pin;const firstGlide=+Math.max(...[pa.l-pb.l,pa.t-pb.t,pa.r-pb.r,pa.b-pb.b].map(Math.abs)).toFixed(1);\nconst fs=parseFloat(getComputedStyle(title).fontSize);const phone=W<700;\nconst fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b));\nconst squares=[ink(fr,6,foot/2-3,14,foot/2+3),ink(fr,W-14,foot/2-3,W-6,foot/2+3)];\nconst zones=[[0,0,26,26],[W-26,0,W,26],[0,foot-26,26,foot],[W-26,foot-26,W,foot]];\nconst underDock=ink(fr,dock.l+2,dock.t+2,dock.r-2,dock.b-2);\nconst underWords=texts.map(t=>ink(fr,t.l,t.t,t.r,t.b,zones));\nconst readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],dock:[dock.l,dock.t,dock.r,dock.b].map(Math.round),heading:inside(heading),caption:inside(cap),switch:inside(sw),\nclearOfDock:[heading,cap,sw].every(r=>!hit(r,dock)),titleLines:Math.round(tr.h/fs*10)/10,titleSize:fs,switchUnderTitle:W<500?sw.t>=tr.b-1:null,switchClearOfTitle:!hit(sw,tr),\nbeadsUnderWords:under,firstGlidePx:firstGlide,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),reach:reachInfo,corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};\no.ok=o.heading&&o.caption&&o.switch&&o.clearOfDock&&(!phone||o.titleLines<=1.3)&&o.switchClearOfTitle&&(W>=500||o.switchUnderTitle)&&under===0&&o.hitAreas&&reachInfo.ok&&corners.every(n=>n>0)&&squares.every(n=>n>0)&&readoutInk>0&&underDock===0&&underWords.every(n=>n===0)&&trailInk>0;\nreturn JSON.stringify(o)})()",
+  "label": "desktop, overview: the words inside the screen and clear of the dock, one line of title on a phone, no bead under a line of the words, 44 px targets, all nine beads whole on the screen outside the dock and reachable, the frame's marks present and clear of the dock and the words (1440 x 900)"
+ },
+ {
+  "shot": "r53-4-desktop-overview-warm"
+ },
+ {
+  "shot": "r53-4-overview-1440x900"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);const W=innerWidth,H=innerHeight,dock=R(q('[data-dock-glass]')),fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst card=R(q('.map-card')),op=+getComputedStyle(q('.map-card')).opacity,sw=R(q('.map-mode'));\nconst north=ink(fr,W/2-8,4,W/2+8,30),corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b)),readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst labelsInk=ink(fr,W-60,84,W-10,foot-80)+ink(fr,W*0.5,foot-22,W-250,foot-8);\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});const trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],cardOpacity:op,card:[card.l,card.t,card.r,card.b].map(Math.round),cardInside:card.l>=0&&card.t>=0&&card.r<=W&&card.b<=H,cardAboveDock:card.b<=dock.t,cardClearOfSwitch:!hit(card,sw),north,corners,readoutInk,labelsInk,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),gridInk:trailInk,\nplaneOpacity:+getComputedStyle(q('.map-plane')).opacity};\no.ok=op===1&&o.cardInside&&o.cardAboveDock&&north===0&&corners.every(n=>n>0)&&readoutInk>0&&o.hitAreas&&trailInk>0&&o.planeOpacity===0;\nreturn JSON.stringify(o)})()",
+  "label": "desktop, My climb: the card inside the screen and above the dock, no north or degree labels, the corner marks and the readout stay, the grid is on the trail's canvas, 44 px targets"
+ },
+ {
+  "shot": "r53-4-desktop-climb-warm"
+ },
+ {
+  "shot": "r53-4-climb-1440x900"
+ },
+ {
+  "size": [
+   820,
+   1180
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const W=innerWidth,H=innerHeight,dockEl=q('[data-dock-glass]'),dock=R(dockEl);\nconst heading=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),title=q('.map-title'),tr=R(title);\nconst lines=e=>{const g=document.createRange();g.selectNodeContents(e);return [...g.getClientRects()].map(r=>({l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height})).filter(r=>r.w>2&&r.h>2)};\nconst texts=qa('.map-title,.map-text,.map-caption-title,.map-caption-line,.map-caption-fact,.map-caption-credit').filter(e=>{const r=e.getBoundingClientRect();return r.width>2&&r.height>2}).flatMap(lines);\nconst inside=r=>r.l>=0&&r.t>=0&&r.r<=W&&r.b<=H;\nconst beads=qa('.map-pin .map-bead').map(b=>{const r=R(b);return {x:r.l+r.w/2,y:r.t+r.h/2,rad:r.w/2}});\nconst under=beads.filter(b=>texts.some(t=>hit({l:b.x-b.rad,t:b.y-b.rad,r:b.x+b.rad,b:b.y+b.rad},t))).length;\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});\nconst area=a=>Math.max(0,a.r-a.l)*Math.max(0,a.b-a.t);const pinsEls=qa('.map-pin'),tg=pinsEls.map(R);\nconst own=pinsEls.map((p,i)=>{const r=tg[i],vis={l:Math.max(0,r.l),t:Math.max(0,r.t),r:Math.min(W,r.r),b:Math.min(H,r.b)},x={l:Math.max(vis.l,dock.l),t:Math.max(vis.t,dock.t),r:Math.min(vis.r,dock.r),b:Math.min(vis.b,dock.b)};\nlet hits=0,n=0;for(let a=0;a<11;a++)for(let b=0;b<11;b++){const px=r.l+(a+.5)*r.w/11,py=r.t+(b+.5)*r.h/11;n++;if(px<0||py<0||px>=W||py>=H)continue;const e=document.elementFromPoint(px,py);if(e&&p.contains(e))hits++}\nconst c=document.elementFromPoint(r.l+r.w/2,r.t+r.h/2);return {outside:(area(vis)-area(x))/(r.w*r.h),hit:hits/n,centre:!!c&&p.contains(c)}});\nlet pairs=0,worst=0;for(let i=0;i<tg.length;i++)for(let j=i+1;j<tg.length;j++){const a=area({l:Math.max(tg[i].l,tg[j].l),t:Math.max(tg[i].t,tg[j].t),r:Math.min(tg[i].r,tg[j].r),b:Math.min(tg[i].b,tg[j].b)});if(a>0){pairs++;worst=Math.max(worst,a/(tg[i].w*tg[i].h))}}\nconst reachInfo={beads:pinsEls.length,minOutsideShare:+Math.min(...own.map(o=>o.outside)).toFixed(3),minOwnShare:+Math.min(...own.map(o=>o.hit)).toFixed(2),centresOnOwnBead:own.filter(o=>o.centre).length,overlappingPairs:pairs,mostOverlapped:+worst.toFixed(2)};\nreachInfo.ok=reachInfo.beads===9&&reachInfo.minOutsideShare>=0.995&&reachInfo.minOwnShare>=0.4&&reachInfo.centresOnOwnBead===9;\nconst pl0=q('.map-plane'),pa=R(pl0),pin=pl0.style.cssText;pl0.style.cssText='';const pb=R(pl0);pl0.style.cssText=pin;const firstGlide=+Math.max(...[pa.l-pb.l,pa.t-pb.t,pa.r-pb.r,pa.b-pb.b].map(Math.abs)).toFixed(1);\nconst fs=parseFloat(getComputedStyle(title).fontSize);const phone=W<700;\nconst fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b));\nconst squares=[ink(fr,6,foot/2-3,14,foot/2+3),ink(fr,W-14,foot/2-3,W-6,foot/2+3)];\nconst zones=[[0,0,26,26],[W-26,0,W,26],[0,foot-26,26,foot],[W-26,foot-26,W,foot]];\nconst underDock=ink(fr,dock.l+2,dock.t+2,dock.r-2,dock.b-2);\nconst underWords=texts.map(t=>ink(fr,t.l,t.t,t.r,t.b,zones));\nconst readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],dock:[dock.l,dock.t,dock.r,dock.b].map(Math.round),heading:inside(heading),caption:inside(cap),switch:inside(sw),\nclearOfDock:[heading,cap,sw].every(r=>!hit(r,dock)),titleLines:Math.round(tr.h/fs*10)/10,titleSize:fs,switchUnderTitle:W<500?sw.t>=tr.b-1:null,switchClearOfTitle:!hit(sw,tr),\nbeadsUnderWords:under,firstGlidePx:firstGlide,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),reach:reachInfo,corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};\no.ok=o.heading&&o.caption&&o.switch&&o.clearOfDock&&(!phone||o.titleLines<=1.3)&&o.switchClearOfTitle&&(W>=500||o.switchUnderTitle)&&under===0&&o.hitAreas&&reachInfo.ok&&corners.every(n=>n>0)&&squares.every(n=>n>0)&&readoutInk>0&&underDock===0&&underWords.every(n=>n===0)&&trailInk>0;\nreturn JSON.stringify(o)})()",
+  "label": "tablet, overview: the words inside the screen and clear of the dock, one line of title on a phone, no bead under a line of the words, 44 px targets, all nine beads whole on the screen outside the dock and reachable, the frame's marks present and clear of the dock and the words (820 x 1180)"
+ },
+ {
+  "shot": "r53-4-tablet-overview-warm"
+ },
+ {
+  "shot": "r53-4-overview-820x1180"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);const W=innerWidth,H=innerHeight,dock=R(q('[data-dock-glass]')),fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst card=R(q('.map-card')),op=+getComputedStyle(q('.map-card')).opacity,sw=R(q('.map-mode'));\nconst north=ink(fr,W/2-8,4,W/2+8,30),corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b)),readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst labelsInk=ink(fr,W-60,84,W-10,foot-80)+ink(fr,W*0.5,foot-22,W-250,foot-8);\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});const trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],cardOpacity:op,card:[card.l,card.t,card.r,card.b].map(Math.round),cardInside:card.l>=0&&card.t>=0&&card.r<=W&&card.b<=H,cardAboveDock:card.b<=dock.t,cardClearOfSwitch:!hit(card,sw),north,corners,readoutInk,labelsInk,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),gridInk:trailInk,\nplaneOpacity:+getComputedStyle(q('.map-plane')).opacity};\no.ok=op===1&&o.cardInside&&o.cardAboveDock&&north===0&&corners.every(n=>n>0)&&readoutInk>0&&o.hitAreas&&trailInk>0&&o.planeOpacity===0;\nreturn JSON.stringify(o)})()",
+  "label": "tablet, My climb: the card inside the screen and above the dock, no north or degree labels, the corner marks and the readout stay, the grid is on the trail's canvas, 44 px targets"
+ },
+ {
+  "shot": "r53-4-tablet-climb-warm"
+ },
+ {
+  "shot": "r53-4-climb-820x1180"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const W=innerWidth,H=innerHeight,dockEl=q('[data-dock-glass]'),dock=R(dockEl);\nconst heading=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),title=q('.map-title'),tr=R(title);\nconst lines=e=>{const g=document.createRange();g.selectNodeContents(e);return [...g.getClientRects()].map(r=>({l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height})).filter(r=>r.w>2&&r.h>2)};\nconst texts=qa('.map-title,.map-text,.map-caption-title,.map-caption-line,.map-caption-fact,.map-caption-credit').filter(e=>{const r=e.getBoundingClientRect();return r.width>2&&r.height>2}).flatMap(lines);\nconst inside=r=>r.l>=0&&r.t>=0&&r.r<=W&&r.b<=H;\nconst beads=qa('.map-pin .map-bead').map(b=>{const r=R(b);return {x:r.l+r.w/2,y:r.t+r.h/2,rad:r.w/2}});\nconst under=beads.filter(b=>texts.some(t=>hit({l:b.x-b.rad,t:b.y-b.rad,r:b.x+b.rad,b:b.y+b.rad},t))).length;\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});\nconst area=a=>Math.max(0,a.r-a.l)*Math.max(0,a.b-a.t);const pinsEls=qa('.map-pin'),tg=pinsEls.map(R);\nconst own=pinsEls.map((p,i)=>{const r=tg[i],vis={l:Math.max(0,r.l),t:Math.max(0,r.t),r:Math.min(W,r.r),b:Math.min(H,r.b)},x={l:Math.max(vis.l,dock.l),t:Math.max(vis.t,dock.t),r:Math.min(vis.r,dock.r),b:Math.min(vis.b,dock.b)};\nlet hits=0,n=0;for(let a=0;a<11;a++)for(let b=0;b<11;b++){const px=r.l+(a+.5)*r.w/11,py=r.t+(b+.5)*r.h/11;n++;if(px<0||py<0||px>=W||py>=H)continue;const e=document.elementFromPoint(px,py);if(e&&p.contains(e))hits++}\nconst c=document.elementFromPoint(r.l+r.w/2,r.t+r.h/2);return {outside:(area(vis)-area(x))/(r.w*r.h),hit:hits/n,centre:!!c&&p.contains(c)}});\nlet pairs=0,worst=0;for(let i=0;i<tg.length;i++)for(let j=i+1;j<tg.length;j++){const a=area({l:Math.max(tg[i].l,tg[j].l),t:Math.max(tg[i].t,tg[j].t),r:Math.min(tg[i].r,tg[j].r),b:Math.min(tg[i].b,tg[j].b)});if(a>0){pairs++;worst=Math.max(worst,a/(tg[i].w*tg[i].h))}}\nconst reachInfo={beads:pinsEls.length,minOutsideShare:+Math.min(...own.map(o=>o.outside)).toFixed(3),minOwnShare:+Math.min(...own.map(o=>o.hit)).toFixed(2),centresOnOwnBead:own.filter(o=>o.centre).length,overlappingPairs:pairs,mostOverlapped:+worst.toFixed(2)};\nreachInfo.ok=reachInfo.beads===9&&reachInfo.minOutsideShare>=0.995&&reachInfo.minOwnShare>=0.4&&reachInfo.centresOnOwnBead===9;\nconst pl0=q('.map-plane'),pa=R(pl0),pin=pl0.style.cssText;pl0.style.cssText='';const pb=R(pl0);pl0.style.cssText=pin;const firstGlide=+Math.max(...[pa.l-pb.l,pa.t-pb.t,pa.r-pb.r,pa.b-pb.b].map(Math.abs)).toFixed(1);\nconst fs=parseFloat(getComputedStyle(title).fontSize);const phone=W<700;\nconst fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b));\nconst squares=[ink(fr,6,foot/2-3,14,foot/2+3),ink(fr,W-14,foot/2-3,W-6,foot/2+3)];\nconst zones=[[0,0,26,26],[W-26,0,W,26],[0,foot-26,26,foot],[W-26,foot-26,W,foot]];\nconst underDock=ink(fr,dock.l+2,dock.t+2,dock.r-2,dock.b-2);\nconst underWords=texts.map(t=>ink(fr,t.l,t.t,t.r,t.b,zones));\nconst readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],dock:[dock.l,dock.t,dock.r,dock.b].map(Math.round),heading:inside(heading),caption:inside(cap),switch:inside(sw),\nclearOfDock:[heading,cap,sw].every(r=>!hit(r,dock)),titleLines:Math.round(tr.h/fs*10)/10,titleSize:fs,switchUnderTitle:W<500?sw.t>=tr.b-1:null,switchClearOfTitle:!hit(sw,tr),\nbeadsUnderWords:under,firstGlidePx:firstGlide,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),reach:reachInfo,corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};\no.ok=o.heading&&o.caption&&o.switch&&o.clearOfDock&&(!phone||o.titleLines<=1.3)&&o.switchClearOfTitle&&(W>=500||o.switchUnderTitle)&&under===0&&o.hitAreas&&reachInfo.ok&&corners.every(n=>n>0)&&squares.every(n=>n>0)&&readoutInk>0&&underDock===0&&underWords.every(n=>n===0)&&trailInk>0;\nreturn JSON.stringify(o)})()",
+  "label": "phone, overview: the words inside the screen and clear of the dock, one line of title on a phone, no bead under a line of the words, 44 px targets, all nine beads whole on the screen outside the dock and reachable, the frame's marks present and clear of the dock and the words (390 x 844)"
+ },
+ {
+  "shot": "r53-4-phone-overview-warm"
+ },
+ {
+  "shot": "r53-4-overview-390x844"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);const W=innerWidth,H=innerHeight,dock=R(q('[data-dock-glass]')),fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst card=R(q('.map-card')),op=+getComputedStyle(q('.map-card')).opacity,sw=R(q('.map-mode'));\nconst north=ink(fr,W/2-8,4,W/2+8,30),corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b)),readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst labelsInk=ink(fr,W-60,84,W-10,foot-80)+ink(fr,W*0.5,foot-22,W-250,foot-8);\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});const trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],cardOpacity:op,card:[card.l,card.t,card.r,card.b].map(Math.round),cardInside:card.l>=0&&card.t>=0&&card.r<=W&&card.b<=H,cardAboveDock:card.b<=dock.t,cardClearOfSwitch:!hit(card,sw),north,corners,readoutInk,labelsInk,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),gridInk:trailInk,\nplaneOpacity:+getComputedStyle(q('.map-plane')).opacity};\no.ok=op===1&&o.cardInside&&o.cardAboveDock&&north===0&&corners.every(n=>n>0)&&readoutInk>0&&o.hitAreas&&trailInk>0&&o.planeOpacity===0;\nreturn JSON.stringify(o)})()",
+  "label": "phone, My climb: the card inside the screen and above the dock, no north or degree labels, the corner marks and the readout stay, the grid is on the trail's canvas, 44 px targets"
+ },
+ {
+  "shot": "r53-4-phone-climb-warm"
+ },
+ {
+  "shot": "r53-4-climb-390x844"
+ },
+ {
+  "size": [
+   360,
+   640
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const W=innerWidth,H=innerHeight,dockEl=q('[data-dock-glass]'),dock=R(dockEl);\nconst heading=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),title=q('.map-title'),tr=R(title);\nconst lines=e=>{const g=document.createRange();g.selectNodeContents(e);return [...g.getClientRects()].map(r=>({l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height})).filter(r=>r.w>2&&r.h>2)};\nconst texts=qa('.map-title,.map-text,.map-caption-title,.map-caption-line,.map-caption-fact,.map-caption-credit').filter(e=>{const r=e.getBoundingClientRect();return r.width>2&&r.height>2}).flatMap(lines);\nconst inside=r=>r.l>=0&&r.t>=0&&r.r<=W&&r.b<=H;\nconst beads=qa('.map-pin .map-bead').map(b=>{const r=R(b);return {x:r.l+r.w/2,y:r.t+r.h/2,rad:r.w/2}});\nconst under=beads.filter(b=>texts.some(t=>hit({l:b.x-b.rad,t:b.y-b.rad,r:b.x+b.rad,b:b.y+b.rad},t))).length;\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});\nconst area=a=>Math.max(0,a.r-a.l)*Math.max(0,a.b-a.t);const pinsEls=qa('.map-pin'),tg=pinsEls.map(R);\nconst own=pinsEls.map((p,i)=>{const r=tg[i],vis={l:Math.max(0,r.l),t:Math.max(0,r.t),r:Math.min(W,r.r),b:Math.min(H,r.b)},x={l:Math.max(vis.l,dock.l),t:Math.max(vis.t,dock.t),r:Math.min(vis.r,dock.r),b:Math.min(vis.b,dock.b)};\nlet hits=0,n=0;for(let a=0;a<11;a++)for(let b=0;b<11;b++){const px=r.l+(a+.5)*r.w/11,py=r.t+(b+.5)*r.h/11;n++;if(px<0||py<0||px>=W||py>=H)continue;const e=document.elementFromPoint(px,py);if(e&&p.contains(e))hits++}\nconst c=document.elementFromPoint(r.l+r.w/2,r.t+r.h/2);return {outside:(area(vis)-area(x))/(r.w*r.h),hit:hits/n,centre:!!c&&p.contains(c)}});\nlet pairs=0,worst=0;for(let i=0;i<tg.length;i++)for(let j=i+1;j<tg.length;j++){const a=area({l:Math.max(tg[i].l,tg[j].l),t:Math.max(tg[i].t,tg[j].t),r:Math.min(tg[i].r,tg[j].r),b:Math.min(tg[i].b,tg[j].b)});if(a>0){pairs++;worst=Math.max(worst,a/(tg[i].w*tg[i].h))}}\nconst reachInfo={beads:pinsEls.length,minOutsideShare:+Math.min(...own.map(o=>o.outside)).toFixed(3),minOwnShare:+Math.min(...own.map(o=>o.hit)).toFixed(2),centresOnOwnBead:own.filter(o=>o.centre).length,overlappingPairs:pairs,mostOverlapped:+worst.toFixed(2)};\nreachInfo.ok=reachInfo.beads===9&&reachInfo.minOutsideShare>=0.995&&reachInfo.minOwnShare>=0.4&&reachInfo.centresOnOwnBead===9;\nconst pl0=q('.map-plane'),pa=R(pl0),pin=pl0.style.cssText;pl0.style.cssText='';const pb=R(pl0);pl0.style.cssText=pin;const firstGlide=+Math.max(...[pa.l-pb.l,pa.t-pb.t,pa.r-pb.r,pa.b-pb.b].map(Math.abs)).toFixed(1);\nconst fs=parseFloat(getComputedStyle(title).fontSize);const phone=W<700;\nconst fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b));\nconst squares=[ink(fr,6,foot/2-3,14,foot/2+3),ink(fr,W-14,foot/2-3,W-6,foot/2+3)];\nconst zones=[[0,0,26,26],[W-26,0,W,26],[0,foot-26,26,foot],[W-26,foot-26,W,foot]];\nconst underDock=ink(fr,dock.l+2,dock.t+2,dock.r-2,dock.b-2);\nconst underWords=texts.map(t=>ink(fr,t.l,t.t,t.r,t.b,zones));\nconst readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],dock:[dock.l,dock.t,dock.r,dock.b].map(Math.round),heading:inside(heading),caption:inside(cap),switch:inside(sw),\nclearOfDock:[heading,cap,sw].every(r=>!hit(r,dock)),titleLines:Math.round(tr.h/fs*10)/10,titleSize:fs,switchUnderTitle:W<500?sw.t>=tr.b-1:null,switchClearOfTitle:!hit(sw,tr),\nbeadsUnderWords:under,firstGlidePx:firstGlide,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),reach:reachInfo,corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};\no.ok=o.heading&&o.caption&&o.switch&&o.clearOfDock&&(!phone||o.titleLines<=1.3)&&o.switchClearOfTitle&&(W>=500||o.switchUnderTitle)&&under===0&&o.hitAreas&&reachInfo.ok&&corners.every(n=>n>0)&&squares.every(n=>n>0)&&readoutInk>0&&underDock===0&&underWords.every(n=>n===0)&&trailInk>0;\nreturn JSON.stringify(o)})()",
+  "label": "small, overview: the words inside the screen and clear of the dock, one line of title on a phone, no bead under a line of the words, 44 px targets, all nine beads whole on the screen outside the dock and reachable, the frame's marks present and clear of the dock and the words (360 x 640)"
+ },
+ {
+  "shot": "r53-4-small-overview-warm"
+ },
+ {
+  "shot": "r53-4-overview-360x640"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);const W=innerWidth,H=innerHeight,dock=R(q('[data-dock-glass]')),fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst card=R(q('.map-card')),op=+getComputedStyle(q('.map-card')).opacity,sw=R(q('.map-mode'));\nconst north=ink(fr,W/2-8,4,W/2+8,30),corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b)),readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst labelsInk=ink(fr,W-60,84,W-10,foot-80)+ink(fr,W*0.5,foot-22,W-250,foot-8);\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});const trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],cardOpacity:op,card:[card.l,card.t,card.r,card.b].map(Math.round),cardInside:card.l>=0&&card.t>=0&&card.r<=W&&card.b<=H,cardAboveDock:card.b<=dock.t,cardClearOfSwitch:!hit(card,sw),north,corners,readoutInk,labelsInk,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),gridInk:trailInk,\nplaneOpacity:+getComputedStyle(q('.map-plane')).opacity};\no.ok=op===1&&o.cardInside&&o.cardAboveDock&&north===0&&corners.every(n=>n>0)&&readoutInk>0&&o.hitAreas&&trailInk>0&&o.planeOpacity===0;\nreturn JSON.stringify(o)})()",
+  "label": "small, My climb: the card inside the screen and above the dock, no north or degree labels, the corner marks and the readout stay, the grid is on the trail's canvas, 44 px targets"
+ },
+ {
+  "shot": "r53-4-small-climb-warm"
+ },
+ {
+  "shot": "r53-4-climb-360x640"
+ },
+ {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const W=innerWidth,H=innerHeight,dockEl=q('[data-dock-glass]'),dock=R(dockEl);\nconst heading=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),title=q('.map-title'),tr=R(title);\nconst lines=e=>{const g=document.createRange();g.selectNodeContents(e);return [...g.getClientRects()].map(r=>({l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height})).filter(r=>r.w>2&&r.h>2)};\nconst texts=qa('.map-title,.map-text,.map-caption-title,.map-caption-line,.map-caption-fact,.map-caption-credit').filter(e=>{const r=e.getBoundingClientRect();return r.width>2&&r.height>2}).flatMap(lines);\nconst inside=r=>r.l>=0&&r.t>=0&&r.r<=W&&r.b<=H;\nconst beads=qa('.map-pin .map-bead').map(b=>{const r=R(b);return {x:r.l+r.w/2,y:r.t+r.h/2,rad:r.w/2}});\nconst under=beads.filter(b=>texts.some(t=>hit({l:b.x-b.rad,t:b.y-b.rad,r:b.x+b.rad,b:b.y+b.rad},t))).length;\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});\nconst area=a=>Math.max(0,a.r-a.l)*Math.max(0,a.b-a.t);const pinsEls=qa('.map-pin'),tg=pinsEls.map(R);\nconst own=pinsEls.map((p,i)=>{const r=tg[i],vis={l:Math.max(0,r.l),t:Math.max(0,r.t),r:Math.min(W,r.r),b:Math.min(H,r.b)},x={l:Math.max(vis.l,dock.l),t:Math.max(vis.t,dock.t),r:Math.min(vis.r,dock.r),b:Math.min(vis.b,dock.b)};\nlet hits=0,n=0;for(let a=0;a<11;a++)for(let b=0;b<11;b++){const px=r.l+(a+.5)*r.w/11,py=r.t+(b+.5)*r.h/11;n++;if(px<0||py<0||px>=W||py>=H)continue;const e=document.elementFromPoint(px,py);if(e&&p.contains(e))hits++}\nconst c=document.elementFromPoint(r.l+r.w/2,r.t+r.h/2);return {outside:(area(vis)-area(x))/(r.w*r.h),hit:hits/n,centre:!!c&&p.contains(c)}});\nlet pairs=0,worst=0;for(let i=0;i<tg.length;i++)for(let j=i+1;j<tg.length;j++){const a=area({l:Math.max(tg[i].l,tg[j].l),t:Math.max(tg[i].t,tg[j].t),r:Math.min(tg[i].r,tg[j].r),b:Math.min(tg[i].b,tg[j].b)});if(a>0){pairs++;worst=Math.max(worst,a/(tg[i].w*tg[i].h))}}\nconst reachInfo={beads:pinsEls.length,minOutsideShare:+Math.min(...own.map(o=>o.outside)).toFixed(3),minOwnShare:+Math.min(...own.map(o=>o.hit)).toFixed(2),centresOnOwnBead:own.filter(o=>o.centre).length,overlappingPairs:pairs,mostOverlapped:+worst.toFixed(2)};\nreachInfo.ok=reachInfo.beads===9&&reachInfo.minOutsideShare>=0.995&&reachInfo.minOwnShare>=0.4&&reachInfo.centresOnOwnBead===9;\nconst pl0=q('.map-plane'),pa=R(pl0),pin=pl0.style.cssText;pl0.style.cssText='';const pb=R(pl0);pl0.style.cssText=pin;const firstGlide=+Math.max(...[pa.l-pb.l,pa.t-pb.t,pa.r-pb.r,pa.b-pb.b].map(Math.abs)).toFixed(1);\nconst fs=parseFloat(getComputedStyle(title).fontSize);const phone=W<700;\nconst fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b));\nconst squares=[ink(fr,6,foot/2-3,14,foot/2+3),ink(fr,W-14,foot/2-3,W-6,foot/2+3)];\nconst zones=[[0,0,26,26],[W-26,0,W,26],[0,foot-26,26,foot],[W-26,foot-26,W,foot]];\nconst underDock=ink(fr,dock.l+2,dock.t+2,dock.r-2,dock.b-2);\nconst underWords=texts.map(t=>ink(fr,t.l,t.t,t.r,t.b,zones));\nconst readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],dock:[dock.l,dock.t,dock.r,dock.b].map(Math.round),heading:inside(heading),caption:inside(cap),switch:inside(sw),\nclearOfDock:[heading,cap,sw].every(r=>!hit(r,dock)),titleLines:Math.round(tr.h/fs*10)/10,titleSize:fs,switchUnderTitle:W<500?sw.t>=tr.b-1:null,switchClearOfTitle:!hit(sw,tr),\nbeadsUnderWords:under,firstGlidePx:firstGlide,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),reach:reachInfo,corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};\no.ok=o.heading&&o.caption&&o.switch&&o.clearOfDock&&(!phone||o.titleLines<=1.3)&&o.switchClearOfTitle&&(W>=500||o.switchUnderTitle)&&under===0&&o.hitAreas&&reachInfo.ok&&corners.every(n=>n>0)&&squares.every(n=>n>0)&&readoutInk>0&&underDock===0&&underWords.every(n=>n===0)&&trailInk>0;\nreturn JSON.stringify(o)})()",
+  "label": "tiny, overview: the words inside the screen and clear of the dock, one line of title on a phone, no bead under a line of the words, 44 px targets, all nine beads whole on the screen outside the dock and reachable, the frame's marks present and clear of the dock and the words (320 x 568)"
+ },
+ {
+  "shot": "r53-4-tiny-overview-warm"
+ },
+ {
+  "shot": "r53-4-overview-320x568"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);const W=innerWidth,H=innerHeight,dock=R(q('[data-dock-glass]')),fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst card=R(q('.map-card')),op=+getComputedStyle(q('.map-card')).opacity,sw=R(q('.map-mode'));\nconst north=ink(fr,W/2-8,4,W/2+8,30),corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b)),readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst labelsInk=ink(fr,W-60,84,W-10,foot-80)+ink(fr,W*0.5,foot-22,W-250,foot-8);\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});const trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],cardOpacity:op,card:[card.l,card.t,card.r,card.b].map(Math.round),cardInside:card.l>=0&&card.t>=0&&card.r<=W&&card.b<=H,cardAboveDock:card.b<=dock.t,cardClearOfSwitch:!hit(card,sw),north,corners,readoutInk,labelsInk,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),gridInk:trailInk,\nplaneOpacity:+getComputedStyle(q('.map-plane')).opacity};\no.ok=op===1&&o.cardInside&&o.cardAboveDock&&north===0&&corners.every(n=>n>0)&&readoutInk>0&&o.hitAreas&&trailInk>0&&o.planeOpacity===0;\nreturn JSON.stringify(o)})()",
+  "label": "tiny, My climb: the card inside the screen and above the dock, no north or degree labels, the corner marks and the readout stay, the grid is on the trail's canvas, 44 px targets"
+ },
+ {
+  "shot": "r53-4-tiny-climb-warm"
+ },
+ {
+  "shot": "r53-4-climb-320x568"
+ },
+ {
+  "size": [
+   844,
+   390
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "init": "window.__expTrace=[]",
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const W=innerWidth,H=innerHeight,dockEl=q('[data-dock-glass]'),dock=R(dockEl);\nconst heading=R(q('.map-heading')),cap=R(q('.map-caption')),sw=R(q('.map-mode')),title=q('.map-title'),tr=R(title);\nconst lines=e=>{const g=document.createRange();g.selectNodeContents(e);return [...g.getClientRects()].map(r=>({l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height})).filter(r=>r.w>2&&r.h>2)};\nconst texts=qa('.map-title,.map-text,.map-caption-title,.map-caption-line,.map-caption-fact,.map-caption-credit').filter(e=>{const r=e.getBoundingClientRect();return r.width>2&&r.height>2}).flatMap(lines);\nconst inside=r=>r.l>=0&&r.t>=0&&r.r<=W&&r.b<=H;\nconst beads=qa('.map-pin .map-bead').map(b=>{const r=R(b);return {x:r.l+r.w/2,y:r.t+r.h/2,rad:r.w/2}});\nconst under=beads.filter(b=>texts.some(t=>hit({l:b.x-b.rad,t:b.y-b.rad,r:b.x+b.rad,b:b.y+b.rad},t))).length;\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});\nconst area=a=>Math.max(0,a.r-a.l)*Math.max(0,a.b-a.t);const pinsEls=qa('.map-pin'),tg=pinsEls.map(R);\nconst own=pinsEls.map((p,i)=>{const r=tg[i],vis={l:Math.max(0,r.l),t:Math.max(0,r.t),r:Math.min(W,r.r),b:Math.min(H,r.b)},x={l:Math.max(vis.l,dock.l),t:Math.max(vis.t,dock.t),r:Math.min(vis.r,dock.r),b:Math.min(vis.b,dock.b)};\nlet hits=0,n=0;for(let a=0;a<11;a++)for(let b=0;b<11;b++){const px=r.l+(a+.5)*r.w/11,py=r.t+(b+.5)*r.h/11;n++;if(px<0||py<0||px>=W||py>=H)continue;const e=document.elementFromPoint(px,py);if(e&&p.contains(e))hits++}\nconst c=document.elementFromPoint(r.l+r.w/2,r.t+r.h/2);return {outside:(area(vis)-area(x))/(r.w*r.h),hit:hits/n,centre:!!c&&p.contains(c)}});\nlet pairs=0,worst=0;for(let i=0;i<tg.length;i++)for(let j=i+1;j<tg.length;j++){const a=area({l:Math.max(tg[i].l,tg[j].l),t:Math.max(tg[i].t,tg[j].t),r:Math.min(tg[i].r,tg[j].r),b:Math.min(tg[i].b,tg[j].b)});if(a>0){pairs++;worst=Math.max(worst,a/(tg[i].w*tg[i].h))}}\nconst reachInfo={beads:pinsEls.length,minOutsideShare:+Math.min(...own.map(o=>o.outside)).toFixed(3),minOwnShare:+Math.min(...own.map(o=>o.hit)).toFixed(2),centresOnOwnBead:own.filter(o=>o.centre).length,overlappingPairs:pairs,mostOverlapped:+worst.toFixed(2)};\nreachInfo.ok=reachInfo.beads===9&&reachInfo.minOutsideShare>=0.995&&reachInfo.minOwnShare>=0.4&&reachInfo.centresOnOwnBead===9;\nconst pl0=q('.map-plane'),pa=R(pl0),pin=pl0.style.cssText;pl0.style.cssText='';const pb=R(pl0);pl0.style.cssText=pin;const firstGlide=+Math.max(...[pa.l-pb.l,pa.t-pb.t,pa.r-pb.r,pa.b-pb.b].map(Math.abs)).toFixed(1);\nconst fs=parseFloat(getComputedStyle(title).fontSize);const phone=W<700;\nconst fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b));\nconst squares=[ink(fr,6,foot/2-3,14,foot/2+3),ink(fr,W-14,foot/2-3,W-6,foot/2+3)];\nconst zones=[[0,0,26,26],[W-26,0,W,26],[0,foot-26,26,foot],[W-26,foot-26,W,foot]];\nconst underDock=ink(fr,dock.l+2,dock.t+2,dock.r-2,dock.b-2);\nconst underWords=texts.map(t=>ink(fr,t.l,t.t,t.r,t.b,zones));\nconst readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],dock:[dock.l,dock.t,dock.r,dock.b].map(Math.round),heading:inside(heading),caption:inside(cap),switch:inside(sw),\nclearOfDock:[heading,cap,sw].every(r=>!hit(r,dock)),titleLines:Math.round(tr.h/fs*10)/10,titleSize:fs,switchUnderTitle:W<500?sw.t>=tr.b-1:null,switchClearOfTitle:!hit(sw,tr),\nbeadsUnderWords:under,firstGlidePx:firstGlide,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),reach:reachInfo,corners,squares,readoutInk,underDock,underWords:underWords.map(n=>n),gridInk:trailInk,foot:Math.round(foot),captionLines:qa('.map-caption-fact').length&&R(q('.map-caption-fact')).w>2?'full':'short'};\no.ok=o.heading&&o.caption&&o.switch&&o.clearOfDock&&(!phone||o.titleLines<=1.3)&&o.switchClearOfTitle&&(W>=500||o.switchUnderTitle)&&under===0&&o.hitAreas&&reachInfo.ok&&corners.every(n=>n>0)&&squares.every(n=>n>0)&&readoutInk>0&&underDock===0&&underWords.every(n=>n===0)&&trailInk>0;\nreturn JSON.stringify(o)})()",
+  "label": "landscape, overview: the words inside the screen and clear of the dock, one line of title on a phone, no bead under a line of the words, 44 px targets, all nine beads whole on the screen outside the dock and reachable, the frame's marks present and clear of the dock and the words (844 x 390)"
+ },
+ {
+  "shot": "r53-4-landscape-overview-warm"
+ },
+ {
+  "shot": "r53-4-overview-844x390"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);const W=innerWidth,H=innerHeight,dock=R(q('[data-dock-glass]')),fr=q('.map-frame'),spans=dock.r-dock.l>=0.55*W,foot=spans?dock.t-6:H;\nconst card=R(q('.map-card')),op=+getComputedStyle(q('.map-card')).opacity,sw=R(q('.map-mode'));\nconst north=ink(fr,W/2-8,4,W/2+8,30),corners=[[8,8,24,24],[W-24,8,W-8,24],[8,foot-24,24,foot-8],[W-24,foot-24,W-8,foot-8]].map(b=>ink(fr,...b)),readoutInk=ink(fr,W-24-130,foot-30,W-20,foot-14);\nconst labelsInk=ink(fr,W-60,84,W-10,foot-80)+ink(fr,W*0.5,foot-22,W-250,foot-8);\nconst sizes=qa('.map-pin').map(p=>{const r=R(p);return [Math.round(r.w),Math.round(r.h)]});const trailInk=ink(q('.map-trail'),0,H*0.3,Math.min(120,W*0.25),H*0.6);\nconst o={size:[W,H],cardOpacity:op,card:[card.l,card.t,card.r,card.b].map(Math.round),cardInside:card.l>=0&&card.t>=0&&card.r<=W&&card.b<=H,cardAboveDock:card.b<=dock.t,cardClearOfSwitch:!hit(card,sw),north,corners,readoutInk,labelsInk,hitAreas:sizes.every(s=>s[0]>=44&&s[1]>=44),gridInk:trailInk,\nplaneOpacity:+getComputedStyle(q('.map-plane')).opacity};\no.ok=op===1&&o.cardInside&&o.cardAboveDock&&north===0&&corners.every(n=>n>0)&&readoutInk>0&&o.hitAreas&&trailInk>0&&o.planeOpacity===0;\nreturn JSON.stringify(o)})()",
+  "label": "landscape, My climb: the card inside the screen and above the dock, no north or degree labels, the corner marks and the readout stay, the grid is on the trail's canvas, 44 px targets"
+ },
+ {
+  "shot": "r53-4-landscape-climb-warm"
+ },
+ {
+  "shot": "r53-4-climb-844x390"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "mobile": false,
+  "touch": false,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);return 'ready'})()",
+  "label": "desktop: ready for the taps"
+ },
+ {
+  "click": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[0].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:0,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===0&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "1440 x 900: a click on the visible centre of bead 1 chooses bead 1"
+ },
+ {
+  "click": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[1].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:1,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===1&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "1440 x 900: a click on the visible centre of bead 2 chooses bead 2"
+ },
+ {
+  "click": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[2].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:2,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===2&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "1440 x 900: a click on the visible centre of bead 3 chooses bead 3"
+ },
+ {
+  "click": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[3].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:3,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===3&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "1440 x 900: a click on the visible centre of bead 4 chooses bead 4"
+ },
+ {
+  "click": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[4].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:4,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===4&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "1440 x 900: a click on the visible centre of bead 5 chooses bead 5"
+ },
+ {
+  "click": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[5].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:5,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===5&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "1440 x 900: a click on the visible centre of bead 6 chooses bead 6"
+ },
+ {
+  "click": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[6].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:6,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===6&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "1440 x 900: a click on the visible centre of bead 7 chooses bead 7"
+ },
+ {
+  "click": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[7].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:7,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===7&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "1440 x 900: a click on the visible centre of bead 8 chooses bead 8"
+ },
+ {
+  "click": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[8].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:8,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===8&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "1440 x 900: a click on the visible centre of bead 9 chooses bead 9"
+ },
+ {
+  "size": [
+   320,
+   568
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);return 'ready'})()",
+  "label": "tiny: ready for the taps"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[0].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:0,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===0&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "320 x 568: a touch on the visible centre of bead 1 chooses bead 1"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[1].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:1,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===1&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "320 x 568: a touch on the visible centre of bead 2 chooses bead 2"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[2].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:2,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===2&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "320 x 568: a touch on the visible centre of bead 3 chooses bead 3"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[3].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:3,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===3&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "320 x 568: a touch on the visible centre of bead 4 chooses bead 4"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[4].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:4,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===4&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "320 x 568: a touch on the visible centre of bead 5 chooses bead 5"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[5].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:5,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===5&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "320 x 568: a touch on the visible centre of bead 6 chooses bead 6"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[6].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:6,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===6&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "320 x 568: a touch on the visible centre of bead 7 chooses bead 7"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[7].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:7,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===7&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "320 x 568: a touch on the visible centre of bead 8 chooses bead 8"
+ },
+ {
+  "tap": "(()=>{const b=document.querySelectorAll('.map-pin .map-bead')[8].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(300);const cur=qa('.map-pin').map((p,j)=>p.hasAttribute('data-current')?j:-1).filter(j=>j>=0);const o={tapped:8,chosen:cur,mode:q('.map-page').dataset.mode};[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='Overview').click();await sleep(3600);o.ok=cur.length===1&&cur[0]===8&&o.mode==='climb';return JSON.stringify(o)})()",
+  "label": "320 x 568: a touch on the visible centre of bead 9 chooses bead 9"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);document.activeElement&&document.activeElement.blur();return 'ready'})()",
+  "label": "ready for the Tab walk"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "key": "Tab",
+  "vk": 9,
+  "eval": "(()=>{const e=document.activeElement;window.__tabs=(window.__tabs||[]);window.__tabs.push(e.classList.contains('map-pin')?'bead:'+e.textContent.slice(0,12):e.classList.contains('map-mode-button')?'switch:'+e.textContent:e.tagName+':'+(e.getAttribute('aria-label')||e.textContent||'').slice(0,12));return 'tab'})()",
+  "label": "tab"
+ },
+ {
+  "eval": "(()=>{const t=window.__tabs;const beads=t.filter(x=>x.startsWith('bead:')).length;const sw=t.filter(x=>x.startsWith('switch:'));const sr=document.querySelectorAll('.sr-only li').length,lab=document.querySelector('main').getAttribute('aria-label'),h=document.querySelectorAll('h1').length;\nreturn JSON.stringify({tabs:t,beads,switch:sw,srList:sr,mainLabel:lab,h1s:h,ok:beads===9&&sw.length===2&&sr===9&&!!lab&&h===1})})()",
+  "label": "Tab reaches the nine beads and both buttons of the switch; the list for a screen reader has the nine moments; the page has its label and one h1 (spec 9.7)"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 2,
+  "reduce": false,
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);document.activeElement&&document.activeElement.blur();return 'ready'})()",
+  "label": "ready for the keys"
+ },
+ {
+  "key": "Tab",
+  "vk": 9
+ },
+ {
+  "key": "Tab",
+  "vk": 9
+ },
+ {
+  "key": "Tab",
+  "vk": 9
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(700);const idx=qa('.map-pin').indexOf(document.activeElement);const e=document.activeElement,b=e.querySelector('.map-bead'),cs=getComputedStyle(b),m=new DOMMatrix(cs.transform).a,w=parseFloat(cs.outlineWidth),off=parseFloat(cs.outlineOffset);\nconst o={bead:idx+1,focusVisible:e.matches(':focus-visible'),scale:+m.toFixed(3),outlineWidth:+w.toFixed(2),outlineOffset:+off.toFixed(2),onScreenWidth:+(w*m).toFixed(2),onScreenOffset:+(off*m).toFixed(2),style:cs.outlineStyle};\no.ok=idx===2&&o.focusVisible&&o.style==='solid'&&Math.abs(o.onScreenWidth-2)<0.75&&Math.abs(o.onScreenOffset-3)<0.6;return JSON.stringify(o)})()",
+  "label": "the focus ring of the third bead in the overview is about 2 px wide (1.3 to 2.8) and 3 px out on the screen (the bead is half size: the ring is divided by its scale and rounded to a whole pixel)"
+ },
+ {
+  "shot": "r53-4-bead-focus-overview-warm"
+ },
+ {
+  "shot": "r53-4-bead-focus-overview"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(5200);return 'in'})()",
+  "label": "into My climb"
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];await sleep(900);const idx=qa('.map-pin').indexOf(document.activeElement);const e=document.activeElement,b=e.querySelector('.map-bead'),cs=getComputedStyle(b),m=new DOMMatrix(cs.transform).a,w=parseFloat(cs.outlineWidth),off=parseFloat(cs.outlineOffset);\nconst o={bead:idx+1,focusVisible:e.matches(':focus-visible'),scale:+m.toFixed(3),outlineWidth:+w.toFixed(2),onScreenWidth:+(w*m).toFixed(2),ok:idx===7&&e.matches(':focus-visible')&&Math.abs(w*m-2)<0.75};return JSON.stringify(o)})()",
+  "label": "the same ring in My climb (the eighth bead, reached with the arrow key) is about 2 px on the screen too"
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const p=document.activeElement,tip=p.querySelector('.map-pin-tip');await sleep(400);const x0=R(tip).l,op0=+getComputedStyle(tip).opacity;const seen=[];let run=true;const f=()=>{seen.push(Math.round(R(tip).l*10)/10);if(run)requestAnimationFrame(f)};requestAnimationFrame(f);await sleep(80);\np.style.setProperty('--flip',p.style.getPropertyValue('--flip')==='1'?'0':'1');await sleep(500);run=false;const distinct=[...new Set(seen)];const settled=seen[seen.length-1];\nreturn JSON.stringify({before:x0,after:settled,distinctPlaces:distinct,opacityBefore:op0,opacityAfter:+getComputedStyle(tip).opacity,ok:distinct.length===2&&Math.abs(settled-x0)>20&&op0===1&&+getComputedStyle(tip).opacity===1})})()",
+  "label": "a label that is shown while its side changes takes its place at once (two places in all, no frame in between), and stays shown"
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": true,
+  "go": "{{BASE}}/experience",
+  "wait": 3500
+ },
+ {
+  "eval": "(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms));for(let i=0;i<40&&document.querySelector('.map-stage').dataset.terrain!=='ready';i++)await sleep(100);await sleep(500);const R=e=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom,w:r.width,h:r.height}};const hit=(a,b,g=0)=>a.l<b.r+g&&b.l<a.r+g&&a.t<b.b+g&&b.t<a.b+g;const ink=(cv,l,t,r,b,skip=[])=>{const k=cv.width/cv.clientWidth,x0=Math.max(0,Math.floor(l*k)),y0=Math.max(0,Math.floor(t*k)),x1=Math.min(cv.width,Math.ceil(r*k)),y1=Math.min(cv.height,Math.ceil(b*k));if(x1<=x0||y1<=y0)return 0;\nconst d=cv.getContext('2d').getImageData(x0,y0,x1-x0,y1-y0).data;let n=0;for(let y=0;y<y1-y0;y++)for(let x=0;x<x1-x0;x++){if(d[(y*(x1-x0)+x)*4+3]<=8)continue;const cx=(x0+x)/k,cy=(y0+y)/k;if(skip.some(s=>cx>=s[0]&&cx<=s[2]&&cy>=s[1]&&cy<=s[3]))continue;n++}return n};const q=s=>document.querySelector(s);const qa=s=>[...document.querySelectorAll(s)];const fr=q('.map-frame'),W=innerWidth,H=innerHeight;const north=ink(fr,W/2-8,4,W/2+8,30);[...document.querySelectorAll('.map-mode-button')].find(x=>x.textContent==='My climb').click();await sleep(1600);const northIn=ink(fr,W/2-8,4,W/2+8,30);const corners=ink(fr,8,8,24,24);const readoutInk=ink(fr,W-24-130,H-30,W-20,H-14);\nreturn JSON.stringify({northInOverview:north,northInClimb:northIn,corners,readoutInk,ok:north>0&&northIn===0&&corners>0&&readoutInk>0})})()",
+  "label": "reduced motion: the frame's marks and readout stay, the overview's north is gone in My climb (the lettering fades with the picture, no travel)"
+ },
+ {
+  "shot": "r53-4-chart-climb-reduced-warm"
+ },
+ {
+  "shot": "r53-4-chart-climb-reduced"
+ },
+ {
+  "reduce": false
+ },
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "reduce": false,
+  "nocache": true,
+  "go": "{{BASE}}/experience",
+  "wait": 7000
+ },
+ {
+  "eval": "(()=>{const n=performance.getEntriesByType('navigation')[0];const res=performance.getEntriesByType('resource').filter(r=>r.name.startsWith(location.origin));const kb=x=>+(x/1024).toFixed(1);const sum=a=>kb(a.reduce((s,r)=>s+(r.transferSize||0),0));const t=u=>res.filter(r=>u.test(r.name));\nconst img=document.querySelector('.map-plane img'),pre=[...document.querySelectorAll('link[rel=preload][as=image]')].filter(l=>!l.media||matchMedia(l.media).matches).map(l=>l.getAttribute('href'));\nconst relief=t(/\\/mars\\/relief/)[0],heights=t(/heights\\.png/)[0];\nconst o={document:kb(n.transferSize),js:sum(t(/\\.js(\\?|$)/)),css:sum(t(/\\.css(\\?|$)/)),images:sum(t(/\\.(webp|png|jpg)(\\?|$)/)),imageList:t(/\\.(webp|png|jpg)(\\?|$)/).map(r=>[r.name.replace(location.origin,''),kb(r.transferSize),Math.round(r.startTime),Math.round(r.responseEnd)]),totalSameOrigin:kb(n.transferSize+res.reduce((s,r)=>s+(r.transferSize||0),0)),requests:res.length+1,\npictureShown:img?img.currentSrc.replace(location.origin,''):null,preloadedForThisScreen:pre,reliefBytes:relief?kb(relief.transferSize):null,heightsBytes:heights?kb(heights.transferSize):null,heightsStartedAfterPicture:!!heights&&!!relief&&heights.startTime>=relief.responseEnd-1,\nbytesBeforeHeights:kb(n.transferSize+res.filter(r=>!heights||r.startTime<heights.startTime).reduce((s,r)=>s+(r.transferSize||0),0))};\no.ok=o.pictureShown==='/mars/relief.webp'&&pre.length===1&&pre[0]==='/mars/relief.webp'&&!pre.some(h=>/heights/.test(h))&&o.heightsStartedAfterPicture;return JSON.stringify(o)})()",
+  "label": "first load of /experience at 1440 x 900 (7 s, cache off): same-origin bytes on the wire; the desktop picture is the one shown and preloaded, the heights are not preloaded and start after the picture"
+ },
+ {
+  "size": [
+   390,
+   844
+  ],
+  "dpr": 2,
+  "mobile": true,
+  "touch": true,
+  "nocache": true,
+  "go": "{{BASE}}/experience",
+  "wait": 7000
+ },
+ {
+  "eval": "(()=>{const n=performance.getEntriesByType('navigation')[0];const res=performance.getEntriesByType('resource').filter(r=>r.name.startsWith(location.origin));const kb=x=>+(x/1024).toFixed(1);const sum=a=>kb(a.reduce((s,r)=>s+(r.transferSize||0),0));const t=u=>res.filter(r=>u.test(r.name));\nconst img=document.querySelector('.map-plane img'),pre=[...document.querySelectorAll('link[rel=preload][as=image]')].filter(l=>!l.media||matchMedia(l.media).matches).map(l=>l.getAttribute('href'));\nconst relief=t(/\\/mars\\/relief/)[0],heights=t(/heights\\.png/)[0];\nconst o={document:kb(n.transferSize),js:sum(t(/\\.js(\\?|$)/)),css:sum(t(/\\.css(\\?|$)/)),images:sum(t(/\\.(webp|png|jpg)(\\?|$)/)),imageList:t(/\\.(webp|png|jpg)(\\?|$)/).map(r=>[r.name.replace(location.origin,''),kb(r.transferSize),Math.round(r.startTime),Math.round(r.responseEnd)]),totalSameOrigin:kb(n.transferSize+res.reduce((s,r)=>s+(r.transferSize||0),0)),requests:res.length+1,\npictureShown:img?img.currentSrc.replace(location.origin,''):null,preloadedForThisScreen:pre,reliefBytes:relief?kb(relief.transferSize):null,heightsBytes:heights?kb(heights.transferSize):null,heightsStartedAfterPicture:!!heights&&!!relief&&heights.startTime>=relief.responseEnd-1,\nbytesBeforeHeights:kb(n.transferSize+res.filter(r=>!heights||r.startTime<heights.startTime).reduce((s,r)=>s+(r.transferSize||0),0))};\no.ok=o.pictureShown==='/mars/relief-phone.webp'&&pre.length===1&&pre[0]==='/mars/relief-phone.webp'&&!pre.some(h=>/heights/.test(h))&&o.heightsStartedAfterPicture;return JSON.stringify(o)})()",
+  "label": "first load of /experience at 390 x 844 (7 s, cache off): same-origin bytes on the wire; the phone picture is the one shown and preloaded, the heights are not preloaded and start after the picture"
+ },
+ {
+  "nocache": false
+ }
+]

@@ -1,0 +1,28 @@
+R62 / R50.1b: when the screen is uncovered (Task 6 fix, Minor 9)
+
+The picture: change-coverage-experience-to-home.jpg (experience to home, no thumbnails; written by
+scripts/audit/glass-coverage.json): the old page alone, the new page alone, then the change frozen at 0.6, 0.7, 0.8, 0.9, 0.95 and
+1.0 of its 3.5 s, 1440 by 900.
+
+The front's travel (glass-math.ts: TRAVEL, UNCOVERED_AT, OPAQUE) is now scaled so the farthest corner is at least 98% the new page,
+with the edge's wander at its worst, only at 0.95 of the time. The ease (cubic-bezier(0.65, 0, 0.35, 1)), the edge's soft band (0.07)
+and the wander (0.03) are unchanged. TRAVEL went from 1.1111 (1 / (1 - band - warp)) to 1.0988.
+
+Share of the new page at the farthest corner (what is left of the old page is the rest), computed from the same numbers the CSS uses
+(easeGlass, band, warp). "nominal" is an edge at its mean radius, "worst" an edge where the wander has pulled it in by the full 3%.
+
+t     p        before (travel 1.1111)      after (travel 1.0988)
+              nominal / worst edge        nominal / worst edge
+0.60  0.7479    0.0% /  0.0%                0.0% /  0.0%
+0.70  0.8876   35.2% /  9.1%               24.1% /  3.1%
+0.75  0.9292   81.4% / 51.5%               71.4% / 40.0%
+0.80  0.9585   98.8% / 81.0%               94.7% / 71.3%
+0.85  0.9784  100.0% / 94.5%              100.0% / 88.1%
+0.90  0.9911  100.0% / 99.0%              100.0% / 95.3%
+0.95  0.9979  100.0% / 99.9%              100.0% / 97.9%
+1.00  1.0000  100.0% / 100.0%             100.0% / 98.5%
+
+What the picture shows: the front has left the sides and top by 0.6 (only the corners and the rim are old); at 0.7 a sliver is left in
+the bottom right corner; from 0.8 on the corners are covered to the eye. The ease spends the last fifth of the time on the last 4% of
+the travel, so what changes after 0.8 is a few pixels in the corners; a travel any smaller would leave a visible corner of the old page
+at the end of the change.

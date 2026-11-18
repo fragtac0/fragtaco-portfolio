@@ -1,0 +1,174 @@
+{
+ "what": "R59.2 and R59.2a: the page-change, arrival and glass-cost gates of the Round 7 plan, run under the gate lock on the production build of the dependency commit (fed4fd7: the security headers and policy of R59.2 with Remix 2.17.5, Vite 6.4.6 and zod 4.6.7), on :5180, headless Chrome, CPU 4x where the gate says so. Raw outputs sit beside this file.",
+ "date": "2026-11-17",
+ "loadAverageAtStart_1_5_15min": {
+  "page-change": "13.57 11.45 7.72",
+  "page-change-hook": "10.75 11.01 7.73",
+  "page-change-phone": "9.29 10.67 7.78",
+  "arrival.json": "8.25 10.23 7.75",
+  "make-arrival (full run)": "6.40 8.84 7.62",
+  "make-arrival rerun 1": "7.00 8.07 7.80",
+  "make-arrival rerun 2": "6.00 7.70 7.68",
+  "make-arrival rerun 3": "5.18 7.32 7.54",
+  "glass 1512x982@2": "5.52 7.03 7.41",
+  "glass 1920x1080@1": "5.00 6.63 7.23"
+ },
+ "note_on_load": "the machine was shared with other sessions and busier than in the fonts task's gates (1 minute load 5 to 13.6 at the starts); no gate failed on a frame count, and the one arrival outlier is below",
+ "pageChange": {
+  "page-change.json": [
+   {
+    "change": "home to work",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "work to home",
+    "animMaxMs": 33.3,
+    "framesOver34": 0,
+    "framesOver20": 1,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to work (2nd)",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "Back, work to home",
+    "animMaxMs": 33.3,
+    "framesOver34": 0,
+    "framesOver20": 1,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "Forward, home to work",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   }
+  ],
+  "page-change-hook.json": [
+   {
+    "change": "home to work",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "work to home",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to experience",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "experience to home",
+    "animMaxMs": 33.4,
+    "framesOver34": 0,
+    "framesOver20": 1,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to work (2nd)",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   }
+  ],
+  "page-change-phone.json": [
+   {
+    "change": "home to work",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "work to home",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to experience",
+    "animMaxMs": 33.3,
+    "framesOver34": 0,
+    "framesOver20": 1,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "experience to home",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   },
+   {
+    "change": "home to work (2nd)",
+    "animMaxMs": 16.8,
+    "framesOver34": 0,
+    "framesOver20": 0,
+    "bendOn": true,
+    "droppedByGuard": false
+   }
+  ]
+ },
+ "pageChangeVerdict": "15 changes, 0 frames over 34 ms (the gate), the longest frame 33.4 ms, the bend on and the guard never tripped in every one",
+ "arrival.json": "16 checking steps, every one ok (arrival.out)",
+ "make-arrival": {
+  "fullRun": "FAIL 11 of 12: portfolio-to-home at 390x844@3, F_vs_E 2.557% (limit 0.5%), E_vs_L 0, shifts 0, the dock the same; every other case PASS (F_vs_E 0 to 0.015%)",
+  "rerunsOfThatCase": [
+   "PASS F_vs_E 0.039",
+   "PASS F_vs_E 0.005",
+   "PASS F_vs_E 0.124"
+  ],
+  "rule": "a frame gate that fails is re-run once under the lock; it passed all three times; it is the home page's own animation moving between the frozen and the ended frame (the same kind of outlier as in R59.1a, on another case), not a change of this task",
+  "files": [
+   "make-arrival.out",
+   "make-arrival-result.json",
+   "make-arrival-rerun1.json",
+   "make-arrival-rerun2.json",
+   "make-arrival-rerun3.json"
+  ]
+ },
+ "glassCost": {
+  "1512x982@2": "PASS: renderer compositor 267/263/277 ms (limit 450), display compositor 180/177/177 ms (limit 300), 1 dropped frame a run (the first, R125), none after",
+  "1920x1080@1": "PASS: renderer compositor 301/295/331 ms, display compositor 197/199/215 ms, same dropped-frame rule",
+  "files": [
+   "glass-1512.out",
+   "glass-1920.out",
+   "glass-1512x982.json",
+   "glass-1920x1080.json"
+  ],
+  "against_R59.1a": "R59.1a: 259 to 284 and 167 to 174 ms at 1512x982@2, 304 to 352 and 190 to 210 ms at 1920x1080@1: this build is within 10 to 20 ms of it at both sizes, on a busier machine"
+ }
+}

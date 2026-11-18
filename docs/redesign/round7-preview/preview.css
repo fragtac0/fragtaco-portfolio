@@ -1,0 +1,176 @@
+:root {
+  --ground: #0e0e0d;
+  --surface-1: #171716;
+  --surface-2: #21201f;
+  --ink-rgb: 253 252 230;
+  --ink-1: rgb(var(--ink-rgb) / 0.92);
+  --ink-2: rgb(var(--ink-rgb) / 0.72);
+  --ink-3: rgb(var(--ink-rgb) / 0.62);
+  --line: rgb(var(--ink-rgb) / 0.1);
+  --accent: #fc4c00;
+  --ease: cubic-bezier(0.45, 0, 0.15, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--ground); color: var(--ink-1); font-family: "IBM Plex Mono", monospace; font-size: 14px; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.top { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between; padding: 12px 20px; background: rgb(14 14 13 / 0.86); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+.top-title { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.top-title b { font-family: "Doto", monospace; font-weight: 800; font-size: 20px; letter-spacing: 0.02em; }
+.top-title span { color: var(--ink-3); font-size: 12px; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs button { padding: 7px 12px; border-radius: 999px; color: var(--ink-2); }
+.tabs button.on { background: rgb(252 76 0 / 0.16); color: var(--ink-1); box-shadow: inset 0 0 0 1px rgb(252 76 0 / 0.5); }
+
+.sec { display: none; padding: 14px 20px 40px; }
+.sec.on { display: block; }
+.note { max-width: 78ch; color: var(--ink-2); line-height: 1.6; margin: 14px 2px 0; }
+.note b { color: var(--ink-1); font-weight: 500; }
+.quiet { color: var(--ink-3); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin-bottom: 12px; }
+.chip-label { color: var(--ink-3); font-size: 12px; margin-left: 6px; }
+.chipset { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-1); border: 1px solid var(--line); flex-wrap: wrap; }
+.chipset button { padding: 6px 12px; border-radius: 999px; color: var(--ink-2); font-size: 13px; }
+.chipset button.on { background: var(--surface-2); color: var(--ink-1); box-shadow: inset 0 0 0 1px rgb(var(--ink-rgb) / 0.18); }
+
+/* ---------- the stage ---------- */
+.stage { position: relative; height: min(calc(100vh - 190px), 62vw); min-height: 440px; border-radius: 18px; overflow: hidden; background: #0b0b0a; border: 1px solid var(--line); isolation: isolate; }
+.persp { position: absolute; inset: 0; perspective: 1500px; perspective-origin: 50% 40%; }
+.plane { position: absolute; left: 50%; top: 50%; transform-origin: 50% 50%; transition: transform 1.5s var(--ease); will-change: transform; }
+.plane > * { position: absolute; inset: 0; width: 100%; height: 100%; }
+.relief { object-fit: fill; transition: opacity 0.7s, filter 0.7s; }
+.tone { transition: opacity 0.7s, background 0.7s; }
+.contours { transition: opacity 0.7s; }
+.contours path { fill: none; vector-effect: non-scaling-stroke; }
+
+/* A: ember contour: a calm burnt ground, dark lines low, pale gold lines high */
+.stage[data-style="ember"] .relief { opacity: 0.16; filter: grayscale(1) contrast(1.5) brightness(0.9); mix-blend-mode: multiply; }
+.stage[data-style="ember"] .tone { opacity: 1; background: radial-gradient(120% 90% at 50% 46%, #a44a1c 0%, #8b3d18 34%, #6a2d13 62%, #45200f 100%); }
+.stage[data-style="ember"] .relief { z-index: 1; }
+.stage[data-style="ember"] .contours { opacity: 1; z-index: 2; }
+/* B: night contour: the site's own charcoal, cream lines that warm toward the peak */
+.stage[data-style="night"] .relief { opacity: 0.2; filter: grayscale(1) contrast(1.6) brightness(0.55); z-index: 1; mix-blend-mode: screen; }
+.stage[data-style="night"] .tone { opacity: 1; background: radial-gradient(110% 90% at 50% 46%, #1c1a18 0%, #131211 55%, #0b0b0a 100%); }
+.stage[data-style="night"] .contours { opacity: 1; z-index: 2; }
+/* C: toned relief: the photograph, pulled down and warmed, no lines */
+.stage[data-style="relief"] .relief { opacity: 1; filter: saturate(0.82) contrast(1.22) brightness(0.56) sepia(0.28) hue-rotate(-8deg); z-index: 1; }
+.stage[data-style="relief"] .tone { opacity: 0.55; z-index: 2; mix-blend-mode: soft-light; background: radial-gradient(100% 80% at 50% 46%, #c2531c 0%, #6a2a0b 60%, #1a0a04 100%); }
+.stage[data-style="relief"] .contours { opacity: 0; z-index: 3; }
+/* D: relief with a few quiet lines over it */
+.stage[data-style="both"] .relief { opacity: 1; filter: saturate(0.6) contrast(1.2) brightness(0.46) sepia(0.3) hue-rotate(-8deg); z-index: 1; }
+.stage[data-style="both"] .tone { opacity: 0.5; z-index: 2; mix-blend-mode: soft-light; background: radial-gradient(100% 80% at 50% 46%, #c2531c 0%, #6a2a0b 60%, #1a0a04 100%); }
+.stage[data-style="both"] .contours { opacity: 0.55; z-index: 3; }
+
+.ink { z-index: 5; overflow: visible; }
+.pins { z-index: 6; }
+
+/* the road: behind me solid, ahead dashed */
+.road-case { fill: none; stroke: rgb(0 0 0 / 0.45); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.road { fill: none; stroke: #fdfce6; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.road-ahead { fill: none; stroke: rgb(253 252 230 / 0.8); stroke-width: 1.8; stroke-linecap: round; stroke-dasharray: 1 6; }
+.trace { fill: none; stroke: #fdfce6; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+.trace.on { opacity: 1; }
+.trace-halo { fill: rgb(253 252 230 / 0.06); stroke: none; opacity: 0; transition: opacity 0.8s 0.9s; }
+.trace-halo.on { opacity: 1; }
+
+/* pins live on the ground, so they tilt with it */
+.pin { position: absolute; width: 0; height: 0; inset: auto; }
+.dot { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: #fdfce6; box-shadow: 0 0 0 3px rgb(0 0 0 / 0.35); transition: transform 0.4s var(--ease), background 0.3s; cursor: pointer; }
+.pin.cur .dot { background: var(--accent); transform: scale(1.5); box-shadow: 0 0 0 3px rgb(253 252 230 / 0.9), 0 0 0 5px rgb(0 0 0 / 0.3); }
+.puck { position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(140deg, rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.16)); border: 1px solid rgb(255 255 255 / 0.55); box-shadow: 0 6px 16px -6px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.6); backdrop-filter: blur(8px); }
+.puck::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px #fff; }
+.reach { position: absolute; left: -58px; top: -58px; width: 116px; height: 116px; border-radius: 50%; border: 1.5px dashed rgb(253 252 230 / 0.85); animation: turn 40s linear infinite; }
+.ping { position: absolute; left: -58px; top: -58px; width: 116px; height: 116px; border-radius: 50%; border: 1.5px solid rgb(252 76 0 / 0.9); animation: ping 2.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite; }
+.reach-fill { position: absolute; left: -58px; top: -58px; width: 116px; height: 116px; border-radius: 50%; background: radial-gradient(circle, rgb(253 252 230 / 0.16), rgb(253 252 230 / 0.03) 70%); }
+@keyframes turn { to { transform: rotate(360deg); } }
+@keyframes ping { 0% { transform: scale(0.28); opacity: 0.95; } 80%, 100% { transform: scale(1); opacity: 0; } }
+.stage:not([data-mode="climb"]) .pin.moment .dot { transform: scale(0.6); opacity: 0.9; }
+.stage[data-mode="mountain"] .pin.moment, .stage[data-mode="mountain"] .pin.now { opacity: 0; pointer-events: none; }
+.stage[data-mode="mountain"] .road, .stage[data-mode="mountain"] .road-case, .stage[data-mode="mountain"] .road-ahead { opacity: 0.18; }
+.pin, .road, .road-case, .road-ahead { transition: opacity 0.6s; }
+
+/* soft focus at the far and near edge when tilted */
+.focus { position: absolute; left: 0; right: 0; height: 34%; pointer-events: none; opacity: 0; transition: opacity 0.8s; z-index: 7; backdrop-filter: blur(7px); }
+.focus-top { top: 0; mask-image: linear-gradient(#000 10%, transparent); }
+.focus-bottom { bottom: 0; height: 26%; mask-image: linear-gradient(transparent, #000 85%); }
+.stage[data-view="tilt"] .focus { opacity: 1; }
+.vignette { position: absolute; inset: 0; z-index: 8; pointer-events: none; background: radial-gradient(ellipse 78% 74% at 50% 48%, transparent 52%, rgb(11 11 10 / 0.5) 82%, rgb(11 11 10 / 0.9) 100%); }
+.stage[data-view="tilt"] .vignette { background: radial-gradient(ellipse 80% 70% at 50% 52%, transparent 40%, rgb(11 11 10 / 0.55) 78%, rgb(11 11 10 / 0.96) 100%); }
+.grain { position: absolute; inset: 0; z-index: 9; pointer-events: none; opacity: 0.07; filter: url(#grainFilter); mix-blend-mode: overlay; }
+
+/* ---------- the glass interface ---------- */
+.hud { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.glass { background: linear-gradient(145deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.06) 55%, rgb(255 255 255 / 0.1)); border: 1px solid rgb(255 255 255 / 0.26); box-shadow: 0 22px 44px -22px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.42), inset 0 -1px 0 rgb(0 0 0 / 0.18), inset 0 0 22px rgb(255 255 255 / 0.05); backdrop-filter: blur(16px) saturate(1.35) brightness(1.06); }
+.heading { position: absolute; left: 26px; top: 22px; max-width: 30ch; transition: opacity 0.6s, transform 0.8s var(--ease); pointer-events: none; }
+.heading h1 { margin: 0 0 6px; font-family: "Doto", monospace; font-weight: 800; font-size: clamp(28px, 3.4vw, 46px); line-height: 1; text-shadow: 0 2px 18px rgb(0 0 0 / 0.5); }
+.heading p { margin: 0; color: var(--ink-1); line-height: 1.5; text-shadow: 0 1px 10px rgb(0 0 0 / 0.7); }
+.stage:not([data-mode="overview"]) .heading { opacity: 0; transform: translateY(-10px); }
+.caption { position: absolute; left: 26px; bottom: 22px; display: grid; gap: 3px; transition: opacity 0.6s; text-shadow: 0 1px 10px rgb(0 0 0 / 0.7); pointer-events: none; }
+.caption b { font-family: "Doto", monospace; font-weight: 800; font-size: 22px; }
+.caption span { color: var(--ink-1); font-size: 13px; }
+.stage:not([data-mode="overview"]) .caption { opacity: 0; }
+.switch { position: absolute; right: 22px; top: 20px; display: flex; gap: 2px; padding: 4px; border-radius: 999px; }
+.switch button { padding: 8px 14px; border-radius: 999px; color: rgb(255 255 255 / 0.82); font-size: 13px; transition: background 0.4s, color 0.4s; }
+.switch button.on { background: rgb(255 255 255 / 0.92); color: #1a1512; }
+.card { position: absolute; left: 0; top: 0; width: min(300px, 70vw); padding: 16px 18px 17px; border-radius: 22px; opacity: 0; transform: translate(var(--cx, 0px), var(--cy, 0px)) scale(0.96); transform-origin: 0 0; transition: opacity 0.45s, scale 0.45s; pointer-events: none; }
+.card.show { opacity: 1; }
+.card .when { font-size: 12px; color: rgb(255 255 255 / 0.78); }
+.card h3 { margin: 4px 0 6px; font-size: 19px; font-weight: 500; line-height: 1.25; color: #fff; font-family: "IBM Plex Mono", monospace; }
+.card h3 s { opacity: 0.55; }
+.card p { margin: 0; color: rgb(255 255 255 / 0.86); line-height: 1.5; font-size: 13px; }
+.card .fact { display: inline-block; margin-top: 10px; padding: 4px 9px; border-radius: 999px; background: rgb(0 0 0 / 0.22); font-size: 12px; color: rgb(255 255 255 / 0.9); }
+.card .rule { height: 1px; background: rgb(255 255 255 / 0.3); margin: 9px 0; transform-origin: 0 50%; }
+.card.draw .rule { animation: grow 0.6s var(--ease) both 0.25s; }
+.card.draw h3, .card.draw .when { animation: rise 0.5s var(--ease) both 0.15s; }
+.card.draw p { animation: rise 0.6s var(--ease) both 0.45s; }
+.card.draw .fact { animation: rise 0.6s var(--ease) both 0.7s; }
+@keyframes grow { from { transform: scaleX(0); } }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.stepper { position: absolute; right: 22px; bottom: 20px; display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px; opacity: 0; transition: opacity 0.5s; pointer-events: none; }
+.stage:not([data-mode="overview"]) .stepper { opacity: 1; pointer-events: auto; }
+.stepper button { width: 36px; height: 36px; border-radius: 50%; color: #fff; font-size: 16px; }
+.stepper button:hover { background: rgb(255 255 255 / 0.18); }
+.stepper span { min-width: 5ch; text-align: center; font-size: 12px; color: rgb(255 255 255 / 0.85); }
+.leader { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+
+/* ---------- 2 the line map ---------- */
+.lines-stage { background: radial-gradient(120% 100% at 50% 40%, #191817, #0d0d0c 70%); }
+#lines { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ln { fill: none; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.st { fill: #0e0e0d; stroke: #fdfce6; stroke-width: 3; cursor: pointer; transition: r 0.2s; }
+.st:hover { r: 11; }
+.st-label { fill: rgb(253 252 230 / 0.9); font: 500 14px "IBM Plex Mono", monospace; }
+.st-date { fill: rgb(253 252 230 / 0.6); font: 12px "IBM Plex Mono", monospace; }
+.ln-name { font: 600 13px "IBM Plex Mono", monospace; }
+#lineCard { left: auto; right: 24px; top: auto; bottom: 22px; transform: none; }
+
+/* ---------- 3 grounds ---------- */
+.grounds { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+@media (max-width: 800px) { .grounds { grid-template-columns: 1fr; } }
+.gpanel { position: relative; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); cursor: pointer; background: #0e0e0d; }
+.gpanel canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.gpanel .gtitle { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
+.gpanel .gtitle b { display: block; font-family: "Doto", monospace; font-weight: 800; font-size: clamp(22px, 3vw, 40px); }
+.gpanel .gtitle span { color: var(--ink-2); font-size: 12px; }
+.gpanel .gtag { position: absolute; left: 14px; bottom: 12px; font-size: 12px; color: var(--ink-1); padding: 5px 10px; border-radius: 999px; background: rgb(0 0 0 / 0.45); border: 1px solid var(--line); }
+.gpanel .gswap { position: absolute; right: 14px; bottom: 12px; font-size: 12px; color: var(--ink-3); }
+.gtiles { position: absolute; inset: 0; pointer-events: none; }
+.gtiles i { position: absolute; border-radius: 8px; background: linear-gradient(160deg, #2b2a28, #1a1918); box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.8); border: 1px solid rgb(253 252 230 / 0.07); }
+
+/* ---------- 4 change ---------- */
+.change-stage { cursor: pointer; aspect-ratio: 16 / 10; height: auto; max-height: calc(100vh - 230px); margin: 0 auto; }
+.change-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.play-hint { position: absolute; right: 14px; bottom: 12px; font-size: 12px; color: var(--ink-1); padding: 5px 10px; border-radius: 999px; background: rgb(0 0 0 / 0.5); }
+
+/* ---------- 5 spines ---------- */
+.spines-wrap h2 { font-family: "Doto", monospace; font-weight: 800; font-size: 22px; margin: 18px 0 10px; }
+.spine-row { display: flex; gap: 4px; align-items: flex-end; min-height: 120px; padding: 18px; border-radius: 16px; background: #0b0b0a; border: 1px solid var(--line); overflow-x: auto; }
+.spine-row figure { margin: 0; display: grid; gap: 6px; justify-items: center; }
+.spine-row img { height: min(56vh, 520px); width: auto; display: block; }
+.spine-row figcaption { font-size: 11px; color: var(--ink-3); max-width: 12ch; text-align: center; }
+.shot { width: 100%; border-radius: 16px; border: 1px solid var(--line); display: block; }
+
+@media (prefers-reduced-motion: reduce) { .plane { transition-duration: 0.2s; } .reach, .ping { animation: none; } }

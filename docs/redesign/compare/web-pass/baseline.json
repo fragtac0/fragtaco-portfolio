@@ -1,0 +1,4283 @@
+{
+ "base": "http://localhost",
+ "chrome": "headless, fresh profile per run",
+ "runsPerCase": 3,
+ "windowMs": 5000,
+ "results": [
+  {
+   "page": "/",
+   "size": "1440x900",
+   "dpr": 1,
+   "mobile": false,
+   "runs": [
+    {
+     "lcpMs": 3856,
+     "lcpElement": "div",
+     "lcpUrl": "blob:http://localhost:5180/f979ee01-b771-49f0-80ee-2f4d093db4c7",
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 260,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 10,
+       "durationMs": 232,
+       "blockingMs": 84,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Lora|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Archivo|100 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Newsreader|300 800|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Grotesk|300 700|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Unbounded|300 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Young Serif|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 232.6,
+       "endMs": 257,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dPIFZifjKcF5UAWdDRYEF8RXi4EwQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 9491,
+       "startMs": 233.7,
+       "endMs": 257.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 233.8,
+       "endMs": 257.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dNIFZifjKcF5UAWdDRYERMR3K_MQacbw.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10687,
+       "startMs": 233.8,
+       "endMs": 257.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "0QIvMX1D_JOuMwr7I_FMl_E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 37824,
+       "startMs": 306.1,
+       "endMs": 343.5,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 306.2,
+       "endMs": 317.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 53674,
+       "startMs": 306.6,
+       "endMs": 346.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "k3kQo8UDI-1M0wlSfdnoLmvDIaI.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 90135,
+       "startMs": 306.7,
+       "endMs": 348.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "3qTpojO2nS2VtkB3KtkQZ1t93kY6ah7E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 18549,
+       "startMs": 306.7,
+       "endMs": 331.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 46286,
+       "startMs": 306.7,
+       "endMs": 346.2,
+       "beforeLcp": true
+      },
+      {
+       "file": "Yq6W-LOTXCb04q32xlpwu8ZfvRIkSQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 50930,
+       "startMs": 306.7,
+       "endMs": 339,
+       "beforeLcp": true
+      },
+      {
+       "file": "V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 22349,
+       "startMs": 306.7,
+       "endMs": 344.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10143,
+       "startMs": 306.7,
+       "endMs": 343.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "cY9AfjOCX1hbuyalUrK4397yjIJFJpc.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 131895,
+       "startMs": 306.7,
+       "endMs": 351.2,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"Space Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 32,
+        "bytes": 1436774
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "https://i.ytimg.com": {
+        "count": 109,
+        "bytes": 6317531
+       },
+       "https://ia600606.us.archive.org": {
+        "count": 1,
+        "bytes": 29248
+       },
+       "https://ia800603.us.archive.org": {
+        "count": 1,
+        "bytes": 26636
+       },
+       "https://ia800100.us.archive.org": {
+        "count": 1,
+        "bytes": 31528
+       },
+       "https://ia600104.us.archive.org": {
+        "count": 1,
+        "bytes": 24637
+       },
+       "https://ia600806.us.archive.org": {
+        "count": 1,
+        "bytes": 38051
+       },
+       "https://ia601009.us.archive.org": {
+        "count": 1,
+        "bytes": 16336
+       },
+       "https://ia601909.us.archive.org": {
+        "count": 1,
+        "bytes": 9590
+       },
+       "https://covers.openlibrary.org": {
+        "count": 2,
+        "bytes": 43241
+       },
+       "https://ia800507.us.archive.org": {
+        "count": 1,
+        "bytes": 27073
+       },
+       "https://ia600505.us.archive.org": {
+        "count": 1,
+        "bytes": 92997
+       },
+       "https://ia800609.us.archive.org": {
+        "count": 1,
+        "bytes": 7399
+       },
+       "https://ia600409.us.archive.org": {
+        "count": 1,
+        "bytes": 5093
+       },
+       "https://ia800505.us.archive.org": {
+        "count": 1,
+        "bytes": 39626
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 22450
+       },
+       "Image": {
+        "count": 128,
+        "bytes": 7696506
+       },
+       "Stylesheet": {
+        "count": 9,
+        "bytes": 24053
+       },
+       "Script": {
+        "count": 15,
+        "bytes": 405436
+       },
+       "Font": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "Fetch": {
+        "count": 3,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 262,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 1.62
+    },
+    {
+     "lcpMs": 3904,
+     "lcpElement": "div",
+     "lcpUrl": "blob:http://localhost:5180/b4a486b5-e0ad-4f8f-95ff-082e5b6b5233",
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 268,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 20,
+       "durationMs": 233,
+       "blockingMs": 95,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Lora|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Archivo|100 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Newsreader|300 800|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Grotesk|300 700|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Unbounded|300 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Young Serif|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 242.6,
+       "endMs": 269.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dPIFZifjKcF5UAWdDRYEF8RXi4EwQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 9491,
+       "startMs": 243.8,
+       "endMs": 269.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 243.9,
+       "endMs": 269.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dNIFZifjKcF5UAWdDRYERMR3K_MQacbw.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10687,
+       "startMs": 243.9,
+       "endMs": 269.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "0QIvMX1D_JOuMwr7I_FMl_E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 37824,
+       "startMs": 313,
+       "endMs": 330.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 313,
+       "endMs": 335.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 53674,
+       "startMs": 313.5,
+       "endMs": 360.2,
+       "beforeLcp": true
+      },
+      {
+       "file": "k3kQo8UDI-1M0wlSfdnoLmvDIaI.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 90135,
+       "startMs": 313.5,
+       "endMs": 362,
+       "beforeLcp": true
+      },
+      {
+       "file": "3qTpojO2nS2VtkB3KtkQZ1t93kY6ah7E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 18553,
+       "startMs": 313.5,
+       "endMs": 347.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 46288,
+       "startMs": 313.6,
+       "endMs": 360.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "Yq6W-LOTXCb04q32xlpwu8ZfvRIkSQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 50926,
+       "startMs": 313.6,
+       "endMs": 360,
+       "beforeLcp": true
+      },
+      {
+       "file": "V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 22349,
+       "startMs": 313.6,
+       "endMs": 352.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10141,
+       "startMs": 313.6,
+       "endMs": 347.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "cY9AfjOCX1hbuyalUrK4397yjIJFJpc.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 131895,
+       "startMs": 313.6,
+       "endMs": 365.4,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"Space Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 32,
+        "bytes": 1677158
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "https://i.ytimg.com": {
+        "count": 109,
+        "bytes": 6317501
+       },
+       "https://ia600606.us.archive.org": {
+        "count": 1,
+        "bytes": 29248
+       },
+       "https://ia600603.us.archive.org": {
+        "count": 1,
+        "bytes": 26636
+       },
+       "https://ia800100.us.archive.org": {
+        "count": 1,
+        "bytes": 31528
+       },
+       "https://ia800104.us.archive.org": {
+        "count": 1,
+        "bytes": 24638
+       },
+       "https://ia600806.us.archive.org": {
+        "count": 1,
+        "bytes": 38051
+       },
+       "https://ia801009.us.archive.org": {
+        "count": 1,
+        "bytes": 16336
+       },
+       "https://ia801909.us.archive.org": {
+        "count": 1,
+        "bytes": 9590
+       },
+       "https://covers.openlibrary.org": {
+        "count": 2,
+        "bytes": 43241
+       },
+       "https://ia800507.us.archive.org": {
+        "count": 1,
+        "bytes": 27074
+       },
+       "https://ia800505.us.archive.org": {
+        "count": 1,
+        "bytes": 92995
+       },
+       "https://ia600609.us.archive.org": {
+        "count": 1,
+        "bytes": 7399
+       },
+       "https://ia600409.us.archive.org": {
+        "count": 1,
+        "bytes": 5093
+       },
+       "https://ia600505.us.archive.org": {
+        "count": 1,
+        "bytes": 39626
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 22472
+       },
+       "Image": {
+        "count": 128,
+        "bytes": 7936838
+       },
+       "Stylesheet": {
+        "count": 9,
+        "bytes": 24053
+       },
+       "Script": {
+        "count": 15,
+        "bytes": 405436
+       },
+       "Font": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "Fetch": {
+        "count": 3,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 262,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 1.66
+    },
+    {
+     "lcpMs": 3912,
+     "lcpElement": "div",
+     "lcpUrl": "blob:http://localhost:5180/2f2f33bd-7a29-4ffe-acca-57d85b0dfb73",
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 268,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 11,
+       "durationMs": 242,
+       "blockingMs": 97,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Lora|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Archivo|100 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Newsreader|300 800|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Grotesk|300 700|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Unbounded|300 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Young Serif|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 243.8,
+       "endMs": 264.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dPIFZifjKcF5UAWdDRYEF8RXi4EwQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 9491,
+       "startMs": 244.9,
+       "endMs": 268.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 245,
+       "endMs": 268.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dNIFZifjKcF5UAWdDRYERMR3K_MQacbw.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10687,
+       "startMs": 245,
+       "endMs": 271,
+       "beforeLcp": true
+      },
+      {
+       "file": "0QIvMX1D_JOuMwr7I_FMl_E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 37824,
+       "startMs": 315.1,
+       "endMs": 348,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 315.1,
+       "endMs": 342.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 53674,
+       "startMs": 315.6,
+       "endMs": 351.2,
+       "beforeLcp": true
+      },
+      {
+       "file": "k3kQo8UDI-1M0wlSfdnoLmvDIaI.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 90135,
+       "startMs": 315.6,
+       "endMs": 357.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "3qTpojO2nS2VtkB3KtkQZ1t93kY6ah7E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 18549,
+       "startMs": 315.6,
+       "endMs": 342.5,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 46280,
+       "startMs": 315.6,
+       "endMs": 351.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "Yq6W-LOTXCb04q32xlpwu8ZfvRIkSQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 50934,
+       "startMs": 315.7,
+       "endMs": 356.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 22355,
+       "startMs": 315.7,
+       "endMs": 346.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10139,
+       "startMs": 315.7,
+       "endMs": 344.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "cY9AfjOCX1hbuyalUrK4397yjIJFJpc.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 131895,
+       "startMs": 315.7,
+       "endMs": 358.7,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"Space Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 32,
+        "bytes": 1171144
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5077
+       },
+       "https://fonts.gstatic.com": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "https://i.ytimg.com": {
+        "count": 109,
+        "bytes": 6317568
+       },
+       "https://ia800606.us.archive.org": {
+        "count": 1,
+        "bytes": 29248
+       },
+       "https://ia800603.us.archive.org": {
+        "count": 1,
+        "bytes": 26636
+       },
+       "https://ia800100.us.archive.org": {
+        "count": 1,
+        "bytes": 31528
+       },
+       "https://ia800104.us.archive.org": {
+        "count": 1,
+        "bytes": 24637
+       },
+       "https://ia600806.us.archive.org": {
+        "count": 1,
+        "bytes": 38051
+       },
+       "https://ia601009.us.archive.org": {
+        "count": 1,
+        "bytes": 16336
+       },
+       "https://ia601909.us.archive.org": {
+        "count": 1,
+        "bytes": 9590
+       },
+       "https://covers.openlibrary.org": {
+        "count": 2,
+        "bytes": 43241
+       },
+       "https://ia800507.us.archive.org": {
+        "count": 1,
+        "bytes": 27073
+       },
+       "https://ia600505.us.archive.org": {
+        "count": 1,
+        "bytes": 92996
+       },
+       "https://ia800609.us.archive.org": {
+        "count": 1,
+        "bytes": 7399
+       },
+       "https://ia800409.us.archive.org": {
+        "count": 1,
+        "bytes": 5093
+       },
+       "https://ia800505.us.archive.org": {
+        "count": 1,
+        "bytes": 39626
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 22470
+       },
+       "Image": {
+        "count": 128,
+        "bytes": 7430892
+       },
+       "Stylesheet": {
+        "count": 9,
+        "bytes": 24076
+       },
+       "Script": {
+        "count": 15,
+        "bytes": 405436
+       },
+       "Font": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "Fetch": {
+        "count": 3,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 262,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 1.49
+    }
+   ],
+   "median": {
+    "lcpMs": 3904,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     3856,
+     3912
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "page": "/work",
+   "size": "1440x900",
+   "dpr": 1,
+   "mobile": false,
+   "runs": [
+    {
+     "lcpMs": 816,
+     "lcpElement": "img",
+     "lcpUrl": "https://i.ytimg.com/vi/9hkHhSmcA9s/hqdefault.jpg",
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 188,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 157,
+       "blockingMs": 0,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 160.8,
+       "endMs": 175.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 162,
+       "endMs": 175.2,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 38,
+        "bytes": 337143
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 10,
+        "bytes": 230036
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 7878
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 17337
+       },
+       "Image": {
+        "count": 21,
+        "bytes": 373726
+       },
+       "Script": {
+        "count": 18,
+        "bytes": 170923
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 142,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 1.37
+    },
+    {
+     "lcpMs": 924,
+     "lcpElement": "img",
+     "lcpUrl": "https://i.ytimg.com/vi/yTF_aczKJzg/hqdefault.jpg",
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 268,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 15,
+       "durationMs": 232,
+       "blockingMs": 86,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 243.6,
+       "endMs": 256.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 244.8,
+       "endMs": 258.4,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 38,
+        "bytes": 337143
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 10,
+        "bytes": 230063
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 7878
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 17337
+       },
+       "Image": {
+        "count": 21,
+        "bytes": 373753
+       },
+       "Script": {
+        "count": 18,
+        "bytes": 170923
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 142,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 1.77
+    },
+    {
+     "lcpMs": 800,
+     "lcpElement": "img",
+     "lcpUrl": "https://i.ytimg.com/vi/9hkHhSmcA9s/hqdefault.jpg",
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 192,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 157,
+       "blockingMs": 0,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 161.8,
+       "endMs": 177.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 162.8,
+       "endMs": 176.9,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 38,
+        "bytes": 337143
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 10,
+        "bytes": 230067
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 7878
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 17337
+       },
+       "Image": {
+        "count": 21,
+        "bytes": 373757
+       },
+       "Script": {
+        "count": 18,
+        "bytes": 170923
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 142,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 2.19
+    }
+   ],
+   "median": {
+    "lcpMs": 816,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     800,
+     924
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "page": "/work/long-form",
+   "size": "1440x900",
+   "dpr": 1,
+   "mobile": false,
+   "runs": [
+    {
+     "lcpMs": 264,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 264,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 21,
+       "durationMs": 212,
+       "blockingMs": 67,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 121.3,
+       "endMs": 245.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 121.3,
+       "endMs": 245.4,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 465721
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 21,
+        "bytes": 472501
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 11777
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19979
+       },
+       "Image": {
+        "count": 24,
+        "bytes": 555287
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353864
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 157,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 2.41
+    },
+    {
+     "lcpMs": 200,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 200,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 158,
+       "blockingMs": 15,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 106.9,
+       "endMs": 181.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 107,
+       "endMs": 181.9,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 465721
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 21,
+        "bytes": 472598
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 11777
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19979
+       },
+       "Image": {
+        "count": 24,
+        "bytes": 555384
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353864
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 159,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 2.5
+    },
+    {
+     "lcpMs": 260,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 260,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 7,
+       "durationMs": 222,
+       "blockingMs": 73,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 113.1,
+       "endMs": 244,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 113.1,
+       "endMs": 244.2,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 465721
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 21,
+        "bytes": 472604
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 11777
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19979
+       },
+       "Image": {
+        "count": 24,
+        "bytes": 555390
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353864
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 157,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 2.41
+    }
+   ],
+   "median": {
+    "lcpMs": 260,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     200,
+     264
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "page": "/work/short-form",
+   "size": "1440x900",
+   "dpr": 1,
+   "mobile": false,
+   "runs": [
+    {
+     "lcpMs": 260,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 260,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 12,
+       "durationMs": 224,
+       "blockingMs": 74,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 114.4,
+       "endMs": 248.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 114.4,
+       "endMs": 248.7,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 467370
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 13423
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19979
+       },
+       "Image": {
+        "count": 3,
+        "bytes": 82786
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353867
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       }
+      },
+      "total": 152,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 2.86
+    },
+    {
+     "lcpMs": 28,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 28,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 0,
+       "startMs": 9.6,
+       "endMs": 9.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 0,
+       "startMs": 9.6,
+       "endMs": 10,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 34,
+        "bytes": 272
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 0
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 0
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 0
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 0
+       },
+       "Image": {
+        "count": 3,
+        "bytes": 0
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 0
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 0
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       }
+      },
+      "total": 149,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 2.65
+    },
+    {
+     "lcpMs": 264,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 264,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 22,
+       "durationMs": 214,
+       "blockingMs": 65,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 123.6,
+       "endMs": 247.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 123.7,
+       "endMs": 248.1,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 467370
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5031
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 13423
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19956
+       },
+       "Image": {
+        "count": 3,
+        "bytes": 82786
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353867
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       }
+      },
+      "total": 152,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 2.47
+    }
+   ],
+   "median": {
+    "lcpMs": 260,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     28,
+     264
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "page": "/experience",
+   "size": "1440x900",
+   "dpr": 1,
+   "mobile": false,
+   "runs": [
+    {
+     "lcpMs": 5224,
+     "lcpElement": "p.map-text.map-rise",
+     "lcpUrl": null,
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 212,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 9,
+       "durationMs": 164,
+       "blockingMs": 4,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 167.6,
+       "endMs": 180.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 168.8,
+       "endMs": 185.2,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10135,
+       "startMs": 169.8,
+       "endMs": 183.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 206.2,
+       "endMs": 219.5,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"IBM Plex Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 27,
+        "bytes": 1006299
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 4,
+        "bytes": 35648
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 10841
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 19113
+       },
+       "Image": {
+        "count": 2,
+        "bytes": 793393
+       },
+       "Script": {
+        "count": 16,
+        "bytes": 185637
+       },
+       "Font": {
+        "count": 4,
+        "bytes": 35648
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 113,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 3.43
+    },
+    {
+     "lcpMs": 5260,
+     "lcpElement": "p.map-text.map-rise",
+     "lcpUrl": null,
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 268,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 18,
+       "durationMs": 210,
+       "blockingMs": 20,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 179,
+       "endMs": 237.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 225.2,
+       "endMs": 241.2,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10135,
+       "startMs": 226.2,
+       "endMs": 241.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 263,
+       "endMs": 274.8,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"IBM Plex Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 27,
+        "bytes": 1006299
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 4,
+        "bytes": 35648
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 10841
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 19113
+       },
+       "Image": {
+        "count": 2,
+        "bytes": 793393
+       },
+       "Script": {
+        "count": 16,
+        "bytes": 185637
+       },
+       "Font": {
+        "count": 4,
+        "bytes": 35648
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 113,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 3.15
+    },
+    {
+     "lcpMs": 5224,
+     "lcpElement": "p.map-text.map-rise",
+     "lcpUrl": null,
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 212,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 163,
+       "blockingMs": 10,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 165.8,
+       "endMs": 179.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 167,
+       "endMs": 183.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10135,
+       "startMs": 168,
+       "endMs": 181.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 204.9,
+       "endMs": 217.2,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"IBM Plex Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 27,
+        "bytes": 1006299
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 4,
+        "bytes": 35648
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 10841
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 19113
+       },
+       "Image": {
+        "count": 2,
+        "bytes": 793393
+       },
+       "Script": {
+        "count": 16,
+        "bytes": 185637
+       },
+       "Font": {
+        "count": 4,
+        "bytes": 35648
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 113,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 3.15
+    }
+   ],
+   "median": {
+    "lcpMs": 5224,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     5224,
+     5260
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "page": "/",
+   "size": "390x844",
+   "dpr": 1,
+   "mobile": true,
+   "runs": [
+    {
+     "lcpMs": 3872,
+     "lcpElement": "div",
+     "lcpUrl": "blob:http://localhost:5180/56556e9d-7027-45a3-bb27-324717fce074",
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 280,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 25,
+       "durationMs": 238,
+       "blockingMs": 92,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Lora|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Archivo|100 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Newsreader|300 800|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Grotesk|300 700|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Unbounded|300 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Young Serif|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 252.7,
+       "endMs": 286.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dPIFZifjKcF5UAWdDRYEF8RXi4EwQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 9491,
+       "startMs": 254,
+       "endMs": 286.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 254.1,
+       "endMs": 286.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dNIFZifjKcF5UAWdDRYERMR3K_MQacbw.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10687,
+       "startMs": 254.1,
+       "endMs": 286.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "0QIvMX1D_JOuMwr7I_FMl_E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 37824,
+       "startMs": 334.7,
+       "endMs": 370.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 334.7,
+       "endMs": 353.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 53674,
+       "startMs": 335.2,
+       "endMs": 376.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "k3kQo8UDI-1M0wlSfdnoLmvDIaI.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 90135,
+       "startMs": 335.2,
+       "endMs": 377.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "3qTpojO2nS2VtkB3KtkQZ1t93kY6ah7E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 18553,
+       "startMs": 335.2,
+       "endMs": 365,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 46286,
+       "startMs": 335.3,
+       "endMs": 376.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "Yq6W-LOTXCb04q32xlpwu8ZfvRIkSQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 50926,
+       "startMs": 335.3,
+       "endMs": 376.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 22349,
+       "startMs": 335.3,
+       "endMs": 372.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10135,
+       "startMs": 335.3,
+       "endMs": 363.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "cY9AfjOCX1hbuyalUrK4397yjIJFJpc.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 131903,
+       "startMs": 335.3,
+       "endMs": 380.2,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"Space Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 32,
+        "bytes": 831085
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "https://ia800606.us.archive.org": {
+        "count": 1,
+        "bytes": 29248
+       },
+       "https://ia600603.us.archive.org": {
+        "count": 1,
+        "bytes": 26636
+       },
+       "https://ia800100.us.archive.org": {
+        "count": 1,
+        "bytes": 31528
+       },
+       "https://ia600104.us.archive.org": {
+        "count": 1,
+        "bytes": 24638
+       },
+       "https://ia600806.us.archive.org": {
+        "count": 1,
+        "bytes": 38051
+       },
+       "https://ia801009.us.archive.org": {
+        "count": 1,
+        "bytes": 16336
+       },
+       "https://ia801909.us.archive.org": {
+        "count": 1,
+        "bytes": 9590
+       },
+       "https://covers.openlibrary.org": {
+        "count": 2,
+        "bytes": 43241
+       },
+       "https://ia800507.us.archive.org": {
+        "count": 1,
+        "bytes": 27073
+       },
+       "https://ia600505.us.archive.org": {
+        "count": 1,
+        "bytes": 92996
+       },
+       "https://ia600609.us.archive.org": {
+        "count": 1,
+        "bytes": 7399
+       },
+       "https://ia800409.us.archive.org": {
+        "count": 1,
+        "bytes": 5093
+       },
+       "https://ia800505.us.archive.org": {
+        "count": 1,
+        "bytes": 39627
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 22470
+       },
+       "Image": {
+        "count": 19,
+        "bytes": 773267
+       },
+       "Stylesheet": {
+        "count": 9,
+        "bytes": 24053
+       },
+       "Script": {
+        "count": 15,
+        "bytes": 405436
+       },
+       "Font": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "Fetch": {
+        "count": 3,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 151,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 7.5
+    },
+    {
+     "lcpMs": 3780,
+     "lcpElement": "div",
+     "lcpUrl": "blob:http://localhost:5180/31c84a62-87f6-4006-856c-3dd9901adc6c",
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 188,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 166,
+       "blockingMs": 7,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Lora|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Archivo|100 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Newsreader|300 800|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Grotesk|300 700|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Unbounded|300 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Young Serif|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 164,
+       "endMs": 187.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dPIFZifjKcF5UAWdDRYEF8RXi4EwQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 9491,
+       "startMs": 165.2,
+       "endMs": 187.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 165.3,
+       "endMs": 189.2,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dNIFZifjKcF5UAWdDRYERMR3K_MQacbw.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10687,
+       "startMs": 165.3,
+       "endMs": 189,
+       "beforeLcp": true
+      },
+      {
+       "file": "0QIvMX1D_JOuMwr7I_FMl_E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 37824,
+       "startMs": 232.2,
+       "endMs": 265.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 232.3,
+       "endMs": 246.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 53674,
+       "startMs": 232.8,
+       "endMs": 278.5,
+       "beforeLcp": true
+      },
+      {
+       "file": "k3kQo8UDI-1M0wlSfdnoLmvDIaI.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 90135,
+       "startMs": 232.8,
+       "endMs": 277,
+       "beforeLcp": true
+      },
+      {
+       "file": "3qTpojO2nS2VtkB3KtkQZ1t93kY6ah7E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 18549,
+       "startMs": 232.8,
+       "endMs": 261,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 46280,
+       "startMs": 232.8,
+       "endMs": 271.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "Yq6W-LOTXCb04q32xlpwu8ZfvRIkSQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 50926,
+       "startMs": 232.8,
+       "endMs": 277,
+       "beforeLcp": true
+      },
+      {
+       "file": "V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 22353,
+       "startMs": 232.9,
+       "endMs": 263.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10143,
+       "startMs": 232.9,
+       "endMs": 265.3,
+       "beforeLcp": true
+      },
+      {
+       "file": "cY9AfjOCX1hbuyalUrK4397yjIJFJpc.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 131901,
+       "startMs": 232.9,
+       "endMs": 280.3,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"Space Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 32,
+        "bytes": 819069
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "https://ia600606.us.archive.org": {
+        "count": 1,
+        "bytes": 29248
+       },
+       "https://ia800603.us.archive.org": {
+        "count": 1,
+        "bytes": 26636
+       },
+       "https://ia600100.us.archive.org": {
+        "count": 1,
+        "bytes": 31528
+       },
+       "https://ia800104.us.archive.org": {
+        "count": 1,
+        "bytes": 24637
+       },
+       "https://ia800806.us.archive.org": {
+        "count": 1,
+        "bytes": 38051
+       },
+       "https://ia801009.us.archive.org": {
+        "count": 1,
+        "bytes": 16335
+       },
+       "https://ia601909.us.archive.org": {
+        "count": 1,
+        "bytes": 9590
+       },
+       "https://covers.openlibrary.org": {
+        "count": 2,
+        "bytes": 43241
+       },
+       "https://ia600507.us.archive.org": {
+        "count": 1,
+        "bytes": 27073
+       },
+       "https://ia800505.us.archive.org": {
+        "count": 1,
+        "bytes": 92996
+       },
+       "https://ia600609.us.archive.org": {
+        "count": 1,
+        "bytes": 7399
+       },
+       "https://ia800409.us.archive.org": {
+        "count": 1,
+        "bytes": 5093
+       },
+       "https://ia600505.us.archive.org": {
+        "count": 1,
+        "bytes": 39627
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 22469
+       },
+       "Image": {
+        "count": 19,
+        "bytes": 761250
+       },
+       "Stylesheet": {
+        "count": 9,
+        "bytes": 24053
+       },
+       "Script": {
+        "count": 15,
+        "bytes": 405436
+       },
+       "Font": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "Fetch": {
+        "count": 3,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 153,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 7.06
+    },
+    {
+     "lcpMs": 3820,
+     "lcpElement": "div",
+     "lcpUrl": "blob:http://localhost:5180/3fa06e27-b51d-4997-9538-9dbc8ae34fd9",
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 280,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 245,
+       "blockingMs": 96,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Lora|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Archivo|100 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|italic|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Bodoni Moda|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Newsreader|300 800|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Space Grotesk|300 700|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Unbounded|300 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "Young Serif|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 243.2,
+       "endMs": 266.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dPIFZifjKcF5UAWdDRYEF8RXi4EwQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 9491,
+       "startMs": 244.3,
+       "endMs": 271.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 244.4,
+       "endMs": 271.2,
+       "beforeLcp": true
+      },
+      {
+       "file": "i7dNIFZifjKcF5UAWdDRYERMR3K_MQacbw.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10687,
+       "startMs": 244.4,
+       "endMs": 271,
+       "beforeLcp": true
+      },
+      {
+       "file": "0QIvMX1D_JOuMwr7I_FMl_E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 37824,
+       "startMs": 314.2,
+       "endMs": 333,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10087,
+       "startMs": 314.2,
+       "endMs": 341.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTS7PxzY382XsXX63LUYJSPeKrcW3JNsao.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 53682,
+       "startMs": 314.8,
+       "endMs": 351.5,
+       "beforeLcp": true
+      },
+      {
+       "file": "k3kQo8UDI-1M0wlSfdnoLmvDIaI.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 90135,
+       "startMs": 314.9,
+       "endMs": 360.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "3qTpojO2nS2VtkB3KtkQZ1t93kY6ah7E.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 18555,
+       "startMs": 314.9,
+       "endMs": 341.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "aFTQ7PxzY382XsXX63LUYJSKSKjWXFBP.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 46280,
+       "startMs": 314.9,
+       "endMs": 348.2,
+       "beforeLcp": true
+      },
+      {
+       "file": "Yq6W-LOTXCb04q32xlpwu8ZfvRIkSQ.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 50926,
+       "startMs": 314.9,
+       "endMs": 355.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 22349,
+       "startMs": 314.9,
+       "endMs": 333.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10135,
+       "startMs": 314.9,
+       "endMs": 335.1,
+       "beforeLcp": true
+      },
+      {
+       "file": "cY9AfjOCX1hbuyalUrK4397yjIJFJpc.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 131895,
+       "startMs": 314.9,
+       "endMs": 361,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"Space Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 32,
+        "bytes": 911421
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5031
+       },
+       "https://fonts.gstatic.com": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "https://ia600606.us.archive.org": {
+        "count": 1,
+        "bytes": 29248
+       },
+       "https://ia600603.us.archive.org": {
+        "count": 1,
+        "bytes": 26637
+       },
+       "https://ia800100.us.archive.org": {
+        "count": 1,
+        "bytes": 31529
+       },
+       "https://ia800104.us.archive.org": {
+        "count": 1,
+        "bytes": 24637
+       },
+       "https://ia800806.us.archive.org": {
+        "count": 1,
+        "bytes": 38051
+       },
+       "https://ia801009.us.archive.org": {
+        "count": 1,
+        "bytes": 16337
+       },
+       "https://ia801909.us.archive.org": {
+        "count": 1,
+        "bytes": 0
+       },
+       "https://covers.openlibrary.org": {
+        "count": 2,
+        "bytes": 43241
+       },
+       "https://ia800507.us.archive.org": {
+        "count": 1,
+        "bytes": 27073
+       },
+       "https://ia800505.us.archive.org": {
+        "count": 2,
+        "bytes": 0
+       },
+       "https://ia800609.us.archive.org": {
+        "count": 1,
+        "bytes": 7399
+       },
+       "https://ia800409.us.archive.org": {
+        "count": 1,
+        "bytes": 0
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 22441
+       },
+       "Image": {
+        "count": 19,
+        "bytes": 706328
+       },
+       "Stylesheet": {
+        "count": 9,
+        "bytes": 24030
+       },
+       "Script": {
+        "count": 15,
+        "bytes": 405436
+       },
+       "Font": {
+        "count": 14,
+        "bytes": 507476
+       },
+       "Fetch": {
+        "count": 3,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 153,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 6.13
+    }
+   ],
+   "median": {
+    "lcpMs": 3820,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     3780,
+     3872
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "page": "/work",
+   "size": "390x844",
+   "dpr": 1,
+   "mobile": true,
+   "runs": [
+    {
+     "lcpMs": 220,
+     "lcpElement": "h1.work-title",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 196,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 162,
+       "blockingMs": 11,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 166.9,
+       "endMs": 181.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 168.1,
+       "endMs": 181.2,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 38,
+        "bytes": 282356
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5031
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 5,
+        "bytes": 118699
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 7878
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 17314
+       },
+       "Image": {
+        "count": 16,
+        "bytes": 207602
+       },
+       "Script": {
+        "count": 18,
+        "bytes": 170923
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 124,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 5.5
+    },
+    {
+     "lcpMs": 308,
+     "lcpElement": "h1.work-title",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 280,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 19,
+       "durationMs": 234,
+       "blockingMs": 82,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 249.6,
+       "endMs": 263.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 250.7,
+       "endMs": 263.8,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 38,
+        "bytes": 282356
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 5,
+        "bytes": 118751
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 7878
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 17337
+       },
+       "Image": {
+        "count": 16,
+        "bytes": 207654
+       },
+       "Script": {
+        "count": 18,
+        "bytes": 170923
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 124,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 5.3
+    },
+    {
+     "lcpMs": 268,
+     "lcpElement": "h1.work-title",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 240,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 208,
+       "blockingMs": 49,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 212.6,
+       "endMs": 227,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 213.9,
+       "endMs": 227.1,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 38,
+        "bytes": 282356
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 5,
+        "bytes": 118717
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 7878
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 17337
+       },
+       "Image": {
+        "count": 16,
+        "bytes": 207620
+       },
+       "Script": {
+        "count": 18,
+        "bytes": 170923
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 124,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 4.71
+    }
+   ],
+   "median": {
+    "lcpMs": 268,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     220,
+     308
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "page": "/work/long-form",
+   "size": "390x844",
+   "dpr": 1,
+   "mobile": true,
+   "runs": [
+    {
+     "lcpMs": 268,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 268,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 17,
+       "durationMs": 214,
+       "blockingMs": 75,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 113.1,
+       "endMs": 240.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 113.1,
+       "endMs": 242.8,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 410934
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 21,
+        "bytes": 472465
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 11777
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19979
+       },
+       "Image": {
+        "count": 24,
+        "bytes": 500464
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353864
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 157,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 4.43
+    },
+    {
+     "lcpMs": 204,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 204,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 160,
+       "blockingMs": 2,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 122.2,
+       "endMs": 180,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 122.3,
+       "endMs": 181.6,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 410934
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 21,
+        "bytes": 472466
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 11777
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19979
+       },
+       "Image": {
+        "count": 24,
+        "bytes": 500465
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353864
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 157,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 4.15
+    },
+    {
+     "lcpMs": 276,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 276,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 25,
+       "durationMs": 214,
+       "blockingMs": 68,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 127.4,
+       "endMs": 251,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 127.5,
+       "endMs": 252.1,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 410934
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "https://i.ytimg.com": {
+        "count": 21,
+        "bytes": 472467
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 11777
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19979
+       },
+       "Image": {
+        "count": 24,
+        "bytes": 500466
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353864
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 157,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 3.99
+    }
+   ],
+   "median": {
+    "lcpMs": 268,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     204,
+     276
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "page": "/work/short-form",
+   "size": "390x844",
+   "dpr": 1,
+   "mobile": true,
+   "runs": [
+    {
+     "lcpMs": 256,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 256,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 9,
+       "durationMs": 222,
+       "blockingMs": 74,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 109.6,
+       "endMs": 242.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 109.6,
+       "endMs": 243.4,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 412583
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 13423
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19979
+       },
+       "Image": {
+        "count": 3,
+        "bytes": 27999
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353867
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 150,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 3.45
+    },
+    {
+     "lcpMs": 284,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 284,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 14,
+       "durationMs": 242,
+       "blockingMs": 91,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 116.6,
+       "endMs": 273.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 116.6,
+       "endMs": 273.9,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 412583
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5031
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 13423
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19956
+       },
+       "Image": {
+        "count": 3,
+        "bytes": 27999
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353867
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 150,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 3.42
+    },
+    {
+     "lcpMs": 200,
+     "lcpElement": "h1.wall-name",
+     "lcpUrl": null,
+     "lcpFamily": "Doto, monospace",
+     "fcpMs": 200,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 8,
+       "durationMs": 163,
+       "blockingMs": 10,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 113.1,
+       "endMs": 182.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 113.2,
+       "endMs": 182.8,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 35,
+        "bytes": 412583
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 2,
+        "bytes": 15430
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 13423
+       },
+       "Stylesheet": {
+        "count": 10,
+        "bytes": 19979
+       },
+       "Image": {
+        "count": 3,
+        "bytes": 27999
+       },
+       "Script": {
+        "count": 21,
+        "bytes": 353867
+       },
+       "Font": {
+        "count": 2,
+        "bytes": 15430
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 150,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 3.41
+    }
+   ],
+   "median": {
+    "lcpMs": 256,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     200,
+     284
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "page": "/experience",
+   "size": "390x844",
+   "dpr": 1,
+   "mobile": true,
+   "runs": [
+    {
+     "lcpMs": 5260,
+     "lcpElement": "span.map-caption-credit.map-rise",
+     "lcpUrl": null,
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 300,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 15,
+       "durationMs": 244,
+       "blockingMs": 88,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 254.5,
+       "endMs": 272.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 256.1,
+       "endMs": 273.2,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10135,
+       "startMs": 256.2,
+       "endMs": 273,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 289.8,
+       "endMs": 301.2,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"IBM Plex Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 27,
+        "bytes": 691419
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 4,
+        "bytes": 35648
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 10841
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 19113
+       },
+       "Image": {
+        "count": 2,
+        "bytes": 478513
+       },
+       "Script": {
+        "count": 16,
+        "bytes": 185637
+       },
+       "Font": {
+        "count": 4,
+        "bytes": 35648
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 111,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 3.11
+    },
+    {
+     "lcpMs": 5224,
+     "lcpElement": "span.map-caption-credit.map-rise",
+     "lcpUrl": null,
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 208,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 7,
+       "durationMs": 160,
+       "blockingMs": 0,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 161.8,
+       "endMs": 180.6,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 163.5,
+       "endMs": 180.8,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10135,
+       "startMs": 163.6,
+       "endMs": 180.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 197.4,
+       "endMs": 209.9,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"IBM Plex Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 27,
+        "bytes": 691419
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5054
+       },
+       "https://fonts.gstatic.com": {
+        "count": 4,
+        "bytes": 35648
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 10841
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 19113
+       },
+       "Image": {
+        "count": 2,
+        "bytes": 478513
+       },
+       "Script": {
+        "count": 16,
+        "bytes": 185637
+       },
+       "Font": {
+        "count": 4,
+        "bytes": 35648
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 111,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 3.17
+    },
+    {
+     "lcpMs": 5244,
+     "lcpElement": "span.map-caption-credit.map-rise",
+     "lcpUrl": null,
+     "lcpFamily": "\"IBM Plex Mono\", monospace",
+     "fcpMs": 284,
+     "cls": 0,
+     "tbtMs": 0,
+     "longFrames": [
+      {
+       "startMs": 15,
+       "durationMs": 229,
+       "blockingMs": 83,
+       "scripts": []
+      }
+     ],
+     "fontsAtLcp": [
+      "Doto|400 900|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|400|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|500|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D",
+      "IBM Plex Mono|600|normal|U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2D"
+     ],
+     "fontFiles": [
+      {
+       "file": "-F63fjptAgt5VM-kVkqdyU8n1i8q131nj-o.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10043,
+       "startMs": 238.8,
+       "endMs": 256.9,
+       "beforeLcp": true
+      },
+      {
+       "file": "t5t6IRMbNJ6TQG7Il_EKPqP9zTnvqouBWhoxrW5O.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 5387,
+       "startMs": 240.3,
+       "endMs": 258.7,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10135,
+       "startMs": 240.3,
+       "endMs": 258.4,
+       "beforeLcp": true
+      },
+      {
+       "file": "-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgsAXHNk.woff2",
+       "origin": "https://fonts.gstatic.com",
+       "bytes": 10083,
+       "startMs": 274.6,
+       "endMs": 285.7,
+       "beforeLcp": true
+      }
+     ],
+     "headingFamilies": [
+      "\"IBM Plex Mono\", monospace",
+      "Doto, monospace"
+     ],
+     "bodyFamily": "\"IBM Plex Mono\", monospace",
+     "requests": {
+      "byOrigin": {
+       "http://localhost:5180": {
+        "count": 27,
+        "bytes": 691419
+       },
+       "https://fonts.googleapis.com": {
+        "count": 2,
+        "bytes": 5186
+       },
+       "https://fonts.gstatic.com": {
+        "count": 4,
+        "bytes": 35648
+       }
+      },
+      "byType": {
+       "Document": {
+        "count": 1,
+        "bytes": 10841
+       },
+       "Stylesheet": {
+        "count": 8,
+        "bytes": 19245
+       },
+       "Image": {
+        "count": 2,
+        "bytes": 478513
+       },
+       "Script": {
+        "count": 16,
+        "bytes": 185637
+       },
+       "Font": {
+        "count": 4,
+        "bytes": 35648
+       },
+       "Fetch": {
+        "count": 1,
+        "bytes": 272
+       },
+       "Other": {
+        "count": 1,
+        "bytes": 2097
+       }
+      },
+      "total": 111,
+      "failed": []
+     },
+     "bfcache": {
+      "restored": true,
+      "reasons": []
+     },
+     "loadAverage": 2.99
+    }
+   ],
+   "median": {
+    "lcpMs": 5244,
+    "cls": 0,
+    "tbtMs": 0
+   },
+   "spread": {
+    "lcpMs": [
+     5224,
+     5260
+    ],
+    "cls": [
+     0,
+     0
+    ],
+    "tbtMs": [
+     0,
+     0
+    ]
+   }
+  }
+ ]
+}

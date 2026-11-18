@@ -1,21 +1,27 @@
-import { json, type LinksFunction, type MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { json, type HeadersFunction, type MetaFunction } from "@remix-run/node";
+import { useLoaderData, type ShouldRevalidateFunction } from "@remix-run/react";
 import { getHomePageContent } from "../content/loaders.server";
-import AboutSection from "../components/home/about-section";
-import HeroSection from "../components/home/hero-section";
-import SiteNav from "../components/site-nav";
+import HomePage from "../components/home/home-page";
+import { isHashOnlyMove } from "../lib/revalidate";
+
+// The HTML carries the server's painting pick and its preload, so a shared cache must not reuse it;
+// `no-cache` (not `no-store`) keeps the back/forward cache.
+export const headers: HeadersFunction = () => ({ "Cache-Control": "private, no-cache" });
 
 export const meta: MetaFunction = () => [
-  { title: "FragTaco — Aditya Bhoir" },
+  { title: "FragTaco - Aditya Bhoir" },
 ];
 
-// Preload only the server-rendered hero painting (the first manifest entry).
-// The client may swap to a random pick, but this keeps the initial paint fast.
-// Keep this href in sync with the first item in content/site/hero-paintings.json.
-export const links: LinksFunction = () => [
-  { rel: "preload", as: "image", href: "/paintings/school-of-athens.jpg" },
-];
+// Hash-only history moves (the reading / watching layer's /#reading and /#watching) must not
+// re-run this loader.
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}) => (isHashOnlyMove(currentUrl, nextUrl) ? false : defaultShouldRevalidate);
 
+// `no-store` because the first painting is picked per visit: a cached response would repeat it.
+// root.tsx's Layout reads this route's data to preload that painting in <head>.
 export async function loader() {
   const homePageContent = await getHomePageContent();
 
@@ -25,34 +31,14 @@ export async function loader() {
     },
     {
       headers: {
-        "Cache-Control": "private, max-age=900",
+        "Cache-Control": "private, no-store",
       },
     },
   );
 }
 
 export default function Index() {
-  const {
-    home,
-    facts,
-    heroPaintings,
-    navigationItems,
-    socialLinks,
-  } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
 
-  return (
-    <main className="bg-ink text-fog">
-      <HeroSection
-        title={home.hero.title}
-        subtitle={home.hero.subtitle}
-        paintings={heroPaintings}
-      />
-      <SiteNav currentPage="home" items={navigationItems} socialLinks={socialLinks} />
-      <AboutSection
-        paragraphs={home.about.paragraphs}
-        facts={facts}
-        credits={home.credits}
-      />
-    </main>
-  );
+  return <HomePage {...data} />;
 }

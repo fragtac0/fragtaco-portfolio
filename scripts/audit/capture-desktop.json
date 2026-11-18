@@ -1,0 +1,172 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "go": "{{BASE}}/",
+  "wait": 500,
+  "shot": "load-0500"
+ },
+ {
+  "wait": 700,
+  "shot": "load-1200"
+ },
+ {
+  "wait": 900,
+  "shot": "load-2100"
+ },
+ {
+  "wait": 700,
+  "shot": "load-2800"
+ },
+ {
+  "wait": 700,
+  "shot": "load-3500"
+ },
+ {
+  "wait": 800,
+  "shot": "load-4300"
+ },
+ {
+  "wait": 900,
+  "shot": "load-5200"
+ },
+ {
+  "wait": 14000,
+  "shot": "hero-warm"
+ },
+ {
+  "shot": "hero"
+ },
+ {
+  "key": "ArrowRight",
+  "vk": 39,
+  "wait": 1500,
+  "shot": "intro-warm"
+ },
+ {
+  "shot": "intro"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1000
+ },
+ {
+  "key": "ArrowLeft",
+  "vk": 37,
+  "wait": 1500,
+  "shot": "credits-warm"
+ },
+ {
+  "shot": "credits"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1000
+ },
+ {
+  "eval": "document.getElementById('below').scrollIntoView(); new Promise(r=>setTimeout(()=>r(scrollY),2000))",
+  "label": "scrolled",
+  "shot": "blocks-warm"
+ },
+ {
+  "shot": "local-blocks"
+ },
+ {
+  "eval": "document.querySelector('[data-xp=reading]').click(); 1",
+  "wait": 700,
+  "shot": "shelf-0700"
+ },
+ {
+  "wait": 800,
+  "shot": "shelf-1500"
+ },
+ {
+  "wait": 800,
+  "shot": "shelf-2300"
+ },
+ {
+  "wait": 900,
+  "shot": "shelf-3200"
+ },
+ {
+  "wait": 6000,
+  "shot": "shelf-warm"
+ },
+ {
+  "shot": "shelf"
+ },
+ {
+  "move": [
+   720,
+   430
+  ],
+  "wait": 900
+ },
+ {
+  "click": [
+   720,
+   430
+  ],
+  "wait": 150,
+  "shot": "local-open-a"
+ },
+ {
+  "wait": 150,
+  "shot": "local-open-b"
+ },
+ {
+  "wait": 200,
+  "shot": "local-open-c"
+ },
+ {
+  "wait": 1800,
+  "shot": "local-open-warm"
+ },
+ {
+  "shot": "local-open"
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1200
+ },
+ {
+  "key": "Escape",
+  "vk": 27,
+  "wait": 1500
+ },
+ {
+  "eval": "document.querySelector('[data-xp=watching]').click(); 1",
+  "wait": 6000,
+  "shot": "local-wall-warm"
+ },
+ {
+  "shot": "local-wall"
+ },
+ {
+  "move": [
+   700,
+   470
+  ],
+  "wait": 1100,
+  "shot": "local-wall-hover-warm"
+ },
+ {
+  "shot": "local-wall-hover"
+ },
+ {
+  "click": [
+   700,
+   470
+  ],
+  "wait": 1800,
+  "shot": "local-detail-warm"
+ },
+ {
+  "shot": "local-detail"
+ }
+]

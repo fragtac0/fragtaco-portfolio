@@ -1,0 +1,21 @@
+{
+ "what": "R59.2c: the page-change, arrival and glass-cost gates of the Round 7 plan after the security review fixes (Trusted Types report-only, the root ErrorBoundary, 'self' in script-src), run under the gate lock on the production build of 90805d0 on :5180, headless Chrome. Raw outputs sit beside this file.",
+ "date": "2026-11-17",
+ "loadAverageAtStart_1_5_15min": {
+  "page-change": "11.62 7.83 6.81",
+  "page-change-hook": "8.20 7.44 6.71",
+  "page-change-phone": "12.21 8.61 7.18",
+  "arrival.json": "11.80 9.03 7.40",
+  "make-arrival (full run)": "7.40 7.90 7.17",
+  "glass 1512x982@2": "6.00 6.50 6.72",
+  "glass 1920x1080@1": "7.85 6.84 6.82",
+  "glass 1920x1080@1 rerun": "6.57 6.84 6.83"
+ },
+ "pageChange": "page-change.json 5 changes, page-change-hook.json 5, page-change-phone.json 5: 0 frames over 34 ms in all 15, longest 33.4 ms, bend on, the guard never tripped.",
+ "arrival": "arrival.json: every step ok. make-arrival run --generated: 12 of 12 PASS on the first run (largest F_vs_E 0.124% at 390x844@3 portfolio-to-home; limit 0.5%).",
+ "glassCost": {
+  "1512x982@2": "PASS: renderer compositor 277/272/307 ms (limit 450), display 185/190/203 ms (limit 300), one dropped frame a run (the first, R125), none after.",
+  "1920x1080@1": "FAIL on the dropped-frame rule, in the run and in its one re-run: compositor 324/336/309 and 321/336/306 ms, display 214/220/202 and 217/214/202 ms (both inside the limits), dropped frames 14/15/24 and 15/16/24 (after the first frame 13/14/23 and 14/15/23). Not caused by this change: the build of the previous commit (bf062c8, served on another port, scratch worktree removed) fails the same way when run alternately with this one, under the lock, twice each: base 16/14/21 and 22/15/14 dropped, this build 19/10/14 and 13/16/10 (compositor 307 to 341 ms on both). The same gate passed with one dropped frame a run on bf062c8 earlier the same day (gates-r59-2). So the machine, not the code, changed; the cost numbers did not move between the two builds."
+ },
+ "note_on_load": "the machine was shared with other sessions (1 minute load 6 to 12 at the starts)"
+}

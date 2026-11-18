@@ -1,0 +1,272 @@
+
+ RUN  v3.2.7 <repo>
+
+ ✓ app/components/home/reading/dot-field.test.ts (7 tests) 289ms
+ ✓ app/components/page-change/glass-edge.test.ts (12 tests) 300ms
+ ✓ app/components/page-change/glass-field.test.ts (21 tests) 360ms
+ ✓ app/components/page-change/glass-texture.test.ts (6 tests) 333ms
+ ✓ app/components/experience/climb-engine-entrance.test.ts (8 tests) 494ms
+ ✓ app/components/home/reading/ledge.test.ts (9 tests) 660ms
+   ✓ ledgeLines > keeps every point inside the box, its ends on the width, for narrow and wide ledges  655ms
+ ✓ app/components/home/watching/wall-camera.test.ts (13 tests) 158ms
+ ✓ app/components/experience/contours.test.ts (13 tests) 181ms
+ ✓ app/components/experience/camera.test.ts (17 tests) 192ms
+ ✓ app/components/work/gallery/wall-arrival.test.ts (17 tests) 763ms
+   ✓ arrival > stays inside the bounds: scale 0.86 to 1, alpha 0 to 1, for every tile of every grid at every moment  530ms
+ ✓ app/components/page-change/glass-vignette.test.ts (9 tests) 240ms
+ ✓ app/components/home/reading/spine-styles.test.ts (10 tests) 97ms
+ ✓ app/components/home/layer/layer-state.test.ts (17 tests) 126ms
+ ✓ app/components/experience/bead-hit.test.ts (11 tests) 104ms
+ ✓ app/components/work/gallery/gallery-math.test.ts (298 tests) 138ms
+ ✓ app/components/home/watching/wall-warp.test.ts (17 tests) 109ms
+ ✓ app/components/home/watching/wall-proximity.test.ts (7 tests) 98ms
+ ✓ app/lib/page-change-hold.test.ts (9 tests) 186ms
+ ✓ app/components/experience/view-fit.test.ts (14 tests) 51ms
+ ✓ app/components/home/watching/wall-block.test.ts (55 tests) 63ms
+ ✓ app/content/loaders.test.ts (12 tests) 108ms
+ ✓ app/components/experience/chart-state.test.ts (8 tests) 31ms
+ ✓ app/components/home/watching/wall-camera-pan.test.ts (11 tests) 55ms
+ ✓ app/components/experience/trail-layer.test.ts (21 tests) 34ms
+ ✓ app/components/home/reading/spine-paint.test.ts (25 tests) 66ms
+ ✓ app/components/home/watching/wall-pose-open.test.ts (17 tests) 1365ms
+ ✓ app/components/home/watching/wall-motion.test.ts (13 tests) 41ms
+ ✓ app/components/experience/climb-engine-steps.test.ts (7 tests) 1407ms
+   ✓ a press during the change into My climb > keeps the one camera move: k's step never stalls, and the card waits for what time is left  321ms
+   ✓ a press during the change into My climb > still starts a change when the target differs, or none is running and k is off target  375ms
+ ✓ app/components/work/ring-coverage.test.ts (22 tests) 44ms
+ ✓ app/styles/fonts-generated.test.ts (3 tests) 80ms
+ ✓ app/components/home/reading/box-framing.test.ts (48 tests) 25ms
+ ✓ app/components/experience/climb-engine-chart.test.ts (18 tests) 1444ms
+   ✓ the frame's canvas > has the overview's lettering (north, the scale bar, the rings') in the overview and none of it in My climb; the corner marks and the readout stay  308ms
+ ✓ app/components/home/reading/shelf-lift.test.ts (24 tests) 35ms
+ ✓ app/components/experience/chart-layer.test.ts (13 tests) 25ms
+ ✓ app/lib/page-change.test.ts (22 tests) 25ms
+ ✓ app/components/home/watching/wall-engine-frame.test.ts (15 tests) 17ms
+ ✓ app/components/work/ring-layout.test.ts (18 tests) 27ms
+ ✓ app/components/home/layer/frame-math.test.ts (32 tests) 22ms
+ ✓ app/components/page-change/glass-noise.test.ts (8 tests) 27ms
+ ✓ app/components/experience/words-layout.test.ts (36 tests) 18ms
+ ✓ app/components/home/watching/wall-math.test.ts (22 tests) 20ms
+stderr | app/components/work/gallery/gallery-engine.test.ts > createGallery without WebGL > resolves to null instead of throwing, so the page keeps its plain grid
+THREE.WebGLRenderer: Error creating WebGL context.
+
+ ✓ app/lib/history-change.test.ts (13 tests) 58ms
+ ✓ app/utils/load-image.test.ts (13 tests) 25ms
+ ✓ app/components/work/gallery/gallery-engine.test.ts (8 tests) 33ms
+ ✓ app/components/home/hero/painting-memory.test.ts (4 tests) 18ms
+ ✓ app/components/experience/heights.test.ts (21 tests) 15ms
+ ✓ app/components/experience/trail.test.ts (21 tests) 16ms
+ ✓ app/components/home/reading/shelf-fit-math.test.ts (42 tests) 9ms
+ ✓ scripts/youtube.test.ts (23 tests) 21ms
+ ✓ app/components/work/gallery/wall-layout.test.ts (10 tests) 12ms
+ ✓ app/components/home/reading/shelf-projected.test.ts (1 test) 21ms
+ ✓ app/components/home/reading/shelf-ledge.test.ts (5 tests) 23ms
+ ✓ app/components/home/reading/spine-fonts.test.ts (13 tests) 22ms
+ ✓ app/components/home/reading/shelf-spine-fonts.test.ts (19 tests) 17ms
+ ✓ app/components/home/watching/wall-spread.test.ts (31 tests) 9ms
+ ✓ app/components/work/gallery/gallery-hit.test.ts (17 tests) 9ms
+ ✓ app/components/home/reading/spine-series.test.ts (15 tests) 7ms
+ ✓ scripts/sync-helpers.test.ts (7 tests) 12ms
+ ✓ app/content/schemas-experience.test.ts (19 tests) 12ms
+ ✓ app/components/home/reading/shelf-pose.test.ts (12 tests) 15ms
+ ✓ app/components/work/ring-focus.test.ts (23 tests) 8ms
+ ✓ app/components/home/reading/shelf-open-math.test.ts (16 tests) 5ms
+ ✓ app/content/schemas.test.ts (37 tests) 8ms
+ ✓ app/utils/count-label.test.ts (3 tests) 24ms
+stderr | app/components/home/blocks/interest-blocks.test.ts > InterestBlocks: the flat previews are the picture of a box the client has decided cannot draw > mounts neither flat preview while both boxes hold their live scene (no thumbnail is requested, no spine painted)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
+
+stderr | app/components/home/blocks/interest-blocks.test.ts > InterestBlocks: the flat previews are the picture of a box the client has decided cannot draw > mounts neither while the client has not decided (the server's and the hydration render): the dark ground and the words, no request
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
+
+stderr | app/components/home/blocks/interest-blocks.test.ts > InterestBlocks: the flat previews are the picture of a box the client has decided cannot draw > mounts both when WebGL is missing or the scenes failed: the mini shelf and the mini wall with their small thumbnails
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MiniShelf (<repo>/app/components/home/blocks/mini-shelf.tsx:8:22)
+    at div
+    at article
+    at div
+    at div
+    at section
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
+
+stderr | app/components/home/blocks/interest-blocks.test.ts > InterestBlocks: the flat previews are the picture of a box the client has decided cannot draw > decides per box: a failed shelf scene shows only the mini shelf
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MiniShelf (<repo>/app/components/home/blocks/mini-shelf.tsx:8:22)
+    at div
+    at article
+    at div
+    at div
+    at section
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
+
+ ✓ app/components/home/blocks/interest-blocks.test.ts (4 tests) 36ms
+ ✓ app/components/experience/use-words-layout.test.ts (6 tests) 5ms
+ ✓ app/components/home/layer/move-driver.test.ts (13 tests) 8ms
+ ✓ app/lib/webgl-support.test.ts (5 tests) 39ms
+ ✓ app/components/home/layer/open-move.test.ts (26 tests) 4ms
+ ✓ app/components/experience/route.test.ts (1 test) 1ms
+ ✓ app/components/home/reading/shelf-spines.test.ts (13 tests) 9ms
+ ✓ app/components/experience/climb-change.test.ts (8 tests) 5ms
+ ✓ app/components/home/reading/shelf-light.test.ts (7 tests) 5ms
+ ✓ app/routes/api.csp-report.test.ts (9 tests) 8ms
+ ✓ app/components/home/layer/frame-box.test.ts (17 tests) 4ms
+ ✓ app/components/experience/card-slot.test.ts (11 tests) 3ms
+ ✓ app/components/home/layer/move-driver-reduced.test.ts (4 tests) 5ms
+ ✓ app/components/home/cards/card-pose.test.ts (21 tests) 6ms
+ ✓ app/components/home/hero/painting-cycle.test.ts (33 tests) 4ms
+ ✓ app/components/experience/view.test.ts (27 tests) 6ms
+ ✓ app/components/error-page.test.ts (5 tests) 6ms
+ ✓ app/components/experience/chart.test.ts (16 tests) 24ms
+ ✓ app/components/home/watching/wall-reshape.test.ts (11 tests) 3ms
+ ✓ app/lib/intro-session.test.ts (37 tests) 7ms
+ ✓ app/components/experience/frame-layer.test.ts (18 tests) 7ms
+ ✓ app/components/page-change/glass-math.test.ts (26 tests) 5ms
+ ✓ app/components/home/reading/shelf-engine-frame.test.ts (11 tests) 8ms
+ ✓ app/routes/api.page-view.test.ts (5 tests) 7ms
+ ✓ app/components/work/work-no-cutout.test.ts (4 tests) 9ms
+ ✓ app/lib/arrival.test.ts (17 tests) 13ms
+ ✓ app/lib/arrival-dom.test.ts (7 tests) 32ms
+ ✓ app/lib/dock-focus.test.ts (7 tests) 2ms
+ ✓ app/components/ground/eclipse-look.test.ts (25 tests) 4ms
+ ✓ app/components/experience/split-letters.test.ts (6 tests) 6ms
+ ✓ app/components/experience/relief-links.test.ts (4 tests) 6ms
+ ✓ app/components/experience/entrance.test.ts (14 tests) 7ms
+ ✓ app/components/home/reading/shelf-frame.test.ts (20 tests) 7ms
+ ✓ app/components/page-change/glass-guard.test.ts (10 tests) 4ms
+ ✓ app/lib/change-finish.test.ts (11 tests) 5ms
+ ✓ app/utils/idle.test.ts (12 tests) 4ms
+ ✓ app/components/home/watching/wall-echo-arrival.test.ts (14 tests) 7ms
+ ✓ app/components/home/cards/card-tab.test.ts (3 tests) 3ms
+ ✓ app/lib/security-headers.server.test.ts (11 tests) 3ms
+ ✓ app/components/home/reading/shelf-math.test.ts (25 tests) 3ms
+ ✓ app/components/home/hero/logo-nodes.test.ts (6 tests) 4ms
+ ✓ app/styles/tokens.test.ts (5 tests) 3ms
+ ✓ app/components/experience/entrance-driver.test.ts (13 tests) 6ms
+ ✓ app/content/placeholder-art.test.ts (6 tests) 4ms
+ ✓ app/styles/fonts.test.ts (7 tests) 6ms
+ ✓ app/components/home/watching/shot-decode.test.ts (4 tests) 5ms
+ ✓ app/components/home/layer/frame-box-place.test.ts (16 tests) 4ms
+stderr | app/components/home/home-page.test.ts > HomePage: a live visitor loads no flat preview (RB9, spec 6.1) > the server's first render (which is also the hydration render) holds both boxes as their dark ground: no mini wall, no mini shelf, no thumbnail request
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at HomePage (<repo>/app/components/home/home-page.tsx:37:3)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at HomePage (<repo>/app/components/home/home-page.tsx:37:3)
+Warning: React does not recognize the `reloadDocument` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `reloaddocument` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
+    at a
+    at Link
+    at PageLink2 (<repo>/app/components/page-link.tsx:7:76)
+    at div
+    at div
+    at div
+    at aside
+    at IntroCard (<repo>/app/components/home/cards/intro-card.tsx:7:22)
+    at HeroCards (<repo>/app/components/home/cards/hero-cards.tsx:13:22)
+    at section
+    at Hero2 (<repo>/app/components/home/hero/hero.tsx:19:68)
+    at div
+    at main
+    at HomePage (<repo>/app/components/home/home-page.tsx:37:3)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
+    at div
+    at main
+    at HomePage (<repo>/app/components/home/home-page.tsx:37:3)
+
+ ✓ app/components/home/home-page.test.ts (1 test) 27ms
+ ✓ app/components/experience/entrance-state.test.ts (16 tests) 4ms
+ ✓ app/components/home/watching/wall-pose.test.ts (14 tests) 5ms
+ ✓ app/content/work-json.test.ts (9 tests) 4ms
+ ✓ app/components/home/reading/shelf-prefit.test.ts (7 tests) 4ms
+ ✓ app/lib/reveal-state.test.ts (5 tests) 3ms
+ ✓ app/lib/ease-in.test.ts (6 tests) 17ms
+ ✓ app/styles/contrast.test.ts (6 tests) 2ms
+ ✓ app/components/home/watching/wall-hidden.test.ts (1 test) 4ms
+ ✓ app/lib/vercel-config.test.ts (7 tests) 3ms
+ ✓ app/components/home/hero/loader-timeline.test.ts (14 tests) 4ms
+ ✓ app/components/home/reading/shelf-frame-box.test.ts (9 tests) 4ms
+ ✓ app/components/home/blocks/mini-previews.test.ts (14 tests) 4ms
+ ✓ app/components/experience/card-controller.test.ts (10 tests) 14ms
+ ✓ app/components/spine-fonts.test.ts (3 tests) 4ms
+ ✓ scripts/work-sources.test.ts (10 tests) 3ms
+ ✓ app/components/experience/climb-engine.test.ts (20 tests) 3789ms
+   ✓ the loop > is 3.6 s in and 3.2 s out  551ms
+   ✓ the change > never reverses: the camera's height on the screen, its tilt and its target only go one way, at 60 and at 20 frames a second  382ms
+   ✓ the change > never reverses on the way out either  390ms
+   ✓ the change > draws nothing on the way out once the night is back under NIGHT_ON  873ms
+ ✓ app/components/experience/map-math.test.ts (5 tests) 2ms
+ ✓ app/content/work-media.test.ts (14 tests) 2ms
+ ✓ app/components/home/reading/spine-draw.test.ts (1 test) 1ms
+ ✓ app/utils/turns.test.ts (4 tests) 3ms
+ ✓ app/components/experience/climb-engine-camera.test.ts (12 tests) 3860ms
+   ✓ the camera along the trail > goes in at the milestone that was chosen, and leaves with a null selection  318ms
+   ✓ the camera along the trail > follows its goal without overshooting it, from rest, and stops there exactly  674ms
+   ✓ the camera along the trail > tells the card to wait the short time for a milestone in view, and the long one for one it must travel to  1019ms
+   ✓ the camera along the trail > hides the picture once it is gone, and shows it again  475ms
+   ✓ the camera along the trail > renders the depth blurs only once the night has begun  811ms
+ ✓ app/components/home/layer/open-gate.test.ts (14 tests) 3ms
+ ✓ app/lib/same-site.server.test.ts (5 tests) 3ms
+ ✓ scripts/mars-tone.test.ts (6 tests) 3ms
+ ✓ app/components/work/cover-image.test.ts (3 tests) 2ms
+ ✓ app/components/experience/geo.test.ts (14 tests) 3ms
+ ✓ app/components/home/hero/paint-progress.test.ts (5 tests) 2ms
+ ✓ app/components/home/reading/cover-colours.test.ts (5 tests) 4ms
+ ✓ app/components/experience/cards-css.test.ts (8 tests) 3ms
+ ✓ app/components/work/work-tabs.test.ts (3 tests) 2ms
+ ✓ app/components/page-change/glass-filter.test.ts (9 tests) 5ms
+ ✓ app/components/experience/keep-out.test.ts (16 tests) 3ms
+ ✓ app/components/home/watching/wall-canvas.test.ts (6 tests) 3ms
+ ✓ app/components/home/cards/hero-nav.test.ts (12 tests) 2ms
+ ✓ app/components/experience/entrance-css.test.ts (10 tests) 6ms
+ ✓ app/components/experience/terrain-canvas.test.ts (8 tests) 5ms
+ ✓ app/utils/nav.test.ts (13 tests) 3ms
+ ✓ scripts/playlist-listing.test.ts (6 tests) 2ms
+ ✓ app/lib/nonce.test.ts (2 tests) 3ms
+ ✓ app/root.test.ts (3 tests) 9ms
+ ✓ app/content/shuffle.test.ts (4 tests) 3ms
+ ✓ app/components/page-change/glass-warm-loop.test.ts (9 tests) 2ms
+ ✓ scripts/mars-frame.test.ts (10 tests) 2ms
+ ✓ app/components/home/reading/shelf-docked-input.test.ts (2 tests) 2ms
+ ✓ app/components/home/cards/card-shell.test.ts (11 tests) 4ms
+ ✓ app/components/home/hero/hero-edge.test.ts (4 tests) 5ms
+ ✓ app/components/home/watching/wall-warp-frame.test.ts (3 tests) 3ms
+ ✓ app/components/experience/frame.test.ts (7 tests) 2ms
+ ✓ app/components/home/watching/wall-thaw.test.ts (7 tests) 2ms
+ ✓ app/components/experience/map-words.test.ts (6 tests) 2ms
+ ✓ app/components/home/reading/shelf-covers.test.ts (2 tests) 2ms
+ ✓ app/components/home/watching/wall-docked-input.test.ts (2 tests) 3ms
+ ✓ app/components/work/ring-entries.test.ts (5 tests) 2ms
+ ✓ app/components/home/watching/wall-warp-pass.test.ts (5 tests) 3ms
+ ✓ app/components/home/layer/back-tracker.test.ts (5 tests) 2ms
+ ✓ app/components/experience/climb-hop.test.ts (3 tests) 2ms
+ ✓ app/components/home/hero/paint-gate.test.ts (10 tests) 1ms
+ ✓ app/components/home/context-lost.test.ts (4 tests) 2ms
+ ✓ app/utils/page-view-source.test.ts (2 tests) 1ms
+ ✓ app/components/home/reading/shelf-drag.test.ts (7 tests) 2ms
+ ✓ app/content/mappers.test.ts (3 tests) 2ms
+ ✓ app/components/experience/mars-files.test.ts (2 tests) 3ms
+ ✓ app/components/home/reading/shelf-camera.test.ts (2 tests) 2ms
+ ✓ app/components/home/cards/credit-link.test.ts (4 tests) 2ms
+ ✓ app/components/home/blocks/box-picture.test.ts (3 tests) 1ms
+ ✓ app/components/experience/moment-card-cover.test.ts (3 tests) 2ms
+ ✓ app/components/home/watching/wall-hud.test.ts (3 tests) 1ms
+ ✓ app/components/home/layer/use-layer-history.test.ts (4 tests) 1ms
+ ✓ app/components/home/layer/use-head-clear.test.ts (2 tests) 2ms
+ ✓ app/components/home/hero/ken-burns.test.ts (4 tests) 1ms
+ ✓ app/utils/inert.test.ts (2 tests) 1ms
+ ✓ app/components/home/blocks/near-gate.test.ts (4 tests) 4ms
+ ✓ app/lib/revalidate.test.ts (3 tests) 3ms
+ ✓ app/components/home/watching/video-date.test.ts (2 tests) 1ms
+ ✓ app/components/work/ring-math.test.ts (157 tests) 6812ms
+   ✓ ringPlan: limits > holds the pair rule, the 0.92 cap and L from 96 to L_MAX on a grid of 280 to 2600 by 280 to 1600 (every 40 px)  6742ms
+
+ Test Files  187 passed (187)
+      Tests  2561 passed (2561)
+   Start at  17:09:06
+   Duration  7.07s (transform 4.61s, setup 0ms, collect 13.72s, tests 25.34s, environment 22ms, prepare 6.49s)
+

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Round 7 preview 10</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Doto:wght@400..900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@300..900&family=Young+Serif&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../round7-preview-4/preview.css">
+<link rel="stylesheet" href="p10.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-title"><b>Round 7 preview 10</b><span>throwaway, for choosing directions. Nothing here ships as it is.</span></div>
+  <nav class="tabs" id="tabs">
+    <button data-sec="shelf">1 Opening the shelf and the wall</button>
+    <button data-sec="change">2 The page change's edge</button>
+  </nav>
+</header>
+
+<!-- ============ 1 OPENING ============ -->
+<section class="sec" id="sec-shelf">
+  <div class="chips" id="dockChips">
+    <span class="chip-label">In the box</span>
+    <button class="chip on" data-v="mini">The whole page, small</button>
+    <button class="chip" data-v="half">Half way</button>
+    <button class="chip" data-v="real">Real size, seen through the box</button>
+  </div>
+  <div class="chips" id="durChips">
+    <span class="chip-label">Length</span>
+    <button class="chip" data-v="700">0.7 s</button>
+    <button class="chip on" data-v="1000">1.0 s</button>
+    <button class="chip" data-v="1400">1.4 s</button>
+    <span class="chip-label">The home page behind</span>
+    <span id="sinkChips" class="chip-group">
+      <button class="chip on" data-v="1">Sinks back and dims</button>
+      <button class="chip" data-v="0">Stays as it is</button>
+    </span>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="home" id="home">
+      <div class="blocks">
+        <article class="block" data-open="read">
+          <div class="slot" id="slotRead"></div>
+          <div class="blk-text">
+            <div><h2>What I'm reading</h2><p>14 books this year, mostly film and design.</p></div>
+            <span class="pill">Open the shelf</span>
+          </div>
+        </article>
+        <article class="block" data-open="watch">
+          <div class="slot" id="slotWatch"></div>
+          <div class="blk-text">
+            <div><h2>What I'm watching</h2><p>109 videos I keep sending to friends.</p></div>
+            <span class="pill">Open the wall</span>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- the two windows: each holds the real scene from the start, and only ever changes its frame -->
+    <div class="win" id="winRead" data-slot="slotRead" data-open="read">
+      <div class="scene">
+        <div class="shelf-wrap" id="shelfWrap" data-set="strata">
+          <canvas class="glow" id="shelfBack"></canvas>
+          <div class="shelf-pos" id="shelfPos">
+            <div class="shelf" id="shelf"></div>
+            <div class="ledge"><svg class="strata" id="strata" viewBox="0 0 1000 74" preserveAspectRatio="none"></svg></div>
+          </div>
+        </div>
+      </div>
+      <div class="chrome"><h3>What I'm reading</h3><button class="close" type="button">Close <kbd>Esc</kbd></button></div>
+    </div>
+    <div class="win" id="winWatch" data-slot="slotWatch" data-open="watch">
+      <div class="scene">
+        <div class="wall" id="wall"></div>
+        <div class="wall-edge"></div>
+      </div>
+      <div class="chrome"><h3>What I'm watching</h3><button class="close" type="button">Close <kbd>Esc</kbd></button></div>
+    </div>
+  </div>
+
+  <p class="note">The frame above stands for the browser window. <b>Click a box to open it, then Close or Esc to go back.</b> There is no picture standing in for the scene any more: the box on the home page already holds the real shelf and the real wall, drawn live. Opening only changes the frame around them, so nothing fades into something else. Closing is the same move backwards.</p>
+  <p class="note"><b>The whole page, small</b> is your idea as you described it: the open page sits in the box in miniature and grows to full screen. <b>Real size</b> keeps the books and thumbnails at their final size and the box widens like a window being opened. <b>Half way</b> sits between the two. On the wall, moving the mouse still pans once it is open.</p>
+</section>
+
+<!-- ============ 2 PAGE CHANGE ============ -->
+<section class="sec" id="sec-change">
+  <div class="chips" id="speedChips">
+    <span class="chip-label">Length</span>
+    <button class="chip on" data-v="2500">2.5 s</button>
+    <button class="chip" data-v="3500">3.5 s (as built now)</button>
+  </div>
+  <div class="chips" id="edgeChips">
+    <span class="chip-label">Edge width</span>
+    <button class="chip" data-v="0.09">As the earlier preview</button>
+    <button class="chip on" data-v="0.15">Wider</button>
+    <button class="chip" data-v="0.22">Widest</button>
+  </div>
+  <div class="chips" id="bendChips">
+    <span class="chip-label">Refraction</span>
+    <button class="chip" data-v="1">As the earlier preview</button>
+    <button class="chip on" data-v="1.9">Stronger</button>
+    <button class="chip" data-v="3">Strongest</button>
+  </div>
+  <div class="stage change-stage" id="changeStage"><canvas id="changeCanvas"></canvas><div class="play-hint" id="playHint">click to play again</div></div>
+  <p class="note">The travelling edge between two pages, radial from the centre. <b>Click the picture to play it again.</b> The edge is a band of thick glass: both pages bend inside it and the colours split slightly at its rim. What is built today has a much narrower bend and a thin bright ring, which is why it looks unlike the earlier preview; the build will be brought to whatever you pick here.</p>
+</section>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="cloth" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.35" numOctaves="3" seed="4"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.1 0.78"/></filter>
+</svg>
+
+<script src="../round7-preview-2/books.js"></script>
+<script src="ids.js"></script>
+<script src="../round7-preview-9/shelf.js"></script>
+<script src="open.js"></script>
+<script src="change.js"></script>
+<script>
+const tabs = document.getElementById('tabs');
+function openSec(name) {
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.sec === name));
+  document.querySelectorAll('.sec').forEach(s => s.classList.toggle('on', s.id === 'sec-' + name));
+  window.dispatchEvent(new CustomEvent('r7:section', { detail: name }));
+  history.replaceState(null, '', '#tab-' + name);
+}
+tabs.addEventListener('click', e => { const b = e.target.closest('button'); if (b) openSec(b.dataset.sec); });
+const first = location.hash.replace('#tab-', '');
+openSec(first && document.getElementById('sec-' + first) ? first : 'shelf');
+</script>
+</body>
+</html>

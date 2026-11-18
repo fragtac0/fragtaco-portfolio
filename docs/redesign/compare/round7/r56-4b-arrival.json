@@ -1,0 +1,3129 @@
+{
+ "what": "R56.2 frozen-frame check (round 7 change-arrival spec 5.4), from scripts/audit/make-arrival.mjs",
+ "date": "2026-11-16",
+ "verdict": true,
+ "results": [
+  {
+   "name": "home-to-portfolio",
+   "size": "1512x982@2",
+   "first": {
+    "clickToHoldMs": 69,
+    "holdMs": 117,
+    "clickToRevealMs": 186,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 54,
+    "holdMs": 0,
+    "clickToRevealMs": 54,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.016,
+    "E_vs_L_pct": 10.336,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 6.44,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 100.1,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".work-rings"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 34,
+    "ringDriftOver700msPx": 12.57,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 332,
+    "overMs": 29,
+    "ringAnimations": {
+     "F": {
+      "n": 37,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ]
+      ]
+     },
+     "E": {
+      "n": 37,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ]
+      ]
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0.01,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 157,
+    "holdMs": 502,
+    "clickToRevealMs": 658,
+    "lateAtReveal": "ground rings",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0,
+    "E_vs_L_pct": 21.346,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 18.03,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 109.4,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".work-rings"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 34,
+    "ringDriftOver700msPx": 12.98,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "img 0->1"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 18,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 262,
+    "overMs": 33,
+    "ringAnimations": {
+     "F": {
+      "n": 37,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ]
+      ]
+     },
+     "E": {
+      "n": 37,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ]
+      ]
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0.01,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": false,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": false,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "portfolio-to-long-form",
+   "size": "1512x982@2",
+   "first": {
+    "clickToHoldMs": 51,
+    "holdMs": 348,
+    "clickToRevealMs": 399,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 40,
+    "holdMs": 6,
+    "clickToRevealMs": 46,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.002,
+    "E_vs_L_pct": 2.629,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 1.11,
+    "wall_canvas_coarse_mean_diff": 1.11,
+    "resting_boxes_coarse_worst_cell": 10.5,
+    "wall_canvas_coarse_worst_cell": 10.5,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".wall-canvas-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": true
+    },
+    "endToShotMs": 465,
+    "overMs": 21,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 51,
+    "holdMs": 501,
+    "clickToRevealMs": 552,
+    "lateAtReveal": "wall",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.002,
+    "E_vs_L_pct": 0,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.55,
+    "wall_canvas_coarse_mean_diff": 0.55,
+    "resting_boxes_coarse_worst_cell": 8.7,
+    "wall_canvas_coarse_worst_cell": 8.7,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".wall-canvas-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": true
+    },
+    "endToShotMs": 338,
+    "overMs": 19,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "portfolio-to-short-form",
+   "size": "1512x982@2",
+   "first": {
+    "clickToHoldMs": 47,
+    "holdMs": 3,
+    "clickToRevealMs": 50,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 39,
+    "holdMs": 1,
+    "clickToRevealMs": 40,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.002,
+    "E_vs_L_pct": 0.048,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.37,
+    "wall_canvas_coarse_mean_diff": 0.37,
+    "resting_boxes_coarse_worst_cell": 6.9,
+    "wall_canvas_coarse_worst_cell": 6.9,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".wall-canvas-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": true
+    },
+    "endToShotMs": 333,
+    "overMs": 19,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 70,
+    "holdMs": 3,
+    "clickToRevealMs": 73,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.002,
+    "E_vs_L_pct": 0.05,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.37,
+    "wall_canvas_coarse_mean_diff": 0.37,
+    "resting_boxes_coarse_worst_cell": 7,
+    "wall_canvas_coarse_worst_cell": 7,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".wall-canvas-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": true
+    },
+    "endToShotMs": 341,
+    "overMs": 29,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "portfolio-to-experience",
+   "size": "1512x982@2",
+   "first": {
+    "clickToHoldMs": 45,
+    "holdMs": 43,
+    "clickToRevealMs": 88,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 43,
+    "holdMs": 73,
+    "clickToRevealMs": 116,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.014,
+    "E_vs_L_pct": 0.008,
+    "E_vs_L_outside_resting_pct": 0.008,
+    "resting_boxes_coarse_mean_diff": 0,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 0,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 651,
+    "overMs": 26,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 43,
+    "holdMs": 500,
+    "clickToRevealMs": 543,
+    "lateAtReveal": "map",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.031,
+    "E_vs_L_pct": 0.036,
+    "E_vs_L_outside_resting_pct": 0.036,
+    "resting_boxes_coarse_mean_diff": 0,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 0,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "img 0->1"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 219,
+    "overMs": 22,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "portfolio-to-home",
+   "size": "1512x982@2",
+   "first": {
+    "clickToHoldMs": 82,
+    "holdMs": 38,
+    "clickToRevealMs": 120,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 53,
+    "holdMs": 42,
+    "clickToRevealMs": 95,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0,
+    "E_vs_L_pct": 0.625,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.56,
+    "wall_canvas_coarse_mean_diff": 0.56,
+    "resting_boxes_coarse_worst_cell": 10.9,
+    "wall_canvas_coarse_worst_cell": 10.9,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".paint-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 899,
+      "w": 447.6,
+      "h": 59
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 899,
+      "w": 447.7,
+      "h": 59
+     },
+     "E": {
+      "x": 532.2,
+      "y": 899,
+      "w": 447.7,
+      "h": 59
+     },
+     "L": {
+      "x": 532.2,
+      "y": 899,
+      "w": 447.7,
+      "h": 59
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img"
+     ],
+     "swapped": [],
+     "faded": [
+      "div.edge-glow 0.601126->0.960942",
+      "div.edge-glow 0.898874->0.539058"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 516,
+    "overMs": 28,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 72,
+    "holdMs": 501,
+    "clickToRevealMs": 572,
+    "lateAtReveal": "painting",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0,
+    "E_vs_L_pct": 0,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.19,
+    "wall_canvas_coarse_mean_diff": 0.19,
+    "resting_boxes_coarse_worst_cell": 2.7,
+    "wall_canvas_coarse_worst_cell": 2.7,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".paint-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 899,
+      "w": 447.6,
+      "h": 59
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 899,
+      "w": 447.7,
+      "h": 59
+     },
+     "E": {
+      "x": 532.2,
+      "y": 899,
+      "w": 447.7,
+      "h": 59
+     },
+     "L": {
+      "x": 532.2,
+      "y": 899,
+      "w": 447.7,
+      "h": 59
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img"
+     ],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 477,
+    "overMs": 27,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "long-form-to-portfolio",
+   "size": "1512x982@2",
+   "first": {
+    "clickToHoldMs": 60,
+    "holdMs": 6,
+    "clickToRevealMs": 66,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 29,
+    "holdMs": 4,
+    "clickToRevealMs": 33,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.016,
+    "E_vs_L_pct": 10.693,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 6.63,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 107.1,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".work-rings"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 34,
+    "ringDriftOver700msPx": 12.04,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 404,
+    "overMs": 33,
+    "ringAnimations": {
+     "F": {
+      "n": 37,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ]
+      ]
+     },
+     "E": {
+      "n": 37,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ]
+      ]
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0.01,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 61,
+    "holdMs": 502,
+    "clickToRevealMs": 563,
+    "lateAtReveal": "rings",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0,
+    "E_vs_L_pct": 2.435,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 2.91,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 80.6,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".work-rings"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 34,
+    "ringDriftOver700msPx": 12.64,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 532,
+      "y": 845,
+      "w": 447.6,
+      "h": 113.5
+     },
+     "Flive": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "E": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "L": {
+      "x": 532.2,
+      "y": 844.5,
+      "w": 447.7,
+      "h": 113.5
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 18,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 323,
+    "overMs": 31,
+    "ringAnimations": {
+     "F": {
+      "n": 37,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ]
+      ]
+     },
+     "E": {
+      "n": 37,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ]
+      ]
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0.01,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": false,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": false,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "home-to-portfolio",
+   "size": "390x844@3",
+   "first": {
+    "clickToHoldMs": 41,
+    "holdMs": 241,
+    "clickToRevealMs": 282,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 49,
+    "holdMs": 3,
+    "clickToRevealMs": 52,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_pct": 10.802,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 6.18,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 92.7,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".work-rings"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 15,
+    "ringDriftOver700msPx": 9.62,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 242,
+    "overMs": 31,
+    "ringAnimations": {
+     "F": {
+      "n": 17,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ]
+      ]
+     },
+     "E": {
+      "n": 17,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        0.018
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.018
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.018
+       ]
+      ]
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0.01,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 53,
+    "holdMs": 501,
+    "clickToRevealMs": 554,
+    "lateAtReveal": "ground rings",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.014,
+    "E_vs_L_pct": 34.333,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 28.77,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 108.6,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".work-rings"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 15,
+    "ringDriftOver700msPx": 9.7,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "img 0->1"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 13,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 191,
+    "overMs": 27,
+    "ringAnimations": {
+     "F": {
+      "n": 17,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ]
+      ]
+     },
+     "E": {
+      "n": 17,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.017
+       ]
+      ]
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0.01,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": false,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": false,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "portfolio-to-long-form",
+   "size": "390x844@3",
+   "first": {
+    "clickToHoldMs": 45,
+    "holdMs": 421,
+    "clickToRevealMs": 466,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 27,
+    "holdMs": 6,
+    "clickToRevealMs": 34,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_pct": 7.306,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 1.38,
+    "wall_canvas_coarse_mean_diff": 1.38,
+    "resting_boxes_coarse_worst_cell": 11.7,
+    "wall_canvas_coarse_worst_cell": 11.7,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".wall-canvas-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": true
+    },
+    "endToShotMs": 298,
+    "overMs": 26,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 40,
+    "holdMs": 502,
+    "clickToRevealMs": 542,
+    "lateAtReveal": "wall",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_pct": 0,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.5,
+    "wall_canvas_coarse_mean_diff": 0.5,
+    "resting_boxes_coarse_worst_cell": 9.1,
+    "wall_canvas_coarse_worst_cell": 9.1,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".wall-canvas-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1",
+      "img 0->1"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 228,
+    "overMs": 24,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "portfolio-to-short-form",
+   "size": "390x844@3",
+   "first": {
+    "clickToHoldMs": 54,
+    "holdMs": 2,
+    "clickToRevealMs": 56,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 37,
+    "holdMs": 0,
+    "clickToRevealMs": 38,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_pct": 0.101,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.51,
+    "wall_canvas_coarse_mean_diff": 0.51,
+    "resting_boxes_coarse_worst_cell": 5.2,
+    "wall_canvas_coarse_worst_cell": 5.2,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".wall-canvas-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": true
+    },
+    "endToShotMs": 227,
+    "overMs": 24,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 57,
+    "holdMs": 2,
+    "clickToRevealMs": 59,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_pct": 0.106,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.55,
+    "wall_canvas_coarse_mean_diff": 0.55,
+    "resting_boxes_coarse_worst_cell": 5.2,
+    "wall_canvas_coarse_worst_cell": 5.2,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".wall-canvas-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0",
+      "a.wall-tile 1->0"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": true
+    },
+    "endToShotMs": 229,
+    "overMs": 19,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "portfolio-to-experience",
+   "size": "390x844@3",
+   "first": {
+    "clickToHoldMs": 49,
+    "holdMs": 42,
+    "clickToRevealMs": 91,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 46,
+    "holdMs": 41,
+    "clickToRevealMs": 86,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.048,
+    "E_vs_L_pct": 0.043,
+    "E_vs_L_outside_resting_pct": 0.043,
+    "resting_boxes_coarse_mean_diff": 0,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 0,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 438,
+    "overMs": 29,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 44,
+    "holdMs": 501,
+    "clickToRevealMs": 544,
+    "lateAtReveal": "map",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.119,
+    "E_vs_L_pct": 0.145,
+    "E_vs_L_outside_resting_pct": 0.145,
+    "resting_boxes_coarse_mean_diff": 0,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 0,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [
+      "img 0->1"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 196,
+    "overMs": 26,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "portfolio-to-home",
+   "size": "390x844@3",
+   "first": {
+    "clickToHoldMs": 69,
+    "holdMs": 31,
+    "clickToRevealMs": 100,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 59,
+    "holdMs": 32,
+    "clickToRevealMs": 92,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.007,
+    "E_vs_L_pct": 0.005,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.33,
+    "wall_canvas_coarse_mean_diff": 0.33,
+    "resting_boxes_coarse_worst_cell": 3.8,
+    "wall_canvas_coarse_worst_cell": 3.8,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".paint-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 34,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "Flive": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "E": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "L": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img"
+     ],
+     "swapped": [],
+     "faded": [
+      "div.edge-glow 0.542037->0.846586",
+      "div.edge-glow 0.957963->0.653414"
+     ],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 313,
+    "overMs": 20,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 56,
+    "holdMs": 502,
+    "clickToRevealMs": 558,
+    "lateAtReveal": "painting",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.001,
+    "E_vs_L_pct": 0,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 0.08,
+    "wall_canvas_coarse_mean_diff": 0.08,
+    "resting_boxes_coarse_worst_cell": 2.4,
+    "wall_canvas_coarse_worst_cell": 2.4,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".paint-host"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 0,
+    "ringDriftOver700msPx": 0,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 34,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "Flive": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "E": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "L": {
+      "x": 34.1,
+      "y": 784,
+      "w": 321.8,
+      "h": 48
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "div.mw-col",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img",
+      "img"
+     ],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 284,
+    "overMs": 22,
+    "ringAnimations": {
+     "F": {
+      "n": 0,
+      "t": []
+     },
+     "E": {
+      "n": 0,
+      "t": []
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  },
+  {
+   "name": "long-form-to-portfolio",
+   "size": "390x844@3",
+   "first": {
+    "clickToHoldMs": 33,
+    "holdMs": 463,
+    "clickToRevealMs": 496,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233
+   },
+   "warm": {
+    "clickToHoldMs": 39,
+    "holdMs": 5,
+    "clickToRevealMs": 44,
+    "lateAtReveal": "",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_pct": 11.126,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 6.35,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 96.9,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".work-rings"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 15,
+    "ringDriftOver700msPx": 9.53,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 0,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 260,
+    "overMs": 25,
+    "ringAnimations": {
+     "F": {
+      "n": 17,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ]
+      ]
+     },
+     "E": {
+      "n": 17,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        0.018
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.018
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.018
+       ]
+      ]
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0.01,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": true,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": true
+   },
+   "blocked": {
+    "clickToHoldMs": 43,
+    "holdMs": 501,
+    "clickToRevealMs": 544,
+    "lateAtReveal": "rings",
+    "frozenAtMs": 2233,
+    "F_vs_E_pct": 0.015,
+    "E_vs_L_pct": 2.279,
+    "E_vs_L_outside_resting_pct": 0,
+    "resting_boxes_coarse_mean_diff": 2.72,
+    "wall_canvas_coarse_mean_diff": 0,
+    "resting_boxes_coarse_worst_cell": 52,
+    "wall_canvas_coarse_worst_cell": 0,
+    "wall_canvas_coarse_over_share_pct": 0,
+    "restingBoxes": [
+     ".work-rings"
+    ],
+    "ringItemFirstFramePx": 0,
+    "ringItemsSampled": 15,
+    "ringDriftOver700msPx": 9.63,
+    "layoutShifts": 0,
+    "layoutShiftEntries": [],
+    "dock": {
+     "F": {
+      "x": 20,
+      "y": 739,
+      "w": 349.4,
+      "h": 93
+     },
+     "Flive": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "E": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "L": {
+      "x": 20.3,
+      "y": 739,
+      "w": 349.5,
+      "h": 93
+     },
+     "same": true
+    },
+    "domChanges": {
+     "appeared": [],
+     "disappeared": [],
+     "resized": [],
+     "moved": [],
+     "swapped": [],
+     "faded": [],
+     "ringsSwapped": false,
+     "ringsFaded": 13,
+     "wallSwapped": false,
+     "wallDrawnAtE": false,
+     "wallDrawnAtL": false
+    },
+    "endToShotMs": 224,
+    "overMs": 25,
+    "ringAnimations": {
+     "F": {
+      "n": 17,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        1
+       ]
+      ]
+     },
+     "E": {
+      "n": 17,
+      "t": [
+       [
+        "work-spin",
+        0,
+        "paused",
+        0.018
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.018
+       ],
+       [
+        "work-unspin",
+        0,
+        "paused",
+        0.018
+       ]
+      ]
+     }
+    },
+    "ringItemsMovedFreezeToEndPx": 0.01,
+    "pass": {
+     "F_vs_E": true,
+     "E_vs_L_outside": true,
+     "resting_first_frame": true,
+     "layout_shift": true,
+     "resting_coarse": true,
+     "resting_coarse_cells": true,
+     "dom_unchanged": false,
+     "dock_same": true,
+     "hold_cap": true
+    },
+    "ok": false,
+    "capHolds": true,
+    "changeEnded": true
+   }
+  }
+ ]
+}

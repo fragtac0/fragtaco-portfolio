@@ -1,0 +1,306 @@
+/*
+ * Home page hero: the painting, the caption and cue, the edge glows and the static texture. The
+ * lockup and the loader's name live in loader.css. Ported from docs/redesign/mockups/home-v4.html
+ * (hero 43-82, media queries). Everything is scoped under .home-page / .home-hero so nothing leaks
+ * to /work. Shared tokens live in app/styles/tokens.css.
+ */
+
+/* the dot screen plus a fixed grain; static, so it costs one paint. The hero draws its own in the shader. */
+.home-page .tex {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.home-page .tex::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--dots);
+  background-size: 4px 4px;
+  opacity: 0.07;
+}
+.home-page .tex::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--grain);
+  opacity: 0.05;
+}
+.home-hero .tex {
+  display: none;
+}
+.home-hero[data-gl="off"] .tex {
+  display: block; /* no WebGL: the shader's texture is not there, so draw it in CSS */
+}
+
+/* =====================================================================
+   HERO: painting (WebGL liquid glass), centred lockup
+   ===================================================================== */
+.home-hero {
+  position: relative;
+  height: 100dvh;
+  min-height: 560px;
+  overflow: hidden;
+  background: var(--ground);
+  touch-action: pan-y;
+}
+.home-hero .hero-layer {
+  position: absolute;
+  inset: 0;
+}
+.home-hero .paint-host {
+  position: absolute;
+  inset: 0;
+  /* its own stacking context: the no-WebGL images carry z-index 1 and 2 (set by the engine), which must not climb over the
+     texture, the vignette and the lower-edge fade that come after it */
+  isolation: isolate;
+}
+.home-hero .paint-host canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* The painting remembered from the last visit, as a plain image, for the page's first picture while the
+   engine waits for the page change to be over. use-paint-engine hides it once the canvas has drawn. */
+.home-hero .paint-host .paint-still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  transition: none;
+}
+.home-hero .paint-host .paint-still[hidden] {
+  display: none;
+}
+/* no WebGL: the painting is a plain image and changes by a CSS crossfade */
+.home-hero .paint-host img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity var(--fade, 2.8s) ease;
+}
+.home-hero .paint-host img.on {
+  opacity: 1;
+}
+.home-hero .vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.6s;
+  background:
+    radial-gradient(ellipse 58% 46% at 50% 50%, color-mix(in srgb, var(--ground) 60%, transparent), var(--ground-clear) 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--ground) 50%, transparent), var(--ground-clear) 26%, var(--ground-clear) 64%, color-mix(in srgb, var(--ground) 78%, transparent));
+}
+.home-hero .vignette.on {
+  opacity: 1;
+}
+
+/* The painting's lower edge (spec 6): over the last 18% of the hero it fades to the colour the next section's Eclipse ground
+   starts with (--hero-seam-rgb, tokens.css), so there is no line where the painting ends. The ramp is a smoothstep (eleven
+   stops) so the eye finds no start or finish to it. It sits over the painting and under the lockup, caption and cue, in the
+   hero's own layer, so it is there for the WebGL painting, the still and the no-WebGL image alike. One pixel is added below so
+   a fractional hero height never leaves a row of painting at the seam. */
+.home-hero .hero-edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: calc(18% + 1px);
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--hero-seam-rgb) / 0) 0%,
+    rgb(var(--hero-seam-rgb) / 0.028) 10%,
+    rgb(var(--hero-seam-rgb) / 0.104) 20%,
+    rgb(var(--hero-seam-rgb) / 0.216) 30%,
+    rgb(var(--hero-seam-rgb) / 0.352) 40%,
+    rgb(var(--hero-seam-rgb) / 0.5) 50%,
+    rgb(var(--hero-seam-rgb) / 0.648) 60%,
+    rgb(var(--hero-seam-rgb) / 0.784) 70%,
+    rgb(var(--hero-seam-rgb) / 0.896) 80%,
+    rgb(var(--hero-seam-rgb) / 0.972) 90%,
+    rgb(var(--hero-seam-rgb)) 100%
+  );
+}
+
+.home-hero .caption {
+  position: absolute;
+  right: clamp(16px, 3.4vw, 48px);
+  bottom: clamp(20px, 3.4vh, 32px);
+  z-index: 5;
+  text-align: right;
+  opacity: 0;
+  /* the cycle sets --caption-ms: 400 ms out before a painting change, 0.9 s in once the swap is done */
+  transition: opacity var(--caption-ms, 0.9s);
+  font-family: "Space Mono", monospace;
+}
+.home-hero .caption.on {
+  opacity: 1;
+}
+.home-hero .caption.swap {
+  opacity: 0;
+}
+.home-hero .caption .t {
+  display: block;
+  font-style: italic;
+  font-size: var(--t-meta);
+  color: var(--ink-1);
+}
+.home-hero .caption .a {
+  display: block;
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+.home-hero .cue {
+  position: absolute;
+  left: 50%;
+  bottom: var(--dock-clear);
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  background: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-family: "Space Mono", monospace;
+  font-size: var(--t-meta);
+  letter-spacing: 0.14em;
+  color: var(--ink-2);
+  opacity: 0;
+  visibility: hidden; /* keeps the hidden cue out of the tab order until it has appeared */
+  pointer-events: none;
+  transition:
+    opacity 1s,
+    color 0.3s;
+  white-space: nowrap;
+}
+.home-hero .cue::after {
+  content: "";
+  width: 1px;
+  height: 22px;
+  background: linear-gradient(rgba(253, 252, 230, 0.6), transparent);
+}
+.home-hero .cue.on {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.home-hero .cue:hover {
+  color: var(--cream);
+}
+/* keyboard focus: the same cream ring the rails use (the browser's default one was blue and white) */
+.home-hero .cue:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 2px;
+  color: var(--cream);
+}
+/* a card is open: the caption and cue are gone, not dimmed (the cue would show under the card's edge) */
+.home-hero[data-softened] .caption.on:not(.swap),
+.home-hero[data-softened] .cue.on {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.6s,
+    visibility 0s 0.6s;
+}
+
+.home-hero .edge-glow {
+  position: absolute;
+  top: 50%;
+  z-index: 17;
+  width: 28px; /* the glow rule: nothing wider than 28 px (tokens.css --glow) */
+  height: 46vh;
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s;
+}
+.home-hero .edge-glow.r {
+  right: 0;
+  background: linear-gradient(to left, var(--accent-soft), transparent);
+}
+.home-hero .edge-glow.l {
+  left: 0;
+  background: linear-gradient(to right, var(--accent-soft), transparent);
+}
+.home-hero[data-peeks]:not([data-softened]) .edge-glow {
+  opacity: 1;
+  animation: home-breathe 4.6s ease-in-out infinite;
+}
+.home-hero[data-peeks]:not([data-softened]) .edge-glow.l {
+  animation-delay: -2.3s;
+}
+@keyframes home-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* skipped loader: the final state is set with every transition off for one frame, so it just appears */
+.home-hero[data-final],
+.home-hero[data-final] * {
+  transition: none !important;
+}
+
+@media (max-width: 1180px) {
+  .home-hero .caption {
+    bottom: var(--dock-clear);
+  }
+}
+
+/* a phone held sideways: the hero is exactly the screen, so the cards (centred in it) sit on the screen;
+   the cue would land on the name, and phones do not show it anyway (see below) */
+@media (max-height: 480px) {
+  .home-hero {
+    min-height: 100dvh;
+  }
+  .home-hero .cue {
+    display: none;
+  }
+}
+
+@media (max-width: 699.98px) {
+  .home-hero .cue {
+    display: none;
+  }
+}
+
+/* reduced motion: no loader (the final state fades in over 0.4 s, see home-fade in tokens.css), no breathing, no transitions */
+@media (prefers-reduced-motion: reduce) {
+  .home-hero,
+  .home-hero *,
+  .home-hero *::before,
+  .home-hero *::after {
+    transition-duration: 0.01ms !important;
+  }
+  .home-hero .edge-glow {
+    animation: none !important;
+  }
+  /* the no-WebGL painting still crossfades (the engine sets --fade to 0.4 s or 0.8 s) */
+  .home-hero .paint-host img {
+    transition-duration: var(--fade, 0.8s) !important;
+  }
+  .home-hero[data-fade] .lockup,
+  .home-hero[data-fade] .caption,
+  .home-hero[data-fade] .cue {
+    animation: home-fade 0.4s ease backwards;
+  }
+}

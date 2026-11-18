@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Round 7 preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="preview.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-title"><b>Round 7 preview</b><span>throwaway, for choosing directions. Nothing here ships as it is.</span></div>
+  <nav class="tabs" id="tabs">
+    <button data-sec="map" class="on">1 Map</button>
+    <button data-sec="lines">2 Not Mars</button>
+    <button data-sec="grounds">3 Backgrounds</button>
+    <button data-sec="change">4 Page change</button>
+    <button data-sec="spines">5 Spines</button>
+  </nav>
+</header>
+
+<!-- ============ 1 MAP ============ -->
+<section class="sec on" id="sec-map">
+  <div class="chips">
+    <span class="chip-label">Map</span>
+    <div class="chipset" id="styleChips">
+      <button data-v="ember" class="on">A Ember contour</button>
+      <button data-v="night">B Night contour</button>
+      <button data-v="relief">C Toned relief</button>
+      <button data-v="both">D Relief + contour</button>
+    </div>
+    <span class="chip-label">View</span>
+    <div class="chipset" id="viewChips">
+      <button data-v="flat" class="on">Flat</button>
+      <button data-v="tilt">Tilted</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage" data-style="ember" data-view="flat" data-mode="overview">
+    <div class="persp">
+      <div class="plane" id="plane">
+        <img class="relief" src="assets/relief.jpg" alt="">
+        <div class="tone"></div>
+        <svg class="contours" id="contours" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <svg class="ink" id="ink" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="pins" id="pins"></div>
+      </div>
+    </div>
+    <div class="focus focus-top"></div>
+    <div class="focus focus-bottom"></div>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+
+    <div class="hud">
+      <div class="heading" id="heading">
+        <h1>My experience</h1>
+        <p>Engineer, then editor, then producer, now freelance. Still climbing.</p>
+      </div>
+      <div class="switch glass" id="modeSwitch">
+        <button data-v="overview" class="on">Overview</button>
+        <button data-v="climb">My climb</button>
+        <button data-v="mountain">The mountain</button>
+      </div>
+      <div class="caption" id="caption">
+        <b>Olympus Mons</b>
+        <span>The tallest mountain known in the solar system.</span>
+      </div>
+      <div class="card glass" id="card"></div>
+      <div class="stepper glass" id="stepper">
+        <button id="prev" aria-label="Previous">&#8592;</button>
+        <span id="count">1 / 9</span>
+        <button id="next" aria-label="Next">&#8594;</button>
+      </div>
+    </div>
+  </div>
+  <p class="note">Four map looks, each flat or tilted, with the same glass interface. Use the switch at the top right of the map: <b>My climb</b> walks the moments, <b>The mountain</b> teaches the places one at a time. The solid line is the road behind me, the dashed line is what is still ahead. Place positions for the aureole are approximate in this preview. Imagery and elevation: NASA / USGS (Viking and MOLA), public domain.</p>
+</section>
+
+<!-- ============ 2 NOT MARS ============ -->
+<section class="sec" id="sec-lines">
+  <div class="stage lines-stage" id="linesStage">
+    <svg id="lines" viewBox="0 0 1600 760" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="hud">
+      <div class="heading"><h1>My experience</h1><p>Every line is a craft I picked up. They keep running side by side.</p></div>
+      <div class="card glass show" id="lineCard"></div>
+    </div>
+  </div>
+  <p class="note">The idea that is not Mars: a line map, like a metro map. Each craft is its own line that starts when I picked it up; stations are the moments; lines share a station where one job covered several crafts. It says "jack of all trades" directly, where the mountain says "one long climb". Hover or tap a station. Rough sketch: the real one would pan, zoom and animate like the map.</p>
+</section>
+
+<!-- ============ 3 BACKGROUNDS ============ -->
+<section class="sec" id="sec-grounds">
+  <div class="grounds" id="grounds"></div>
+  <p class="note">Each page gets its own moving ground. All of them move very slowly, stay dark and keep orange as an ember, never a wash. Click a panel to switch between its two options. They are drawn live, so what you see is the real motion.</p>
+</section>
+
+<!-- ============ 4 PAGE CHANGE ============ -->
+<section class="sec" id="sec-change">
+  <div class="chips">
+    <span class="chip-label">Speed</span>
+    <div class="chipset" id="speedChips">
+      <button data-v="560">0.56 s (now)</button>
+      <button data-v="1200">1.2 s</button>
+      <button data-v="1800" class="on">1.8 s</button>
+      <button data-v="2800">2.8 s (the painting)</button>
+      <button data-v="3400">3.4 s</button>
+    </div>
+    <span class="chip-label">Shape</span>
+    <div class="chipset" id="shapeChips">
+      <button data-v="radial" class="on">Radial from the tab</button>
+      <button data-v="linear">Linear sweep</button>
+      <button data-v="fade">Plain fade</button>
+    </div>
+  </div>
+  <div class="stage change-stage" id="changeStage"><canvas id="changeCanvas"></canvas><div class="play-hint" id="playHint">click to play again</div></div>
+  <p class="note">The painting on the home page changes over 2.8 seconds. Page changes run in 0.56 seconds today, five times faster, which is why they feel out of step. This panel plays the painting's own reveal between two page pictures at the speed you pick. On the site, the wandering edge and the bright line work in every browser; the glass bend at the edge only works in Chrome and Edge.</p>
+</section>
+
+<!-- ============ 5 SPINES ============ -->
+<section class="sec" id="sec-spines">
+  <div class="spines-wrap">
+    <h2>Real spines found online</h2>
+    <div class="spine-row" id="spineRow"><p class="quiet" id="spineStatus">Searching. This row fills in when the search agent reports.</p></div>
+    <h2>The drawn spines on the shelf today</h2>
+    <img class="shot" src="../compare/local/local-r44b-spines-desktop.jpg" alt="The current shelf with drawn spines" onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'quiet',textContent:'The local picture of the current shelf is missing.'}))">
+  </div>
+  <p class="note">The found pictures live only in the git-ignored local folder. Most are a publisher's artwork or a seller's photo, so whether they can ship is a rights question to settle before the build.</p>
+</section>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="grainFilter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0"/></filter>
+</svg>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="assets/data.js"></script>
+<script src="map.js"></script>
+<script src="lines.js"></script>
+<script src="grounds.js"></script>
+<script src="change.js"></script>
+<script src="spines.js"></script>
+<script>
+// section tabs: only the open section animates
+const tabs = document.getElementById('tabs');
+function openSec(name) {
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.sec === name));
+  document.querySelectorAll('.sec').forEach(s => s.classList.toggle('on', s.id === 'sec-' + name));
+  window.dispatchEvent(new CustomEvent('r7:section', { detail: name }));
+  history.replaceState(null, '', '#' + name);
+}
+tabs.addEventListener('click', e => { const b = e.target.closest('button'); if (b) openSec(b.dataset.sec); });
+const first = location.hash.slice(1);
+if (first && document.getElementById('sec-' + first)) openSec(first); else window.dispatchEvent(new CustomEvent('r7:section', { detail: 'map' }));
+</script>
+</body>
+</html>

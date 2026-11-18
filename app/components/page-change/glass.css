@@ -1,0 +1,108 @@
+/* The liquid-glass page change (follow-ups spec 4: one radial reveal from the centre of the screen, 2.25 s since R56.4, for every change, as
+ * the tenth preview's edge with "Wider" and "Stronger"). While a change runs, app/lib/page-change.ts marks <html> with
+ * data-change-kind (radial | fade), the origin and size (--change-x, --change-y = the centre, --change-r = farthest corner,
+ * --change-ms) and the numbers from glass-math.ts's glassVars() (--change-band, -warp, -start, -span, -ease), so nothing below
+ * repeats a constant.
+ *
+ * The front starts behind the middle (its outer soft edge at the origin) and its middle is at (start + span * p) farthest-corner
+ * distances at the eased progress p. A CSS animation drives --glass-p (the eased progress, 0 to 1) on the pseudo-elements that
+ * use it. A front smaller than glass-field.ts's HAND_OVER is drawn from that number alone, as plain gradients: a circle with a
+ * soft edge (--glass-band each side, the same width at every moment) and, from glass-prepare.ts, a glow and a shade. From then on
+ * glass-run.ts (data-glass-live) sizes and places the sheets of tiles that draw the edge with its wander (the mask on the new
+ * page, the glow and the darker glass on the groups of their own); without them the plain gradients draw the whole change.
+ * The bend (data-glass="bend", Chromium only) is an SVG filter on each of the two pictures (glass-filter.tsx).
+ * If glass-run.ts finds the animation not running, or anything throws, it sets data-glass-fallback and the plain UA
+ * crossfade takes over (every rule here is off under it). */
+@property --glass-p {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+@keyframes glass-p {
+  from { --glass-p: 0; }
+  to { --glass-p: 1; }
+}
+
+/* ---- the pictures: new over old, no UA cross-fade; the new one's animation also keeps the transition alive */
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(root) {
+  animation-duration: var(--change-ms);
+}
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root),
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-glow),
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-shade) {
+  animation: glass-p var(--change-ms) var(--change-ease) forwards;
+}
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+/* where the front's middle is: a radius (negative at first), and how wide its soft edge is each side */
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root),
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-glow),
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-shade) {
+  --glass-band: calc(var(--change-r) * var(--change-band));
+  --glass-front: calc(var(--change-r) * (var(--change-start) + var(--glass-p) * var(--change-span)));
+}
+
+/* ---- the reveal, as a gradient: the new page inside a circle, soft over a band each side of the front. The stops are
+ * 1 - smoothstep(-1, 1, x) at x = -1, -2/3, -1/3, 0, 1/3, 2/3 and 1 half-bands (glass-field.ts's newShare), as the preview has it. */
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root) {
+  mask-image: radial-gradient(
+    circle at var(--change-x) var(--change-y),
+    #000 calc(var(--glass-front) - var(--glass-band)),
+    rgb(0 0 0 / 0.926) calc(var(--glass-front) - var(--glass-band) * 0.6667),
+    rgb(0 0 0 / 0.741) calc(var(--glass-front) - var(--glass-band) * 0.3333),
+    rgb(0 0 0 / 0.5) var(--glass-front),
+    rgb(0 0 0 / 0.259) calc(var(--glass-front) + var(--glass-band) * 0.3333),
+    rgb(0 0 0 / 0.074) calc(var(--glass-front) + var(--glass-band) * 0.6667),
+    transparent calc(var(--glass-front) + var(--glass-band))
+  );
+}
+
+/* ---- the bend: an SVG filter on each of the two pictures, only when glass-run.ts has switched it on. The CSS applies a filter
+ * before a mask, so the new page is pushed first and cut out after, as the preview mixes its two pushed pictures. */
+html[data-glass="bend"][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-old(root) {
+  filter: url("#ft-glass-old");
+}
+html[data-glass="bend"][data-change-kind="radial"]:not([data-glass-fallback])::view-transition-new(root) {
+  filter: url("#ft-glass-new");
+}
+
+/* ---- the glow and the darker glass: two empty full-screen elements with names of their own, so their groups (boxes the size of the
+ * screen) can draw them. As in the preview, `(page + cream * glow) * (1 - shade)`: the glow is added to the pages (plus-lighter) and the
+ * shade, black with its own strength, is drawn over it (the shade's element comes after the glow's). glass-prepare.ts adds the
+ * gradients (the same glow and shade glass-edge.ts draws into the tiles) and, from the hand-over, glass-run.ts the sheets. */
+[data-glass-glow],
+[data-glass-shade] {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+html[data-change-kind="radial"]:not([data-glass-fallback]) [data-glass-glow] {
+  view-transition-name: glass-glow;
+}
+html[data-change-kind="radial"]:not([data-glass-fallback]) [data-glass-shade] {
+  view-transition-name: glass-shade;
+}
+/* both fade out over the last 5% of the progress (the front has long left the screen by then) */
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-glow),
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-shade) {
+  opacity: clamp(0, (1 - var(--glass-p)) / 0.05, 1);
+  background-repeat: no-repeat;
+}
+html[data-change-kind="radial"]:not([data-glass-fallback])::view-transition-group(glass-glow) {
+  mix-blend-mode: plus-lighter;
+}
+::view-transition-old(glass-glow),
+::view-transition-old(glass-shade) {
+  display: none;
+}
+::view-transition-new(glass-glow),
+::view-transition-new(glass-shade) {
+  animation: none;
+  mix-blend-mode: normal;
+}

@@ -1,0 +1,31 @@
+[
+ {
+  "size": [
+   1440,
+   900
+  ],
+  "dpr": 1,
+  "go": "http://127.0.0.1:5190/round7-preview-10/index.html",
+  "wait": 3500
+ },
+ {
+  "eval": "document.querySelector('button[data-sec=change]').click()&&'the page change tab'",
+  "wait": 5000
+ },
+ {
+  "label": "the preview's change, in real time (its defaults: 2.5 s, Wider, Stronger), frames saved at the build's five moments",
+  "film": {
+   "ms": 3000,
+   "eval": "document.getElementById('changeStage').click()",
+   "keep": "beside-preview",
+   "ats": [
+    500,
+    875,
+    1250,
+    1625,
+    2000
+   ],
+   "rect": "#changeStage"
+  }
+ }
+]

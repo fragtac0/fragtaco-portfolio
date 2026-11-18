@@ -1,0 +1,217 @@
+{
+ "what": "R54.2b (fix round for R54.2): the plans per audit size, before (19ca81b) and after. 'visible' is the share of the screen under tiles that show: before, tiles behind the dock's glass box do not count (no mask then); after, what shows through the dock keep-out (ring-keep-out.ts, margin 0, feather 8 px). 'raw' ignores the dock. Real content: 8 tools, 21 long form, 35 short form.",
+ "build": "production build on :5180, headless Chrome; scripts/audit/rings.json, rings-mode.json, page-change.json, nav.json",
+ "sizes": {
+  "1440x900": {
+   "before": {
+    "L": 112,
+    "visible": 0.1417,
+    "raw": 0.151,
+    "tiles": 56,
+    "videoRings": 4
+   },
+   "after": {
+    "L": 200,
+    "visible": 0.279,
+    "raw": 0.309,
+    "tiles": 26,
+    "videoRings": 2,
+    "hidden": {
+     "long": 11,
+     "short": 19
+    },
+    "stackRadius": 224
+   }
+  },
+  "1920x1080": {
+   "before": {
+    "L": 155,
+    "visible": 0.1591,
+    "raw": 0.165,
+    "tiles": 56,
+    "videoRings": 4
+   },
+   "after": {
+    "L": 233,
+    "visible": 0.25,
+    "raw": 0.271,
+    "tiles": 26,
+    "videoRings": 2,
+    "hidden": {
+     "long": 11,
+     "short": 19
+    },
+    "stackRadius": 267.2
+   }
+  },
+  "820x1180": {
+   "before": {
+    "L": 98,
+    "visible": 0.1105,
+    "raw": 0.13,
+    "tiles": 47,
+    "videoRings": 3
+   },
+   "after": {
+    "L": 168,
+    "visible": 0.19,
+    "raw": 0.21,
+    "tiles": 32,
+    "videoRings": 2,
+    "hidden": {
+     "long": 8,
+     "short": 16
+    },
+    "stackRadius": 291.2
+   }
+  },
+  "390x844": {
+   "before": {
+    "L": 104,
+    "visible": 0.1454,
+    "raw": 0.175,
+    "tiles": 32,
+    "videoRings": 2
+   },
+   "after": {
+    "L": 220,
+    "visible": 0.173,
+    "raw": 0.231,
+    "tiles": 7,
+    "videoRings": 1,
+    "hidden": {
+     "long": 14,
+     "short": 35
+    },
+    "stackRadius": 163.79999999999998
+   }
+  },
+  "375x667": {
+   "before": {
+    "L": 220,
+    "visible": 0.1011,
+    "raw": 0.178,
+    "tiles": 8,
+    "videoRings": 1
+   },
+   "after": {
+    "L": 220,
+    "visible": 0.114,
+    "raw": 0.202,
+    "tiles": 7,
+    "videoRings": 1,
+    "hidden": {
+     "long": 14,
+     "short": 35
+    },
+    "stackRadius": 157.5
+   }
+  },
+  "568x320": {
+   "before": {
+    "L": 99,
+    "visible": 0.0767,
+    "raw": 0.077,
+    "tiles": 14,
+    "videoRings": 1
+   },
+   "after": {
+    "L": 99,
+    "visible": 0.077,
+    "raw": 0.077,
+    "tiles": 14,
+    "videoRings": 1,
+    "hidden": {
+     "long": 7,
+     "short": 35
+    },
+    "stackRadius": 190
+   }
+  },
+  "320x568": {
+   "before": {
+    "L": 204,
+    "visible": 0.1043,
+    "raw": 0.188,
+    "tiles": 7,
+    "videoRings": 1
+   },
+   "after": {
+    "L": 204,
+    "visible": 0.102,
+    "raw": 0.19,
+    "tiles": 7,
+    "videoRings": 1,
+    "hidden": {
+     "long": 14,
+     "short": 35
+    },
+    "stackRadius": 130
+   }
+  },
+  "1024x768": {
+   "before": {
+    "L": 104,
+    "visible": 0.1596,
+    "raw": 0.173,
+    "tiles": 42,
+    "videoRings": 3
+   },
+   "after": {
+    "L": 162,
+    "visible": 0.239,
+    "raw": 0.279,
+    "tiles": 28,
+    "videoRings": 2,
+    "hidden": {
+     "long": 10,
+     "short": 18
+    },
+    "stackRadius": 198
+   }
+  },
+  "2560x1440": {
+   "before": {
+    "L": 212,
+    "visible": 0.1711,
+    "raw": 0.174,
+    "tiles": 56,
+    "videoRings": 4
+   },
+   "after": {
+    "L": 284,
+    "visible": 0.253,
+    "raw": 0.257,
+    "tiles": 37,
+    "videoRings": 3,
+    "hidden": {
+     "long": 0,
+     "short": 19
+    },
+    "stackRadius": 353.59999999999997
+   }
+  }
+ },
+ "thumbnails": {
+  "what": "YouTube thumbnail bytes from Content-Length headers (HEAD requests with a generic user agent) of three public videos that are not the owner's; hqdefault is 480 by 360, sddefault 640 by 480",
+  "hqdefault": {
+   "dQw4w9WgXcQ": 21011,
+   "jNQXAC9IVRw": 15921,
+   "9bZkp7q19f0": 53433
+  },
+  "sddefault": {
+   "dQw4w9WgXcQ": 31029,
+   "jNQXAC9IVRw": "404, 1097 bytes (the grey placeholder: the page then tries hqdefault)",
+   "9bZkp7q19f0": 84176
+  },
+  "ratio": "sddefault is about 1.5 times hqdefault where it exists",
+  "rule": "a landscape tile asks for sddefault when its width times devicePixelRatio is over 480 (HQ_PICTURE_WIDTH): 390 by 844 at dpr 3 (660 device px, 6 of 7 long form tiles; the seventh is local art), 2560 by 1440 at dpr 2; 1440 by 900 at dpr 1 or 2 keeps hqdefault (400 device px at dpr 2)",
+  "weight": "390 by 844 at dpr 3: 7 tiles, about +10 to +30 KB each against hqdefault; 1440 by 900 unchanged"
+ },
+ "audits": {
+  "rings.json": "all nine sizes: 0 pairs under 12 px (min gaps 14.2, 14.52, 13.44, 16.45, 16.75, 12.7, 17.84, 12.02, 12.99); video tiles 101.5 px or more from the title text; the dock's glass inside the keep-out at all nine (spare 0 to 3 px); elementFromPoint over 40 phases at 6 points in the blocked band: 0 on a ring item, 200 on the block, 40 elsewhere; the intro's room to the stack icons equals round 6's at every size (26.3, 33, 73.5, 31.5, 30, 26.1, 23, 15.9, 46.6 px); focus under reduced motion: the group of the tile nearest the dock (147 px, inside the keep-out) drops its mask, is :focus-visible with a solid outline, the other video group keeps its mask; frames at CPU 4 times: 1440 dpr 2 and 390 dpr 3, at rest and hovering, 240 frames each, max 16.8 ms, 0 over 20 (a first run had one 66.7 ms frame while hovering at 1440, two re-runs 0 over 20); via a change: first item 65 ms, all 34 at 299 ms, still during the reveal, 0 lazy, 26 of 26 pictures ready at 1 s, turning together after; reduced motion: 0 to 34 in one step, plain fade; failed covers: 10 fall back, 26 local art, 0 grey shown",
+  "page-change.json (R72, rings in the reveal)": "0 frames over 34 ms in all 5 changes; animMax 16.8, 16.8, 33.4, 16.8, 16.8 (one frame over 20 ms, in the second home to work run)",
+  "nav.json": "38 ok true, 0 false",
+  "rings-mode.json": "ran, picture taken"
+ }
+}

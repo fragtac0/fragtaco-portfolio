@@ -1,0 +1,17 @@
+/* preview 6: what differs from preview 4 */
+.shelf-wrap { background: #0d0c0b; }
+.mpin { transition: opacity 0.35s; }
+/* a very soft blur toward the edges of the map, to keep the eye in the middle */
+.edgeblur { position: absolute; inset: 0; pointer-events: none; backdrop-filter: blur(2.5px); -webkit-backdrop-filter: blur(2.5px); mask-image: radial-gradient(ellipse 74% 72% at 50% 50%, transparent 58%, #000 100%); -webkit-mask-image: radial-gradient(ellipse 74% 72% at 50% 50%, transparent 58%, #000 100%); }
+/* the card: out quickly, in gently; its words arrive with it, a breath apart, with no sliding */
+.card { transition: opacity 0.22s; }
+.card.show { transition: opacity 0.4s; }
+.card.draw .rule { animation: none; }
+.card.draw .when, .card.draw h3, .card.draw p, .card.draw .rule { animation: words 0.35s ease both; }
+.card.draw h3 { animation-delay: 0.05s; }
+.card.draw .rule { animation-delay: 0.09s; }
+.card.draw p { animation-delay: 0.13s; }
+@keyframes words { from { opacity: 0; } }
+#frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* preview 8: the two titles in capitals */
+.heading h1, .caption b { text-transform: uppercase; letter-spacing: 0.03em; }

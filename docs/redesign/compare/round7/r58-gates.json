@@ -1,0 +1,98 @@
+{
+ "what": "R58 step 8, redone in the fix round of Task 32: the glass gates on the production build of R58.4 (served on :5180), one after the other under the gate lock (scratchpad gate.lock), headless Chrome, load average at the start of each in the keys. The cost gate is in r58-glass-cost.json, the tile swaps in r58-tile-swaps.json.",
+ "date": "2026-11-17",
+ "build": "R58.4 (the noise in the vignette picture, the bend's tiles hold the strength, early tiles 0.0125 apart: 64 bend tiles)",
+ "page-change.json (1440x900 dpr2, CPU 4x, 5 changes)": {
+  "load at start": "1.90",
+  "animMax ms": [
+   16.8,
+   16.8,
+   16.8,
+   16.8,
+   16.8
+  ],
+  "frames over 34 ms": 0,
+  "frames over 20 ms": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "bend on in every change, guard never tripped": true
+ },
+ "page-change-hook.json (5 changes)": {
+  "load at start": "1.84",
+  "animMax ms": 16.8,
+  "frames over 34 ms": 0,
+  "bend on, guard never tripped": true
+ },
+ "page-change-phone.json (390x844 dpr3 touch, CPU 4x, 5 changes)": {
+  "load at start": "1.37",
+  "animMax ms": 16.8,
+  "frames over 34 ms": 0,
+  "bend on, guard never tripped": true
+ },
+ "glass-sim.json": "as before (load 1.40): the fall-backs (no animation list, no registerProperty, killed animation) fall back to the crossfade; the sheets-step-failed case keeps the bend; the push scale reads 200.20 (2 x 1.3 x 77) at 1440 by 900",
+ "glass-coverage.json": "frames made (load 2.03); looked at in the first round, unchanged code for the front's path",
+ "glass-finish.json": "every case ok:true, clicks 0, no errors (load 1.85)",
+ "glass-interrupt.json": "A to G ok:true, nothing left on, pushesOn 0 and mapsOn 0 (load 1.35)",
+ "glass-warm.json": "load 1.24. A: no frame with the bend before the warm-up (liveFrames 0), 136 bend frames after; B: resize to 1100 by 800: no bend at once, the vignette 1100 wide and a second glass-warm mark, then 137 bend frames; C: a change while the warm-up draws: a warm host was seen, 0 bend frames, none left after, warmed again, then 136; E: a film of a whole change, 203 frames, no blink frame (blinkMaxStep 6.8); F: the control lists its one missing frame (ok:false as intended); D: the guard drops the bend after four slow frames in a row (5 bend frames), the second slow change sets session off, the change after has 0 bend frames, a reload clears it (137 bend frames). So a change that starts before the warm-up and a guard drop in mid-change still pass with the new numbers.",
+ "glass-phone.json": "frames made, no errors (load 1.91)",
+ "make-arrival.mjs run --generated": "PASS, 12 of 12 changes (record r58-arrival.json, load 1.46)",
+ "arrival.json": "16 steps with ok, none false (load 2.14)",
+ "preparation long tasks (phone profile 390x844 dpr3, CPU 4x, fresh profile, three loads; long tasks and long-animation-frames of 50 ms or more, from the load to glass-warm)": {
+  "marks (ms after navigation start)": {
+   "load 1": {
+    "sheets": 2477,
+    "vignette": 2620,
+    "bend": 4140,
+    "warm": 5234
+   },
+   "load 2 (the second set of three)": {
+    "sheets": 2537,
+    "vignette": 2679,
+    "bend": 4210,
+    "warm": 5311
+   },
+   "load 3": {
+    "sheets": 2153,
+    "vignette": 2264,
+    "bend": 3738,
+    "warm": 4842
+   },
+   "load 4": {
+    "sheets": 2093,
+    "vignette": 2203,
+    "bend": 3691,
+    "warm": 4783
+   }
+  },
+  "long tasks": "Before the preparation starts, the boot's own: 70 and 63 ms at 354 and 577 ms (React's hydration and an idle chunk). Inside the preparation (from the sheets' mark to glass-warm): none in two of the four loads, and one of 57 and 59 ms in the other two (at 3455 and 3162 ms, between the vignette's mark and the bend's, so in the bend's tile loop; the vignette itself, made in slices of 6 ms with a calm gap, shows none). At 1440 by 900, dpr 2, CPU 4x: only the boot's 50 ms task at 103 ms and a 73 ms frame at 89 ms (hydration); none in the preparation.",
+  "reading": "The vignette's noise (the new work) adds no long task. In about every other load of the phone profile at CPU 4x one step of the tile loop takes 57 to 59 ms (about 15 ms unthrottled): over the 50 ms mark by a little; the loop already yields after each tile. Not split further."
+ },
+ "r58_6 (R130, production build of R58.6, under the lock)": {
+  "page-change.json (1440x900 dpr2, CPU 4x, 5 changes)": {
+   "load at start": "2.25",
+   "animMax ms": [
+    16.8,
+    16.8,
+    16.8,
+    16.8,
+    16.8
+   ],
+   "frames over 34 ms": 0,
+   "frames over 20 ms": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "bend on in every change, guard never tripped": true
+  },
+  "make-glass-cost.mjs 1512x982@2": "see r58-glass-cost.json r58_6: PASS, 266/273/274 ms renderer compositor, 170/173/174 ms display, load 1.57/1.98/2.25",
+  "make-tile-swaps.mjs": "see r58-tile-swaps.json: the step at fronts 0 to 0.07 is NOT gone (ratio 2.9 to 4.1 at two frames a run, the control 0.8 to 1.05); loads 2.9, 2.8, 2.7",
+  "not re-run": "the other gates of r58_4 (page-change-hook, -phone, glass audits, arrival): the change is three constants in the filter's composite, nothing else moved; production build tests 175 files, 2492 tests green"
+ }
+}

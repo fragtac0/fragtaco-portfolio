@@ -1,0 +1,158 @@
+/*
+ * Shared values for the whole site: type scale, ink (text colour) steps, the layer order and the
+ * section spacing. Loaded once from app/root.tsx. Component sheets refer to these; they do not
+ * redefine them. (Spec: docs/superpowers/specs/2026-11-11-polish-and-work-page-design.md, 3.1.)
+ */
+
+:root {
+  /* type */
+  --t-micro: 12px; /* key hints, the artist line of the caption */
+  --t-meta: 13px; /* labels, counts, pills, hints, the cue, list rows */
+  --t-body: 15px; /* all running text: cards, block copy, notes */
+  --t-lead: 18px; /* the small name, the credits blurb */
+  --t-title: clamp(24px, 2.4vw, 38px); /* layer titles */
+  --t-display: clamp(40px, 3.6vw, 56px); /* block titles */
+  --t-hero: clamp(46px, 4vw, 80px); /* card headings */
+
+  /* ink: cream at 92% / 72% / 62%; --ink-rgb is the cream as a channel triple, for a wash of it (rgb(var(--ink-rgb) / 0.08)) */
+  --ink-rgb: 253 252 230;
+  --ink-1: rgba(253, 252, 230, 0.92); /* primary text */
+  --ink-2: rgba(253, 252, 230, 0.72); /* secondary text */
+  --ink-3: rgba(253, 252, 230, 0.62); /* quiet text, the lowest allowed */
+
+  /* the dark grounds: warm charcoal, neutral (R42, spec 4). Cream carries the light; orange is only an accent.
+     The paint shader and the wall shader repeat these as colours (app/styles/tokens.ts); a test keeps them equal. */
+  --ground: #0e0e0d; /* page grounds: work, experience, layers, the hero's fallback */
+  --ground-clear: color-mix(in srgb, var(--ground) 0%, transparent); /* the ground faded out, for fades */
+  --surface-1: #171716; /* panels, placeholders, tiles before their picture loads */
+  --surface-2: #21201f; /* raised panels, chips */
+  --line: rgba(253, 252, 230, 0.1); /* hairlines and borders */
+  --accent: #fc4c00;
+  --accent-rgb: 252 76 0; /* the accent as a channel triple, for a glow (rgb(var(--accent-rgb) / 0.55)); tokens.test.ts keeps it equal to --accent */
+  --cream: #fdfce6; /* the cream itself, at full strength (the --ink steps are this at 92 / 72 / 62%) */
+  --accent-soft: rgba(252, 76, 0, 0.14); /* the active pill's fill */
+  --glow: 0 0 28px -10px rgba(252, 76, 0, 0.18); /* the page's orange glow (the open card, the dock); only the About and Credits tabs have their own, below (R69) */
+  --glass-rgb: 16 16 15; /* the dock glass: this colour at --dock-tint */
+  --dock-tint: 0.61; /* how much of --glass-rgb the dock's glass is: 0.46 until R56.4, 0.58 at R56.4, 0.61 from R56.4b: the lowest step of 0.01 at which every label and icon keeps 4.5 to 1 with the worst tile under it (the brightest thumbnails by their brightest blur-sized window, at the worst places, real ring tiles with their neighbours: docs/redesign/compare/round7/r56-dock-contrast.json) */
+
+  /* the About and Credits tabs (round 7, spec 6): an orange gradient with white text, the glow and a drop shadow.
+     White on --accent itself is only 3.4 to 1, so the lightest point of the tab is --accent-tab, the accent stepped down
+     until 13 px white text clears 4.5 to 1 (4.63); --accent-deep is the deeper end. contrast.test.ts keeps the numbers.
+     The tabs' two glows (--tab-glow, --tab-glow-hot) are stronger than --glow, and stay inside the 28 px rule. */
+  --accent-tab: #d44000;
+  --accent-deep: #a02900;
+  --tab-ink: #ffffff;
+  --tab-edge: rgba(255, 255, 255, 0.18); /* the light line between a tab and its card's body */
+  --tab-gradient: linear-gradient(180deg, var(--accent-tab), var(--accent-deep));
+  --tab-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.7);
+  --tab-glow: 0 0 26px -6px rgba(252, 76, 0, 0.55);
+  --tab-glow-hot: 0 0 28px -3px rgba(252, 76, 0, 0.8);
+
+  /* the glass tile under each app icon on /work (round 7, spec 7): an opaque dark warm body, a lit top edge, a soft inner glow, a real shadow */
+  --tile-body: linear-gradient(160deg, #38332e 0%, #231f1c 52%, #171513 100%);
+  --tile-glow: radial-gradient(110% 80% at 50% 0%, rgba(255, 226, 196, 0.2), rgba(255, 226, 196, 0) 62%);
+  --tile-edge: inset 0 1px 0 rgba(255, 240, 222, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.55);
+  --tile-inner: inset 0 0 14px rgba(255, 214, 170, 0.12);
+  --tile-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 12px 22px -6px rgba(0, 0, 0, 0.75), 0 3px 6px rgba(0, 0, 0, 0.5);
+
+  /* a card (About, Credits) sliding in or out: about 700 ms on the painting's ease in and out (R58); app/components/home/cards/card-pose.ts PANEL_MS is the same number */
+  --panel-ms: 700ms;
+  --ease-panel: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* where the painting ends: the top of the home section's Eclipse ground (placement 2, about rgb(11, 11, 10) across its
+     first rows, a little under --ground), so the hero's lower edge fades into it with no line (hero.css .hero-edge) */
+  --hero-seam-rgb: 11 11 10;
+
+  /* the night of the Mars map (round 7, spec 9.2): the fade toward the far edge and the sides, and the darkening toward the corners, as a channel triple (rgb(var(--map-night) / 0.45)) */
+  --map-night: 12 11 10;
+
+  /* the words on the Mars map (round 7, spec 9.6), in order of importance: the title largest and brightest (the cream itself, capitals),
+     its description small and quiet (cream at 70%), the mountain's name a small letter-spaced label in a warm light orange, and its
+     line the quietest (cream at 62%, the same as --ink-3, the lowest text strength allowed; spec 9.6 said 56%, but over the picture
+     that measured 3.9 to 4.4 to 1 on average at 1440 by 900, under 4.5 (Task 19's fix round), at 62% it is 4.7 and over) */
+  --map-title-size: clamp(34px, 4.6vw, 64px);
+  --map-desc-size: 12.5px;
+  --map-label-size: 13px;
+  --map-line-size: 11px;
+  --map-ink-desc: rgb(var(--ink-rgb) / 0.7);
+  --map-ink-line: rgb(var(--ink-rgb) / 0.62); /* the line, the fact and the credit */
+  --map-ink-label: #ffc9a3;
+
+  /* the card of a milestone on the Mars map (round 7, spec 9.5): 252 px wide, a 15 px title, 11.5 px text, a 10.5 px date line */
+  --map-card-w: 252px;
+  --map-card-title: 15px;
+  --map-card-text: 11.5px;
+  --map-card-meta: 10.5px;
+
+  /* the header of a full page layer (a shelf, a video wall): the title at the left, the close or back pill at the right */
+  --head-pad-top: clamp(28px, 4vw, 56px);
+  --head-pad-x: clamp(24px, 4.5vw, 72px);
+
+  /* the small glass pill of a layer or a wall (round 7, spec 6 and 8.1): the Close and Back button and the round close of an open video.
+     The dock's glass (--dock-tint of --glass-rgb with a lit top edge) a little denser, since it sits over pictures, with a blur behind it
+     and a thin outline; one place so the three stay the same (close-button.css, watching.css). */
+  --pill-bg:
+    linear-gradient(180deg, rgba(255, 236, 214, 0.16), rgba(255, 236, 214, 0.04) 42%, rgba(0, 0, 0, 0.14)),
+    rgb(var(--glass-rgb) / 0.62);
+  --pill-edge:
+    0 0 0 1px rgb(var(--ink-rgb) / 0.16), inset 0 1px 0 rgb(var(--ink-rgb) / 0.22), 0 8px 18px -8px rgba(0, 0, 0, 0.7);
+  --pill-blur: blur(20px) saturate(1.2);
+  --pill-h: 34px; /* the pill's height, and the round close's width and height */
+  --pill-h-touch: 44px; /* on touch screens: the finger's target (R88) */
+
+  /* the dock's idle labels (the active one is 100%) */
+  --dock-idle: 0.85;
+
+  /* the only z-index values for page-level layers */
+  --z-hero: 1;
+  --z-cards: 20;
+  --z-dock: 30;
+  --z-layer: 300;
+  --z-detail: 400;
+  --z-transition: 900;
+  /* the Mars map's beads: the box that holds them (the engine orders the beads inside it by height), and the bead under the pointer or the focus, above its neighbours so its label is */
+  --z-map-beads: 0;
+  --z-map-bead-top: 9999;
+
+  /* the dot screen and grain drawn over the dark pages (the home page and /work) */
+  --dots: radial-gradient(rgba(245, 239, 230, 0.9) 0.6px, transparent 0.6px);
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+
+  /* space above and below a section */
+  --space-section: clamp(72px, 10vh, 120px);
+}
+
+@media (max-width: 699.98px) {
+  :root {
+    --t-body: 14px;
+    --t-lead: 15px;
+  }
+}
+
+/* the home page's own values (moved here unchanged from the old home.css) */
+.home-page {
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dock-clear: 108px; /* kept free above the bottom nav dock */
+  --rail: clamp(72px, 4.8vw, 100px);
+  --card-h: clamp(520px, 72dvh, 760px);
+}
+@media (max-width: 699.98px) {
+  .home-page {
+    --dock-clear: 84px;
+    --rail: 46px;
+    --card-h: min(62dvh, 520px);
+  }
+}
+
+/* shared by the hero, the cards and the layer: a plain fade in for reduced motion */
+@keyframes home-fade {
+  from {
+    opacity: 0;
+  }
+}
+/* a card closing under reduced motion: fades out where it stands, comes back as the tab (cards.css) */
+@keyframes home-fade-out {
+  50% {
+    opacity: 0;
+  }
+}

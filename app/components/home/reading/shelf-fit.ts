@@ -1,0 +1,87 @@
+import { clamp, flatFrame } from "./shelf-math";
+import { ledgeHeight } from "./ledge";
+import { placeMarker } from "./shelf-hud";
+import { headerBottom } from "./shelf-head";
+import { windowRow } from "./box-framing";
+import { applyView, placeDots, stageSize, viewFor } from "./shelf-frame";
+import type { ShelfCtx } from "./shelf-open";
+import type { Book } from "./shelf-scene-types";
+
+/**
+ * Sizes the renderer and the orthographic camera to the canvas (`flatFrame`: the tallest spine at
+ * most 78% of the height and under the layer's header, the row at most 88% of the width, the row
+ * pans when that would make it smaller than 70%), puts the line the books stand on at its row, and works out how far the camera
+ * may pan, how much of the row is on screen, and where the position marker goes (just under the
+ * line), and has the spines repainted at their new size on
+ * screen (`fitSpines`). Nothing happens when the size and the header's height are
+ * unchanged since the last call. An open book is put back first, because its pose was laid out for the old size.
+ */
+/** Read by scripts/audit: every book's cover width in pixels, wanted (`coverPx`) and painted (the texture's canvas). */
+export function readCovers(canvas: HTMLCanvasElement, books: Book[]): void {
+  canvas.dataset.coverWant = books.map((b) => b.coverPx).join(",");
+  canvas.dataset.coverTex = books.map((b) => (b.coverTex.image as HTMLCanvasElement | undefined)?.width ?? 0).join(",");
+}
+
+export function fitShelf(ctx: ShelfCtx, closeBook: (refocus: boolean) => void): void {
+  const gl = ctx.scene();
+  const els = ctx.els();
+  if (!gl || !els) return;
+  const { canvas, st, cam } = ctx;
+  const [w, h] = stageSize(canvas, ctx.box);
+  if (!w || !h) return;
+  // framed, the window (and so the header) does not change while the frame moves: the header is measured again only for a new window size
+  const top = ctx.box.frame() && w === st.fitW && h === st.fitH ? st.fitTop : headerBottom(canvas);
+  if (w === st.fitW && h === st.fitH && top === st.fitTop) return;
+  const first = st.fitW === 0; // the first fit of a mount repaints the spines at once, a resize waits for the size to settle
+  st.fitW = w;
+  st.fitH = h;
+  st.fitTop = top;
+  if (st.opened) closeBook(true);
+  const { camera, span } = gl;
+  const tallest = Math.max(...gl.books.map((b) => b.H));
+  const f = flatFrame({ vw: w, vh: h, span, tallest, top });
+  gl.scale = f.scale;
+  gl.maxX = f.maxX;
+  gl.visible = f.visible;
+  cam.x = clamp(cam.x, -f.maxX, f.maxX);
+  // the open page's row in its picture: a frame frames it (box-framing.ts); the view is made once the line the books stand on is known
+  st.row = windowRow({ vw: w, vh: h, scale: f.scale, baseRow: f.baseRow, reach: f.reach, tallest });
+  st.ledgeTop = f.baseRow;
+  const view = viewFor(ctx, f.scale, w, h);
+  applyView(ctx, gl, w, h, view);
+  // one world unit is `scale` pixels: the frustum is the stage, and world y 0 (the books' feet) is at `baseRow`
+  camera.left = -w / 2 / f.scale;
+  camera.right = w / 2 / f.scale;
+  camera.top = h / 2 / f.scale;
+  camera.bottom = -h / 2 / f.scale;
+  camera.position.y = (f.baseRow - h / 2) / f.scale;
+  camera.updateProjectionMatrix();
+  // the rock ledge runs the row's reach, hung from the books' feet; the marker sits low on it
+  const ledgeH = ledgeHeight(h, f.baseRow);
+  gl.fitLedge(f.reach * f.scale, h, f.baseRow, f.scale);
+  placeMarker(els.marker, f.baseRow + Math.max(8, ledgeH - 8));
+  // the dot field behind the row (a sibling of the host in the stage) stops at the ledge's top (reading.css `.dot-field`)
+  els.stage?.style.setProperty("--ledge-top", `${f.baseRow}px`);
+  placeDots(els.dots, ctx.box, w, h, f.baseRow, view);
+  // read by scripts/audit/shelf.json: the tallest spine's share of the height, the row's of the width, the feet's row
+  canvas.dataset.tall = ((f.scale * tallest) / h).toFixed(4);
+  canvas.dataset.row = ((f.scale * span) / w).toFixed(4);
+  canvas.dataset.baseRow = String(f.baseRow);
+  canvas.dataset.headBottom = String(top);
+  canvas.dataset.pans = String(f.pans);
+  // the spines are drawn at their size on screen (times the pixel ratio): repaint when the size changed
+  const tallBook = gl.books.reduce((a, b) => (b.H > a.H ? b : a));
+  const readSpine = () => {
+    // read by scripts/audit/shelf.json: the tallest book's spine canvas, in pixels
+    canvas.dataset.spinePx = `${tallBook.spine.canvas.width}x${tallBook.spine.canvas.height}`;
+    // and every author's font size in CSS pixels, in book order (never under 10)
+    canvas.dataset.authorPx = gl.books.map((b) => (b.spine.authorPx / b.spine.dpr).toFixed(1)).join(",");
+  };
+  gl.fitSpines(f.scale, first, () => {
+    readSpine();
+    st.dirty = true;
+  });
+  readSpine();
+  readCovers(canvas, gl.books);
+  st.dirty = true;
+}
