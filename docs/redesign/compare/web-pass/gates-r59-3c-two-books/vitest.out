@@ -1,7 +1,7 @@
 yarn run v1.22.22
-$ '/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/node_modules/.bin/vitest' run
+$ '<repo>/node_modules/.bin/vitest' run
 
- RUN  v3.2.7 /Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy
+ RUN  v3.2.7 <repo>
 
  ✓ app/components/page-change/glass-vignette.test.ts (9 tests) 267ms
  ✓ app/components/page-change/glass-field.test.ts (21 tests) 341ms
@@ -61,35 +61,35 @@ THREE.WebGLRenderer: Error creating WebGL context.
  ✓ app/lib/arrival.test.ts (17 tests) 15ms
 stderr | app/components/home/blocks/interest-blocks.test.ts > InterestBlocks: the flat previews are the picture of a box the client has decided cannot draw > mounts neither flat preview while both boxes hold their live scene (no thumbnail is requested, no spine painted)
 Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
-    at InterestBlocks (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/blocks/interest-blocks.tsx:17:3)
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
 
 stderr | app/components/home/blocks/interest-blocks.test.ts > InterestBlocks: the flat previews are the picture of a box the client has decided cannot draw > mounts neither while the client has not decided (the server's and the hydration render): the dark ground and the words, no request
 Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
-    at InterestBlocks (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/blocks/interest-blocks.tsx:17:3)
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
 
 stderr | app/components/home/blocks/interest-blocks.test.ts > InterestBlocks: the flat previews are the picture of a box the client has decided cannot draw > mounts both when WebGL is missing or the scenes failed: the mini shelf and the mini wall with their small thumbnails
 Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
-    at InterestBlocks (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/blocks/interest-blocks.tsx:17:3)
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
 Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
-    at MiniShelf (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/blocks/mini-shelf.tsx:8:22)
+    at MiniShelf (<repo>/app/components/home/blocks/mini-shelf.tsx:8:22)
     at div
     at article
     at div
     at div
     at section
-    at InterestBlocks (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/blocks/interest-blocks.tsx:17:3)
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
 
 stderr | app/components/home/blocks/interest-blocks.test.ts > InterestBlocks: the flat previews are the picture of a box the client has decided cannot draw > decides per box: a failed shelf scene shows only the mini shelf
 Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
-    at InterestBlocks (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/blocks/interest-blocks.tsx:17:3)
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
 Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
-    at MiniShelf (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/blocks/mini-shelf.tsx:8:22)
+    at MiniShelf (<repo>/app/components/home/blocks/mini-shelf.tsx:8:22)
     at div
     at article
     at div
     at div
     at section
-    at InterestBlocks (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/blocks/interest-blocks.tsx:17:3)
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
 
  ✓ app/components/home/blocks/interest-blocks.test.ts (4 tests) 32ms
  ✓ app/components/home/layer/move-driver.test.ts (13 tests) 17ms
@@ -143,29 +143,29 @@ Warning: useLayoutEffect does nothing on the server, because its effect cannot b
  ✓ app/components/experience/use-words-layout.test.ts (6 tests) 9ms
 stderr | app/components/home/home-page.test.ts > HomePage: a live visitor loads no flat preview (RB9, spec 6.1) > the server's first render (which is also the hydration render) holds both boxes as their dark ground: no mini wall, no mini shelf, no thumbnail request
 Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
-    at HomePage (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/home-page.tsx:37:3)
+    at HomePage (<repo>/app/components/home/home-page.tsx:37:3)
 Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
-    at HomePage (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/home-page.tsx:37:3)
+    at HomePage (<repo>/app/components/home/home-page.tsx:37:3)
 Warning: React does not recognize the `reloadDocument` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `reloaddocument` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
     at a
     at Link
-    at PageLink2 (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/page-link.tsx:7:76)
+    at PageLink2 (<repo>/app/components/page-link.tsx:7:76)
     at div
     at div
     at div
     at aside
-    at IntroCard (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/cards/intro-card.tsx:7:22)
-    at HeroCards (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/cards/hero-cards.tsx:13:22)
+    at IntroCard (<repo>/app/components/home/cards/intro-card.tsx:7:22)
+    at HeroCards (<repo>/app/components/home/cards/hero-cards.tsx:13:22)
     at section
-    at Hero2 (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/hero/hero.tsx:19:68)
+    at Hero2 (<repo>/app/components/home/hero/hero.tsx:19:68)
     at div
     at main
-    at HomePage (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/home-page.tsx:37:3)
+    at HomePage (<repo>/app/components/home/home-page.tsx:37:3)
 Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
-    at InterestBlocks (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/blocks/interest-blocks.tsx:17:3)
+    at InterestBlocks (<repo>/app/components/home/blocks/interest-blocks.tsx:17:3)
     at div
     at main
-    at HomePage (/Users/adityabhoir/Documents/Personal/web 2/fragtaco-portfolio copy/app/components/home/home-page.tsx:37:3)
+    at HomePage (<repo>/app/components/home/home-page.tsx:37:3)
 
  ✓ app/components/home/home-page.test.ts (1 test) 26ms
  ✓ app/components/home/blocks/near-gate.test.ts (4 tests) 2ms
