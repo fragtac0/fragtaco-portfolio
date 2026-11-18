@@ -1042,7 +1042,7 @@ The pass goes up as one pull request on top of #33. After it, in the order he se
 
 - The modern web pass (Tasks 33 to 36, pull request #34) finished on 18 November.
 - Before the merge, commit `daac826` (R59.5) replaced the local folder path with `<repo>` in five `vitest.out` record files under `compare/web-pass/` (nothing else changed).
-- All 34 pull requests (branches `redesign/home` through `r7/r59-web-pass`) were retargeted to `main` first, so GitHub shows all 34 as merged. The whole stack was then merged into `main` with one merge commit, `bb7198a`, "Release: the redesigned site (rounds 1 to 7 and the modern web pass)". `main` had one separate commit (`6ece176`, an edit to `README.md` only); the merge takes the stack's `README.md`.
+- All 34 pull requests (the stack from `redesign/home` up to `r7/r59-web-pass`) were retargeted to `main` first, so GitHub shows all 34 as merged. The whole stack was then merged into `main` with one merge commit, `bb7198a`, "Release: the redesigned site (rounds 1 to 7 and the modern web pass)". `main` had one separate commit (`6ece176`, an edit to `README.md` only); the merge takes the stack's `README.md`.
 - The 35 merged branches were deleted on GitHub and locally; `main` is the only branch. No commit history was rewritten and nothing was force-pushed.
 - The site was deployed to production with the Vercel CLI from `main` and is live at https://fragtaco-portfolio.vercel.app.
 

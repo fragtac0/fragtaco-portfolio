@@ -68,7 +68,7 @@ Source: [feedback log, rounds 2 and 3](redesign/feedback-log.md#round-2-feedback
 
 His reaction to v2: "I am liking this new version much better than previous." Round 2's requests were mostly about detail: Space Mono for the name and caption (the serif was dropped from the interface), chevrons removed from the card rails, "Scroll for books and videos" becoming "My Interests", animations that felt sluggish, a place for the navigation dock, and a wall that no longer bends the video you look at.
 
-v3 answered with a performance rewrite as much as a look change: no full-screen blur layer, a hero that redraws only when something moves, heavy scenes loading lazily, and per-book soft shadows instead of a shadow map. The log's measured table shows 8.3 ms average frames in every scenario, on a 120 Hz development Mac, and says plainly that this proves nothing about slower hardware.
+v3 answered with a performance rewrite as much as a look change: no full-screen blur layer, a hero that redraws only when something moves, heavy scenes loading lazily, and per-book soft shadows instead of a shadow map. The log's measured table shows 8.3 to 8.4 ms average frames in every scenario, on a 120 Hz development Mac, and says plainly that this proves nothing about slower hardware.
 
 Round 3 asked for: a two-column intro card with the photo on the left, nothing visible below the hero until the loader ends, the shelf small enough to show every book, slower and smoother book motion, and a faint glow on the logo. v4 did those and was signed off. It went into a design document and a build plan, and the build began the same day: R24 to R29 (foundations, hero and loader, cards and gestures, the blocks, the reading shelf, the watching wall) as pull requests #1 to #6.
 
@@ -86,7 +86,7 @@ Sources: [the audit](redesign/audit-2026-11-11.md), [the list of changes](redesi
 
 His standing rule for the round: balance and clean up so it looks finished, and do not change so much that the site looks different.
 
-**What was produced.** The audit found 65 findings with evidence. The three that mattered most: the loader could hold the page hostage on a slow connection, returning from the work page showed a black hero, and the shelf and wall could open empty for five seconds or more. There were also 116 small review notes, kept in a separate file; each was later fixed or closed with a reason.
+**What was produced.** The audit found 65 findings with evidence. The three that mattered most: the loader could hold the page hostage on a slow connection, returning from the work page showed a black hero, and the shelf and wall could open empty for five seconds or more. There were also 116 small review notes at the audit (119 in the end), kept in a separate file; each was later fixed or closed with a reason.
 
 **What was built (R31 to R39).** One stylesheet per area and a tokens file; a dock reading "home" and "work"; lighter WebP paintings with blurred placeholders and the first painting chosen on the server; a type scale of a few sizes and three text strengths; a shelf that pans with a mouse, trackpad or touch; a wall with depth; a hardened video sync; a keyboard and reduced-motion pass. Then the two new pages: `/work` with four rings (tools, long form, short form, clients) turning round an intro, and `/timeline`, one square per day since 1 December 2020 (2,172 days at the time).
 
@@ -151,7 +151,7 @@ Instead of building and hoping, nine throwaway HTML previews were made and he re
 
 Several decisions here changed what was built. The Mars picture became a calm toned one, the trail returned to its first shape, the Mountain view and the line map were dropped, a rock ledge replaced the shelf's ground, and the page change was fixed at 3.5 s radial from the centre of the screen.
 
-### The build, part by part (R47 to R57)
+### The build, part by part (R47 to R58)
 
 Eleven stacked pull requests, #23 to #33 (with Task 32 as the last).
 
@@ -242,7 +242,7 @@ The gates of the final build: typecheck, lint and build clean, 2,561 tests in 18
 
 Facts from the git history and the release notes in [the log](redesign/feedback-log.md#release-18-november-2026).
 
-- The whole stack of 34 pull requests (branches `redesign/home` through `r7/r59-web-pass`) was merged into `main` with one merge commit, `bb7198a`. All 34 had been retargeted to `main` first, so GitHub shows all 34 as merged.
+- The whole stack of 34 pull requests (the stack from `redesign/home` up to `r7/r59-web-pass`) was merged into `main` with one merge commit, `bb7198a`. All 34 had been retargeted to `main` first, so GitHub shows all 34 as merged.
 - `main` had one separate commit, which edited the README only. The merge takes the stack's README (which this release's documentation then rewrote).
 - Before the merge, one commit replaced a local folder path with `<repo>` in five test-record files. No history was rewritten and nothing was force-pushed.
 - The 35 merged branches were deleted on GitHub and locally. `main` is the only branch.
@@ -284,7 +284,7 @@ Where the sections above follow time, this one follows the pages. The routes are
 | --- | --- | --- |
 | Pull requests merged by the release | 34 (#1 to #34) | `gh pr list`, and the log |
 | Audit findings, round 5 | 65 | [the audit](redesign/audit-2026-11-11.md) |
-| Deferred review notes, all closed | 116 | [deferred-review-notes.md](redesign/deferred-review-notes.md) |
+| Deferred review notes, all closed | 116 at the audit, 119 in the end | [deferred-review-notes.md](redesign/deferred-review-notes.md) |
 | Videos on the YouTube wall | 109 | `content/site/videos.json` |
 | Long form videos / short form placeholders | 21 / 35 | `content/site/work.json` |
 | Books on the shelf | 14 | `content/site/books.json` |

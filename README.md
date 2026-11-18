@@ -40,13 +40,15 @@ yarn test           # vitest
 yarn typecheck      # tsc --noEmit
 yarn lint           # eslint, including jsx-a11y
 yarn build          # production build
-yarn start          # serve the build (run yarn build first)
+npx remix-serve build/server/nodejs-*/index.js   # serve the build (run yarn build first; set PORT in front to change the port)
 yarn run check      # typecheck, lint and build in one go (plain `yarn check` is a Yarn built-in, not this script)
 ```
 
 `yarn install` prints warnings about versions that are pinned on purpose. `resolutions` in `package.json` pin `@remix-run/router` 1.23.4 and `react-router` and `react-router-dom` 6.30.6 (the security fixes that Remix's own exact pins hold back, see [docs/redesign/security-audit-2026-11.md](docs/redesign/security-audit-2026-11.md), "After the upgrade"), plus `qs` and the Vite copies used by the tests. Yarn warns that these are incompatible with what Remix asks for; the build and the tests pass with them. Remove a pin only when Remix itself asks for the fixed version.
 
-Timing and animation should be judged on the production build (`yarn build`, then `yarn start`), not the dev server. The security headers are sent in production only (Vite's dev client writes inline scripts that a content policy would block).
+The `start` script in `package.json` points at `build/server/index.js`, a path this build does not produce (the Vercel preset writes `build/server/nodejs-*/index.js`), so use the command above instead of `yarn start`.
+
+Timing and animation should be judged on the production build (`yarn build`, then `npx remix-serve build/server/nodejs-*/index.js`), not the dev server. The security headers are sent in production only (Vite's dev client writes inline scripts that a content policy would block).
 
 Environment: copy `.env.example` to `.env.local`. `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are only for the page-view counter; without them the counter shows its baseline and nothing else changes (`app/lib/page-views.server.ts`). The Vercel project has no environment variables set as of the release, so the live counter runs at its baseline until the owner sets them.
 
