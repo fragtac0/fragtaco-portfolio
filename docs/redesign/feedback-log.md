@@ -2,7 +2,7 @@
 
 Every round of feedback on the home page redesign, what changed in response, and what is still open. Each round lists the requests as given, then what the next mockup did about them. Newest round is at the bottom.
 
-**Status (2026-11-18):** the home page redesign (R24 to R30), the round 5 polish pass and work page (R31 to R39), round 6 (R40 to R46) and round 7 (R47 to R57: assets, bugs, the shared page change and grounds, the portfolio and walls, the shelves, the new My experience map, the wide-edged page change, the live home boxes, the cheaper finished arrival, the second look and the whole-branch fixes) are all built. Round 7 is eleven stacked pull requests (#23 to #33 on top of round 6's #22) and nothing is merged. It runs as a Vercel preview behind sign-in; the public link https://fragtaco-portfolio.vercel.app still shows the old version. Task 32 (the page change's edge look, the hero painting's liquid at 150%, picked from the eleventh preview) is built (R58, PR #33, reviewed and fixed). The modern web pass (R59, Tasks 33 to 36: the fonts from the site itself, security headers and a content policy, cache lifetimes for the pictures, a sweep for old code patterns) is built and measured and goes up as one pull request on top of #33; see [The modern web pass: final status](#the-modern-web-pass-final-status-18-november-2026). Still to come, in the order set on 17 November: main and the public link, the git tidy-up and the case study (the coordinator's); see also [Round 7: final status](#round-7-final-status-17-november-2026). Earlier, round 6's [final status](#round-6-final-status-13-november-2026) and round 5's [audit](audit-2026-11-11.md), [design outline](../superpowers/specs/2026-11-11-polish-and-work-page-design.md) and [build plan](../superpowers/plans/2026-11-11-polish-and-work-page.md) record the work before it.
+**Status (2026-11-18):** released. The home page redesign (R24 to R30), the round 5 polish pass and work page (R31 to R39), round 6 (R40 to R46), round 7 (R47 to R58: assets, bugs, the shared page change and grounds, the portfolio and walls, the shelves, the new My experience map, the wide-edged page change, the live home boxes, the cheaper finished arrival, the second look, the whole-branch fixes and the page change's edge look) and the modern web pass (R59, Tasks 33 to 36) are built, and on 18 November the whole stack of 34 pull requests (#1 to #34) was merged into `main` and the site was deployed to production at https://fragtaco-portfolio.vercel.app; see [Release (18 November 2026)](#release-18-november-2026) at the end. The final-status sections below are snapshots written on their own dates, before the merge: where they say nothing is merged, that the public link still shows the old version, or that a step is still to come, the Release section supersedes them. The story of all the rounds is in [the case study](../case-study.md). Earlier, round 6's [final status](#round-6-final-status-13-november-2026) and round 5's [audit](audit-2026-11-11.md), [design outline](../superpowers/specs/2026-11-11-polish-and-work-page-design.md) and [build plan](../superpowers/plans/2026-11-11-polish-and-work-page.md) record the work before it.
 
 ## Contents
 
@@ -16,7 +16,8 @@ Every round of feedback on the home page redesign, what changed in response, and
    - [Round 6: final status](#round-6-final-status-13-november-2026) (at the end)
    - [Round 7: feedback on the round 6 build](#round-7-feedback-on-the-round-6-build-2026-11-12) (at the end)
    - [Round 7: final status](#round-7-final-status-17-november-2026) (near the end)
-   - [The modern web pass: final status](#the-modern-web-pass-final-status-18-november-2026) (at the very end)
+   - [The modern web pass: final status](#the-modern-web-pass-final-status-18-november-2026) (near the end)
+   - [Release (18 November 2026)](#release-18-november-2026) (at the very end)
 7. [Decisions so far](#decisions-so-far)
 8. [Open questions](#open-questions)
 9. [Later, not now](#later-not-now)
@@ -822,6 +823,8 @@ The standing rule holds through the pass: polish must not change the look. Every
 
 ## Round 7: final status (17 November 2026)
 
+*Written on 17 November, before the release. Its statements that nothing is merged and that the main branch and the public link are still to come were true then; see [Release (18 November 2026)](#release-18-november-2026).*
+
 Round 7 is built, reviewed and joined into one branch. This section is the summary for someone who has not followed the build. It was written after the whole-branch review and its fix wave (R57.1) and before Task 32 (the page change's edge look that Aditya picked from the eleventh preview) and the modern web pass, so neither is in it; both are built since (Task 32 as R58 and PR #33, see the Build section; the pass in [The modern web pass: final status](#the-modern-web-pass-final-status-18-november-2026) below).
 
 **Where it is**
@@ -990,6 +993,8 @@ When this section was written: Task 32, then the modern web pass, then main and 
 
 ## The modern web pass: final status (18 November 2026)
 
+*Written on 18 November, before the release. Its statements that nothing is merged and that the release is still to come were true then; see [Release (18 November 2026)](#release-18-november-2026).*
+
 This is the summary for someone who has not followed the build. On 16 November he asked for three things, using the Modern Web Guidance skill: modernize legacy code, perform a security audit and suggest improvements, improve performance. On 17 November he answered "All together": the pass is done before the release, in one push, and the security fixes are applied on the coordinator's judgment and reported to him. The pass is built (R59, Tasks 33 to 36, branch `r7/r59-web-pass`) and goes up as one pull request on top of #33 (Task 32's). Nothing is merged and the public link still shows the old site. The look did not change: pictures before and after each task are the same (the home picks its painting at random; Tasks 33 and 34 tracked pictures of the home and My experience only, Tasks 35 and 36 of all five pages at three sizes). On the production build `yarn typecheck`, `yarn lint` and `yarn build` are clean and `yarn test` passes 2,561 tests in 187 files (round 7 ended at 2,476 in 174).
 
 The full write-ups are `security-audit-2026-11.md`, `performance-2026-11.md` and `modernize-2026-11.md` in this folder; the records (every number below) are in `compare/web-pass/`.
@@ -1030,3 +1035,32 @@ The full write-ups are `security-audit-2026-11.md`, `performance-2026-11.md` and
 **Next**
 
 The pass goes up as one pull request on top of #33. After it, in the order he set on 17 November: main and the public link (the release), the git tidy-up and the case study; all three are the coordinator's. The list above is what only he can do.
+
+## Release (18 November 2026)
+
+**What happened**
+
+- The modern web pass (Tasks 33 to 36, pull request #34) finished on 18 November.
+- Before the merge, commit `daac826` (R59.5) replaced the local folder path with `<repo>` in five `vitest.out` record files under `compare/web-pass/` (nothing else changed).
+- All 34 pull requests (the stack from `redesign/home` up to `r7/r59-web-pass`) were retargeted to `main` first, so GitHub shows all 34 as merged. The whole stack was then merged into `main` with one merge commit, `bb7198a`, "Release: the redesigned site (rounds 1 to 7 and the modern web pass)". `main` had one separate commit (`6ece176`, an edit to `README.md` only); the merge takes the stack's `README.md`.
+- The 35 merged branches were deleted on GitHub and locally; `main` is the only branch. No commit history was rewritten and nothing was force-pushed.
+- The site was deployed to production with the Vercel CLI from `main` and is live at https://fragtaco-portfolio.vercel.app.
+
+**Checks on the live site right after the deploy**
+
+- `/`, `/work` and `/experience` answer 200 and an unknown path answers 404.
+- The headers are present: `Content-Security-Policy` with a nonce and `strict-dynamic`, Trusted Types as report-only, `Strict-Transport-Security` for two years with `includeSubDomains` and `preload`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `Cross-Origin-Opener-Policy: same-origin-allow-popups` and `Reporting-Endpoints`.
+- A painting under `/paintings/` is served with `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`.
+- The page loads no Google Fonts host.
+- The home and the experience page loaded in a real browser with no console errors.
+
+**Settings**
+
+- The Vercel project has no environment variables set, so the page-view counter runs at its baseline (the code handles this: `app/lib/page-views.server.ts`). Setting `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` is the owner's job; the other items only he can do are in [The modern web pass: final status](#the-modern-web-pass-final-status-18-november-2026) and [the security audit](security-audit-2026-11.md).
+- Deploys are made by hand with the Vercel CLI, on the owner's go-ahead; as observed on 18 November 2026 there are no automatic deploys from GitHub.
+
+**Documentation after the release.** The README was rewritten for the released site, [the case study](../case-study.md) was written, and the index of this folder was brought up to date.
+
+**Next**
+
+A change to the list of hero paintings, waiting for the owner's signal.
