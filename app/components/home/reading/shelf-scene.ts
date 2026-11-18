@@ -49,13 +49,14 @@ export type RunSteps = (steps: Array<() => void>) => Promise<void>;
 const SPINE_RESIZE_MS = 140;
 
 /**
- * Books painted per step, and textures uploaded per step. A step is one idle callback. Three books were a task of 65 to 78 ms on a CPU 4 times
- * slower (a phone-class device; 25 ms on this machine at 1x); two are 57 to 67 ms there and cut the home's blocking time at 4x by 9 to 17 ms. One
- * book (40 to 44 ms, under the 50 ms line) cut it by 20 to 27 ms but the box drew its live scene about 30 ms later when it came on screen while the
- * shelf was still being built (14 idle steps instead of 7), so it is two (modern web pass, Task 35 and its fix round, ruling R142:
- * docs/redesign/performance-2026-11.md, section 3.2).
+ * Books painted per step, and textures uploaded per step. A step is one idle callback. Three books are a task of 65 to 78 ms on a CPU 4 times
+ * slower (a phone-class device; 25 ms on this machine). Measured against the clean build with the same code at 1 and at 2 (modern web pass,
+ * Task 35 and its fix round, ruling R142; docs/redesign/performance-2026-11.md section 3.2): one book (a 40 to 44 ms step) cut the home's blocking
+ * time at 4x by 20 to 27 ms but the box drew its live scene about 30 ms later when it came on screen while the shelf was being built; two books
+ * (57 to 67 ms) cut it by 9 to 17 ms and did not draw later, but failed the page change's 1920 by 1080 dropped-frame gate in 10 of 21 runs against
+ * 2 of 20 for three. So it stays three.
  */
-const BOOKS_PER_STEP = 2;
+const BOOKS_PER_STEP = 3;
 const UPLOADS_PER_STEP = 3;
 
 /**
