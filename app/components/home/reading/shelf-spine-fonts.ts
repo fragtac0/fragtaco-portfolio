@@ -53,7 +53,8 @@ export function fontCapDeadline(
 export function createFontCap(mountMs = OPEN_FONT_WAIT_MS, openMs = OPEN_FONT_LEG_MS): FontCap {
   let timer = 0;
   let done = false;
-  const { promise: reached, resolve } = Promise.withResolvers<void>();
+  let resolve: () => void = () => undefined;
+  const reached = new Promise<void>((r) => (resolve = r));
   let mountAt: number | null = null;
   let openAt: number | null = null;
   let isUrgent = false;
