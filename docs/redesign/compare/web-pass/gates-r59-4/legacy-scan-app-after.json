@@ -1,0 +1,44 @@
+{
+  "targetDir": "app",
+  "totalFindings": 1,
+  "guides": [
+    {
+      "guideId": "ime-safe-enter-submit",
+      "retrieveCommand": "npx modern-web-guidance retrieve ime-safe-enter-submit",
+      "count": 1,
+      "rules": [
+        {
+          "ruleId": "ime-safe-enter-submit",
+          "summary": "Flag keydown event listeners on inputs or textareas intercepting Enter (event.key or event.code \"Enter\") to submit forms, send messages, or trigger actions without checking event.isComposing or event.keyCode === 229, breaking IME input in CJK languages.",
+          "verifierRubric": {
+            "keepWhen": [
+              "Keydown event listeners on inputs or textareas checking event.key === \"Enter\" or event.code === \"Enter\" to trigger submission, search, or message sending without checking event.isComposing or event.keyCode === 229.",
+              "Custom enter-to-submit implementations intercepting Enter to call form.submit(), form.requestSubmit(), or trigger a click on a submit button without IME composition gating."
+            ],
+            "dropWhen": [
+              "Keyup or keypress event listeners (composition has already ended by keyup).",
+              "Handlers that check event.isComposing or event.keyCode === 229.",
+              "Handlers that detect Enter only through event.keyCode === 13 or event.which === 13 (the keydown that confirms an IME composition reports keyCode 229, so these never fire mid-composition).",
+              "Handlers strictly requiring modifier keys (Ctrl+Enter or Cmd+Enter) where IME character selection is not triggered.",
+              "Native form submit events or standard inputs inside a form with no custom Enter keydown listener (native Enter submission handles IME automatically).",
+              "Global document-level hotkeys, non-text UI widgets (buttons, menus, tabs, treeviews, dropdowns, modals, media players), or rich-text/code editor newline/indentation handlers rather than text-input submission."
+            ]
+          },
+          "count": 1,
+          "findings": [
+            {
+              "file": "components/home/watching/wall-input.ts",
+              "line": 85,
+              "message": "Keydown Enter listener triggers submission/action without checking event.isComposing or event.keyCode === 229 for IME composition safety",
+              "lineContent": "} else if (e.key === \"Enter\" && !h.locked() && document.activeElement === canvas) {"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "activeRuleCount": 52,
+  "activeGuideCount": 38,
+  "note": "Checked 38 guides (52 deterministic rules; ~20% of the guidance corpus). Finding 1 item here only reflects deterministic legacy patterns; use 'search <topic>' for the rest of the catalog.",
+  "skippedDocsAndTestsCount": 181
+}
