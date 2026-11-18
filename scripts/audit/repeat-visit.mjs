@@ -2,7 +2,7 @@
 // (a navigation, not a reload, so the HTTP cache is used the way a returning visitor's is), and the second load's requests are counted by how they
 // reached the server (the proxy's log: scripts/audit/vercel-headers-proxy.mjs, which BASE must point at) and how it answered (200, or 304 for a file
 // asked about again). A file the browser kept without asking does not reach the server at all.
-// usage: BASE=http://localhost:5181 node scripts/audit/repeat-visit.mjs <out.json> [runs=3] [pages=/,/work,...] [rtt note only]
+// usage: BASE=http://localhost:5181 node scripts/audit/repeat-visit.mjs <out.json> [runs=3] [pages=/,/work,...]
 import { writeFileSync } from "node:fs";
 import { launch, sleep } from "./chrome-lite.mjs";
 

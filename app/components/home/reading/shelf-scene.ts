@@ -49,11 +49,13 @@ export type RunSteps = (steps: Array<() => void>) => Promise<void>;
 const SPINE_RESIZE_MS = 140;
 
 /**
- * Books painted per step, and textures uploaded per step. One book a step: a step is one idle callback, and three books were 25 ms of work on
- * this machine and about 100 ms on a phone-class CPU (4 times slower), a frame of their own in the first second of the home page; one book
- * is a third of that (modern web pass, Task 35: docs/redesign/performance-2026-11.md).
+ * Books painted per step, and textures uploaded per step. A step is one idle callback. Three books were a task of 65 to 78 ms on a CPU 4 times
+ * slower (a phone-class device; 25 ms on this machine at 1x); two are 57 to 67 ms there and cut the home's blocking time at 4x by 9 to 17 ms. One
+ * book (40 to 44 ms, under the 50 ms line) cut it by 20 to 27 ms but the box drew its live scene about 30 ms later when it came on screen while the
+ * shelf was still being built (14 idle steps instead of 7), so it is two (modern web pass, Task 35 and its fix round, ruling R142:
+ * docs/redesign/performance-2026-11.md, section 3.2).
  */
-const BOOKS_PER_STEP = 1;
+const BOOKS_PER_STEP = 2;
 const UPLOADS_PER_STEP = 3;
 
 /**
@@ -189,7 +191,7 @@ export async function buildShelfScene(
         order: i,
       });
     };
-    // texture painting is spread over time, a few books at a time
+    // texture painting is spread over time, BOOKS_PER_STEP books at a time
     const bookSteps: Array<() => void> = [];
     for (let from = 0; from < books.length; from += BOOKS_PER_STEP) {
       bookSteps.push(() => {

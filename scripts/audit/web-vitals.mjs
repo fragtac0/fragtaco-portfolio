@@ -1,8 +1,9 @@
 // Web vitals of every page, cold cache, three runs per page and size (the baseline and the "after" records of the modern web pass).
 // usage: BASE=http://localhost:5180 node scripts/audit/web-vitals.mjs <out.json> [runs=3] [pages=/,/work,...]
-// Per run: LCP (and its element, and the font files drawn by then), CLS, total blocking time, the long animation frames of the first five
-// seconds with the scripts that ran in them, requests and bytes by origin and by type, whether the page comes back from the back/forward
-// cache (and why not), and the machine's load average. Hold the timing lock (lanes-common.md) for the numbers to mean anything.
+// Per run: LCP (and its element, and the font files drawn by then), CLS, total blocking time (long tasks after first paint inside the first five
+// seconds), the long animation frames of the first five seconds with the scripts that ran in them, requests and bytes by origin and by type (every
+// http(s) request until SETTLE_MS, 5.6 s, counted before the back/forward round trip), whether the page comes back from the back/forward cache
+// (and why not), and the machine's load average. Hold the timing lock (lanes-common.md) for the numbers to mean anything.
 import { writeFileSync } from "node:fs";
 import { loadavg } from "node:os";
 import { launch, sleep } from "./chrome-lite.mjs";
@@ -97,13 +98,15 @@ async function oneRun(page, size) {
     const byOrigin = {};
     const byType = {};
     const failed = [];
+    let total = 0; // the http(s) requests of the load, counted here, before the page is left and re-entered (a back/forward round trip adds its own)
     for (const r of reqs.values()) {
       if (!/^https?:/.test(r.url)) continue;
+      total += 1;
       bump(byOrigin, new URL(r.url).origin, r.bytes);
       bump(byType, r.type, r.bytes);
       if (r.failed) failed.push(r.url.slice(0, 120) + " " + r.failed);
     }
-    // the biggest requests of the page's first five seconds (origin and path only), what the first screen is made of
+    // the biggest requests of the load up to SETTLE_MS (5.6 s, so "the first five seconds" plus the settle: no request is cut by its start time), origin and path only, what the first screen is made of
     const largest = [...reqs.values()]
       .filter((r) => /^https?:/.test(r.url) && r.bytes > 0)
       .sort((x, y) => y.bytes - x.bytes)
@@ -128,7 +131,7 @@ async function oneRun(page, size) {
       longFrames: w.frames.filter((f) => f.startMs <= WINDOW_MS),
       fontsAtLcp: w.fontsAtLcp,
       fontFiles, headingFamilies: w.headingFamilies, bodyFamily: w.bodyFamily,
-      requests: { byOrigin, byType, total: reqs.size, failed, largest },
+      requests: { byOrigin, byType, total, failed, largest },
       counter,
       bfcache: { restored, reasons: [...new Set(bfNotUsed)] },
       loadAverage: round(load, 2),

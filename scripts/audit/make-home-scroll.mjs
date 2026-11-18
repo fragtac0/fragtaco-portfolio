@@ -1,5 +1,5 @@
 // Writes scripts/audit/home-scroll.json (R55.3, Task 26): the cost of two live home boxes, on the production build.
-// Run: node scripts/audit/make-home-scroll.mjs [--only <profile>] [--holds] [--out <file>]
+// Run: node scripts/audit/make-home-scroll.mjs [--only <profile>] [--holds | --cold] [--out <file>]
 //   then BASE=http://localhost:5181 node scripts/audit/cdp.mjs scripts/audit/home-scroll.json <outdir outside the repo>
 //   then node scripts/audit/sum-home-scroll.mjs <the cdp output files> (reads the lines, applies the gate below).
 // Run it inside the gate lock (the 34 ms gates are timing sensitive). With `--only` and `--out` it writes one profile to a file of its own so a run stays short.
@@ -39,6 +39,7 @@ import { writeFileSync } from "node:fs";
 const args = process.argv.slice(2);
 const only = args.includes("--only") ? args[args.indexOf("--only") + 1] : null;
 const holdsOnly = args.includes("--holds");
+const coldOnly = args.includes("--cold"); // only the cold pass of each run (about 45 s a run: the scenes' first arrival), no warm passes and no holds
 const outFile = args.includes("--out") ? args[args.indexOf("--out") + 1] : new URL("./home-scroll.json", import.meta.url).pathname;
 
 // The recorder, in every document from its start: each animation frame's time, gap and scroll position; the hero's caption (it changes when a painting change starts);
@@ -159,6 +160,10 @@ for (const p of PROFILES) {
     });
     if (!first) steps.push({ go: "{{BASE}}/", wait: 9000 });
     steps.push({ eval: "({run:" + run + ",profile:'" + p.name + "',scrollHeight:document.documentElement.scrollHeight,boxes:[...document.querySelectorAll('" + BOX + "')].map(e=>{const r=e.getBoundingClientRect();return [r.left|0,(r.top+scrollY)|0,r.width|0,r.height|0]}),hero:document.querySelector('#hero').offsetHeight,viewport:[innerWidth,innerHeight],dpr:devicePixelRatio})", label: `${p.name} run ${run}: the page` });
+    if (coldOnly) {
+      steps.push(...pass(p, run, "cold", p.slow));
+      continue;
+    }
     if (!holdsOnly) {
       steps.push(...pass(p, run, "cold", p.slow));
       steps.push({ wait: 1500 });

@@ -58,20 +58,24 @@ function analyse(events, navStartTs) {
     const top = (o, n = 8) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, n).map(([k, v]) => `${k} ${v.toFixed(1)}`);
     report.push({ startMs: Math.round((t.ts - navStartTs) / 1000), durMs: Math.round(t.dur / 1000), byEvent: top(byName, 10), byScript: top(scripts) });
   }
-  // sampler: self time by function inside each long task
-  const chunks = events.filter((e) => e.name === "ProfileChunk" && e.pid === pid);
-  const nodes = new Map();
-  for (const c of chunks) for (const n of c.args?.data?.cpuProfile?.nodes ?? []) nodes.set(n.id, n);
+  // sampler: self time by function inside each long task.
+  // A ProfileChunk has no start time of its own: the profile's `startTime` is on the `Profile` event with the same pid and id, and the
+  // `timeDeltas` run on across that profile's chunks in order (the chunk's own `ts` is when it was emitted, after its samples). Nodes
+  // are keyed by the profile id too, since two profiles (the main thread and a worker) may both number their nodes from 1.
+  const profiles = new Map();
+  for (const e of events) if (e.name === "Profile" && e.pid === pid && e.tid === tid) profiles.set(e.id, { ts: e.args?.data?.startTime ?? e.ts, nodes: new Map() });
+  const chunks = events.filter((e) => e.name === "ProfileChunk" && e.pid === pid && profiles.has(e.id)).sort((a, b) => a.ts - b.ts);
+  for (const c of chunks) for (const n of c.args?.data?.cpuProfile?.nodes ?? []) profiles.get(c.id).nodes.set(n.id, n);
   const perTask = tasks.map(() => ({}));
   for (const c of chunks) {
+    const prof = profiles.get(c.id);
     const cp = c.args?.data?.cpuProfile;
     const dt = c.args?.data?.timeDeltas ?? [];
-    let ts = c.args?.data?.startTime ?? c.ts;
     (cp?.samples ?? []).forEach((id, i) => {
-      ts += dt[i] ?? 0;
-      const k = tasks.findIndex((t) => ts >= t.ts && ts <= t.ts + t.dur);
+      prof.ts += dt[i] ?? 0;
+      const k = tasks.findIndex((t) => prof.ts >= t.ts && prof.ts <= t.ts + t.dur);
       if (k < 0) return;
-      const cf = nodes.get(id)?.callFrame;
+      const cf = prof.nodes.get(id)?.callFrame;
       if (!cf) return;
       const key = `${cf.functionName || "(anon)"} ${short(cf.url)}:${cf.lineNumber}:${cf.columnNumber}`;
       perTask[k][key] = (perTask[k][key] ?? 0) + (dt[i] ?? 0) / 1000;
@@ -96,6 +100,15 @@ const ENGINE_HOOK = `(() => {
     set: (e) => { v = e; for (const k of ["shelf", "wall"]) { const o = e && e[k]; if (!o || !o.prepare) continue; const orig = o.prepare.bind(o);
       o.prepare = () => { log[k] ??= { calledMs: Math.round(performance.now()) }; const p = orig(); if (!log[k].doneMs) p.then(() => (log[k].doneMs ??= Math.round(performance.now()))); return p; }; } } });
 })()`;
+
+// REANALYSE=<trace file written by DUMP=...>: read a saved trace again with the current analysis (no browser), print the tasks and stop
+if (process.env.REANALYSE) {
+  const events = JSON.parse((await import("node:fs")).readFileSync(process.env.REANALYSE, "utf8"));
+  const nav = events.find((e) => e.name === "navigationStart" && e.args?.data?.documentLoaderURL?.startsWith("http")) ?? events.find((e) => e.name === "navigationStart");
+  const a = analyse(events, nav?.ts ?? 0);
+  for (const t of a.tasks) console.log(`task at ${t.startMs} ms, ${t.durMs} ms:`, t.byEvent.slice(0, 4).join(" | "), "\n    sampler: " + (t.topFunctions ?? []).join(" | "));
+  process.exit(0);
+}
 
 const runs = [];
 for (let i = 0; i < RUNS; i++) {
