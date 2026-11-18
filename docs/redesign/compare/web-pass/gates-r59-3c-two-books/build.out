@@ -1,0 +1,237 @@
+yarn run v1.22.22
+$ dotenv -e .env.local -- remix vite:build
+[warn] Fetcher persistence behavior is changing in React Router v7
+┃ You can use the `v3_fetcherPersist` future flag to opt-in early.
+┃ -> https://remix.run/docs/en/2.13.1/start/future-flags#v3_fetcherPersist
+┗
+[warn] Route discovery/manifest behavior is changing in React Router v7
+┃ You can use the `v3_lazyRouteDiscovery` future flag to opt-in early.
+┃ -> https://remix.run/docs/en/2.13.1/start/future-flags#v3_lazyRouteDiscovery
+┗
+[warn] Relative routing behavior for splat routes is changing in React Router v7
+┃ You can use the `v3_relativeSplatPath` future flag to opt-in early.
+┃ -> https://remix.run/docs/en/2.13.1/start/future-flags#v3_relativeSplatPath
+┗
+[warn] Data fetching is changing to a single fetch in React Router v7
+┃ You can use the `v3_singleFetch` future flag to opt-in early.
+┃ -> https://remix.run/docs/en/2.13.1/start/future-flags#v3_singleFetch
+┗
+[warn] The format of errors thrown on aborted requests is changing in React Router v7
+┃ You can use the `v3_throwAbortReason` future flag to opt-in early.
+┃ -> https://remix.run/docs/en/2.13.1/start/future-flags#v3_throwAbortReason
+┗
+vite v6.4.6 building for production...
+transforming...
+✓ 792 modules transformed.
+Generated an empty chunk: "api.csp-report".
+Generated an empty chunk: "api.page-view".
+Generated an empty chunk: "timeline".
+rendering chunks...
+computing gzip size...
+build/client/assets/unbounded-cyrillic-ext-wght-normal-2qyXmZWE.woff2       1.84 kB
+build/client/assets/doto-latin-ext-wght-normal-BuEMryYU.woff2               3.90 kB
+build/client/assets/tektur-vietnamese-wght-normal-Dpof5Foi.woff2            4.89 kB
+build/client/assets/doto-latin-wght-normal-DtlIPefW.woff2                   5.36 kB
+build/client/assets/tektur-greek-wght-normal-BUoXMlLt.woff2                 5.78 kB
+build/client/assets/ibm-plex-mono-vietnamese-400-normal-BulugwFq.woff2      5.87 kB
+build/client/assets/tektur-cyrillic-ext-wght-normal-DlRtn-00.woff2          6.00 kB
+build/client/assets/ibm-plex-mono-vietnamese-500-normal-DZ4AoWbu.woff2      6.04 kB
+build/client/assets/space-grotesk-vietnamese-wght-normal-D0rl6rjA.woff2     6.71 kB
+build/client/assets/ibm-plex-mono-cyrillic-ext-400-normal-xuaO2J-f.woff2    6.91 kB
+build/client/assets/ibm-plex-mono-vietnamese-600-normal-D2EvbN8M.woff2      6.93 kB
+build/client/assets/ibm-plex-mono-cyrillic-ext-500-normal-BqneJy0T.woff2    6.97 kB
+build/client/assets/space-mono-vietnamese-400-normal-BNOj0Qhp.woff2         7.27 kB
+build/client/assets/space-mono-vietnamese-700-normal-DWQgDHuA.woff2         7.33 kB
+build/client/assets/ibm-plex-mono-cyrillic-ext-600-normal-V-xxqcpd.woff2    7.69 kB
+build/client/assets/ibm-plex-mono-cyrillic-400-normal-BSMlKf0J.woff2        8.36 kB
+build/client/assets/ibm-plex-mono-cyrillic-500-normal-Bq9vWWag.woff2        8.46 kB
+build/client/assets/tektur-cyrillic-wght-normal-wOsy8a45.woff2              8.66 kB
+build/client/assets/lora-vietnamese-wght-normal-CfJ7gtf3.woff2              8.99 kB
+build/client/assets/ibm-plex-mono-cyrillic-600-normal-CTOM6hUh.woff2        9.35 kB
+build/client/assets/space-mono-vietnamese-400-italic-CyQIvI4V.woff2         9.69 kB
+build/client/assets/tektur-latin-wght-normal-CmqEKeAT.woff2                12.15 kB
+build/client/assets/ibm-plex-mono-latin-ext-400-normal-BmRBH3aV.woff2      13.35 kB
+build/client/assets/ibm-plex-mono-latin-ext-500-normal-CAhNIIs5.woff2      13.43 kB
+build/client/assets/unbounded-vietnamese-wght-normal-rat7GD3o.woff2        13.88 kB
+build/client/assets/ibm-plex-mono-latin-ext-600-normal-D38SheWl.woff2      14.33 kB
+build/client/assets/tektur-latin-ext-wght-normal-CPxmWgC0.woff2            14.70 kB
+build/client/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2          14.71 kB
+build/client/assets/ibm-plex-mono-latin-500-normal-DSY6xOcd.woff2          14.89 kB
+build/client/assets/ibm-plex-mono-latin-600-normal-BgSNZQsw.woff2          15.62 kB
+build/client/assets/space-mono-latin-ext-700-normal-B2s3bDs2.woff2         15.81 kB
+build/client/assets/space-mono-latin-ext-400-normal-DTLbW2xa.woff2         15.83 kB
+build/client/assets/space-mono-latin-400-normal-Rg4St2Dn.woff2             16.52 kB
+build/client/assets/space-mono-latin-700-normal-mWgeinG7.woff2             16.72 kB
+build/client/assets/space-mono-latin-ext-400-italic-x3PrlAeq.woff2         17.20 kB
+build/client/assets/lora-symbols-wght-normal-DQ5VrUkH.woff2                17.25 kB
+build/client/assets/young-serif-latin-ext-400-normal-DzElnxZw.woff2        17.27 kB
+build/client/assets/space-mono-latin-400-italic-YylcN9Ay.woff2             18.30 kB
+build/client/assets/space-grotesk-latin-ext-wght-normal-D9tNdqV9.woff2     18.94 kB
+build/client/assets/lora-latin-ext-wght-normal-C2Wlntb9.woff2              20.09 kB
+build/client/assets/lora-cyrillic-wght-normal-UWPuZLjM.woff2               21.23 kB
+build/client/assets/space-grotesk-latin-wght-normal-BhU9QXUp.woff2         22.29 kB
+build/client/assets/lora-cyrillic-ext-wght-normal-YcVxMP-u.woff2           23.64 kB
+build/client/assets/bodoni-moda-latin-ext-opsz-normal-CoJBavOu.woff2       25.02 kB
+build/client/assets/bodoni-moda-symbols-opsz-normal-d21etpfE.woff2         26.04 kB
+build/client/assets/young-serif-latin-400-normal-DIMmNPI9.woff2            26.99 kB
+build/client/assets/newsreader-vietnamese-opsz-normal-BjhtXyW2.woff2       27.25 kB
+build/client/assets/newsreader-vietnamese-opsz-italic-DTr-ymY4.woff2       27.90 kB
+build/client/assets/bodoni-moda-latin-ext-opsz-italic-QSGu6YSm.woff2       28.20 kB
+build/client/assets/lora-math-wght-normal-sOy7rEfW.woff2                   29.24 kB
+build/client/assets/unbounded-cyrillic-wght-normal-C627f1f8.woff2          31.42 kB
+build/client/assets/bodoni-moda-symbols-opsz-italic-cRdvdvM-.woff2         32.49 kB
+build/client/.vite/manifest.json                                           33.19 kB │ gzip:   3.46 kB
+build/client/assets/archivo-vietnamese-wdth-normal-rJmnGBSt.woff2          34.46 kB
+build/client/assets/lora-latin-wght-normal-BiLcIKcI.woff2                  37.79 kB
+build/client/assets/archivo-vietnamese-wdth-italic-DS6JCx7O.woff2          38.44 kB
+build/client/assets/bodoni-moda-math-opsz-normal-CbZAXtrh.woff2            39.16 kB
+build/client/assets/bodoni-moda-latin-opsz-normal-X2BzlAjV.woff2           46.26 kB
+build/client/assets/bodoni-moda-math-opsz-italic-CGdm0Lr_.woff2            46.62 kB
+build/client/assets/unbounded-latin-wght-normal-D5afBTBx.woff2             50.90 kB
+build/client/assets/bodoni-moda-latin-opsz-italic-BCRrlh7t.woff2           53.76 kB
+build/client/assets/archivo-latin-ext-wdth-normal-7khWdh9v.woff2           86.24 kB
+build/client/assets/newsreader-latin-ext-opsz-normal-BQn1nviT.woff2        86.61 kB
+build/client/assets/archivo-latin-wdth-normal-DY7AcnAa.woff2               90.10 kB
+build/client/assets/archivo-latin-ext-wdth-italic-Cq9u_6Zz.woff2           93.14 kB
+build/client/assets/newsreader-latin-ext-opsz-italic-CSPGnFdO.woff2        95.54 kB
+build/client/assets/archivo-latin-wdth-italic-BuvkOFDm.woff2              101.68 kB
+build/client/assets/unbounded-latin-ext-wght-normal-D6H-S6MW.woff2        118.35 kB
+build/client/assets/newsreader-latin-opsz-normal-s-izfB6B.woff2           132.00 kB
+build/client/assets/newsreader-latin-opsz-italic-kJKFiXvB.woff2           146.87 kB
+build/client/assets/page-transition-UAF_OXkB.css                            0.65 kB │ gzip:   0.28 kB
+build/client/assets/context-lost-BzhfsUJ9.css                               0.73 kB │ gzip:   0.37 kB
+build/client/assets/eclipse-ground-B2t7s-ci.css                             1.43 kB │ gzip:   0.62 kB
+build/client/assets/tokens-BiY3OLoz.css                                     3.19 kB │ gzip:   1.36 kB
+build/client/assets/glass-DnhJQ6Je.css                                      3.46 kB │ gzip:   0.65 kB
+build/client/assets/wall-page-Ofik0jLY.css                                  3.68 kB │ gzip:   1.22 kB
+build/client/assets/work-DVgqT9RS.css                                       5.87 kB │ gzip:   1.77 kB
+build/client/assets/fonts-spine-B0sQ2u1E.css                               13.96 kB │ gzip:   1.96 kB
+build/client/assets/fonts-interface-BxyWW5mq.css                           13.96 kB │ gzip:   2.06 kB
+build/client/assets/experience-CKBAmt05.css                                14.05 kB │ gzip:   3.49 kB
+build/client/assets/tailwind-CLLm9Vr3.css                                  22.80 kB │ gzip:   4.95 kB
+build/client/assets/_index-C1cQZ4-w.css                                    34.77 kB │ gzip:   7.02 kB
+build/client/assets/api.csp-report-l0sNRNKZ.js                              0.00 kB │ gzip:   0.02 kB
+build/client/assets/api.page-view-l0sNRNKZ.js                               0.00 kB │ gzip:   0.02 kB
+build/client/assets/timeline-l0sNRNKZ.js                                    0.00 kB │ gzip:   0.02 kB
+build/client/assets/shuffle-njjAD8y5.js                                     0.31 kB │ gzip:   0.24 kB
+build/client/assets/use-reduced-motion-CQSBb3h0.js                          0.31 kB │ gzip:   0.22 kB
+build/client/assets/work-shell-0lvcwMD2.js                                  0.41 kB │ gzip:   0.30 kB
+build/client/assets/work-BNSmB2PN.js                                        0.43 kB │ gzip:   0.29 kB
+build/client/assets/work.long-form-DeLbg9nm.js                              0.51 kB │ gzip:   0.35 kB
+build/client/assets/work.short-form-BtYIHesW.js                             0.52 kB │ gzip:   0.35 kB
+build/client/assets/context-lost-CRuf5OF7.js                                0.73 kB │ gzip:   0.47 kB
+build/client/assets/change-finish-Bv8_osm6.js                               0.84 kB │ gzip:   0.52 kB
+build/client/assets/keep-out-CsmOuWO6.js                                    0.99 kB │ gzip:   0.61 kB
+build/client/assets/work-switcher-AhYCvknN.js                               1.14 kB │ gzip:   0.67 kB
+build/client/assets/preload-helper-ckwbz45p.js                              1.14 kB │ gzip:   0.66 kB
+build/client/assets/idle-DPbmfofZ.js                                        1.32 kB │ gzip:   0.68 kB
+build/client/assets/work-Dy1RLExV.js                                        2.09 kB │ gzip:   1.21 kB
+build/client/assets/use-page-settled-DtGUQnXH.js                            2.69 kB │ gzip:   1.34 kB
+build/client/assets/intro-session-FCyBlZMT.js                               3.13 kB │ gzip:   1.51 kB
+build/client/assets/entry.client-OFQ5YKOy.js                                3.83 kB │ gzip:   1.45 kB
+build/client/assets/eclipse-engine-2qWhtGkl.js                              4.55 kB │ gzip:   2.30 kB
+build/client/assets/root-DUKm9W27.js                                        6.42 kB │ gzip:   3.01 kB
+build/client/assets/work._index-C0TF15Fm.js                                12.00 kB │ gzip:   5.11 kB
+build/client/assets/page-change-D-rRcFQl.js                                24.25 kB │ gzip:   9.52 kB
+build/client/assets/wall-page-BPaOsjIy.js                                  26.39 kB │ gzip:  10.92 kB
+build/client/assets/experience-UjyPB4Bn.js                                 56.89 kB │ gzip:  23.50 kB
+build/client/assets/eclipse-ground-3VqzLK6-.js                            141.56 kB │ gzip:  47.50 kB
+build/client/assets/_index-DKQ1njL3.js                                    187.77 kB │ gzip:  71.58 kB
+build/client/assets/components-KaAGY9VR.js                                258.08 kB │ gzip:  83.35 kB
+build/client/assets/three.module-D5rf0S9N.js                              684.15 kB │ gzip: 175.82 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.15s
+vite v6.4.6 building SSR bundle for production...
+transforming...
+✓ 298 modules transformed.
+rendering chunks...
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/unbounded-cyrillic-ext-wght-normal-2qyXmZWE.woff2       1.84 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/doto-latin-ext-wght-normal-BuEMryYU.woff2               3.90 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/tektur-vietnamese-wght-normal-Dpof5Foi.woff2            4.89 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/doto-latin-wght-normal-DtlIPefW.woff2                   5.36 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/tektur-greek-wght-normal-BUoXMlLt.woff2                 5.78 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-vietnamese-400-normal-BulugwFq.woff2      5.87 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/tektur-cyrillic-ext-wght-normal-DlRtn-00.woff2          6.00 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-vietnamese-500-normal-DZ4AoWbu.woff2      6.04 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-grotesk-vietnamese-wght-normal-D0rl6rjA.woff2     6.71 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-cyrillic-ext-400-normal-xuaO2J-f.woff2    6.91 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-vietnamese-600-normal-D2EvbN8M.woff2      6.93 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-cyrillic-ext-500-normal-BqneJy0T.woff2    6.97 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-mono-vietnamese-400-normal-BNOj0Qhp.woff2         7.27 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-mono-vietnamese-700-normal-DWQgDHuA.woff2         7.33 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-cyrillic-ext-600-normal-V-xxqcpd.woff2    7.69 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-cyrillic-400-normal-BSMlKf0J.woff2        8.36 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-cyrillic-500-normal-Bq9vWWag.woff2        8.46 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/tektur-cyrillic-wght-normal-wOsy8a45.woff2              8.66 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/lora-vietnamese-wght-normal-CfJ7gtf3.woff2              8.99 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-cyrillic-600-normal-CTOM6hUh.woff2        9.35 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-mono-vietnamese-400-italic-CyQIvI4V.woff2         9.69 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/tektur-latin-wght-normal-CmqEKeAT.woff2                12.15 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-latin-ext-400-normal-BmRBH3aV.woff2      13.35 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-latin-ext-500-normal-CAhNIIs5.woff2      13.43 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/unbounded-vietnamese-wght-normal-rat7GD3o.woff2        13.88 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-latin-ext-600-normal-D38SheWl.woff2      14.33 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/tektur-latin-ext-wght-normal-CPxmWgC0.woff2            14.70 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2          14.71 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-latin-500-normal-DSY6xOcd.woff2          14.89 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/ibm-plex-mono-latin-600-normal-BgSNZQsw.woff2          15.62 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-mono-latin-ext-700-normal-B2s3bDs2.woff2         15.81 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-mono-latin-ext-400-normal-DTLbW2xa.woff2         15.83 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-mono-latin-400-normal-Rg4St2Dn.woff2             16.52 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-mono-latin-700-normal-mWgeinG7.woff2             16.72 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-mono-latin-ext-400-italic-x3PrlAeq.woff2         17.20 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/lora-symbols-wght-normal-DQ5VrUkH.woff2                17.25 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/young-serif-latin-ext-400-normal-DzElnxZw.woff2        17.27 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-mono-latin-400-italic-YylcN9Ay.woff2             18.30 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-grotesk-latin-ext-wght-normal-D9tNdqV9.woff2     18.94 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/lora-latin-ext-wght-normal-C2Wlntb9.woff2              20.09 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/lora-cyrillic-wght-normal-UWPuZLjM.woff2               21.23 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/space-grotesk-latin-wght-normal-BhU9QXUp.woff2         22.29 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/lora-cyrillic-ext-wght-normal-YcVxMP-u.woff2           23.64 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/bodoni-moda-latin-ext-opsz-normal-CoJBavOu.woff2       25.02 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/.vite/manifest.json                                           25.03 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/bodoni-moda-symbols-opsz-normal-d21etpfE.woff2         26.04 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/young-serif-latin-400-normal-DIMmNPI9.woff2            26.99 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/newsreader-vietnamese-opsz-normal-BjhtXyW2.woff2       27.25 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/newsreader-vietnamese-opsz-italic-DTr-ymY4.woff2       27.90 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/bodoni-moda-latin-ext-opsz-italic-QSGu6YSm.woff2       28.20 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/lora-math-wght-normal-sOy7rEfW.woff2                   29.24 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/unbounded-cyrillic-wght-normal-C627f1f8.woff2          31.42 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/bodoni-moda-symbols-opsz-italic-cRdvdvM-.woff2         32.49 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/archivo-vietnamese-wdth-normal-rJmnGBSt.woff2          34.46 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/lora-latin-wght-normal-BiLcIKcI.woff2                  37.79 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/archivo-vietnamese-wdth-italic-DS6JCx7O.woff2          38.44 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/bodoni-moda-math-opsz-normal-CbZAXtrh.woff2            39.16 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/bodoni-moda-latin-opsz-normal-X2BzlAjV.woff2           46.26 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/bodoni-moda-math-opsz-italic-CGdm0Lr_.woff2            46.62 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/unbounded-latin-wght-normal-D5afBTBx.woff2             50.90 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/bodoni-moda-latin-opsz-italic-BCRrlh7t.woff2           53.76 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/archivo-latin-ext-wdth-normal-7khWdh9v.woff2           86.24 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/newsreader-latin-ext-opsz-normal-BQn1nviT.woff2        86.61 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/archivo-latin-wdth-normal-DY7AcnAa.woff2               90.10 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/archivo-latin-ext-wdth-italic-Cq9u_6Zz.woff2           93.14 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/newsreader-latin-ext-opsz-italic-CSPGnFdO.woff2        95.54 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/archivo-latin-wdth-italic-BuvkOFDm.woff2              101.68 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/unbounded-latin-ext-wght-normal-D6H-S6MW.woff2        118.35 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/newsreader-latin-opsz-normal-s-izfB6B.woff2           132.00 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/newsreader-latin-opsz-italic-kJKFiXvB.woff2           146.87 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/page-transition-UAF_OXkB.css                            0.65 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/tokens-BiY3OLoz.css                                     3.19 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/glass-DnhJQ6Je.css                                      3.46 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/fonts-spine-B0sQ2u1E.css                               13.96 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/fonts-interface-BxyWW5mq.css                           13.96 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/tailwind-CLLm9Vr3.css                                  22.80 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/server-build-5ZCtlvBG.css                              60.52 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/index.js                                                       0.61 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/eclipse-engine-CWp5JKEe.js                              6.82 kB
+build/server/nodejs-eyJydW50aW1lIjoibm9kZWpzIn0/assets/server-build-CP-1zoK-.js                              615.92 kB
+
+✓ 1 asset moved from Remix server build to client assets.
+build/client/assets/server-build-5ZCtlvBG.css
+
+✓ built in 532ms
+Done in 3.72s.

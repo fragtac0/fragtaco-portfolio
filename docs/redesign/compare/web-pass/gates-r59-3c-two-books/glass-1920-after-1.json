@@ -1,0 +1,233 @@
+{
+ "label": "after-1",
+ "base": "http://localhost:5180",
+ "size": "1920x1080@1",
+ "ready": "glass-warm",
+ "gate": {
+  "rendererCompositorMs": 450,
+  "vizCompositorMs": 300
+ },
+ "runs": [
+  {
+   "run": 1,
+   "windowMs": 2332,
+   "rendererCompositorMs": 337,
+   "vizCompositorMs": 231,
+   "gpuMainMs": 686,
+   "rendererMainMs": 213,
+   "gpuMainSelfMs": 345,
+   "gpuMainWaitMs": 117,
+   "gpuMainWorkMs": 228,
+   "gpuMainTop": [
+    {
+     "name": "IOSurfaceImageBacking::WaitForCommandsToBeScheduled::Dawn",
+     "ms": 114,
+     "count": 142,
+     "maxMs": 20
+    },
+    {
+     "name": "SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass",
+     "ms": 98,
+     "count": 882,
+     "maxMs": 0
+    },
+    {
+     "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+     "ms": 50,
+     "count": 1231,
+     "maxMs": 2
+    },
+    {
+     "name": "Scheduler::RunTask",
+     "ms": 14,
+     "count": 1451,
+     "maxMs": 0
+    },
+    {
+     "name": "RasterDecoderImpl::DoRasterCHROMIUM::Deserializing",
+     "ms": 11,
+     "count": 1231,
+     "maxMs": 1
+    }
+   ],
+   "presented": 139,
+   "dropped": 1,
+   "droppedAfterFirst": 0,
+   "droppedFrames": [
+    {
+     "fromClickMs": 38,
+     "fromStartMs": 31,
+     "firstFrame": true,
+     "state": "STATE_DROPPED"
+    }
+   ],
+   "loadAverage": [
+    5.11,
+    5.23,
+    5.07
+   ],
+   "states": {
+    "STATE_PRESENTED_ALL": 139,
+    "STATE_DROPPED": 1,
+    "STATE_NO_UPDATE_DESIRED": 1
+   },
+   "change": {
+    "changeMs": 2333,
+    "rafFrames": 139,
+    "bend": "bend",
+    "glassAttr": "",
+    "fallback": false
+   },
+   "pass": true
+  },
+  {
+   "run": 2,
+   "windowMs": 2330,
+   "rendererCompositorMs": 308,
+   "vizCompositorMs": 202,
+   "gpuMainMs": 596,
+   "rendererMainMs": 210,
+   "gpuMainSelfMs": 300,
+   "gpuMainWaitMs": 86,
+   "gpuMainWorkMs": 214,
+   "gpuMainTop": [
+    {
+     "name": "SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass",
+     "ms": 91,
+     "count": 883,
+     "maxMs": 4
+    },
+    {
+     "name": "IOSurfaceImageBacking::WaitForCommandsToBeScheduled::Dawn",
+     "ms": 84,
+     "count": 142,
+     "maxMs": 14
+    },
+    {
+     "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+     "ms": 46,
+     "count": 1220,
+     "maxMs": 2
+    },
+    {
+     "name": "Scheduler::RunTask",
+     "ms": 12,
+     "count": 1417,
+     "maxMs": 0
+    },
+    {
+     "name": "CommitPresentedFrameToCA",
+     "ms": 10,
+     "count": 139,
+     "maxMs": 1
+    }
+   ],
+   "presented": 138,
+   "dropped": 2,
+   "droppedAfterFirst": 1,
+   "droppedFrames": [
+    {
+     "fromClickMs": 31,
+     "fromStartMs": 13,
+     "firstFrame": true,
+     "state": "STATE_DROPPED"
+    },
+    {
+     "fromClickMs": 47,
+     "fromStartMs": 29,
+     "firstFrame": false,
+     "state": "STATE_DROPPED"
+    }
+   ],
+   "loadAverage": [
+    4.8,
+    5.15,
+    5.05
+   ],
+   "states": {
+    "STATE_DROPPED": 2,
+    "STATE_PRESENTED_ALL": 138
+   },
+   "change": {
+    "changeMs": 2333,
+    "rafFrames": 138,
+    "bend": "bend",
+    "glassAttr": "",
+    "fallback": false
+   },
+   "pass": false
+  },
+  {
+   "run": 3,
+   "windowMs": 2330,
+   "rendererCompositorMs": 344,
+   "vizCompositorMs": 218,
+   "gpuMainMs": 763,
+   "rendererMainMs": 213,
+   "gpuMainSelfMs": 384,
+   "gpuMainWaitMs": 161,
+   "gpuMainWorkMs": 222,
+   "gpuMainTop": [
+    {
+     "name": "IOSurfaceImageBacking::WaitForCommandsToBeScheduled::Dawn",
+     "ms": 160,
+     "count": 143,
+     "maxMs": 18
+    },
+    {
+     "name": "SkiaOutputSurfaceImplOnGpu::FinishPaintRenderPass",
+     "ms": 94,
+     "count": 888,
+     "maxMs": 0
+    },
+    {
+     "name": "RasterDecoderImpl::DoEndRasterCHROMIUM::Flush",
+     "ms": 49,
+     "count": 1238,
+     "maxMs": 0
+    },
+    {
+     "name": "Scheduler::RunTask",
+     "ms": 14,
+     "count": 1418,
+     "maxMs": 0
+    },
+    {
+     "name": "CommitPresentedFrameToCA",
+     "ms": 10,
+     "count": 140,
+     "maxMs": 0
+    }
+   ],
+   "presented": 140,
+   "dropped": 1,
+   "droppedAfterFirst": 0,
+   "droppedFrames": [
+    {
+     "fromClickMs": 23,
+     "fromStartMs": 13,
+     "firstFrame": true,
+     "state": "STATE_DROPPED"
+    }
+   ],
+   "loadAverage": [
+    5.21,
+    5.22,
+    5.08
+   ],
+   "states": {
+    "STATE_DROPPED": 1,
+    "STATE_PRESENTED_ALL": 140
+   },
+   "change": {
+    "changeMs": 2333,
+    "rafFrames": 139,
+    "bend": "bend",
+    "glassAttr": "",
+    "fallback": false
+   },
+   "pass": true
+  }
+ ],
+ "pass": false
+}
